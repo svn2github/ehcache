@@ -111,7 +111,7 @@ public class AppEngineCacheLoader implements CacheLoader {
     /**
      * {@inheritDoc}
      */
-    public <T> Map<T,Object> loadAll(Collection<T> keys) {
+    public /*<T>*/ Map/*<T,Object>*/ loadAll(Collection/*<T>*/ keys) {
         return memCache.getAll(keys);
     }
 
@@ -119,7 +119,7 @@ public class AppEngineCacheLoader implements CacheLoader {
      * {@inheritDoc}
      * @param argument <em>not used!</em>
      */
-    public <T> Map<T,Object> loadAll(Collection<T> keys, Object argument) {
+    public /*<T>*/ Map/*<T,Object>*/ loadAll(Collection/*<T>*/ keys, Object argument) {
         return loadAll(keys);
     }
 }
