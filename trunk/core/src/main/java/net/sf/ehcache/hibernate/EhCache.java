@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
  * EHCache plugin for Hibernate.
  * <p/>
  * EHCache uses a {@link net.sf.ehcache.store.MemoryStore} and a
- * {@link net.sf.ehcache.store.DiskStore}.
+ * {@link net.sf.ehcache.store.disk.DiskStore}.
  * <p/>
- * The {@link net.sf.ehcache.store.DiskStore} requires that both keys and values be {@link java.io.Serializable}.
+ * The {@link net.sf.ehcache.store.disk.DiskStore} requires that both keys and values be {@link java.io.Serializable}.
  * However the MemoryStore does not and in ehcache-1.2 nonSerializable Objects are permitted. They are discarded
  * if an attempt it made to overflow them to Disk or to replicate them to remote cache peers.
  * <p/>
