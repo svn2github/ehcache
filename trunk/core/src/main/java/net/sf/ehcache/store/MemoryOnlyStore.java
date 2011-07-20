@@ -194,4 +194,10 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
         return searchAttributes.get(attributeName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
 }

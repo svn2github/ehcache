@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.pool.sizeof;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Enum with all the flyweight types that we check for sizeOf measurements
  *
@@ -23,7 +26,6 @@ package net.sf.ehcache.pool.sizeof;
  */
 enum FlyweightType {
 
-    //XXX These checks will end up interning all objects passed in - this could be fatal for Strings
     /**
      * java.lang.Enum
      */
@@ -31,13 +33,14 @@ enum FlyweightType {
         @Override
         boolean isShared(final Object obj) { return true; }
     },
+    // XXX There is no nullipotent way of determining the interned status of a string 
     /**
      * java.lang.String
      */
-    STRING(String.class) {
-        @Override
-        boolean isShared(final Object obj) { return obj == ((String)obj).intern(); }
-    },
+    //STRING(String.class) {
+    //    @Override
+    //    boolean isShared(final Object obj) { return obj == ((String)obj).intern(); }
+    //},
     /**
      * java.lang.Boolean
      */
@@ -81,6 +84,13 @@ enum FlyweightType {
         boolean isShared(final Object obj) { return obj == Character.valueOf((Character)obj); }
     };
 
+    private static final Map<Class<?>, FlyweightType> TYPE_MAPPINGS = new HashMap<Class<?>, FlyweightType>();
+    static {
+        for (FlyweightType type : FlyweightType.values()) {
+          TYPE_MAPPINGS.put(type.clazz, type);
+        }
+    }
+    
     private final Class<?> clazz;
 
     private FlyweightType(final Class<?> clazz) {
@@ -95,25 +105,15 @@ enum FlyweightType {
     abstract boolean isShared(Object obj);
 
     /**
-     * Will check whether the type of Object is a flyweight type
-     * @param object the object to check for
-     * @return true, if the type is flyweight
-     */
-    static boolean isFlyweight(Object object) {
-        return object != null && getFlyweightType(object.getClass()) != null;
-    }
-
-    /**
      * Will return the Flyweight enum instance for the flyweight Class, or null if type isn't flyweight
      * @param aClazz the class we need the FlyweightType instance for
      * @return the FlyweightType, or null
      */
     static FlyweightType getFlyweightType(final Class<?> aClazz) {
-        for (FlyweightType flyweightType : values()) {
-            if (flyweightType.clazz == aClazz) {
-                return flyweightType;
-            }
+        if (aClazz.isEnum()) {
+            return ENUM;
+        } else {
+            return TYPE_MAPPINGS.get(aClazz);
         }
-        return null;
     }
 }

@@ -18,6 +18,7 @@ package net.sf.ehcache.concurrent;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import net.sf.ehcache.CacheException;
 
@@ -89,6 +90,19 @@ public class StripedReadWriteLockSync implements CacheLockProvider {
         return mutexes[lockNumber];
     }
 
+    /**
+     * Gets the RWL Stripe to use for a given key.
+     * <p/>
+     * This lookup must always return the same RWL for a given key.
+     * <p/>
+     * @param key the key
+     * @return one of a limited number of RWLs.
+     */
+    public ReadWriteLock getLockForKey(final Object key) {
+        int lockNumber = ConcurrencyUtil.selectLock(key, mutexes.length);
+        return mutexes[lockNumber].getReadWriteLock();
+    }
+    
     /**
      * Returns all internal syncs
      * @return all internal syncs

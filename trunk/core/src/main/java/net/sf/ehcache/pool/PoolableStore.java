@@ -35,15 +35,6 @@ public interface PoolableStore extends Store {
     boolean evictFromOnHeap(int count, long size);
 
     /**
-     * Perform eviction to release off-heap resources
-     *
-     * @param count the number of elements to evict
-     * @param size the size in bytes to free (hint)
-     * @return true if the requested number of elements could be evicted
-     */
-    boolean evictFromOffHeap(int count, long size);
-
-    /**
      * Perform eviction to release on-disk resources
      *
      * @param count the number of elements to evict
@@ -67,6 +58,20 @@ public interface PoolableStore extends Store {
     float getApproximateDiskMissRate();
 
     /**
+     * Return the approximate disk size
+     *
+     * @return the approximate disk size
+     */
+    long getApproximateDiskCountSize();
+    
+    /**
+     * Return the approximate disk size in bytes
+     *
+     * @return the approximate disk size in bytes
+     */
+    long getApproximateDiskByteSize();
+    
+    /**
      * Return the approximate heap hit rate
      *
      * @return the approximate heap hit rate
@@ -80,4 +85,17 @@ public interface PoolableStore extends Store {
      */
     float getApproximateHeapMissRate();
 
+    /**
+     * Return the approximate heap size
+     *
+     * @return the approximate heap size
+     */
+    long getApproximateHeapCountSize();
+
+    /**
+     * Return the approximate heap size in bytes
+     *
+     * @return the approximate heap size in bytes
+     */
+    long getApproximateHeapByteSize();
 }

@@ -171,94 +171,6 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     }
 
     /**
-     * Acquire the read lock of the specified key
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#readLock(Object)
-     * @param key the key to read-lock
-     */
-    public void readLock(Object key) {
-        int hash = key == null ? 0 : hash(key.hashCode());
-        segmentFor(hash).readLock().lock();
-    }
-
-    /**
-     * Unlock the read lock of the specified key
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#readUnlock(Object)
-     * @param key the key to read-unlock
-     */
-    public void readUnlock(Object key) {
-        int hash = key == null ? 0 : hash(key.hashCode());
-        segmentFor(hash).readLock().unlock();
-    }
-
-    /**
-     * Acquire the write lock of the specified key
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#writeLock(Object)
-     * @param key the key to write-lock
-     */
-    public void writeLock(Object key) {
-        int hash = key == null ? 0 : hash(key.hashCode());
-        segmentFor(hash).writeLock().lock();
-    }
-
-    /**
-     * Unlock the write lock of the specified key
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#writeUnlock(Object)
-     * @param key the key to write-unlock
-     */
-    public void writeUnlock(Object key) {
-        int hash = key == null ? 0 : hash(key.hashCode());
-        segmentFor(hash).writeLock().unlock();
-    }
-
-    /**
-     * Acquire the read lock of all keys
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#readLock()
-     */
-    public void readLock() {
-        for (Segment segment : segments) {
-            segment.readLock().lock();
-        }
-    }
-
-    /**
-     * Unlock the read lock of all keys
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#readUnlock()
-     */
-    public void readUnlock() {
-        for (Segment segment : segments) {
-            segment.readLock().unlock();
-        }
-    }
-
-    /**
-     * Acquire the write lock of all keys
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#writeLock()
-     */
-    public void writeLock() {
-        for (Segment segment : segments) {
-            segment.writeLock().lock();
-        }
-    }
-
-    /**
-     * Unlock the write lock of all keys
-     *
-     * @see net.sf.ehcache.store.FrontEndCacheTier#writeUnlock()
-     */
-    public void writeUnlock() {
-        for (Segment segment : segments) {
-            segment.writeLock().unlock();
-        }
-    }
-
-    /**
      *
      */
     private static final class CacheConfigurationListenerAdapter implements CacheConfigurationListener {
@@ -696,13 +608,6 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
-    public boolean evictFromOffHeap(int count, long size) {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean evictFromOnDisk(int count, long size) {
         return disk.evict(count) == count;
     }
@@ -732,6 +637,20 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
+    public long getApproximateDiskCountSize() {
+        return getOnDiskSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getApproximateDiskByteSize() {
+        return getOnDiskSizeInBytes();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateHeapHitRate() {
         return 0;
     }
@@ -741,6 +660,20 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public float getApproximateHeapMissRate() {
         return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getApproximateHeapCountSize() {
+        return getInMemorySize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getApproximateHeapByteSize() {
+        return getInMemorySizeInBytes();
     }
 
     /**

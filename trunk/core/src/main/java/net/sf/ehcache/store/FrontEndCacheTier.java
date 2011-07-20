@@ -18,6 +18,8 @@ package net.sf.ehcache.store;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -112,7 +114,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return null;
         }
 
-        readLock(key);
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
         try {
             Element e = cache.get(key);
             if (e == null) {
@@ -123,7 +126,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             }
             return copyElementForReadIfNeeded(e);
         } finally {
-            readUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -135,7 +138,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return null;
         }
 
-        readLock(key);
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
         try {
             Element e = cache.getQuiet(key);
             if (e == null) {
@@ -146,7 +150,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             }
             return copyElementForReadIfNeeded(e);
         } finally {
-            readUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -160,13 +164,14 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
 
         Object key = e.getObjectKey();
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             cache.fill(copy);
             return authority.put(copy);
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -180,13 +185,14 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
 
         Object key = e.getObjectKey();
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             cache.fill(copy);
             return authority.putWithWriter(copy, writer);
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -198,12 +204,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return null;
         }
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             cache.remove(key);
             return copyElementForReadIfNeeded(authority.remove(key));
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -215,12 +222,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return null;
         }
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             cache.remove(key);
             return copyElementForReadIfNeeded(authority.removeWithWriter(key, writerManager));
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -230,7 +238,8 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public Element putIfAbsent(Element e) throws NullPointerException {
         Object key = e.getObjectKey();
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             Element old = authority.putIfAbsent(copy);
@@ -239,7 +248,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             }
             return copyElementForReadIfNeeded(old);
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -249,12 +258,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public Element removeElement(Element e, ElementValueComparator comparator) throws NullPointerException {
         Object key = e.getObjectKey();
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             cache.remove(e.getObjectKey());
             return copyElementForReadIfNeeded(authority.removeElement(e, comparator));
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -264,13 +274,14 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public boolean replace(Element old, Element e, ElementValueComparator comparator) throws NullPointerException, IllegalArgumentException {
         Object key = old.getObjectKey();
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             cache.remove(old.getObjectKey());
             return authority.replace(old, copy, comparator);
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -280,13 +291,14 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public Element replace(Element e) throws NullPointerException {
         Object key = e.getObjectKey();
 
-        writeLock(key);
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             cache.remove(e.getObjectKey());
             return copyElementForReadIfNeeded(authority.replace(copy));
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -298,11 +310,12 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return false;
         }
 
-        readLock(key);
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
         try {
             return cache.containsKey(key) || authority.containsKey(key);
         } finally {
-            readUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -314,11 +327,12 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return false;
         }
 
-        readLock(key);
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
         try {
             return cache.containsKeyOnDisk(key) || authority.containsKeyOnDisk(key);
         } finally {
-            readUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -330,11 +344,12 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return false;
         }
 
-        readLock(key);
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
         try {
             return cache.containsKeyOffHeap(key) || authority.containsKeyOffHeap(key);
         } finally {
-            readUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -346,11 +361,12 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return false;
         }
 
-        readLock(key);
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
         try {
             return cache.containsKeyInMemory(key) || authority.containsKeyInMemory(key);
         } finally {
-            readUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -497,72 +513,38 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         return cache.bufferFull() || authority.bufferFull();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public final void readLock(Object key) {
-        getLockFor(key).lock(LockType.READ);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void readUnlock(Object key) {
-        getLockFor(key).unlock(LockType.READ);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void writeLock(Object key) {
-        getLockFor(key).lock(LockType.WRITE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void writeUnlock(Object key) {
-        getLockFor(key).unlock(LockType.WRITE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void readLock() {
+    private void readLock() {
         for (ReadWriteLockSync lock : getAllLocks()) {
             lock.lock(LockType.READ);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public final void readUnlock() {
+    private void readUnlock() {
         for (ReadWriteLockSync lock : getAllLocks()) {
             lock.unlock(LockType.READ);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public final void writeLock() {
+    private void writeLock() {
         for (ReadWriteLockSync lock : getAllLocks()) {
             lock.lock(LockType.WRITE);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public final void writeUnlock() {
+    private void writeUnlock() {
         for (ReadWriteLockSync lock : getAllLocks()) {
             lock.unlock(LockType.WRITE);
         }
     }
 
-    private ReadWriteLockSync getLockFor(Object key) {
-        return masterLocks.getSyncForKey(key);
+    /**
+     * Returns the ReadWriteLock guarding this key.
+     * 
+     * @param key key of interest
+     * @return lock for the supplied key
+     */
+    protected ReadWriteLock getLockFor(Object key) {
+        return masterLocks.getLockForKey(key);
     }
 
     private List<ReadWriteLockSync> getAllLocks() {
@@ -596,12 +578,5 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
      */
     public final Object getInternalContext() {
         return masterLocks;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object getMBean() {
-        return authority.getMBean();
     }
 }

@@ -737,10 +737,13 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             sum = 0;
             for (int i = 0; i < segments.length; ++i)
                 segments[i].readLock().lock();
-            for (int i = 0; i < segments.length; ++i)
-                sum += segments[i].count;
-            for (int i = 0; i < segments.length; ++i)
-                segments[i].readLock().unlock();
+            try {
+              for (int i = 0; i < segments.length; ++i)
+                  sum += segments[i].count;
+            } finally {
+              for (int i = 0; i < segments.length; ++i)
+                  segments[i].readLock().unlock();
+            }
         }
         if (sum > Integer.MAX_VALUE)
             return Integer.MAX_VALUE;
@@ -821,22 +824,21 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             if (cleanSweep)
                 return false;
         }
+
         // Resort to locking all segments
         for (int i = 0; i < segments.length; ++i)
             segments[i].readLock().lock();
-        boolean found = false;
         try {
             for (int i = 0; i < segments.length; ++i) {
                 if (segments[i].containsValue(value)) {
-                    found = true;
-                    break;
+                    return true;
                 }
             }
         } finally {
             for (int i = 0; i < segments.length; ++i)
                 segments[i].readLock().unlock();
         }
-        return found;
+        return false;
     }
 
     /**

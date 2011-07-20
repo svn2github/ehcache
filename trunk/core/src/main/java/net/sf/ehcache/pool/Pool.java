@@ -79,7 +79,7 @@ public interface Pool<T> {
      * @param sizeOfEngine the SizeOf engine used to measure the size of objects added through the created accessor.
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
-    PoolAccessor<T> createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine);
+    PoolAccessor<T> createPoolAccessor(T store, SizeOfEngine sizeOfEngine);
 
     /**
      * Return the stores accessing this pool.

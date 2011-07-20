@@ -83,7 +83,7 @@ public interface Ehcache extends Cloneable {
      * Puts a collection of elements in the cache. Throws a NullPointerException if any element in the
      * collection is null. Also notifies the CacheEventListener that:
      * <ul>
-     * <li>the elements were put. The puts{@link net.sf.ehcache.Ehcache.put} happen in batches and the notifications are thrown for every put in the
+     * <li>the elements were put. The puts{@link net.sf.ehcache.Ehcache#put(net.sf.ehcache.Element)} happen in batches and the notifications are thrown for every put in the
      * batch irrespective of whether the element is present in the cache or not i.e this method consider
      * each element as new entry.
      * </li>
@@ -356,6 +356,18 @@ public interface Ehcache extends Cloneable {
      */
     void removeAll(Collection<Object> keys) throws IllegalStateException, NullPointerException;
 
+    /**
+     * Removes all cached items.
+     * <p />
+     * When using Terracotta clustered caches with nonstop enabled, the timeout used by this method is
+     * {@link NonstopConfiguration#getBulkOpsTimeoutMultiplyFactor()} times the timeout value in the nonstop config.
+     *
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer,
+     *                                    in which case this put should not initiate a further notification to doNotNotifyCacheReplicators cache peers
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    void removeAll(Collection<Object> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException, NullPointerException;
+    
     /**
      * Removes an {@link net.sf.ehcache.Element} from the Cache. This also removes it from any
      * stores it may be in.

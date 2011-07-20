@@ -38,7 +38,7 @@ public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvict
      */
     @Override
     protected long countSize(PoolableStore store) {
-        return store.getInMemorySize();
+        return store.getApproximateHeapCountSize();
     }
 
     /**
@@ -46,7 +46,7 @@ public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvict
      */
     @Override
     protected long byteSize(PoolableStore store) {
-        return store.getInMemorySizeInBytes();
+        return store.getApproximateHeapByteSize();
     }
 
     /**

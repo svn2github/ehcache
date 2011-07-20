@@ -18,6 +18,7 @@ package net.sf.ehcache.concurrent;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
 
 /**
  * A simple ReadWriteLock synchronizer.
@@ -74,6 +75,15 @@ public class ReadWriteLockSync implements Sync {
         }
     }
 
+    /**
+     * Gets the {@code ReadWriteLock} backing this sync.
+     * 
+     * @return the backing {@code ReadWriteLock}
+     */
+    public ReadWriteLock getReadWriteLock() {
+      return rrwl;
+    }
+    
     /**
      * {@inheritDoc}
      */

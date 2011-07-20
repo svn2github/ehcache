@@ -205,7 +205,7 @@ public class CacheConfiguration implements Cloneable {
     protected volatile int maxEntriesLocalHeap;
 
     /**
-     * the maximum objects to be held in the {@link net.sf.ehcache.store.DiskStore}.
+     * the maximum objects to be held in the {@link net.sf.ehcache.store.disk.DiskStore}.
      * <p/>
      * <code>0</code> translates to no-limit.
      */

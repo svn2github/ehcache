@@ -164,7 +164,7 @@ public class SearchAttribute {
     /**
      * Set the extractor properties separator
      *
-     * @param separator
+     * @param sep
      */
     public void setPropertySeparator(String sep) {
         this.propertySeparator = sep;
@@ -173,7 +173,7 @@ public class SearchAttribute {
     /**
      * Set the extractor properties separator
      *
-     * @param seperator
+     * @param sep
      * @return this
      */
     public SearchAttribute propertySeparator(String sep) {

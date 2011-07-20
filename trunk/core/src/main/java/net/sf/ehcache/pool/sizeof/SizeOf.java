@@ -80,16 +80,8 @@ public abstract class SizeOf {
     }
 
     private static boolean isSharedFlyweight(Object obj) {
-        if (obj instanceof Comparable) {
-            FlyweightType type = FlyweightType.getFlyweightType(obj.getClass());
-            return type != null && type.isShared(obj);
-        } else {
-            return false;
-        }
-    }
-
-    private static boolean isFlyweightType(Object obj) {
-        return obj != null && obj instanceof Comparable && FlyweightType.getFlyweightType(obj.getClass()) != null;
+        FlyweightType type = FlyweightType.getFlyweightType(obj.getClass());
+        return type != null && type.isShared(obj);
     }
 
     /**
@@ -108,7 +100,7 @@ public abstract class SizeOf {
     /**
      * Will Cache already visited types
      */
-    private class CachingSizeOfVisitor extends SizeOfVisitor {
+    private class CachingSizeOfVisitor implements Visitor {
         private final ConcurrentHashMap<String, Long> cache = new ConcurrentHashMap<String, Long>();
 
         /**
@@ -116,17 +108,20 @@ public abstract class SizeOf {
          */
         @Override
         public long visit(final Object object) {
-            if (!isFlyweightType(object) && !object.getClass().isArray()) {
-                Long cachedSize = cache.get(object.getClass().getName());
-                if (cachedSize == null) {
-                    long size = super.visit(object);
-                    cache.put(object.getClass().getName(), size);
-                    return size;
+            Class<?> klazz = object.getClass();
+            Long cachedSize = cache.get(klazz.getName());
+            if (cachedSize == null) {
+                if (klazz.isArray()) {
+                    return measureSizeOf(object);
+                } else if (isSharedFlyweight(object)) {
+                    return 0;
                 } else {
-                    return cachedSize.longValue();
+                    long size = measureSizeOf(object);
+                    cache.put(klazz.getName(), size);
+                    return size;
                 }
             } else {
-                return super.visit(object);
+                return cachedSize.longValue();
             }
         }
     }

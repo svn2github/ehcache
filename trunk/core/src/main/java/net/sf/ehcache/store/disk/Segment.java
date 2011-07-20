@@ -986,16 +986,16 @@ public class Segment extends ReentrantReadWriteLock {
     }
 
     /**
-     * {@inheritDoc}
+     * Record a hit in the disk tier
      */
-    public void diskHit() {
+    protected void diskHit() {
         diskHitRate.event();
     }
 
     /**
-     * {@inheritDoc}
+     * Record a miss in the disk tier
      */
-    public void miss() {
+    protected void miss() {
         diskMissRate.event();
     }
 }

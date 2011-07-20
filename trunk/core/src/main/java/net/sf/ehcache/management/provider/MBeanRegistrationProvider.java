@@ -47,8 +47,8 @@ public interface MBeanRegistrationProvider {
     void reinitialize(ClusteredInstanceFactory clusteredInstanceFactory) throws MBeanRegistrationProviderException;
 
     /**
-     * Returns true if initialized otherwise false
-     * @return
+     * Returns {@code true} if initialized otherwise false
+     * @return {@code true} if initialized
      */
     boolean isInitialized();
 

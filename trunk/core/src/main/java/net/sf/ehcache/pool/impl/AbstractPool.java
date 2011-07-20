@@ -25,7 +25,6 @@ import java.util.List;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolEvictor;
-import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -92,7 +91,7 @@ public abstract class AbstractPool<T> implements Pool<T> {
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor<T> createPoolAccessor(PoolableStore store) {
+    public PoolAccessor<T> createPoolAccessor(T store) {
         return createPoolAccessor(store, defaultSizeOfEngine);
     }
 

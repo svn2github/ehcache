@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -731,7 +731,8 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
 
         Object key = element.getObjectKey();
 
-        writeLock(key);
+        Lock lock = getWriteLock(key);
+        lock.lock();
         try {
             Element toRemove = map.get(key);
             if (comparator.equals(element, toRemove)) {
@@ -742,7 +743,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 return null;
             }
         } finally {
-            writeUnlock(key);
+            lock.unlock();
         }
     }
 
@@ -758,7 +759,8 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         Object key = element.getObjectKey();
 
         if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
-            writeLock(key);
+            Lock lock = getWriteLock(key);
+            lock.lock();
             try {
                 Element toRemove = map.get(key);
                 if (comparator.equals(old, toRemove)) {
@@ -770,7 +772,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                     return false;
                 }
             } finally {
-                writeUnlock(key);
+                lock.unlock();
             }
         } else {
             Element removed = remove(element.getObjectKey());
@@ -792,7 +794,8 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         Object key = element.getObjectKey();
 
         if (poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element)) > -1) {
-            writeLock(key);
+            Lock lock = getWriteLock(key);
+            lock.lock();
             try {
                 Element toRemove = map.get(key);
                 if (toRemove != null) {
@@ -804,7 +807,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                     return null;
                 }
             } finally {
-                writeUnlock(key);
+                lock.unlock();
             }
         } else {
             Element removed = remove(element.getObjectKey());
@@ -838,13 +841,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     /**
      * {@inheritDoc}
      */
-    public boolean evictFromOffHeap(int count, long size) {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean evictFromOnDisk(int count, long size) {
         return false;
     }
@@ -866,6 +862,20 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     /**
      * {@inheritDoc}
      */
+    public long getApproximateDiskCountSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getApproximateDiskByteSize() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public float getApproximateHeapHitRate() {
         return hitRate.getRate();
     }
@@ -877,73 +887,22 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         return missRate.getRate();
     }
 
-
     /**
      * {@inheritDoc}
      */
-    public void readLock(Object key) {
-        map.lockFor(key).readLock().lock();
+    public long getApproximateHeapCountSize() {
+        return map.quickSize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void readUnlock(Object key) {
-        map.lockFor(key).readLock().unlock();
+    public long getApproximateHeapByteSize() {
+        return poolAccessor.getSize();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void writeLock(Object key) {
-        map.lockFor(key).writeLock().lock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void writeUnlock(Object key) {
-        map.lockFor(key).writeLock().unlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void readLock() {
-        ReentrantReadWriteLock[] locks = map.locks();
-        for (ReentrantReadWriteLock lock : locks) {
-            lock.readLock().lock();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void readUnlock() {
-        ReentrantReadWriteLock[] locks = map.locks();
-        for (ReentrantReadWriteLock lock : locks) {
-            lock.readLock().unlock();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void writeLock() {
-        ReentrantReadWriteLock[] locks = map.locks();
-        for (ReentrantReadWriteLock lock : locks) {
-            lock.writeLock().lock();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void writeUnlock() {
-        ReentrantReadWriteLock[] locks = map.locks();
-        for (ReentrantReadWriteLock lock : locks) {
-            lock.writeLock().unlock();
-        }
+    private Lock getWriteLock(Object key) {
+        return map.lockFor(key).writeLock();
     }
 
     /**

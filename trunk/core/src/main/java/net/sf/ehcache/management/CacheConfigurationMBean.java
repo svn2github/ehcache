@@ -44,7 +44,7 @@ public interface CacheConfigurationMBean {
     /**
      * Accessor
      *
-     * @deprecated use {@link #getMaxEntriesLocalHeap(long)}
+     * @deprecated use {@link #getMaxEntriesLocalHeap()}
      */
     @Deprecated
     int getMaxElementsInMemory();
@@ -53,7 +53,7 @@ public interface CacheConfigurationMBean {
      * setMaxElementsInMemory
      *
      * @param maxElements
-     * @deprecated use {@link #setMaxEntriesLocalHeap()}
+     * @deprecated use {@link #setMaxEntriesLocalHeap(long)}
      */
     @Deprecated
     void setMaxElementsInMemory(int maxElements);

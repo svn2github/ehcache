@@ -83,7 +83,7 @@ public interface CacheStatisticsMBean {
      * This result is returned when the statistics accuracy setting is {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      * <p/>
      * The size is the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.MemoryStore} plus
-     * the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.DiskStore}.
+     * the number of {@link net.sf.ehcache.Element}s in the {@link net.sf.ehcache.store.disk.DiskStore}.
      * <p/>
      * This number is the actual number of elements, including expired elements that have
      * not been removed. Any duplicates between stores are accounted for.

@@ -38,7 +38,7 @@ public class BalancedAccessOnDiskPoolEvictor extends AbstractBalancedAccessEvict
      */
     @Override
     protected long countSize(PoolableStore store) {
-        return store.getOnDiskSize();
+        return store.getApproximateDiskCountSize();
     }
 
     /**
@@ -46,7 +46,7 @@ public class BalancedAccessOnDiskPoolEvictor extends AbstractBalancedAccessEvict
      */
     @Override
     protected long byteSize(PoolableStore store) {
-        return store.getOnDiskSizeInBytes();
+        return store.getApproximateDiskByteSize();
     }
 
     /**

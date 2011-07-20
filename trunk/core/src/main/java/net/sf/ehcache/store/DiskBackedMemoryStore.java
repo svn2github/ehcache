@@ -60,4 +60,11 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
             throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object getMBean() {
+        return null;
+    }
 }

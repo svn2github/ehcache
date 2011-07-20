@@ -163,6 +163,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public void removeAll(Collection<Object> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        underlyingCache.removeAll(keys, doNotNotifyCacheReplicators);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return underlyingCache.remove(key, doNotNotifyCacheReplicators);
     }

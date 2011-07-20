@@ -105,10 +105,7 @@ final class ObjectGraphWalker {
                 } else {
                     for (Field field : getFilteredFields(refClass)) {
                         try {
-                            Object o = field.get(ref);
-                            if (!field.getType().isPrimitive()) {
-                                nullSafeAdd(toVisit, o);
-                            }
+                            nullSafeAdd(toVisit, field.get(ref));
                         } catch (IllegalAccessException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -128,7 +125,7 @@ final class ObjectGraphWalker {
      * @param refClass the type
      * @return A collection of fields to be visited
      */
-    Collection<Field> getFilteredFields(Class<?> refClass) {
+    private Collection<Field> getFilteredFields(Class<?> refClass) {
         SoftReference<Collection<Field>> ref = fieldCache.get(refClass.getName());
         Collection<Field> fieldList = ref != null ? ref.get() : null;
         if (fieldList != null) {
@@ -140,22 +137,22 @@ final class ObjectGraphWalker {
         }
     }
 
-    private void nullSafeAdd(final Stack<Object> toVisit, final Object o) {
+    private static void nullSafeAdd(final Stack<Object> toVisit, final Object o) {
         if (o != null) {
-            toVisit.add(o);
+            toVisit.push(o);
         }
     }
 
     /**
-     * Returns all fields for the entire class hierarchy of a type
+     * Returns all non-primitive fields for the entire class hierarchy of a type
      * @param refClass the type
      * @return all fields for that type
      */
-    static Collection<Field> getAllFields(Class<?> refClass) {
+    private static Collection<Field> getAllFields(Class<?> refClass) {
         Collection<Field> fields = new ArrayList<Field>();
         for (Class<?> klazz = refClass; klazz != null; klazz = klazz.getSuperclass()) {
             for (Field field : klazz.getDeclaredFields()) {
-                if (!Modifier.isStatic(field.getModifiers())) {
+                if (!Modifier.isStatic(field.getModifiers()) && !field.getType().isPrimitive()) {
                     field.setAccessible(true);
                     fields.add(field);
                 }
