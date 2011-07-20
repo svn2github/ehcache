@@ -29,6 +29,7 @@ import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.TransactionalDataRegion;
+import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 /**
@@ -124,6 +125,10 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
     public final void put(Object key, Object value) throws CacheException {
         try {
             Element element = new Element(key, value);
+            if (value instanceof SoftLock) {
+                element.setPinned(true);
+                element.setEternal(true);
+            }
             cache.put(element);
         } catch (IllegalArgumentException e) {
             throw new CacheException(e);
