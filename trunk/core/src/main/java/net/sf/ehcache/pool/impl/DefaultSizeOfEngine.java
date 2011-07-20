@@ -98,12 +98,12 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
             try {
                 filterUrls.add(new URL(userFilterProperty));
             } catch (MalformedURLException e) {
-                //ignore
+                LOG.debug("MalformedURLException using {} as a URL", userFilterProperty);
             }
             try {
-                filterUrls.add(new File(userFilterProperty).toURL());
+                filterUrls.add(new File(userFilterProperty).toURI().toURL());
             } catch (MalformedURLException e) {
-                //ignore
+                LOG.debug("MalformedURLException using {} as a file URL", userFilterProperty);
             }
             filterUrls.add(ClassLoaderUtil.getStandardClassLoader().getResource(USER_FILTER_RESOURCE));
             for (URL filterUrl : filterUrls) {
@@ -113,7 +113,7 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
                     LOG.info("Using user supplied filter @ {}", filterUrl);
                     return filter;
                 } catch (IOException e) {
-                    //ignore
+                    LOG.debug("IOException while loading user size-of filter resource", e);
                 }
             }
         }

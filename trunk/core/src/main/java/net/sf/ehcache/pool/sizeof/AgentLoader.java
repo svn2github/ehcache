@@ -63,7 +63,7 @@ final class AgentLoader {
             detach = virtualMachineClass.getMethod("detach");
             loadAgent = virtualMachineClass.getMethod("loadAgent", String.class);
         } catch (Throwable e) {
-            // ignore
+            LOGGER.info("Unavailable or unrecognised attach API : {}", e.toString());
         }
         VIRTUAL_MACHINE_ATTACH = attach;
         VIRTUAL_MACHINE_DETACH = detach;

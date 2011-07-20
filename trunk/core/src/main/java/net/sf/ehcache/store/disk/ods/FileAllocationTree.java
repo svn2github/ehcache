@@ -18,6 +18,9 @@ package net.sf.ehcache.store.disk.ods;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * File allocation tree allows C-like alloc/free operations on a random access file.
  *
@@ -25,6 +28,8 @@ import java.io.RandomAccessFile;
  */
 public final class FileAllocationTree extends RegionSet {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileAllocationTree.class);
+    
     private long fileSize;
     private final RandomAccessFile data;
 
@@ -128,7 +133,7 @@ public final class FileAllocationTree extends RegionSet {
                 try {
                     data.setLength(size);
                 } catch (IOException e) {
-                    //
+                    LOGGER.info("Exception while trying to shrink file", e);
                 }
             }
         }
