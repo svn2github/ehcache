@@ -35,10 +35,16 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertThat;
 
 public class ConcurrentCacheMethodsTest {
 
@@ -77,6 +83,32 @@ public class ConcurrentCacheMethodsTest {
         } catch (NullPointerException npe) {
             // expected
         }
+    }
+
+    @Test
+    public void testPutIfAbsentAffectsStats() {
+        cache.removeAll();
+        cache.setStatisticsEnabled(true);
+        cache.getStatistics().clearStatistics();
+        assertThat(cache.getStatistics().getCacheMisses(), is(0L));
+        assertThat(cache.getStatistics().getCacheHits(), is(0L));
+
+        assertThat(cache.get("someKey"), CoreMatchers.nullValue());
+        assertThat(cache.getStatistics().getCacheMisses(), is(1L));
+        assertThat(cache.getStatistics().getCacheHits(), is(0L));
+
+        final Element element = new Element("someKey", "someValue");
+        assertThat(cache.putIfAbsent(element), nullValue());
+        assertThat(cache.getStatistics().getCacheMisses(), is(1L));
+        assertThat(cache.getStatistics().getCacheHits(), is(0L));
+
+        assertThat(cache.get("someKey"), sameInstance(element));
+        assertThat(cache.getStatistics().getCacheMisses(), is(1L));
+        assertThat(cache.getStatistics().getCacheHits(), is(1L));
+
+        assertThat(cache.putIfAbsent(new Element("someKey", "someValue")), sameInstance(element));
+        assertThat(cache.getStatistics().getCacheMisses(), is(1L));
+        assertThat(cache.getStatistics().getCacheHits(), is(1L));
     }
 
     @Test
