@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import net.sf.ehcache.util.FindBugsSuppressWarnings;
+
 /**
  * A hash table supporting full concurrency of retrievals and
  * adjustable expected concurrency for updates. This class obeys the
@@ -706,6 +708,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      *
      * @return the number of key-value mappings in this map
      */
+    @FindBugsSuppressWarnings("UL_UNRELEASED_LOCK")
     public int size() {
         final Segment<K,V>[] segments = this.segments;
         long sum = 0;
@@ -792,6 +795,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      *         specified value
      * @throws NullPointerException if the specified value is null
      */
+    @FindBugsSuppressWarnings("UL_UNRELEASED_LOCK")
     public boolean containsValue(Object value) {
         if (value == null)
             throw new NullPointerException();
