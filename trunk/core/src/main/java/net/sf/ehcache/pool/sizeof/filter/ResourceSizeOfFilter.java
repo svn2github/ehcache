@@ -22,10 +22,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -73,19 +73,13 @@ public class ResourceSizeOfFilter implements SizeOfFilter {
      * {@inheritDoc}
      */
     public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
-        Collection<Field> removed = new ArrayList<Field>();
-        for (Field f : fields) {
+        for (Iterator<Field> it = fields.iterator(); it.hasNext();) {
+            Field f = it.next();
             if (filteredTerms.contains(f.getDeclaringClass().getName() + "." + f.getName())) {
-                removed.add(f);
+                it.remove();
             }
         }
-        if (removed.isEmpty()) {
-            return fields;
-        } else {
-            Collection<Field> filtered = new ArrayList<Field>(fields);
-            filtered.removeAll(removed);
-            return filtered;
-        }
+        return fields;
     }
 
     /**

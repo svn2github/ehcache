@@ -4,7 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import net.sf.ehcache.pool.sizeof.filter.AnnotationSizeOfFilter;
-import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
 
 import org.junit.BeforeClass;

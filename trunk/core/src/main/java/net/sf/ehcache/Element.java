@@ -19,7 +19,7 @@ package net.sf.ehcache;
 
 
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.util.TimeUtil;
 
 import java.io.ByteArrayInputStream;

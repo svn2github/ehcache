@@ -16,9 +16,10 @@
 
 package net.sf.ehcache.pool.sizeof.filter;
 
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A Filter that will filter fields, based on the {@link IgnoreSizeOf} annotation
@@ -31,19 +32,12 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
      * {@inheritDoc}
      */
     public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
-        Collection<Field> removed = new ArrayList<Field>();
-        for (Field f : fields) {
-            if (f.isAnnotationPresent(IgnoreSizeOf.class)) {
-                removed.add(f);
+        for (Iterator<Field> it = fields.iterator(); it.hasNext();) {
+            if (it.next().isAnnotationPresent(IgnoreSizeOf.class)) {
+                it.remove();
             }
         }
-        if (removed.isEmpty()) {
-            return fields;
-        } else {
-            Collection<Field> filtered = new ArrayList<Field>(fields);
-            filtered.removeAll(removed);
-            return filtered;
-        }
+        return fields;
     }
 
     /**

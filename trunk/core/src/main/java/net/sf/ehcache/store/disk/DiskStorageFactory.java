@@ -23,7 +23,7 @@ import net.sf.ehcache.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;

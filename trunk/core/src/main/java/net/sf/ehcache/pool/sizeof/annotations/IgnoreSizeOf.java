@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.pool.sizeof.filter;
+package net.sf.ehcache.pool.sizeof.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

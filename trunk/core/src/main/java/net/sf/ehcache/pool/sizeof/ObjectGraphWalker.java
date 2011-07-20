@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,8 +36,10 @@ import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 final class ObjectGraphWalker {
 
     // Todo this is probably not what we want...
-    private final ConcurrentMap<String, SoftReference<Collection<Field>>> fieldCache =
-        new ConcurrentHashMap<String, SoftReference<Collection<Field>>>();
+    private final ConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
+            new ConcurrentHashMap<Class<?>, SoftReference<Collection<Field>>>();
+    private final ConcurrentMap<Class<?>, Boolean> classCache =
+            new ConcurrentHashMap<Class<?>, Boolean>();
 
     private final SizeOfFilter sizeOfFilter;
 
@@ -97,7 +98,7 @@ final class ObjectGraphWalker {
             }
 
             Class<?> refClass = ref.getClass();
-            if (sizeOfFilter.filterClass(refClass)) {
+            if (shouldWalkClass(refClass)) {
                 if (refClass.isArray() && !refClass.getComponentType().isPrimitive()) {
                     for (int i = 0; i < Array.getLength(ref); i++) {
                         nullSafeAdd(toVisit, Array.get(ref, i));
@@ -126,17 +127,26 @@ final class ObjectGraphWalker {
      * @return A collection of fields to be visited
      */
     private Collection<Field> getFilteredFields(Class<?> refClass) {
-        SoftReference<Collection<Field>> ref = fieldCache.get(refClass.getName());
+        SoftReference<Collection<Field>> ref = fieldCache.get(refClass);
         Collection<Field> fieldList = ref != null ? ref.get() : null;
         if (fieldList != null) {
             return fieldList;
         } else {
-            Collection<Field> result = Collections.unmodifiableCollection(sizeOfFilter.filterFields(refClass, getAllFields(refClass)));
-            fieldCache.put(refClass.getName(), new SoftReference<Collection<Field>>(result));
+            Collection<Field> result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
+            fieldCache.put(refClass, new SoftReference<Collection<Field>>(result));
             return result;
         }
     }
 
+    private boolean shouldWalkClass(Class<?> refClass) {
+        Boolean cached = classCache.get(refClass);
+        if (cached == null) {
+            cached = sizeOfFilter.filterClass(refClass);
+            classCache.put(refClass, cached);
+        }
+        return cached.booleanValue();
+    }
+    
     private static void nullSafeAdd(final Stack<Object> toVisit, final Object o) {
         if (o != null) {
             toVisit.push(o);
@@ -158,6 +168,6 @@ final class ObjectGraphWalker {
                 }
             }
         }
-        return Collections.unmodifiableCollection(fields);
+        return fields;
     }
 }
