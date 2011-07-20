@@ -203,7 +203,12 @@
   Elements put in a memory limited cache will have their memory sizes measured. The entire Element instance added
   to the cache is measured, including key and value, as well as the memory footprint of adding that instance to
   internal data structures. Key and value are measured as object graphs - each reference is followed and the object
-  reference also measured. This goes on recursively. Shared references are only measured once.
+  reference also measured. This goes on recursively.
+
+  Shared references will be measured by each class that references it. This will result in an overstatement. Shared references
+  should therefore be ignored.
+
+*** Ignoring for size calculations
 
   References can be ignored using the <<<@IgnoreSizeOf>>> annotation.
 
