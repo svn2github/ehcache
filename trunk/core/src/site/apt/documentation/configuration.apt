@@ -219,23 +219,32 @@
     This example shows how to ignore the <<<Dog>>> class.
 
 ---
+  @IgnoreSizeOf
+  public class Dog {
+    private Gender gender;
+    private String name;
+  }
 
 ---
 
     This shows how to ignore the <<<sharedInstance>>> field.
 
 ---
-  public static class MyCacheEntry {
+  public class MyCacheEntry {
     @IgnoreSizeOf
     private final SharedClass sharedInstance;
     ...
   }
 ---
 
-    Finally packages may be also ignored as per the following example:
+    Finally packages may be also ignored if you add the @IgnoreSizeOf annotation to appropriate package-info.java of the desired package.
+    Here is a sample package-info.java for and in the com.pany.ignore package:
 
 ---
+@IgnoreSizeOf
+package com.pany.ignore;
 
+import net.sf.ehcache.pool.sizeof.filter.IgnoreSizeOf;
 ---
 
   Alternatively you may declare ignored classes and fields in a file using and specify a <<<net.sf.ehcache.sizeof.filter>>> system property
