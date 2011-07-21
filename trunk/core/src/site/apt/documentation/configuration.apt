@@ -38,9 +38,9 @@
 
     * timeToIdle
 
-    * maxElementsInMemory
+    * maxEntriesLocalHeap
 
-    * maxElementsOnDisk
+    * maxEntriesLocalDisk
 
     * memory store eviciton policy
 
@@ -56,8 +56,8 @@
     CacheConfiguration config = cache.getCacheConfiguration();
     config.setTimeToIdleSeconds(60);
     config.setTimeToLiveSeconds(120);
-    config.setMaxElementsInMemory(10000);
-    config.setMaxElementsOnDisk(1000000);
+    config.setmaxEntriesLocalHeap(10000);
+    config.setmaxEntriesLocalDisk(1000000);
 ---
 
     Dynamic cache configurations can also be frozen to prevent future changes:
@@ -70,7 +70,7 @@
 
 *   Memory Based Cache Sizing (Ehcache 2.5 and higher)
 
-	Historically Ehcache has only permitted sizing of caches by maxElementsInMemory for the the OnHeap Store and maxElementsOnDisk
+	Historically Ehcache has only permitted sizing of caches by maxEntriesLocalHeap for the the OnHeap Store and maxEntriesLocalDisk
 	for the DiskStore. The OffHeap Store introduced sizing in terms of memory use.
 
 	From Ehcache 2.5, we are extending sizing based on bytes consumed to all stores.
@@ -98,7 +98,7 @@
 </ehcache>
 ---
 
-	If you specify a CacheManager wide size, you can also use percentages at the cache level. e.g maxBytesOnHeap="20%". A warning is issued if more than 100% is allocated across all caches.
+	If you specify a CacheManager wide size, you can also use percentages at the cache level. e.g maxBytesLocalHeap="20%". A warning is issued if more than 100% is allocated across all caches.
 
 	For completeness we also add cache pinning and rules for cache-level configuration to override CacheManager level configuration.
 
@@ -196,7 +196,7 @@
 
 
 	Overallocations can only be detected at configuration time. For this reason we do not permit the use of max element count
-	(e.g. maxElementsInMemory) configuration with CacheManager storage pools.
+	(e.g. maxEntriesLocalHeap) configuration with CacheManager storage pools.
 
 *** Sizing of cached entries
 
@@ -353,7 +353,7 @@ com.pany.example
 
     The recommended use is reference data, where you always want the whole dataset in memory.
 
-	Pinning cannot be used with either maxElementsInMemory or maxBytesOnHeap - it is unbounded.
+	Pinning cannot be used with either maxEntriesLocalHeap or maxBytesLocalHeap - it is unbounded.
 
 	Caution: It is possible to cause an OutOfMemory error with pinned caches. They may even look like a memory leak in the application.
 	They are meant to be a convenience. They should not be used with potentially unbounded data sets.
@@ -489,7 +489,7 @@ The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
 
 ---
     <cache name="copyCache"
-           maxElementsInMemory="10"
+           maxEntriesLocalHeap="10"
            eternal="false"
            timeToIdleSeconds="5"
            timeToLiveSeconds="10"
@@ -546,12 +546,12 @@ The TerracottaStoreBootstrapCacheLoaderFactory is configured as follows:
 <ehcache>
     <diskStore path="java.io.tmpdir"/>
     <defaultCache
-            maxElementsInMemory="10000"
+            maxEntriesLocalHeap="10000"
             eternal="false"
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
             overflowToDisk="true"
-            maxElementsOnDisk="10000000"
+            maxEntriesLocalDisk="10000000"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
