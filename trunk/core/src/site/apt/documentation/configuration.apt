@@ -261,7 +261,7 @@ com.pany.domain.SharedState
 com.pany.example
 ---
 
-  Note that these measurements and configureations only apply to on heap storage. Once Elements are moved to off-heap, disk or Terracotta, they
+  Note that these measurements and configurations only apply to on heap storage. Once Elements are moved to off-heap, disk or Terracotta, they
   are serialized as byte arrays. The serialized size is then used as the basis for measurement.
 
 *** Eviction when using CacheManager level storage
