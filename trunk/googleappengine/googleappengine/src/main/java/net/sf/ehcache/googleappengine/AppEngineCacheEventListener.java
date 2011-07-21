@@ -14,8 +14,6 @@
  *  limitations under the License.
  */
 
-
-
 package net.sf.ehcache.googleappengine;
 
 import java.util.Properties;
@@ -78,7 +76,8 @@ public class AppEngineCacheEventListener implements CacheEventListener, Cloneabl
                 LOG.debug("put in MemCache element with key: " + element.getKey());
             }
             MemcacheService memCache = MemcacheServiceFactory.getMemcacheService(cache.getName());
-            memCache.put(element.getKey(), element.getValue(), Expiration.byDeltaSeconds(element.getTimeToLive()));
+            Expiration exp = (element.getTimeToLive()==0) ? null : Expiration.byDeltaSeconds(element.getTimeToLive());
+            memCache.put(element.getKey(), element.getValue(), exp);
         }
     }
 
@@ -91,7 +90,8 @@ public class AppEngineCacheEventListener implements CacheEventListener, Cloneabl
                 LOG.debug("update in MemCache element with key: " + element.getKey());
             }
             MemcacheService memCache = MemcacheServiceFactory.getMemcacheService(cache.getName());
-            memCache.put(element.getKey(), element.getValue(), Expiration.byDeltaSeconds(element.getTimeToLive()));
+            Expiration exp = (element.getTimeToLive()==0) ? null : Expiration.byDeltaSeconds(element.getTimeToLive());
+            memCache.put(element.getKey(), element.getValue(), exp);
         }
     }
 
