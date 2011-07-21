@@ -732,6 +732,9 @@ used with JMX monitors.
 
     If set, all cache operations will need to be done through transactions.
 
+    To prevent users keeping references on stored elements and modifying them outside of any transaction's control,
+    transactions also require the cache to be configured copyOnRead and copyOnWrite.
+
     CacheWriter
     ++++++++++++
 
