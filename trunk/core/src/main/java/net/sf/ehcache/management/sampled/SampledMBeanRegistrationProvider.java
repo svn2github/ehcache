@@ -19,6 +19,7 @@ package net.sf.ehcache.management.sampled;
 import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -35,7 +36,6 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
-import net.sf.ehcache.store.chm.ConcurrentHashMap;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 import org.slf4j.Logger;

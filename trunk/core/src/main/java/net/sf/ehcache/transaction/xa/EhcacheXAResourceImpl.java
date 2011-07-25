@@ -21,7 +21,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.chm.ConcurrentHashMap;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionID;
@@ -47,6 +46,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
