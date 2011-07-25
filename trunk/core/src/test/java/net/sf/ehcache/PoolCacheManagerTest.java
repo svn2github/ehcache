@@ -6,7 +6,6 @@ import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.pool.sizeof.AgentSizeOf;
 import net.sf.ehcache.pool.sizeof.ReflectionSizeOf;
 import net.sf.ehcache.pool.sizeof.SizeOf;
-import net.sf.ehcache.pool.sizeof.SizeOfAgent;
 import net.sf.ehcache.pool.sizeof.UnsafeSizeOf;
 import net.sf.ehcache.store.Store;
 import org.junit.Before;

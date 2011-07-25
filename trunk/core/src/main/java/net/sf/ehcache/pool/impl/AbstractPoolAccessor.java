@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.Role;
+import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
  * Abstract PoolAccessor implementation providing pool to store binding functionality.
@@ -31,6 +32,11 @@ import net.sf.ehcache.pool.Role;
  */
 public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
 
+    /**
+     * {@link SizeOfEngine} used by the accessor.
+     */
+    protected final SizeOfEngine sizeOfEngine;
+    
     private final AtomicBoolean unlinked = new AtomicBoolean();
     private final Pool<T> pool;
     private final T store;
@@ -41,17 +47,71 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      * @param pool pool to be accessed
      * @param store accessing store
      */
-    public AbstractPoolAccessor(Pool<T> pool, T store) {
+    public AbstractPoolAccessor(Pool<T> pool, T store, SizeOfEngine sizeOfEngine) {
         this.pool = pool;
         this.store = store;
+        this.sizeOfEngine = sizeOfEngine;
     }
 
     /**
      * {@inheritDoc}
      */
-    public long replace(Role role, Object current, Object replacement, boolean force) {
+    public final long add(Object key, Object value, Object container, boolean force) {
         checkLinked();
+        return add(sizeOfEngine.sizeOf(key, value, container), force);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public final boolean canAddWithoutEvicting(Object key, Object value, Object container) {
+        return canAddWithoutEvicting(sizeOfEngine.sizeOf(key, value, container));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long delete(Object key, Object value, Object container) {
+        checkLinked();
+        return delete(sizeOfEngine.sizeOf(key, value, container));
+    }
+
+    /**
+     * Add a specific number of bytes to the pool.
+     *
+     * @param sizeOf number of bytes to add
+     * @param force true if the pool should accept adding the element, even if it's out of resources
+     * @return how many bytes have been added to the pool or -1 if add failed.
+     */
+    protected abstract long add(long sizeOf, boolean force);
+    
+    /**
+     * Check if there is enough room in the pool to add a specific number of bytes without provoking any eviction
+     * 
+     * @param sizeOf number of bytes to test against
+     * @return true if there is enough room left
+     */
+    protected abstract boolean canAddWithoutEvicting(long sizeOf);
+
+    /**
+     * {@inheritDoc}
+     */
+    public final long replace(long currentSize, Object key, Object value, Object container, boolean force) {
+        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
+        
+        long delta = sizeOf - currentSize;
+        if (delta < 0) {
+            return -delete(-delta);
+        } else {
+            return add(delta, force);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long replace(Role role, Object current, Object replacement, boolean force) {
         long addedSize;
         long sizeOf = 0;
         switch (role) {

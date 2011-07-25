@@ -31,7 +31,6 @@ import net.sf.ehcache.pool.SizeOfEngine;
  */
 final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
 
-    private final SizeOfEngine sizeOfEngine;
     private long size;
     private final Lock lock = new ReentrantLock();
 
@@ -44,20 +43,14 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
      * @param currentSize initial size of the store
      */
     LockedPoolAccessor(Pool pool, PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
-        super(pool, store);
-        this.sizeOfEngine = sizeOfEngine;
+        super(pool, store, sizeOfEngine);
         this.size = currentSize;
     }
 
     /**
      * {@inheritDoc}
      */
-    public long add(Object key, Object value, Object container, boolean force) {
-        checkLinked();
-
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-
-        // synchronized makes the size update MT-safe but slow
+    protected long add(long sizeOf, boolean force) {
         lock.lock();
         try {
             while (true) {
@@ -107,9 +100,7 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public boolean canAddWithoutEvicting(Object key, Object value, Object container) {
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-
+    protected boolean canAddWithoutEvicting(long sizeOf) {
         lock.lock();
         try {
             long newSize = getPool().getSize() + sizeOf;
@@ -122,10 +113,8 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public long delete(Object key, Object value, Object container) {
+    public long delete(long sizeOf) {
         checkLinked();
-
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
 
         // synchronized makes the size update MT-safe but slow
         lock.lock();

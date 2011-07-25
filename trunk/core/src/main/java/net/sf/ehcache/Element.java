@@ -106,6 +106,8 @@ public class Element implements Serializable, Cloneable {
     private volatile boolean cacheDefaultLifespan = true;
 
     private volatile boolean pinned;
+    
+    private transient volatile long recordedSize;
 
     /**
      * A full constructor.
@@ -838,5 +840,27 @@ public class Element implements Serializable, Cloneable {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         elementEvictionData = new DefaultElementEvictionData(TimeUtil.toMillis(in.readInt()), TimeUtil.toMillis(in.readInt()));
+    }
+
+    /**
+     * Do not use this method - temporary only!
+     * @deprecated temporary method
+     */
+    @Deprecated
+    public long getRecordedSize() {
+        if (recordedSize < 0) {
+            throw new IllegalStateException();
+        } else {
+            return recordedSize;
+        }
+    }
+    
+    /**
+     * Do not use this method - temporary only!
+     * @deprecated temporary method
+     */
+    @Deprecated
+    public void setRecordedSize(long size) {
+        this.recordedSize = size;
     }
 }

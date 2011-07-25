@@ -52,8 +52,18 @@ public interface PoolAccessor<T> {
      * @param value the value of the element
      * @param container the element-container object
      * @return how many bytes have been freed from the pool.
+     * @deprecated use {@link #delete(long)} instead
      */
+    @Deprecated
     long delete(Object key, Object value, Object container);
+    
+    /**
+     * Delete a fixed number of bytes from the pool.
+     *
+     * @param size number of bytes
+     * @return how many bytes have been freed from the pool.
+     */
+    long delete(long size);
 
     /**
      * Replace an element's component from the pool
@@ -63,8 +73,21 @@ public interface PoolAccessor<T> {
      * @param replacement the replacement object
      * @param force true if the pool should accept replacing the element, even if it's out of resources
      * @return how many bytes have been freed from the pool, may be negative. Long.MAX_VALUE is returned if replace failed.
+     * @deprecated use {@link #replace(long, java.lang.Object, java.lang.Object, java.lang.Object, boolean)} instead
      */
+    @Deprecated
     long replace(Role role, Object current, Object replacement, boolean force);
+
+    /**
+     * Delete a fixed number of bytes from the pool with the given objects.
+     *
+     * @param currentSize the size of the object(s) being replaced
+     * @param key the key of the element
+     * @param value the value of the element
+     * @param container the element-container object
+     * @return the change in size of the pool.
+     */
+    long replace(long currentSize, Object key, Object value, Object container, boolean force);
 
     /**
      * Return how many bytes this accessor consumes from the pool.

@@ -30,7 +30,6 @@ import net.sf.ehcache.pool.SizeOfEngine;
  */
 final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
 
-    private final SizeOfEngine sizeOfEngine;
     private final AtomicLong size;
 
     /**
@@ -42,19 +41,14 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
      * @param currentSize initial size of the store
      */
     AtomicPoolAccessor(Pool<PoolableStore> pool, PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
-        super(pool, store);
-        this.sizeOfEngine = sizeOfEngine;
+        super(pool, store, sizeOfEngine);
         this.size = new AtomicLong(currentSize);
     }
 
     /**
      * {@inheritDoc}
      */
-    public long add(Object key, Object value, Object container, boolean force) {
-        checkLinked();
-
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-
+    protected long add(long sizeOf, boolean force) {
         long newSize = getPool().getSize() + sizeOf;
 
         if (newSize <= getPool().getMaxSize()) {
@@ -84,9 +78,7 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public boolean canAddWithoutEvicting(Object key, Object value, Object container) {
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-
+    protected boolean canAddWithoutEvicting(long sizeOf) {
         long newSize = getPool().getSize() + sizeOf;
         return newSize <= getPool().getMaxSize();
     }
@@ -94,10 +86,8 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public long delete(Object key, Object value, Object container) {
+    public long delete(long sizeOf) {
         checkLinked();
-
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
 
         size.addAndGet(-sizeOf);
 

@@ -133,7 +133,21 @@ public class UnboundedPool implements Pool<PoolableStore> {
         /**
          * {@inheritDoc}
          */
+        public long delete(long sizeOf) {
+            return 0L;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
         public long replace(Role role, Object current, Object replacement, boolean force) {
+            return 0L;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public long replace(long currentSize, Object key, Object value, Object container, boolean force) {
             return 0L;
         }
 

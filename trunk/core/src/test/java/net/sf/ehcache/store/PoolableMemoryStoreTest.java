@@ -20,8 +20,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
+import org.hamcrest.number.OrderingComparison;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -183,6 +186,21 @@ public class PoolableMemoryStoreTest {
         assertEquals(0, onHeapPool.getSize());
     }
 
+    @Test
+    public void testStabilityUnderMutation() throws Exception {
+        memoryStore.put(new Element(1, new AtomicReference<Object>()));
+        assertEquals(1, memoryStore.getSize());
+        assertThat(memoryStore.getInMemorySizeInBytes(), OrderingComparison.greaterThan(0L));
+        assertThat(onHeapPool.getSize(), OrderingComparison.greaterThan(0L));
+        
+        ((AtomicReference) memoryStore.get(1).getObjectValue()).set(new byte[1024]);
+        memoryStore.remove(1);
+        
+        assertEquals(0, memoryStore.getSize());
+        assertEquals(0, memoryStore.getInMemorySizeInBytes());
+        assertEquals(0, onHeapPool.getSize());
+    }
+    
     @Test
     @Ignore
     public void testMultithreaded() throws Exception {
