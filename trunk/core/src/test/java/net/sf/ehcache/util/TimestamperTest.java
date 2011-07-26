@@ -16,8 +16,8 @@ import static org.junit.Assert.assertThat;
  */
 public class TimestamperTest {
 
-    public static final int THREADS  = 12;
-    public static final int DURATION = 30;
+    public static final int THREADS  = 8;
+    public static final int DURATION = 2;
 
     @Test
     public void testNext() throws Exception {
@@ -34,11 +34,11 @@ public class TimestamperTest {
                 @Override
                 public void run() {
                     while (!stopped.get()) {
-                        Timestamper.next();
+//                        Timestamper.next();
                         ++runs;
-//                        if(values.putIfAbsent(Timestamper.next(), 0) != null) {
-//                            errors.incrementAndGet();
-//                        }
+                        if(values.putIfAbsent(Timestamper.next(), 0) != null) {
+                            errors.incrementAndGet();
+                        }
                     }
                     totalRuns.addAndGet(runs);
                 }
@@ -56,7 +56,7 @@ public class TimestamperTest {
         assertThat("Shouldn't wait that long for all threads to join!",
             TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start), is(0L));
         // Only meaning full if you don't put values in the chm!
-        System.out.println(totalRuns.get() / DURATION / THREADS + " tps per thread" );
+//        System.out.println(totalRuns.get() / DURATION / THREADS + " tps per thread" );
         assertThat(errors.get(), is(0L));
     }
 }
