@@ -17,13 +17,17 @@
 package net.sf.ehcache.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
@@ -186,6 +190,7 @@ public class CacheConfiguration implements Cloneable {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
     private static final int HUNDRED_PERCENT = 100;
+
 
     /**
      * the name of the cache.
@@ -1382,6 +1387,157 @@ public class CacheConfiguration implements Cloneable {
     public boolean isMaxBytesLocalDiskPercentageSet() {
         return maxBytesLocalDiskPercentage != null;
     }
+
+    /**
+     * Sets up the CacheConfiguration for runtime consumption
+     * @param cacheManager The CacheManager as part of which the cache is being setup
+     */
+    public void setupFor(final CacheManager cacheManager) {
+        final Collection<ConfigError> errors = validate(cacheManager.getConfiguration());
+        if (!errors.isEmpty()) {
+            throw new InvalidConfigurationException(errors);
+        }
+
+        configCachePools(cacheManager.getConfiguration());
+        verifyPoolAllocationsBeforeAddingTo(cacheManager);
+    }
+
+    private Set<Cache> getAllActiveCaches(CacheManager cacheManager) {
+        final Set<Cache> caches = new HashSet<Cache>();
+        for (String cacheName : cacheManager.getCacheNames()) {
+            final Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                caches.add(cache);
+            }
+        }
+        return caches;
+    }
+
+    private void verifyPoolAllocationsBeforeAddingTo(CacheManager cacheManager) {
+        long totalOnHeapAssignedMemory  = 0;
+        long totalOffHeapAssignedMemory = 0;
+        long totalOnDiskAssignedMemory  = 0;
+
+        final Configuration configuration = cacheManager.getConfiguration();
+
+        for (Cache cache : getAllActiveCaches(cacheManager)) {
+            final CacheConfiguration config = cache.getCacheConfiguration();
+            totalOnHeapAssignedMemory += config.getMaxBytesLocalHeap();
+            totalOffHeapAssignedMemory += config.getMaxBytesLocalOffHeap();
+            totalOnDiskAssignedMemory += config.getMaxBytesLocalDisk();
+        }
+
+        totalOnHeapAssignedMemory += getMaxBytesLocalHeap();
+        totalOffHeapAssignedMemory += getMaxBytesLocalOffHeap();
+        totalOnDiskAssignedMemory += getMaxBytesLocalDisk();
+
+        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + getName()
+                                                    + "' to the CacheManager over-allocates onHeap memory!");
+        }
+        if (configuration.isMaxBytesLocalOffHeapSet() && configuration.getMaxBytesLocalOffHeap() - totalOffHeapAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + getName()
+                                                    + "' to the CacheManager over-allocates offHeap memory!");
+        }
+        if (configuration.isMaxBytesLocalDiskSet() && configuration.getMaxBytesLocalDisk() - totalOnDiskAssignedMemory < 0) {
+            throw new InvalidConfigurationException("Adding cache '" + getName()
+                                                    + "' to the CacheManager over-allocates onDisk space!");
+        }
+
+        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory == 0) {
+            LOG.warn("All the onHeap memory has been assigned, there is none left for dynamically added caches");
+        }
+
+        if (Runtime.getRuntime().maxMemory() - totalOnHeapAssignedMemory < 0) {
+            // todo this could be a nicer message (with actual values)
+            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly");
+        }
+
+        if (totalOnHeapAssignedMemory / (float) Runtime.getRuntime().maxMemory() > CacheManager.ON_HEAP_THRESHOLD) {
+            LOG.warn("You've assigned over 80% of your VM's heap to be used by the cache!");
+        }
+    }
+
+    private void configCachePools(Configuration configuration) {
+
+        long cacheAssignedMem;
+        if (getMaxBytesLocalHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalHeap() * getMaxBytesLocalHeapPercentage() / HUNDRED_PERCENT;
+            setMaxBytesLocalHeap(cacheAssignedMem);
+        }
+
+        if (getMaxBytesLocalOffHeapPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalOffHeap() * getMaxBytesLocalOffHeapPercentage() / HUNDRED_PERCENT;
+            setMaxBytesLocalOffHeap(cacheAssignedMem);
+        }
+
+        if (getMaxBytesLocalDiskPercentage() != null) {
+            cacheAssignedMem = configuration.getMaxBytesLocalDisk() * getMaxBytesLocalDiskPercentage() / HUNDRED_PERCENT;
+            setMaxBytesLocalDisk(cacheAssignedMem);
+        }
+
+    }
+
+    /**
+     * Validates the configuration
+     * @param configuration the CacheManager configuration this is going to be used with
+     * @return the errors in the config
+     */
+    public Collection<ConfigError> validate(final Configuration configuration) {
+
+        final Collection<ConfigError> errors = new ArrayList<ConfigError>();
+
+        if (isTerracottaClustered()) {
+            validateTerracottaConfig(configuration, errors);
+        }
+
+        if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
+            errors.add(new CacheConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly", getName()));
+        }
+
+        // todo Verify that these are the real constraints ?
+        if (isMaxBytesLocalHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
+            errors.add(new CacheConfigError("Defines a percentage maxBytesOnHeap value but no CacheManager " +
+                                                    "wide value was configured", getName()));
+        }
+        if (isMaxBytesLocalOffHeapPercentageSet() && !configuration.isMaxBytesLocalOffHeapSet()) {
+            errors.add(new CacheConfigError("Defines a percentage maxBytesOffHeap value but no CacheManager " +
+                                            "wide value was configured", getName()));
+        }
+        if (isMaxBytesLocalDiskPercentageSet() && !configuration.isMaxBytesLocalDiskSet()) {
+            errors.add(new CacheConfigError("Defines a percentage maxBytesOnDisk value but no CacheManager " +
+                                            "wide value was configured", getName()));
+        }
+
+        return errors;
+    }
+
+    private void validateTerracottaConfig(final Configuration configuration, final Collection<ConfigError> errors) {
+        if (getTerracottaConfiguration().getStorageStrategy().equals(StorageStrategy.CLASSIC)) {
+            if (getTerracottaConfiguration().isNonstopEnabled()) {
+                errors.add(new CacheConfigError("NONSTOP can't be enabled with " + StorageStrategy.CLASSIC
+                    .name() + " strategy.", getName()));
+            }
+
+            if (configuration.getTerracottaConfiguration().isRejoin()) {
+                errors.add(new CacheConfigError("REJOIN can't be enabled with " + StorageStrategy.CLASSIC
+                    .name() + " strategy.", getName()));
+            }
+
+            if (getTerracottaConsistency().equals(Consistency.EVENTUAL)) {
+                errors.add(new CacheConfigError(Consistency.EVENTUAL
+                                                    .name() + " consistency can't be enabled with " + StorageStrategy.CLASSIC.name()
+                                                + " strategy.", getName()));
+            }
+        }
+
+        if (configuration.getTerracottaConfiguration().isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
+            errors.add(new CacheConfigError("Terracotta clustered caches must be nonstop when rejoin is enabled.", getName()));
+        }
+    }
+
 
     /**
      * Configuration for the CacheEventListenerFactory.

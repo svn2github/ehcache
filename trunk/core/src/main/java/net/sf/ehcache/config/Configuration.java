@@ -16,13 +16,21 @@
 
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.util.PropertyUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -68,6 +76,9 @@ public final class Configuration {
      */
     public static final FactoryConfiguration DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG = getDefaultTransactionManagerLookupConfiguration();
     private static final int HUNDRED = 100;
+    private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
+
+    private volatile RuntimeCfg cfg;
 
     /**
      * Represents whether monitoring should be enabled or not.
@@ -109,6 +120,37 @@ public final class Configuration {
      * If you are using it programmtically you need to call the relevant add and setter methods in this class to populate everything.
      */
     public Configuration() {
+    }
+
+    /**
+     * Freezes part of the configuration that need to be, and runs validation checks on the Configuration.
+     *
+     * @param cacheManager the CacheManager instance being configured
+     * @throws InvalidConfigurationException With all the associated errors
+     */
+    public RuntimeCfg setupFor(final CacheManager cacheManager, final String fallbackName) throws InvalidConfigurationException {
+        if (cfg != null) {
+            return cfg;
+        }
+        final Collection<ConfigError> errors = validate();
+        if (!errors.isEmpty()) {
+            throw new InvalidConfigurationException(errors);
+        }
+        cfg = new Configuration.RuntimeCfg(cacheManager, fallbackName);
+        return cfg;
+    }
+
+    /**
+     * Validates the current configuration
+     * @return the list of errors withing that configuration
+     */
+    public Collection<ConfigError> validate() {
+        final Collection<ConfigError> errors = new ArrayList<ConfigError>();
+
+        for (CacheConfiguration cacheConfiguration : cacheConfigurations.values()) {
+            errors.addAll(cacheConfiguration.validate(this));
+        }
+        return errors;
     }
 
     /**
@@ -695,4 +737,133 @@ public final class Configuration {
         return configurationSource;
     }
 
+    /**
+     * Runtime configuration as being used by the CacheManager
+     */
+    public class RuntimeCfg {
+
+        private final CacheManager cacheManager;
+        private volatile String cacheManagerName;
+        private final boolean named;
+        private TransactionManagerLookup transactionManagerLookup;
+
+        /**
+         * Constructor
+         * @param cacheManager the cacheManager instance using this config
+         * @param fallbackName the fallbackName in case the configuration doesn't declare an explicit name
+         */
+        public RuntimeCfg(final CacheManager cacheManager, final String fallbackName) {
+            if (Configuration.this.cacheManagerName != null) {
+                this.cacheManagerName = Configuration.this.cacheManagerName;
+                named = true;
+            } else if (hasTerracottaClusteredCaches()) {
+                this.cacheManagerName = CacheManager.DEFAULT_NAME;
+                named = false;
+            } else {
+                this.cacheManagerName = fallbackName;
+                named = false;
+            }
+            FactoryConfiguration lookupConfiguration = getTransactionManagerLookupConfiguration();
+            try {
+                Properties properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(), lookupConfiguration
+                    .getPropertySeparator());
+                Class<TransactionManagerLookup> transactionManagerLookupClass = (Class<TransactionManagerLookup>) Class
+                        .forName(lookupConfiguration.getFullyQualifiedClassPath());
+                this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
+                this.transactionManagerLookup.setProperties(properties);
+            } catch (Exception e) {
+                LOG.error("could not instantiate transaction manager lookup class: {}", lookupConfiguration.getFullyQualifiedClassPath(), e);
+            }
+
+
+
+            this.cacheManager = cacheManager;
+        }
+
+        /**
+         * @return the CacheManager's name
+         */
+        public String getCacheManagerName() {
+            return cacheManagerName;
+        }
+
+        /**
+         * @return Whether dynamic config changes are available
+         */
+        public boolean allowsDynamicCacheConfig() {
+            return getDynamicConfig();
+        }
+
+        /**
+         * @return Whether the CacheManager is explicitly named
+         */
+        public boolean isNamed() {
+            return named;
+        }
+
+        /**
+         * @return the underlying Configuration instance
+         */
+        public Configuration getConfiguration() {
+            return Configuration.this;
+        }
+
+        /**
+         * @return Whether terracotta clustering is being used and rejoin is enabled
+         */
+        public boolean isTerracottaRejoin() {
+            TerracottaClientConfiguration terracottaConfiguration = getTerracottaConfiguration();
+            return terracottaConfiguration != null && terracottaConfiguration.isRejoin();
+        }
+
+        private boolean hasTerracottaClusteredCaches() {
+            if (defaultCacheConfiguration != null
+                    && defaultCacheConfiguration.isTerracottaClustered()) {
+                return true;
+            } else {
+                for (CacheConfiguration config : cacheConfigurations.values()) {
+                    if (config.isTerracottaClustered()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+         * @return The transactionManagerLookup instance
+         */
+        public TransactionManagerLookup getTransactionManagerLookup() {
+            return transactionManagerLookup;
+        }
+
+        /**
+         * @return Whether maxBytes is set for LocalHeap
+         */
+        public boolean isMaxBytesLocalHeapSet() {
+            return Configuration.this.isMaxBytesLocalHeapSet();
+        }
+
+        /**
+         * @return Whether maxBytes is set for LocalDisk
+         */
+        public boolean isMaxBytesLocalDiskSet() {
+            return Configuration.this.isMaxBytesLocalDiskSet();
+        }
+
+        /**
+         * @return All Cache configurations
+         */
+        public Map<String, CacheConfiguration> getCacheConfigurations() {
+            return Configuration.this.getCacheConfigurations();
+        }
+
+        /**
+         * Adds a cacheConfiguration to the underlying Configuration instance
+         * @param cacheConfig CacheConfiguration instance to add
+         */
+        public void addCache(final CacheConfiguration cacheConfig) {
+            Configuration.this.addCache(cacheConfig);
+        }
+    }
 }

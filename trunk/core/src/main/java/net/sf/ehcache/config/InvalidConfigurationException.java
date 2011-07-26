@@ -18,6 +18,8 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
 
+import java.util.Collection;
+
 /**
  * An exception to report invalid configuration settings.
  *  
@@ -33,4 +35,27 @@ public class InvalidConfigurationException extends CacheException {
     public InvalidConfigurationException(String message) {
         super(message);
     }
+
+    /**
+     * Constructs a new exception with a message containing all config errors
+     * @param errors the list of error encountered
+     */
+    public InvalidConfigurationException(final Collection<ConfigError> errors) {
+        super(createErrorMessage(errors));
+    }
+
+    private static String createErrorMessage(Collection<ConfigError> errors) {
+        final StringBuilder sb = new StringBuilder()
+            .append("There are ")
+            .append(errors.size())
+            .append(" errors in your configuration: \n");
+        for (ConfigError error : errors) {
+            sb.append("\t* ")
+                .append(error.toString())
+                .append('\n');
+        }
+        return sb
+            .toString();
+    }
+
 }

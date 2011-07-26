@@ -18,13 +18,11 @@ package net.sf.ehcache;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,11 +39,6 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.FactoryConfiguration;
-import net.sf.ehcache.config.InvalidConfigurationException;
-import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
@@ -145,12 +138,6 @@ public class CacheManager {
 
     private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
             + " in the config. Please add a default cache config in the configuration.";
-    private static final int HUNDRED = 100;
-
-    /**
-     * A name for this CacheManager to distinguish it from others.
-     */
-    protected volatile String name;
 
     /**
      * Status of the Cache Manager
@@ -203,15 +190,6 @@ public class CacheManager {
 
     private volatile TerracottaClient terracottaClient;
 
-    /**
-     * The {@link TerracottaClientConfiguration} used for this {@link CacheManager}
-     */
-    private TerracottaClientConfiguration terracottaClientConfiguration;
-
-    private Configuration configuration;
-
-    private volatile boolean allowsDynamicCacheConfig = true;
-
     private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile TransactionController transactionController;
@@ -223,6 +201,7 @@ public class CacheManager {
     private volatile Pool onDiskPool;
 
     private final NonstopExecutorServiceFactory nonstopExecutorServiceFactory = CacheManagerExecutorServiceFactory.getInstance();
+    private volatile Configuration.RuntimeCfg runtimeCfg;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -321,35 +300,29 @@ public class CacheManager {
      */
     protected void init(Configuration initialConfiguration, String configurationFileName, URL configurationURL,
             InputStream configurationInputStream) {
-        Configuration localConfiguration = initialConfiguration;
+        Configuration configuration = initialConfiguration;
         if (initialConfiguration == null) {
-            localConfiguration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
-            this.configuration = localConfiguration;
+            configuration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
         } else {
-            this.configuration = initialConfiguration;
+            configuration = initialConfiguration;
         }
+        // TODO This has to go
 
-        if (this.configuration.getTerracottaConfiguration() != null) {
-            this.configuration.getTerracottaConfiguration().freezeConfig();
+        if (configuration.getTerracottaConfiguration() != null) {
+            // TODO this shouldn't be done!
+            configuration.getTerracottaConfiguration().freezeConfig();
         }
-        validateConfiguration();
+        runtimeCfg = configuration.setupFor(this, super.toString());
 
-        if (this.configuration.isMaxBytesLocalHeapSet()) {
+        if (configuration.isMaxBytesLocalHeapSet()) {
             PoolEvictor<PoolableStore> evictor = new BalancedAccessOnHeapPoolEvictor();
             SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
-            this.onHeapPool = new BoundedPool(this.configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
+            this.onHeapPool = new BoundedPool(configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
         }
-        if (this.configuration.isMaxBytesLocalDiskSet()) {
+        if (configuration.isMaxBytesLocalDiskSet()) {
             PoolEvictor<PoolableStore> evictor = new BalancedAccessOnDiskPoolEvictor();
-            this.onDiskPool = new BoundedPool(this.configuration.getMaxBytesLocalDisk(), evictor, null);
+            this.onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
         }
-
-        if (localConfiguration.getName() != null) {
-            this.name = localConfiguration.getName();
-        }
-
-        this.allowsDynamicCacheConfig = localConfiguration.getDynamicConfig();
-        this.terracottaClientConfiguration = localConfiguration.getTerracottaConfiguration();
 
         terracottaClient = new TerracottaClient(this, new TerracottaClientRejoinListener() {
             public void clusterRejoinStarted() {
@@ -359,11 +332,11 @@ public class CacheManager {
             public void clusterRejoinComplete() {
                 CacheManager.this.clusterRejoinComplete();
             }
-        }, localConfiguration.getTerracottaConfiguration());
+        }, configuration.getTerracottaConfiguration());
 
-        Map<String, CacheConfiguration> cacheConfigs = localConfiguration.getCacheConfigurations();
-        if (localConfiguration.getDefaultCacheConfiguration() != null
-                && localConfiguration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+        Map<String, CacheConfiguration> cacheConfigs = configuration.getCacheConfigurations();
+        if (configuration.getDefaultCacheConfiguration() != null
+                && configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
             terracottaClient.createClusteredInstanceFactory(cacheConfigs);
         } else {
             for (CacheConfiguration config : cacheConfigs.values()) {
@@ -374,14 +347,10 @@ public class CacheManager {
             }
         }
 
-        if (terracottaClient.getClusteredInstanceFactory() != null && this.name == null) {
-            this.name = CacheManager.DEFAULT_NAME;
-        }
-
         TransactionIDFactory transactionIDFactory = createTransactionIDFactory();
         this.transactionController = new TransactionController(transactionIDFactory, configuration.getDefaultTransactionTimeoutInSeconds());
 
-        ConfigurationHelper configurationHelper = new ConfigurationHelper(this, localConfiguration);
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(this, configuration);
         configure(configurationHelper);
         status = Status.STATUS_ALIVE;
 
@@ -393,9 +362,9 @@ public class CacheManager {
         addShutdownHookIfRequired();
 
         cacheManagerTimer = new FailSafeTimer(getName());
-        checkForUpdateIfNeeded(localConfiguration.getUpdateCheck());
+        checkForUpdateIfNeeded(configuration.getUpdateCheck());
 
-        mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(localConfiguration);
+        mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(configuration);
 
         // do this last
         addConfiguredCaches(configurationHelper);
@@ -423,59 +392,6 @@ public class CacheManager {
      */
     public Pool getOnDiskPool() {
         return onDiskPool;
-    }
-
-    private boolean isTerracottaRejoinEnabled() {
-        TerracottaClientConfiguration terracottaConfiguration = configuration.getTerracottaConfiguration();
-        return terracottaConfiguration != null && terracottaConfiguration.isRejoin();
-    }
-
-    private void validateConfiguration() {
-        if (isTerracottaRejoinEnabled()) {
-            validateCacheConfigs(configuration.getCacheConfigurations().values());
-        }
-    }
-
-    private void validateCacheConfigs(Collection<CacheConfiguration> cacheConfigs) {
-        boolean invalid = false;
-        final StringBuilder error = new StringBuilder();
-        for (CacheConfiguration config : cacheConfigs) {
-            if (config.isTerracottaClustered()) {
-                if (config.getTerracottaConfiguration().getStorageStrategy().equals(StorageStrategy.CLASSIC)) {
-                    if (config.getTerracottaConfiguration().isNonstopEnabled()) {
-                        invalid = true;
-                        error.append("\n").append(
-                                "NONSTOP can't be enabled with " + StorageStrategy.CLASSIC.name() + " strategy. Invalid Cache: "
-                                        + config.getName());
-                    }
-
-                    if (isTerracottaRejoinEnabled()) {
-                        invalid = true;
-                        error.append("\n").append(
-                                "REJOIN can't be enabled with " + StorageStrategy.CLASSIC.name() + " strategy. Invalid Cache: "
-                                        + config.getName());
-                    }
-
-                    if (config.getTerracottaConsistency().equals(Consistency.EVENTUAL)) {
-                        invalid = true;
-                        error.append("\n").append(
-                                Consistency.EVENTUAL.name() + " consistency can't be enabled with " + StorageStrategy.CLASSIC.name()
-                                        + " strategy. Invalid Cache: " + config.getName());
-                    }
-                }
-
-                if (isTerracottaRejoinEnabled() && !config.getTerracottaConfiguration().isNonstopEnabled()) {
-                    invalid = true;
-                    error.append("\n").append(
-                            "Terracotta clustered caches must be nonstop when rejoin is enabled. Invalid cache: " + config.getName());
-                }
-            }
-        }
-
-        if (invalid) {
-            String errorMessage = "Errors:" + error.toString();
-            throw new InvalidConfigurationException(errorMessage);
-        }
     }
 
     /**
@@ -614,17 +530,7 @@ public class CacheManager {
                     + ". Please explicitly configure the diskStore element in ehcache.xml.");
         }
 
-        FactoryConfiguration lookupConfiguration = configuration.getTransactionManagerLookupConfiguration();
-        try {
-            Properties properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(), lookupConfiguration
-                    .getPropertySeparator());
-            Class<TransactionManagerLookup> transactionManagerLookupClass = (Class<TransactionManagerLookup>) Class
-                    .forName(lookupConfiguration.getFullyQualifiedClassPath());
-            this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
-            this.transactionManagerLookup.setProperties(properties);
-        } catch (Exception e) {
-            LOG.error("could not instantiate transaction manager lookup class: {}", lookupConfiguration.getFullyQualifiedClassPath(), e);
-        }
+        this.transactionManagerLookup = runtimeCfg.getTransactionManagerLookup();
 
         detectAndFixDiskStorePathConflict(configurationHelper);
 
@@ -1006,7 +912,7 @@ public class CacheManager {
         if (cache == null) {
             return;
         }
-        addCache((Ehcache) cache);
+        addCache((Ehcache)cache);
     }
 
     /**
@@ -1071,64 +977,13 @@ public class CacheManager {
         }
     }
 
-    private void configCachePools(CacheConfiguration cacheConfiguration) {
-
-        long cacheAssignedMem;
-        if (cacheConfiguration.getMaxBytesLocalHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesLocalHeap() * cacheConfiguration.getMaxBytesLocalHeapPercentage() / HUNDRED;
-            cacheConfiguration.setMaxBytesLocalHeap(cacheAssignedMem);
-        }
-
-        if (cacheConfiguration.getMaxBytesLocalOffHeapPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesLocalOffHeap() * cacheConfiguration.getMaxBytesLocalOffHeapPercentage() / HUNDRED;
-            cacheConfiguration.setMaxBytesLocalOffHeap(cacheAssignedMem);
-        }
-
-        if (cacheConfiguration.getMaxBytesLocalDiskPercentage() != null) {
-            cacheAssignedMem = configuration.getMaxBytesLocalDisk() * cacheConfiguration.getMaxBytesLocalDiskPercentage() / HUNDRED;
-            cacheConfiguration.setMaxBytesLocalDisk(cacheAssignedMem);
-        }
-
-    }
-
-    private void validatePoolConfig(CacheConfiguration cacheConfiguration) {
-
-        if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
-            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
-                                                    "please adjust your -Xmx setting accordingly");
-        }
-
-        // todo Verify that these are the real constraints ?
-        if (cacheConfiguration.isMaxBytesLocalHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
-            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
-                                                    "' defines a percentage maxBytesOnHeap value but no CacheManager " +
-                                                    "wide value was configured");
-        }
-        if (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet() && !configuration.isMaxBytesLocalOffHeapSet()) {
-            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
-                                                    "' defines a percentage maxBytesOffHeap value but no CacheManager " +
-                                                    "wide value was configured");
-        }
-        if (cacheConfiguration.isMaxBytesLocalDiskPercentageSet() && !configuration.isMaxBytesLocalDiskSet()) {
-            throw new InvalidConfigurationException("Cache '" + cacheConfiguration.getName() +
-                                                    "' defines a percentage maxBytesOnDisk value but no CacheManager " +
-                                                    "wide value was configured");
-        }
-    }
-
     private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
             CacheException {
-
-        if (isTerracottaRejoinEnabled()) {
-            validateCacheConfigs(Collections.singletonList(cache.getCacheConfiguration()));
-        }
 
         if (cache.getStatus() != Status.STATUS_UNINITIALISED) {
             throw new CacheException("Trying to add an already initialized cache." + " If you are adding a decorated cache, "
                     + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
         }
-
-        validatePoolConfig(cache.getCacheConfiguration());
 
         Ehcache ehcache = ehcaches.get(cache.getName());
         if (ehcache != null) {
@@ -1138,12 +993,11 @@ public class CacheManager {
                 return ehcache;
             }
         }
-        configCachePools(cache.getCacheConfiguration());
-        verifyPoolAllocationsBeforeAdding(cache.getCacheConfiguration());
-        if (configuration.isMaxBytesLocalHeapSet()) {
+        cache.getCacheConfiguration().setupFor(this);
+        if (runtimeCfg.isMaxBytesLocalHeapSet()) {
             onHeapPool.setMaxSize(onHeapPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalHeap());
         }
-        if (configuration.isMaxBytesLocalDiskSet()) {
+        if (runtimeCfg.isMaxBytesLocalDiskSet()) {
             onDiskPool.setMaxSize(onDiskPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalDisk());
         }
 
@@ -1153,15 +1007,15 @@ public class CacheManager {
         }
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
-        Map<String, CacheConfiguration> configMap = configuration.getCacheConfigurations();
+        Map<String, CacheConfiguration> configMap = runtimeCfg.getCacheConfigurations();
         if (!configMap.containsKey(cache.getName())) {
             CacheConfiguration cacheConfig = cache.getCacheConfiguration();
             if (cacheConfig != null) {
-                configuration.addCache(cacheConfig);
+                runtimeCfg.addCache(cacheConfig);
             }
         }
 
-        if (isTerracottaRejoinEnabled() && cache.getCacheConfiguration().isTerracottaClustered()) {
+        if (runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
             final long timeoutMillis = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration()
                     .getTimeoutMillis();
             try {
@@ -1181,7 +1035,7 @@ public class CacheManager {
             cache.initialise();
         }
 
-        if (!allowsDynamicCacheConfig) {
+        if (!runtimeCfg.allowsDynamicCacheConfig()) {
             cache.disableDynamicFeatures();
         }
 
@@ -1205,49 +1059,6 @@ public class CacheManager {
         }
 
         return cache;
-    }
-
-    private void verifyPoolAllocationsBeforeAdding(final CacheConfiguration cacheConfiguration) {
-        long totalOnHeapAssignedMemory  = 0;
-        long totalOffHeapAssignedMemory = 0;
-        long totalOnDiskAssignedMemory  = 0;
-
-        for (Ehcache ehcache : ehcaches.values()) {
-            totalOnHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalHeap();
-            totalOffHeapAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalOffHeap();
-            totalOnDiskAssignedMemory += ehcache.getCacheConfiguration().getMaxBytesLocalDisk();
-        }
-
-        totalOnHeapAssignedMemory += cacheConfiguration.getMaxBytesLocalHeap();
-        totalOffHeapAssignedMemory += cacheConfiguration.getMaxBytesLocalOffHeap();
-        totalOnDiskAssignedMemory += cacheConfiguration.getMaxBytesLocalDisk();
-
-        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory < 0) {
-            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
-                                                    + "' to the CacheManager over-allocates onHeap memory!");
-        }
-        if (configuration.isMaxBytesLocalOffHeapSet() && configuration.getMaxBytesLocalOffHeap() - totalOffHeapAssignedMemory < 0) {
-            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
-                                                    + "' to the CacheManager over-allocates offHeap memory!");
-        }
-        if (configuration.isMaxBytesLocalDiskSet() && configuration.getMaxBytesLocalDisk() - totalOnDiskAssignedMemory < 0) {
-            throw new InvalidConfigurationException("Adding cache '" + cacheConfiguration.getName()
-                                                    + "' to the CacheManager over-allocates onDisk space!");
-        }
-
-        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory == 0) {
-            LOG.warn("All the onHeap memory has been assigned, there is none left for dynamically added caches");
-        }
-
-        if (Runtime.getRuntime().maxMemory() - totalOnHeapAssignedMemory < 0) {
-            // todo this could be a nicer message (with actual values)
-            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
-                                                    "please adjust your -Xmx setting accordingly");
-        }
-
-        if (totalOnHeapAssignedMemory / (float) Runtime.getRuntime().maxMemory() > ON_HEAP_THRESHOLD) {
-            LOG.warn("You've assigned over 80% of your VM's heap to be used by the cache!");
-        }
     }
 
     /**
@@ -1293,13 +1104,13 @@ public class CacheManager {
         Ehcache cache = ehcaches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
-            if (configuration.isMaxBytesLocalHeapSet()) {
+            if (runtimeCfg.getConfiguration().isMaxBytesLocalHeapSet()) {
                 onHeapPool.setMaxSize(onHeapPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalHeap());
             }
-            if (configuration.isMaxBytesLocalDiskSet()) {
+            if (runtimeCfg.getConfiguration().isMaxBytesLocalDiskSet()) {
                 onDiskPool.setMaxSize(onDiskPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalDisk());
             }
-            configuration.getCacheConfigurations().remove(cacheName);
+            runtimeCfg.getConfiguration().getCacheConfigurations().remove(cacheName);
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }
     }
@@ -1550,8 +1361,8 @@ public class CacheManager {
      * @see #toString() which uses either the name or Object.toString()
      */
     public String getName() {
-        if (name != null) {
-            return name;
+        if (runtimeCfg.getCacheManagerName() != null) {
+            return runtimeCfg.getCacheManagerName();
         } else {
             return super.toString();
         }
@@ -1563,7 +1374,7 @@ public class CacheManager {
      * @return True if named
      */
     public boolean isNamed() {
-        return name != null;
+        return runtimeCfg.isNamed();
     }
 
     /**
@@ -1574,7 +1385,7 @@ public class CacheManager {
      *            a name with characters legal in a JMX ObjectName
      */
     public void setName(String name) {
-        this.name = name;
+        // TODO Support this!
         try {
             mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
         } catch (MBeanRegistrationProviderException e) {
@@ -1639,10 +1450,10 @@ public class CacheManager {
      * @return Returns the original configuration text for this {@link CacheManager}
      */
     public String getOriginalConfigurationText() {
-        if (configuration.getConfigurationSource() == null) {
+        if (runtimeCfg.getConfiguration().getConfigurationSource() == null) {
             return "Originally configured programmatically. No original configuration source text.";
         } else {
-            Configuration originalConfiguration = configuration.getConfigurationSource().createConfiguration();
+            Configuration originalConfiguration = runtimeCfg.getConfiguration().getConfigurationSource().createConfiguration();
             return ConfigurationUtil.generateCacheManagerConfigurationText(originalConfiguration);
         }
     }
@@ -1653,7 +1464,7 @@ public class CacheManager {
      * @return Returns the active configuration text for this {@link CacheManager}
      */
     public String getActiveConfigurationText() {
-        return ConfigurationUtil.generateCacheManagerConfigurationText(configuration);
+        return ConfigurationUtil.generateCacheManagerConfigurationText(runtimeCfg.getConfiguration());
     }
 
     /**
@@ -1664,10 +1475,10 @@ public class CacheManager {
      * @throws CacheException if the cache with <code>cacheName</code> does not exist in the original config
      */
     public String getOriginalConfigurationText(String cacheName) throws CacheException {
-        if (configuration.getConfigurationSource() == null) {
+        if (runtimeCfg.getConfiguration().getConfigurationSource() == null) {
             return "Originally configured programmatically. No original configuration source text.";
         } else {
-            Configuration originalConfiguration = configuration.getConfigurationSource().createConfiguration();
+            Configuration originalConfiguration = runtimeCfg.getConfiguration().getConfigurationSource().createConfiguration();
             CacheConfiguration cacheConfiguration = originalConfiguration.getCacheConfigurations().get(cacheName);
             if (cacheConfiguration == null) {
                 throw new CacheException("Cache with name '" + cacheName + "' does not exist in the original configuration");
@@ -1684,7 +1495,7 @@ public class CacheManager {
      * @throws CacheException if the cache with <code>cacheName</code> does not exist
      */
     public String getActiveConfigurationText(String cacheName) throws CacheException {
-        CacheConfiguration config = configuration.getCacheConfigurations().get(cacheName);
+        CacheConfiguration config = runtimeCfg.getConfiguration().getCacheConfigurations().get(cacheName);
         if (config == null) {
             throw new CacheException("Cache with name '" + cacheName + "' does not exist");
         }
@@ -1697,19 +1508,7 @@ public class CacheManager {
      * @return the configuration
      */
     public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        if (name != null) {
-            return name.hashCode();
-        } else {
-            return super.hashCode();
-        }
+        return runtimeCfg.getConfiguration();
     }
 
     /**
@@ -1768,7 +1567,7 @@ public class CacheManager {
     }
 
     private List<Ehcache> createDefaultCacheDecorators(Ehcache underlyingCache) {
-        return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, configuration.getDefaultCacheConfiguration());
+        return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, runtimeCfg.getConfiguration().getDefaultCacheConfiguration());
     }
 
     /**
@@ -1864,7 +1663,7 @@ public class CacheManager {
             }
         }
         // recreate TransactionController with fresh TransactionIDFactory
-        transactionController = new TransactionController(createTransactionIDFactory(), configuration
+        transactionController = new TransactionController(createTransactionIDFactory(), runtimeCfg.getConfiguration()
                 .getDefaultTransactionTimeoutInSeconds());
     }
 

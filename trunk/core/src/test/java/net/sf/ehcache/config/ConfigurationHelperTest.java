@@ -17,6 +17,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -148,6 +149,50 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
         System.setProperty("ehcache.disk.store.dir", "/tmp");
         specificPathTest(diskStore, "ehcache.disk.store.dir/cacheManager1/dir1", "ehcache.disk.store.dir");
         specificPathTest(diskStore, "${ehcache.disk.store.dir}/cacheManager1/dir1", "ehcache.disk.store.dir");
+    }
+
+    @Test
+    public void testThrowsExceptionsWithTcRejoin() {
+        Configuration configuration = new Configuration().terracotta(new TerracottaClientConfiguration().rejoin(true));
+        configuration.addCache(new CacheConfiguration("test", 1000).terracotta(
+            new TerracottaConfiguration().storageStrategy(TerracottaConfiguration.StorageStrategy.CLASSIC)));
+        try {
+            new CacheManager(configuration);
+            fail();
+        } catch (CacheException e) {
+            assertThat(e.getMessage().contains("REJOIN can't be enabled with CLASSIC strategy"), is(true));
+        }
+
+        configuration = new Configuration().terracotta(new TerracottaClientConfiguration().rejoin(true));
+        configuration.addCache(new CacheConfiguration("test", 1000).terracotta(
+            new TerracottaConfiguration().storageStrategy(TerracottaConfiguration.StorageStrategy.CLASSIC)
+                .nonstop(new NonstopConfiguration().enabled(true))));
+        try {
+            new CacheManager(configuration);
+            fail();
+        } catch (CacheException e) {
+            assertThat(e.getMessage().contains("NONSTOP can't be enabled with CLASSIC strategy"), is(true));
+        }
+
+        configuration = new Configuration().terracotta(new TerracottaClientConfiguration().rejoin(true));
+        configuration.addCache(new CacheConfiguration("test", 1000).terracotta(
+            new TerracottaConfiguration().storageStrategy(TerracottaConfiguration.StorageStrategy.CLASSIC)
+                .consistency(TerracottaConfiguration.Consistency.EVENTUAL)));
+        try {
+            new CacheManager(configuration);
+            fail();
+        } catch (CacheException e) {
+            assertThat(e.getMessage().contains("EVENTUAL consistency can't be enabled with CLASSIC strategy"), is(true));
+        }
+
+        configuration = new Configuration().terracotta(new TerracottaClientConfiguration().rejoin(true));
+        configuration.addCache(new CacheConfiguration("test", 1000).terracotta(new TerracottaConfiguration()));
+        try {
+            new CacheManager(configuration);
+            fail();
+        } catch (CacheException e) {
+            assertThat(e.getMessage().contains("Terracotta clustered caches must be nonstop when rejoin is enabled."), is(true));
+        }
     }
 
     private void specificPathTest(DiskStoreConfiguration diskStoreConfiguration, String specifiedPath, String ... properties) {
