@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentMap;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.distribution.CacheReplicator;
 
 /**
  * Creates a wrapper for sending out cache events through the Terracotta cluster
@@ -31,9 +29,8 @@ import net.sf.ehcache.distribution.CacheReplicator;
  * @author Geert Bevin
  * @version $Id$
  */
-public class TerracottaCacheEventReplication implements CacheReplicator {
-    private Status status = Status.STATUS_ALIVE;
-    
+public class TerracottaCacheEventReplication implements CacheEventListener {
+
     private final ConcurrentMap<Ehcache, CacheEventListener> replicators = new ConcurrentHashMap<Ehcache, CacheEventListener>();
 
     /**
@@ -86,7 +83,7 @@ public class TerracottaCacheEventReplication implements CacheReplicator {
             replicator = cache.getCacheManager().createTerracottaEventReplicator(cache);
             replicators.put(cache, replicator);
         }
-        
+
         return replicator;
     }
 
@@ -101,28 +98,7 @@ public class TerracottaCacheEventReplication implements CacheReplicator {
     /**
      * {@inheritDoc}
      */
-    public boolean isReplicateUpdatesViaCopy() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final boolean notAlive() {
-        return !alive();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final boolean alive() {
-        return status != null && (status.equals(Status.STATUS_ALIVE));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void dispose() {
-        status = Status.STATUS_SHUTDOWN;
+        // nothing to do
     }
 }

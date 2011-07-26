@@ -3716,6 +3716,8 @@ public class Cache implements Ehcache, StoreListener {
     public Element putIfAbsent(Element element) throws NullPointerException {
         checkStatus();
 
+        checkCASOperationSupported();
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
@@ -3744,6 +3746,8 @@ public class Cache implements Ehcache, StoreListener {
     public boolean removeElement(Element element) throws NullPointerException {
         checkStatus();
 
+        checkCASOperationSupported();
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
@@ -3767,6 +3771,8 @@ public class Cache implements Ehcache, StoreListener {
      */
     public boolean replace(Element old, Element element) throws NullPointerException, IllegalArgumentException {
         checkStatus();
+
+        checkCASOperationSupported();
 
         if (old.getObjectKey() == null || element.getObjectKey() == null) {
             throw new NullPointerException();
@@ -3800,6 +3806,8 @@ public class Cache implements Ehcache, StoreListener {
     public Element replace(Element element) throws NullPointerException {
         checkStatus();
 
+        checkCASOperationSupported();
+
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
         }
@@ -3820,6 +3828,13 @@ public class Cache implements Ehcache, StoreListener {
             notifyPutInternalListeners(element, false, true);
         }
         return result;
+    }
+
+    private void checkCASOperationSupported() {
+        if (registeredEventListeners.hasCacheReplicators()) {
+            throw new CacheException(
+                    "You have configured the cache with a replication scheme that cannot properly support CAS operation guarantees.");
+        }
     }
 
     /**

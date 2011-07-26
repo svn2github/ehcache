@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -49,12 +50,14 @@ public class RegisteredEventListeners {
     private final Set<ListenerWrapper> cacheEventListeners = new CopyOnWriteArraySet<ListenerWrapper>();
     private final Ehcache cache;
 
-    private AtomicLong elementsRemovedCounter = new AtomicLong(0);
-    private AtomicLong elementsPutCounter = new AtomicLong(0);
-    private AtomicLong elementsUpdatedCounter = new AtomicLong(0);
-    private AtomicLong elementsExpiredCounter = new AtomicLong(0);
-    private AtomicLong elementsEvictedCounter = new AtomicLong(0);
-    private AtomicLong elementsRemoveAllCounter = new AtomicLong(0);
+    private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
+
+    private final AtomicLong elementsRemovedCounter = new AtomicLong(0);
+    private final AtomicLong elementsPutCounter = new AtomicLong(0);
+    private final AtomicLong elementsUpdatedCounter = new AtomicLong(0);
+    private final AtomicLong elementsExpiredCounter = new AtomicLong(0);
+    private final AtomicLong elementsEvictedCounter = new AtomicLong(0);
+    private final AtomicLong elementsRemoveAllCounter = new AtomicLong(0);
 
     /**
      * Constructs a new notification service
@@ -230,7 +233,11 @@ public class RegisteredEventListeners {
         if (cacheEventListener == null) {
             return false;
         }
-        return cacheEventListeners.add(new ListenerWrapper(cacheEventListener, scope));
+        boolean result = cacheEventListeners.add(new ListenerWrapper(cacheEventListener, scope));
+        if (result && cacheEventListener instanceof CacheReplicator) {
+            this.hasReplicator.set(true);
+        }
+        return result;
     }
 
     /**
@@ -240,17 +247,38 @@ public class RegisteredEventListeners {
      * @return true if the listener was present
      */
     public final boolean unregisterListener(CacheEventListener cacheEventListener) {
+        boolean result = false;
+        int cacheReplicators = 0;
         Iterator<ListenerWrapper> it = cacheEventListeners.iterator();
         while (it.hasNext()) {
             ListenerWrapper listenerWrapper = it.next();
             if (listenerWrapper.getListener().equals(cacheEventListener)) {
                 cacheEventListeners.remove(listenerWrapper);
-                return true;
+                result = true;
+            } else {
+                if (listenerWrapper.getListener() instanceof CacheReplicator) {
+                    cacheReplicators++;
+                }
             }
         }
-        return false;
+
+        if (cacheReplicators > 0) {
+            hasReplicator.set(true);
+        } else {
+            hasReplicator.set(false);
+        }
+
+        return result;
     }
 
+    /**
+     * Determines whether any registered listeners are CacheReplicators.
+     *
+     * @return whether any registered listeners are CacheReplicators.
+     */
+    public final boolean hasCacheReplicators() {
+        return hasReplicator.get();
+    }
 
     /**
      * Gets a copy of the set of the listeners registered to this class
