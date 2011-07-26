@@ -10,7 +10,6 @@ import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.core.Is;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;

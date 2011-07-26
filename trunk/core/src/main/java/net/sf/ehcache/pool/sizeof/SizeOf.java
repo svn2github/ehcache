@@ -106,7 +106,6 @@ public abstract class SizeOf {
         /**
          * {@inheritDoc}
          */
-        @Override
         public long visit(final Object object) {
             Class<?> klazz = object.getClass();
             Long cachedSize = cache.get(klazz.getName());

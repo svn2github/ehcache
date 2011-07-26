@@ -36,7 +36,7 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      * {@link SizeOfEngine} used by the accessor.
      */
     protected final SizeOfEngine sizeOfEngine;
-    
+
     private final AtomicBoolean unlinked = new AtomicBoolean();
     private final Pool<T> pool;
     private final T store;
@@ -84,10 +84,10 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      * @return how many bytes have been added to the pool or -1 if add failed.
      */
     protected abstract long add(long sizeOf, boolean force);
-    
+
     /**
      * Check if there is enough room in the pool to add a specific number of bytes without provoking any eviction
-     * 
+     *
      * @param sizeOf number of bytes to test against
      * @return true if there is enough room left
      */
@@ -98,7 +98,7 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      */
     public final long replace(long currentSize, Object key, Object value, Object container, boolean force) {
         long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-        
+
         long delta = sizeOf - currentSize;
         if (delta < 0) {
             return -delete(-delta);
@@ -110,7 +110,6 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
     /**
      * {@inheritDoc}
      */
-    @Override
     public long replace(Role role, Object current, Object replacement, boolean force) {
         long addedSize;
         long sizeOf = 0;

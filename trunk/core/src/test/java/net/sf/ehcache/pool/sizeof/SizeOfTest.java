@@ -2,7 +2,6 @@ package net.sf.ehcache.pool.sizeof;
 
 import net.sf.ehcache.pool.sizeof.JvmInformation;
 import net.sf.ehcache.pool.sizeof.SizeOf;
-import net.sf.ehcache.pool.sizeof.SizeOfAgent;
 
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -34,7 +33,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
   @Test
   public void testSizeOf() throws Exception {
     Assume.assumeThat(JvmInformation.MINIMUM_OBJECT_SIZE, is(JvmInformation.OBJECT_ALIGNMENT));
-    
+
     SizeOf sizeOf = new CrossCheckingSizeOf();
     if (System.getProperty("java.version").startsWith("1.5")) {
       if (System.getProperty("sun.arch.data.model").equals("64")) {
@@ -122,7 +121,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(40L));
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(56L));
   }
-  
+
   @Test
   public void testOnHeapConsumption() throws Exception {
     SizeOf sizeOf = new CrossCheckingSizeOf();
@@ -230,5 +229,5 @@ public class SizeOfTest extends AbstractSizeOfTest {
       this.copyOne = one;
       this.copyTwo = two;
     }
-  }  
+  }
 }
