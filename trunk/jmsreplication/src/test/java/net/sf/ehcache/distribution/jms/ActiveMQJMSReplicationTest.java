@@ -118,7 +118,46 @@ public class ActiveMQJMSReplicationTest {
         //noop
     }
 
+    @Test
+    public void testCASOperationsNotSupported() throws Exception {
+        LOG.info("START TEST");
 
+        final Ehcache cache1 = manager1.getEhcache(cacheName);
+        final Ehcache cache2 = manager2.getEhcache(cacheName);
+        final Ehcache cache3 = manager3.getEhcache(cacheName);
+        final Ehcache cache4 = manager4.getEhcache(cacheName);
+        
+        try {
+            cache1.putIfAbsent(new Element("foo", "poo"));
+            throw new AssertionError("CAS operation should have failed.");
+        } catch (CacheException ce) {
+            assertEquals(true, ce.getMessage().contains("CAS"));
+        }
+
+        try {
+            cache2.removeElement(new Element("foo", "poo"));
+            throw new AssertionError("CAS operation should have failed.");
+        } catch (CacheException ce) {
+            assertEquals(true, ce.getMessage().contains("CAS"));
+        }
+
+        try {
+            cache3.replace(new Element("foo", "poo"));
+            throw new AssertionError("CAS operation should have failed.");
+        } catch (CacheException ce) {
+            assertEquals(true, ce.getMessage().contains("CAS"));
+        }
+
+        try {
+            cache4.replace(new Element("foo", "poo"), new Element("foo", "poo2"));
+            throw new AssertionError("CAS operation should have failed.");
+        } catch (CacheException ce) {
+            assertEquals(true, ce.getMessage().contains("CAS"));
+        }
+
+        LOG.info("END TEST");
+    }
+    
     public void basicReplicationTest() throws Exception {
 
         //put
