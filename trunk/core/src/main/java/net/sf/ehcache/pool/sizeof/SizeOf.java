@@ -16,10 +16,9 @@
 
 package net.sf.ehcache.pool.sizeof;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import net.sf.ehcache.pool.sizeof.ObjectGraphWalker.Visitor;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
+import net.sf.ehcache.util.WeakIdentityConcurrentMap;
 
 
 /**
@@ -85,7 +84,7 @@ public abstract class SizeOf {
     }
 
     /**
-     * Will return the sizeOf eahc instance
+     * Will return the sizeOf each instance
      */
     private class SizeOfVisitor implements Visitor {
 
@@ -101,14 +100,14 @@ public abstract class SizeOf {
      * Will Cache already visited types
      */
     private class CachingSizeOfVisitor implements Visitor {
-        private final ConcurrentHashMap<String, Long> cache = new ConcurrentHashMap<String, Long>();
+        private final WeakIdentityConcurrentMap<Class<?>, Long> cache = new WeakIdentityConcurrentMap<Class<?>, Long>();
 
         /**
          * {@inheritDoc}
          */
         public long visit(final Object object) {
             Class<?> klazz = object.getClass();
-            Long cachedSize = cache.get(klazz.getName());
+            Long cachedSize = cache.get(klazz);
             if (cachedSize == null) {
                 if (klazz.isArray()) {
                     return measureSizeOf(object);
@@ -116,7 +115,7 @@ public abstract class SizeOf {
                     return 0;
                 } else {
                     long size = measureSizeOf(object);
-                    cache.put(klazz.getName(), size);
+                    cache.put(klazz, size);
                     return size;
                 }
             } else {

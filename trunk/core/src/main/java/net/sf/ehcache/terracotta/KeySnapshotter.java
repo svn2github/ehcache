@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
+import net.sf.ehcache.util.WeakIdentityConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,5 @@
-package net.sf.ehcache.terracotta;
+package net.sf.ehcache.util;
 
-import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
 import org.junit.Test;

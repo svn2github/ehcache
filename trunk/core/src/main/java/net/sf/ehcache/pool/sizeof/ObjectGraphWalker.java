@@ -24,10 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
+import net.sf.ehcache.util.WeakIdentityConcurrentMap;
 
 /**
  * This will walk an object graph and let you execute some "function" along the way
@@ -36,10 +35,10 @@ import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 final class ObjectGraphWalker {
 
     // Todo this is probably not what we want...
-    private final ConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
-            new ConcurrentHashMap<Class<?>, SoftReference<Collection<Field>>>();
-    private final ConcurrentMap<Class<?>, Boolean> classCache =
-            new ConcurrentHashMap<Class<?>, Boolean>();
+    private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
+            new WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>>();
+    private final WeakIdentityConcurrentMap<Class<?>, Boolean> classCache =
+            new WeakIdentityConcurrentMap<Class<?>, Boolean>();
 
     private final SizeOfFilter sizeOfFilter;
 

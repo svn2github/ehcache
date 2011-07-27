@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.terracotta;
+package net.sf.ehcache.util;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
  * @param <V> The value type
  * @author Alex Snaps
  */
-final class WeakIdentityConcurrentMap<K, V> {
+public final class WeakIdentityConcurrentMap<K, V> {
 
     private ConcurrentMap<WeakReference<K>, V> map = new ConcurrentHashMap<WeakReference<K>, V>();
     private ReferenceQueue<K> queue = new ReferenceQueue<K>();
@@ -39,9 +39,16 @@ final class WeakIdentityConcurrentMap<K, V> {
 
     /**
      * Constructor
+     */
+    public WeakIdentityConcurrentMap() {
+      this(null);
+    }
+    
+    /**
+     * Constructor
      * @param cleanUpTask
      */
-    WeakIdentityConcurrentMap(final CleanUpTask<V> cleanUpTask) {
+    public WeakIdentityConcurrentMap(final CleanUpTask<V> cleanUpTask) {
         this.cleanUpTask = cleanUpTask;
     }
 
@@ -51,7 +58,18 @@ final class WeakIdentityConcurrentMap<K, V> {
      * @param value
      * @return
      */
-    V putIfAbsent(K key, V value) {
+    public V put(K key, V value) {
+        cleanUp();
+        return map.put(new IdentityWeakReference<K>(key, queue), value);
+    }
+    
+    /**
+     * Puts into the underlying
+     * @param key
+     * @param value
+     * @return
+     */
+    public V putIfAbsent(K key, V value) {
         cleanUp();
         return map.putIfAbsent(new IdentityWeakReference<K>(key, queue), value);
     }
@@ -60,7 +78,7 @@ final class WeakIdentityConcurrentMap<K, V> {
      * @param key
      * @return
      */
-    V get(K key) {
+    public V get(K key) {
         cleanUp();
         return map.get(new IdentityWeakReference<K>(key));
     }
@@ -68,12 +86,12 @@ final class WeakIdentityConcurrentMap<K, V> {
     /**
      *
      */
-    void cleanUp() {
+    public void cleanUp() {
 
         Reference<? extends K> reference;
         while ((reference = queue.poll()) != null) {
             final V value = map.remove(reference);
-            if (value != null) {
+            if (cleanUpTask != null && value != null) {
                 cleanUpTask.cleanUp(value);
             }
         }
@@ -83,7 +101,7 @@ final class WeakIdentityConcurrentMap<K, V> {
      *
      * @return
      */
-    Set<K> keySet() {
+    public Set<K> keySet() {
         cleanUp();
         K k;
         final HashSet<K> ks = new HashSet<K>();
@@ -148,7 +166,7 @@ final class WeakIdentityConcurrentMap<K, V> {
     /**
      * @param <T>
      */
-    static interface CleanUpTask<T> {
+    public static interface CleanUpTask<T> {
 
         /**
          * @param object
