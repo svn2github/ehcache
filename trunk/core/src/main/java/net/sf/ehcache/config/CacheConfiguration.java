@@ -1515,13 +1515,14 @@ public class CacheConfiguration implements Cloneable {
     }
 
     private void validateTerracottaConfig(final Configuration configuration, final Collection<ConfigError> errors) {
+        final TerracottaClientConfiguration clientConfiguration = configuration.getTerracottaConfiguration();
         if (getTerracottaConfiguration().getStorageStrategy().equals(StorageStrategy.CLASSIC)) {
             if (getTerracottaConfiguration().isNonstopEnabled()) {
                 errors.add(new CacheConfigError("NONSTOP can't be enabled with " + StorageStrategy.CLASSIC
                     .name() + " strategy.", getName()));
             }
 
-            if (configuration.getTerracottaConfiguration().isRejoin()) {
+            if (clientConfiguration != null && clientConfiguration.isRejoin()) {
                 errors.add(new CacheConfigError("REJOIN can't be enabled with " + StorageStrategy.CLASSIC
                     .name() + " strategy.", getName()));
             }
@@ -1533,7 +1534,7 @@ public class CacheConfiguration implements Cloneable {
             }
         }
 
-        if (configuration.getTerracottaConfiguration().isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
+        if (clientConfiguration != null && clientConfiguration.isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
             errors.add(new CacheConfigError("Terracotta clustered caches must be nonstop when rejoin is enabled.", getName()));
         }
     }
