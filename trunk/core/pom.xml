@@ -48,11 +48,24 @@
 
     <!-- With slf4j, users must choose a concrete logging implementation 
       at deploy time, which they provide The maven dependency declarations are 
-      reproduced here for convenience. <dependency> <groupId>org.slf4j</groupId> 
-      <artifactId>slf4j-jdk14</artifactId> <version>1.6.1</version> </dependency> 
-      <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
-      <version>1.6.1</version> </dependency> <dependency> <groupId>org.slf4j</groupId> 
-      <artifactId>slf4j-simple</artifactId> <version>1.6.1</version> </dependency> -->
+      reproduced here for convenience.
+       
+      <dependency> 
+        <groupId>org.slf4j</groupId> 
+        <artifactId>slf4j-jdk14</artifactId> 
+        <version>1.6.1</version> 
+      </dependency> 
+      <dependency> 
+        <groupId>org.slf4j</groupId> 
+        <artifactId>slf4j-log4j12</artifactId> 
+        <version>1.6.1</version> 
+      </dependency> 
+      <dependency> 
+        <groupId>org.slf4j</groupId> 
+        <artifactId>slf4j-simple</artifactId> 
+        <version>1.6.1</version> 
+      </dependency> 
+    -->
 
     <!-- Provided scope. This one, or another concrete logging implementation 
       must be provided. -->
