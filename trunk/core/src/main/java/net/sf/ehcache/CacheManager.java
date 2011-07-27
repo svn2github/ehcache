@@ -39,6 +39,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
@@ -1016,8 +1017,8 @@ public class CacheManager {
         }
 
         if (runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
-            final long timeoutMillis = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration()
-                    .getTimeoutMillis();
+            NonstopConfiguration nsCfg = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
+            final long timeoutMillis = nsCfg.getTimeoutMillis() * nsCfg.getBulkOpsTimeoutMultiplyFactor();
             try {
                 getNonstopExecutorService().execute(new Callable<Void>() {
                     public Void call() throws Exception {
