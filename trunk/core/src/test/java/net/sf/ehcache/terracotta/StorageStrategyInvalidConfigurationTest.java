@@ -64,7 +64,7 @@ public class StorageStrategyInvalidConfigurationTest extends TestCase {
             Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: EVENTUAL consistency can't be enabled with CLASSIC strategy."));
             Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: Terracotta clustered caches must be nonstop when rejoin is enabled."));
 
-            Assert.assertEquals(11, Pattern.compile("$", Pattern.MULTILINE).split(e.getMessage()).length);
+            Assert.assertEquals(12, Pattern.compile("$", Pattern.MULTILINE).split(e.getMessage()).length);
         }
     }
 }
