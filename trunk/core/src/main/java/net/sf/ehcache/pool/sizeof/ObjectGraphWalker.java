@@ -34,6 +34,8 @@ import net.sf.ehcache.util.WeakIdentityConcurrentMap;
  */
 final class ObjectGraphWalker {
 
+    private static final String TC_INTERNAL_FIELD_PREFIX = "$__tc_";
+
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
             new WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>>();
@@ -105,7 +107,10 @@ final class ObjectGraphWalker {
                 } else {
                     for (Field field : getFilteredFields(refClass)) {
                         try {
-                            nullSafeAdd(toVisit, field.get(ref));
+                            Object o = field.get(ref);
+                            if (!field.getType().isPrimitive() && !isTCInternalField(field)) {
+                                nullSafeAdd(toVisit, o);
+                            }
                         } catch (IllegalAccessException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -118,6 +123,13 @@ final class ObjectGraphWalker {
         }
 
         return result;
+    }
+
+    private boolean isTCInternalField(Field field) {
+        if (field == null) {
+            return false;
+        }
+        return field.getName().startsWith(TC_INTERNAL_FIELD_PREFIX);
     }
 
     /**
