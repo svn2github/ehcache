@@ -1209,11 +1209,6 @@ public class Cache implements Ehcache, StoreListener {
     private void checkClusteredConfig() {
         final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
         final boolean coherent = getCacheConfiguration().getTerracottaConfiguration().isCoherent();
-        if (getCacheConfiguration().isOverflowToOffHeap()) {
-            throw new InvalidConfigurationException(
-                    "Terracotta clustered caches with local overflow to offheap are not supported yet."
-                            + " You can fix this by disabling overflow to offheap for clustered caches.");
-        }
         if (getCacheConfiguration().getTerracottaConfiguration().isSynchronousWrites() && consistency == Consistency.EVENTUAL) {
             throw new InvalidConfigurationException(
                     "Terracotta clustered caches with eventual consistency and synchronous writes are not supported yet."
