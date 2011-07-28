@@ -18,7 +18,6 @@ package net.sf.ehcache.distribution.jgroups;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CachePeer;
-import net.sf.ehcache.store.chm.ConcurrentHashMap;
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.ChannelClosedException;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
