@@ -17,7 +17,6 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 
 import java.util.Collection;
 
