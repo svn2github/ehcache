@@ -18,6 +18,8 @@ package net.sf.ehcache;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +60,7 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 
 import net.sf.ehcache.util.MemorySizeParser;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -139,6 +142,37 @@ public class CacheManagerTest {
             assertThat(e.getMessage().contains("no CacheManager wide value"), is(true));
             assertThat(e.getMessage().contains("two"), is(true));
         }
+    }
+
+    @Test
+    public void testDynamicallyAddedCacheConfiguration() {
+        Configuration configuration = new Configuration();
+        configuration.addCache(new CacheConfiguration("before1",100));
+        configuration.addCache(new CacheConfiguration("before2",100));
+        CacheManager manager = new CacheManager(configuration);
+        assertThat(manager.getCache("before1"), notNullValue());
+        assertThat(manager.getCache("before2"), notNullValue());
+        try {
+            configuration.addCache(new CacheConfiguration("after", 100));
+            fail("Should have had a IllegalStateException");
+        } catch (IllegalStateException e) {
+            assertThat(manager.getCache("after"), nullValue());
+        }
+    }
+
+    @Test
+    public void testSupportsNameChanges() {
+        Configuration configuration = new Configuration().name("firstName");
+        CacheManager manager = new CacheManager(configuration);
+        assertThat(manager.getName(), equalTo("firstName"));
+
+        manager.setName("newerName");
+        assertThat(configuration.getName(), equalTo("newerName"));
+        assertThat(manager.getName(), equalTo("newerName"));
+
+        configuration.setName("evenNewerName");
+        assertThat(configuration.getName(), equalTo("evenNewerName"));
+        assertThat(manager.getName(), equalTo("evenNewerName"));
     }
 
     @Test

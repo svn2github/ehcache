@@ -995,26 +995,12 @@ public class CacheManager {
             }
         }
         cache.getCacheConfiguration().setupFor(this);
-        if (runtimeCfg.isMaxBytesLocalHeapSet()) {
-            onHeapPool.setMaxSize(onHeapPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalHeap());
-        }
-        if (runtimeCfg.isMaxBytesLocalDiskSet()) {
-            onDiskPool.setMaxSize(onDiskPool.getMaxSize() - cache.getCacheConfiguration().getMaxBytesLocalDisk());
-        }
 
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
             cache.setDiskStorePath(diskStorePath);
         }
         cache.setTransactionManagerLookup(transactionManagerLookup);
-
-        Map<String, CacheConfiguration> configMap = runtimeCfg.getCacheConfigurations();
-        if (!configMap.containsKey(cache.getName())) {
-            CacheConfiguration cacheConfig = cache.getCacheConfiguration();
-            if (cacheConfig != null) {
-                runtimeCfg.addCache(cacheConfig);
-            }
-        }
 
         if (runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
             NonstopConfiguration nsCfg = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
@@ -1105,13 +1091,7 @@ public class CacheManager {
         Ehcache cache = ehcaches.remove(cacheName);
         if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
             cache.dispose();
-            if (runtimeCfg.getConfiguration().isMaxBytesLocalHeapSet()) {
-                onHeapPool.setMaxSize(onHeapPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalHeap());
-            }
-            if (runtimeCfg.getConfiguration().isMaxBytesLocalDiskSet()) {
-                onDiskPool.setMaxSize(onDiskPool.getMaxSize() + cache.getCacheConfiguration().getMaxBytesLocalDisk());
-            }
-            runtimeCfg.getConfiguration().getCacheConfigurations().remove(cacheName);
+            runtimeCfg.removeCache(cache.getCacheConfiguration());
             cacheManagerEventListenerRegistry.notifyCacheRemoved(cache.getName());
         }
     }
@@ -1386,7 +1366,7 @@ public class CacheManager {
      *            a name with characters legal in a JMX ObjectName
      */
     public void setName(String name) {
-        // TODO Support this!
+        runtimeCfg.getConfiguration().setName(name);
         try {
             mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
         } catch (MBeanRegistrationProviderException e) {

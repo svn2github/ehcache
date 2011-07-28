@@ -1400,6 +1400,24 @@ public class CacheConfiguration implements Cloneable {
 
         configCachePools(cacheManager.getConfiguration());
         verifyPoolAllocationsBeforeAddingTo(cacheManager);
+        updateCacheManagerPoolSizes(cacheManager);
+        registerCacheConfiguration(cacheManager);
+    }
+
+    private void registerCacheConfiguration(final CacheManager cacheManager) {
+        Map<String, CacheConfiguration> configMap = cacheManager.getConfiguration().getCacheConfigurations();
+        if (!configMap.containsKey(getName())) {
+            cacheManager.getConfiguration().addCache(this, false);
+        }
+    }
+
+    private void updateCacheManagerPoolSizes(final CacheManager cacheManager) {
+        if (cacheManager.getOnHeapPool() != null) {
+            cacheManager.getOnHeapPool().setMaxSize(cacheManager.getOnHeapPool().getMaxSize() - getMaxBytesLocalHeap());
+        }
+        if (cacheManager.getOnDiskPool() != null) {
+            cacheManager.getOnDiskPool().setMaxSize(cacheManager.getOnDiskPool().getMaxSize() - getMaxBytesLocalDisk());
+        }
     }
 
     private Set<Cache> getAllActiveCaches(CacheManager cacheManager) {

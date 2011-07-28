@@ -26,13 +26,17 @@ import net.sf.ehcache.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A bean, used by BeanUtils, to set configuration from an XML configuration file.
@@ -79,6 +83,7 @@ public final class Configuration {
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
     private volatile RuntimeCfg cfg;
+    private List<PropertyChangeListener> propertyChangeListeners = new CopyOnWriteArrayList<PropertyChangeListener>();
 
     /**
      * Represents whether monitoring should be enabled or not.
@@ -94,6 +99,60 @@ public final class Configuration {
 
         /** Never auto register the SampledCacheMBean */
         OFF;
+    }
+
+    /**
+     * Enum of all properties that can change once the Configuration is being used by a CacheManager
+     */
+    private static enum DynamicProperty {
+
+        cacheManagerName {
+            @Override
+            void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
+                config.cacheManagerName = (String) evt.getNewValue();
+            }
+        },
+        defaultCacheConfiguration {
+            @Override
+            void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
+                // Nothing we need to do here, only "future" default caches will use these defaults
+            }
+        },
+        maxBytesLocalHeap {
+            @Override
+            void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
+                if ((Long)evt.getOldValue() > (Long)evt.getNewValue()) {
+                    // Double check for over-allocation again
+                    for (CacheConfiguration cacheConfiguration : config.getConfiguration().getCacheConfigurations().values()) {
+                        cacheConfiguration.isMaxBytesLocalDiskPercentageSet();
+                    }
+                }
+                config.cacheManager.getOnHeapPool().setMaxSize((Long) evt.getNewValue());
+                // Recalculate % based caches ?
+            }
+        },
+        maxBytesLocalOffHeap {
+            @Override
+            void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
+                // Do checks here or let the other listener do this ?
+                // Recalculate % based caches ?
+            }
+        },
+        maxBytesLocalDisk {
+            @Override
+            void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
+                if ((Long)evt.getOldValue() > (Long)evt.getNewValue()) {
+                    // Double check for over-allocation again
+                    for (CacheConfiguration cacheConfiguration : config.getConfiguration().getCacheConfigurations().values()) {
+                        cacheConfiguration.isMaxBytesLocalDiskPercentageSet();
+                    }
+                }
+                config.cacheManager.getOnDiskPool().setMaxSize((Long) evt.getNewValue());
+                // Recalculate % based caches ?
+            }
+        };
+
+        abstract void applyChange(PropertyChangeEvent evt, RuntimeCfg config);
     }
 
     private String cacheManagerName;
@@ -204,7 +263,13 @@ public final class Configuration {
      * Allows BeanHandler to set the CacheManager name.
      */
     public final void setName(String name) {
+        final String prop = "cacheManagerName";
+        final boolean publishChange = checkDynChange(prop);
+        String oldValue = this.cacheManagerName;
         this.cacheManagerName = name;
+        if (publishChange) {
+            firePropertyChange(prop, oldValue, name);
+        }
     }
 
     /**
@@ -230,7 +295,13 @@ public final class Configuration {
      * Allows BeanHandler to set the updateCheck flag.
      */
     public final void setUpdateCheck(boolean updateCheck) {
+        String prop = "updateCheck";
+        final boolean publish = checkDynChange(prop);
+        final boolean oldValue = this.updateCheck;
         this.updateCheck = updateCheck;
+        if (publish) {
+            firePropertyChange(prop, oldValue, updateCheck);
+        }
     }
 
     /**
@@ -255,7 +326,13 @@ public final class Configuration {
      * Allows BeanHandler to set the default transaction timeout.
      */
     public final void setDefaultTransactionTimeoutInSeconds(int defaultTransactionTimeoutInSeconds) {
+        final String prop = "defaultTransactionTimeoutInSeconds";
+        final boolean publish = checkDynChange(prop);
+        final int oldValue = this.defaultTransactionTimeoutInSeconds;
         this.defaultTransactionTimeoutInSeconds = defaultTransactionTimeoutInSeconds;
+        if (publish) {
+            firePropertyChange(prop, oldValue, defaultTransactionTimeoutInSeconds);
+        }
     }
 
     /**
@@ -277,8 +354,13 @@ public final class Configuration {
         if (null == monitoring) {
             throw new IllegalArgumentException("Monitoring value must be non-null");
         }
-
+        final String prop = "monitoring";
+        final boolean publish = checkDynChange(prop);
+        final Monitoring oldValue = this.monitoring;
         this.monitoring = monitoring;
+        if (publish) {
+            firePropertyChange(prop, oldValue, monitoring);
+        }
         return this;
     }
 
@@ -289,7 +371,7 @@ public final class Configuration {
         if (monitoring == null) {
             throw new IllegalArgumentException("Monitoring value must be non-null");
         }
-        this.monitoring = Monitoring.valueOf(Monitoring.class, monitoring.toUpperCase());
+        monitoring(Monitoring.valueOf(Monitoring.class, monitoring.toUpperCase()));
     }
 
     /**
@@ -315,7 +397,13 @@ public final class Configuration {
      * Allows BeanHandler to set the dynamic configuration flag
      */
     public final void setDynamicConfig(boolean dynamicConfig) {
+        final String prop = "dynamicConfig";
+        final boolean publish = checkDynChange(prop);
+        final boolean oldValue = this.dynamicConfig;
         this.dynamicConfig = dynamicConfig;
+        if (publish) {
+            firePropertyChange(prop, oldValue, dynamicConfig);
+        }
     }
 
     /**
@@ -367,8 +455,14 @@ public final class Configuration {
      * @param maxBytesOnHeap amount of bytes
      */
     public void setMaxBytesLocalHeap(final Long maxBytesOnHeap) {
-        verifyGreaterThanZero(maxBytesOnHeap, "maxBytesOnHeap");
+        final String prop = "maxBytesLocalHeap";
+        verifyGreaterThanZero(maxBytesOnHeap, prop);
+        final boolean publish = checkDynChange(prop);
+        Long oldValue = this.maxBytesLocalHeap;
         this.maxBytesLocalHeap = maxBytesOnHeap;
+        if (publish) {
+            firePropertyChange(prop, oldValue, maxBytesOnHeap);
+        }
     }
 
     /**
@@ -405,8 +499,14 @@ public final class Configuration {
      * @param maxBytesOffHeap max bytes on disk in bytes. Needs be be greater than 0
      */
     public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
-        verifyGreaterThanZero(maxBytesOffHeap, "maxBytesOffHeap");
+        String prop = "maxBytesLocalOffHeap";
+        verifyGreaterThanZero(maxBytesOffHeap, prop);
+        boolean publish = checkDynChange(prop);
+        Long oldValue = this.maxBytesLocalOffHeap;
         this.maxBytesLocalOffHeap = maxBytesOffHeap;
+        if (publish) {
+            firePropertyChange(prop, oldValue, maxBytesOffHeap);
+        }
     }
 
     /**
@@ -442,8 +542,14 @@ public final class Configuration {
      * @param maxBytesOnDisk max bytes on disk in bytes. Needs be be greater than 0
      */
     public void setMaxBytesLocalDisk(final Long maxBytesOnDisk) {
-        verifyGreaterThanZero(maxBytesOnDisk, "maxBytesOnDisk");
+        String prop = "maxBytesLocalDisk";
+        verifyGreaterThanZero(maxBytesOnDisk, prop);
+        boolean publish = checkDynChange(prop);
+        Long oldValue = this.maxBytesLocalDisk;
         this.maxBytesLocalDisk = maxBytesOnDisk;
+        if (publish) {
+            firePropertyChange(prop, oldValue, maxBytesOnDisk);
+        }
     }
 
     /**
@@ -485,7 +591,13 @@ public final class Configuration {
         if (diskStoreConfiguration != null) {
             throw new ObjectExistsException("The Disk Store has already been configured");
         }
+        final String prop = "diskStoreConfiguration";
+        boolean publish = checkDynChange(prop);
+        DiskStoreConfiguration oldValue = diskStoreConfiguration;
         diskStoreConfiguration = diskStoreConfigurationParameter;
+        if (publish) {
+            firePropertyChange(prop, oldValue, diskStoreConfiguration);
+        }
     }
 
     /**
@@ -510,7 +622,13 @@ public final class Configuration {
         if (transactionManagerLookupConfiguration != null) {
             throw new ObjectExistsException("The TransactionManagerLookup class has already been configured");
         }
+        final String prop = "transactionManagerLookupConfiguration";
+        boolean publish = checkDynChange(prop);
+        FactoryConfiguration oldValue = this.transactionManagerLookupConfiguration;
         transactionManagerLookupConfiguration = transactionManagerLookupParameter;
+        if (publish) {
+            firePropertyChange(prop, oldValue, transactionManagerLookupParameter);
+        }
     }
 
     /**
@@ -527,8 +645,13 @@ public final class Configuration {
      * Allows BeanHandler to add the CacheManagerEventListener to the configuration.
      */
     public final void addCacheManagerEventListenerFactory(FactoryConfiguration cacheManagerEventListenerFactoryConfiguration) {
+        final String prop = "cacheManagerEventListenerFactoryConfiguration";
+        boolean publish = checkDynChange(prop);
         if (this.cacheManagerEventListenerFactoryConfiguration == null) {
             this.cacheManagerEventListenerFactoryConfiguration = cacheManagerEventListenerFactoryConfiguration;
+            if (publish) {
+                firePropertyChange(prop, null, cacheManagerEventListenerFactoryConfiguration);
+            }
         }
     }
 
@@ -546,7 +669,16 @@ public final class Configuration {
      * Adds a CacheManagerPeerProvider through FactoryConfiguration.
      */
     public final void addCacheManagerPeerProviderFactory(FactoryConfiguration factory) {
+        final String prop = "cacheManagerPeerProviderFactoryConfiguration";
+        boolean publish = checkDynChange(prop);
+        List<FactoryConfiguration> oldValue = null;
+        if (publish) {
+            oldValue = new ArrayList<FactoryConfiguration>(cacheManagerPeerProviderFactoryConfiguration);
+        }
         cacheManagerPeerProviderFactoryConfiguration.add(factory);
+        if (publish) {
+            firePropertyChange(prop, oldValue, cacheManagerPeerProviderFactoryConfiguration);
+        }
     }
 
     /**
@@ -563,7 +695,16 @@ public final class Configuration {
      * Adds a CacheManagerPeerListener through FactoryConfiguration.
      */
     public final void addCacheManagerPeerListenerFactory(FactoryConfiguration factory) {
+        final String prop = "cacheManagerPeerListenerFactoryConfiguration";
+        boolean publish = checkDynChange(prop);
+        List<FactoryConfiguration> oldValue = null;
+        if (publish) {
+            oldValue = new ArrayList<FactoryConfiguration>(cacheManagerPeerListenerFactoryConfiguration);
+        }
         cacheManagerPeerListenerFactoryConfiguration.add(factory);
+        if (publish) {
+            firePropertyChange(prop, oldValue, cacheManagerPeerListenerFactoryConfiguration);
+        }
     }
 
     /**
@@ -585,7 +726,13 @@ public final class Configuration {
         if (this.terracottaConfigConfiguration != null) {
             throw new ObjectExistsException("The TerracottaConfig has already been configured");
         }
+        final String prop = "terracottaConfigConfiguration";
+        final boolean publish = checkDynChange(prop);
+        final TerracottaClientConfiguration oldValue = this.terracottaConfigConfiguration;
         this.terracottaConfigConfiguration = terracottaConfiguration;
+        if (publish) {
+            firePropertyChange(prop, oldValue, terracottaConfiguration);
+        }
     }
 
     /**
@@ -607,7 +754,7 @@ public final class Configuration {
         if (this.defaultCacheConfiguration != null) {
             throw new ObjectExistsException("The Default Cache has already been configured");
         }
-        this.defaultCacheConfiguration = defaultCacheConfiguration;
+        setDefaultCacheConfiguration(defaultCacheConfiguration);
     }
 
     /**
@@ -626,6 +773,21 @@ public final class Configuration {
      * Allows BeanHandler to add Cache Configurations to the configuration.
      */
     public final void addCache(CacheConfiguration cacheConfiguration) throws ObjectExistsException {
+        addCache(cacheConfiguration, true);
+    }
+
+    /**
+     * Maintains the known Cache's configuration map in this Configuration
+     * @param cacheConfiguration the CacheConfiguration
+     * @param strict true if added regularly, validation dyn config constraints, false if added through the cache being added
+     */
+    void addCache(CacheConfiguration cacheConfiguration, final boolean strict) throws ObjectExistsException {
+        final String prop = "cacheConfigurations";
+        Object oldValue = null;
+        boolean publishChange = strict && checkDynChange(prop);
+        if (publishChange) {
+            oldValue = new HashMap<String, CacheConfiguration>(cacheConfigurations);
+        }
         if (cacheConfigurations.get(cacheConfiguration.name) != null) {
             throw new ObjectExistsException("Cannot create cache: " + cacheConfiguration.name + " with the same name as an existing one.");
         }
@@ -634,6 +796,24 @@ public final class Configuration {
         }
 
         cacheConfigurations.put(cacheConfiguration.name, cacheConfiguration);
+        if (publishChange) {
+            firePropertyChange(prop, oldValue, cacheConfigurations);
+        }
+    }
+
+    private boolean checkDynChange(final String prop) {
+        if (!propertyChangeListeners.isEmpty()) {
+            try {
+                if (cfg != null) {
+                    DynamicProperty.valueOf(prop);
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException(this.getClass().getName() + "." + prop + " can't be changed dynamically");
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -654,7 +834,13 @@ public final class Configuration {
      * @param defaultCacheConfiguration
      */
     public final void setDefaultCacheConfiguration(CacheConfiguration defaultCacheConfiguration) {
+        final String prop = "defaultCacheConfiguration";
+        final boolean publish = checkDynChange(prop);
+        final CacheConfiguration oldValue = this.defaultCacheConfiguration;
         this.defaultCacheConfiguration = defaultCacheConfiguration;
+        if (publish) {
+            firePropertyChange(prop, oldValue, defaultCacheConfiguration);
+        }
     }
 
     /**
@@ -727,7 +913,13 @@ public final class Configuration {
      *            including the resource name and location.
      */
     public final void setSource(ConfigurationSource configurationSource) {
+        final String prop = "configurationSource";
+        final boolean publish = checkDynChange(prop);
+        final ConfigurationSource oldValue = this.configurationSource;
         this.configurationSource = configurationSource;
+        if (publish) {
+            firePropertyChange(prop, oldValue, configurationSource);
+        }
     }
 
     /**
@@ -738,9 +930,35 @@ public final class Configuration {
     }
 
     /**
+     * Adds a {@link PropertyChangeListener} for this configuration
+     * @param listener the listener instance
+     * @return true if added, false otherwise
+     */
+    public boolean addPropertyChangeListener(final PropertyChangeListener listener) {
+        return this.propertyChangeListeners.add(listener);
+    }
+
+    /**
+     * Removes a {@link PropertyChangeListener} for this configuration
+     * @param listener the listener to be removed
+     * @return true if removed, false otherwise
+     */
+    public boolean removePropertyChangeListener(final PropertyChangeListener listener) {
+        return this.propertyChangeListeners.remove(listener);
+    }
+
+    private <T> void firePropertyChange(final String prop, final T oldValue, final T newValue) {
+        if ((oldValue != null && !oldValue.equals(newValue)) || newValue != null) {
+            for (PropertyChangeListener propertyChangeListener : propertyChangeListeners) {
+                propertyChangeListener.propertyChange(new PropertyChangeEvent(Configuration.this, prop, oldValue, newValue));
+            }
+        }
+    }
+
+    /**
      * Runtime configuration as being used by the CacheManager
      */
-    public class RuntimeCfg {
+    public class RuntimeCfg implements PropertyChangeListener {
 
         private final CacheManager cacheManager;
         private volatile String cacheManagerName;
@@ -774,10 +992,8 @@ public final class Configuration {
             } catch (Exception e) {
                 LOG.error("could not instantiate transaction manager lookup class: {}", lookupConfiguration.getFullyQualifiedClassPath(), e);
             }
-
-
-
             this.cacheManager = cacheManager;
+            propertyChangeListeners.add(this);
         }
 
         /**
@@ -838,32 +1054,33 @@ public final class Configuration {
         }
 
         /**
-         * @return Whether maxBytes is set for LocalHeap
+         * Removes a cache from the known list
+         * @param cacheConfiguration the cacheConfiguration to be removed
          */
-        public boolean isMaxBytesLocalHeapSet() {
-            return Configuration.this.isMaxBytesLocalHeapSet();
+        public void removeCache(final CacheConfiguration cacheConfiguration) {
+            if (cacheManager.getOnHeapPool() != null) {
+                cacheManager.getOnHeapPool().setMaxSize(cacheManager.getOnHeapPool()
+                                                            .getMaxSize() + cacheConfiguration.getMaxBytesLocalHeap());
+            }
+            if (cacheManager.getOnDiskPool() != null) {
+                cacheManager.getOnDiskPool().setMaxSize(cacheManager.getOnDiskPool()
+                                                            .getMaxSize() + cacheConfiguration.getMaxBytesLocalDisk());
+            }
+            getConfiguration().getCacheConfigurations().remove(cacheConfiguration.getName());
         }
 
         /**
-         * @return Whether maxBytes is set for LocalDisk
+         * Handles changes to the Configuration this RuntimeCfg backs
+         * @param evt the PropertyChangeEvent
          */
-        public boolean isMaxBytesLocalDiskSet() {
-            return Configuration.this.isMaxBytesLocalDiskSet();
-        }
-
-        /**
-         * @return All Cache configurations
-         */
-        public Map<String, CacheConfiguration> getCacheConfigurations() {
-            return Configuration.this.getCacheConfigurations();
-        }
-
-        /**
-         * Adds a cacheConfiguration to the underlying Configuration instance
-         * @param cacheConfig CacheConfiguration instance to add
-         */
-        public void addCache(final CacheConfiguration cacheConfig) {
-            Configuration.this.addCache(cacheConfig);
+        public void propertyChange(final PropertyChangeEvent evt) {
+            final DynamicProperty dynamicProperty;
+            try {
+                dynamicProperty = Configuration.DynamicProperty.valueOf(evt.getPropertyName());
+                dynamicProperty.applyChange(evt, this);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException(evt.getPropertyName() + " can't be changed dynamically");
+            }
         }
     }
 }
