@@ -78,7 +78,6 @@
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStorageFactory.java"/>
     <suppress checks="ClassFanOutComplexity" files="DiskStorageFactory.java"/>
     <suppress checks="ExecutableStatementCount" files="DiskStorageFactory.java"/>
-    <suppress checks="CyclomaticComplexity" files="ObjectGraphWalker.java"/>
 
     <!-- A candidate, maybe... if you know what you do -->
     <suppress checks="NestedIfDepth" files="SlewClock.java"/>

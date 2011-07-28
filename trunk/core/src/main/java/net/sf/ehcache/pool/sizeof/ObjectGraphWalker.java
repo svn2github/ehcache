@@ -27,6 +27,8 @@ import java.util.Stack;
 
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This will walk an object graph and let you execute some "function" along the way
@@ -34,6 +36,7 @@ import net.sf.ehcache.util.WeakIdentityConcurrentMap;
  */
 final class ObjectGraphWalker {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectGraphWalker.class);
     private static final String TC_INTERNAL_FIELD_PREFIX = "$__tc_";
 
     // Todo this is probably not what we want...
@@ -107,10 +110,7 @@ final class ObjectGraphWalker {
                 } else {
                     for (Field field : getFilteredFields(refClass)) {
                         try {
-                            Object o = field.get(ref);
-                            if (!field.getType().isPrimitive() && !isTCInternalField(field)) {
-                                nullSafeAdd(toVisit, o);
-                            }
+                            nullSafeAdd(toVisit, field.get(ref));
                         } catch (IllegalAccessException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -123,13 +123,6 @@ final class ObjectGraphWalker {
         }
 
         return result;
-    }
-
-    private boolean isTCInternalField(Field field) {
-        if (field == null) {
-            return false;
-        }
-        return field.getName().startsWith(TC_INTERNAL_FIELD_PREFIX);
     }
 
     /**
@@ -173,8 +166,16 @@ final class ObjectGraphWalker {
         Collection<Field> fields = new ArrayList<Field>();
         for (Class<?> klazz = refClass; klazz != null; klazz = klazz.getSuperclass()) {
             for (Field field : klazz.getDeclaredFields()) {
-                if (!Modifier.isStatic(field.getModifiers()) && !field.getType().isPrimitive()) {
-                    field.setAccessible(true);
+                if (!Modifier.isStatic(field.getModifiers()) && 
+                        !field.getType().isPrimitive() && 
+                        !field.getName().startsWith(TC_INTERNAL_FIELD_PREFIX)) {
+                    try {
+                        field.setAccessible(true);
+                    } catch (SecurityException e) {
+                        LOG.error("Security settings prevent Ehcache from accessing the subgraph beneath '{}'" +
+                                " - cache sizes may be underestimated as a result", field, e);
+                        continue;
+                    }
                     fields.add(field);
                 }
             }
