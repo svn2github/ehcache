@@ -92,7 +92,7 @@ import net.sf.ehcache.util.FindBugsSuppressWarnings;
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  */
-public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
+class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         implements ConcurrentMap<K, V>, Serializable {
     private static final long serialVersionUID = 7249069246763182397L;
 
@@ -208,7 +208,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
      * backup in case a null (pre-initialized) value is ever seen in
      * an unsynchronized access method.
      */
-    static final class HashEntry<K,V> {
+    static class HashEntry<K,V> {
         final K key;
         final int hash;
         volatile V value;
@@ -227,12 +227,16 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
         }
     }
 
+    protected Segment<K, V> createSegment(int initialCapacity, float lf) {
+        return new Segment<K, V>(initialCapacity, lf);
+    }
+    
     /**
      * Segments are specialized versions of hash tables.  This
      * subclasses from ReentrantLock opportunistically, just to
      * simplify some locking and avoid separate construction.
      */
-    static final class Segment<K,V> extends ReentrantReadWriteLock implements Serializable {
+    static class Segment<K,V> extends ReentrantReadWriteLock implements Serializable {
         /*
          * Segments maintain a table of entry lists that are ALWAYS
          * kept in a consistent state, so can be read without locking.
@@ -514,8 +518,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                         for (HashEntry<K,V> p = e; p != lastRun; p = p.next) {
                             int k = p.hash & sizeMask;
                             HashEntry<K,V> n = newTable[k];
-                            newTable[k] = new HashEntry<K,V>(p.key, p.hash,
-                                                             n, p.value);
+                            newTable[k] = relinkHashEntry(p, n);
                         }
                     }
                 }
@@ -548,8 +551,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
                         ++modCount;
                         HashEntry<K,V> newFirst = e.next;
                         for (HashEntry<K,V> p = first; p != e; p = p.next)
-                            newFirst = new HashEntry<K,V>(p.key, p.hash,
-                                                          newFirst, p.value);
+                            newFirst = relinkHashEntry(p, newFirst);
                         tab[index] = newFirst;
                         count = c; // write-volatile
                     }
@@ -573,6 +575,10 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             } finally {
                 writeLock().unlock();
             }
+        }
+
+        protected HashEntry<K, V> relinkHashEntry(HashEntry<K,V> e, HashEntry<K,V> next) {
+            return new HashEntry<K,V>(e.key, e.hash, next, e.value);
         }
     }
 
@@ -625,7 +631,7 @@ public class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             cap <<= 1;
 
         for (int i = 0; i < this.segments.length; ++i)
-            this.segments[i] = new Segment<K,V>(cap, loadFactor);
+            this.segments[i] = createSegment(cap, loadFactor);
     }
 
     /**

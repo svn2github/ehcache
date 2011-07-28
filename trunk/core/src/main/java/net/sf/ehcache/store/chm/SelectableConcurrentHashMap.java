@@ -20,6 +20,9 @@ import java.util.Random;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.store.chm.ConcurrentHashMap.HashEntry;
+import net.sf.ehcache.store.chm.ConcurrentHashMap.Segment;
 
 /**
  * SelectableConcurrentHashMap subclasses a repackaged version of ConcurrentHashMap
@@ -33,9 +36,11 @@ import net.sf.ehcache.Element;
 public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Element> {
 
     private final Random rndm = new Random();
-
-    public SelectableConcurrentHashMap(int initialCapacity, float loadFactor, int concurrency) {
+    private final PoolAccessor poolAccessor;
+    
+    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, int initialCapacity, float loadFactor, int concurrency) {
         super(initialCapacity, loadFactor, concurrency);
+        this.poolAccessor = poolAccessor;
     }
 
     public Element[] getRandomValues(final int size, Object keyHint) {
@@ -86,7 +91,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
      * @return an object looking-alike the stored one
      */
     public Object storedObject(Element e) {
-        return new HashEntry<Object, Element>(null, 0, null, e);
+        return new MemoryStoreHashEntry(null, 0, null, e, 0);
     }
 
     /**
@@ -119,4 +124,119 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return segments;
     }
 
+    public Element put(Object key, Element element, long sizeOf) {
+        int hash = hash(key.hashCode());
+        return ((MemoryStoreSegment) segmentFor(hash)).put(key, hash, element, sizeOf, false);
+    }
+                
+    public Element putIfAbsent(Object key, Element element, long sizeOf) {
+        int hash = hash(key.hashCode());
+        return ((MemoryStoreSegment) segmentFor(hash)).put(key, hash, element, sizeOf, true);
+    }
+    
+    @Override
+    protected Segment<Object, Element> createSegment(int initialCapacity, float lf) {
+        return new MemoryStoreSegment(initialCapacity, lf);
+    }
+    
+    
+    final class MemoryStoreSegment extends Segment<Object, Element> {
+
+        private MemoryStoreSegment(int initialCapacity, float lf) {
+            super(initialCapacity, lf);
+        }
+
+        @Override
+        protected HashEntry<Object, Element> relinkHashEntry(HashEntry<Object, Element> e, HashEntry<Object, Element> next) {
+            if (e instanceof MemoryStoreHashEntry) {
+                MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
+                return new MemoryStoreHashEntry(mshe.key, mshe.hash, next, mshe.value, mshe.sizeOf);
+            } else {
+                return new HashEntry<Object, Element>(e.key, e.hash, next, e.value);
+            }
+        }
+
+        @Override
+        Element remove(Object key, int hash, Object value) {
+            writeLock().lock();
+            try {
+                int c = count - 1;
+                HashEntry<Object,Element>[] tab = table;
+                int index = hash & (tab.length - 1);
+                HashEntry<Object,Element> first = tab[index];
+                HashEntry<Object,Element> e = first;
+                while (e != null && (e.hash != hash || !key.equals(e.key)))
+                    e = e.next;
+
+                Element oldValue = null;
+                if (e != null) {
+                    Element v = e.value;
+                    if (value == null || value.equals(v)) {
+                        oldValue = v;
+                        // All entries following removed node can stay
+                        // in list, but all preceding ones need to be
+                        // cloned.
+                        ++modCount;
+                        HashEntry<Object,Element> newFirst = e.next;
+                        for (HashEntry<Object,Element> p = first; p != e; p = p.next)
+                            newFirst = relinkHashEntry(p, newFirst);
+                        tab[index] = newFirst;
+                        count = c; // write-volatile
+                        MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
+                        poolAccessor.delete(mshe.sizeOf);
+                    }
+                }
+                return oldValue;
+            } finally {
+                writeLock().unlock();
+            }
+        }
+
+        
+        Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent) {
+            writeLock().lock();
+            try {
+                int c = count;
+                if (c++ > threshold) // ensure capacity
+                    rehash();
+                HashEntry<Object,Element>[] tab = table;
+                int index = hash & (tab.length - 1);
+                HashEntry<Object,Element> first = tab[index];
+                HashEntry<Object,Element> e = first;
+                while (e != null && (e.hash != hash || !key.equals(e.key)))
+                    e = e.next;
+
+                Element oldValue;
+                if (e != null) {
+                    oldValue = e.value;
+                    if (!onlyIfAbsent) {
+                        MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
+                        poolAccessor.delete(mshe.sizeOf);
+                        e.value = value;
+                        mshe.sizeOf = sizeOf;
+                    }
+                }
+                else {
+                    oldValue = null;
+                    ++modCount;
+                    tab[index] = new MemoryStoreHashEntry(key, hash, first, value, sizeOf);
+                    count = c; // write-volatile
+                }
+                return oldValue;
+            } finally {
+                writeLock().unlock();
+            }
+        }
+
+    }
+    
+    static final class MemoryStoreHashEntry extends HashEntry<Object, Element> {
+
+        volatile long sizeOf;
+        
+        private MemoryStoreHashEntry(Object key, int hash, HashEntry<Object, Element> next, Element value, long sizeOf) {
+            super(key, hash, next, value);
+            this.sizeOf = sizeOf;
+        }
+    } 
 }

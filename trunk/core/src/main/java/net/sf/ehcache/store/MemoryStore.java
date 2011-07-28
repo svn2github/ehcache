@@ -79,6 +79,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
      * Map where items are stored by key.
      */
     private final SelectableConcurrentHashMap map;
+    private final PoolAccessor poolAccessor;
 
     private final RateStatistic hitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
@@ -101,7 +102,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     /**
      * The pool accessor
      */
-    private volatile PoolAccessor poolAccessor;
 
     private volatile CacheLockProvider lockProvider;
 
@@ -119,11 +119,11 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.policy = determineEvictionPolicy(cache);
 
+        this.poolAccessor = pool.createPoolAccessor(this);
+        
         // create the CHM with initialCapacity sufficient to hold maximumSize
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
-        map = new SelectableConcurrentHashMap(initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
-
-        this.poolAccessor = pool.createPoolAccessor(this);
+        map = new SelectableConcurrentHashMap(poolAccessor, initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
 
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
@@ -207,9 +207,13 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
 
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
         if (delta > -1) {
-            boolean result = putInternal(element, null);
-            element.setRecordedSize(delta);
-            return result;
+            Element old = map.put(element.getObjectKey(), element, delta);
+            if (old == null) {
+                checkCapacity(element);
+                return true;
+            } else {
+                return false;
+            }
         } else {
             remove(element.getObjectKey());
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
@@ -223,24 +227,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     public final boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
         if (delta > -1) {
-            boolean result = putInternal(element, writerManager);
-            element.setRecordedSize(delta);
-            return result;
-        } else {
-            removeInternal(element.getObjectKey(), null);
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
-            return true;
-        }
-    }
-
-    private boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
-        if (element == null) {
-            return true;
-        } else {
-            Element old = map.put(element.getObjectKey(), element);
-            if (old != null) {
-                poolAccessor.delete(old.getRecordedSize());
-            }
+            Element old = map.put(element.getObjectKey(), element, delta);
             if (writerManager != null) {
                 try {
                     writerManager.put(element);
@@ -248,8 +235,16 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                     throw new StoreUpdateException(e, old != null);
                 }
             }
-            checkCapacity(element);
-            return old == null;
+            if (old == null) {
+                checkCapacity(element);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            remove(element.getObjectKey());
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            return true;
         }
     }
 
@@ -292,18 +287,22 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
      * @return the Element if one was found, else null
      */
     public Element remove(final Object key) {
-        return removeInternal(key, null);
+        if (key == null) {
+            return null;
+        }
+
+        // remove single item.
+        Element element = map.remove(key);
+        if (element == null && LOG.isDebugEnabled()) {
+            LOG.debug(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
+        }
+        return element;
     }
 
     /**
      * {@inheritDoc}
      */
     public final Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        return removeInternal(key, writerManager);
-    }
-
-    private Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
-
         if (key == null) {
             return null;
         }
@@ -313,15 +312,10 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         if (writerManager != null) {
             writerManager.remove(new CacheEntry(key, element));
         }
-        if (element != null) {
-            poolAccessor.delete(element.getRecordedSize());
-            return element;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
-            }
-            return null;
+        if (element == null && LOG.isDebugEnabled()) {
+            LOG.debug(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
         }
+        return element;
     }
 
     /**
@@ -714,12 +708,11 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
 
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
         if (delta > -1) {
-            Element old = map.putIfAbsent(element.getObjectKey(), element);
+            Element old = map.putIfAbsent(element.getObjectKey(), element, delta);
             if (old == null) {
-                element.setRecordedSize(delta);
-                checkCapacity(element);
+              checkCapacity(element);
             } else {
-                poolAccessor.delete(delta);
+              poolAccessor.delete(delta);
             }
             return old;
         } else {
@@ -745,7 +738,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             Element toRemove = map.get(key);
             if (comparator.equals(element, toRemove)) {
                 map.remove(key);
-                poolAccessor.delete(toRemove.getRecordedSize());
                 return toRemove;
             } else {
                 return null;
@@ -773,9 +765,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             try {
                 Element toRemove = map.get(key);
                 if (comparator.equals(old, toRemove)) {
-                    map.put(key, element);
-                    poolAccessor.delete(toRemove.getRecordedSize());
-                    element.setRecordedSize(delta);
+                    map.put(key, element, delta);
                     return true;
                 } else {
                     poolAccessor.delete(delta);
@@ -810,9 +800,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             try {
                 Element toRemove = map.get(key);
                 if (toRemove != null) {
-                    map.put(key, element);
-                    poolAccessor.delete(toRemove.getRecordedSize());
-                    element.setRecordedSize(delta);
+                    map.put(key, element, delta);
                     return toRemove;
                 } else {
                     poolAccessor.delete(delta);
