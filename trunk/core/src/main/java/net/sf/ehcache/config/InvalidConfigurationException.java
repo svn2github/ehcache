@@ -17,6 +17,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 
 import java.util.Collection;
 
@@ -46,15 +47,22 @@ public class InvalidConfigurationException extends CacheException {
 
     private static String createErrorMessage(Collection<ConfigError> errors) {
         final StringBuilder sb = new StringBuilder()
-            .append("There are ")
-            .append(errors.size())
-            .append(" errors in your configuration: \n");
+            .append("There ");
+        if(errors.size() == 1) {
+            sb.append("is one error ");
+        } else {
+            sb.append("are ")
+                .append(errors.size())
+                .append(" errors ");
+        }
+        sb.append("in your configuration: \n");
         for (ConfigError error : errors) {
             sb.append("\t* ")
                 .append(error.toString())
                 .append('\n');
         }
         return sb
+            .append("\n")
             .toString();
     }
 
