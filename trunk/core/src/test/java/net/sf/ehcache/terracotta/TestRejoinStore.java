@@ -205,6 +205,19 @@ public class TestRejoinStore implements TerracottaStore {
         return map.get(key);
     }
 
+    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+        alwaysCalledMethod();
+        Map<Object, Element> rv = new HashMap<Object, Element>();
+        for (Object key : keys) {
+            rv.put(key, map.get(key));
+        }
+        return rv;
+    }
+
+    public Map<Object, Element> getAll(Collection<Object> keys) {
+        return getAllQuiet(keys);
+    }
+
     public int getSize() {
         alwaysCalledMethod();
         return 0;

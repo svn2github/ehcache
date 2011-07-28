@@ -95,6 +95,20 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getAllQuiet(keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<Object, Element> getAll(Collection<Object> keys) {
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getAll(keys);
+    }
+
+    /**
      * {@inheritDoc}.
      * <p>
      * This is a no-op

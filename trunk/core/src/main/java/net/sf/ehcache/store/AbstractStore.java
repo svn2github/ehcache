@@ -18,6 +18,7 @@ package net.sf.ehcache.store;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -155,5 +156,27 @@ public abstract class AbstractStore implements Store {
         for (Object key : keys) {
             remove(key);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+        Map<Object, Element> elements = new HashMap<Object, Element>();
+        for (Object key : keys) {
+            elements.put(key, getQuiet(key));
+        }
+        return elements;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<Object, Element> getAll(Collection<Object> keys) {
+        Map<Object, Element> elements = new HashMap<Object, Element>();
+        for (Object key : keys) {
+            elements.put(key, get(key));
+        }
+        return elements;
     }
 }

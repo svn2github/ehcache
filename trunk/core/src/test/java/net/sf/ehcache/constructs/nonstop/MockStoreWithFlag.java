@@ -145,6 +145,16 @@ public class MockStoreWithFlag implements TerracottaStore {
         return null;
     }
 
+    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+        markAccessFlag();
+        return null;
+    }
+
+    public Map<Object, Element> getAll(Collection<Object> keys) {
+        markAccessFlag();
+        return null;
+    }
+
     public int getSize() {
         markAccessFlag();
         return 0;

@@ -1643,16 +1643,18 @@ public class Cache implements Ehcache, StoreListener {
     public Map<Object, Element> getAll(Collection<Object> keys) throws IllegalStateException, CacheException {
         checkStatus();
 
-        if (disabled || keys.isEmpty()) {
+        if (disabled) {
             return null;
         }
 
-        Map<Object, Element> retMap = new HashMap<Object, Element>();
-        for (Object key : keys) {
-            Element element = get(key);
-            retMap.put(key, element);
+        if (isStatisticsEnabled()) {
+            long start = System.currentTimeMillis();
+            Map<Object, Element> elements = searchAllInStoreWithStats(keys);
+            liveCacheStatisticsData.addGetTimeMillis(System.currentTimeMillis() - start);
+            return elements;
+        } else {
+            return searchAllInStoreWithoutStats(keys);
         }
-        return retMap;
     }
 
     /**
@@ -2034,9 +2036,80 @@ public class Cache implements Ehcache, StoreListener {
         return element;
     }
 
+    private Map<Object, Element> searchAllInStoreWithStats(Collection<Object> keys) {
+        boolean wasOnDisk = false;
+        boolean wasOffHeap = false;
+        boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
+        boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
+        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
+        Map<Object, Element> elements;
+        Map<Object, Boolean> wasOffHeapMap = new HashMap<Object, Boolean>();
+        Map<Object, Boolean> wasOnDiskMap = new HashMap<Object, Boolean>();
+
+        for (Object key : keys) {
+            if (!compoundStore.containsKeyInMemory(key)) {
+                liveCacheStatisticsData.cacheMissInMemory();
+                if (hasOffHeap) {
+                    wasOffHeap = compoundStore.containsKeyOffHeap(key);
+                    wasOffHeapMap.put(key, wasOffHeap);
+                }
+              if (!wasOffHeap) {
+                  if (hasOffHeap) {
+                      liveCacheStatisticsData.cacheMissOffHeap();
+                  }
+                  wasOnDisk = compoundStore.containsKeyOnDisk(key);
+                  wasOnDiskMap.put(key, wasOnDisk);
+                  if (hasOnDisk && !wasOnDisk) {
+                      liveCacheStatisticsData.cacheMissOnDisk();
+                  }
+              }
+            }
+        }
+        elements = compoundStore.getAll(keys);
+
+        for (Entry<Object, Element> entry : elements.entrySet()) {
+            Object key = entry.getKey();
+            Element element = entry.getValue();
+            if (element != null) {
+                if (isExpired(element)) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(configuration.getName() + " cache hit, but element expired");
+                    }
+                    liveCacheStatisticsData.cacheMissExpired();
+                    tryRemoveImmediately(key, true);
+                    element = null;
+                } else {
+                    element.updateAccessStatistics();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Cache: " + getName() + " store hit for " + key);
+                    }
+
+                    if (wasOffHeapMap.containsKey(key) && wasOffHeapMap.get(key)) {
+                        liveCacheStatisticsData.cacheHitOffHeap();
+                    } else if (wasOnDiskMap.containsKey(key) && wasOnDiskMap.get(key)) {
+                        liveCacheStatisticsData.cacheHitOnDisk();
+                    } else {
+                        liveCacheStatisticsData.cacheHitInMemory();
+                    }
+                }
+            } else {
+                liveCacheStatisticsData.cacheMissNotFound();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(configuration.getName() + " cache - Miss");
+                }
+            }
+            elements.put(key, element);
+        }
+        return elements;
+    }
+
     private Element searchInStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
         Element element = compoundStore.getQuiet(key);
 
+        return elementStatsHelper(key, quiet, notifyListeners, element);
+    }
+
+    private Element elementStatsHelper(Object key, boolean quiet, boolean notifyListeners, Element element) {
         if (element != null) {
             if (isExpired(element)) {
                 tryRemoveImmediately(key, notifyListeners);
@@ -2046,6 +2119,18 @@ public class Cache implements Ehcache, StoreListener {
             }
         }
         return element;
+    }
+
+
+    private Map<Object, Element> searchAllInStoreWithoutStats(Collection<Object> keys) {
+        Map<Object, Element> elements = compoundStore.getAllQuiet(keys);
+
+        for (Entry<Object, Element> entry : elements.entrySet()) {
+            Element element = entry.getValue();
+            Object key = entry.getKey();
+            elements.put(key, elementStatsHelper(key, false, true, element));
+        }
+        return elements;
     }
 
     private void tryRemoveImmediately(final Object key, final boolean notifyListeners) {

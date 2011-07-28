@@ -159,6 +159,16 @@ public class BlockingMockStore implements TerracottaStore {
         return null;
     }
 
+    public Map<Object, Element> getAll(Collection<Object> keys) {
+        neverReturn();
+        return null;
+    }
+
+    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+        neverReturn();
+        return null;
+    }
+
     public int getSize() {
         neverReturn();
         return 0;
