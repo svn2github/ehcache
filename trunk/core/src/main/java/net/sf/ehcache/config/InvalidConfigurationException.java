@@ -48,7 +48,7 @@ public class InvalidConfigurationException extends CacheException {
     private static String createErrorMessage(Collection<ConfigError> errors) {
         final StringBuilder sb = new StringBuilder()
             .append("There ");
-        if(errors.size() == 1) {
+        if (errors.size() == 1) {
             sb.append("is one error ");
         } else {
             sb.append("are ")
