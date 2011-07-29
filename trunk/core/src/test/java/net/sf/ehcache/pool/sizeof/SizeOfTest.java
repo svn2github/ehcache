@@ -7,6 +7,9 @@ import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,17 +78,11 @@ public class SizeOfTest extends AbstractSizeOfTest {
   }
 
   private void verify32bitSizes(SizeOf sizeOf) {
+    verifyFlyweights(sizeOf);
     assertThat(sizeOf.sizeOf(new Object()), is(8L));
-    assertThat(sizeOf.sizeOf(1), equalTo(0L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(16L));
-    assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
-    assertThat(sizeOf.sizeOf(Logger.global), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
-    assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(24L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
@@ -98,17 +95,11 @@ public class SizeOfTest extends AbstractSizeOfTest {
   }
 
   private void verify64bitSizes(SizeOf sizeOf) {
+    verifyFlyweights(sizeOf);
     assertThat(sizeOf.sizeOf(new Object()), is(16L));
-    assertThat(sizeOf.sizeOf(1), equalTo(0L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(24L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(24L));
-    assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
-    assertThat(sizeOf.sizeOf(Logger.global), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
-    assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(24L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(40L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(24L));
@@ -121,17 +112,11 @@ public class SizeOfTest extends AbstractSizeOfTest {
   }
 
   private void verify64bitCompressedOopsSizes(SizeOf sizeOf) {
+    verifyFlyweights(sizeOf);
     assertThat(sizeOf.sizeOf(new Object()), is(16L));
-    assertThat(sizeOf.sizeOf(1), equalTo(0L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(16L));
-    assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
-    assertThat(sizeOf.sizeOf(Logger.global), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
-    assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(32L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
@@ -142,6 +127,20 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(40L));
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(56L));
   }
+
+  private void verifyFlyweights(SizeOf sizeOf) {
+      assertThat(sizeOf.sizeOf(1), equalTo(0L));
+      assertThat(sizeOf.sizeOf(BigInteger.ZERO), is(0L));
+      assertThat(sizeOf.sizeOf(BigDecimal.ZERO), is(0L));
+      assertThat(sizeOf.sizeOf(MathContext.UNLIMITED), is(0L));
+      assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
+      assertThat(sizeOf.sizeOf(Logger.global), is(0L));
+      assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
+      assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
+      assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
+      assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
+    }
+
 
   @Test
   public void testOnHeapConsumption() throws Exception {

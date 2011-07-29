@@ -18,6 +18,9 @@ package net.sf.ehcache.pool.sizeof;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -92,6 +95,33 @@ enum FlyweightType {
         boolean isShared(final Object obj) {
             long value = ((Long)obj).longValue();
             return value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE && obj == Long.valueOf(value);
+        }
+    },
+    /**
+     * java.math.BigInteger
+     */
+    BIGINTEGER(BigInteger.class) {
+        @Override
+        boolean isShared(final Object obj) {
+            return obj == BigInteger.ZERO || obj == BigInteger.ONE || obj == BigInteger.TEN;
+        }
+    },
+    /**
+     * java.math.BigDecimal
+     */
+    BIGDECIMAL(BigDecimal.class) {
+        @Override
+        boolean isShared(final Object obj) {
+            return obj == BigDecimal.ZERO || obj == BigDecimal.ONE || obj == BigDecimal.TEN;
+        }
+    },
+    /**
+     * java.math.MathContext
+     */
+    MATHCONTEXT(MathContext.class) {
+        @Override
+        boolean isShared(final Object obj) {
+            return obj == MathContext.UNLIMITED || obj == MathContext.DECIMAL32 || obj == MathContext.DECIMAL64 || obj == MathContext.DECIMAL128;
         }
     },
     /**
