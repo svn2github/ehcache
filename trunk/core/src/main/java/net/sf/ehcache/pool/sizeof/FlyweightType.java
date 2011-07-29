@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright 2003-2011 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package net.sf.ehcache.pool.sizeof;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ enum FlyweightType {
         @Override
         boolean isShared(final Object obj) { return true; }
     },
-    // XXX There is no nullipotent way of determining the interned status of a string 
+    // XXX There is no nullipotent way of determining the interned status of a string
     /**
      * java.lang.String
      */
@@ -82,6 +83,20 @@ enum FlyweightType {
     CHARACTER(Character.class) {
         @Override
         boolean isShared(final Object obj) { return obj == Character.valueOf((Character)obj); }
+    },
+    /**
+     * java.lang.Locale
+     */
+    LOCALE(Locale.class) {
+        @Override
+        boolean isShared(final Object obj) { return /*obj == Locale.ROOT ||*/
+            obj == Locale.ENGLISH  || obj == Locale.FRENCH || obj == Locale.GERMAN || obj == Locale.ITALIAN ||
+            obj == Locale.JAPANESE || obj == Locale.KOREAN || obj == Locale.CHINESE ||
+            obj == Locale.SIMPLIFIED_CHINESE || obj == Locale.TRADITIONAL_CHINESE  || obj == Locale.FRANCE ||
+            obj == Locale.GERMANY  || obj == Locale.ITALY || obj == Locale.JAPAN   ||
+            obj == Locale.KOREA    || obj == Locale.CHINA || obj == Locale.PRC     || obj == Locale.TAIWAN ||
+            obj == Locale.UK       || obj == Locale.US    || obj == Locale.CANADA  || obj == Locale.CANADA_FRENCH;
+        }
     };
 
     private static final Map<Class<?>, FlyweightType> TYPE_MAPPINGS = new HashMap<Class<?>, FlyweightType>();
@@ -90,7 +105,7 @@ enum FlyweightType {
           TYPE_MAPPINGS.put(type.clazz, type);
         }
     }
-    
+
     private final Class<?> clazz;
 
     private FlyweightType(final Class<?> clazz) {
