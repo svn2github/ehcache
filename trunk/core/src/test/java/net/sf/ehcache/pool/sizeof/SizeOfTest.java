@@ -8,10 +8,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -79,6 +81,11 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(16L));
     assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
+    assertThat(sizeOf.sizeOf(Logger.global), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
+    assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(24L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
@@ -97,6 +104,11 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(24L));
     assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
+    assertThat(sizeOf.sizeOf(Logger.global), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
+    assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(24L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(40L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(24L));
@@ -115,6 +127,11 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(16L));
     assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
+    assertThat(sizeOf.sizeOf(Logger.global), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
+    assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
+    assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(32L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));

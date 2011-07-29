@@ -18,11 +18,13 @@ package net.sf.ehcache.pool.sizeof;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Enum with all the flyweight types that we check for sizeOf measurements
@@ -39,6 +41,8 @@ enum FlyweightType {
         boolean isShared(final Object obj) { return true; }
     },
     // XXX There is no nullipotent way of determining the interned status of a string
+    // There are numerous String constants within the JDK (see list at http://download.oracle.com/javase/7/docs/api/constant-values.html),
+    // but enumerating all of them would lead to lots of == tests.
     /**
      * java.lang.String
      */
@@ -106,6 +110,24 @@ enum FlyweightType {
         boolean isShared(final Object obj) {
             return GLOBAL_LOCALES.contains(obj);
         }
+    },
+    /**
+     * java.util.Logger
+     */
+    LOGGER(Logger.class) {
+        @Override
+        @SuppressWarnings("deprecation")
+        boolean isShared(final Object obj) { return obj == Logger.global; }
+    },
+    /**
+     * misc comparisons that can not rely on the object's class.
+     */
+    MISC(Void.class) {
+        @Override
+        boolean isShared(final Object obj) {
+            return obj == Collections.EMPTY_SET || obj == Collections.EMPTY_LIST || obj == Collections.EMPTY_MAP ||
+                obj == String.CASE_INSENSITIVE_ORDER;
+        }
     };
 
     private static final Map<Class<?>, FlyweightType> TYPE_MAPPINGS = new HashMap<Class<?>, FlyweightType>();
@@ -155,7 +177,8 @@ enum FlyweightType {
         if (aClazz.isEnum()) {
             return ENUM;
         } else {
-            return TYPE_MAPPINGS.get(aClazz);
+            FlyweightType flyweightType = TYPE_MAPPINGS.get(aClazz);
+            return flyweightType != null ? flyweightType : MISC;
         }
     }
 }
