@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -77,6 +78,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(16L));
+    assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(24L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
@@ -94,6 +96,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.sizeOf(new Integer(1)), is(24L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(24L));
+    assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(24L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(40L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(24L));
@@ -111,6 +114,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
     assertThat(sizeOf.sizeOf(1000), is(16L));
+    assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
     assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(32L));
     assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));

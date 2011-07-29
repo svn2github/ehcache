@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2011 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 
 package net.sf.ehcache.pool.sizeof;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Enum with all the flyweight types that we check for sizeOf measurements
@@ -56,7 +60,7 @@ enum FlyweightType {
         @Override
         boolean isShared(final Object obj) {
             int value = ((Integer)obj).intValue();
-            return value >= -128 && value <= 127 && obj == Integer.valueOf(value);
+            return value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE && obj == Integer.valueOf(value);
         }
     },
     /**
@@ -66,7 +70,7 @@ enum FlyweightType {
         @Override
         boolean isShared(final Object obj) {
             short value = ((Short)obj).shortValue();
-            return value >= -128 && value <= 127 && obj == Short.valueOf(value);
+            return value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE && obj == Short.valueOf(value);
         }
     },
     /**
@@ -83,7 +87,7 @@ enum FlyweightType {
         @Override
         boolean isShared(final Object obj) {
             long value = ((Long)obj).longValue();
-            return value >= -128 && value <= 127 && obj == Long.valueOf(value);
+            return value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE && obj == Long.valueOf(value);
         }
     },
     /**
@@ -91,20 +95,16 @@ enum FlyweightType {
      */
     CHARACTER(Character.class) {
         @Override
-        boolean isShared(final Object obj) { return ((Character)obj).charValue() <= 127 && obj == Character.valueOf((Character)obj); }
+        boolean isShared(final Object obj) { return ((Character)obj).charValue() <= Byte.MAX_VALUE && obj == Character.valueOf((Character)obj); }
     },
     /**
-     * java.lang.Locale
+     *  java.lang.Locale
      */
     LOCALE(Locale.class) {
+
         @Override
-        boolean isShared(final Object obj) { return /*obj == Locale.ROOT ||*//*Java 6*/
-            obj == Locale.ENGLISH  || obj == Locale.FRENCH || obj == Locale.GERMAN || obj == Locale.ITALIAN ||
-            obj == Locale.JAPANESE || obj == Locale.KOREAN || obj == Locale.CHINESE ||
-            obj == Locale.SIMPLIFIED_CHINESE || obj == Locale.TRADITIONAL_CHINESE  || obj == Locale.FRANCE ||
-            obj == Locale.GERMANY  || obj == Locale.ITALY || obj == Locale.JAPAN   ||
-            obj == Locale.KOREA    || obj == Locale.CHINA || obj == Locale.PRC     || obj == Locale.TAIWAN ||
-            obj == Locale.UK       || obj == Locale.US    || obj == Locale.CANADA  || obj == Locale.CANADA_FRENCH;
+        boolean isShared(final Object obj) {
+            return GLOBAL_LOCALES.contains(obj);
         }
     };
 
@@ -113,6 +113,24 @@ enum FlyweightType {
         for (FlyweightType type : FlyweightType.values()) {
           TYPE_MAPPINGS.put(type.clazz, type);
         }
+    }
+
+    private static final Set<Locale> GLOBAL_LOCALES;
+    static {
+        Map<Locale, Void> locales = new IdentityHashMap<Locale, Void>();
+        for (Field f : Locale.class.getFields()) {
+            int modifiers = f.getModifiers();
+            if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Locale.class.equals(f.getType())) {
+                try {
+                    locales.put((Locale) f.get(null), null);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                } catch (IllegalAccessException e) {
+                    continue;
+                }
+            }
+        }
+        GLOBAL_LOCALES = locales.keySet();
     }
 
     private final Class<?> clazz;
