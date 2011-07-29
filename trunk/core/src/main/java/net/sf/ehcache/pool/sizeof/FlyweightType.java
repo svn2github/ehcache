@@ -21,6 +21,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.net.Proxy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -135,7 +136,6 @@ enum FlyweightType {
      *  java.lang.Locale
      */
     LOCALE(Locale.class) {
-
         @Override
         boolean isShared(final Object obj) {
             return GLOBAL_LOCALES.contains(obj);
@@ -150,13 +150,21 @@ enum FlyweightType {
         boolean isShared(final Object obj) { return obj == Logger.global; }
     },
     /**
+     * java.net.Proxy
+     */
+    PROXY(Proxy.class) {
+        @Override
+        boolean isShared(final Object obj) { return obj == Proxy.NO_PROXY; }
+    },
+    /**
      * misc comparisons that can not rely on the object's class.
      */
     MISC(Void.class) {
         @Override
         boolean isShared(final Object obj) {
             return obj == Collections.EMPTY_SET || obj == Collections.EMPTY_LIST || obj == Collections.EMPTY_MAP ||
-                obj == String.CASE_INSENSITIVE_ORDER;
+                obj == String.CASE_INSENSITIVE_ORDER ||
+                obj == System.in || obj == System.out || obj == System.err;
         }
     };
 

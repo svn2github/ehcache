@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -139,6 +140,8 @@ public class SizeOfTest extends AbstractSizeOfTest {
       assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
       assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
       assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
+      assertThat(sizeOf.sizeOf(System.err), equalTo(0L));
+      assertThat(sizeOf.sizeOf(Proxy.NO_PROXY), equalTo(0L));
     }
 
 
