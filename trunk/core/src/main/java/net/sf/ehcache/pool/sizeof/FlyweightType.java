@@ -162,9 +162,9 @@ enum FlyweightType {
     MISC(Void.class) {
         @Override
         boolean isShared(final Object obj) {
-            return obj == Collections.EMPTY_SET || obj == Collections.EMPTY_LIST || obj == Collections.EMPTY_MAP ||
-                obj == String.CASE_INSENSITIVE_ORDER ||
-                obj == System.in || obj == System.out || obj == System.err;
+            boolean emptyCollection = obj == Collections.EMPTY_SET || obj == Collections.EMPTY_LIST || obj == Collections.EMPTY_MAP;
+            boolean systemStream = obj == System.in || obj == System.out || obj == System.err;
+            return emptyCollection || systemStream || obj == String.CASE_INSENSITIVE_ORDER;
         }
     };
 
