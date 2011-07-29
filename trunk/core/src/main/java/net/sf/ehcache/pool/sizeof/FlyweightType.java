@@ -54,14 +54,20 @@ enum FlyweightType {
      */
     INTEGER(Integer.class) {
         @Override
-        boolean isShared(final Object obj) { return obj == Integer.valueOf((Integer)obj); }
+        boolean isShared(final Object obj) {
+            int value = ((Integer)obj).intValue();
+            return value >= -128 && value <= 127 && obj == Integer.valueOf(value);
+        }
     },
     /**
      * java.lang.Short
      */
     SHORT(Short.class) {
         @Override
-        boolean isShared(final Object obj) { return obj == Short.valueOf((Short)obj); }
+        boolean isShared(final Object obj) {
+            short value = ((Short)obj).shortValue();
+            return value >= -128 && value <= 127 && obj == Short.valueOf(value);
+        }
     },
     /**
      * java.lang.Byte
@@ -75,21 +81,24 @@ enum FlyweightType {
      */
     LONG(Long.class) {
         @Override
-        boolean isShared(final Object obj) { return obj == Long.valueOf((Long)obj); }
+        boolean isShared(final Object obj) {
+            long value = ((Long)obj).longValue();
+            return value >= -128 && value <= 127 && obj == Long.valueOf(value);
+        }
     },
     /**
      * java.lang.Character
      */
     CHARACTER(Character.class) {
         @Override
-        boolean isShared(final Object obj) { return obj == Character.valueOf((Character)obj); }
+        boolean isShared(final Object obj) { return ((Character)obj).charValue() <= 127 && obj == Character.valueOf((Character)obj); }
     },
     /**
      * java.lang.Locale
      */
     LOCALE(Locale.class) {
         @Override
-        boolean isShared(final Object obj) { return /*obj == Locale.ROOT ||*/
+        boolean isShared(final Object obj) { return /*obj == Locale.ROOT ||*//*Java 6*/
             obj == Locale.ENGLISH  || obj == Locale.FRENCH || obj == Locale.GERMAN || obj == Locale.ITALIAN ||
             obj == Locale.JAPANESE || obj == Locale.KOREAN || obj == Locale.CHINESE ||
             obj == Locale.SIMPLIFIED_CHINESE || obj == Locale.TRADITIONAL_CHINESE  || obj == Locale.FRANCE ||
