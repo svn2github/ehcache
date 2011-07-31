@@ -373,6 +373,7 @@ public class CacheConfiguration implements Cloneable {
     private Integer maxBytesLocalOffHeapPercentage;
     private Integer maxBytesLocalDiskPercentage;
     private PoolUsage onHeapPoolUsage;
+    private PoolUsage offHeapPoolUsage;
     private PoolUsage onDiskPoolUsage;
 
     /**
@@ -1305,6 +1306,9 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
         verifyGreaterThanZero(maxBytesOffHeap, "maxBytesLocalOffHeap");
+        if(offHeapPoolUsage != null) {
+            throw new IllegalStateException("OffHeap can't be set dynamically!");
+        }
         this.maxBytesLocalOffHeap = maxBytesOffHeap;
     }
 
@@ -1463,6 +1467,14 @@ public class CacheConfiguration implements Cloneable {
             onHeapPoolUsage = PoolUsage.CacheManager;
         } else {
             onHeapPoolUsage = PoolUsage.None;
+        }
+
+        if (getMaxBytesLocalHeap() > 0) {
+            offHeapPoolUsage = PoolUsage.Cache;
+        } else if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
+            offHeapPoolUsage = PoolUsage.CacheManager;
+        } else {
+            offHeapPoolUsage = PoolUsage.None;
         }
 
         if (getMaxBytesLocalDisk() > 0) {
