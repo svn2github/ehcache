@@ -167,6 +167,13 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void setMaxSize(final long newValue) {
+        this.pool.setMaxSize(newValue);
+    }
+
+    /**
      * Throws {@code IllegalStateException} if this accessor is not linked to it's pool.
      *
      * @throws IllegalStateException if not linked

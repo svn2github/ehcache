@@ -1008,7 +1008,7 @@ public class Cache implements Ehcache, StoreListener {
                                                         ": MaxElementsInMemory is not compatible with " +
                                                         "MaxBytesOnHeap set on cache manager");
             }
-            if (configuration.getMaxBytesLocalHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
+            if (configuration.getMaxBytesLocalHeap() > 0 && configuration.getMaxEntriesLocalDisk() > 0) {
                 throw new InvalidConfigurationException(configuration.getName() +
                                                         ": MaxElementsInMemory is not compatible with " +
                                                         "MaxBytesOnHeap set on cache");

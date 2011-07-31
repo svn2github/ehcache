@@ -148,8 +148,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
                     .overflowToDisk(true)
                     .maxBytesLocalHeap(220, MemoryUnit.KILOBYTES)
                     .maxBytesLocalDisk(300, MemoryUnit.MEGABYTES)
-                    .diskStorePath("caches/DiskPersistentSize")
-                    .maxEntriesLocalDisk(ELEMENTS_ON_DISK), null, cacheSizeBoundBootstrapCacheLoader);
+                    .diskStorePath("caches/DiskPersistentSize"), null, cacheSizeBoundBootstrapCacheLoader);
                 manager.addCache(cacheSizeBound);
                 cacheSizeBound.setSampledStatisticsEnabled(true);
                 break;

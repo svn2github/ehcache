@@ -60,7 +60,6 @@ import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
 
 import net.sf.ehcache.util.MemorySizeParser;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -107,6 +106,103 @@ public class CacheManagerTest {
             instanceManager.shutdown();
             assertFalse(CacheManager.ALL_CACHE_MANAGERS.contains(instanceManager));
         }
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void testCantMixCountAndSizeBasedTunings() {
+        Configuration configuration = new Configuration()
+            .maxBytesLocalHeap(16, MemoryUnit.MEGABYTES);
+        CacheManager cacheManager = new CacheManager(configuration);
+        cacheManager.addCache(new Cache(new CacheConfiguration("zero", 10)));
+    }
+
+    @Test
+    public void testReduceCacheManagerPoolBelowReservedUsage() {
+        Configuration configuration = new Configuration()
+            .maxBytesLocalHeap(16, MemoryUnit.MEGABYTES);
+        CacheManager cacheManager = new CacheManager(configuration);
+        cacheManager.addCache(new Cache(new CacheConfiguration("zero", 0)));
+        cacheManager.addCache(new Cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES)));
+        cacheManager.addCache(new Cache(new CacheConfiguration("two", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES)));
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(12)));
+        cacheManager.getConfiguration().maxBytesLocalHeap(8, MemoryUnit.MEGABYTES);
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(4)));
+        cacheManager.getConfiguration().maxBytesLocalHeap(4, MemoryUnit.MEGABYTES);
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(0)));
+        try {
+            cacheManager.getConfiguration().maxBytesLocalHeap(3, MemoryUnit.MEGABYTES);
+            fail();
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("one"), is(true));
+            assertThat(e.getMessage().contains("two"), is(true));
+            assertThat(e.getMessage().contains("zero"), is(false));
+        }
+        cacheManager.removeCache("one");
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(2)));
+        CacheConfiguration two = cacheManager.getCache("two").getCacheConfiguration();
+        two.maxBytesLocalHeap(1, MemoryUnit.MEGABYTES);
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(3)));
+        cacheManager.removeCache("two");
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(4)));
+        two.maxBytesLocalHeap(2, MemoryUnit.MEGABYTES);
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(4)));
+    }
+
+    @Test
+    public void testCantAddCacheWhenOverAllocatingCacheManagerPool() {
+        Configuration configuration = new Configuration()
+            .maxBytesLocalHeap(5, MemoryUnit.MEGABYTES);
+        CacheManager cacheManager = new CacheManager(configuration);
+        cacheManager.addCache(new Cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES)));
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(3)));
+        cacheManager.addCache(new Cache(new CacheConfiguration("two", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES)));
+        assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(1)));
+        try {
+            cacheManager.addCache(new Cache(new CacheConfiguration("three", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES)));
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage().contains("'three'"), is(true));
+            assertThat(e.getMessage().contains("over-allocate"), is(true));
+        }
+        assertThat(cacheManager.getCache("three"), nullValue());
+        assertThat(cacheManager.getConfiguration().getCacheConfigurations().get("three"), nullValue());
+        assertThat(cacheManager.getConfiguration().getCacheConfigurations().size(), is(2));
+        assertThat(cacheManager.getCacheNames().length, is(2));
+    }
+
+    @Test
+    public void testCacheConfigurationAreInSync() {
+        // todo This should be addressed at some point: we're cloning things around too much...
+        if (false) {
+            Configuration configuration = new Configuration()
+                .cache(new CacheConfiguration("one", 0));
+            CacheManager cacheManager = new CacheManager(configuration);
+            assertThat(cacheManager.getCache("one").getCacheConfiguration(),
+                is(cacheManager.getConfiguration().getCacheConfigurations().get("one")));
+        }
+    }
+
+    @Test
+    public void testMaxBytesOnCacheDynamicChangesReflectOnPercentBasedCaches() throws Exception {
+        CacheConfiguration configuration1 = new CacheConfiguration("one", 0);
+        CacheConfiguration configuration2 = new CacheConfiguration("two", 0);
+        Configuration configuration = new Configuration()
+            .maxBytesLocalHeap(5, MemoryUnit.MEGABYTES)
+            .cache(configuration1)
+            .cache(configuration2)
+            .cache(new CacheConfiguration("three", 0));
+        configuration1.setMaxBytesLocalHeap("20%");
+        configuration2.setMaxBytesLocalHeap("20%");
+
+        CacheManager cacheManager = new CacheManager(configuration);
+        assertThat(cacheManager.getCache("one").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
+        assertThat(cacheManager.getCache("two").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(1)));
+        assertThat(cacheManager.getCache("three").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(0L));
+
+        configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES);
+
+        assertThat(cacheManager.getCache("one").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(2)));
+        assertThat(cacheManager.getCache("two").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(2)));
+        assertThat(cacheManager.getCache("three").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(0L));
     }
 
     @Test

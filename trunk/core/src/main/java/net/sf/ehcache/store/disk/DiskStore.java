@@ -144,7 +144,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     public static DiskStore create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
         DiskStorageFactory disk = new DiskStorageFactory(cache, diskStorePath, cache.getCacheEventNotificationService());
         DiskStore store = new DiskStore(disk, cache.getCacheConfiguration(), onHeapPool, onDiskPool);
-        cache.getCacheConfiguration().addConfigurationListener(new CacheConfigurationListenerAdapter(disk));
+        cache.getCacheConfiguration().addConfigurationListener(new CacheConfigurationListenerAdapter(disk, onDiskPool));
         return store;
     }
 
@@ -176,9 +176,11 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private static final class CacheConfigurationListenerAdapter implements CacheConfigurationListener {
 
         private final DiskStorageFactory disk;
+        private final Pool diskPool;
 
-        private CacheConfigurationListenerAdapter(DiskStorageFactory disk) {
+        private CacheConfigurationListenerAdapter(DiskStorageFactory disk, Pool diskPool) {
             this.disk = disk;
+            this.diskPool = diskPool;
         }
 
         /**
@@ -228,6 +230,20 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
          */
         public void deregistered(CacheConfiguration config) {
             // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
+            diskPool.setMaxSize(newValue);
         }
     }
 

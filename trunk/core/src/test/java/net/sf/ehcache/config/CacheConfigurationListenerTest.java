@@ -280,6 +280,20 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         public void clearFiredEvents() {
             firedEvents.clear();
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
+            // no-op
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
+            // no-op
+        }
     }
 
     static class Event {

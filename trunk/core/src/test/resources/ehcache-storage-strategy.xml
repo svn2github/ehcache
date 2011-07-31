@@ -15,7 +15,7 @@
 	<cache name="classicStorageStrategy" maxElementsInMemory="10"
 		eternal="false" timeToIdleSeconds="5" timeToLiveSeconds="10"
 		overflowToDisk="true" copyOnRead="true">
-		<terracotta clustered="false" storageStrategy="classic" />
+		<terracotta clustered="false" storageStrategy="classic" consistency="strong" />
 	</cache>
 	
 	<cache name="DCV2StorageStrategy" maxElementsInMemory="10"

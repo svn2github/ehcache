@@ -76,4 +76,18 @@ public interface CacheConfigurationListener {
      * @param config
      */
     public void deregistered(CacheConfiguration config);
+
+    /**
+     * Indicates a change in the configuration for maxBytesLocalHeap setting
+     * @param oldValue old value in bytes
+     * @param newValue new value in bytes
+     */
+    public void maxBytesLocalHeapChanged(long oldValue, long newValue);
+
+    /**
+     * Indicates a change in the configuration for maxBytesLocalDisk setting
+     * @param oldValue old value in bytes
+     * @param newValue new value in bytes
+     */
+    public void maxBytesLocalDiskChanged(long oldValue, long newValue);
 }

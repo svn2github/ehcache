@@ -173,5 +173,9 @@ public class UnboundedPool implements Pool<PoolableStore> {
         public Object getStore() {
             throw new UnsupportedOperationException();
         }
+
+        public void setMaxSize(final long newValue) {
+
+        }
     }
 }

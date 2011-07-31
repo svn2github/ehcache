@@ -41,20 +41,32 @@ public class InvalidConfigurationException extends CacheException {
      * @param errors the list of error encountered
      */
     public InvalidConfigurationException(final Collection<ConfigError> errors) {
-        super(createErrorMessage(errors));
+        this(null, errors);
     }
 
-    private static String createErrorMessage(Collection<ConfigError> errors) {
-        final StringBuilder sb = new StringBuilder()
-            .append("There ");
-        if (errors.size() == 1) {
-            sb.append("is one error ");
+    /**
+     * Constructs a new exception with a message containing all config errors
+     * @param errors the list of error encountered
+     */
+    public InvalidConfigurationException(final String rootCause, final Collection<ConfigError> errors) {
+        super(createErrorMessage(rootCause, errors));
+    }
+
+    private static String createErrorMessage(final String rootCause, Collection<ConfigError> errors) {
+        final StringBuilder sb = new StringBuilder();
+        if (rootCause == null) {
+            sb.append("There ");
+            if (errors.size() == 1) {
+                sb.append("is one error ");
+            } else {
+                sb.append("are ")
+                    .append(errors.size())
+                    .append(" errors ");
+            }
+            sb.append("in your configuration: \n");
         } else {
-            sb.append("are ")
-                .append(errors.size())
-                .append(" errors ");
+            sb.append(rootCause).append('\n');
         }
-        sb.append("in your configuration: \n");
         for (ConfigError error : errors) {
             sb.append("\t* ")
                 .append(error.toString())

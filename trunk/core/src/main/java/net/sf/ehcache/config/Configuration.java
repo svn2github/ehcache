@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.config.generator.ConfigurationSource;
@@ -31,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -115,27 +117,35 @@ public final class Configuration {
         defaultCacheConfiguration {
             @Override
             void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
-                // Nothing we need to do here, only "future" default caches will use these defaults
+                LOG.debug("Default Cache Configuration has changed, previously created caches remain untouched");
             }
         },
         maxBytesLocalHeap {
             @Override
             void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
-                if ((Long)evt.getOldValue() > (Long)evt.getNewValue()) {
+
+                ArrayList<ConfigError> errors = new ArrayList<ConfigError>();
+                Long newValue = (Long)evt.getNewValue();
+                if ((Long) evt.getOldValue() > (Long) evt.getNewValue()) {
                     // Double check for over-allocation again
-                    for (CacheConfiguration cacheConfiguration : config.getConfiguration().getCacheConfigurations().values()) {
-                        cacheConfiguration.isMaxBytesLocalDiskPercentageSet();
+                    for (Cache cache : getAllActiveCaches(config.cacheManager)) {
+                        CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+                        errors.addAll(cacheConfiguration.validateCachePools(config.getConfiguration()));
+                        errors.addAll(cacheConfiguration.verifyPoolAllocationsBeforeAddingTo(config.cacheManager,
+                            newValue, config.getConfiguration().getMaxBytesLocalOffHeap(), config.getConfiguration().getMaxBytesLocalDisk()));
                     }
                 }
-                config.cacheManager.getOnHeapPool().setMaxSize((Long) evt.getNewValue());
-                // Recalculate % based caches ?
-            }
-        },
-        maxBytesLocalOffHeap {
-            @Override
-            void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
-                // Do checks here or let the other listener do this ?
-                // Recalculate % based caches ?
+                if (!errors.isEmpty()) {
+                    throw new InvalidConfigurationException("Can't reduce CacheManager byte tuning by so much", errors);
+                }
+                // Recalculate % based caches
+                long cacheAllocated = 0;
+                for (Cache cache : getAllActiveCaches(config.cacheManager)) {
+                    cache.getCacheConfiguration().configCachePools(config.getConfiguration());
+                    long bytesLocalHeap = cache.getCacheConfiguration().getMaxBytesLocalHeap();
+                    cacheAllocated += bytesLocalHeap;
+                }
+                config.cacheManager.getOnHeapPool().setMaxSize(newValue - cacheAllocated);
             }
         },
         maxBytesLocalDisk {
@@ -179,6 +189,22 @@ public final class Configuration {
      * If you are using it programmtically you need to call the relevant add and setter methods in this class to populate everything.
      */
     public Configuration() {
+    }
+
+    /**
+     * Returns all active caches managed by the Manager
+     * @param cacheManager The cacheManager
+     * @return the Set of all active caches
+     */
+    static Set<Cache> getAllActiveCaches(CacheManager cacheManager) {
+        final Set<Cache> caches = new HashSet<Cache>();
+        for (String cacheName : cacheManager.getCacheNames()) {
+            final Cache cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                caches.add(cache);
+            }
+        }
+        return caches;
     }
 
     /**
@@ -964,6 +990,7 @@ public final class Configuration {
         private volatile String cacheManagerName;
         private final boolean named;
         private TransactionManagerLookup transactionManagerLookup;
+        private boolean allowsSizeBasedTunings;
 
         /**
          * Constructor
@@ -994,6 +1021,13 @@ public final class Configuration {
             }
             this.cacheManager = cacheManager;
             propertyChangeListeners.add(this);
+            allowsSizeBasedTunings = defaultCacheConfiguration == null || !defaultCacheConfiguration.isCountBasedTuned();
+            for (CacheConfiguration cacheConfiguration : cacheConfigurations.values()) {
+                if (cacheConfiguration.isCountBasedTuned()) {
+                    allowsSizeBasedTunings = false;
+                    break;
+                }
+            }
         }
 
         /**
@@ -1074,10 +1108,8 @@ public final class Configuration {
          * @param evt the PropertyChangeEvent
          */
         public void propertyChange(final PropertyChangeEvent evt) {
-            final DynamicProperty dynamicProperty;
             try {
-                dynamicProperty = Configuration.DynamicProperty.valueOf(evt.getPropertyName());
-                dynamicProperty.applyChange(evt, this);
+                DynamicProperty.valueOf(evt.getPropertyName()).applyChange(evt, this);
             } catch (IllegalArgumentException e) {
                 throw new IllegalStateException(evt.getPropertyName() + " can't be changed dynamically");
             }

@@ -112,4 +112,10 @@ public interface PoolAccessor<T> {
      * @return store using this accessor
      */
     T getStore();
+
+    /**
+     * Sets the max size for this pool
+     * @param newValue the value in bytes
+     */
+    void setMaxSize(long newValue);
 }

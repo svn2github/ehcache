@@ -57,13 +57,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
+import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.pool.impl.AbstractPoolAccessor;
+import net.sf.ehcache.store.FrontEndCacheTier;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.core.Is;
@@ -141,6 +149,80 @@ public class CacheTest extends AbstractCacheTest {
             assertEquals("The sampleCache1 Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
         }
 
+    }
+
+    @Test
+    public void testCantSwitchPool() throws Exception {
+        Configuration configuration = new Configuration();
+        CacheManager cacheManager = new CacheManager(configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES));
+
+        CacheConfiguration cacheConfiguration = new CacheConfiguration("one", 0);
+        cacheManager.addCache(new Cache(cacheConfiguration));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("one"));
+        try {
+            cacheConfiguration.maxBytesLocalHeap(5, MemoryUnit.MEGABYTES);
+            fail();
+        } catch (IllegalStateException e) {
+            assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("one"));
+        }
+    }
+
+    @Test
+    public void testAdjustsPoolSizeDynamically() throws Exception {
+        Configuration configuration = new Configuration();
+        CacheManager cacheManager = new CacheManager(configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES));
+
+        // Three and Four share the CM Pool
+        CacheConfiguration cacheConfiguration = new CacheConfiguration("three", 0);
+        cacheManager.addCache(new Cache(cacheConfiguration));
+        cacheConfiguration = new CacheConfiguration("four", 0);
+        cacheManager.addCache(new Cache(cacheConfiguration));
+
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("three"));
+        cacheManager.addCache(new Cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES)));
+        Cache one = cacheManager.getCache("one");
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(2), one);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(8), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(8), cacheManager.getCache("four"));
+
+        one.getCacheConfiguration().maxBytesLocalHeap(5, MemoryUnit.MEGABYTES);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), one);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), cacheManager.getCache("four"));
+
+        cacheConfiguration = new CacheConfiguration("two", 0);
+        cacheConfiguration.setMaxBytesLocalHeap("20%");
+        cacheManager.addCache(new Cache(cacheConfiguration));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(2), cacheManager.getCache("two"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(3), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(3), cacheManager.getCache("four"));
+
+        cacheManager.getConfiguration().maxBytesLocalHeap(20, MemoryUnit.MEGABYTES);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), one);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(4), cacheManager.getCache("two"));
+
+        // 20M - 5M (one) - 4M (two has 20% of the 20M), leaves 11M for cache three and four sharing the CM Pool
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(11), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(11), cacheManager.getCache("four"));
+    }
+
+    private static void assertCachePoolSize(final long value, final Cache one) throws Exception {Store store = one.getStore();
+        Store authority = getAuthority(store);
+        if (store instanceof FrontEndCacheTier) {
+            Field poolAccessor = MemoryStore.class.getDeclaredField("poolAccessor");
+            poolAccessor.setAccessible(true);
+            PoolAccessor accessor = (PoolAccessor)poolAccessor.get(authority);
+            Field pool = AbstractPoolAccessor.class.getDeclaredField("pool");
+            pool.setAccessible(true);
+            Pool ourPool = (Pool)pool.get(accessor);
+            assertThat(ourPool.getMaxSize(), is(value));
+        }
+    }
+
+    private static Store getAuthority(final Store store) throws Exception {
+        Field poolAccessor = FrontEndCacheTier.class.getDeclaredField("authority");
+        poolAccessor.setAccessible(true);
+        return (Store) poolAccessor.get(store);
     }
 
     /**

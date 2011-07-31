@@ -995,7 +995,6 @@ public class CacheManager {
             }
         }
         cache.getCacheConfiguration().setupFor(this);
-
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
             cache.setDiskStorePath(diskStorePath);

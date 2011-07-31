@@ -614,6 +614,20 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     /**
      * {@inheritDoc}
      */
+    public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
+        this.poolAccessor.setMaxSize(newValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyInMemory(Object key) {
         return containsKey(key);
     }

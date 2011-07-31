@@ -1307,6 +1307,20 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
         if (oldCapacity != newCapacity) {
             setConfigMaxElementsOnDisk(newCapacity);

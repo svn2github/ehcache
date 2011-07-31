@@ -19,7 +19,6 @@ package net.sf.ehcache.config;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +36,8 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
 /**
  * A value object used to represent cache configuration.
@@ -371,6 +372,8 @@ public class CacheConfiguration implements Cloneable {
     private Integer maxBytesLocalHeapPercentage;
     private Integer maxBytesLocalOffHeapPercentage;
     private Integer maxBytesLocalDiskPercentage;
+    private PoolUsage onHeapPoolUsage;
+    private PoolUsage onDiskPoolUsage;
 
     /**
      * Default constructor.
@@ -1204,7 +1207,28 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalHeap(final Long maxBytesHeap) {
         verifyGreaterThanZero(maxBytesHeap, "maxBytesLocalHeap");
+        if (onHeapPoolUsage != PoolUsage.Cache) {
+            throw new IllegalStateException("A Cache can't switch memory pool!");
+        }
+        Long oldValue = this.maxBytesLocalHeap;
         this.maxBytesLocalHeap = maxBytesHeap;
+        fireMaxBytesOnLocalHeapChanged(oldValue, maxBytesHeap);
+    }
+
+    private void fireMaxBytesOnLocalHeapChanged(final Long oldValue, final Long newValue) {
+        if ((oldValue != null && !oldValue.equals(newValue)) || newValue != null) {
+            for (CacheConfigurationListener listener : listeners) {
+                listener.maxBytesLocalHeapChanged(oldValue != null ? oldValue : 0, newValue);
+            }
+        }
+    }
+
+    private void fireMaxBytesOnLocalDiskChanged(final Long oldValue, final Long newValue) {
+        if ((oldValue != null && !oldValue.equals(newValue)) || newValue != null) {
+            for (CacheConfigurationListener listener : listeners) {
+                listener.maxBytesLocalDiskChanged(oldValue != null ? oldValue : 0, newValue);
+            }
+        }
     }
 
     /**
@@ -1323,7 +1347,12 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalDisk(final Long maxBytesDisk) {
         verifyGreaterThanZero(maxBytesDisk, "maxBytesLocalDisk");
+        if (onDiskPoolUsage != PoolUsage.Cache) {
+            throw new IllegalStateException("A Cache can't switch disk pool!");
+        }
+        Long oldValue = this.maxBytesLocalDisk;
         this.maxBytesLocalDisk = maxBytesDisk;
+        fireMaxBytesOnLocalDiskChanged(oldValue, maxBytesDisk);
     }
 
     /**
@@ -1394,14 +1423,57 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setupFor(final CacheManager cacheManager) {
         final Collection<ConfigError> errors = validate(cacheManager.getConfiguration());
+        configCachePools(cacheManager.getConfiguration());
+        errors.addAll(verifyPoolAllocationsBeforeAddingTo(cacheManager,
+            cacheManager.getConfiguration().getMaxBytesLocalHeap(),
+            cacheManager.getConfiguration().getMaxBytesLocalOffHeap(),
+            cacheManager.getConfiguration().getMaxBytesLocalDisk()));
         if (!errors.isEmpty()) {
             throw new InvalidConfigurationException(errors);
         }
 
-        configCachePools(cacheManager.getConfiguration());
-        verifyPoolAllocationsBeforeAddingTo(cacheManager);
         updateCacheManagerPoolSizes(cacheManager);
         registerCacheConfiguration(cacheManager);
+        if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet() || cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+            addConfigurationListener(new AbstractCacheConfigurationListener() {
+
+                @Override
+                public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
+                    if (getMaxBytesLocalHeap() > 0
+                       && cacheManager.getConfiguration().getCacheConfigurations().keySet().contains(getName())
+                       && cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
+                        long previous = cacheManager.getOnHeapPool().getMaxSize();
+                        cacheManager.getOnHeapPool().setMaxSize(previous + oldValue - newValue);
+                    }
+                }
+
+                @Override
+                public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
+                    if (getMaxBytesLocalDisk() > 0
+                       && cacheManager.getConfiguration().getCacheConfigurations().keySet().contains(getName())
+                       && cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+                        long previous = cacheManager.getOnDiskPool().getMaxSize();
+                        cacheManager.getOnDiskPool().setMaxSize(previous + oldValue - newValue);
+                    }
+                }
+            });
+        }
+
+        if (getMaxBytesLocalHeap() > 0) {
+            onHeapPoolUsage = PoolUsage.Cache;
+        } else if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
+            onHeapPoolUsage = PoolUsage.CacheManager;
+        } else {
+            onHeapPoolUsage = PoolUsage.None;
+        }
+
+        if (getMaxBytesLocalDisk() > 0) {
+            onDiskPoolUsage = PoolUsage.Cache;
+        } else if (cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+            onDiskPoolUsage = PoolUsage.CacheManager;
+        } else {
+            onDiskPoolUsage = PoolUsage.None;
+        }
     }
 
     private void registerCacheConfiguration(final CacheManager cacheManager) {
@@ -1420,64 +1492,92 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
-    private Set<Cache> getAllActiveCaches(CacheManager cacheManager) {
-        final Set<Cache> caches = new HashSet<Cache>();
-        for (String cacheName : cacheManager.getCacheNames()) {
-            final Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                caches.add(cache);
-            }
-        }
-        return caches;
-    }
+    /**
+     * Will verify that we don't overallocate pools
+     * @param cacheManager The cacheManager that will manage the cache
+     * @param managerMaxBytesLocalHeap bytes for local heap
+     * @param managerMaxBytesLocalOffHeap bytes for local offheap
+     * @param managerMaxBytesLocalDisk bytes for local disk
+     * @return a list with potential errors
+     */
+    List<ConfigError> verifyPoolAllocationsBeforeAddingTo(CacheManager cacheManager,
+                                                     long managerMaxBytesLocalHeap,
+                                                     long managerMaxBytesLocalOffHeap,
+                                                     long managerMaxBytesLocalDisk) {
+        final List<ConfigError> configErrors = new ArrayList<ConfigError>();
 
-    private void verifyPoolAllocationsBeforeAddingTo(CacheManager cacheManager) {
         long totalOnHeapAssignedMemory  = 0;
         long totalOffHeapAssignedMemory = 0;
         long totalOnDiskAssignedMemory  = 0;
 
-        final Configuration configuration = cacheManager.getConfiguration();
-
+        boolean isUpdate = false;
         for (Cache cache : getAllActiveCaches(cacheManager)) {
+            isUpdate = cache.getName().equals(getName()) || isUpdate;
             final CacheConfiguration config = cache.getCacheConfiguration();
             totalOnHeapAssignedMemory += config.getMaxBytesLocalHeap();
             totalOffHeapAssignedMemory += config.getMaxBytesLocalOffHeap();
             totalOnDiskAssignedMemory += config.getMaxBytesLocalDisk();
         }
 
-        totalOnHeapAssignedMemory += getMaxBytesLocalHeap();
-        totalOffHeapAssignedMemory += getMaxBytesLocalOffHeap();
-        totalOnDiskAssignedMemory += getMaxBytesLocalDisk();
-
-        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory < 0) {
-            throw new InvalidConfigurationException("Adding cache '" + getName()
-                                                    + "' to the CacheManager over-allocates onHeap memory!");
-        }
-        if (configuration.isMaxBytesLocalOffHeapSet() && configuration.getMaxBytesLocalOffHeap() - totalOffHeapAssignedMemory < 0) {
-            throw new InvalidConfigurationException("Adding cache '" + getName()
-                                                    + "' to the CacheManager over-allocates offHeap memory!");
-        }
-        if (configuration.isMaxBytesLocalDiskSet() && configuration.getMaxBytesLocalDisk() - totalOnDiskAssignedMemory < 0) {
-            throw new InvalidConfigurationException("Adding cache '" + getName()
-                                                    + "' to the CacheManager over-allocates onDisk space!");
+        if (!isUpdate) {
+            totalOnHeapAssignedMemory += getMaxBytesLocalHeap();
+            totalOffHeapAssignedMemory += getMaxBytesLocalOffHeap();
+            totalOnDiskAssignedMemory += getMaxBytesLocalDisk();
         }
 
-        if (configuration.isMaxBytesLocalHeapSet() && configuration.getMaxBytesLocalHeap() - totalOnHeapAssignedMemory == 0) {
+        verifyLocalHeap(managerMaxBytesLocalHeap, configErrors, totalOnHeapAssignedMemory);
+        verifyLocalOffHeap(managerMaxBytesLocalOffHeap, configErrors, totalOffHeapAssignedMemory);
+        verifyLocalDisk(managerMaxBytesLocalDisk, configErrors, totalOnDiskAssignedMemory);
+
+        if (managerMaxBytesLocalHeap > 0 && managerMaxBytesLocalHeap - totalOnHeapAssignedMemory == 0) {
             LOG.warn("All the onHeap memory has been assigned, there is none left for dynamically added caches");
         }
 
         if (Runtime.getRuntime().maxMemory() - totalOnHeapAssignedMemory < 0) {
             // todo this could be a nicer message (with actual values)
-            throw new InvalidConfigurationException("You've assigned more memory to the on-heap than the VM can sustain, " +
-                                                    "please adjust your -Xmx setting accordingly");
+            configErrors.add(new ConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                            "please adjust your -Xmx setting accordingly"));
         }
 
         if (totalOnHeapAssignedMemory / (float) Runtime.getRuntime().maxMemory() > CacheManager.ON_HEAP_THRESHOLD) {
             LOG.warn("You've assigned over 80% of your VM's heap to be used by the cache!");
         }
+
+        return configErrors;
     }
 
-    private void configCachePools(Configuration configuration) {
+    private void verifyLocalDisk(final long managerMaxBytesLocalDisk,
+                                 final List<ConfigError> configErrors, final long totalOnDiskAssignedMemory) {
+        if ((isMaxBytesLocalDiskPercentageSet() || getMaxBytesLocalDisk() > 0)
+            && managerMaxBytesLocalDisk > 0 && managerMaxBytesLocalDisk - totalOnDiskAssignedMemory < 0) {
+            configErrors.add(new ConfigError("Cache '" + getName()
+                                                    + "' er-allocates CacheManager's localOnDisk limit!"));
+        }
+    }
+
+    private void verifyLocalOffHeap(final long managerMaxBytesLocalOffHeap,
+                                    final List<ConfigError> configErrors, final long totalOffHeapAssignedMemory) {
+        if ((isMaxBytesLocalOffHeapPercentageSet() || getMaxBytesLocalOffHeap() > 0)
+            && managerMaxBytesLocalOffHeap > 0 && managerMaxBytesLocalOffHeap - totalOffHeapAssignedMemory < 0) {
+            configErrors.add(new ConfigError("Cache '" + getName()
+                                            + "' er-allocates CacheManager's localOffHeap limit!"));
+        }
+    }
+
+    private void verifyLocalHeap(final long managerMaxBytesLocalHeap,
+                                 final List<ConfigError> configErrors, final long totalOnHeapAssignedMemory) {
+        if ((isMaxBytesLocalHeapPercentageSet() || getMaxBytesLocalHeap() > 0)
+            && managerMaxBytesLocalHeap > 0 && managerMaxBytesLocalHeap - totalOnHeapAssignedMemory < 0) {
+            configErrors.add(new ConfigError("Cache '" + getName()
+                                                    + "' over-allocates CacheManager's localOnHeap limit!"));
+        }
+    }
+
+    /**
+     * Configures the cache pools
+     * @param configuration the Configuration of the CacheManager managing this cache
+     */
+    void configCachePools(Configuration configuration) {
 
         long cacheAssignedMem;
         if (getMaxBytesLocalHeapPercentage() != null) {
@@ -1511,11 +1611,22 @@ public class CacheConfiguration implements Cloneable {
         }
 
         if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
-            errors.add(new CacheConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
-                                                    "please adjust your -Xmx setting accordingly", getName()));
+            errors.add(new ConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly"));
         }
 
-        // todo Verify that these are the real constraints ?
+        errors.addAll(validateCachePools(configuration));
+
+        return errors;
+    }
+
+    /**
+     * Validates the CacheConfiguration against the CacheManager's Configuration
+     * @param configuration The CacheManager Configuration
+     * @return the list of errors encountered, or an empty list
+     */
+    List<CacheConfigError> validateCachePools(final Configuration configuration) {
+        List<CacheConfigError> errors = new ArrayList<CacheConfigError>();
         if (isMaxBytesLocalHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
             errors.add(new CacheConfigError("Defines a percentage maxBytesOnHeap value but no CacheManager " +
                                                     "wide value was configured", getName()));
@@ -1528,7 +1639,6 @@ public class CacheConfiguration implements Cloneable {
             errors.add(new CacheConfigError("Defines a percentage maxBytesOnDisk value but no CacheManager " +
                                             "wide value was configured", getName()));
         }
-
         return errors;
     }
 
@@ -1555,6 +1665,14 @@ public class CacheConfiguration implements Cloneable {
         if (clientConfiguration != null && clientConfiguration.isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
             errors.add(new CacheConfigError("Terracotta clustered caches must be nonstop when rejoin is enabled.", getName()));
         }
+    }
+
+    /**
+     * Whether this cache is Count based
+     * @return true if maxEntries set, false otherwise
+     */
+    public boolean isCountBasedTuned() {
+        return maxEntriesLocalHeap > 0 || maxElementsOnDisk > 0;
     }
 
 
@@ -2232,6 +2350,22 @@ public class CacheConfiguration implements Cloneable {
         return transactionalMode.equals(TransactionalMode.XA);
     }
 
+    /**
+     * An enum to identify what pool a resource uses
+     */
+    private static enum PoolUsage {
+
+        CacheManager(true), Cache(true), None(false);
+
+        private final boolean usingPool;
+        private PoolUsage(final boolean poolUser) {
+            this.usingPool = poolUser;
+        }
+
+        public boolean isUsingPool() {
+            return usingPool;
+        }
+    }
     /**
      * Represents whether the Cache is transactional or not.
      *
