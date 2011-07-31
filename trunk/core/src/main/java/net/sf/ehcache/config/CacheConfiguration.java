@@ -980,9 +980,7 @@ public class CacheConfiguration implements Cloneable {
      * This property can be modified dynamically while the cache is operating.
      *
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
-     * @deprecated use {@link #setMaxEntriesLocalDisk(long)}
      */
-    @Deprecated
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
         setMaxEntriesLocalDisk(maxElementsOnDisk);
     }
