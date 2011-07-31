@@ -1306,7 +1306,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
         verifyGreaterThanZero(maxBytesOffHeap, "maxBytesLocalOffHeap");
-        if(offHeapPoolUsage != null) {
+        if (offHeapPoolUsage != null) {
             throw new IllegalStateException("OffHeap can't be set dynamically!");
         }
         this.maxBytesLocalOffHeap = maxBytesOffHeap;
