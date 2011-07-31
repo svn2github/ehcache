@@ -1461,28 +1461,38 @@ public class CacheConfiguration implements Cloneable {
             });
         }
 
+        if (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet()) {
+            overflowToOffHeap = true;
+        }
+        if (cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+            overflowToDisk = true;
+        }
+        freezePoolUsages(cacheManager);
+    }
+
+    private void freezePoolUsages(final CacheManager cacheManager) {
         if (getMaxBytesLocalHeap() > 0) {
-            onHeapPoolUsage = PoolUsage.Cache;
+            onHeapPoolUsage = CacheConfiguration.PoolUsage.Cache;
         } else if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
-            onHeapPoolUsage = PoolUsage.CacheManager;
+            onHeapPoolUsage = CacheConfiguration.PoolUsage.CacheManager;
         } else {
-            onHeapPoolUsage = PoolUsage.None;
+            onHeapPoolUsage = CacheConfiguration.PoolUsage.None;
         }
 
         if (getMaxBytesLocalHeap() > 0) {
-            offHeapPoolUsage = PoolUsage.Cache;
+            offHeapPoolUsage = CacheConfiguration.PoolUsage.Cache;
         } else if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
-            offHeapPoolUsage = PoolUsage.CacheManager;
+            offHeapPoolUsage = CacheConfiguration.PoolUsage.CacheManager;
         } else {
-            offHeapPoolUsage = PoolUsage.None;
+            offHeapPoolUsage = CacheConfiguration.PoolUsage.None;
         }
 
         if (getMaxBytesLocalDisk() > 0) {
-            onDiskPoolUsage = PoolUsage.Cache;
+            onDiskPoolUsage = CacheConfiguration.PoolUsage.Cache;
         } else if (cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
-            onDiskPoolUsage = PoolUsage.CacheManager;
+            onDiskPoolUsage = CacheConfiguration.PoolUsage.CacheManager;
         } else {
-            onDiskPoolUsage = PoolUsage.None;
+            onDiskPoolUsage = CacheConfiguration.PoolUsage.None;
         }
     }
 
