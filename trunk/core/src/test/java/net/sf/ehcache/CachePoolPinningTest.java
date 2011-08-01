@@ -71,6 +71,7 @@ public class CachePoolPinningTest {
                 new CacheConfiguration()
                         .statistics(true)
                         .name("memoryOnlyCache_onHeap")
+                        .overflowToDisk(false)
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
         doAssertions(cacheManager.getCache("memoryOnlyCache_onHeap"), ELEMENT_COUNT, 0);
@@ -79,6 +80,7 @@ public class CachePoolPinningTest {
                 new CacheConfiguration()
                         .statistics(true)
                         .name("memoryOnlyCache_inMemory")
+                        .overflowToDisk(false)
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
         doAssertions(cacheManager.getCache("memoryOnlyCache_inMemory"), ELEMENT_COUNT, 0);
@@ -97,7 +99,6 @@ public class CachePoolPinningTest {
     public void testOverflowToDisk() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .overflowToDisk(true)
                         .statistics(true)
                         .name("overflowToDiskCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
@@ -106,7 +107,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .overflowToDisk(true)
                         .statistics(true)
                         .name("overflowToDiskCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
@@ -115,7 +115,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .overflowToDisk(true)
                         .statistics(true)
                         .name("overflowToDiskCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
@@ -127,7 +126,6 @@ public class CachePoolPinningTest {
     public void testDiskPersistent() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .overflowToDisk(true)
                         .diskPersistent(true)
                         .statistics(true)
                         .name("diskPersistentCache_onHeap")
@@ -137,7 +135,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .overflowToDisk(true)
                         .diskPersistent(true)
                         .statistics(true)
                         .name("diskPersistentCache_inMemory")
@@ -147,7 +144,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .overflowToDisk(true)
                         .diskPersistent(true)
                         .statistics(true)
                         .name("diskPersistentCache_inCache")
