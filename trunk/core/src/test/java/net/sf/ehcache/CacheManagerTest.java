@@ -360,6 +360,7 @@ public class CacheManagerTest {
     @Test
     public void testPoolSize() throws Exception {
         Configuration configuration = new Configuration()
+            .diskStore(new DiskStoreConfiguration().path("./tmp"))
             .maxBytesLocalHeap(50, MemoryUnit.MEGABYTES)
             .maxBytesLocalDisk(500, MemoryUnit.MEGABYTES)
             .cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(10, MemoryUnit.MEGABYTES))
