@@ -87,6 +87,7 @@ public class CachePoolPinningTest {
                 new CacheConfiguration()
                         .statistics(true)
                         .name("memoryOnlyCache_inCache")
+                        .overflowToDisk(false)
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
         doAssertions(cacheManager.getCache("memoryOnlyCache_inCache"), ELEMENT_COUNT, 0);
