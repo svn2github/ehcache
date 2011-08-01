@@ -260,7 +260,7 @@ public class CacheConfiguration implements Cloneable {
      * whether elements can overflow to disk when the in-memory cache
      * has reached the set limit.
      */
-    protected volatile boolean overflowToDisk;
+    protected volatile Boolean overflowToDisk;
 
     /**
      * For caches that overflow to disk, whether the disk cache persists between CacheManager instances.
@@ -301,7 +301,7 @@ public class CacheConfiguration implements Cloneable {
      * whether elements can overflow to off heap memory when the in-memory cache
      * has reached the set limit.
      */
-    protected volatile boolean overflowToOffHeap;
+    protected volatile Boolean overflowToOffHeap;
 
     /**
      * The event listener factories added by BeanUtils.
@@ -1461,10 +1461,10 @@ public class CacheConfiguration implements Cloneable {
             });
         }
 
-        if (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet()) {
+        if (overflowToOffHeap == null && cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet()) {
             overflowToOffHeap = true;
         }
-        if (cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+        if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
             overflowToDisk = true;
         }
         freezePoolUsages(cacheManager);
@@ -2014,7 +2014,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public void validateConfiguration() {
         if (terracottaConfiguration != null && terracottaConfiguration.isClustered()) {
-            if (overflowToDisk) {
+            if (overflowToDisk != null && overflowToDisk) {
                 throw new InvalidConfigurationException("overflowToDisk isn't supported for a clustered Terracotta cache");
             }
             if (diskPersistent) {
@@ -2143,7 +2143,7 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      */
     public boolean isOverflowToDisk() {
-        return overflowToDisk;
+        return overflowToDisk == null ? false : overflowToDisk;
     }
 
     /**
@@ -2203,7 +2203,7 @@ public class CacheConfiguration implements Cloneable {
      * @return true if offheap store is enabled, otherwise false.
      */
     public boolean isOverflowToOffHeap() {
-        return overflowToOffHeap;
+        return overflowToOffHeap == null ? false : overflowToOffHeap;
     }
 
     /**

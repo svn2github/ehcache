@@ -247,7 +247,7 @@ public final class ConfigurationHelper {
         for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
-            if (cacheConfiguration.overflowToDisk) {
+            if (cacheConfiguration.overflowToDisk != null && cacheConfiguration.overflowToDisk) {
                 count++;
             }
         }
