@@ -206,9 +206,10 @@ public class CacheTest extends AbstractCacheTest {
         assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(11), cacheManager.getCache("four"));
     }
 
-    private static void assertCachePoolSize(final long value, final Cache one) throws Exception {Store store = one.getStore();
-        Store authority = getAuthority(store);
+    private static void assertCachePoolSize(final long value, final Cache one) throws Exception {
+        Store store = one.getStore();
         if (store instanceof FrontEndCacheTier) {
+            Store authority = getAuthority(store);
             Field poolAccessor = MemoryStore.class.getDeclaredField("poolAccessor");
             poolAccessor.setAccessible(true);
             PoolAccessor accessor = (PoolAccessor)poolAccessor.get(authority);
