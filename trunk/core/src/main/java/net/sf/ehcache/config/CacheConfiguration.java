@@ -1206,7 +1206,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalHeap(final Long maxBytesHeap) {
         verifyGreaterThanZero(maxBytesHeap, "maxBytesLocalHeap");
-        if (onHeapPoolUsage != PoolUsage.Cache) {
+        if (onHeapPoolUsage != null && onHeapPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch memory pool!");
         }
         Long oldValue = this.maxBytesLocalHeap;
@@ -1349,7 +1349,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalDisk(final Long maxBytesDisk) {
         verifyGreaterThanZero(maxBytesDisk, "maxBytesLocalDisk");
-        if (onDiskPoolUsage != PoolUsage.Cache) {
+        if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch disk pool!");
         }
         Long oldValue = this.maxBytesLocalDisk;
