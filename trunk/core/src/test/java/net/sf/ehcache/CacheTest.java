@@ -160,7 +160,7 @@ public class CacheTest extends AbstractCacheTest {
         cacheManager.addCache(new Cache(cacheConfiguration));
         assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("one"));
         try {
-            cacheConfiguration.maxBytesLocalHeap(5, MemoryUnit.MEGABYTES);
+            cacheManager.getCache("one").getCacheConfiguration().maxBytesLocalHeap(5, MemoryUnit.MEGABYTES);
             fail();
         } catch (IllegalStateException e) {
             assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("one"));
