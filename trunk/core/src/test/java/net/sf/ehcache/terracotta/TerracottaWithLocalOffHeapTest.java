@@ -37,10 +37,8 @@ public class TerracottaWithLocalOffHeapTest {
 
         try {
             new CacheManager(CacheManager.class.getResourceAsStream("/terracotta/ehcache-terracotta-offheap.xml"));
-            Assert.fail("Trying to use overflow-to-offheap with terracotta caches should fail");
         } catch (InvalidConfigurationException e) {
-            System.out.println("Caught Expected : " + e);
-            //expected
+            Assert.fail("Trying to use overflow-to-offheap with terracotta caches should not fail");
         }
     }
 }
