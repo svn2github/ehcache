@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -233,14 +234,18 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
-        return null;
+        Map<Object, Element> rv = new HashMap<Object, Element>();
+        for (Object key : keys) {
+            rv.put(key, null);
+        }
+        return rv;
     }
 
     /**
      * {@inheritDoc}
      */
     public Map<Object, Element> getAll(Collection<Object> keys) {
-        return null;
+        return getAllQuiet(keys);
     }
 
     /**

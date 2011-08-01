@@ -19,6 +19,7 @@ package net.sf.ehcache.constructs.nonstop.store;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,14 +99,22 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getAllQuiet(keys);
+        Map<Object, Element> rv = new HashMap<Object, Element>();
+        for (Object key : keys) {
+            rv.put(key, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key));
+        }
+        return rv;
     }
 
     /**
      * {@inheritDoc}
      */
     public Map<Object, Element> getAll(Collection<Object> keys) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getAll(keys);
+        Map<Object, Element> rv = new HashMap<Object, Element>();
+        for (Object key : keys) {
+            rv.put(key, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key));
+        }
+        return rv;
     }
 
     /**
