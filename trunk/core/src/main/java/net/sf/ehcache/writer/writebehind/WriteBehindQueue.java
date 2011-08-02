@@ -375,7 +375,9 @@ class WriteBehindQueue {
                     break;
                 } catch (final RuntimeException e) {
                     if (executionsLeft <= 0) {
-                        throw e;
+                        for (SingleOperation singleOperation : itemsPerType) {
+                            singleOperation.throwAway(cacheWriter, e);
+                        }
                     } else {
                         LOGGER.warning("Exception while processing write behind queue, retrying in " + retryAttemptDelaySeconds
                                 + " seconds, " + executionsLeft + " retries left : " + e.getMessage());
@@ -415,7 +417,12 @@ class WriteBehindQueue {
                     break;
                 } catch (final RuntimeException e) {
                     if (executionsLeft <= 0) {
-                        throw e;
+                        try {
+                            item.throwAway(cacheWriter, e);
+                        } catch (RuntimeException runtimeException) {
+                            // TODO Really only log ?!
+                            // LOGGER.warning("Throwing key '" + item.getKey() + "' away triggered an Exception!", runtimeException);
+                        }
                     } else {
                         LOGGER.warning("Exception while processing write behind queue, retrying in " + retryAttemptDelaySeconds
                                 + " seconds, " + executionsLeft + " retries left : " + e.getMessage());

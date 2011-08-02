@@ -25,6 +25,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterFactory;
+import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 public class MockCacheWriterFactory extends CacheWriterFactory {
 
@@ -54,6 +55,10 @@ public class MockCacheWriterFactory extends CacheWriterFactory {
             public void deleteAll(Collection<CacheEntry> entries) throws CacheException {
                 // no-op
 
+            }
+
+            public void throwAway(final Element element, final SingleOperationType operationType, final RuntimeException e) {
+                // no-op
             }
 
             public void delete(CacheEntry entry) throws CacheException {

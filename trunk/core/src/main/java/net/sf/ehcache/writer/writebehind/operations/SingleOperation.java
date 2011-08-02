@@ -52,4 +52,11 @@ public interface SingleOperation extends KeyBasedOperation {
      * @return the identifier for this operation type
      */
     public SingleOperationType getType();
+
+    /**
+     * Called when all retries have failed
+     * @param cacheWriter the CacheWriter to delegate to
+     * @param e the last exception encountered
+     */
+    void throwAway(final CacheWriter cacheWriter, RuntimeException e);
 }

@@ -19,13 +19,16 @@ package net.sf.ehcache.writer;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     private final int retries;
@@ -33,6 +36,14 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     private final Map<Object, Integer> retryCount = new HashMap<Object, Integer>();
     private final Map<Object, Integer> writeCount = new HashMap<Object, Integer>();
     private final Map<Object, Integer> deleteCount = new HashMap<Object, Integer>();
+    private Map<SingleOperationType, List<Element>> thrownAwayElements =  new HashMap<SingleOperationType, List<Element>>();
+    private volatile boolean throwing = true;
+
+    {
+        for (SingleOperationType singleOperationType : SingleOperationType.values()) {
+            thrownAwayElements.put(singleOperationType, new ArrayList<Element>());
+        }
+    }
 
     public TestCacheWriterRetries(int retries) {
         this.retries = retries;
@@ -88,7 +99,9 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     @Override
     public synchronized void write(Element element) throws CacheException {
         final Object key = element.getObjectKey();
-        failUntilNoMoreRetries(key);
+        if (throwing) {
+            failUntilNoMoreRetries(key);
+        }
         put(key, element);
     }
 
@@ -99,7 +112,7 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
             Element element = it.next();
             // fail on the last item in the batch
             final Object key = element.getObjectKey();
-            if (!it.hasNext()) {
+            if (!it.hasNext() && throwing) {
                 failUntilNoMoreRetries(key);
             }
             put(key, element);
@@ -114,7 +127,9 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     @Override
     public synchronized void delete(CacheEntry entry) throws CacheException {
         Object key = entry.getKey();
-        failUntilNoMoreRetries(key);
+        if (throwing) {
+            failUntilNoMoreRetries(key);
+        }
         remove(key);
     }
 
@@ -124,11 +139,28 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
         while (it.hasNext()) {
             CacheEntry entry = it.next();
             Object key = entry.getKey();
-            if (!it.hasNext()) {
+            if (!it.hasNext() && throwing) {
                 failUntilNoMoreRetries(key);
             }
             remove(key);
         }
+    }
+
+    @Override
+    public void throwAway(final Element element, final SingleOperationType operationType, final RuntimeException e) {
+        thrownAwayElements.get(operationType).add(element);
+    }
+
+    public void setThrowing(final boolean throwing) {
+        this.throwing = throwing;
+    }
+
+    public boolean isThrowing() {
+        return throwing;
+    }
+
+    public List<Element> getThrownAwayElements(SingleOperationType type) {
+        return Collections.unmodifiableList(thrownAwayElements.get(type));
     }
 
     class WriterEvent {

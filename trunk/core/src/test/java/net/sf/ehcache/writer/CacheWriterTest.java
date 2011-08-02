@@ -44,6 +44,7 @@ import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.writer.TestCacheWriterRetries.WriterEvent;
+import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -559,18 +560,23 @@ public class CacheWriterTest extends AbstractCacheTest {
         assertEquals(0, writer.getWriterEvents().size());
 
         cache.putWithWriter(new Element("key1", "value1"));
-      try {
-        cache.putWithWriter(new Element("key2", "value1"));
-        cache.putWithWriter(new Element("key3", "value1"));
-        cache.removeWithWriter("key2");
-      } catch (CacheException e) {
-        System.err.println("We had an error trying to write: " + e.getMessage()
-                           + "\nBut that's OK: the writer got shutdown faster than we could *WithWriter");
-      }
+        try {
+            cache.putWithWriter(new Element("key2", "value1"));
+            cache.putWithWriter(new Element("key3", "value1"));
+            cache.removeWithWriter("key2");
+        } catch (CacheException e) {
+            System.err.println("We had an error trying to write: " + e.getMessage()
+                               + "\nBut that's OK: the writer got shutdown faster than we could *WithWriter");
+        }
 
-      Thread.sleep(2000);
-
+        Thread.sleep(2000);
         assertEquals(0, writer.getWriterEvents().size());
+        assertEquals(3, writer.getThrownAwayElements(SingleOperationType.WRITE).size());
+        assertEquals(1, writer.getThrownAwayElements(SingleOperationType.DELETE).size());
+        writer.setThrowing(false);
+        cache.putWithWriter(new Element("key2", "value1"));
+        Thread.sleep(2000);
+        assertEquals(1, writer.getWriterEvents().size());
     }
 
     @Test

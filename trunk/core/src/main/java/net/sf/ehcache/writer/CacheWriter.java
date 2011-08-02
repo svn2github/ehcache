@@ -19,6 +19,7 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 import java.util.Collection;
 
@@ -137,4 +138,15 @@ public interface CacheWriter {
      */
     void deleteAll(Collection<CacheEntry> entries) throws CacheException;
 
+    /**
+     * This method will be called, whenever an Element couldn't be handled by the writer and all
+     * the {@link net.sf.ehcache.config.CacheWriterConfiguration#getRetryAttempts() retryAttempts} have been tried.
+     * <p>When batching is enabled all the elements in the failing batch will be passed to this methods
+     * <p>Try to not throw RuntimeExceptions from this method. Should an Exception occur, it will be logged, but
+     * the element will be lost anyways.
+     * @param element the Element that triggered the failure, or one of the elements part of the batch that failed
+     * @param operationType the operation we tried to execute
+     * @param e the RuntimeException thrown by the Writer when the last retry attempt was being executed
+     */
+    void throwAway(Element element, SingleOperationType operationType, RuntimeException e);
 }

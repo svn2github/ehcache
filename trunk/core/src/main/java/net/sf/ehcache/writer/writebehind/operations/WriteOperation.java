@@ -98,4 +98,11 @@ public class WriteOperation implements SingleOperation {
     public SingleOperationType getType() {
         return SingleOperationType.WRITE;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void throwAway(final CacheWriter cacheWriter, final RuntimeException e) {
+        cacheWriter.throwAway(element, SingleOperationType.WRITE, e);
+    }
 }

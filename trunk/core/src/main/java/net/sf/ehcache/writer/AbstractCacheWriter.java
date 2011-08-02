@@ -19,6 +19,7 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 import java.util.Collection;
 
@@ -59,6 +60,13 @@ public abstract class AbstractCacheWriter implements CacheWriter {
      * {@inheritDoc}
      */
     public void deleteAll(Collection<CacheEntry> entries) throws CacheException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void throwAway(final Element element, final SingleOperationType operationType, final RuntimeException e) {
         throw new UnsupportedOperationException();
     }
 

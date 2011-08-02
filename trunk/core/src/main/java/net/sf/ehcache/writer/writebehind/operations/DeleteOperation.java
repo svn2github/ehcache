@@ -108,4 +108,15 @@ public class DeleteOperation implements SingleOperation {
     public SingleOperationType getType() {
         return SingleOperationType.DELETE;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void throwAway(final CacheWriter cacheWriter, final RuntimeException e) {
+        Element element = entry.getElement();
+        if (element == null) {
+            element = new Element(entry.getKey(), null);
+        }
+        cacheWriter.throwAway(element, SingleOperationType.DELETE, e);
+    }
 }
