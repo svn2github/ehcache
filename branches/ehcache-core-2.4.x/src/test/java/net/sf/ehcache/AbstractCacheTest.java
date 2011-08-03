@@ -151,19 +151,18 @@ public abstract class AbstractCacheTest {
      * @throws InterruptedException
      */
     protected long measureMemoryUse() throws InterruptedException {
-        System.gc();
-        Thread.sleep(1000);
-        System.gc();
-        Thread.sleep(1000);
         long total;
-        long free;
+        long freeAfter;
+        long freeBefore;
         Runtime runtime = Runtime.getRuntime();
         do {
             total = runtime.totalMemory();
-            free = runtime.freeMemory();
-        } while (total != runtime.totalMemory());
-
-        return total - free;
+            freeBefore = runtime.freeMemory();
+            System.gc();
+            Thread.sleep(2000);
+            freeAfter = runtime.freeMemory();
+        } while (total != runtime.totalMemory() || freeAfter > freeBefore);
+        return total - freeAfter;
     }
 
 
