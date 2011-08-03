@@ -223,5 +223,15 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
         Object getRemovedKey() {
             return removedKey;
         }
+        
+        public String toString() {
+          if (addedElement != null) {
+            return "ADDED   : " + addedElement.getObjectKey() + " @ " + time;
+          } else if (removedKey != null) {
+            return "REMOVED : " + removedKey + " @ " + time;
+          } else {
+            return "UNKNOWN : @ " + time;
+          }
+        }
     }
 }
