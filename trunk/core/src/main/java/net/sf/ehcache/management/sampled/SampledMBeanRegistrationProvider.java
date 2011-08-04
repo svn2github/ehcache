@@ -62,7 +62,7 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     private CacheManager cacheManager;
     private String clientUUID;
     private final MBeanServer mBeanServer;
-    private final Map<ObjectName, BaseEmitterBean> mbeans = new ConcurrentHashMap<ObjectName, BaseEmitterBean>();
+    private final Map<ObjectName, Object> mbeans = new ConcurrentHashMap<ObjectName, Object>();
 
     // name of the cacheManager when the mbeans are registered.
     // On cacheManager.dispose(), need to remove
@@ -186,21 +186,22 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     }
 
     private void registerStoreMBean(Ehcache cache) throws InstanceAlreadyExistsException, MBeanRegistrationException,
-            NotCompliantMBeanException {
+        NotCompliantMBeanException {
         // enable sampled stats
         Object bean;
         if (cache instanceof net.sf.ehcache.Cache) {
-          bean = ((net.sf.ehcache.Cache) cache).getStoreMBean();
-          if (bean != null) {
-             try {
-                 mBeanServer.registerMBean(bean,
-                         SampledEhcacheMBeans.getStoreObjectName(clientUUID, registeredCacheManagerName,
-                                 cache.getName()));
-             } catch (MalformedObjectNameException e) {
-                 throw new MBeanRegistrationException(e);
-             }
-          }
-       }
+            bean = ((net.sf.ehcache.Cache)cache).getStoreMBean();
+            if (bean != null) {
+                try {
+                    ObjectName storeObjectName = SampledEhcacheMBeans.getStoreObjectName(clientUUID, registeredCacheManagerName,
+                        cache.getName());
+                    mBeanServer.registerMBean(bean, storeObjectName);
+                    mbeans.put(storeObjectName, bean);
+                } catch (MalformedObjectNameException e) {
+                    throw new MBeanRegistrationException(e);
+                }
+            }
+        }
     }
 
     /**
@@ -229,8 +230,11 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
                 if (mBeanServer.isRegistered(objectName)) {
                     mBeanServer.unregisterMBean(objectName);
                 }
-                BaseEmitterBean mbean = mbeans.get(objectName);
-                mbean.dispose();
+                Object o = mbeans.get(objectName);
+                if (o instanceof BaseEmitterBean) {
+                    BaseEmitterBean mbean = (BaseEmitterBean)o;
+                    mbean.dispose();
+                }
             } catch (Exception e) {
                 LOG.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
             }
@@ -284,6 +288,15 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
             objectName = SampledEhcacheMBeans.getCacheObjectName(clientUUID, registeredCacheManagerName, cacheName);
             if (mBeanServer.isRegistered(objectName)) {
                 mBeanServer.unregisterMBean(objectName);
+            }
+        } catch (Exception e) {
+            LOG.warn("Error unregistering cache for management for " + objectName + " . Error was " + e.getMessage(), e);
+        }
+        try {
+            ObjectName storeObjectName = SampledEhcacheMBeans.getStoreObjectName(clientUUID, registeredCacheManagerName,
+                cacheName);
+            if (mBeanServer.isRegistered(storeObjectName)) {
+                mBeanServer.unregisterMBean(storeObjectName);
             }
         } catch (Exception e) {
             LOG.warn("Error unregistering cache for management for " + objectName + " . Error was " + e.getMessage(), e);
