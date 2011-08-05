@@ -44,6 +44,7 @@ import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
@@ -1062,8 +1063,8 @@ public class CacheManager {
         }
 
         if (isTerracottaRejoinEnabled() && cache.getCacheConfiguration().isTerracottaClustered()) {
-            final long timeoutMillis = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration()
-                    .getTimeoutMillis();
+            NonstopConfiguration nsCfg = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
+            final long timeoutMillis = nsCfg.getTimeoutMillis() * nsCfg.getBulkOpsTimeoutMultiplyFactor();
             try {
                 getNonstopExecutorService().execute(new Callable<Void>() {
                     public Void call() throws Exception {
