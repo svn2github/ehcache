@@ -978,22 +978,12 @@ public class CacheManager {
         }
     }
 
-    private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
-            CacheException {
-
-        if (cache.getStatus() != Status.STATUS_UNINITIALISED) {
-            throw new CacheException("Trying to add an already initialized cache." + " If you are adding a decorated cache, "
-                    + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
-        }
-
-        Ehcache ehcache = ehcaches.get(cache.getName());
-        if (ehcache != null) {
-            if (strict) {
-                throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
-            } else {
-                return ehcache;
-            }
-        }
+    /**
+     * Initialize the given {@link Ehcache} without adding it to the {@link CacheManager}.
+     *
+     * @param cache
+     */
+    void initializeEhcache(final Ehcache cache) {
         cache.getCacheConfiguration().setupFor(this);
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
@@ -1030,6 +1020,27 @@ public class CacheManager {
         } catch (CacheException e) {
             LOG.warn("Cache " + cache.getName() + "requested bootstrap but a CacheException occured. " + e.getMessage(), e);
         }
+    }
+
+    private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
+            CacheException {
+
+        if (cache.getStatus() != Status.STATUS_UNINITIALISED) {
+            throw new CacheException("Trying to add an already initialized cache." + " If you are adding a decorated cache, "
+                    + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
+        }
+
+        Ehcache ehcache = ehcaches.get(cache.getName());
+        if (ehcache != null) {
+            if (strict) {
+                throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
+            } else {
+                return ehcache;
+            }
+        }
+
+        initializeEhcache(cache);
+
         ehcache = ehcaches.putIfAbsent(cache.getName(), cache);
         if (ehcache != null) {
             if (strict) {
