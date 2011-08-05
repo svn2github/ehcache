@@ -2729,8 +2729,8 @@ public class Cache implements Ehcache, StoreListener {
                 .append(" status = ").append(cacheStatus.getStatus())
                 .append(" eternal = ").append(configuration.isEternal())
                 .append(" overflowToDisk = ").append(configuration.isOverflowToDisk())
-                .append(" maxElementsInMemory = ").append(configuration.getMaxElementsInMemory())
-                .append(" maxElementsOnDisk = ").append(configuration.getMaxElementsOnDisk())
+                .append(" maxEntriesLocalHeap = ").append(configuration.getMaxEntriesLocalHeap())
+                .append(" maxEntriesLocalDisk = ").append(configuration.getMaxEntriesLocalDisk())
                 .append(" memoryStoreEvictionPolicy = ").append(configuration.getMemoryStoreEvictionPolicy())
                 .append(" timeToLiveSeconds = ").append(configuration.getTimeToLiveSeconds())
                 .append(" timeToIdleSeconds = ").append(configuration.getTimeToIdleSeconds())
@@ -2742,8 +2742,12 @@ public class Cache implements Ehcache, StoreListener {
                 .append(" diskStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getOnDiskHitCount())
                 .append(" missCountNotFound = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCount())
                 .append(" missCountExpired = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCountExpired())
+                .append(" maxBytesLocalHeap = ").append(configuration.getMaxBytesLocalHeap())
                 .append(" overflowToOffHeap = ").append(configuration.isOverflowToOffHeap())
-                .append(" maxMemoryOffHeap = ").append(configuration.getMaxMemoryOffHeap())
+                .append(" maxBytesLocalOffHeap = ").append(configuration.getMaxBytesLocalOffHeap())
+                .append(" maxBytesLocalDisk = ").append(configuration.getMaxBytesLocalDisk())
+                .append(" pinned = ")
+                .append(configuration.getPinningConfiguration() != null ? configuration.getPinningConfiguration().getStore().name() : "false")
                 .append(" ]");
 
         return dump.toString();

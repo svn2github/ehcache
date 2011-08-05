@@ -200,6 +200,27 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
     /**
      * Configuration property accessor
      *
+     * @return Max bytes local heap config setting value
+     */
+    long getConfigMaxBytesLocalHeap();
+
+    /**
+     * Configuration property accessor
+     *
+     * @return Max entries local offheap config setting value
+     */
+    long getConfigMaxEntriesLocalOffHeap();
+
+    /**
+     * Configuration property accessor
+     *
+     * @return Max bytes local offheap config setting value
+     */
+    long getConfigMaxBytesLocalOffHeap();
+
+    /**
+     * Configuration property accessor
+     *
      * @return Max entries local disk config setting value
      */
     long getConfigMaxEntriesLocalDisk();
@@ -218,6 +239,13 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param maxElements
      */
     void setConfigMaxElementsOnDisk(int maxElements);
+
+    /**
+     * Configuration property accessor
+     *
+     * @return Max bytes local disk config setting value
+     */
+    long getConfigMaxBytesLocalDisk();
 
     /**
      * Configuration property accessor
@@ -322,6 +350,22 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      * @param enabled
      */
     void setConfigLoggingEnabled(boolean enabled);
+
+    /**
+     * Configuration property accessor
+     *
+     * @return true if the cache is pinned
+     * @see net.sf.ehcache.config.PinnedConfiguration
+     */
+    boolean isConfigPinned();
+
+    /**
+     * Configuration property accessor
+     *
+     * @return the store to which this cache is pinned
+     * @see net.sf.ehcache.config.PinnedConfiguration
+     */
+    String getConfigPinnedToStore();
 
     /**
      * Is there a registered Write-behind CacheWriter

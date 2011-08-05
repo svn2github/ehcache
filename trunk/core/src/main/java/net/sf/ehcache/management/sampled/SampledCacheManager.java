@@ -470,7 +470,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public long getMaxBytesLocalOffHeap() {
-        return cacheManager.getConfiguration().getMaxBytesLocalDisk();
+        return cacheManager.getConfiguration().getMaxBytesLocalOffHeap();
     }
 
     /**

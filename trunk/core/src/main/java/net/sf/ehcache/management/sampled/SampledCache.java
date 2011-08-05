@@ -28,6 +28,7 @@ import javax.management.Notification;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
@@ -798,6 +799,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxBytesLocalHeap()
+     */
+    public long getConfigMaxBytesLocalHeap() {
+        return cache.getCacheConfiguration().getMaxBytesLocalHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxElementsInMemory()
      */
     public int getConfigMaxElementsInMemory() {
@@ -852,6 +862,33 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
                 throw newPlainException(e);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxBytesLocalDisk()
+     */
+    public long getConfigMaxBytesLocalDisk() {
+        return cache.getCacheConfiguration().getMaxBytesLocalDisk();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxEntriesLocalOffHeap()
+     */
+    public long getConfigMaxEntriesLocalOffHeap() {
+        return /* cache.getCacheConfiguration().getMaxEntriesLocalOffHeap() */ 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigMaxBytesLocalOffHeap()
+     */
+    public long getConfigMaxBytesLocalOffHeap() {
+        return cache.getCacheConfiguration().getMaxBytesLocalOffHeap();
     }
 
     /**
@@ -1032,6 +1069,25 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isConfigPinned()
+     */
+    public boolean isConfigPinned() {
+        return cache.getCacheConfiguration().getPinningConfiguration() != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getConfigPinnedToStore()
+     */
+    public String getConfigPinnedToStore() {
+        PinningConfiguration pinningConfig = cache.getCacheConfiguration().getPinningConfiguration();
+        return pinningConfig != null ? pinningConfig.getStore().name() : "na";
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getEvictedCount()
      */
     public long getEvictedCount() {
@@ -1179,12 +1235,20 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         }
     }
 
+    private boolean isCacheManagerPooled() {
+        return cache.getCacheManager().getConfiguration().isMaxBytesLocalHeapSet() ||
+               cache.getCacheManager().getConfiguration().isMaxBytesLocalOffHeapSet() ||
+               cache.getCacheManager().getConfiguration().isMaxBytesLocalDiskSet();
+    }
     /**
      * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalHeapSizeInBytes()
      */
     public long getLocalHeapSizeInBytes() {
+        if (!isCacheManagerPooled() && getConfigMaxBytesLocalHeap() == 0) {
+            return 0;
+        }
         try {
             return cache.getLiveCacheStatistics().getLocalHeapSizeInBytes();
         } catch (RuntimeException e) {
@@ -1269,8 +1333,9 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("LoggingEnabled", isConfigLoggingEnabled());
         result.put("TimeToIdleSeconds", getConfigTimeToIdleSeconds());
         result.put("TimeToLiveSeconds", getConfigTimeToLiveSeconds());
-        result.put("MaxElementsInMemory", getConfigMaxElementsInMemory());
-        result.put("MaxElementsOnDisk", getConfigMaxElementsOnDisk());
+        result.put("MaxEntriesLocalHeap", getConfigMaxEntriesLocalHeap());
+        result.put("MaxEntriesLocalOffHeap", getConfigMaxEntriesLocalOffHeap());
+        result.put("MaxEntriesLocalDisk", getConfigMaxEntriesLocalDisk());
         result.put("DiskPersistent", isConfigDiskPersistent());
         result.put("Eternal", isConfigEternal());
         result.put("OverflowToDisk", isConfigOverflowToDisk());
