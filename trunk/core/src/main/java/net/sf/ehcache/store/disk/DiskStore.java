@@ -35,6 +35,9 @@ import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.TierableStore;
+import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
+import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
+import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.File;
@@ -472,7 +475,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * @return true if the encoded element was installed
      * @throws IllegalArgumentException if the supplied key is already present
      */
-    public boolean putRawIfAbsent(Object key, Object encoded) throws IllegalArgumentException {
+    public boolean putRawIfAbsent(Object key, DiskMarker encoded) throws IllegalArgumentException {
         int hash = hash(key.hashCode());
         return segmentFor(hash).putRawIfAbsent(key, hash, encoded);
     }
@@ -762,7 +765,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * @param fault element (proxy) to install
      * @return <code>true</code> if <code>fault</code> was installed
      */
-    public boolean fault(Object key, Object expect, Object fault) {
+    public boolean fault(Object key, Placeholder expect, DiskMarker fault) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).fault(key, hash, expect, fault);
     }
@@ -775,7 +778,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * @param substitute optional value to match against
      * @return <code>true</code> on a successful remove
      */
-    public boolean evict(Object key, Object substitute) {
+    public boolean evict(Object key, DiskSubstitute substitute) {
         return evictElement(key, substitute) != null;
     }
 
@@ -787,7 +790,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * @param substitute optional value to match against
      * @return the evicted element on a successful remove
      */
-    public Element evictElement(Object key, Object substitute) {
+    public Element evictElement(Object key, DiskSubstitute substitute) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).evict(key, hash, substitute);
     }

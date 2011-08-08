@@ -221,7 +221,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
       private long otherValue;
     }
 
-    internal internal   = new internal();
+    internal internalVar   = new internal();
     int      someValue;
     long     someOther;
     long     otherValue;

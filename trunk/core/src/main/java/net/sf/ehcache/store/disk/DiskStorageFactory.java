@@ -550,6 +550,11 @@ public class DiskStorageFactory {
      */
     public abstract static class DiskSubstitute {
 
+        /**
+         * Cached size of this mapping on the Java heap.
+         */
+        protected transient volatile long onHeapSize;
+
         @IgnoreSizeOf
         private transient volatile DiskStorageFactory factory;
 
