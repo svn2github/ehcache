@@ -76,12 +76,33 @@ public class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementRemoved
      */
     public final void notifyElementRemoved(Element element, boolean remoteEvent) throws CacheException {
+        internalNotifyElementRemoved(element, null, remoteEvent);
+    }
+
+    /**
+     * Notifies all registered listeners, in no guaranteed order, that an element was removed
+     *
+     * @param callback
+     * @param remoteEvent whether the event came from a remote cache peer
+     * @see CacheEventListener#notifyElementRemoved
+     */
+    public final void notifyElementRemoved(ElementCreationCallback callback, boolean remoteEvent) throws CacheException {
+        internalNotifyElementRemoved(null, callback, remoteEvent);
+    }
+
+    private void internalNotifyElementRemoved(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         elementsRemovedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
-                    listenerWrapper.getListener().notifyElementRemoved(cache, element);
+                    CacheEventListener listener = listenerWrapper.getListener();
+
+                    if (callback != null) {
+                        listener.notifyElementRemoved(cache, callback.createElement(listener.getClass().getClassLoader()));
+                    } else {
+                        listener.notifyElementRemoved(cache, element);
+                    }
                 }
             }
         }
@@ -95,15 +116,36 @@ public class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
      */
     public final void notifyElementPut(Element element, boolean remoteEvent) throws CacheException {
+        internalNotifyElementPut(element, null, remoteEvent);
+    }
+
+    /**
+     * Notifies all registered listeners, in no guaranteed order, that an element was put into the cache
+     *
+     * @param callback
+     * @param remoteEvent whether the event came from a remote cache peer
+     * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
+     */
+
+    public final void notifyElementPut(ElementCreationCallback callback, boolean remoteEvent) throws CacheException {
+        internalNotifyElementPut(null, callback, remoteEvent);
+    }
+
+    private void internalNotifyElementPut(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         elementsPutCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
-                    listenerWrapper.getListener().notifyElementPut(cache, element);
+                    CacheEventListener listener = listenerWrapper.getListener();
+
+                    if (callback != null) {
+                        listener.notifyElementPut(cache, callback.createElement(listener.getClass().getClassLoader()));
+                    } else {
+                        listener.notifyElementPut(cache, element);
+                    }
                 }
             }
-
         }
     }
 
@@ -115,12 +157,34 @@ public class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
      */
     public final void notifyElementUpdated(Element element, boolean remoteEvent) {
+        internalNotifyElementUpdated(element, null, remoteEvent);
+    }
+
+    /**
+     * Notifies all registered listeners, in no guaranteed order, that an element in the cache was updated
+     *
+     * @param callback
+     * @param remoteEvent whether the event came from a remote cache peer
+     * @see CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache,net.sf.ehcache.Element)
+     */
+
+    public final void notifyElementUpdated(ElementCreationCallback callback, boolean remoteEvent) {
+        internalNotifyElementUpdated(null, callback, remoteEvent);
+    }
+
+    private void internalNotifyElementUpdated(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         elementsUpdatedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
-                    listenerWrapper.getListener().notifyElementUpdated(cache, element);
+                    CacheEventListener listener = listenerWrapper.getListener();
+
+                    if (callback != null) {
+                        listener.notifyElementUpdated(cache, callback.createElement(listener.getClass().getClassLoader()));
+                    } else {
+                        listener.notifyElementUpdated(cache, element);
+                    }
                 }
             }
         }
@@ -134,12 +198,34 @@ public class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementExpired
      */
     public final void notifyElementExpiry(Element element, boolean remoteEvent) {
+        internalNotifyElementExpiry(element, null, remoteEvent);
+    }
+
+    /**
+     * Notifies all registered listeners, in no guaranteed order, that an element has expired
+     *
+     * @param callback
+     * @param remoteEvent whether the event came from a remote cache peer
+     * @see CacheEventListener#notifyElementExpired
+     */
+
+    public final void notifyElementExpiry(ElementCreationCallback callback, boolean remoteEvent) {
+        internalNotifyElementExpiry(null, callback, remoteEvent);
+    }
+
+    private void internalNotifyElementExpiry(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         elementsExpiredCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
-                    listenerWrapper.getListener().notifyElementExpired(cache, element);
+                    CacheEventListener listener = listenerWrapper.getListener();
+
+                    if (callback != null) {
+                        listener.notifyElementExpired(cache, callback.createElement(listener.getClass().getClassLoader()));
+                    } else {
+                        listener.notifyElementExpired(cache, element);
+                    }
                 }
             }
         }
@@ -162,13 +248,36 @@ public class RegisteredEventListeners {
      * @param remoteEvent whether the event came from a remote cache peer
      * @see CacheEventListener#notifyElementEvicted
      */
-    public void notifyElementEvicted(Element element, boolean remoteEvent) {
+    public final void notifyElementEvicted(Element element, boolean remoteEvent) {
+        internalNotifyElementEvicted(element, null, remoteEvent);
+    }
+
+    /**
+     * Notifies all registered listeners, in no guaranteed order, that an element has been
+     * evicted from the cache
+     *
+     * @param callback
+     * @param remoteEvent whether the event came from a remote cache peer
+     * @see CacheEventListener#notifyElementEvicted
+     */
+
+    public final void notifyElementEvicted(ElementCreationCallback callback, boolean remoteEvent) {
+        internalNotifyElementEvicted(null, callback, remoteEvent);
+    }
+
+    private void internalNotifyElementEvicted(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         elementsEvictedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
-                    listenerWrapper.getListener().notifyElementEvicted(cache, element);
+                    CacheEventListener listener = listenerWrapper.getListener();
+
+                    if (callback != null) {
+                        listener.notifyElementEvicted(cache, callback.createElement(listener.getClass().getClassLoader()));
+                    } else {
+                        listener.notifyElementEvicted(cache, element);
+                    }
                 }
             }
         }
@@ -181,7 +290,7 @@ public class RegisteredEventListeners {
      * @param remoteEvent whether the event came from a remote cache peer
      * @see CacheEventListener#notifyElementEvicted
      */
-    public void notifyRemoveAll(boolean remoteEvent) {
+    public final void notifyRemoveAll(boolean remoteEvent) {
         elementsRemoveAllCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
@@ -455,5 +564,25 @@ public class RegisteredEventListeners {
             return listener.toString();
         }
     }
+
+    /**
+     * Callback interface for creating elements to pass to registered listeners.
+     * For replicated/clustered caches the event notification thread that receives
+     * events from the network might not have the correct context for resolving
+     * cache values
+     *
+     * @author teck
+     *
+     */
+    public interface ElementCreationCallback {
+        /**
+         * Materialize the relevant element in the given classloader
+         *
+         * @param loader
+         * @return element
+         */
+        Element createElement(ClassLoader loader);
+    }
+
 
 }
