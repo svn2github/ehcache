@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
+import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +41,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * @version $Id$
  */
 public class RegisteredEventListeners {
+
+    private static final Element DUMMY_ELEMENT = new Element(null, null);
 
     /**
      * A Set of CacheEventListeners keyed by listener instance.
@@ -97,12 +100,7 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-
-                    if (callback != null) {
-                        listener.notifyElementRemoved(cache, callback.createElement(listener.getClass().getClassLoader()));
-                    } else {
-                        listener.notifyElementRemoved(cache, element);
-                    }
+                    invokeListener(listener, element, callback, Event.REMOVED);
                 }
             }
         }
@@ -138,12 +136,7 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-
-                    if (callback != null) {
-                        listener.notifyElementPut(cache, callback.createElement(listener.getClass().getClassLoader()));
-                    } else {
-                        listener.notifyElementPut(cache, element);
-                    }
+                    invokeListener(listener, element, callback, Event.PUT);
                 }
             }
         }
@@ -179,12 +172,7 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-
-                    if (callback != null) {
-                        listener.notifyElementUpdated(cache, callback.createElement(listener.getClass().getClassLoader()));
-                    } else {
-                        listener.notifyElementUpdated(cache, element);
-                    }
+                    invokeListener(listener, element, callback, Event.UPDATED);
                 }
             }
         }
@@ -220,12 +208,7 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-
-                    if (callback != null) {
-                        listener.notifyElementExpired(cache, callback.createElement(listener.getClass().getClassLoader()));
-                    } else {
-                        listener.notifyElementExpired(cache, element);
-                    }
+                    invokeListener(listener, element, callback, Event.EXPIRY);
                 }
             }
         }
@@ -272,13 +255,50 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-
-                    if (callback != null) {
-                        listener.notifyElementEvicted(cache, callback.createElement(listener.getClass().getClassLoader()));
-                    } else {
-                        listener.notifyElementEvicted(cache, element);
-                    }
+                    invokeListener(listener, element, callback, Event.EVICTED);
                 }
+            }
+        }
+    }
+
+    private void invokeListener(CacheEventListener listener, Element element, ElementCreationCallback callback, Event eventType) {
+        final Element e;
+
+        if (listener instanceof LiveCacheStatisticsData) {
+            e = DUMMY_ELEMENT;
+        } else if (callback != null) {
+            e = callback.createElement(listener.getClass().getClassLoader());
+        } else {
+            e = element;
+        }
+
+        notifyListener(listener, e, eventType);
+    }
+
+    private void notifyListener(CacheEventListener listener, Element element, Event eventType) {
+        switch (eventType) {
+            case EVICTED: {
+                listener.notifyElementEvicted(cache, element);
+                break;
+            }
+            case PUT: {
+                listener.notifyElementPut(cache, element);
+                break;
+            }
+            case EXPIRY: {
+                listener.notifyElementExpired(cache, element);
+                break;
+            }
+            case REMOVED: {
+                listener.notifyElementRemoved(cache, element);
+                break;
+            }
+            case UPDATED: {
+                listener.notifyElementUpdated(cache, element);
+                break;
+            }
+            default: {
+                throw new AssertionError(eventType.toString());
             }
         }
     }
@@ -582,6 +602,13 @@ public class RegisteredEventListeners {
          * @return element
          */
         Element createElement(ClassLoader loader);
+    }
+
+    /**
+     * Event callback types
+     */
+    private static enum Event {
+        EVICTED, PUT, EXPIRY, UPDATED, REMOVED;
     }
 
 
