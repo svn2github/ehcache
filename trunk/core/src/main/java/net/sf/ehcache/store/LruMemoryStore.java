@@ -69,10 +69,10 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * The maximum size of the store (0 == no limit)
      */
-    protected int maximumSize;
+    protected long maximumSize;
 
-    private volatile boolean pinningEnabled;
-
+    private final boolean cachePinned;
+    private final boolean elementPinningEnabled;
 
     /**
      * Constructor for the LruMemoryStore object
@@ -80,8 +80,9 @@ public class LruMemoryStore extends AbstractStore {
      */
     public LruMemoryStore(Ehcache cache, Store diskStore) {
         status = Status.STATUS_UNINITIALISED;
-        this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
-        this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
+        this.maximumSize = cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+        this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
+        this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
         this.cache = cache;
         this.diskStore = diskStore;
         map = new SpoolingLinkedHashMap();
@@ -520,7 +521,7 @@ public class LruMemoryStore extends AbstractStore {
                 return true;
             }
 
-            if (isFull() && !element.isPinned() && !pinningEnabled) {
+            if (isFull() && !cachePinned && !(element.isPinned() && elementPinningEnabled)) {
                 evict(element);
                 return true;
             } else {

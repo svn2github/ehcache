@@ -84,6 +84,9 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     private final RateStatistic hitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
 
+    private final boolean cachePinned;
+    private final boolean elementPinningEnabled;
+
     /**
      * The maximum size of the store (0 == no limit)
      */
@@ -105,8 +108,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
 
     private volatile CacheLockProvider lockProvider;
 
-    private volatile boolean cachePinned;
-
     /**
      * Constructs things that all MemoryStores have in common.
      *
@@ -120,13 +121,14 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
         this.policy = determineEvictionPolicy(cache);
 
         this.poolAccessor = pool.createPoolAccessor(this);
-        
-        // create the CHM with initialCapacity sufficient to hold maximumSize
-        int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
-        map = new SelectableConcurrentHashMap(poolAccessor, initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
 
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
+        this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
+
+        // create the CHM with initialCapacity sufficient to hold maximumSize
+        int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
+        map = new SelectableConcurrentHashMap(poolAccessor, elementPinningEnabled, initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
 
         status = Status.STATUS_ALIVE;
 
@@ -183,7 +185,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     }
 
     private boolean isPinningEnabled(Element element) {
-        return cachePinned || element.isPinned();
+        return cachePinned || (elementPinningEnabled && element.isPinned());
     }
 
     /**
@@ -507,7 +509,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             return true;
         }
 
-        if (cachePinned) {
+        if (isPinningEnabled(element)) {
             return false;
         }
 

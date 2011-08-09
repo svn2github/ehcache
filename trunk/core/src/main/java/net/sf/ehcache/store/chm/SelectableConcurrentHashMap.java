@@ -21,8 +21,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.PoolAccessor;
-import net.sf.ehcache.store.chm.ConcurrentHashMap.HashEntry;
-import net.sf.ehcache.store.chm.ConcurrentHashMap.Segment;
 
 /**
  * SelectableConcurrentHashMap subclasses a repackaged version of ConcurrentHashMap
@@ -30,17 +28,19 @@ import net.sf.ehcache.store.chm.ConcurrentHashMap.Segment;
  * <p>
  * The random sampling technique involves randomly selecting a map Segment, and then
  * selecting a number of random entry chains from that segment.
- * 
+ *
  * @author Chris Dennis
  */
 public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Element> {
 
     private final Random rndm = new Random();
     private final PoolAccessor poolAccessor;
-    
-    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, int initialCapacity, float loadFactor, int concurrency) {
+    private final boolean elementPinningEnabled;
+
+    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int initialCapacity, float loadFactor, int concurrency) {
         super(initialCapacity, loadFactor, concurrency);
         this.poolAccessor = poolAccessor;
+        this.elementPinningEnabled = elementPinningEnabled;
     }
 
     public Element[] getRandomValues(final int size, Object keyHint) {
@@ -64,7 +64,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             do {
                 for (HashEntry<Object, Element> e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
-                    if (value != null && (value.isExpired() || !value.isPinned())) {
+                    if (value != null && (value.isExpired() || !(value.isPinned() && elementPinningEnabled))) {
                         sampled.add(value);
                     }
                 }
@@ -128,18 +128,18 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         int hash = hash(key.hashCode());
         return ((MemoryStoreSegment) segmentFor(hash)).put(key, hash, element, sizeOf, false);
     }
-                
+
     public Element putIfAbsent(Object key, Element element, long sizeOf) {
         int hash = hash(key.hashCode());
         return ((MemoryStoreSegment) segmentFor(hash)).put(key, hash, element, sizeOf, true);
     }
-    
+
     @Override
     protected Segment<Object, Element> createSegment(int initialCapacity, float lf) {
         return new MemoryStoreSegment(initialCapacity, lf);
     }
-    
-    
+
+
     final class MemoryStoreSegment extends Segment<Object, Element> {
 
         private MemoryStoreSegment(int initialCapacity, float lf) {
@@ -192,7 +192,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             }
         }
 
-        
+
         Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent) {
             writeLock().lock();
             try {
@@ -229,14 +229,14 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         }
 
     }
-    
+
     static final class MemoryStoreHashEntry extends HashEntry<Object, Element> {
 
         volatile long sizeOf;
-        
+
         private MemoryStoreHashEntry(Object key, int hash, HashEntry<Object, Element> next, Element value, long sizeOf) {
             super(key, hash, next, value);
             this.sizeOf = sizeOf;
         }
-    } 
+    }
 }
