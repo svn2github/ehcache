@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-         <release version="2.4.3" date="2011-04" description="Bug fixes">
+    <release version="2.4.4" date="2011-08" description="Bug fixes">
+             <action dev="Tim Eck" type="update" issue="CDV-1593">
+              Replicated cache events on TC clustered caches may not work in all configurations             </action>
+             <action dev="James House" type="update" issue="5993">
+                Update default timeout in rejoin
+             </action>
+            </release>
+         <release version="2.4.3" date="2011-07" description="Bug fixes">
              <action dev="Ludovic Orban" type="update" issue="EHC-853">
                NotSerializableException when Ehcache tries overflow data to disk in XA Mode
              </action>
