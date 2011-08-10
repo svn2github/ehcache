@@ -1013,9 +1013,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @return this configuration instance
      * @see #setMaxElementsOnDisk(int)
-     * @deprecated use {@link #maxEntriesLocalDisk(int)}
      */
-    @Deprecated
     public final CacheConfiguration maxElementsOnDisk(int maxElementsOnDisk) {
         setMaxElementsOnDisk(maxElementsOnDisk);
         return this;
@@ -2083,9 +2081,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Accessor
      *
-     * @deprecated use {@link #getMaxEntriesLocalDisk()}
      */
-    @Deprecated
     public int getMaxElementsOnDisk() {
         return maxElementsOnDisk;
     }
