@@ -21,12 +21,12 @@ import javax.management.ObjectName;
 
 /**
  * Utility class used for getting {@link ObjectName}'s for ehcache hibernate MBeans
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
- * 
+ *
  */
 public abstract class EhcacheHibernateMbeanNames {
 
@@ -42,17 +42,17 @@ public abstract class EhcacheHibernateMbeanNames {
 
     /**
      * Filter out invalid ObjectName characters from s.
-     * 
+     *
      * @param s
      * @return A valid JMX ObjectName attribute value.
      */
     public static String mbeanSafe(String s) {
-        return s == null ? "" : s.replaceAll(":|=|\n", ".");
+        return s == null ? "" : s.replaceAll(",|:|=|\n", ".");
       }
-    
+
     /**
      * Returns an ObjectName for the passed name
-     * 
+     *
      * @param name
      * @return An {@link ObjectName} using the input name of cache manager
      * @throws MalformedObjectNameException
