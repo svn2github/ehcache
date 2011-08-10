@@ -331,7 +331,8 @@ public class RegisteredEventListeners {
      * @return true is notifiying the listener would cause a circular notification
      */
     private static boolean isCircularNotification(boolean remoteEvent, CacheEventListener cacheEventListener) {
-        return remoteEvent && cacheEventListener instanceof CacheReplicator;
+        return remoteEvent
+                && (cacheEventListener instanceof CacheReplicator || cacheEventListener instanceof TerracottaCacheEventReplication);
     }
 
 
