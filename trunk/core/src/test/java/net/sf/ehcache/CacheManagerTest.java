@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
-
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -56,10 +55,10 @@ import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
-import net.sf.ehcache.store.DiskStore;
 import net.sf.ehcache.store.Store;
-
+import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.util.MemorySizeParser;
+
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
