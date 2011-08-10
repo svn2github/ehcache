@@ -119,7 +119,7 @@ public abstract class AbstractPool<T> implements Pool<T> {
      * {@inheritDoc}
      */
     public Collection<T> getPoolableStores() {
-        Collection<T> poolableStores = new ArrayList<T>();
+        Collection<T> poolableStores = new ArrayList<T>(poolAccessors.size());
         for (PoolAccessor<? extends T> poolAccessor : poolAccessors) {
             poolableStores.add(poolAccessor.getStore());
         }
