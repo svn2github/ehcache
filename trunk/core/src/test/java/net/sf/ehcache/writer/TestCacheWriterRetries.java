@@ -16,11 +16,6 @@
 
 package net.sf.ehcache.writer;
 
-import net.sf.ehcache.CacheEntry;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +23,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
+
+import net.sf.ehcache.CacheEntry;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     private final int retries;
@@ -36,7 +35,7 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
     private final Map<Object, Integer> retryCount = new HashMap<Object, Integer>();
     private final Map<Object, Integer> writeCount = new HashMap<Object, Integer>();
     private final Map<Object, Integer> deleteCount = new HashMap<Object, Integer>();
-    private Map<SingleOperationType, List<Element>> thrownAwayElements =  new HashMap<SingleOperationType, List<Element>>();
+    private final Map<SingleOperationType, List<Element>> thrownAwayElements =  new HashMap<SingleOperationType, List<Element>>();
     private volatile boolean throwing = true;
 
     {
@@ -223,7 +222,8 @@ public class TestCacheWriterRetries extends AbstractTestCacheWriter {
         Object getRemovedKey() {
             return removedKey;
         }
-        
+
+        @Override
         public String toString() {
           if (addedElement != null) {
             return "ADDED   : " + addedElement.getObjectKey() + " @ " + time;
