@@ -21,7 +21,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
                        ", Hotspot CMS: " + HOTSPOT_CMS +
                        ")");
   }
-  
+
   @Test
   public void testAnnotationFiltering() throws Exception {
     SizeOf sizeOf = new CrossCheckingSizeOf(new AnnotationSizeOfFilter());
@@ -124,7 +124,6 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     }
   }
 
-  @SuppressWarnings("unused")
   public static class AnnotationFilteredClass {
     @IgnoreSizeOf
     private final byte[] bigArray = new byte[16 * 1024];
@@ -135,17 +134,14 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     private final byte[] smallArray = new byte[128];
   }
 
-  @SuppressWarnings("unused")
   public static class AnnotationFilteredSubclass extends AnnotationFilteredClass {
     private final int field = 0;
   }
 
-  @SuppressWarnings("unused")
   public static class AnnotationFilteredReferrer {
     private final AnnotationFilteredSubclass reference = new AnnotationFilteredSubclass();
   }
 
-  @SuppressWarnings("unused")
   public static class ResourceFilteredClass {
     private final byte[] bigArray = new byte[16 * 1024];
 
@@ -154,12 +150,10 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     private final byte[] smallArray = new byte[128];
   }
 
-  @SuppressWarnings("unused")
   public static class ResourceFilteredSubclass extends ResourceFilteredClass {
     private final int field = 0;
   }
 
-  @SuppressWarnings("unused")
   public static class ResourceFilteredReferrer {
     private final ResourceFilteredSubclass reference = new ResourceFilteredSubclass();
   }

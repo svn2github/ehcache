@@ -202,7 +202,6 @@ public class SizeOfTest extends AbstractSizeOfTest {
     }
   }
 
-  @SuppressWarnings("unused")
   public static class Pair {
     private final Object one;
     private final Object two;
@@ -213,7 +212,6 @@ public class SizeOfTest extends AbstractSizeOfTest {
     }
   }
 
-  @SuppressWarnings("unused")
   public static final class Stupid {
 
     public static class internal {
@@ -228,7 +226,6 @@ public class SizeOfTest extends AbstractSizeOfTest {
     boolean  bool;
   }
 
-  @SuppressWarnings("unused")
   public static final class EvilPair extends Pair {
 
     private static final AtomicLong counter = new AtomicLong(Long.MIN_VALUE);
