@@ -23,6 +23,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.generator.model.NodeElementVisitor;
 import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor;
+import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor.OutputBehavior;
 import net.sf.ehcache.config.generator.model.elements.CacheConfigurationElement;
 import net.sf.ehcache.config.generator.model.elements.ConfigurationElement;
 
@@ -47,6 +48,7 @@ public abstract class ConfigurationUtil {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(baos);
         XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
+        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
         visitConfiguration(configuration, configGenerator);
         out.flush();
         out.close();
