@@ -60,6 +60,7 @@ import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.util.MemorySizeParser;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,16 +169,14 @@ public class CacheManagerTest {
         assertThat(cacheManager.getCacheNames().length, is(2));
     }
 
+    // todo This should be addressed at some point: we're cloning things around too much...
+    @Ignore
     @Test
     public void testCacheConfigurationAreInSync() {
-        // todo This should be addressed at some point: we're cloning things around too much...
-        if (false) {
-            Configuration configuration = new Configuration()
-                .cache(new CacheConfiguration("one", 0));
-            CacheManager cacheManager = new CacheManager(configuration);
-            assertThat(cacheManager.getCache("one").getCacheConfiguration(),
+        Configuration configuration = new Configuration().cache(new CacheConfiguration("one", 0));
+        CacheManager cacheManager = new CacheManager(configuration);
+        assertThat(cacheManager.getCache("one").getCacheConfiguration(),
                 is(cacheManager.getConfiguration().getCacheConfigurations().get("one")));
-        }
     }
 
     @Test
