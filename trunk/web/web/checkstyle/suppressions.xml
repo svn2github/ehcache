@@ -13,6 +13,7 @@
     <suppress checks="StrictDuplicateCode" files="Test.java"/>
     <suppress checks="MagicNumberCheck" files="test[/\\]"/>
     <suppress checks="CyclomaticComplexity" files="Test.java"/>
+    <suppress checks="CyclomaticComplexity" files="GzipFilter.java"/>
     <suppress checks="NPathComplexity" files="Test.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
     <suppress checks="ClassFanOutComplexity" files="Test.java"/>

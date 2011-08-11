@@ -42,8 +42,10 @@ public class GzipFilter extends Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GzipFilter.class);
     private static final String VARY_HEADER_PARAM = "varyHeader";
+    private static final String RETURN_ON_NOT_OK_PARAM = "returnOnNonOK";
     
     private boolean setVaryHeader;
+    private boolean returnOnNonOk = true;
     /**
      * Performs initialisation.
      * @param filterConfig
@@ -52,6 +54,11 @@ public class GzipFilter extends Filter {
         String varyParam = filterConfig.getInitParameter(VARY_HEADER_PARAM);
         if (varyParam != null) {
             setVaryHeader = Boolean.valueOf(varyParam);
+        }
+        
+        String returnOnNotOkParam = filterConfig.getInitParameter(RETURN_ON_NOT_OK_PARAM);
+        if (returnOnNotOkParam != null) {
+            returnOnNonOk = Boolean.valueOf(returnOnNotOkParam);
         }
     }
 
@@ -89,7 +96,7 @@ public class GzipFilter extends Filter {
 
             //return on error or redirect code, because response is already committed
             int statusCode = wrapper.getStatus();
-            if (statusCode != HttpServletResponse.SC_OK) {
+            if (returnOnNonOk && statusCode != HttpServletResponse.SC_OK) {
                 return;
             }
 
@@ -98,7 +105,9 @@ public class GzipFilter extends Filter {
             boolean shouldGzippedBodyBeZero = ResponseUtil.shouldGzippedBodyBeZero(compressedBytes, request);
             boolean shouldBodyBeZero = ResponseUtil.shouldBodyBeZero(request, wrapper.getStatus());
             if (shouldGzippedBodyBeZero || shouldBodyBeZero) {
-                compressedBytes = new byte[0];
+                //No reason to add GZIP headers or write body if no content was written or status code specifies no content
+                response.setContentLength(0);
+                return;
             }
 
             // Write the zipped body
