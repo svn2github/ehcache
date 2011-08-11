@@ -31,4 +31,9 @@ public interface TierableStore extends Store {
      * @param e element to be added
      */
     void fill(Element e);
+
+    /**
+     * Whether this tier is pinned
+     */
+    boolean isPinned();
 }

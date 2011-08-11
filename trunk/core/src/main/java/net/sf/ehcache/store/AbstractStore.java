@@ -179,4 +179,12 @@ public abstract class AbstractStore implements Store {
         }
         return elements;
     }
+
+    /**
+     * Default answer, but is wrong. DEV-6023!
+     */
+    public boolean isPinned() {
+        // TODO fix this!
+        return false;
+    }
 }

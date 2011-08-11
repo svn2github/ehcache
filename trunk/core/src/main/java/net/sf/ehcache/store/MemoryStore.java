@@ -198,6 +198,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned() {
+        return cachePinned;
+    }
+
+    /**
      * Puts an item in the store. Note that this automatically results in an eviction if the store is full.
      *
      * @param element the element to add
