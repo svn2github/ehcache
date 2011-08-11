@@ -16,11 +16,15 @@
 
 package net.sf.ehcache.event;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
+import net.sf.ehcache.store.FrontEndCacheTier;
+import net.sf.ehcache.store.Store;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -62,6 +66,8 @@ public class RegisteredEventListeners {
     private final AtomicLong elementsEvictedCounter = new AtomicLong(0);
     private final AtomicLong elementsRemoveAllCounter = new AtomicLong(0);
 
+    private CacheStoreHelper helper;
+
     /**
      * Constructs a new notification service
      *
@@ -69,6 +75,7 @@ public class RegisteredEventListeners {
      */
     public RegisteredEventListeners(Ehcache cache) {
         this.cache = cache;
+        helper = new CacheStoreHelper((Cache)cache);
     }
 
     /**
@@ -517,6 +524,21 @@ public class RegisteredEventListeners {
      */
     public long getElementsRemoveAllCounter() {
         return elementsRemoveAllCounter.get();
+    }
+
+    /**
+     * Checks whether the element can be safely evicted.
+     * Always returns false for pinned elements
+     * @param e The element we want to evict
+     * @return true, if it can be evicted, false otherwise
+     * @see net.sf.ehcache.store.FrontEndCacheTier#isEvictionCandidate(net.sf.ehcache.Element)
+     */
+    public boolean isEvictionCandidate(final Element e) {
+        if (e.isPinned()) {
+            return false;
+        }
+        Store store = helper.getStore();
+        return !(store instanceof FrontEndCacheTier) || ((FrontEndCacheTier)store).isEvictionCandidate(e);
     }
 
     /**

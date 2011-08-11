@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -511,6 +512,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * trigger an eviction notification.
      */
     @Test
+    @Ignore("See DEV-6023")
     public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
         String sampleCache1 = "sampleCache1";
         cache = manager.getCache(sampleCache1);

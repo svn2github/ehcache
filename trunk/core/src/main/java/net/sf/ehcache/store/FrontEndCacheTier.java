@@ -26,6 +26,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.ReadWriteLockSync;
+import net.sf.ehcache.concurrent.StripedReadWriteLock;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -52,7 +53,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
      */
     protected final U authority;
 
-    private final StripedReadWriteLockSync masterLocks = new StripedReadWriteLockSync(DEFAULT_LOCK_STRIPE_COUNT);
+    private final StripedReadWriteLock masterLocks;
     private final boolean copyOnRead;
     private final boolean copyOnWrite;
     private final ReadWriteCopyStrategy<Element> copyStrategy;
@@ -72,6 +73,11 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         this.copyStrategy = copyStrategy;
         this.copyOnWrite = copyOnWrite;
         this.copyOnRead = copyOnRead;
+        if (authority instanceof StripedReadWriteLockProvider) {
+            masterLocks = ((StripedReadWriteLockProvider) authority).createStripedReadWriteLock();
+        } else {
+            masterLocks = new StripedReadWriteLockSync(DEFAULT_LOCK_STRIPE_COUNT);
+        }
     }
 
     /**
@@ -578,5 +584,28 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
      */
     public final Object getInternalContext() {
         return masterLocks;
+    }
+
+    /**
+     * Checks whether the element can be safely evicted.
+     * It is done by checking whether we can lock the master lock for that Element's key and, if we could, remove that key from all other tiers,
+     * but the lowest.
+     * <p>Failing to obey this, might result in firing an Element Evicted Event, while it is still present in higher tiers</p>
+     * @param e The element we want to evict
+     * @return true, if it can be evicted, false otherwise
+     */
+    public boolean isEvictionCandidate(final Element e) {
+        Object key = e.getObjectKey();
+        Lock lockForKey = masterLocks.getLockForKey(key).writeLock();
+        if (lockForKey.tryLock()) {
+            try {
+                cache.remove(key);
+                return true;
+            } finally {
+                lockForKey.unlock();
+            }
+        } else {
+            return false;
+        }
     }
 }

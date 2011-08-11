@@ -51,7 +51,7 @@ import java.util.concurrent.locks.Lock;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public final class MemoryStore extends AbstractStore implements TierableStore, PoolableStore, CacheConfigurationListener {
+public class MemoryStore extends AbstractStore implements TierableStore, PoolableStore, CacheConfigurationListener {
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because we size
@@ -114,7 +114,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
      * @param cache the cache
      * @param pool the pool tracking the on-heap usage
      */
-    private MemoryStore(final Ehcache cache, Pool pool) {
+    protected MemoryStore(final Ehcache cache, Pool pool) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
@@ -217,8 +217,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 return false;
             }
         } else {
-            remove(element.getObjectKey());
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            evict(element);
             return true;
         }
     }
@@ -244,8 +243,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 return false;
             }
         } else {
-            remove(element.getObjectKey());
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            evict(element);
             return true;
         }
     }
@@ -426,21 +424,6 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
     }
 
     /**
-     * Evict the <code>Element</code>.
-     * <p/>
-     * Evict means that the <code>Element</code> is:
-     * <ul>
-     * <li>if, the store is diskPersistent, the <code>Element</code> is spooled to the DiskStore
-     * <li>if not, the <code>Element</code> is removed.
-     * </ul>
-     *
-     * @param element the <code>Element</code> to be evicted.
-     */
-    private void notifyEviction(final Element element) {
-        cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
-    }
-
-    /**
      * Before eviction elements are checked.
      *
      * @param element the element to notify about its expiry
@@ -513,10 +496,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             return false;
         }
 
-        if (remove(element.getObjectKey()) != null) {
-            notifyEviction(element);
-        }
-        return true;
+        return evict(element);
     }
 
     /**
@@ -732,10 +712,18 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
             }
             return old;
         } else {
-            remove(element.getObjectKey());
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            evict(element);
             return null;
         }
+    }
+
+    /**
+     * Evicts the element from the store
+     * @param element the element to be evicted
+     * @return true if succeeded, false otherwise
+     */
+    protected boolean evict(final Element element) {
+        return remove(element.getObjectKey()) != null;
     }
 
     /**
@@ -791,10 +779,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 lock.unlock();
             }
         } else {
-            Element removed = remove(element.getObjectKey());
-            if (removed != null) {
-                cache.getCacheEventNotificationService().notifyElementEvicted(removed, false);
-            }
+            evict(element);
             return false;
         }
     }
@@ -826,10 +811,7 @@ public final class MemoryStore extends AbstractStore implements TierableStore, P
                 lock.unlock();
             }
         } else {
-            Element removed = remove(element.getObjectKey());
-            if (removed != null) {
-                cache.getCacheEventNotificationService().notifyElementEvicted(removed, false);
-            }
+            evict(element);
             return null;
         }
     }

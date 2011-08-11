@@ -66,7 +66,7 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
      */
     public static Store create(Ehcache cache, Pool onHeapPool) {
         final NullStore nullStore = NullStore.create();
-        final MemoryStore memoryStore = MemoryStore.create(cache, onHeapPool);
+        final MemoryStore memoryStore = NotifyingMemoryStore.create(cache, onHeapPool);
         return new MemoryOnlyStore(cache.getCacheConfiguration(), nullStore, memoryStore);
     }
 

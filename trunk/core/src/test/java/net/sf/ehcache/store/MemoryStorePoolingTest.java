@@ -83,7 +83,7 @@ public class MemoryStorePoolingTest {
                 )
         );
 
-        memoryStore = MemoryStore.create(cache, onHeapPool);
+        memoryStore = NotifyingMemoryStore.create(cache, onHeapPool);
     }
 
     @After
