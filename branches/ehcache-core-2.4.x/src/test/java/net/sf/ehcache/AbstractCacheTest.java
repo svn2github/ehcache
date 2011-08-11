@@ -85,7 +85,7 @@ public abstract class AbstractCacheTest {
     public static void installRMISocketFactory() {
       AbstractRMITest.installRMISocketFactory();
     }
-    
+
     /**
      * setup test
      */
@@ -150,7 +150,8 @@ public abstract class AbstractCacheTest {
      * @return
      * @throws InterruptedException
      */
-    protected long measureMemoryUse() throws InterruptedException {
+    protected static long measureMemoryUse() throws InterruptedException {
+        gc();
         long total;
         long freeAfter;
         long freeBefore;
@@ -158,13 +159,20 @@ public abstract class AbstractCacheTest {
         do {
             total = runtime.totalMemory();
             freeBefore = runtime.freeMemory();
-            System.gc();
-            Thread.sleep(2000);
+            gc();
             freeAfter = runtime.freeMemory();
         } while (total != runtime.totalMemory() || freeAfter > freeBefore);
         return total - freeAfter;
     }
 
+    private static void gc() throws InterruptedException {
+        for (int i = 0; i < 3; i++) {
+            System.gc();
+            Thread.sleep(100);
+            System.runFinalization();
+            Thread.sleep(100);
+        }
+    }
 
     /**
      * Runs a set of threads, for a fixed amount of time.
