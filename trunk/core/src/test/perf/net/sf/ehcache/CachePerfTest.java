@@ -2,7 +2,6 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
-//import net.sf.ehcache.loader.CountingCacheLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,6 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+//import net.sf.ehcache.loader.CountingCacheLoader;
 
 /**
  * @author Alex Snaps
@@ -276,7 +277,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
      * INFO: Average keySet Time for 4042893 observations: 0.0029669348 ms
      * INFO: Total loads: 123
      * <p/>
-     * Ehcache 2.0: After turning of statistics.
+     * Ehcache 2.0: After turning off statistics.
      * Feb 3, 2010 1:50:32 PM net.sf.ehcache.CacheTest testConcurrentReadWriteRemove
      * INFO: Average Get Time for 7251897 observations: 0.006588345 ms
      * INFO: Average Put Time for 6190 obervations: 0.07479806 ms
@@ -284,8 +285,30 @@ public class CachePerfTest extends AbstractCachePerfTest {
      * INFO: Average Remove All Time for 5183786 observations: 0.0020039408 ms
      * INFO: Average keySet Time for 4973208 observations: 0.0020630546 ms
      * INFO: Total loadAlls: 189
-     *
-     * @throws Exception
+     * <p/>
+     * Aug 10, 2011 4:43:47 PM Ehcache 2.1 Revalidation on Mac OS X Lion and same machine
+     * INFO: Average Get Time for 7474731 observations: 0.0066825147 ms
+     * INFO: Average Put Time for 12918 obervations: 0.6070599 ms
+     * INFO: Average Remove Time for 57024 obervations: 0.06649832 ms
+     * INFO: Average Remove All Time for 5147782 observations: 0.0026411375 ms
+     * INFO: Average keySet Time for 4717506 observations: 0.002453627 ms
+     * <p/>
+     * Aug 10, 2011 4:47:16 PM 2.5 beta
+     * INFO: Average Get Time for 517885 observations: 0.16877685 ms
+     * INFO: Average Put Time for 52501 obervations: 0.5059332 ms
+     * INFO: Average Remove Time for 30177 obervations: 0.7006329 ms
+     * INFO: Average Remove All Time for 107152 observations: 0.8572775 ms
+     * INFO: Average keySet Time for 98991 observations: 0.92390215 ms
+     * <p/>
+     * Aug 12, 2011 11:24:40 AM Java 6 Agent sizeof with "value" value
+     * INFO: Average Get Time for 1378042 observations: 0.18543556 ms
+     * INFO: Average Put Time for 1056477 obervations: 0.092374 ms
+     * INFO: Average Remove Time for 2013940 obervations: 0.032961756 ms
+     * INFO: Average Remove All Time for 894820 observations: 0.10991708 ms
+     * INFO: Average keySet Time for 114488 observations: 0.8662655 ms
+     * <p/>
+     * Aug 12, 2011 11:32:38 AM with Java 6 Agent sizeof with list of stacktraces value
+     * INFO: Average Put Time for 753610 obervations: 0.119633496 ms
      */
     @Test
     public void testConcurrentReadWriteRemoveLRU() throws Exception {
@@ -300,20 +323,20 @@ public class CachePerfTest extends AbstractCachePerfTest {
      * INFO: Average Remove Time: 1.3399061 ms
      * INFO: Average Remove All Time: 0.22590445 ms
      * INFO: Average keySet Time: 0.20492058 ms
-     * <p/>
+     *
      * INFO: Average Get Time: 1.081209 ms
      * INFO: Average Put Time: 1.2307026 ms
      * INFO: Average Remove Time: 1.1294961 ms
      * INFO: Average Remove All Time: 0.16385451 ms
      * INFO: Average keySet Time: 0.1549516 ms
-     * <p/>
+     *
      * CHM version with no sync on get.
      * INFO: Average Get Time for 2582432 observations: 0.019930825 ms
      * INFO: Average Put Time for 297 obervations: 41.40404 ms
      * INFO: Average Remove Time for 1491 obervations: 13.892018 ms
      * INFO: Average Remove All Time for 135893 observations: 0.54172766 ms
      * INFO: Average keySet Time for 112686 observations: 0.7157411 ms
-     * <p/>
+     *
      * 1.6
      * INFO: Average Get Time for 4984448 observations: 0.006596317 ms
      * INFO: Average Put Time for 7266 obervations: 0.42361686 ms
@@ -391,6 +414,10 @@ public class CachePerfTest extends AbstractCachePerfTest {
         CacheConfiguration cacheConfigurationTest3Cache = new CacheConfiguration("test3cache", size)
                 .eternal(true).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).overflowToDisk(false)
                 .statistics(false);
+//        CacheConfiguration cacheConfigurationTest3Cache = new CacheConfiguration()
+//                .name("test3cache").maxBytesLocalHeap(40, MemoryUnit.MEGABYTES)
+//                .eternal(true).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).overflowToDisk(false)
+//                .statistics(false);
         manager.addCache(new Cache(cacheConfigurationTest3Cache));
         final Ehcache cache = manager.getEhcache("test3cache");
 
@@ -417,8 +444,20 @@ public class CachePerfTest extends AbstractCachePerfTest {
         final List executables = new ArrayList();
         final Random random = new Random();
 
+        ArrayList list = new ArrayList();
+        StackTraceElement[] stackTraceElements;
+        try {
+            throw new CacheException("test");
+        } catch (CacheException e) {
+            stackTraceElements = e.getStackTrace();
+        }
+        for (int i = 0; i < 1000; i++) {
+            list.add(stackTraceElements);
+        }
+
         for (int i = 0; i < size; i++) {
             cache.put(new Element("" + i, "value"));
+//            cache.put(new Element("" + i, list));
         }
 
         //some of the time get data
@@ -585,7 +624,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
      * INFO: 1201 threads. Average Get time: 0.0063261427 ms
      * INFO: 1601 threads. Average Get time: 0.005570657 ms
      * INFO: 2001 threads. Average Get time: 0.015918251 ms
-     * <p/>
+     *
      * v207
      * INFO: 1 threads. Average Get time: 0.051759835 ms
      * INFO: 401 threads. Average Get time: 0.0118925795 ms
@@ -593,7 +632,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
      * INFO: 1201 threads. Average Get time: 0.07880102 ms
      * INFO: 1601 threads. Average Get time: 0.067811936 ms
      * INFO: 2001 threads. Average Get time: 0.12559706 ms
-     * <p/>
+     *
      * Before AtomicLong
      * INFO: 1 threads. Average Get time: 0.024948025 ms
      * INFO: 401 threads. Average Get time: 0.0079776095 ms
@@ -601,21 +640,21 @@ public class CachePerfTest extends AbstractCachePerfTest {
      * INFO: 1201 threads. Average Get time: 0.059032038 ms
      * INFO: 1601 threads. Average Get time: 0.039221533 ms
      * INFO: 2001 threads. Average Get time: 0.03138067 ms
-     * <p/>
+     *
      * INFO: 1 threads. Average Get time: 0.039014373 ms
      * INFO: 401 threads. Average Get time: 0.005683447 ms
      * INFO: 801 threads. Average Get time: 0.0041153855 ms
      * INFO: 1201 threads. Average Get time: 0.02003592 ms
      * INFO: 1601 threads. Average Get time: 0.039240483 ms
      * INFO: 2001 threads. Average Get time: 0.04503215 ms
-     * <p/>
+     *
      * INFO: 1 threads. Average Get time: 0.026694044 ms
      * INFO: 401 threads. Average Get time: 0.0076737576 ms
      * INFO: 801 threads. Average Get time: 0.003894474 ms
      * INFO: 1201 threads. Average Get time: 0.06022612 ms
      * INFO: 1601 threads. Average Get time: 0.03710788 ms
      * INFO: 2001 threads. Average Get time: 0.064271376 ms
-     * <p/>
+     *
      * After AtomicLong counters
      * INFO: 1 threads. Average Get time: 0.02566735 ms
      * INFO: 401 threads. Average Get time: 0.0054228795 ms
@@ -623,15 +662,15 @@ public class CachePerfTest extends AbstractCachePerfTest {
      * INFO: 1201 threads. Average Get time: 0.075431876 ms
      * INFO: 1601 threads. Average Get time: 0.10669952 ms
      * INFO: 2001 threads. Average Get time: 0.051209673 ms
-     * <p/>
+     *
      * INFO: 1 threads. Average Get time: 0.028481012 ms
      * INFO: 401 threads. Average Get time: 0.003833565 ms
      * INFO: 801 threads. Average Get time: 0.005232163 ms
      * INFO: 1201 threads. Average Get time: 0.06157142 ms
      * INFO: 1601 threads. Average Get time: 0.08064302 ms
      * INFO: 2001 threads. Average Get time: 0.048335962 ms
-     * <p/>
-     * <p/>
+     *
+     *
      * </pre>
      */
     @Test

@@ -125,7 +125,8 @@
           	timeToLiveSeconds="100">
    	</cache>
 
-	<!-- overflows automatically to off heap and disk because no specific override and resources are set at the CacheManager level -->
+	<!-- overflows automatically to off heap and disk because no specific
+	     override and resources are set at the CacheManager level -->
    	<cache name="automaticallyAllocatedCache1"
           	timeToLiveSeconds="100">
    	</cache>
@@ -198,9 +199,67 @@
 	Overallocations can only be detected at configuration time. For this reason we do not permit the use of max element count
 	(e.g. maxEntriesLocalHeap) configuration with CacheManager storage pools.
 
-*** Sizing of cached entries
 
-  Elements put in a memory limited cache will have their memory sizes measured. The entire Element instance added
+*** Eviction when using CacheManager level storage
+
+  When a CacheManager level storage pool is exhausted a cache is selected on which to perform eviction to recover pool space.  The eviction from
+  the selected cache is performed using the cache's configured eviction algorithm (LRU, LFU, etc...).
+
+  The cache from which eviction is performed is selected using the "minimal eviction cost" algorithm described below.
+
+  Eviction cost is defined as the increase in bytes requested from the underlying SOR (the database for example) per unit time that will be caused
+  by evicting the requested number of bytes from the cache.
+
+---
+  eviction-cost = mean-entry-size * drop-in-hit-rate
+---
+
+  If we model the hit distribution as a simple power-law then:
+
+---
+  P(hit n'th element) ~ 1/n^{alpha}
+---
+
+  In the continuous limit this means the total hit rate is proportional to the integral of this distribution function over the elements in
+  the cache. The change in hit rate due to an eviction is then the integral of this distribution function between the initial size and
+  the final size.  Assuming that the eviction size is small compared to the overall cache size we can model this as:
+
+---
+  drop ~ access * 1/x^{alpha} * Delta(x)
+---
+
+  Where 'access' is the overall access rate (hits + misses) and x is a unit-less measure of the 'fill level' of the cache.  Approximating the fill level as the
+  ratio of hit rate to access rate, and substituting in to the eviction-cost expression we get:
+
+---
+  eviction-cost = mean-entry-size * access * 1/(hits/access)^{alpha}
+                  * (eviction / (byteSize / (hits/access)))
+---
+
+  Simplifying:
+
+---
+  eviction-cost = (byteSize / countSize) * access * 1/(h/A)^{alpha}
+                   * (eviction * hits)/(access * byteSize)
+  eviction-cost = (eviction * hits) / (countSize * (hits/access)^{alpha})
+---
+
+  Removing the common factor of 'eviction' which is the same in all caches lead us to evicting from the cache with the minimum value of:
+
+---
+  eviction-cost = (hits / countSize) / (hits/access)^{alpha}
+---
+
+  When a cache has a zero hit-rate (it is in a pure loading phase) we deviate from this algorithm and allow the cache to occupy 1/n'th of the pool space where 'n'
+  is the number of caches using the pool.  Once the cache starts to be accessed we re-adjust to match the actual usage pattern of that cache.
+
+** How Sizes Cached Entries Are Measured
+
+  Elements put in a memory limited cache will have their memory sizes measured using a sizing engine inside Ehcache. This
+   engine takes account of the version of Java, 32 bit versus 64 bit and the differences between JDK implementations to give
+   a reliable and exact measure of memory consumed.
+
+  The entire Element instance added
   to the cache is measured, including key and value, as well as the memory footprint of adding that instance to
   internal data structures. Key and value are measured as object graphs - each reference is followed and the object
   reference also measured. This goes on recursively.
@@ -208,9 +267,9 @@
   Shared references will be measured by each class that references it. This will result in an overstatement. Shared references
   should therefore be ignored.
 
-*** Ignoring for size calculations
+*** Excluding objects from sizing
 
-  References can be ignored using the <<<@IgnoreSizeOf>>> annotation.
+  Objects references can be ignored using the <<<@IgnoreSizeOf>>> annotation.
 
   The annotation may be declared at the class level or on field.
   with the fully qualified class name of classes to be ingored and/or fields to be ignored during the measurement
@@ -263,62 +322,6 @@ com.pany.example
 
   Note that these measurements and configurations only apply to on heap storage. Once Elements are moved to off-heap, disk or Terracotta, they
   are serialized as byte arrays. The serialized size is then used as the basis for measurement.
-
-*** Eviction when using CacheManager level storage
-
-  When a CacheManager level storage pool is exhausted a cache is selected on which to perform eviction to recover pool space.  The eviction from
-  the selected cache is performed using the cache's configured eviction algorithm (LRU, LFU, etc...).
-
-  The cache from which eviction is performed is selected using the "minimal eviction cost" algorithm described below.
-
-  Eviction cost is defined as the increase in bytes requested from the underlying SOR (the database for example) per unit time that will be caused
-  by evicting the requested number of bytes from the cache.
-
----
-  eviction-cost = mean-entry-size * drop-in-hit-rate
----
-
-  If we model the hit distribution as a simple power-law then:
-
----
-  P(hit n'th element) ~ 1/n^{alpha}
----
-
-  In the continuous limit this means the total hit rate is proportional to the integral of this distribution function over the elements in
-  the cache. The change in hit rate due to an eviction is then the integral of this distribution function between the initial size and
-  the final size.  Assuming that the eviction size is small compared to the overall cache size we can model this as:
-
----
-  drop ~ access * 1/x^{alpha} * Delta(x)
----
-
-  Where 'access' is the overall access rate (hits + misses) and x is a unit-less measure of the 'fill level' of the cache.  Approximating the fill level as the
-  ratio of hit rate to access rate, and substituting in to the eviction-cost expression we get:
-
----
-  eviction-cost = mean-entry-size * access * 1/(hits/access)^{alpha} * (eviction / (byteSize / (hits/access)))
----
-
-  Simplifying:
-
----
-  eviction-cost = (byteSize / countSize) * access * 1/(h/A)^{alpha} * (eviction * hits)/(access * byteSize)
-  eviction-cost = (eviction * hits) / (countSize * (hits/access)^{alpha})
----
-
-  Removing the common factor of 'eviction' which is the same in all caches lead us to evicting from the cache with the minimum value of:
-
----
-  eviction-cost = (hits / countSize) / (hits/access)^{alpha}
----
-
-  When a cache has a zero hit-rate (it is in a pure loading phase) we deviate from this algorithm and allow the cache to occupy 1/n'th of the pool space where 'n'
-  is the number of caches using the pool.  Once the cache starts to be accessed we re-adjust to match the actual usage pattern of that cache.
-
-  todo: chris - what is the performance overhead of sizeOf and do we want to enable a sampling based approach?
-  we're actively investigating performance issues at the moment, once we have data that indicates that a sampling based approach, either in the sizeof engine, or in
-  the pooling code is our main bottleneck we'll obviously move on the relevant front.
-
 
 
 
