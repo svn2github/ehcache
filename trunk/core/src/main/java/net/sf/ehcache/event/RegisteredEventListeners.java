@@ -46,8 +46,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class RegisteredEventListeners {
 
-    private static final Element DUMMY_ELEMENT = new Element(null, null);
-
     /**
      * A Set of CacheEventListeners keyed by listener instance.
      * CacheEventListener implementations that will be notified of this cache's events.
@@ -66,7 +64,7 @@ public class RegisteredEventListeners {
     private final AtomicLong elementsEvictedCounter = new AtomicLong(0);
     private final AtomicLong elementsRemoveAllCounter = new AtomicLong(0);
 
-    private CacheStoreHelper helper;
+    private final CacheStoreHelper helper;
 
     /**
      * Constructs a new notification service
@@ -272,7 +270,9 @@ public class RegisteredEventListeners {
         final Element e;
 
         if (listener instanceof LiveCacheStatisticsData) {
-            e = DUMMY_ELEMENT;
+            // These listeners don't touch the element and since this is an internal listener there might not be
+            // an appropriate loader for resolving it
+            e = null;
         } else if (callback != null) {
             e = callback.createElement(listener.getClass().getClassLoader());
         } else {
