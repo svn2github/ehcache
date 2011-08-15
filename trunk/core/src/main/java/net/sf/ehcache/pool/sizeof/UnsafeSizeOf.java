@@ -20,13 +20,16 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.pool.sizeof.filter.PassThroughFilter;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 
 import sun.misc.Unsafe;
 
-import static net.sf.ehcache.pool.sizeof.JvmInformation.MINIMUM_OBJECT_SIZE;
-import static net.sf.ehcache.pool.sizeof.JvmInformation.OBJECT_ALIGNMENT;
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
+
 
 /**
  * {@link sun.misc.Unsafe#theUnsafe} based sizeOf measurement
@@ -35,6 +38,9 @@ import static net.sf.ehcache.pool.sizeof.JvmInformation.OBJECT_ALIGNMENT;
  */
 @SuppressWarnings("restriction")
 public class UnsafeSizeOf extends SizeOf {
+
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnsafeSizeOf.class);
 
     private static final Unsafe UNSAFE;
 
@@ -85,6 +91,12 @@ public class UnsafeSizeOf extends SizeOf {
         if (UNSAFE == null) {
             throw new UnsupportedOperationException("sun.misc.Unsafe instance not accessible");
         }
+
+        if (!CURRENT_JVM_INFORMATION.supportsUnsafeSizeOf()) {
+            LOGGER.warn("UnsafeSizeOf is not always accurate on the JVM (" + CURRENT_JVM_INFORMATION.getJvmDescription() +
+                    ").  Please consider enabling AgentSizeOf.");
+        }
+
     }
 
     /**
@@ -97,10 +109,11 @@ public class UnsafeSizeOf extends SizeOf {
             int base = UNSAFE.arrayBaseOffset(klazz);
             int scale = UNSAFE.arrayIndexScale(klazz);
             long size = base + (scale * Array.getLength(obj));
-            if ((size % OBJECT_ALIGNMENT) != 0) {
-                size += OBJECT_ALIGNMENT - (size % OBJECT_ALIGNMENT);
+            size += CURRENT_JVM_INFORMATION.getFieldOffsetAdjustment();
+            if ((size % CURRENT_JVM_INFORMATION.getObjectAlignment()) != 0) {
+                size += CURRENT_JVM_INFORMATION.getObjectAlignment() - (size % CURRENT_JVM_INFORMATION.getObjectAlignment());
             }
-            return Math.max(MINIMUM_OBJECT_SIZE, size);
+            return Math.max(CURRENT_JVM_INFORMATION.getMinimumObjectSize(), size);
         } else {
             for (Class<?> klazz = obj.getClass(); klazz != null; klazz = klazz.getSuperclass()) {
                 long lastFieldOffset = -1;
@@ -110,19 +123,21 @@ public class UnsafeSizeOf extends SizeOf {
                     }
                 }
                 if (lastFieldOffset > 0) {
+                    lastFieldOffset += CURRENT_JVM_INFORMATION.getFieldOffsetAdjustment();
                     lastFieldOffset += 1;
-                    if ((lastFieldOffset % OBJECT_ALIGNMENT) != 0) {
-                        lastFieldOffset += OBJECT_ALIGNMENT - (lastFieldOffset % OBJECT_ALIGNMENT);
+                    if ((lastFieldOffset % CURRENT_JVM_INFORMATION.getObjectAlignment()) != 0) {
+                        lastFieldOffset += CURRENT_JVM_INFORMATION.getObjectAlignment() -
+                            (lastFieldOffset % CURRENT_JVM_INFORMATION.getObjectAlignment());
                     }
-                    return Math.max(MINIMUM_OBJECT_SIZE, lastFieldOffset);
+                    return Math.max(CURRENT_JVM_INFORMATION.getMinimumObjectSize(), lastFieldOffset);
                 }
             }
 
-            long size = PrimitiveType.CLASS.getSize();
-            if ((size % OBJECT_ALIGNMENT) != 0) {
-                size += OBJECT_ALIGNMENT - (size % OBJECT_ALIGNMENT);
+            long size = CURRENT_JVM_INFORMATION.getObjectHeaderSize();
+            if ((size % CURRENT_JVM_INFORMATION.getObjectAlignment()) != 0) {
+                size += CURRENT_JVM_INFORMATION.getObjectAlignment() - (size % CURRENT_JVM_INFORMATION.getObjectAlignment());
             }
-            return Math.max(MINIMUM_OBJECT_SIZE, size);
+            return Math.max(CURRENT_JVM_INFORMATION.getMinimumObjectSize(), size);
         }
     }
 

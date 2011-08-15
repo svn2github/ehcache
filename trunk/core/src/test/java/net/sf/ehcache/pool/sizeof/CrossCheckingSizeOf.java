@@ -11,6 +11,7 @@ import net.sf.ehcache.pool.sizeof.UnsafeSizeOf;
 import net.sf.ehcache.pool.sizeof.filter.PassThroughFilter;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
 
 public class CrossCheckingSizeOf extends SizeOf {
 
@@ -19,7 +20,7 @@ public class CrossCheckingSizeOf extends SizeOf {
   public CrossCheckingSizeOf() {
     this(new PassThroughFilter());
   }
-  
+
   public CrossCheckingSizeOf(SizeOfFilter filter) {
     this(filter, true);
   }
@@ -38,12 +39,17 @@ public class CrossCheckingSizeOf extends SizeOf {
     } catch (UnsupportedOperationException usoe) {
       System.err.println("Not using UnsafeSizeOf: " + usoe);
     }
-    try {
-      engines.add(new ReflectionSizeOf());
-    } catch (UnsupportedOperationException usoe) {
-      System.err.println("Not using ReflectionSizeOf: " + usoe);
+    if(!CURRENT_JVM_INFORMATION.supportsReflectionSizeOf()) {
+        try {
+          engines.add(new ReflectionSizeOf());
+        } catch (UnsupportedOperationException usoe) {
+          System.err.println("Not using ReflectionSizeOf: " + usoe);
+        }
     }
-    
+    else {
+        System.err.println(CURRENT_JVM_INFORMATION.getJvmDescription() + " detected: not using ReflectionSizeOf");
+    }
+
     if (engines.isEmpty()) {
       throw new AssertionError("No SizeOf engines available");
     }
@@ -72,7 +78,7 @@ public class CrossCheckingSizeOf extends SizeOf {
         throw new AssertionError(sb.toString());
       }
     }
-    
+
     return values[0];
   }
 }

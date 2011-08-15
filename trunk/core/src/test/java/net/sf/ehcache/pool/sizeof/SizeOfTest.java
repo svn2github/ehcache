@@ -23,6 +23,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
+
 /**
  * @author Alex Snaps
  */
@@ -39,7 +41,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
 
   @Test
   public void testSizeOf() throws Exception {
-    Assume.assumeThat(JvmInformation.MINIMUM_OBJECT_SIZE, is(JvmInformation.OBJECT_ALIGNMENT));
+      Assume.assumeThat(CURRENT_JVM_INFORMATION.getMinimumObjectSize(), is(CURRENT_JVM_INFORMATION.getObjectAlignment()));
 
     SizeOf sizeOf = new CrossCheckingSizeOf();
     if (System.getProperty("java.version").startsWith("1.5")) {

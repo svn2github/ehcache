@@ -6,6 +6,8 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
+
 abstract class AbstractSizeOfTest {
 
   protected static final boolean COMPRESSED_OOPS;
@@ -19,9 +21,9 @@ abstract class AbstractSizeOfTest {
       COMPRESSED_OOPS = Boolean.valueOf(value);
     }
 
-    HOTSPOT_CMS = JvmInformation.MINIMUM_OBJECT_SIZE > JvmInformation.OBJECT_ALIGNMENT;
+    HOTSPOT_CMS = CURRENT_JVM_INFORMATION.getMinimumObjectSize() > CURRENT_JVM_INFORMATION.getObjectAlignment();
   }
-  
+
   private static String getVmOptionValue(String name) {
     try {
       MBeanServer server = ManagementFactory.getPlatformMBeanServer();

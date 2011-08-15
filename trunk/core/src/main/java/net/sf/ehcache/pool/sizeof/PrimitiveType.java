@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.pool.sizeof;
 
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
+
 /**
  * Primitive types in the VM type system and their sizes
  * @author Alex Snaps
@@ -53,16 +55,7 @@ enum PrimitiveType {
     /**
      * long.class
      */
-    LONG(long.class, 8),
-    /**
-     * java.lang.Class
-     */
-    CLASS(Class.class, 8) {
-        @Override
-        public int getSize() {
-            return JvmInformation.POINTER_SIZE + JvmInformation.JAVA_POINTER_SIZE;
-        }
-    };
+    LONG(long.class, 8);
 
     private Class<?> type;
     private int size;
@@ -94,7 +87,7 @@ enum PrimitiveType {
      * @return size in bytes
      */
     public static int getReferenceSize() {
-        return JvmInformation.JAVA_POINTER_SIZE;
+        return CURRENT_JVM_INFORMATION.getJavaPointerSize();
     }
 
     /**
@@ -102,7 +95,7 @@ enum PrimitiveType {
      * @return size in bytes
      */
     public static long getArraySize() {
-        return CLASS.getSize() + INT.getSize();
+        return CURRENT_JVM_INFORMATION.getObjectHeaderSize() + INT.getSize();
     }
 
     /**

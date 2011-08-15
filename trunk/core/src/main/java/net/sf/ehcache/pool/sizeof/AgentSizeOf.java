@@ -19,7 +19,7 @@ package net.sf.ehcache.pool.sizeof;
 import net.sf.ehcache.pool.sizeof.filter.PassThroughFilter;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 
-import static net.sf.ehcache.pool.sizeof.JvmInformation.MINIMUM_OBJECT_SIZE;
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
 
 /**
  * SizeOf implementation that relies on a Java agent to be loaded to do the measurement
@@ -68,6 +68,7 @@ public class AgentSizeOf extends SizeOf {
 
     @Override
     protected long measureSizeOf(Object obj) {
-        return Math.max(MINIMUM_OBJECT_SIZE, AgentLoader.agentSizeOf(obj));
+        return Math.max(CURRENT_JVM_INFORMATION.getMinimumObjectSize(),
+                AgentLoader.agentSizeOf(obj) + CURRENT_JVM_INFORMATION.getAgentSizeOfAdjustment());
     }
 }

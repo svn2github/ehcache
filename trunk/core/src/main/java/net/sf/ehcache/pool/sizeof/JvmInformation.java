@@ -23,65 +23,686 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Some useful information about this Runtime for us to do meaningful sizeOf measurements
+ * Detects and represents JVM-specific properties that relate to the memory
+ * data model for java objects that are useful for size of calculations.
  *
+ * @author jhouse
  * @author Chris Dennis
  */
-public final class JvmInformation {
+public enum JvmInformation {
+
+    /**
+     * Represents HotSpot 32-bit
+     */
+    HOTSPOT_32_BIT  {
+
+        /* default values are for this vm */
+
+        @Override
+        public String getJvmDescription() {
+            return "32-Bit HotSpot JVM";
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 32-Bit HotSpot JVM with Concurrent Mark-and-Sweep GC
+     */
+    HOTSPOT_32_BIT_WITH_CONCURRENT_MARK_AND_SWEEP {
+
+        @Override
+        public int getMinimumObjectSize() {
+            return 16;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "32-Bit HotSpot JVM with Concurrent Mark-and-Sweep GC";
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM
+     */
+    HOTSPOT_64_BIT {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit HotSpot JVM";
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM with Concurrent Mark-and-Sweep GC
+     */
+    HOTSPOT_64_BIT_WITH_CONCURRENT_MARK_AND_SWEEP {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getMinimumObjectSize() {
+            return 24;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit HotSpot JVM with Concurrent Mark-and-Sweep GC";
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM with Compressed OOPs
+     */
+    HOTSPOT_64_BIT_WITH_COMPRESSED_OOPS {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit HotSpot JVM with Compressed OOPs";
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM with Compressed OOPs and Concurrent Mark-and-Sweep GC
+     */
+    HOTSPOT_64_BIT_WITH_COMPRESSED_OOPS_AND_CONCURRENT_MARK_AND_SWEEP {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getMinimumObjectSize() {
+            return 24;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit HotSpot JVM with Compressed OOPs and Concurrent Mark-and-Sweep GC";
+        }
+    },
+
+    /**
+     * Represents 32-Bit JRockit JVM"
+     */
+    JROCKIT_32_BIT {
+
+        @Override
+        public int getAgentSizeOfAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getFieldOffsetAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 16;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "32-Bit JRockit JVM";
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 64-Bit JRockit JVM (with no reference compression)
+     */
+    JROCKIT_64_BIT {
+
+        @Override
+        public int getAgentSizeOfAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getFieldOffsetAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 16;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit JRockit JVM (with no reference compression)";
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 64-Bit JRockit JVM with 4GB Compressed References
+     */
+    JROCKIT_64_BIT_WITH_4GB_COMPRESSED_REFS {
+
+        @Override
+        public int getAgentSizeOfAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getFieldOffsetAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 16;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit JRockit JVM with 4GB Compressed References";
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 64-Bit JRockit JVM with 32GB Compressed References
+     */
+    JROCKIT_64_BIT_WITH_32GB_COMPRESSED_REFS {
+
+        @Override
+        public int getAgentSizeOfAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getFieldOffsetAdjustment() {
+            return 8;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 16;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit JRockit JVM with 32GB Compressed References";
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 64-Bit JRockit JVM with 64GB Compressed References
+     */
+    JROCKIT_64_BIT_WITH_64GB_COMPRESSED_REFS {
+
+
+        @Override
+        public int getObjectAlignment() {
+            return 16;
+        }
+
+        @Override
+        public int getAgentSizeOfAdjustment() {
+            return 16;
+        }
+
+        @Override
+        public int getFieldOffsetAdjustment() {
+            return 16;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 24;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit JRockit JVM with 64GB Compressed References";
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents Generic 32-bit
+     */
+    UNKNOWN_32_BIT  {
+
+        /* default values are for this vm */
+
+        @Override
+        public String getJvmDescription() {
+            return "Unrecognized 32-Bit JVM";
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 64-Bit Generic JVM
+     */
+    UNKNOWN_64_BIT {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "Unrecognized 64-Bit JVM";
+        }
+    };
+
+    /**
+     * The JvmInformation instance representing the current JVM
+     */
+    public static final JvmInformation CURRENT_JVM_INFORMATION;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JvmInformation.class);
+
+    private static final long THREE_GB = 3L * 1024L * 1024L * 1024L;
+    private static final long TWENTY_FIVE_GB = 25L * 1024L * 1024L * 1024L;
+    private static final long FIFTY_SEVEN_GB = 57L * 1024L * 1024L * 1024L;
+
+
+    static {
+        CURRENT_JVM_INFORMATION = getJvmInformation();
+        LOGGER.info("Detected JVM data model settings of: " + CURRENT_JVM_INFORMATION.getJvmDescription());
+    }
 
     /**
      * Size of a pointer in bytes on this runtime
      */
-    public static final int POINTER_SIZE;
+    public abstract int getPointerSize();
+
     /**
      * Size of a java pointer in bytes on this runtime (that differs when compressedOops are being used)
      */
-    public static final int JAVA_POINTER_SIZE;
-    /**
-     * Minimal size an object will occupy on the heap
-     */
-    public static final int MINIMUM_OBJECT_SIZE;
-    /**
-     * Value when no padding is being done by the GC
-     *
-     * @see #MINIMUM_OBJECT_SIZE
-     */
-    public static final int OBJECT_ALIGNMENT = 8;
+    public abstract int getJavaPointerSize();
 
-    static {
-        if (is64Bit()) {
-            if (isHotspotCompressedOops()) {
-                POINTER_SIZE = 8;
-                JAVA_POINTER_SIZE = 4;
-            } else {
-                POINTER_SIZE = 8;
-                JAVA_POINTER_SIZE = 8;
-            }
-        } else {
-            POINTER_SIZE = 4;
-            JAVA_POINTER_SIZE = 4;
+    /**
+     * Minimal size an object will occupy on the heap in bytes.
+     */
+    public int getMinimumObjectSize() {
+        return getObjectAlignment();
+    }
+
+    /**
+     * Object alignment / padding in bytes
+     */
+    public int getObjectAlignment() {
+        return 8;
+    }
+
+    /**
+     * The size of an object header in bytes.
+     */
+    public int getObjectHeaderSize() {
+        return getPointerSize() + getJavaPointerSize();
+    }
+
+    /**
+     * The size of the jvm-specific field offset adjustment in bytes.
+     */
+    public int getFieldOffsetAdjustment() {
+        return 0;
+    }
+
+    /**
+     * The size of the jvm-specific agent result adjustment in bytes.
+     */
+    public int getAgentSizeOfAdjustment() {
+        return 0;
+    }
+
+    /**
+     * Whether the jvm can support AgentSizeOf implementation.
+     */
+    public boolean supportsAgentSizeOf() {
+        return true;
+    }
+
+    /**
+     * Whether the jvm can support UnsafeSizeOf implementation.
+     */
+    public boolean supportsUnsafeSizeOf() {
+        return true;
+    }
+
+    /**
+     * Whether the jvm can support ReflectionSizeOf implementation.
+     */
+    public boolean supportsReflectionSizeOf() {
+        return true;
+    }
+
+    /**
+     * A human-readable description of the JVM and its relevant enabled options.
+     * @return
+     */
+    public abstract String getJvmDescription();
+
+    /**
+     * Determine the JvmInformation for the current JVM.
+     */
+    private static JvmInformation getJvmInformation() {
+        JvmInformation jif = null;
+
+        jif = detectHotSpot();
+
+        if (jif == null) {
+            jif = detectJRockit();
         }
 
-        if (isHotspotConcurrentMarkSweepGC()) {
-            /*
-            * Hotpot's CMS garbage collector pads objects to ensure they are big enough
-            * for it's free-chunk metadata to be stored inside the space left unoccupied
-            * by the free of a minimally sized object.  Helpfully enough it doesn't tell
-            * tell the java.lang.instrumentation code about this.
-            */
+
+        if (jif == null && is64Bit()) {
+            // unknown 64-bit JVMs
+            jif = UNKNOWN_64_BIT;
+        } else if (jif == null) {
+            // unknown 32-bit JVMs
+            jif = UNKNOWN_32_BIT;
+        }
+
+        return jif;
+    }
+
+    private static JvmInformation detectHotSpot() {
+        JvmInformation jif = null;
+
+        if (isHotspot()) {
             if (is64Bit()) {
-                MINIMUM_OBJECT_SIZE = 24;
+                if (isHotspotCompressedOops() && isHotspotConcurrentMarkSweepGC()) {
+                    jif = HOTSPOT_64_BIT_WITH_COMPRESSED_OOPS_AND_CONCURRENT_MARK_AND_SWEEP;
+                } else if (isHotspotCompressedOops()) {
+                    jif = HOTSPOT_64_BIT_WITH_COMPRESSED_OOPS;
+                } else if (isHotspotConcurrentMarkSweepGC()) {
+                    jif = HOTSPOT_64_BIT_WITH_CONCURRENT_MARK_AND_SWEEP;
+                } else {
+                    jif = HOTSPOT_64_BIT;
+                }
             } else {
-                MINIMUM_OBJECT_SIZE = 16;
+                jif = HOTSPOT_32_BIT;
             }
+        }
+
+        return jif;
+    }
+    private static JvmInformation detectJRockit() {
+        JvmInformation jif = null;
+
+        if (isJRockit()) {
+            if (is64Bit()) {
+                if (isJRockit4GBCompression()) {
+                    jif = JROCKIT_64_BIT_WITH_4GB_COMPRESSED_REFS;
+                } else if (isJRockit32GBCompression()) {
+                    jif = JROCKIT_64_BIT_WITH_32GB_COMPRESSED_REFS;
+                } else if (isJRockit64GBCompression()) {
+                    jif = JROCKIT_64_BIT_WITH_64GB_COMPRESSED_REFS;
+                } else {
+                    jif = JROCKIT_64_BIT;
+                }
+            } else {
+                jif = JROCKIT_32_BIT;
+            }
+        }
+
+        return jif;
+    }
+
+    private static boolean isJRockit32GBCompression() {
+
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:enable=false")) {
+            return false;
+        }
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:size=64GB") ||
+                getJRockitVmArgs().contains("-XXcompressedRefs:size=4GB")) {
+            return false;
+        }
+
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:size=32GB")) {
+            return true;
+        }
+        if (Runtime.getRuntime().maxMemory() > THREE_GB && Runtime.getRuntime().maxMemory() <= TWENTY_FIVE_GB
+                && getJRockitVmArgs().contains("-XXcompressedRefs:enable=true")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isJRockit64GBCompression() {
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:enable=false")) {
+            return false;
+        }
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:size=4GB") ||
+                getJRockitVmArgs().contains("-XXcompressedRefs:size=32GB")) {
+            return false;
+        }
+
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:size=64GB")) {
+            return true;
+        }
+        if (Runtime.getRuntime().maxMemory() > TWENTY_FIVE_GB && Runtime.getRuntime().maxMemory() <= FIFTY_SEVEN_GB
+                && getJRockitVmArgs().contains("-XXcompressedRefs:enable=true")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isJRockit4GBCompression() {
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:enable=false")) {
+            return false;
+        }
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:size=64GB") ||
+                getJRockitVmArgs().contains("-XXcompressedRefs:size=32GB")) {
+            return false;
+        }
+
+        if (getJRockitVmArgs().contains("-XXcompressedRefs:size=4GB")) {
+            return true;
+        }
+        if (Runtime.getRuntime().maxMemory() <= THREE_GB) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isJRockit() {
+        return System.getProperty("jrockit.version") != null
+               || System.getProperty("java.vm.name", "").toLowerCase().indexOf("jrockit") >= 0;
+    }
+
+    private static boolean isHotspot() {
+        return System.getProperty("java.vm.name", "").toLowerCase().contains("hotspot");
+    }
+
+    private static boolean isHotspotCompressedOops() {
+        String value = getHotSpotVmOptionValue("UseCompressedOops");
+        if (value == null) {
+            return false;
         } else {
-            MINIMUM_OBJECT_SIZE = OBJECT_ALIGNMENT;
+            return Boolean.valueOf(value);
         }
     }
 
-    private JvmInformation() {
+    private static String getHotSpotVmOptionValue(String name) {
+        try {
+            MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+            ObjectName beanName = ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic");
+            Object vmOption = server.invoke(beanName, "getVMOption", new Object[] {name}, new String[] {"java.lang.String"});
+            return (String)((CompositeData)vmOption).get("value");
+        } catch (Throwable t) {
+            return null;
+        }
+    }
 
+    private static String getPlatformMBeanAttribute(String beanName, String attrName) {
+        try {
+            MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+            ObjectName name = ObjectName.getInstance(beanName);
+            Object attr = server.getAttribute(name, attrName).toString();
+            if (attr != null) {
+                return attr.toString();
+            }
+            return null;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static String getJRockitVmArgs() {
+        return getPlatformMBeanAttribute("oracle.jrockit.management:type=PerfCounters", "java.rt.vmArgs");
+    }
+
+    private static boolean isHotspotConcurrentMarkSweepGC() {
+        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
+            if ("ConcurrentMarkSweep".equals(bean.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean is64Bit() {
@@ -99,34 +720,5 @@ public final class JvmInformation {
             return systemProp.contains("_64");
         }
         return false;
-    }
-
-    private static boolean isHotspotCompressedOops() {
-        String value = getVmOptionValue("UseCompressedOops");
-        if (value == null) {
-            return false;
-        } else {
-            return Boolean.valueOf(value);
-        }
-    }
-
-    private static boolean isHotspotConcurrentMarkSweepGC() {
-        for (GarbageCollectorMXBean bean : ManagementFactory.getGarbageCollectorMXBeans()) {
-            if ("ConcurrentMarkSweep".equals(bean.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String getVmOptionValue(String name) {
-        try {
-            MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-            ObjectName beanName = ObjectName.getInstance("com.sun.management:type=HotSpotDiagnostic");
-            Object vmOption = server.invoke(beanName, "getVMOption", new Object[] {name}, new String[] {"java.lang.String"});
-            return (String)((CompositeData)vmOption).get("value");
-        } catch (Throwable t) {
-            return null;
-        }
     }
 }

@@ -21,12 +21,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Stack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.pool.sizeof.filter.PassThroughFilter;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 
-import static net.sf.ehcache.pool.sizeof.JvmInformation.MINIMUM_OBJECT_SIZE;
-import static net.sf.ehcache.pool.sizeof.JvmInformation.OBJECT_ALIGNMENT;
-import static net.sf.ehcache.pool.sizeof.JvmInformation.POINTER_SIZE;
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
 
 /**
  * SizeOf that uses reflection to measure on heap size of object graphs
@@ -35,6 +36,8 @@ import static net.sf.ehcache.pool.sizeof.JvmInformation.POINTER_SIZE;
  * @author Chris Dennis
  */
 public class ReflectionSizeOf extends SizeOf {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionSizeOf.class);
 
     /**
      * Builds a new SizeOf that will not filter fields and will cache reflected fields
@@ -62,6 +65,11 @@ public class ReflectionSizeOf extends SizeOf {
      */
     public ReflectionSizeOf(SizeOfFilter fieldFilter, boolean caching) {
         super(fieldFilter, caching);
+
+        if (!CURRENT_JVM_INFORMATION.supportsReflectionSizeOf()) {
+            LOGGER.warn("ReflectionSizeOf is not always accurate on the JVM (" + CURRENT_JVM_INFORMATION.getJvmDescription() +
+                    ").  Please consider enabling AgentSizeOf.");
+        }
     }
 
     /**
@@ -77,7 +85,7 @@ public class ReflectionSizeOf extends SizeOf {
         if (aClass.isArray()) {
             return guessArraySize(obj);
         } else {
-            long size = PrimitiveType.CLASS.getSize();
+            long size = CURRENT_JVM_INFORMATION.getObjectHeaderSize();
 
             Stack<Class<?>> classStack = new Stack<Class<?>>();
             for (Class<?> klazz = aClass; klazz != null; klazz = klazz.getSuperclass()) {
@@ -155,14 +163,14 @@ public class ReflectionSizeOf extends SizeOf {
                     size += oops * PrimitiveType.getReferenceSize();
                 }
 
-                if ((doubles + words + shorts + bytes + oops) > 0 && (size % POINTER_SIZE) != 0) {
-                    size += JvmInformation.POINTER_SIZE - (size % POINTER_SIZE);
+                if ((doubles + words + shorts + bytes + oops) > 0 && (size % CURRENT_JVM_INFORMATION.getPointerSize()) != 0) {
+                    size += CURRENT_JVM_INFORMATION.getPointerSize() - (size % CURRENT_JVM_INFORMATION.getPointerSize());
                 }
             }
-            if ((size % OBJECT_ALIGNMENT) != 0) {
-                size += OBJECT_ALIGNMENT - (size % OBJECT_ALIGNMENT);
+            if ((size % CURRENT_JVM_INFORMATION.getObjectAlignment()) != 0) {
+                size += CURRENT_JVM_INFORMATION.getObjectAlignment() - (size % CURRENT_JVM_INFORMATION.getObjectAlignment());
             }
-            return Math.max(size, MINIMUM_OBJECT_SIZE);
+            return Math.max(size, CURRENT_JVM_INFORMATION.getMinimumObjectSize());
         }
     }
 
@@ -177,9 +185,9 @@ public class ReflectionSizeOf extends SizeOf {
                 size += length * PrimitiveType.getReferenceSize();
             }
         }
-        if ((size % OBJECT_ALIGNMENT) != 0) {
-            size += OBJECT_ALIGNMENT - (size % OBJECT_ALIGNMENT);
+        if ((size % CURRENT_JVM_INFORMATION.getObjectAlignment()) != 0) {
+            size += CURRENT_JVM_INFORMATION.getObjectAlignment() - (size % CURRENT_JVM_INFORMATION.getObjectAlignment());
         }
-        return Math.max(size, MINIMUM_OBJECT_SIZE);
+        return Math.max(size, CURRENT_JVM_INFORMATION.getMinimumObjectSize());
     }
 }
