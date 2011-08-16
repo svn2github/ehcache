@@ -33,7 +33,10 @@ public interface TierableStore extends Store {
     void fill(Element e);
 
     /**
-     * Whether this tier is pinned
+     * Removes the element if the tier. This method will remove if the element is pinned and present in the store
+     * @param key the key to the element
+     * @return true if an element was removed
+     * @see #remove(Object)
      */
-    boolean isPinned();
+    boolean removeIfStoreNotPinned(Object key);
 }

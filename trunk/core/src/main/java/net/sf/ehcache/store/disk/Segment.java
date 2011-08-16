@@ -128,7 +128,7 @@ public class Segment extends ReentrantReadWriteLock {
         this.cachePinned = determineCachePinned(cacheConfiguration);
     }
 
-    static boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
+    private static boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
         PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
         if (pinningConfiguration == null) {
             return false;

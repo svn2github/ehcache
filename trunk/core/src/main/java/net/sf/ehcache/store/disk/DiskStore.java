@@ -27,6 +27,7 @@ import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
@@ -90,7 +91,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private final Segment[] segments;
     private final int segmentShift;
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
-    private final boolean pinned;
+    private final boolean tierPinned;
 
     private volatile CacheLockProvider lockProvider;
     private volatile Set<Object> keySet;
@@ -111,8 +112,9 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
 
         this.disk = disk;
         this.disk.bind(this);
-        status.set(Status.STATUS_ALIVE);
-        pinned = Segment.determineCachePinned(cacheConfiguration);
+        this.status.set(Status.STATUS_ALIVE);
+        this.tierPinned = cacheConfiguration.getPinningConfiguration() != null &&
+                     cacheConfiguration.getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
     }
 
     /**
@@ -404,6 +406,13 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public void fill(Element e) {
         put(e);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeIfStoreNotPinned(final Object key) {
+        return tierPinned && remove(key) != null;
     }
 
     /**
@@ -703,11 +712,6 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     public boolean containsKey(Object key) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).containsKey(key, hash);
-    }
-
-    @Override
-    public boolean isPinned() {
-        return pinned;
     }
 
     /**

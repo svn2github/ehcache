@@ -183,7 +183,7 @@ public abstract class AbstractStore implements Store {
     /**
      * Default answer, but is wrong. DEV-6023!
      */
-    public boolean isPinned() {
+    public boolean removeIfStoreNotPinned(Object key) {
         // TODO fix this!
         return false;
     }

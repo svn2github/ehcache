@@ -200,8 +200,12 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * {@inheritDoc}
      */
-    public boolean isPinned() {
-        return cachePinned;
+    public boolean removeIfStoreNotPinned(final Object key) {
+        return cache.getCacheConfiguration().getPinningConfiguration() != null
+               && cache.getCacheConfiguration()
+                      .getPinningConfiguration()
+                      .getStore() == PinningConfiguration.Store.LOCALHEAP
+               && remove(key) != null;
     }
 
     /**
