@@ -1645,9 +1645,19 @@ public class CacheConfiguration implements Cloneable {
      */
     List<CacheConfigError> validateCachePools(final Configuration configuration) {
         List<CacheConfigError> errors = new ArrayList<CacheConfigError>();
+
+        if (configuration.isMaxBytesLocalHeapSet()
+            && getMaxEntriesLocalHeap() > 0) {
+            errors.add(new CacheConfigError("MaxElementsInMemory is not compatible with " +
+                                            "MaxBytesLocalHeap set on cache manager", getName()));
+        }
+        if (getMaxBytesLocalHeap() > 0 && getMaxEntriesLocalHeap() > 0) {
+            errors.add(new CacheConfigError("MaxElementsInMemory is not compatible with " +
+                                            "MaxBytesLocalHeap set on cache", getName()));
+        }
         if (isMaxBytesLocalHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
             errors.add(new CacheConfigError("Defines a percentage maxBytesOnHeap value but no CacheManager " +
-                                                    "wide value was configured", getName()));
+                                            "wide value was configured", getName()));
         }
         if (isMaxBytesLocalOffHeapPercentageSet() && !configuration.isMaxBytesLocalOffHeapSet()) {
             errors.add(new CacheConfigError("Defines a percentage maxBytesOffHeap value but no CacheManager " +

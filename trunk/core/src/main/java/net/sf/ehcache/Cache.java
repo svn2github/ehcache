@@ -999,20 +999,6 @@ public class Cache implements Ehcache, StoreListener {
                 throw new IllegalStateException("Cannot initialise the " + configuration.getName()
                         + " cache because its status is not STATUS_UNINITIALISED");
             }
-            // on-heap validation
-            // todo is this really to be supported ? CacheManager less Caches ? Can these then be attached later ?
-            if (getCacheManager() != null
-                && getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()
-                && configuration.getMaxElementsInMemory() > 0) {
-                throw new InvalidConfigurationException(configuration.getName() +
-                                                        ": MaxElementsInMemory is not compatible with " +
-                                                        "MaxBytesLocalHeap set on cache manager");
-            }
-            if (configuration.getMaxBytesLocalHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
-                throw new InvalidConfigurationException(configuration.getName() +
-                                                        ": MaxElementsInMemory is not compatible with " +
-                                                        "MaxBytesLocalHeap set on cache");
-            }
 
             // on-heap pool configuration
             Pool onHeapPool;
