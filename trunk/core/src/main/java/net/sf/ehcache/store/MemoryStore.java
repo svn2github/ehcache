@@ -107,6 +107,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
 
     private volatile CacheLockProvider lockProvider;
+    private final boolean tierPinned;
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -124,6 +125,11 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
 
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
+        this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null
+                     && cache.getCacheConfiguration()
+                            .getPinningConfiguration()
+                            .getStore() == PinningConfiguration.Store.LOCALHEAP;
+
         this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
 
         // create the CHM with initialCapacity sufficient to hold maximumSize
@@ -200,12 +206,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * {@inheritDoc}
      */
-    public boolean removeIfStoreNotPinned(final Object key) {
-        return cache.getCacheConfiguration().getPinningConfiguration() != null
-               && cache.getCacheConfiguration()
-                      .getPinningConfiguration()
-                      .getStore() == PinningConfiguration.Store.LOCALHEAP
-               && remove(key) != null;
+    public boolean removeIfTierNotPinned(final Object key) {
+        return !tierPinned && remove(key) != null;
     }
 
     /**

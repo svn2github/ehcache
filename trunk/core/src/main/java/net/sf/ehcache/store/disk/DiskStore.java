@@ -411,8 +411,8 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
-    public boolean removeIfStoreNotPinned(final Object key) {
-        return tierPinned && remove(key) != null;
+    public boolean removeIfTierNotPinned(final Object key) {
+        return !tierPinned && remove(key) != null;
     }
 
     /**

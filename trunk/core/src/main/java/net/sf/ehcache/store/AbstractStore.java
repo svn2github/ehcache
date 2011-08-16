@@ -180,11 +180,4 @@ public abstract class AbstractStore implements Store {
         return elements;
     }
 
-    /**
-     * Default answer, but is wrong. DEV-6023!
-     */
-    public boolean removeIfStoreNotPinned(Object key) {
-        // TODO fix this!
-        return false;
-    }
 }

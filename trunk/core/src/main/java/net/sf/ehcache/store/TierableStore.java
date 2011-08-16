@@ -38,5 +38,5 @@ public interface TierableStore extends Store {
      * @return true if an element was removed
      * @see #remove(Object)
      */
-    boolean removeIfStoreNotPinned(Object key);
+    boolean removeIfTierNotPinned(Object key);
 }

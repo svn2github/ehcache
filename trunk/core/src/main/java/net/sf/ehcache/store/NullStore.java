@@ -275,4 +275,11 @@ public final class NullStore extends AbstractStore implements TierableStore {
     public void fill(Element e) {
         //no-op
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean removeIfTierNotPinned(final Object key) {
+        return remove(key) != null;
+    }
 }
