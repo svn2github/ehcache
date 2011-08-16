@@ -90,6 +90,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private final Segment[] segments;
     private final int segmentShift;
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
+    private final boolean pinned;
 
     private volatile CacheLockProvider lockProvider;
     private volatile Set<Object> keySet;
@@ -111,6 +112,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.disk = disk;
         this.disk.bind(this);
         status.set(Status.STATUS_ALIVE);
+        pinned = Segment.determineCachePinned(cacheConfiguration);
     }
 
     /**
@@ -701,6 +703,11 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     public boolean containsKey(Object key) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).containsKey(key, hash);
+    }
+
+    @Override
+    public boolean isPinned() {
+        return pinned;
     }
 
     /**
