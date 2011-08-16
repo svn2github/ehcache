@@ -254,7 +254,7 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementEvicted(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        if (cache.getCacheConfiguration().getPinningConfiguration() != null) {
+        if (cache.getCacheConfiguration().getPinningConfiguration() == null) {
             elementsEvictedCounter.incrementAndGet();
             if (hasCacheEventListeners()) {
                 for (ListenerWrapper listenerWrapper : cacheEventListeners) {
