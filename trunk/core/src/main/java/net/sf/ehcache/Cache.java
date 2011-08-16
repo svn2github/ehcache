@@ -1006,12 +1006,12 @@ public class Cache implements Ehcache, StoreListener {
                 && configuration.getMaxElementsInMemory() > 0) {
                 throw new InvalidConfigurationException(configuration.getName() +
                                                         ": MaxElementsInMemory is not compatible with " +
-                                                        "MaxBytesOnHeap set on cache manager");
+                                                        "MaxBytesLocalHeap set on cache manager");
             }
-            if (configuration.getMaxBytesLocalHeap() > 0 && configuration.getMaxEntriesLocalDisk() > 0) {
+            if (configuration.getMaxBytesLocalHeap() > 0 && configuration.getMaxElementsInMemory() > 0) {
                 throw new InvalidConfigurationException(configuration.getName() +
                                                         ": MaxElementsInMemory is not compatible with " +
-                                                        "MaxBytesOnHeap set on cache");
+                                                        "MaxBytesLocalHeap set on cache");
             }
 
             // on-heap pool configuration
