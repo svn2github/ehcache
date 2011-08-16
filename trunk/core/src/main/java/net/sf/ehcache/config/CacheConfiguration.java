@@ -611,6 +611,10 @@ public class CacheConfiguration implements Cloneable {
         }
 
         checkDynamicChange();
+        if (getMaxBytesLocalHeap() > 0) {
+            throw new InvalidConfigurationException("MaxEntriesLocalHeap is not compatible with " +
+                                                    "MaxBytesLocalHeap set on cache");
+        }
         int oldCapacity = this.maxEntriesLocalHeap;
         int newCapacity = (int) maxEntriesInMemory;
         this.maxEntriesLocalHeap = (int) maxEntriesInMemory;
@@ -998,6 +1002,10 @@ public class CacheConfiguration implements Cloneable {
             throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
         }
 
+        if (getMaxBytesLocalDisk() > 0) {
+            throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
+                                                    "MaxBytesLocalDisk set on cache");
+        }
         checkDynamicChange();
         int oldCapacity = this.maxElementsOnDisk;
         int newCapacity = (int) maxEntriesOnDisk;
@@ -1204,6 +1212,10 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalHeap(final Long maxBytesHeap) {
         verifyGreaterThanZero(maxBytesHeap, "maxBytesLocalHeap");
+        if (getMaxEntriesLocalHeap() > 0) {
+            throw new InvalidConfigurationException("MaxEntriesLocalHeap is not compatible with " +
+                                                    "MaxBytesLocalHeap set on cache");
+        }
         if (onHeapPoolUsage != null && onHeapPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch memory pool!");
         }
@@ -1347,6 +1359,10 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxBytesLocalDisk(final Long maxBytesDisk) {
         verifyGreaterThanZero(maxBytesDisk, "maxBytesLocalDisk");
+        if (getMaxEntriesLocalDisk() > 0) {
+            throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
+                                                    "MaxBytesLocalDisk set on cache");
+        }
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch disk pool!");
         }

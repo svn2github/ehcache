@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -165,6 +166,34 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("one"));
         }
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void testLocalHeapCantSwitchToCountBased() {
+        manager.addCache(new Cache(new CacheConfiguration().name("sizeBased").maxBytesLocalHeap(10, MemoryUnit.MEGABYTES)));
+        Cache sizeBased = manager.getCache("sizeBased");
+        sizeBased.getCacheConfiguration().setMaxEntriesLocalHeap(100);
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void testLocalHeapCantSwitchToSizeBased() {
+        manager.addCache(new Cache(new CacheConfiguration().name("countBased").maxEntriesLocalHeap(10)));
+        Cache sizeBased = manager.getCache("countBased");
+        sizeBased.getCacheConfiguration().maxBytesLocalHeap(10, MemoryUnit.MEGABYTES);
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void testLocalDiskCantSwitchToCountBased() {
+        manager.addCache(new Cache(new CacheConfiguration().name("sizeBased").maxBytesLocalDisk(10, MemoryUnit.MEGABYTES)));
+        Cache sizeBased = manager.getCache("sizeBased");
+        sizeBased.getCacheConfiguration().setMaxEntriesLocalDisk(10);
+    }
+
+    @Test(expected = InvalidConfigurationException.class)
+    public void testLocalDiskCantSwitchToSizeBased() {
+        manager.addCache(new Cache(new CacheConfiguration().name("countBased").maxEntriesLocalDisk(10)));
+        Cache sizeBased = manager.getCache("countBased");
+        sizeBased.getCacheConfiguration().maxBytesLocalDisk(10, MemoryUnit.MEGABYTES);
     }
 
     @Test
