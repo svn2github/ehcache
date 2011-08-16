@@ -1475,10 +1475,10 @@ public class CacheConfiguration implements Cloneable {
             });
         }
 
-        if (overflowToOffHeap == null && cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet()) {
+        if (overflowToOffHeap == null && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
             overflowToOffHeap = true;
         }
-        if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+        if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
             overflowToDisk = true;
         }
         freezePoolUsages(cacheManager);

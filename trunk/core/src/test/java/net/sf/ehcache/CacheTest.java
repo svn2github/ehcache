@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.event.CacheEventListener;
@@ -605,6 +606,17 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key2", "value1"));
         assertNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
+    }
+
+    @Test
+    public void testAutoOverflowsToDisk() {
+        manager.addCache(new Cache(new CacheConfiguration("overflow1", 10).maxBytesLocalDisk(10, MemoryUnit.MEGABYTES)));
+        assertThat(manager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));
+
+        CacheManager cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("./temp-tests")).maxBytesLocalDisk(10, MemoryUnit.MEGABYTES));
+        cacheManager.addCache(new Cache(new CacheConfiguration("overflow1", 10)));
+        assertThat(cacheManager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));
+        cacheManager.shutdown();
     }
 
 
