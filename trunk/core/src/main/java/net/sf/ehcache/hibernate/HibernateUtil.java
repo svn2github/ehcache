@@ -48,7 +48,8 @@ public final class HibernateUtil {
      */
     static Configuration loadAndCorrectConfiguration(URL url) {
         Configuration config = ConfigurationFactory.parseConfiguration(url);
-        if (config.getDefaultCacheConfiguration().isTerracottaClustered()) {
+        if (config.getDefaultCacheConfiguration() != null
+            && config.getDefaultCacheConfiguration().isTerracottaClustered()) {
             if (ValueMode.IDENTITY.equals(config.getDefaultCacheConfiguration().getTerracottaConfiguration().getValueMode())) {
                 LOG.warn("The default cache value mode for this Ehcache configuration is \"identity\". This is incompatible with clustered "
                         + "Hibernate caching - the value mode has therefore been switched to \"serialization\"");
