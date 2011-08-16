@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 /**
  * @author Alex Snaps
  */
-public interface StripedReadWriteLock {
+public interface StripedReadWriteLock extends CacheLockProvider {
 
     /**
      * Returns a ReadWriteLock for a particular key
