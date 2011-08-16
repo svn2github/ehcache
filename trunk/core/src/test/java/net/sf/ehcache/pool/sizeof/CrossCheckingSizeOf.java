@@ -39,7 +39,7 @@ public class CrossCheckingSizeOf extends SizeOf {
     } catch (UnsupportedOperationException usoe) {
       System.err.println("Not using UnsafeSizeOf: " + usoe);
     }
-    if(!CURRENT_JVM_INFORMATION.supportsReflectionSizeOf()) {
+    if(CURRENT_JVM_INFORMATION.supportsReflectionSizeOf()) {
         try {
           engines.add(new ReflectionSizeOf());
         } catch (UnsupportedOperationException usoe) {

@@ -54,13 +54,19 @@ public class SizeOfTest extends AbstractSizeOfTest {
       }
     } else {
       if (System.getProperty("sun.arch.data.model").equals("64")) {
-        if (COMPRESSED_OOPS) {
+        if (IS_JROCKIT) {
+          verify64bitJRockit4GBCompressedRefsSizes(sizeOf);
+          assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(144L));
+        } else if (COMPRESSED_OOPS) {
           verify64bitCompressedOopsSizes(sizeOf);
           assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(112L));
         } else {
           verify64bitSizes(sizeOf);
           assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(176L));
         }
+      } else if (IS_JROCKIT) {
+          verify32bitJRockitSizes(sizeOf);
+          assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(144L));
       } else {
         verify32bitSizes(sizeOf);
         assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(104L));
@@ -80,22 +86,39 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.deepSizeOf(list2) > sizeOf.deepSizeOf(list1), is(true));
   }
 
-  private void verify32bitSizes(SizeOf sizeOf) {
+  private void verify32bitJRockitSizes(SizeOf sizeOf) {
     verifyFlyweights(sizeOf);
-    assertThat(sizeOf.sizeOf(new Object()), is(8L));
-    assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
+    assertThat(sizeOf.sizeOf(new Object()), is(16L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(24L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
-    assertThat(sizeOf.sizeOf(1000), is(16L));
-    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
-    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(24L));
-    assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
-    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(32L));
-    assertThat(sizeOf.sizeOf(new int[] { }), is(16L));
-    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(32L));
-    assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(16L));
-    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(24L));
-    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(32L));
+    assertThat(sizeOf.sizeOf(1000), is(24L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(24L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(40L));
+    assertThat(sizeOf.sizeOf(new Object[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(40L));
+    assertThat(sizeOf.sizeOf(new int[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(40L));
+    assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(24L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(40L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(56L));
   }
+
+  private void verify32bitSizes(SizeOf sizeOf) {
+      verifyFlyweights(sizeOf);
+      assertThat(sizeOf.sizeOf(new Object()), is(8L));
+      assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
+      assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
+      assertThat(sizeOf.sizeOf(1000), is(16L));
+      assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
+      assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(24L));
+      assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
+      assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(32L));
+      assertThat(sizeOf.sizeOf(new int[] { }), is(16L));
+      assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(32L));
+      assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(16L));
+      assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(24L));
+      assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(32L));
+    }
 
   private void verify64bitSizes(SizeOf sizeOf) {
     verifyFlyweights(sizeOf);
@@ -114,22 +137,39 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(64L));
   }
 
-  private void verify64bitCompressedOopsSizes(SizeOf sizeOf) {
+  private void verify64bitJRockit4GBCompressedRefsSizes(SizeOf sizeOf) {
     verifyFlyweights(sizeOf);
     assertThat(sizeOf.sizeOf(new Object()), is(16L));
-    assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(24L));
     assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
-    assertThat(sizeOf.sizeOf(1000), is(16L));
-    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
-    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(32L));
-    assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
-    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(32L));
-    assertThat(sizeOf.sizeOf(new int[] { }), is(16L));
-    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(32L));
+    assertThat(sizeOf.sizeOf(1000), is(24L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(24L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(40L));
+    assertThat(sizeOf.sizeOf(new Object[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(40L));
+    assertThat(sizeOf.sizeOf(new int[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(40L));
     assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(24L));
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(40L));
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(56L));
   }
+
+  private void verify64bitCompressedOopsSizes(SizeOf sizeOf) {
+      verifyFlyweights(sizeOf);
+      assertThat(sizeOf.sizeOf(new Object()), is(16L));
+      assertThat(sizeOf.sizeOf(new Integer(1)), is(16L));
+      assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
+      assertThat(sizeOf.sizeOf(1000), is(16L));
+      assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(16L));
+      assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(32L));
+      assertThat(sizeOf.sizeOf(new Object[] { }), is(16L));
+      assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(32L));
+      assertThat(sizeOf.sizeOf(new int[] { }), is(16L));
+      assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(32L));
+      assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(24L));
+      assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(40L));
+      assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(56L));
+    }
 
   private void verifyFlyweights(SizeOf sizeOf) {
       assertThat(sizeOf.sizeOf(1), equalTo(0L));

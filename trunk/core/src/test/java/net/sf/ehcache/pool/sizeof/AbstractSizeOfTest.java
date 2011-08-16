@@ -12,6 +12,10 @@ abstract class AbstractSizeOfTest {
 
   protected static final boolean COMPRESSED_OOPS;
   protected static final boolean HOTSPOT_CMS;
+  protected static final boolean IS_HOTSPOT;
+  protected static final boolean IS_JROCKIT;
+  protected static final boolean IS_64_BIT;
+
   static {
     String value = getVmOptionValue("UseCompressedOops");
     if (value == null) {
@@ -22,6 +26,13 @@ abstract class AbstractSizeOfTest {
     }
 
     HOTSPOT_CMS = CURRENT_JVM_INFORMATION.getMinimumObjectSize() > CURRENT_JVM_INFORMATION.getObjectAlignment();
+
+    IS_64_BIT = System.getProperty("sun.arch.data.model").equals("64");
+
+    IS_HOTSPOT = System.getProperty("java.vm.name", "").toLowerCase().contains("hotspot");
+
+    IS_JROCKIT = System.getProperty("jrockit.version") != null ||
+        System.getProperty("java.vm.name", "").toLowerCase().indexOf("jrockit") >= 0;
   }
 
   private static String getVmOptionValue(String name) {

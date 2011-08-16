@@ -26,7 +26,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
   public void testAnnotationFiltering() throws Exception {
     SizeOf sizeOf = new CrossCheckingSizeOf(new AnnotationSizeOfFilter());
     if (System.getProperty("java.version").startsWith("1.5")) {
-      if (System.getProperty("sun.arch.data.model").equals("64")) {
+      if (IS_64_BIT) {
         System.out.println("asserting 1.5 / 64-bit values");
         assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(192L));
         assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(200L));
@@ -38,7 +38,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
         assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(184L));
       }
     } else {
-      if (System.getProperty("sun.arch.data.model").equals("64")) {
+      if (IS_64_BIT) {
         if (COMPRESSED_OOPS) {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / compressed OOPs / Hotspot CMS values");
@@ -51,6 +51,11 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
             assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(176L));
             assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(192L));
           }
+        } else if (IS_JROCKIT) {
+            System.out.println("asserting JRockit 1.6+ / 64-bit / 4GB compressed refs values");
+            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(184L));
+            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(184L));
+            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(208L));
         } else {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / plain OOPs / Hotspot CMS values");
@@ -64,6 +69,11 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
             assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(224L));
           }
         }
+      } else if (IS_JROCKIT) {
+        System.out.println("asserting JRockit 1.6+ / 32-bit values");
+        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(184L));
+        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(184L));
+        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(208L));
       } else {
         System.out.println("asserting 1.6+ / 32-bit values");
         assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(168L));
@@ -77,7 +87,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
   public void testResourceFiltering() throws Exception {
     SizeOf sizeOf = new CrossCheckingSizeOf(new ResourceSizeOfFilter(FilteredSizeOfTest.class.getClassLoader().getResource("sizeof.filter.fields")));
     if (System.getProperty("java.version").startsWith("1.5")) {
-      if (System.getProperty("sun.arch.data.model").equals("64")) {
+      if (IS_64_BIT) {
         System.out.println("asserting 1.5 / 64-bit values");
         assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(192L));
         assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(200L));
@@ -89,7 +99,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
         assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(184L));
       }
     } else {
-      if (System.getProperty("sun.arch.data.model").equals("64")) {
+      if (IS_64_BIT) {
         if (COMPRESSED_OOPS) {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / compressed OOPs / Hotspot CMS values");
@@ -102,6 +112,11 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
             assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(176L));
             assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(200L));
           }
+        } else if (IS_JROCKIT) {
+            System.out.println("asserting JRockit 1.6+ / 64-bit / 4GB compressed refs values");
+            assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(184L));
+            assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(184L));
+            assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(208L));
         } else {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / plain OOPs / Hotspot CMS values");
@@ -115,12 +130,17 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
             assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(224L));
           }
         }
+      } else if (IS_JROCKIT) {
+        System.out.println("asserting JRockit 1.6+ / 32-bit values");
+        assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(184L));
+        assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(184L));
+        assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(208L));
       } else {
-        System.out.println("asserting 1.6+ / 32-bit values");
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(184L));
-      }
+          System.out.println("asserting 1.6+ / 32-bit values");
+          assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
+          assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(168L));
+          assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(184L));
+        }
     }
   }
 
