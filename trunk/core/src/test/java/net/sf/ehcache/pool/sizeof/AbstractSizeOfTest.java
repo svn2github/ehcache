@@ -14,6 +14,7 @@ abstract class AbstractSizeOfTest {
   protected static final boolean HOTSPOT_CMS;
   protected static final boolean IS_HOTSPOT;
   protected static final boolean IS_JROCKIT;
+  protected static final boolean IS_IBM;
   protected static final boolean IS_64_BIT;
 
   static {
@@ -33,6 +34,9 @@ abstract class AbstractSizeOfTest {
 
     IS_JROCKIT = System.getProperty("jrockit.version") != null ||
         System.getProperty("java.vm.name", "").toLowerCase().indexOf("jrockit") >= 0;
+
+    IS_IBM = System.getProperty("java.vm.name", "").contains("IBM") &&
+        System.getProperty("java.vm.vendor").contains("IBM");
   }
 
   private static String getVmOptionValue(String name) {

@@ -1,11 +1,9 @@
 package net.sf.ehcache.pool.sizeof;
 
-import net.sf.ehcache.pool.sizeof.JvmInformation;
-import net.sf.ehcache.pool.sizeof.SizeOf;
-
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -19,11 +17,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Alex Snaps
@@ -57,6 +53,9 @@ public class SizeOfTest extends AbstractSizeOfTest {
         if (IS_JROCKIT) {
           verify64bitJRockit4GBCompressedRefsSizes(sizeOf);
           assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(144L));
+        } else if (IS_IBM) {
+            verify64bitIBMSizes(sizeOf);
+            assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(224L));
         } else if (COMPRESSED_OOPS) {
           verify64bitCompressedOopsSizes(sizeOf);
           assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(112L));
@@ -152,6 +151,23 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(24L));
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(40L));
     assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(56L));
+  }
+
+  private void verify64bitIBMSizes(SizeOf sizeOf) {
+    verifyFlyweights(sizeOf);
+    assertThat(sizeOf.sizeOf(new Object()), is(24L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(32L));
+    assertThat(sizeOf.sizeOf(new Integer(1)), is(sizeOf.deepSizeOf(new Integer(1))));
+    assertThat(sizeOf.sizeOf(1000), is(32L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(false)), is(32L));
+    assertThat(sizeOf.deepSizeOf(new SomeClass(true)), is(56L));
+    assertThat(sizeOf.sizeOf(new Object[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new Object[] { new Object(), new Object(), new Object(), new Object() }), is(56L));
+    assertThat(sizeOf.sizeOf(new int[] { }), is(24L));
+    assertThat(sizeOf.sizeOf(new int[] { 987654, 876543, 765432, 654321 }), is(40L));
+    assertThat(sizeOf.deepSizeOf(new Pair(null, null)), is(40L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), null)), is(64L));
+    assertThat(sizeOf.deepSizeOf(new Pair(new Object(), new Object())), is(88L));
   }
 
   private void verify64bitCompressedOopsSizes(SizeOf sizeOf) {

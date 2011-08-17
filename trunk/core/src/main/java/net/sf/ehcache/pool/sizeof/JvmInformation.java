@@ -18,6 +18,7 @@ package net.sf.ehcache.pool.sizeof;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.util.Map.Entry;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -390,6 +391,68 @@ public enum JvmInformation {
     },
 
     /**
+     * Represents 64-Bit IBM JVM (with reference compression)
+     */
+    IBM_64_BIT_WITH_COMPRESSED_REFS {
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 16;
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "IBM 64-Bit JVM with Compressed References";
+        }
+    },
+
+    /**
+     * Represents 64-Bit IBM JVM (with no reference compression)
+     */
+    IBM_64_BIT {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 24;
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "IBM 64-Bit JVM (with no reference compression)";
+        }
+    },
+
+    /**
      * Represents Generic 32-bit
      */
     UNKNOWN_32_BIT  {
@@ -533,7 +596,9 @@ public enum JvmInformation {
         if (jif == null) {
             jif = detectJRockit();
         }
-
+        if (jif == null) {
+            jif = detectIBM();
+        }
 
         if (jif == null && is64Bit()) {
             // unknown 64-bit JVMs
@@ -583,6 +648,22 @@ public enum JvmInformation {
                 }
             } else {
                 jif = JROCKIT_32_BIT;
+            }
+        }
+
+        return jif;
+    }
+
+    private static JvmInformation detectIBM() {
+        JvmInformation jif = null;
+
+        if (isIBM()) {
+            if (is64Bit()) {
+                if (isIBMCompressedRefs()) {
+                    jif = IBM_64_BIT_WITH_COMPRESSED_REFS;
+                } else {
+                    jif = IBM_64_BIT;
+                }
             }
         }
 
@@ -658,6 +739,14 @@ public enum JvmInformation {
         return System.getProperty("java.vm.name", "").toLowerCase().contains("hotspot");
     }
 
+    private static boolean isIBM() {
+        return System.getProperty("java.vm.name", "").contains("IBM") && System.getProperty("java.vm.vendor").contains("IBM");
+    }
+
+    private static boolean isIBMCompressedRefs() {
+        return System.getProperty("com.ibm.oti.vm.bootstrap.library.path", "").contains("compressedrefs");
+    }
+
     private static boolean isHotspotCompressedOops() {
         String value = getHotSpotVmOptionValue("UseCompressedOops");
         if (value == null) {
@@ -720,5 +809,15 @@ public enum JvmInformation {
             return systemProp.contains("_64");
         }
         return false;
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println("===SYS PROPS===");
+        for(Entry prop: System.getProperties().entrySet()) {
+            System.out.println(prop.getKey() + " = " + prop.getValue());
+        }
+
+        System.out.println("\n\nDetected JVM: " + getJvmInformation().getJvmDescription());
     }
 }
