@@ -4,32 +4,16 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.2</version>
+    <version>2.3-SNAPSHOT</version>
     <name>Ehcache Parent</name>
     <description><![CDATA[Ehcache is a widely used, pure Java, in-process, distributed cache]]>
     </description>
-    <url>http://ehcache.sf.net</url>
+    <url>http://ehcache.org</url>
     <inceptionYear>2003</inceptionYear>
     <organization>
         <name>Terracotta, Inc.</name>
-        <url>www.terracotta.org</url>
+        <url>http://www.terracotta.org</url>
     </organization>
-
-    <!--Not using aggregate building -->
-<!--
-    <modules>
-        <module>core</module>
-        <module>debugger</module>
-        <module>server</module>
-        <module>standalone-server</module>
-        <module>console</module>
-    <module>jmsreplication</module>
-    <module>jgroupsreplication</module>
-    <module>openjpa</module>
-    <module>terracotta</module>
-    <module>googleappengine</module>
-  </modules>
--->
 
     <dependencyManagement>
         <dependencies>
@@ -119,12 +103,6 @@
                 </exclusions>
                 <scope>provided</scope>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>javax.management</groupId>-->
-            <!--<artifactId>jmx</artifactId>-->
-            <!--<version>1.3</version>-->
-            <!--<scope>system</scope>-->
-            <!--</dependency>-->
 
             <!-- Test scope -->
             <dependency>
@@ -261,31 +239,11 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- Clover. This seems to quite broken
-             <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-clover-plugin</artifactId>
-             <version>2.3</version>
-             <executions>
-             <execution>
-             <phase>compile</phase>
-             <goals>
-             <goal>check</goal>
-             </goals>
-             </execution>
-             </executions>
-             <configuration>
-             <cloverDatabase>${basedir}/target/log/mycoverage.db</cloverDatabase>
-             <cloverOutputDirectory>${basedir}/clover_html</cloverOutputDirectory>
-             <targetPercentage>85.9%</targetPercentage>
-             <licenseFile>/Users/gluck/work/ehcache/tools/clover.license</licenseFile>
-             </configuration>
-             </plugin>   -->
 
               <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.3.1</version>
+                <version>2.3.2</version>
                 <configuration>
                   <findbugsXmlOutput>true</findbugsXmlOutput>
                   <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
@@ -457,39 +415,6 @@
             </properties>
         </contributor>
     </contributors>
-
-    <!-- Repos other than central not allowed to be defined for code released on central-->
-    <!--<repositories>-->
-    <!--<repository>-->
-    <!--<id>codehaus-repository</id>-->
-    <!--<name>Codehaus Repository</name>-->
-    <!--<url>http://repository.codehaus.org</url>-->
-    <!--</repository>-->
-    <!--</repositories>-->
-
-    <!--Snapshot repos not allowed in releases hosted at central repo-->
-    <!--<pluginRepositories>-->
-    <!--<pluginRepository>-->
-    <!--<id>codehaus-plugin-snapshot-repository</id>-->
-    <!--<name>Codehaus Plugin Snapshot Repository</name>-->
-    <!--<url>http://snapshots.repository.codehaus.org</url>-->
-    <!--<snapshots>-->
-    <!--<enabled>true</enabled>-->
-    <!--</snapshots>-->
-    <!--</pluginRepository>-->
-    <!--</pluginRepositories>-->
-
-    <!--Snapshot repos not allowed in releases hosted at central repo-->
-    <!--<pluginRepositories>-->
-    <!--<pluginRepository>-->
-    <!--<id>apache.snapshots</id>-->
-    <!--<name>Apache Snapshot Repository</name>-->
-    <!--<url>http://people.apache.org/repo/m2-snapshot-repository</url>-->
-    <!--<releases>-->
-    <!--<enabled>false</enabled>-->
-    <!--</releases>-->
-    <!--</pluginRepository>-->
-    <!--</pluginRepositories>-->
 
     <licenses>
         <license>
