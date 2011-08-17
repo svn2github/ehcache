@@ -529,21 +529,6 @@ public class RegisteredEventListeners {
     }
 
     /**
-     * Checks whether the element can be safely evicted.
-     * Always returns false for pinned elements
-     * @param e The element we want to evict
-     * @return true, if it can be evicted, false otherwise
-     * @see net.sf.ehcache.store.FrontEndCacheTier#isEvictionCandidate(net.sf.ehcache.Element)
-     */
-    public boolean isEvictionCandidate(final Element e) {
-        if (e.isPinned()) {
-            return false;
-        }
-        Store store = helper.getStore();
-        return !(store instanceof FrontEndCacheTier) || ((FrontEndCacheTier)store).isEvictionCandidate(e);
-    }
-
-    /**
      * Returns the {@link FrontEndCacheTier} this RegisteredEventListeners is backing, or null if the cache isn't backed by one
      * @return the Cache's FrontEndCacheTier
      */
