@@ -41,7 +41,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
 
     SizeOf sizeOf = new CrossCheckingSizeOf();
     if (System.getProperty("java.version").startsWith("1.5")) {
-      if (System.getProperty("sun.arch.data.model").equals("64")) {
+      if (IS_64_BIT) {
         verify64bitSizes(sizeOf);
         assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(136L));
       } else {
@@ -49,7 +49,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
         assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(80L));
       }
     } else {
-      if (System.getProperty("sun.arch.data.model").equals("64")) {
+      if (IS_64_BIT) {
         if (IS_JROCKIT) {
           verify64bitJRockit4GBCompressedRefsSizes(sizeOf);
           assertThat(sizeOf.deepSizeOf(new ReentrantReadWriteLock()), is(144L));
