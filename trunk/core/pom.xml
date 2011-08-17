@@ -32,7 +32,6 @@
     <testResources>src/test/resources</testResources>
     <name>ehcache</name>
     <skipCheckstyle>false</skipCheckstyle>
-    <test.tmp.dir>${project.build.directory}</test.tmp.dir>
     <build.timestamp>${maven.build.timestamp}</build.timestamp>
     <tests.supplemental.args></tests.supplemental.args>
     <surefire.version>2.9</surefire.version>
