@@ -32,9 +32,10 @@
     <testResources>src/test/resources</testResources>
     <name>ehcache</name>
     <skipCheckstyle>false</skipCheckstyle>
-    <test.tmp.dir>${project.build.directory}/tmp</test.tmp.dir>
+    <test.tmp.dir>${project.build.directory}</test.tmp.dir>
     <build.timestamp>${maven.build.timestamp}</build.timestamp>
     <tests.supplemental.args></tests.supplemental.args>
+    <surefire.version>2.9</surefire.version>
   </properties>
 
   <dependencies>
@@ -208,7 +209,9 @@
 
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
@@ -335,42 +338,10 @@
         </executions>
       </plugin>
 
-      <!--Obsoleted by pdf plugin -->
-      <!--<plugin> -->
-      <!--<groupId>org.apache.maven.doxia</groupId> -->
-      <!--<artifactId>doxia-maven-plugin</artifactId> -->
-      <!--<version>1.1.3</version> -->
-      <!--<executions> -->
-      <!--<execution> -->
-      <!--<phase>pre-site</phase> -->
-      <!--<goals> -->
-      <!--<goal>render-books</goal> -->
-      <!--</goals> -->
-      <!--</execution> -->
-      <!--</executions> -->
-      <!--<configuration> -->
-
-      <!--&lt;!&ndash;PDF&ndash;&gt; -->
-      <!--<books> -->
-      <!--<book> -->
-      <!--<directory>src/site/apt</directory> -->
-      <!--<descriptor>src/site/apt/book.xml</descriptor> -->
-      <!--<formats> -->
-      <!--<format> -->
-      <!--<id>pdf</id> -->
-      <!--</format> -->
-      <!--<format> -->
-      <!--<id>xhtml</id> -->
-      <!--</format> -->
-      <!--</formats> -->
-      <!--</book> -->
-      <!--</books> -->
-      <!--</configuration> -->
-      <!--</plugin> -->
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pdf-plugin</artifactId>
+        <version>1.1</version>
         <executions>
           <execution>
             <id>pdf</id>
@@ -386,139 +357,16 @@
         </executions>
       </plugin>
 
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.3</version>
-        <executions>
-          <execution>
-            <id>rmic</id>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <rmic base="${project.build.outputDirectory}"
-                  includes="**/RMICachePeer.class" compiler="forking">
-                </rmic>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-
-          <!--<execution> -->
-          <!--<id>singlepageguide</id> -->
-          <!--<phase>pre-site</phase> -->
-          <!--<configuration> -->
-          <!--<tasks> -->
-          <!--<ant target="singlepageguide"/> -->
-          <!--</tasks> -->
-          <!--</configuration> -->
-          <!--<goals> -->
-          <!--<goal>run</goal> -->
-          <!--</goals> -->
-          <!--</execution> -->
-
-          <execution>
-            <id>show_toc</id>
-            <phase>pre-site</phase>
-            <configuration>
-              <tasks>
-                <ant target="show_toc" />
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-
-
-          <execution>
-            <id>hide_toc</id>
-            <phase>site</phase>
-            <configuration>
-              <tasks>
-                <ant target="hide_toc" />
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-
-          <!--<execution> -->
-          <!--<id>unhide_embedded_html</id> -->
-          <!--<phase>site</phase> -->
-          <!--<configuration> -->
-          <!--<tasks> -->
-          <!--<ant target="unhide_html"/> -->
-          <!--</tasks> -->
-          <!--</configuration> -->
-          <!--<goals> -->
-          <!--<goal>run</goal> -->
-          <!--</goals> -->
-          <!--</execution> -->
-
-          <execution>
-            <id>copy_files</id>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <ant target="copy_files" />
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-
-          <execution>
-            <id>copy_image_files</id>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <ant target="copy_image_files" />
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-
-          <execution>
-            <id>create-test-tmp-dir</id>
-            <phase>process-test-resources</phase>
-            <configuration>
-              <tasks>
-                <mkdir dir="${test.tmp.dir}" />
-              </tasks>
-            </configuration>
-          </execution>
-
-        </executions>
-      </plugin>
-
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <version>2.0.3</version>
-        <!--<executions> -->
-        <!--<execution> -->
-        <!--<id>attach-sources</id> -->
-        <!--<phase>package</phase> -->
-        <!--<goals> -->
-        <!--<goal>jar</goal> -->
-        <!--</goals> -->
-        <!--</execution> -->
-        <!--</executions> -->
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.6</version>
+        <version>${surefire.version}</version>
         <configuration>
           <includes>
             <include>**/*Test.java</include>
@@ -539,7 +387,7 @@
             <net.sf.ehcache.skipUpdateCheck>true</net.sf.ehcache.skipUpdateCheck>
             <java.awt.headless>true</java.awt.headless>
             <net.sf.ehcache.speedAdjustmentFactor>${net.sf.ehcache.speedAdjustmentFactor}</net.sf.ehcache.speedAdjustmentFactor>
-            <java.io.tmpdir>${test.tmp.dir}</java.io.tmpdir>
+            <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
           </systemPropertyVariables>
           <classpathDependencyExcludes>
             <classpathDependencyExclude>net.sf.ehcache:sizeof-agent</classpathDependencyExclude>
@@ -620,6 +468,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xml-maven-plugin</artifactId>
+        <version>1.0</version>
         <executions>
           <execution>
             <goals>
@@ -688,10 +537,110 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rmic-maven-plugin</artifactId>
+        <version>1.1</version>
+        <executions>
+          <execution>
+            <id>rmi-compilation</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>rmic</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/RMICachePeer.class</include>
+              </includes>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>      
     </plugins>
   </build>
 
   <profiles>
+    <profile>
+      <id>site</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.3</version>
+            <executions>
+              <!--execution>
+                <id>rmic</id>
+                <phase>compile</phase>
+                <configuration>
+                  <tasks>
+                    <rmic base="${project.build.outputDirectory}"
+                      includes="**/RMICachePeer.class" compiler="forking">
+                    </rmic>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution-->
+
+              <execution>
+                <id>show_toc</id>
+                <phase>pre-site</phase>
+                <configuration>
+                  <tasks>
+                    <ant target="show_toc" />
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+
+              <execution>
+                <id>hide_toc</id>
+                <phase>site</phase>
+                <configuration>
+                  <tasks>
+                    <ant target="hide_toc" />
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+
+              <execution>
+                <id>copy_files</id>
+                <phase>compile</phase>
+                <configuration>
+                  <tasks>
+                    <ant target="copy_files" />
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+
+              <execution>
+                <id>copy_image_files</id>
+                <phase>compile</phase>
+                <configuration>
+                  <tasks>
+                    <ant target="copy_image_files" />
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>   
+        </plugins>        
+      </build>
+    </profile>
     <profile>
       <id>staging</id>
       <build>
@@ -723,7 +672,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.6</version>
+            <version>${surefire.version}</version>
             <configuration>
               <argLine>${tests.supplemental.args} -Xmx512m</argLine>
             </configuration>
@@ -803,7 +752,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.6</version>
+            <version>${surefire.version}</version>
             <configuration>
               <includes>
                 <include>**/nonstop/*Test.java</include>
