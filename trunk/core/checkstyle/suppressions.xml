@@ -88,4 +88,6 @@
 
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
+
+    <suppress checks="SuperClone" files="ClassLoaderAwareCache.java"/>
 </suppressions>
