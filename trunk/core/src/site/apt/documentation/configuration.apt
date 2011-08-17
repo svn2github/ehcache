@@ -98,7 +98,8 @@
 </ehcache>
 ---
 
-	If you specify a CacheManager wide size, you can also use percentages at the cache level. e.g maxBytesLocalHeap="20%". A warning is issued if more than 100% is allocated across all caches.
+	If you specify a CacheManager wide size, you can also use percentages at the cache level. e.g maxBytesLocalHeap="20%".
+	A warning is issued if more than 100% is allocated across all caches.
 
 	For completeness we also add cache pinning and rules for cache-level configuration to override CacheManager level configuration.
 
@@ -198,6 +199,11 @@
 
 	Overallocations can only be detected at configuration time. For this reason we do not permit the use of max element count
 	(e.g. maxEntriesLocalHeap) configuration with CacheManager storage pools.
+
+	If CacheManager level storage pools are not used, then caches can use either size or count based configuration on a per
+	cache basis. Moreover, caches must explicity configure either maxEntriesLocalHeap or maxBytesLocalHeap.
+
+
 
 
 *** Eviction when using CacheManager level storage
