@@ -18,7 +18,6 @@ package net.sf.ehcache.pool.sizeof;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.util.Map.Entry;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -580,8 +579,7 @@ public enum JvmInformation {
     }
 
     /**
-     * A human-readable description of the JVM and its relevant enabled options.
-     * @return
+     * A human-readable description of the JVM and its relevant enabled options.Os
      */
     public abstract String getJvmDescription();
 
