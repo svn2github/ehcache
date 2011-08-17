@@ -67,6 +67,20 @@ public class CacheConfigurationTest {
         }
     }
 
+    @Test
+    public void testCanSetBothMaxWhenCacheNotRunning() {
+        CacheConfiguration configuration = new CacheConfiguration();
+        try {
+            configuration.setMaxEntriesLocalHeap(10);
+            configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES);
+            configuration.setMaxEntriesLocalDisk(10);
+            configuration.maxBytesLocalDisk(10, MemoryUnit.MEGABYTES);
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+            fail("Shouldn't have thrown an exception");
+        }
+    }
+
     private String getDiskStorePath(final Cache cache) {
         try {
             Field declaredField = Cache.class.getDeclaredField("diskStorePath");

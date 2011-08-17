@@ -611,7 +611,7 @@ public class CacheConfiguration implements Cloneable {
         }
 
         checkDynamicChange();
-        if (onHeapPoolUsage != PoolUsage.None) {
+        if (onHeapPoolUsage != null && onHeapPoolUsage != PoolUsage.None) {
             throw new InvalidConfigurationException("MaxEntriesLocalHeap is not compatible with " +
                                                     "MaxBytesLocalHeap set on cache");
         }
@@ -1002,7 +1002,7 @@ public class CacheConfiguration implements Cloneable {
             throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
         }
 
-        if (onDiskPoolUsage != PoolUsage.None) {
+        if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
             throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
                                                     "MaxBytesLocalDisk set on cache");
         }
