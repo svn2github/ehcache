@@ -810,14 +810,4 @@ public enum JvmInformation {
         }
         return false;
     }
-
-    public static void main(String[] args) {
-
-        System.out.println("===SYS PROPS===");
-        for(Entry prop: System.getProperties().entrySet()) {
-            System.out.println(prop.getKey() + " = " + prop.getValue());
-        }
-
-        System.out.println("\n\nDetected JVM: " + getJvmInformation().getJvmDescription());
-    }
 }
