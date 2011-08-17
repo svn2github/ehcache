@@ -608,4 +608,17 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             return false;
         }
     }
+
+    /**
+     * Removes a key from the cache (not the authority!)
+     * @param key the key to remove
+     * @param honorPinning whether to honor the pinning on the cache
+     * @return true if it got removed from the cache, false otherwise
+     */
+    public boolean removeFromCache(final Object key, final boolean honorPinning) {
+        if (honorPinning) {
+            throw new UnsupportedOperationException("Someone might want to implement this!");
+        }
+        return cache.remove(key) != null;
+    }
 }

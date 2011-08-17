@@ -24,6 +24,7 @@ import net.sf.ehcache.Element;
 import org.junit.After;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -512,7 +513,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * trigger an eviction notification.
      */
     @Test
-    @Ignore("See DEV-6023")
     public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
         String sampleCache1 = "sampleCache1";
         cache = manager.getCache(sampleCache1);
@@ -526,9 +526,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
-
+        cache.flush();
+        // I'll go to hell for this!
+        Thread.sleep(1000);
+        assertThat(cache.getMemoryStoreSize(), is(0L));
         List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(1, evictionNotifications.size());
+        assertEquals(11, evictionNotifications.size());
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(0, expiryNotifications.size());

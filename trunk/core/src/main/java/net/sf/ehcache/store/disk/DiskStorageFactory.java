@@ -24,6 +24,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
+import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
@@ -512,6 +513,11 @@ public class DiskStorageFactory {
             } catch (Throwable e) {
                 LOG.error("Disk Write of " + placeholder.getKey() + " failed (it will be evicted instead): ", e);
                 store.evict(placeholder.getKey(), placeholder);
+                FrontEndCacheTier frontEndCacheTier = eventService.getFrontEndCacheTier();
+                if (frontEndCacheTier != null) {
+                    frontEndCacheTier.removeFromCache(placeholder.getKey(), false);
+                    eventService.notifyElementEvicted(placeholder.getElement(), false);
+                }
                 return null;
             }
         }

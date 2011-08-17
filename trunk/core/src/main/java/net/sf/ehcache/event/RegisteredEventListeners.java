@@ -544,6 +544,15 @@ public class RegisteredEventListeners {
     }
 
     /**
+     * Returns the {@link FrontEndCacheTier} this RegisteredEventListeners is backing, or null if the cache isn't backed by one
+     * @return the Cache's FrontEndCacheTier
+     */
+    public FrontEndCacheTier getFrontEndCacheTier() {
+        Store store = helper.getStore();
+        return store instanceof FrontEndCacheTier ? (FrontEndCacheTier) store : null;
+    }
+
+    /**
      * Combine a Listener and its NotificationScope.  Equality and hashcode are based purely on the listener.
      * This implies that the same listener cannot be added to the set of registered listeners more than
      * once with different notification scopes.
