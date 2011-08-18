@@ -24,6 +24,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.StripedReadWriteLock;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -35,6 +36,7 @@ import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.StripedReadWriteLockProvider;
 import net.sf.ehcache.store.TierableStore;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
@@ -47,12 +49,14 @@ import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -63,7 +67,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public final class DiskStore extends AbstractStore implements TierableStore, PoolableStore {
+public final class DiskStore extends AbstractStore implements TierableStore, PoolableStore, StripedReadWriteLockProvider {
 
     /**
      * If the CacheManager needs to resolve a conflict with the disk path, it will create a
@@ -187,6 +191,13 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     public boolean cleanUpFailedMarker(final Serializable key) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).cleanUpFailedMarker(key, hash);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public StripedReadWriteLock createStripedReadWriteLock() {
+        return new DiskStoreStripedReadWriteLock();
     }
 
     /**
@@ -1119,5 +1130,48 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
             }
         }
 
+    }
+
+    /**
+     * StripedReadWriteLock impl.
+     */
+    private final class DiskStoreStripedReadWriteLock implements StripedReadWriteLock {
+
+        private final net.sf.ehcache.concurrent.ReadWriteLockSync[] locks =
+            new net.sf.ehcache.concurrent.ReadWriteLockSync[DEFAULT_SEGMENT_COUNT];
+
+        private DiskStoreStripedReadWriteLock() {
+            for (int i = 0; i < locks.length; i++) {
+                locks[i] = new net.sf.ehcache.concurrent.ReadWriteLockSync();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public ReadWriteLock getLockForKey(final Object key) {
+            return getSyncForKey(key).getReadWriteLock();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public List<net.sf.ehcache.concurrent.ReadWriteLockSync> getAllSyncs() {
+            ArrayList<net.sf.ehcache.concurrent.ReadWriteLockSync> syncs =
+                new ArrayList<net.sf.ehcache.concurrent.ReadWriteLockSync>(locks.length);
+            Collections.addAll(syncs, locks);
+            return syncs;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public net.sf.ehcache.concurrent.ReadWriteLockSync getSyncForKey(final Object key) {
+            return locks[indexFor(key)];
+        }
+
+        private int indexFor(final Object key) {
+            return hash(key.hashCode()) >>> segmentShift;
+        }
     }
 }
