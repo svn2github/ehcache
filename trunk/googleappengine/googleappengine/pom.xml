@@ -195,7 +195,9 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
                 <configuration>
                     <filters>
                         <filter>src/assemble/filter.properties</filter>
@@ -205,15 +207,6 @@
                     </descriptors>
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>assemble</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>assembly</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
