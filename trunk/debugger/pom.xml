@@ -60,15 +60,6 @@
                     </descriptors>
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>assemble</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
