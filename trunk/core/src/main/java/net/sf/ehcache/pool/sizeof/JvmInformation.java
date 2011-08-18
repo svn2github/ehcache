@@ -452,6 +452,39 @@ public enum JvmInformation {
     },
 
     /**
+     * Represents IBM 32-bit
+     */
+    IBM_32_BIT  {
+
+        /* default values are for this vm */
+
+        @Override
+        public String getJvmDescription() {
+            return "IBM 32-Bit JVM";
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getObjectHeaderSize() {
+            return 16;
+        }
+
+        @Override
+        public boolean supportsReflectionSizeOf() {
+            return false;
+        }
+    },
+
+    /**
      * Represents Generic 32-bit
      */
     UNKNOWN_32_BIT  {
@@ -662,6 +695,8 @@ public enum JvmInformation {
                 } else {
                     jif = IBM_64_BIT;
                 }
+            } else {
+                jif = IBM_32_BIT;
             }
         }
 

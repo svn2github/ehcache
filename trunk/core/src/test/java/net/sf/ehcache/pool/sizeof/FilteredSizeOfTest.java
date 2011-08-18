@@ -74,6 +74,11 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
             assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(224L));
           }
         }
+      } else if (IS_IBM) {
+          System.out.println("asserting IBM 1.6+ / 32-bit values");
+          assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(168L));
+          assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(176L));
+          assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(192L));
       } else if (IS_JROCKIT) {
         System.out.println("asserting JRockit 1.6+ / 32-bit values");
         assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(184L));
@@ -140,6 +145,11 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
             assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(224L));
           }
         }
+      } else if (IS_IBM) {
+          System.out.println("asserting IBM 1.6+ / 32-bit values");
+          assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
+          assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(176L));
+          assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(192L));
       } else if (IS_JROCKIT) {
         System.out.println("asserting JRockit 1.6+ / 32-bit values");
         assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(184L));
