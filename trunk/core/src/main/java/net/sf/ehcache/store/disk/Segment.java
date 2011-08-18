@@ -33,6 +33,7 @@ import net.sf.ehcache.util.ratestatistics.RateStatistic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -886,6 +887,51 @@ public class Segment extends ReentrantReadWriteLock {
     @Override
     public String toString() {
         return super.toString() + " count: " + count;
+    }
+
+    /**
+     * Will check whether a Placeholder that failed to flush to disk is lying around
+     * If so, it'll try to evict it
+     * @param key the key
+     * @param hash the key's hash
+     * @return true if a failed marker was or is still there, false otherwise
+     */
+    boolean cleanUpFailedMarker(final Serializable key, final int hash) {
+        boolean readLocked = false;
+        if (!writeLock().isHeldByCurrentThread()) {
+            readLock().lock();
+            readLocked = true;
+        }
+        boolean failedMarker = false;
+        DiskSubstitute substitute = null;
+        try {
+            if (count != 0) {
+                HashEntry e = getFirst(hash);
+                while (e != null) {
+                    if (e.hash == hash && key.equals(e.key)) {
+                        substitute = e.element;
+                        if (substitute instanceof Placeholder) {
+                            failedMarker = ((Placeholder)substitute).hasFailedToFlush();
+                            break;
+                        }
+                    }
+                    e = e.next;
+                }
+            }
+        } finally {
+            if (readLocked) {
+                readLock().unlock();
+            }
+        }
+        boolean writeLocked = failedMarker && writeLock().tryLock();
+        if (writeLocked) {
+            try {
+                evict(key, hash, substitute);
+            } catch (Exception e) {
+                writeLock().unlock();
+            }
+        }
+        return failedMarker;
     }
 
     /**

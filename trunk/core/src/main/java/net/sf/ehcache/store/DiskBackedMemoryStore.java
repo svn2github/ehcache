@@ -22,6 +22,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.store.disk.DiskStore;
 
+import java.io.Serializable;
+
 /**
  * A tiered store using an in-memory cache of elements stored on disk.
  *
@@ -66,5 +68,13 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
      */
     public Object getMBean() {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean notifyEvictionFromCache(final Serializable key) {
+        return authority.cleanUpFailedMarker(key);
     }
 }

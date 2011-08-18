@@ -533,7 +533,12 @@ public class RegisteredEventListeners {
      * @return the Cache's FrontEndCacheTier
      */
     public FrontEndCacheTier getFrontEndCacheTier() {
-        Store store = helper.getStore();
+        Store store;
+        try {
+            store = helper.getStore();
+        } catch (IllegalStateException e) {
+            return null;
+        }
         return store instanceof FrontEndCacheTier ? (FrontEndCacheTier) store : null;
     }
 

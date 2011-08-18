@@ -27,6 +27,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
@@ -736,7 +737,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return true if succeeded, false otherwise
      */
     protected boolean evict(final Element element) {
-        return remove(element.getObjectKey()) != null;
+        final Element remove = remove(element.getObjectKey());
+        RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
+        final FrontEndCacheTier frontEndCacheTier = cacheEventNotificationService.getFrontEndCacheTier();
+        if (remove != null && frontEndCacheTier != null && frontEndCacheTier.notifyEvictionFromCache(remove.getKey())) {
+            cacheEventNotificationService.notifyElementEvicted(remove, false);
+        }
+        return remove != null;
     }
 
     /**

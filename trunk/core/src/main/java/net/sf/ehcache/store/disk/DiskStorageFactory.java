@@ -511,12 +511,14 @@ public class DiskStorageFactory {
                     return null;
                 }
             } catch (Throwable e) {
-                LOG.error("Disk Write of " + placeholder.getKey() + " failed (it will be evicted instead): ", e);
-                store.evict(placeholder.getKey(), placeholder);
+                LOG.error("Disk Write of " + placeholder.getKey() + " failed: ", e);
+                placeholder.setFailedToFlush(true);
                 FrontEndCacheTier frontEndCacheTier = eventService.getFrontEndCacheTier();
                 if (frontEndCacheTier != null) {
-                    frontEndCacheTier.removeFromCache(placeholder.getKey(), false);
-                    eventService.notifyElementEvicted(placeholder.getElement(), false);
+                    if (!frontEndCacheTier.isCached(placeholder.getKey())) {
+                        eventService.notifyElementEvicted(placeholder.getElement(), false);
+                        store.evict(placeholder.getKey(), placeholder);
+                    }
                 }
                 return null;
             }
@@ -637,6 +639,8 @@ public class DiskStorageFactory {
         private final Object key;
         private final Element element;
 
+        private volatile boolean failedToFlush;
+
         /**
          * Create a Placeholder wrapping the given element and key.
          *
@@ -648,6 +652,17 @@ public class DiskStorageFactory {
             this.element = element;
         }
 
+        /**
+         * Whether flushing this to disk ever failed
+         * @return true if failed, otherwise false
+         */
+        boolean hasFailedToFlush() {
+            return failedToFlush;
+        }
+
+        private void setFailedToFlush(final boolean failedToFlush) {
+            this.failedToFlush = failedToFlush;
+        }
 
         /**
          * {@inheritDoc}
@@ -1159,7 +1174,7 @@ public class DiskStorageFactory {
             try {
                 for (Object key : store.keySet()) {
                     Object o = store.unretrievedGet(key);
-                    if (o instanceof Placeholder) {
+                    if (o instanceof Placeholder && !((Placeholder)o).failedToFlush) {
                         o = new PersistentDiskWriteTask((Placeholder) o).call();
                         if (o == null) {
                             o = store.unretrievedGet(key);

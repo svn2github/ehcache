@@ -17,6 +17,7 @@
 package net.sf.ehcache.store;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -610,15 +611,20 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     }
 
     /**
-     * Removes a key from the cache (not the authority!)
-     * @param key the key to remove
-     * @param honorPinning whether to honor the pinning on the cache
-     * @return true if it got removed from the cache, false otherwise
+     * Checks whether the key is held in the fronting cache
+     * @param key the key to check for
+     * @return true if cached, false otherwise
      */
-    public boolean removeFromCache(final Object key, final boolean honorPinning) {
-        if (honorPinning) {
-            throw new UnsupportedOperationException("Someone might want to implement this!");
-        }
-        return cache.remove(key) != null;
+    public boolean isCached(final Object key) {
+        return cache.containsKey(key);
+    }
+
+    /**
+     * Whether evicting this from the cache should fire when evicting from upper tiers
+     * @param key the key to the element
+     * @return true if we should fire, otherwise false
+     */
+    public boolean notifyEvictionFromCache(final Serializable key) {
+        return false;
     }
 }

@@ -43,6 +43,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -175,6 +176,17 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public static String generateUniqueDirectory() {
         return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
+    }
+
+    /**
+     * Will check whether a Placeholder that failed to flush to disk is lying around
+     * If so, it'll try to evict it
+     * @param key the key
+     * @return true if a failed marker was or is still there, false otherwise
+     */
+    public boolean cleanUpFailedMarker(final Serializable key) {
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).cleanUpFailedMarker(key, hash);
     }
 
     /**

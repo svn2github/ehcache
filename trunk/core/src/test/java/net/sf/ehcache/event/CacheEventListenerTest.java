@@ -516,6 +516,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         String sampleCache1 = "sampleCache1";
         cache = manager.getCache(sampleCache1);
         cache.removeAll();
+        RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
+        long elementsEvictedCounter = cacheEventNotificationService.getElementsEvictedCounter();
 
         //should trigger a removal notification because it is not Serializable when it is evicted
         cache.put(new Element(12 + "", new Object()));
@@ -525,12 +527,13 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
-        cache.flush();
+        assertThat(cache.getMemoryStoreSize(), is(10L));
         // I'll go to hell for this!
         Thread.sleep(1000);
-        assertThat(cache.getMemoryStoreSize(), is(0L));
+        assertThat(cache.getMemoryStoreSize(), is(10L));
         List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(11, evictionNotifications.size());
+        assertEquals(cacheEventNotificationService.getElementsEvictedCounter(), elementsEvictedCounter + 1);
+        assertEquals(evictionNotifications.size(), 1);
 
         List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
         assertEquals(0, expiryNotifications.size());
