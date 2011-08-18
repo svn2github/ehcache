@@ -898,7 +898,7 @@ public class Segment extends ReentrantReadWriteLock {
      */
     boolean cleanUpFailedMarker(final Serializable key, final int hash) {
         boolean readLocked = false;
-        if (!writeLock().isHeldByCurrentThread()) {
+        if (!isWriteLockedByCurrentThread()) {
             readLock().lock();
             readLocked = true;
         }

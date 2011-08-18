@@ -189,7 +189,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
     }
 
   private void verifyFlyweights(SizeOf sizeOf) {
-      assertThat(sizeOf.sizeOf(TimeUnit.SECOND), equalTo(0L));
+      assertThat(sizeOf.sizeOf(TimeUnit.SECONDS), equalTo(0L));
       assertThat(sizeOf.sizeOf(Object.class), equalTo(0L));
       assertThat(sizeOf.sizeOf(1), equalTo(0L));
       assertThat(sizeOf.sizeOf(BigInteger.ZERO), is(0L));
