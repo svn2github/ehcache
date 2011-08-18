@@ -44,6 +44,13 @@ enum FlyweightType {
         @Override
         boolean isShared(final Object obj) { return true; }
     },
+    /**
+     * java.lang.Class
+     */
+    CLASS(Class.class) {
+        @Override
+        boolean isShared(final Object obj) { return true; }
+    },
     // XXX There is no nullipotent way of determining the interned status of a string
     // There are numerous String constants within the JDK (see list at http://download.oracle.com/javase/7/docs/api/constant-values.html),
     // but enumerating all of them would lead to lots of == tests.

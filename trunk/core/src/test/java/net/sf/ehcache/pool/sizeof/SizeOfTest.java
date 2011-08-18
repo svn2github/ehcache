@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.net.Proxy;
+import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -188,6 +189,8 @@ public class SizeOfTest extends AbstractSizeOfTest {
     }
 
   private void verifyFlyweights(SizeOf sizeOf) {
+      assertThat(sizeOf.sizeOf(TimeUnit.SECOND), equalTo(0L));
+      assertThat(sizeOf.sizeOf(Object.class), equalTo(0L));
       assertThat(sizeOf.sizeOf(1), equalTo(0L));
       assertThat(sizeOf.sizeOf(BigInteger.ZERO), is(0L));
       assertThat(sizeOf.sizeOf(BigDecimal.ZERO), is(0L));
