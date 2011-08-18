@@ -314,6 +314,7 @@ public interface Ehcache extends Cloneable {
      *
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * @deprecated versions since 2.1 do not return duplicates
      */
     List getKeysNoDuplicateCheck() throws IllegalStateException;
 
