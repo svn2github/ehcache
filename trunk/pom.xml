@@ -486,6 +486,7 @@
       <id>terracotta-snapshots</id>
       <name>Terracotta Snapshots Repository</name>
       <url>${terracotta-snapshots-url}</url>
+	  <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
 
 
