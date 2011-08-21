@@ -1493,9 +1493,9 @@ public class CacheConfiguration implements Cloneable {
             onHeapPoolUsage = CacheConfiguration.PoolUsage.None;
         }
 
-        if (getMaxBytesLocalHeap() > 0) {
+        if (getMaxBytesLocalOffHeap() > 0) {
             offHeapPoolUsage = CacheConfiguration.PoolUsage.Cache;
-        } else if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
+        } else if (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet()) {
             offHeapPoolUsage = CacheConfiguration.PoolUsage.CacheManager;
         } else {
             offHeapPoolUsage = CacheConfiguration.PoolUsage.None;
