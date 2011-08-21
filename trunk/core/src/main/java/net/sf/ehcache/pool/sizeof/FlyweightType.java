@@ -219,7 +219,7 @@ enum FlyweightType {
      * @return the FlyweightType, or null
      */
     static FlyweightType getFlyweightType(final Class<?> aClazz) {
-        if (aClazz.isEnum()) {
+        if (aClazz.isEnum() || (aClazz.getSuperclass() != null && aClazz.getSuperclass().isEnum())) {
             return ENUM;
         } else {
             FlyweightType flyweightType = TYPE_MAPPINGS.get(aClazz);
