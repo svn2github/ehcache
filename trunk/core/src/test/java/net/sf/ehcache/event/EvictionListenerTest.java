@@ -77,8 +77,58 @@ public class EvictionListenerTest {
 
     @Test
     public void testGetsAllEvictedKeys() throws InterruptedException {
+        CountingCacheEventListener countingCacheEventListener = accessCache(cache);
+        Thread.sleep(2000);
+        assertThat(cache.getMemoryStoreSize(), is(100L));
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
+        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
+            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
+        }
+        assertThat(cache.getSize(), not(is(0)));
+        assertThat(cacheElementsEvicted.size() + cache.getSize(), is(THREADS * PER_THREAD));
+    }
+
+    @Test
+    public void testGetsAllEvictedKeysWithoutDiskSizeBased() throws InterruptedException {
+        CacheConfiguration configuration = new CacheConfiguration()
+            .name("noDisk")
+            .maxBytesLocalHeap(100, MemoryUnit.KILOBYTES);
+        final Cache noDiskCache = new Cache(configuration);
+        cacheManager.addCache(noDiskCache);
+        CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
+        assertThat(noDiskCache.getMemoryStoreSize() <= noDiskCache.getCacheConfiguration().getMaxBytesLocalHeap(), is(true));
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
+        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
+            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
+        }
+        assertThat(noDiskCache.getSize(), not(is(0)));
+        assertThat(cacheElementsEvicted.size(), not(is(0)));
+        System.out.println(noDiskCache.getSize());
+        assertThat(cacheElementsEvicted.size() + noDiskCache.getSize(), is(THREADS * PER_THREAD));
+    }
+
+    @Test
+    public void testGetsAllEvictedKeysWithoutDiskEntryBased() throws InterruptedException {
+        CacheConfiguration configuration = new CacheConfiguration()
+            .name("noDiskEntry")
+            .maxEntriesLocalHeap(100);
+        final Cache noDiskCache = new Cache(configuration);
+        cacheManager.addCache(noDiskCache);
+        CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
+        assertThat(noDiskCache.getMemoryStoreSize(), is(100L));
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
+        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
+            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
+        }
+        assertThat(noDiskCache.getSize(), not(is(0)));
+        assertThat(cacheElementsEvicted.size(), not(is(0)));
+        System.out.println(noDiskCache.getSize());
+        assertThat(cacheElementsEvicted.size() + noDiskCache.getSize(), is(THREADS * PER_THREAD));
+    }
+
+    private CountingCacheEventListener accessCache(final Cache cacheUT) throws InterruptedException {
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
-        cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
+        cacheUT.getCacheEventNotificationService().registerListener(countingCacheEventListener);
         Thread[] threads = new Thread[THREADS];
         final AtomicInteger counter = new AtomicInteger();
         for (int i = 0; i < threads.length; i++) {
@@ -89,8 +139,8 @@ public class EvictionListenerTest {
                 @Override
                 public void run() {
                     for (int j = index * PER_THREAD; j < (index + 1) * PER_THREAD; j++) {
-                        cache.get("key" + (1000 + (j % 10)));
-                        cache.put(new Element("key" + j, UUID.randomUUID().toString()));
+                        cacheUT.get("key" + (1000 + (j % 10)));
+                        cacheUT.put(new Element("key" + j, UUID.randomUUID().toString()));
                     }
                 }
             };
@@ -99,14 +149,7 @@ public class EvictionListenerTest {
         for (Thread thread : threads) {
             thread.join();
         }
-        Thread.sleep(2000);
-        assertThat(cache.getMemoryStoreSize(), is(100L));
-        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
-        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
-            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
-        }
-        assertThat(cache.getSize(), not(is(0)));
-        assertThat(cacheElementsEvicted.size() + cache.getSize(), is(THREADS * PER_THREAD));
+        return countingCacheEventListener;
     }
 
     @After
