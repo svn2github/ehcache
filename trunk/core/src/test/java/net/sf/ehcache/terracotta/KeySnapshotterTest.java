@@ -94,12 +94,14 @@ public class KeySnapshotterTest {
         final CyclicBarrier barrier = new CyclicBarrier(2);
         final Set mockedSet = mock(Set.class);
         final AtomicLong counter = new AtomicLong(0);
+        final int maxElementsToReturn = 100000;
         when(mockedSet.iterator()).thenAnswer(new Answer<Iterator>() {
+
             public Iterator answer(final InvocationOnMock invocationOnMock) throws Throwable {
                 return new Iterator<Object>() {
 
                     public boolean hasNext() {
-                        return counter.get() < 100000;
+                        return counter.get() < maxElementsToReturn;
                     }
 
                     public Object next() {
@@ -120,7 +122,9 @@ public class KeySnapshotterTest {
         });
         barrier.await();
         snapshotter.dispose(true);
-        assertThat("We managed to get to a " + counter.get() + " keys written out", counter.get() < 1000, is(true));
+
+        assertThat("We managed to get to a " + counter.get() + " keys written out, should _NEVER_ be " + maxElementsToReturn,
+            counter.get() < 3000, is(true));
         final int elementsRead = rotatingSnapshotFile.readAll().size();
         assertThat("Should be only a couple: " + elementsRead, elementsRead < 1000, is(true));
     }
