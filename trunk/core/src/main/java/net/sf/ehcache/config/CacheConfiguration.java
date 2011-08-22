@@ -208,7 +208,7 @@ public class CacheConfiguration implements Cloneable {
      * <p/>
      * <code>0</code> translates to no-limit.
      */
-    protected volatile int maxEntriesLocalHeap;
+    protected volatile Integer maxEntriesLocalHeap;
 
     /**
      * the maximum objects to be held in the {@link net.sf.ehcache.store.disk.DiskStore}.
@@ -615,7 +615,7 @@ public class CacheConfiguration implements Cloneable {
             throw new InvalidConfigurationException("MaxEntriesLocalHeap is not compatible with " +
                                                     "MaxBytesLocalHeap set on cache");
         }
-        int oldCapacity = this.maxEntriesLocalHeap;
+        int oldCapacity = maxEntriesLocalHeap == null ? 0 : maxEntriesLocalHeap;
         int newCapacity = (int) maxEntriesInMemory;
         this.maxEntriesLocalHeap = (int) maxEntriesInMemory;
         fireMemoryCapacityChanged(oldCapacity, newCapacity);
@@ -1640,6 +1640,11 @@ public class CacheConfiguration implements Cloneable {
 
         final Collection<ConfigError> errors = new ArrayList<ConfigError>();
 
+        if (maxEntriesLocalHeap == null && !configuration.isMaxBytesLocalHeapSet() && maxBytesLocalHeap == null) {
+            errors.add(new CacheConfigError("If your CacheManager has no maxBytesLocalHeap set, you need to either set " +
+                                            "maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level", getName()));
+        }
+
         if (isTerracottaClustered()) {
             validateTerracottaConfig(configuration, errors);
         }
@@ -1716,7 +1721,7 @@ public class CacheConfiguration implements Cloneable {
      * @return true if maxEntries set, false otherwise
      */
     public boolean isCountBasedTuned() {
-        return maxEntriesLocalHeap > 0 || maxElementsOnDisk > 0;
+        return (maxEntriesLocalHeap != null && maxEntriesLocalHeap > 0) || maxElementsOnDisk > 0;
     }
 
 
@@ -2094,7 +2099,7 @@ public class CacheConfiguration implements Cloneable {
      */
     @Deprecated
     public int getMaxElementsInMemory() {
-        return maxEntriesLocalHeap;
+        return (int)getMaxEntriesLocalHeap();
     }
 
     /**
@@ -2123,7 +2128,7 @@ public class CacheConfiguration implements Cloneable {
      * Configured maximum number of entries for the local memory heap.
      */
     public long getMaxEntriesLocalHeap() {
-        return maxEntriesLocalHeap;
+        return maxEntriesLocalHeap == null ? 0 : maxEntriesLocalHeap;
     }
 
     /**

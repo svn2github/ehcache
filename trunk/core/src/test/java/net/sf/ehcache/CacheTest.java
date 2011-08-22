@@ -197,6 +197,18 @@ public class CacheTest extends AbstractCacheTest {
         sizeBased.getCacheConfiguration().maxBytesLocalDisk(10, MemoryUnit.MEGABYTES);
     }
 
+    @Test(expected = InvalidConfigurationException.class)
+    public void testRequiresAtLeastOneSizeLocalHeap() {
+        assertThat(manager.getConfiguration().isMaxBytesLocalHeapSet(), is(false));
+        manager.addCache(new Cache(new CacheConfiguration().name("noLimit")));
+    }
+
+    @Test
+    public void testCanBeExplicitlyUnboundLocalHeap() {
+        assertThat(manager.getConfiguration().isMaxBytesLocalHeapSet(), is(false));
+        manager.addCache(new Cache(new CacheConfiguration().name("noLimit").maxEntriesLocalHeap(0)));
+    }
+
     @Test
     public void testAdjustsPoolSizeDynamically() throws Exception {
         Configuration configuration = new Configuration();
