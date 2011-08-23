@@ -1,6 +1,5 @@
 package net.sf.ehcache.pool.sizeof;
 
-import net.sf.ehcache.pool.sizeof.ObjectGraphWalker;
 import net.sf.ehcache.pool.sizeof.filter.PassThroughFilter;
 
 import org.junit.Test;
@@ -16,6 +15,8 @@ import static org.junit.Assert.assertThat;
  * @author Alex Snaps
  */
 public class ObjectGraphWalkerTest {
+
+  private final static int MAX_SIZEOF_DEPTH = 1000;
 
   @Test
   public void testWalksAGraph() {
@@ -42,9 +43,9 @@ public class ObjectGraphWalkerTest {
 
     String javaVersion = System.getProperty("java.version");
     if (javaVersion.startsWith("1.5")) {
-      assertThat(walker.walk(new ReentrantReadWriteLock()), is(4L));
+      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new ReentrantReadWriteLock()), is(4L));
     } else if (javaVersion.startsWith("1.6") || javaVersion.startsWith("1.7")) {
-      assertThat(walker.walk(new ReentrantReadWriteLock()), is(5L));
+      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new ReentrantReadWriteLock()), is(5L));
       assertThat(map.remove("java.util.concurrent.locks.ReentrantReadWriteLock$Sync$ThreadLocalHoldCounter"), is(1L));
     } else {
       throw new AssertionError("Unexpected Java Version : " + javaVersion);
@@ -56,9 +57,9 @@ public class ObjectGraphWalkerTest {
     assertThat(map.isEmpty(), is(true));
 
     if (javaVersion.startsWith("1.5")) {
-      assertThat(walker.walk(new SomeInnerClass()), is(14L));
+      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new SomeInnerClass()), is(14L));
     } else if (javaVersion.startsWith("1.6") || javaVersion.startsWith("1.7")) {
-      assertThat(walker.walk(new SomeInnerClass()), is(15L));
+      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new SomeInnerClass()), is(15L));
       assertThat(map.remove("java.util.concurrent.locks.ReentrantReadWriteLock$Sync$ThreadLocalHoldCounter"), is(1L));
     } else {
       throw new AssertionError("Unexpected Java Version : " + javaVersion);
@@ -75,8 +76,8 @@ public class ObjectGraphWalkerTest {
     assertThat(map.remove(int[].class.getName()), is(1L));
     assertThat(map.isEmpty(), is(true));
 
-    assertThat(walker.walk((Object) null), is(0L));
-    assertThat(walker.walk(), is(0L));
+    assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, (Object) null), is(0L));
+    assertThat(walker.walk(MAX_SIZEOF_DEPTH, false), is(0L));
   }
 
   public class SomeInnerClass {

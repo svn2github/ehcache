@@ -226,6 +226,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public boolean hasAbortedSizeOf() {
+        return underlyingCache.hasAbortedSizeOf();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void clearStatistics() {
         underlyingCache.clearStatistics();
     }

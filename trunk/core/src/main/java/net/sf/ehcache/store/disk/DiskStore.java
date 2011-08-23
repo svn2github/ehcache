@@ -29,6 +29,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
@@ -104,22 +105,24 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private volatile PoolAccessor onDiskPoolAccessor;
 
 
-    private DiskStore(DiskStorageFactory disk, CacheConfiguration cacheConfiguration, Pool onHeapPool, Pool onDiskPool) {
+    private DiskStore(DiskStorageFactory disk, Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
-        this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this);
+        this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this,
+            SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+            SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this, new DiskSizeOfEngine());
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
-                    disk, cacheConfiguration, onHeapPoolAccessor, onDiskPoolAccessor);
+                    disk, cache.getCacheConfiguration(), onHeapPoolAccessor, onDiskPoolAccessor);
         }
 
         this.disk = disk;
         this.disk.bind(this);
         this.status.set(Status.STATUS_ALIVE);
-        this.tierPinned = cacheConfiguration.getPinningConfiguration() != null &&
-                     cacheConfiguration.getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
+        this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
+                     cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
     }
 
     /**
@@ -155,7 +158,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public static DiskStore create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
         DiskStorageFactory disk = new DiskStorageFactory(cache, diskStorePath, cache.getCacheEventNotificationService());
-        DiskStore store = new DiskStore(disk, cache.getCacheConfiguration(), onHeapPool, onDiskPool);
+        DiskStore store = new DiskStore(disk, cache, onHeapPool, onDiskPool);
         cache.getCacheConfiguration().addConfigurationListener(new CacheConfigurationListenerAdapter(disk, onDiskPool));
         return store;
     }

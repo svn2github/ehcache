@@ -195,6 +195,13 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
+    public boolean hasAbortedSizeOf() {
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().hasAbortedSizeOf();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Status getStatus() {
         return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getStatus();
     }

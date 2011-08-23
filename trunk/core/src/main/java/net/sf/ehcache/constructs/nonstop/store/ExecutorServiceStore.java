@@ -710,6 +710,23 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean hasAbortedSizeOf() {
+        boolean rv;
+        try {
+            rv = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().hasAbortedSizeOf();
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().hasAbortedSizeOf();
+        }
+        return rv;
+    }
+
+    /**
      * {@inheritDoc}.
      */
     public Status getStatus() {

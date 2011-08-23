@@ -54,9 +54,11 @@ public interface Pool<T> {
      * Return a PoolAccessor whose consumption is tracked by this pool, using a default SizeOf engine.
      *
      * @param store the store which will use the created accessor.
+     * @param maxDepth maximum depth of the object graph to traverse
+     * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
-    PoolAccessor<T> createPoolAccessor(T store);
+    public PoolAccessor<T> createPoolAccessor(T store, int maxDepth, boolean abortWhenMaxDepthExceeded);
 
     /**
      * Register an accessor implementation with this pool.

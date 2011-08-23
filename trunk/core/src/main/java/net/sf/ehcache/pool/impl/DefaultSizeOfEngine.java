@@ -64,11 +64,17 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
     }
 
     private final SizeOf sizeOf;
+    private final int maxDepth;
+    private final boolean abortWhenMaxDepthExceeded;
 
     /**
      * Creates a default size of engine using the best available sizing algorithm.
+     * @param maxDepth the max object graph that will be traversed.
+     * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
      */
-    public DefaultSizeOfEngine() {
+    public DefaultSizeOfEngine(int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        this.maxDepth = maxDepth;
+        this.abortWhenMaxDepthExceeded = abortWhenMaxDepthExceeded;
         SizeOf bestSizeOf;
         try {
             bestSizeOf = new AgentSizeOf(DEFAULT_FILTER);
@@ -88,6 +94,19 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
         }
 
         this.sizeOf = bestSizeOf;
+    }
+
+    private DefaultSizeOfEngine(DefaultSizeOfEngine defaultSizeOfEngine, int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        this.sizeOf = defaultSizeOfEngine.sizeOf;
+        this.maxDepth = maxDepth;
+        this.abortWhenMaxDepthExceeded = abortWhenMaxDepthExceeded;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SizeOfEngine copyWith(int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        return new DefaultSizeOfEngine(this, maxDepth, abortWhenMaxDepthExceeded);
     }
 
     private static SizeOfFilter getUserFilter() {
@@ -124,7 +143,7 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
      * {@inheritDoc}
      */
     public long sizeOf(final Object key, final Object value, final Object container) {
-        long size = sizeOf.deepSizeOf(key, value, container);
+        long size = sizeOf.deepSizeOf(maxDepth, abortWhenMaxDepthExceeded, key, value, container);
         LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size});
         return size;
     }

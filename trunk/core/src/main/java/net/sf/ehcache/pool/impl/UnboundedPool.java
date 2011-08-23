@@ -23,7 +23,6 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolableStore;
-import net.sf.ehcache.pool.Role;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -62,7 +61,7 @@ public class UnboundedPool implements Pool<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor createPoolAccessor(PoolableStore store) {
+    public PoolAccessor<PoolableStore> createPoolAccessor(PoolableStore store, int maxDepth, boolean abortWhenMaxDepthExceeded) {
         return new UnboundedPoolAccessor();
     }
 
@@ -126,24 +125,10 @@ public class UnboundedPool implements Pool<PoolableStore> {
         /**
          * {@inheritDoc}
          */
-        public long delete(Object key, Object value, Object container) {
-            return 0L;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
         public long delete(long sizeOf) {
             return 0L;
         }
         
-        /**
-         * {@inheritDoc}
-         */
-        public long replace(Role role, Object current, Object replacement, boolean force) {
-            return 0L;
-        }
-
         /**
          * {@inheritDoc}
          */
@@ -170,12 +155,24 @@ public class UnboundedPool implements Pool<PoolableStore> {
         public void clear() {
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public Object getStore() {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void setMaxSize(final long newValue) {
+        }
 
+        /**
+         * {@inheritDoc}
+         */
+        public boolean hasAbortedSizeOf() {
+            return false;
         }
     }
 }

@@ -22,6 +22,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
@@ -72,6 +73,10 @@ public class ConfigurationElement extends SimpleNodeElement {
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
         if (diskStoreConfiguration != null) {
             addChildElement(new DiskStoreConfigurationElement(this, diskStoreConfiguration));
+        }
+        SizeOfPolicyConfiguration sizeOfPolicyConfiguration = configuration.getSizeOfPolicyConfiguration();
+        if (sizeOfPolicyConfiguration != null) {
+            addChildElement(new SizeOfPolicyConfigurationElement(this, sizeOfPolicyConfiguration));
         }
         FactoryConfiguration transactionManagerLookupConfiguration = configuration.getTransactionManagerLookupConfiguration();
         if (transactionManagerLookupConfiguration != null

@@ -60,6 +60,7 @@ public interface PoolAccessor<T> {
      * @param key the key of the element
      * @param value the value of the element
      * @param container the element-container object
+     * @param force true if the pool should accept replacing the element, even if it's out of resources
      * @return the change in size of the pool.
      */
     long replace(long currentSize, Object key, Object value, Object container, boolean force);
@@ -90,7 +91,16 @@ public interface PoolAccessor<T> {
 
     /**
      * Sets the max size for this pool
+     *
      * @param newValue the value in bytes
      */
     void setMaxSize(long newValue);
+
+    /**
+     * Check if the store may contain elements which the SizeOf engine could not fully size.
+     *
+     * @return true if the store may contain partially sized objects
+     */
+    boolean hasAbortedSizeOf();
+
 }

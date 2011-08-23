@@ -40,6 +40,7 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
@@ -1689,7 +1690,16 @@ public class CacheManager {
                     exception);
             }
         } else {
-            return new DefaultSizeOfEngine();
+            SizeOfPolicyConfiguration sizeOfPolicyConfiguration = null;
+            if (cache != null) {
+                sizeOfPolicyConfiguration = cache.getCacheConfiguration().getSizeOfPolicyConfiguration();
+            }
+            if (sizeOfPolicyConfiguration == null) {
+                sizeOfPolicyConfiguration = getConfiguration().getSizeOfPolicyConfiguration();
+            }
+            return new DefaultSizeOfEngine(
+                sizeOfPolicyConfiguration.getMaxDepth(),
+                sizeOfPolicyConfiguration.getMaxDepthExceededBehavior().equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
         }
     }
 

@@ -62,6 +62,7 @@
 
     <suppress checks="MagicNumber" files="JvmInformation.java" />
     <suppress checks="IllegalImport" files="UnsafeSizeOf.java" />
+    <suppress checks="MutableExceptionCheck" files="MaxDepthExceededException.java"/>
 
     <!-- Candidates for refactoring -->
     <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>

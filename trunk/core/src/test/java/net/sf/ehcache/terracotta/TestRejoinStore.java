@@ -200,6 +200,11 @@ public class TestRejoinStore implements TerracottaStore {
         return 0;
     }
 
+    public boolean hasAbortedSizeOf() {
+        alwaysCalledMethod();
+        return false;
+    }
+
     public Element getQuiet(Object key) {
         alwaysCalledMethod();
         return map.get(key);

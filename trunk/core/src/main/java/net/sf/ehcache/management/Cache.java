@@ -123,7 +123,14 @@ public class Cache implements CacheMBean, Serializable {
     public boolean isTerracottaClustered() {
         return cache.getCacheConfiguration().isTerracottaClustered();
     }
-    
+
+    /**
+     * May the cache contain elements which the SizeOf engine could not fully size?
+     */
+    public boolean hasAbortedSizeOf() {
+        return cache.hasAbortedSizeOf();
+    }
+
     /**
      * Gets the JMX read-only CacheConfiguration
      */

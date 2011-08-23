@@ -362,6 +362,15 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * <p>
      * Throws {@link NonStopCacheException}
      */
+    public boolean hasAbortedSizeOf() {
+        throw new NonStopCacheException("hasAbortedSizeOf timed out");
+    }
+
+    /**
+     * {@inheritDoc}.
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public Status getStatus() {
         throw new NonStopCacheException("getStatus timed out");
     }

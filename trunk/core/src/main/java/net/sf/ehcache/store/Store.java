@@ -229,6 +229,14 @@ public interface Store {
     long getOnDiskSizeInBytes();
 
     /**
+     * Checks if the cache may contain elements for which the SizeOf engine gave up and only
+     * partially calculated the size.
+     *
+     * @return true if at least one partially sized element may be in the cache
+     */
+    boolean hasAbortedSizeOf();
+
+    /**
      * Returns the cache status.
      */
     Status getStatus();

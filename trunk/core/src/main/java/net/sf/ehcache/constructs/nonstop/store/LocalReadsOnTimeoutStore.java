@@ -377,6 +377,15 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * This is a no-op
+     */
+    public boolean hasAbortedSizeOf() {
+        return false;
+    }
+
+    /**
      * {@inheritDoc}.
      * <p>
      * This is a no-op

@@ -91,8 +91,8 @@ public abstract class AbstractPool<T> implements Pool<T> {
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor<T> createPoolAccessor(T store) {
-        return createPoolAccessor(store, defaultSizeOfEngine);
+    public PoolAccessor<T> createPoolAccessor(T store, int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        return createPoolAccessor(store, defaultSizeOfEngine.copyWith(maxDepth, abortWhenMaxDepthExceeded));
     }
 
     /**

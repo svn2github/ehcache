@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
-import net.sf.ehcache.pool.Role;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -41,6 +40,8 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
     private final Pool<T> pool;
     private final T store;
 
+    private volatile boolean abortedSizeOf = false;
+
     /**
      * Creates an accessor for the specified store to access the specified pool.
      *
@@ -58,22 +59,19 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      */
     public final long add(Object key, Object value, Object container, boolean force) {
         checkLinked();
-        return add(sizeOfEngine.sizeOf(key, value, container), force);
+        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
+        if (sizeOf < 0) {
+            abortedSizeOf = true;
+        }
+        return add(Math.abs(sizeOf), force);
     }
 
     /**
      * {@inheritDoc}
      */
     public final boolean canAddWithoutEvicting(Object key, Object value, Object container) {
-        return canAddWithoutEvicting(sizeOfEngine.sizeOf(key, value, container));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long delete(Object key, Object value, Object container) {
-        checkLinked();
-        return delete(sizeOfEngine.sizeOf(key, value, container));
+        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
+        return canAddWithoutEvicting(Math.abs(sizeOf));
     }
 
     /**
@@ -99,7 +97,7 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
     public final long replace(long currentSize, Object key, Object value, Object container, boolean force) {
         long sizeOf = sizeOfEngine.sizeOf(key, value, container);
 
-        long delta = sizeOf - currentSize;
+        long delta = Math.abs(sizeOf) - currentSize;
         if (delta < 0) {
             return -delete(-delta);
         } else {
@@ -110,45 +108,16 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
     /**
      * {@inheritDoc}
      */
-    public long replace(Role role, Object current, Object replacement, boolean force) {
-        long addedSize;
-        long sizeOf = 0;
-        switch (role) {
-            case CONTAINER:
-                sizeOf += delete(null, null, current);
-                addedSize = add(null, null, replacement, force);
-                if (addedSize < 0) {
-                    add(null, null, current, false);
-                    sizeOf = Long.MAX_VALUE;
-                } else {
-                    sizeOf -= addedSize;
-                }
-                break;
-            case KEY:
-                sizeOf += delete(current, null, null);
-                addedSize = add(replacement, null, null, force);
-                if (addedSize < 0) {
-                    add(current, null, null, false);
-                    sizeOf = Long.MAX_VALUE;
-                } else {
-                    sizeOf -= addedSize;
-                }
-                break;
-            case VALUE:
-                sizeOf += delete(null, current, null);
-                addedSize = add(null, replacement, null, force);
-                if (addedSize < 0) {
-                    add(null, current, null, false);
-                    sizeOf = Long.MAX_VALUE;
-                } else {
-                    sizeOf -= addedSize;
-                }
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-        return sizeOf;
+    public final void clear() {
+        doClear();
+        abortedSizeOf = false;
     }
+
+    /**
+     * Free resources used by this accessor.
+     * This method is called by {@link #clear()}.
+     */
+    protected abstract void doClear();
 
     /**
      * {@inheritDoc}
@@ -191,5 +160,12 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      */
     protected final Pool<T> getPool() {
         return pool;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasAbortedSizeOf() {
+        return abortedSizeOf;
     }
 }

@@ -180,4 +180,10 @@ public abstract class AbstractStore implements Store {
         return elements;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean hasAbortedSizeOf() {
+        return false;
+    }
 }

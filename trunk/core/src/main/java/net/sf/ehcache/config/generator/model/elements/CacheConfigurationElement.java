@@ -23,6 +23,7 @@ import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
 import net.sf.ehcache.config.ElementValueComparatorConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
@@ -62,7 +63,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
 
         addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
         addAttribute(new SimpleNodeAttribute("maxBytesLocalHeap", cacheConfiguration.getMaxBytesLocalHeap())
-                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_HEAP)));
+            .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_HEAP)));
         addAttribute(new SimpleNodeAttribute("maxBytesLocalOffHeap", cacheConfiguration.getMaxBytesLocalOffHeap())
                 .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_OFF_HEAP)));
         addAttribute(new SimpleNodeAttribute("maxBytesLocalDisk", cacheConfiguration.getMaxBytesLocalDisk())
@@ -137,6 +138,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         addAllFactoryConfigsAsChildElements(element, "cacheLoaderFactory", cacheConfiguration.getCacheLoaderConfigurations());
         addBootstrapCacheLoaderFactoryConfigurationElement(element, cacheConfiguration);
         addCacheExceptionHandlerFactoryConfigurationElement(element, cacheConfiguration);
+        addSizeOfPolicyConfigurationElement(element, cacheConfiguration);
         addCopyStrategyConfigurationElement(element, cacheConfiguration);
         addElementValueComparatorConfigurationElement(element, cacheConfiguration);
         addCacheWriterConfigurationElement(element, cacheConfiguration);
@@ -161,6 +163,13 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         if (cacheExceptionHandlerFactoryConfiguration != null) {
             element.addChildElement(new FactoryConfigurationElement(element, "cacheExceptionHandlerFactory",
                     cacheExceptionHandlerFactoryConfiguration));
+        }
+    }
+
+    private static void addSizeOfPolicyConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
+        SizeOfPolicyConfiguration sizeOfPolicyConfiguration = cacheConfiguration.getSizeOfPolicyConfiguration();
+        if (sizeOfPolicyConfiguration != null) {
+            element.addChildElement(new SizeOfPolicyConfigurationElement(element, sizeOfPolicyConfiguration));
         }
     }
 

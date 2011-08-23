@@ -41,4 +41,11 @@ public class DiskSizeOfEngine implements SizeOfEngine {
         return marker.getSize();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public SizeOfEngine copyWith(int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        return new DiskSizeOfEngine();
+    }
+
 }

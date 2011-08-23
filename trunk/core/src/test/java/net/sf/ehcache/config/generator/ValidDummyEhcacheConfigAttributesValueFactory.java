@@ -39,6 +39,13 @@ public class ValidDummyEhcacheConfigAttributesValueFactory implements XSDAttribu
                 return "inMemory";
             }
         }
+        if ("sizeOfPolicy".equals(element.getName())) {
+            if ("maxDepth".equals(attribute.getName())) {
+                return "100";
+            } else if ("maxDepthExceededBehavior".equals(attribute.getName())) {
+                return "continue";
+            }
+        }
         if (("cache".equals(element.getName()) || "defaultCache".equals(element.getName()))
                 && "transactionalMode".equals(attribute.getName())) {
             return "off";

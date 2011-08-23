@@ -627,4 +627,12 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public boolean notifyEvictionFromCache(final Serializable key) {
         return false;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasAbortedSizeOf() {
+        return cache.hasAbortedSizeOf() || authority.hasAbortedSizeOf();
+    }
 }

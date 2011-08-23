@@ -40,4 +40,8 @@ public class ConstantSizeOfEngine implements SizeOfEngine {
 
         return result;
     }
+
+    public SizeOfEngine copyWith(int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        return new ConstantSizeOfEngine();
+    }
 }

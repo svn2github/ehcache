@@ -340,6 +340,21 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public boolean hasAbortedSizeOf() {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.hasAbortedSizeOf();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getMemoryStoreSize() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();

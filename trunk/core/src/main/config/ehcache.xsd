@@ -5,6 +5,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element maxOccurs="1" minOccurs="0" ref="diskStore"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="sizeOfPolicy"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="transactionManagerLookup"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="cacheManagerEventListenerFactory"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerProviderFactory"/>
@@ -28,7 +29,7 @@
             <xs:attribute name="path" use="optional"/>
         </xs:complexType>
     </xs:element>
-     <xs:element name="transactionManagerLookup">
+    <xs:element name="transactionManagerLookup">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
@@ -86,6 +87,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriter"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="elementValueComparator"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="sizeOfPolicy"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
@@ -125,6 +127,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="searchable"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="elementValueComparator"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="sizeOfPolicy"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
@@ -354,6 +357,20 @@
             <xs:attribute name="class" use="required" type="xs:string" />
         </xs:complexType>
     </xs:element>
+
+    <xs:element name="sizeOfPolicy">
+        <xs:complexType>
+            <xs:attribute name="maxDepth" use="required" type="xs:integer" />
+            <xs:attribute name="maxDepthExceededBehavior" use="optional" default="continue" type="maxDepthExceededBehavior" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="maxDepthExceededBehavior">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="continue"/>
+            <xs:enumeration value="abort"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:simpleType name="notificationScope">
         <xs:restriction base="xs:string">

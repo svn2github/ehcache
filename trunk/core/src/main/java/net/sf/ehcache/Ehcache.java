@@ -544,6 +544,13 @@ public interface Ehcache extends Cloneable {
     long calculateOnDiskSize() throws IllegalStateException, CacheException;
 
     /**
+     * Check if the cache may contain elements which the SizeOf engine could not fully size.
+     *
+     * @return true if the cache may contain partially sized objects
+     */
+    boolean hasAbortedSizeOf();
+
+    /**
      * Returns the number of elements in the memory store.
      *
      * @return the number of elements in the memory store

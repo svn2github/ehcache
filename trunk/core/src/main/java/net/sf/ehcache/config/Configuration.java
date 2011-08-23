@@ -173,6 +173,7 @@ public final class Configuration {
     private CacheConfiguration defaultCacheConfiguration;
     private final List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = new ArrayList<FactoryConfiguration>();
     private final List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfiguration = new ArrayList<FactoryConfiguration>();
+    private SizeOfPolicyConfiguration sizeOfPolicyConfiguration;
     private FactoryConfiguration transactionManagerLookupConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private TerracottaClientConfiguration terracottaConfigConfiguration;
@@ -270,6 +271,10 @@ public final class Configuration {
         FactoryConfiguration configuration = new FactoryConfiguration();
         configuration.setClass(DefaultTransactionManagerLookup.class.getName());
         return configuration;
+    }
+
+    private static SizeOfPolicyConfiguration getDefaultSizeOfPolicyConfiguration() {
+        return new SizeOfPolicyConfiguration();
     }
 
     /**
@@ -627,6 +632,29 @@ public final class Configuration {
     }
 
     /**
+     * Builder to set the default SizeOfPolicyConfiguration for this cache manager.
+     *
+     * @param sizeOfPolicyConfiguration the SizeOfPolicy Configuration
+     * @return this configuration instance
+     */
+    public final Configuration sizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
+        addSizeOfPolicy(sizeOfPolicyConfiguration);
+        return this;
+    }
+
+    /**
+     * Sets the default SizeOfPolicyConfiguration for this cache manager.
+     *
+     * @param sizeOfPolicyConfiguration the SizeOfPolicy Configuration
+     */
+    public final void addSizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
+        if (transactionManagerLookupConfiguration != null) {
+            throw new ObjectExistsException("The SizeOfPolicy class has already been configured");
+        }
+        this.sizeOfPolicyConfiguration = sizeOfPolicyConfiguration;
+    }
+
+    /**
      * Builder to add a transaction manager lookup class to the cache manager, only one of these can be added.
      *
      * @param transactionManagerLookupParameter
@@ -874,6 +902,16 @@ public final class Configuration {
      */
     public final DiskStoreConfiguration getDiskStoreConfiguration() {
         return diskStoreConfiguration;
+    }
+
+    /**
+     * Gets the SizeOf policy configuration.
+     */
+    public final SizeOfPolicyConfiguration getSizeOfPolicyConfiguration() {
+        if (sizeOfPolicyConfiguration == null) {
+            return getDefaultSizeOfPolicyConfiguration();
+        }
+        return sizeOfPolicyConfiguration;
     }
 
     /**

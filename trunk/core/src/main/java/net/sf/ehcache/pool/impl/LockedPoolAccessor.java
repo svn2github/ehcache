@@ -21,7 +21,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolableStore;
-import net.sf.ehcache.pool.Role;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -130,20 +129,6 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public long replace(Role role, Object current, Object replacement, boolean force) {
-        // locking makes the size update MT-safe but slow
-        lock.lock();
-        try {
-            return super.replace(role, current, replacement, force);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public long getSize() {
         // locking makes the size update MT-safe but slow
         lock.lock();
@@ -157,7 +142,7 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public void clear() {
+    protected void doClear() {
         // locking makes the size update MT-safe but slow
         lock.lock();
         try {

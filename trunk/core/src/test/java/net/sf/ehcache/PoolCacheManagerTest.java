@@ -24,6 +24,11 @@ import static org.junit.Assert.assertThat;
  */
 public class PoolCacheManagerTest {
 
+    private static long deepSizeOf(SizeOf sizeOf, Object... obj) {
+        return sizeOf.deepSizeOf(1000, true, obj);
+    }
+    
+  
     @Before
     public void setup() {
         getSizeOfEngine().sizeOf("");
@@ -45,7 +50,7 @@ public class PoolCacheManagerTest {
         Element test = new Element("test", new Pair("0", new Object()));
         oneSize.put(test);
         doubleSize.put(test);
-        sizeOf.deepSizeOf(test);
+        deepSizeOf(sizeOf, test);
         oneSize.remove(test.getKey());
         int size = 60000;
         for (int i = 0; i < size; i++) {
@@ -70,11 +75,11 @@ public class PoolCacheManagerTest {
         long mem = 0;
         for (Object key : oneSize.getKeys()) {
             Element element = oneSize.get(key);
-            mem += sizeOf.deepSizeOf(element);
+            mem += deepSizeOf(sizeOf, element);
         }
         for (Object key : doubleSize.getKeys()) {
             Element element = doubleSize.get(key);
-            mem += sizeOf.deepSizeOf(element);
+            mem += deepSizeOf(sizeOf, element);
         }
 
         assertThat(MemoryUnit.MEGABYTES.toBytes(40) - mem >= 0, is(true));

@@ -104,7 +104,7 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public void clear() {
+    protected void doClear() {
         size.set(0);
     }
 }

@@ -2605,6 +2605,13 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean hasAbortedSizeOf() {
+        return compoundStore.hasAbortedSizeOf();
+    }
+
+    /**
      * Gets the size of the off-heap store for this cache.
      *
      * @return the size of the off-heap store in bytes

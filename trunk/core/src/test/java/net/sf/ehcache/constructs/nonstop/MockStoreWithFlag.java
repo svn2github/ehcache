@@ -141,6 +141,11 @@ public class MockStoreWithFlag implements TerracottaStore {
         return 0;
     }
 
+    public boolean hasAbortedSizeOf() {
+        markAccessFlag();
+        return false;
+    }
+
     public Element getQuiet(Object key) {
         markAccessFlag();
         return null;

@@ -226,6 +226,13 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
+    public boolean hasAbortedSizeOf() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Element getQuiet(Object key) {
         return null;
     }

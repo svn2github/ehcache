@@ -360,6 +360,7 @@ public class CacheConfiguration implements Cloneable {
     private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
     private volatile boolean statistics = DEFAULT_STATISTICS;
     private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION.copy();
+    private volatile SizeOfPolicyConfiguration sizeOfPolicyConfiguration;
     private volatile ElementValueComparatorConfiguration elementValueComparatorConfiguration =
             DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION;
     private volatile Boolean copyOnRead;
@@ -545,6 +546,27 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheConfiguration overflowToOffHeap(boolean overflowToOffHeap) {
         setOverflowToOffHeap(overflowToOffHeap);
+        return this;
+    }
+
+    /**
+     * Sets the SizeOfPolicyConfiguration for this cache.
+     *
+     * @param sizeOfPolicyConfiguration the SizeOfPolicy Configuration
+     */
+    public void addSizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
+        this.sizeOfPolicyConfiguration = sizeOfPolicyConfiguration;
+    }
+
+    /**
+     * Builder to set the SizeOfPolicyConfiguration for this cache.
+     *
+     * @param sizeOfPolicyConfiguration the SizeOfPolicy Configuration
+     * @return this configuration instance
+     * @see #addSizeOfPolicy(SizeOfPolicyConfiguration)
+     */
+    public CacheConfiguration sizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
+        addSizeOfPolicy(sizeOfPolicyConfiguration);
         return this;
     }
 
@@ -2231,6 +2253,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isOverflowToOffHeap() {
         return overflowToOffHeap == null ? false : overflowToOffHeap;
+    }
+
+    /**
+     * Accessor
+     *
+     * @return the SizeOfPolicy Configuration for this cache.
+     */
+    public SizeOfPolicyConfiguration getSizeOfPolicyConfiguration() {
+        return sizeOfPolicyConfiguration;
     }
 
     /**

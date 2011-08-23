@@ -27,6 +27,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
@@ -122,7 +123,9 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.policy = determineEvictionPolicy(cache);
 
-        this.poolAccessor = pool.createPoolAccessor(this);
+        this.poolAccessor = pool.createPoolAccessor(this,
+            SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+            SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
 
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
@@ -699,6 +702,14 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
     public long getOnDiskSizeInBytes() {
         return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasAbortedSizeOf() {
+        return poolAccessor.hasAbortedSizeOf();
     }
 
     /**

@@ -19,6 +19,8 @@ package net.sf.ehcache.pool.sizeof;
 import net.sf.ehcache.pool.sizeof.ObjectGraphWalker.Visitor;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -26,6 +28,8 @@ import net.sf.ehcache.util.WeakIdentityConcurrentMap;
  * @author Alex Snaps
  */
 public abstract class SizeOf {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SizeOf.class.getName());
 
     private final ObjectGraphWalker walker;
 
@@ -70,12 +74,19 @@ public abstract class SizeOf {
      * Measures the size in memory (heap) of the objects passed in, walking their graph down
      * Any overlap of the graphs being passed in will be recognized and only measured once
      *
+     * @param maxDepth maximum depth of the object graph to traverse
+     * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
      * @param obj the root objects of the graphs to measure
      * @return the total size in bytes for these objects
      * @see #sizeOf(Object)
      */
-    public long deepSizeOf(Object... obj) {
-        return walker.walk(obj);
+    public long deepSizeOf(int maxDepth, boolean abortWhenMaxDepthExceeded, Object... obj) {
+        try {
+            return walker.walk(maxDepth, abortWhenMaxDepthExceeded, obj);
+        } catch (MaxDepthExceededException e) {
+            LOG.warn(e.getMessage());
+            return -e.getMeasuredSize();
+        }
     }
 
     private static boolean isSharedFlyweight(Object obj) {

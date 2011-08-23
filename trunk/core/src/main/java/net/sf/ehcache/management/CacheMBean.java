@@ -63,6 +63,11 @@ public interface CacheMBean {
     boolean isTerracottaClustered();
 
     /**
+     * Check if the cache may contain elements which the SizeOf engine could not fully size.
+     */
+    boolean hasAbortedSizeOf();
+
+    /**
      *
      * Gets the JMX read-only CacheConfiguration
      */

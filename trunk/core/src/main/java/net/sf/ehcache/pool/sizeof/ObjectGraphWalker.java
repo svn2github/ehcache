@@ -77,52 +77,72 @@ final class ObjectGraphWalker {
 
     /**
      * Walk the graph and call into the "visitor"
+     * @param maxDepth maximum depth to traverse the object graph
+     * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
      * @param root the roots of the objects (a shared graph will only be visited once)
      * @return the sum of all Visitor#visit returned values
      */
-    long walk(Object... root) {
-
+    long walk(int maxDepth, boolean abortWhenMaxDepthExceeded, Object... root) {
         long result = 0;
+        boolean warned = false;
+        try {
+            Stack<Object> toVisit = new Stack<Object>();
+            IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>();
 
-        Stack<Object> toVisit = new Stack<Object>();
-        IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>();
-
-        if (root != null) {
-            for (Object object : root) {
-                nullSafeAdd(toVisit, object);
-            }
-        }
-
-        while (!toVisit.isEmpty()) {
-
-            Object ref = toVisit.pop();
-
-            if (visited.containsKey(ref)) {
-                continue;
+            if (root != null) {
+                for (Object object : root) {
+                    nullSafeAdd(toVisit, object);
+                }
             }
 
-            Class<?> refClass = ref.getClass();
-            if (shouldWalkClass(refClass)) {
-                if (refClass.isArray() && !refClass.getComponentType().isPrimitive()) {
-                    for (int i = 0; i < Array.getLength(ref); i++) {
-                        nullSafeAdd(toVisit, Array.get(ref, i));
-                    }
-                } else {
-                    for (Field field : getFilteredFields(refClass)) {
-                        try {
-                            nullSafeAdd(toVisit, field.get(ref));
-                        } catch (IllegalAccessException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
+            while (!toVisit.isEmpty()) {
+                warned = checkMaxDepth(maxDepth, abortWhenMaxDepthExceeded, warned, visited);
+
+                Object ref = toVisit.pop();
+
+                if (visited.containsKey(ref)) {
+                    continue;
                 }
 
-                result += visitor.visit(ref);
-            }
-            visited.put(ref, null);
-        }
+                Class<?> refClass = ref.getClass();
+                if (shouldWalkClass(refClass)) {
+                    if (refClass.isArray() && !refClass.getComponentType().isPrimitive()) {
+                        for (int i = 0; i < Array.getLength(ref); i++) {
+                            nullSafeAdd(toVisit, Array.get(ref, i));
+                        }
+                    } else {
+                        for (Field field : getFilteredFields(refClass)) {
+                            try {
+                                nullSafeAdd(toVisit, field.get(ref));
+                            } catch (IllegalAccessException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    }
 
-        return result;
+                    result += visitor.visit(ref);
+                }
+                visited.put(ref, null);
+            }
+
+            return result;
+        } catch (MaxDepthExceededException we) {
+            we.addToMeasuredSize(result);
+            throw we;
+        }
+    }
+
+    private boolean checkMaxDepth(final int maxDepth, final boolean abortWhenMaxDepthExceeded, boolean warned,
+                                  final IdentityHashMap<Object, Object> visited) {
+        if (visited.size() >= maxDepth) {
+            if (abortWhenMaxDepthExceeded) {
+                throw new MaxDepthExceededException("max depth of " + maxDepth + " exceeded");
+            } else if (!warned) {
+                LOG.warn("max depth of " + maxDepth + " exceeded");
+                warned = true;
+            }
+        }
+        return warned;
     }
 
     /**

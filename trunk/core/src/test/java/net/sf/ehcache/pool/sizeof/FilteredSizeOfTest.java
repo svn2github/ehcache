@@ -12,9 +12,13 @@ import org.junit.Test;
 
 public class FilteredSizeOfTest extends AbstractSizeOfTest {
 
+  private static long deepSizeOf(SizeOf sizeOf, Object... obj) {
+    return sizeOf.deepSizeOf(1000, true, obj);
+  }
+      
   @BeforeClass
   public static void setup() {
-    new CrossCheckingSizeOf().deepSizeOf(new Object());
+    deepSizeOf(new CrossCheckingSizeOf(), new Object());
     System.out.println("Testing for a " + System.getProperty("java.version") + " JDK " +
                        ") on a " + System.getProperty("sun.arch.data.model") + "-bit VM " +
                        "(compressed-oops: " + COMPRESSED_OOPS +
@@ -28,67 +32,67 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     if (System.getProperty("java.version").startsWith("1.5")) {
       if (IS_64_BIT) {
         System.out.println("asserting 1.5 / 64-bit values");
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(192L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(200L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(224L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(192L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(200L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(224L));
       } else {
         System.out.println("asserting 1.5 / 32-bit values");
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(184L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(168L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(168L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(184L));
       }
     } else {
       if (IS_64_BIT) {
         if (COMPRESSED_OOPS) {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / compressed OOPs / Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(168L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(176L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(168L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(176L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(200L));
           } else {
             System.out.println("asserting 1.6+ / 64-bit / compressed OOPs / non-Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(168L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(176L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(192L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(168L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(176L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(192L));
           }
         } else if (IS_JROCKIT) {
             System.out.println("asserting JRockit 1.6+ / 64-bit / 4GB compressed refs values");
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(184L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(184L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(208L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(184L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(184L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(208L));
         } else if (IS_IBM) {
             System.out.println("asserting IBM 1.6+ / 64-bit / (con-compressed) values");
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(200L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(208L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(240L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(208L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(240L));
         } else {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / plain OOPs / Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(192L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(200L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(224L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(192L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(224L));
           } else {
             System.out.println("asserting 1.6+ / 64-bit / plain OOPs / non-Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(192L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(200L));
-            assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(224L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(192L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(224L));
           }
         }
       } else if (IS_IBM) {
           System.out.println("asserting IBM 1.6+ / 32-bit values");
-          assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(168L));
-          assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(176L));
-          assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(192L));
+          assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(168L));
+          assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(176L));
+          assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(192L));
       } else if (IS_JROCKIT) {
         System.out.println("asserting JRockit 1.6+ / 32-bit values");
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(184L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(184L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(208L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(184L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(184L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(208L));
       } else {
         System.out.println("asserting 1.6+ / 32-bit values");
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredClass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredSubclass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new AnnotationFilteredReferrer()), is(184L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), is(168L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredSubclass()), is(168L));
+        assertThat(deepSizeOf(sizeOf, new AnnotationFilteredReferrer()), is(184L));
       }
     }
   }
@@ -99,67 +103,67 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     if (System.getProperty("java.version").startsWith("1.5")) {
       if (IS_64_BIT) {
         System.out.println("asserting 1.5 / 64-bit values");
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(192L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(200L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(224L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(192L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(200L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(224L));
       } else {
         System.out.println("asserting 1.5 / 32-bit values");
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(168L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(184L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(168L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(168L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(184L));
       }
     } else {
       if (IS_64_BIT) {
         if (COMPRESSED_OOPS) {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / compressed OOPs / Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(176L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(168L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(176L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(200L));
           } else {
             System.out.println("asserting 1.6+ / 64-bit / compressed OOPs / non-Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(176L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(168L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(176L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(200L));
           }
         } else if (IS_JROCKIT) {
             System.out.println("asserting JRockit 1.6+ / 64-bit / 4GB compressed refs values");
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(184L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(184L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(208L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(184L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(184L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(208L));
         } else if (IS_IBM) {
             System.out.println("asserting IBM 1.6+ / 64-bit / (non-compressed) refs values");
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(200L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(208L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(240L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(208L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(240L));
         } else {
           if (HOTSPOT_CMS) {
             System.out.println("asserting 1.6+ / 64-bit / plain OOPs / Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(192L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(200L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(224L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(192L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(224L));
           } else {
             System.out.println("asserting 1.6+ / 64-bit / plain OOPs / non-Hotspot CMS values");
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(192L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(200L));
-            assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(224L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(192L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(224L));
           }
         }
       } else if (IS_IBM) {
           System.out.println("asserting IBM 1.6+ / 32-bit values");
-          assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
-          assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(176L));
-          assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(192L));
+          assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(168L));
+          assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(176L));
+          assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(192L));
       } else if (IS_JROCKIT) {
         System.out.println("asserting JRockit 1.6+ / 32-bit values");
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(184L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(184L));
-        assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(208L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(184L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(184L));
+        assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(208L));
       } else {
           System.out.println("asserting 1.6+ / 32-bit values");
-          assertThat(sizeOf.deepSizeOf(new ResourceFilteredClass()), is(168L));
-          assertThat(sizeOf.deepSizeOf(new ResourceFilteredSubclass()), is(168L));
-          assertThat(sizeOf.deepSizeOf(new ResourceFilteredReferrer()), is(184L));
+          assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(168L));
+          assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(168L));
+          assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(184L));
         }
     }
   }

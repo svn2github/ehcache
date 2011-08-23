@@ -154,6 +154,11 @@ public class BlockingMockStore implements TerracottaStore {
         return 0;
     }
 
+    public boolean hasAbortedSizeOf() {
+        neverReturn();
+        return false;
+    }
+
     public Element getQuiet(Object key) {
         neverReturn();
         return null;
