@@ -720,6 +720,26 @@ used with JMX monitors.
     The MyElementComparator class must implement the is net.sf.ehcache.store.ElementValueComparator
     interface. The default implementation is net.sf.ehcache.store.DefaultElementValueComparator.
 
+
+    SizeOf Policy
+    +++++++++++++
+
+    Control how deep the SizeOf engine can go when sizing on-heap elements.
+
+    This is configured as per the following example:
+
+    <sizeOfPolicy maxDepth="100" maxDepthExceededBehavior="abort"/>
+
+    maxDepth controls how many linked objects can be visited before the SizeOf engine takes any action.
+    maxDepthExceededBehavior specifies what happens when the max depth is exceeded while sizing an object graph.
+     "continue" makes the SizeOf engine log a warning and continue the sizing. This is the default.
+     "abort"    makes the SizeOf engine abort the sizing, log a warning and mark the cache as not correctly tracking
+                memory usage. This makes Ehcache.hasAbortedSizeOf() return true when this happens.
+
+    The SizeOf policy can be configured at the cache manager level (directly under <ehcache>) and at
+    the cache level (under <cache> or <defaultCache>). The cache policy always overrides the cache manager
+    one if both are set.
+    
     Transactions
     ++++++++++++
 
