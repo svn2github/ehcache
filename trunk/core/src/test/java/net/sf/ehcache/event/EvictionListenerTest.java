@@ -101,6 +101,9 @@ public class EvictionListenerTest {
         Element element = new Element("key" + amountOfEntries, UUID.randomUUID().toString());
         noDiskCache.put(element);
 
+        Element expectedElement = null;
+        assertThat(noDiskCache.get("key" + amountOfEntries), is(expectedElement));
+
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
 
         System.out.println("\n\n ****");
