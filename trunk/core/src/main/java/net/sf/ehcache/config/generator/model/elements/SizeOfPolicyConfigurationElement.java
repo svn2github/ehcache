@@ -42,6 +42,13 @@ public class SizeOfPolicyConfigurationElement extends SimpleNodeElement {
         init();
     }
 
+
+    /**
+     * Construtor accepting the element and the {@link net.sf.ehcache.config.SizeOfPolicyConfiguration}
+     *
+     * @param element
+     * @param sizeOfPolicyConfiguration
+     */
     public SizeOfPolicyConfigurationElement(NodeElement element, SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
         super(element, "sizeOfPolicy");
         this.sizeOfPolicyConfiguration = sizeOfPolicyConfiguration;

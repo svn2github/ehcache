@@ -147,7 +147,11 @@ public class SizeOfPolicyConfiguration implements Cloneable {
             return DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR;
         }
         CacheManager cacheManager = cache.getCacheManager();
-        return resolvePolicy(cacheManager == null ? null : cacheManager.getConfiguration(), cache.getCacheConfiguration()).getMaxDepthExceededBehavior();
+        if (cacheManager == null) {
+            return resolvePolicy(null, cache.getCacheConfiguration()).getMaxDepthExceededBehavior();
+        } else {
+            return resolvePolicy(cacheManager.getConfiguration(), cache.getCacheConfiguration()).getMaxDepthExceededBehavior();
+        }
     }
 
     private static SizeOfPolicyConfiguration resolvePolicy(Configuration configuration, CacheConfiguration cacheConfiguration) {
