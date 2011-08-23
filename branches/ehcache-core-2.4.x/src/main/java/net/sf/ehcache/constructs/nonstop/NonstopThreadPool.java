@@ -73,6 +73,7 @@ public class NonstopThreadPool {
 
     private void startReaperThread() {
         Thread reaperThread = new Thread(new ReaperThread(), "non stop reaper thread");
+        reaperThread.setDaemon(true);
         reaperThread.start();
     }
 
