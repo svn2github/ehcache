@@ -76,7 +76,7 @@ public class EvictionListenerTest {
         assertThat(cacheElementsEvicted.size(), is((amountOfEntries - cache.getDiskStoreSize())));
     }
 
-    @Ignore
+    @Test
     public void testEvictedForL2() throws InterruptedException {
         CacheConfiguration configuration = new CacheConfiguration().name("testEvictedForL2").maxBytesLocalHeap(1, MemoryUnit.KILOBYTES);
         Cache noDiskCache = new Cache(configuration);
