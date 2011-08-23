@@ -1,5 +1,16 @@
 package net.sf.ehcache.event;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -9,22 +20,13 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author Alex Snaps
@@ -46,9 +48,8 @@ public class EvictionListenerTest {
 
     @Before
     public void setup() {
-        CacheConfiguration configuration = new CacheConfiguration(CACHE_NAME, 100)
-            .overflowToDisk(true)
-            .maxBytesLocalDisk(1, MemoryUnit.MEGABYTES);
+        CacheConfiguration configuration = new CacheConfiguration(CACHE_NAME, 100).overflowToDisk(true).maxBytesLocalDisk(1,
+                MemoryUnit.MEGABYTES);
         cache = new Cache(configuration);
         cacheManager.addCache(cache);
     }
@@ -72,7 +73,45 @@ public class EvictionListenerTest {
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
         }
-        assertThat(cacheElementsEvicted.size(), is((int) (amountOfEntries - cache.getDiskStoreSize())));
+        assertThat(cacheElementsEvicted.size(), is((amountOfEntries - cache.getDiskStoreSize())));
+    }
+
+    @Ignore
+    public void testEvictedForL2() throws InterruptedException {
+        CacheConfiguration configuration = new CacheConfiguration().name("testEvictedForL2").maxBytesLocalHeap(1, MemoryUnit.KILOBYTES);
+        Cache noDiskCache = new Cache(configuration);
+        cacheManager.addCache(noDiskCache);
+
+        CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
+        noDiskCache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
+        int amountOfEntries = 10000;
+        for (int i = 0; i < amountOfEntries; i++) {
+            // cache.get("key" + (1000 + (i % 10)));
+            Element element = new Element("key" + i, UUID.randomUUID().toString());
+            element.setPinned(true);
+            element.setEternal(true);
+            noDiskCache.put(element);
+        }
+        Thread.sleep(2000);
+        System.out.println("\n\n ****");
+        System.out.println("Memory store size before  : " + noDiskCache.getMemoryStoreSize());
+        System.out.println(" ****\n\n");
+
+        // Try putting an unpinned element and we should see an eviction
+        Element element = new Element("key" + amountOfEntries, UUID.randomUUID().toString());
+        noDiskCache.put(element);
+
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
+
+        System.out.println("\n\n ****");
+        System.out.println("Memory store size after : " + noDiskCache.getMemoryStoreSize());
+        System.out.println(" ****\n\n");
+
+        assertThat(cacheElementsEvicted.isEmpty(), is(false));
+        assertThat(cacheElementsEvicted.size(), is(1));
+        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
+            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
+        }
     }
 
     @Test
@@ -90,9 +129,7 @@ public class EvictionListenerTest {
 
     @Test
     public void testGetsAllEvictedKeysWithoutDiskSizeBased() throws InterruptedException {
-        CacheConfiguration configuration = new CacheConfiguration()
-            .name("noDisk")
-            .maxBytesLocalHeap(100, MemoryUnit.KILOBYTES);
+        CacheConfiguration configuration = new CacheConfiguration().name("noDisk").maxBytesLocalHeap(100, MemoryUnit.KILOBYTES);
         final Cache noDiskCache = new Cache(configuration);
         cacheManager.addCache(noDiskCache);
         CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
@@ -109,9 +146,7 @@ public class EvictionListenerTest {
 
     @Test
     public void testGetsAllEvictedKeysWithoutDiskEntryBased() throws InterruptedException {
-        CacheConfiguration configuration = new CacheConfiguration()
-            .name("noDiskEntry")
-            .maxEntriesLocalHeap(100);
+        CacheConfiguration configuration = new CacheConfiguration().name("noDiskEntry").maxEntriesLocalHeap(100);
         final Cache noDiskCache = new Cache(configuration);
         cacheManager.addCache(noDiskCache);
         CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
@@ -164,23 +199,22 @@ public class EvictionListenerTest {
 
     private static class CountingCacheEventListener implements CacheEventListener {
 
-        private final ConcurrentMap<String, ConcurrentMap<Object, AtomicInteger>> evictions =
-            createMap();
+        private final ConcurrentMap<String, ConcurrentMap<Object, AtomicInteger>> evictions = createMap();
 
         public void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // To change body of implemented methods use File | Settings | File Templates.
         }
 
         public void notifyElementPut(final Ehcache cache, final Element element) throws CacheException {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // To change body of implemented methods use File | Settings | File Templates.
         }
 
         public void notifyElementUpdated(final Ehcache cache, final Element element) throws CacheException {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // To change body of implemented methods use File | Settings | File Templates.
         }
 
         public void notifyElementExpired(final Ehcache cache, final Element element) {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // To change body of implemented methods use File | Settings | File Templates.
         }
 
         public void notifyElementEvicted(final Ehcache cache, final Element element) {
@@ -188,11 +222,11 @@ public class EvictionListenerTest {
         }
 
         public void notifyRemoveAll(final Ehcache cache) {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // To change body of implemented methods use File | Settings | File Templates.
         }
 
         public void dispose() {
-            //To change body of implemented methods use File | Settings | File Templates.
+            // To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
@@ -213,7 +247,7 @@ public class EvictionListenerTest {
         }
 
         private ConcurrentMap<Object, AtomicInteger> getEntriesFor(final Ehcache cache,
-                                                                   final ConcurrentMap<String, ConcurrentMap<Object, AtomicInteger>> map) {
+                final ConcurrentMap<String, ConcurrentMap<Object, AtomicInteger>> map) {
             ConcurrentMap<Object, AtomicInteger> entries;
             entries = map.get(cache.getName());
             if (entries == null) {
