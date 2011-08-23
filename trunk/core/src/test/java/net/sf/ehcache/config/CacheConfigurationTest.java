@@ -31,8 +31,7 @@ public class CacheConfigurationTest {
         String name = "testTemp";
         String path = "c:\\something\\temp";
 
-        CacheConfiguration cacheConfiguration = new CacheConfiguration()
-            .name(name)
+        CacheConfiguration cacheConfiguration = new CacheConfiguration(name, 0)
             .diskStorePath(path)
             .diskPersistent(true);
         cacheManager.addCache(new Cache(cacheConfiguration));

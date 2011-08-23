@@ -813,7 +813,7 @@ public class CacheManagerTest {
 
     @Test
     public void testAddRemoveCache() throws CacheException {
-        String config = "<ehcache><defaultCache/></ehcache>";
+        String config = "<ehcache><defaultCache maxEntriesLocalHeap=\"0\"/></ehcache>";
         CacheManager manager = new CacheManager(new ByteArrayInputStream(config.getBytes()));
         assertEquals(0, manager.getConfiguration().getCacheConfigurations().size());
         manager.addCache("test1");

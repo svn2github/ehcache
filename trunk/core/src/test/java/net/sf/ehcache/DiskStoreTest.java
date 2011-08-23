@@ -748,8 +748,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         );
 
         manager.addCache(new Cache(
-                new CacheConfiguration()
-                        .name("persistentCache")
+                new CacheConfiguration("persistentCache", 0)
                         .overflowToDisk(true)
                         .diskPersistent(true)
                 )
@@ -771,8 +770,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         );
 
         manager.addCache(new Cache(
-                new CacheConfiguration()
-                        .name("persistentCache")
+                new CacheConfiguration("persistentCache", 0)
                         .overflowToDisk(true)
                         .diskPersistent(true)
                         .maxBytesLocalDisk(100, MemoryUnit.KILOBYTES)
