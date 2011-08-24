@@ -1,16 +1,5 @@
 package net.sf.ehcache.event;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
-
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -20,13 +9,24 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * @author Alex Snaps
@@ -188,6 +188,59 @@ public class EvictionListenerTest {
             thread.join();
         }
         return countingCacheEventListener;
+    }
+
+    @Test
+    public void testEvictionDuplicates() throws Exception {
+        CacheConfiguration configuration = new CacheConfiguration().name("heapOnly").maxBytesLocalHeap(4, MemoryUnit.KILOBYTES).eternal(true).overflowToOffHeap(false);
+        final Cache heapOnlyCache = new Cache(configuration);
+        cacheManager.addCache(heapOnlyCache);
+
+        final ConcurrentHashMap<Object, AtomicInteger> evicted = new ConcurrentHashMap<Object, AtomicInteger>();
+        heapOnlyCache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter(){
+            @Override
+            public void notifyElementEvicted(Ehcache cache, Element element) {
+                AtomicInteger old = evicted.put(element.getObjectKey(), new AtomicInteger(1));
+                if (old != null) {
+                    fail("Got multiple evictions for " + element.getObjectKey() + "! Evicted " + old.incrementAndGet() + " times");
+                }
+            }
+        });
+
+        Putter[] putters = new Putter[2];
+        for (int i = 0; i < 2; i++) {
+            putters[i] = new Putter(i, heapOnlyCache);
+        }
+        for (Putter putter : putters) {
+            putter.start();
+        }
+        for (Putter putter : putters) {
+            putter.join();
+            assertFalse(putter.failed);
+        }
+    }
+
+    private static final class Putter extends Thread {
+        private final int id;
+        private final Cache c;
+        private volatile boolean failed;
+
+
+        private Putter(int id, Cache c) {
+            this.id = id;
+            this.c = c;
+        }
+
+        public void run() {
+            try {
+                for (int i = 0; i < 10000; i++) {
+                    c.put(new Element(id + "-" + i, "" + i));
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+                failed = true;
+            }
+        }
     }
 
     @After

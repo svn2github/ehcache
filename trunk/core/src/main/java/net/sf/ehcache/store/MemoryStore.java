@@ -234,7 +234,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                 return false;
             }
         } else {
-            evict(element);
+            notifyDirectEviction(element);
             return true;
         }
     }
@@ -260,7 +260,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                 return false;
             }
         } else {
-            evict(element);
+            notifyDirectEviction(element);
             return true;
         }
     }
@@ -447,6 +447,14 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
     private void notifyExpiry(final Element element) {
         cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
+    }
+
+    /**
+     * Called when an element is evicted even before it could be installed inside the store
+     *
+     * @param element the evicted element
+     */
+    protected void notifyDirectEviction(final Element element) {
     }
 
     /**
@@ -737,7 +745,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
             }
             return old;
         } else {
-            evict(element);
+            notifyDirectEviction(element);
             return null;
         }
     }
@@ -810,7 +818,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                 lock.unlock();
             }
         } else {
-            evict(element);
+            notifyDirectEviction(element);
             return false;
         }
     }
@@ -842,7 +850,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                 lock.unlock();
             }
         } else {
-            evict(element);
+            notifyDirectEviction(element);
             return null;
         }
     }
