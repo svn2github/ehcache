@@ -20,6 +20,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
@@ -38,6 +39,12 @@ final class ObjectGraphWalker {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectGraphWalker.class);
     private static final String TC_INTERNAL_FIELD_PREFIX = "$__tc_";
+
+    private static final String ABORTION_MESSAGE = "When trying to calculate the size of on-heap objects, we followed {0} references and still aren't done.\n" +
+               " you should consider using the @IgnoreSizeOf annotation to set some stop points somewhere in you object graph,\n" +
+               " or raise the amount of references which is allowed to follow before you get a warning (by adding a\n" +
+               " <sizeOfPolicy maxDepth=\"[new value]\"/> either to your cache manager or to your cache) or stop using size-based,\n" +
+               " auto-tuned caches and use count-based ones instead.";
 
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
@@ -136,9 +143,9 @@ final class ObjectGraphWalker {
                                   final IdentityHashMap<Object, Object> visited) {
         if (visited.size() >= maxDepth) {
             if (abortWhenMaxDepthExceeded) {
-                throw new MaxDepthExceededException("max depth of " + maxDepth + " exceeded");
+                throw new MaxDepthExceededException(MessageFormat.format(ABORTION_MESSAGE, maxDepth));
             } else if (!warned) {
-                LOG.warn("max depth of " + maxDepth + " exceeded");
+                LOG.warn(MessageFormat.format(ABORTION_MESSAGE, maxDepth));
                 warned = true;
             }
         }
