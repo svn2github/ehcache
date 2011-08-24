@@ -91,6 +91,7 @@ final class ObjectGraphWalker {
      * @return the sum of all Visitor#visit returned values
      */
     long walk(int maxDepth, boolean abortWhenMaxDepthExceeded, Object... root) {
+        StringBuilder traversalDebugMessage = null;
         long result = 0;
         boolean warned = false;
         try {
@@ -98,8 +99,19 @@ final class ObjectGraphWalker {
             IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>();
 
             if (root != null) {
+                if (LOG.isDebugEnabled()) {
+                    traversalDebugMessage = new StringBuilder();
+                    traversalDebugMessage.append("visiting ");
+                }
                 for (Object object : root) {
                     nullSafeAdd(toVisit, object);
+                    if (LOG.isDebugEnabled() && object != null) {
+                        traversalDebugMessage.append(object.getClass().getName())
+                            .append("@").append(System.identityHashCode(object)).append(", ");
+                    }
+                }
+                if (LOG.isDebugEnabled()) {
+                    traversalDebugMessage.deleteCharAt(traversalDebugMessage.length() - 2).append("\n");
                 }
             }
 
@@ -128,11 +140,23 @@ final class ObjectGraphWalker {
                         }
                     }
 
-                    result += visitor.visit(ref);
+                    long visitSize = visitor.visit(ref);
+                    if (LOG.isDebugEnabled()) {
+                        traversalDebugMessage.append("  ").append(visitSize).append("b\t\t")
+                            .append(ref.getClass().getName()).append("@").append(System.identityHashCode(ref)).append("\n");
+                    }
+                    result += visitSize;
+                } else if (LOG.isDebugEnabled()) {
+                    traversalDebugMessage.append("  ignored\t")
+                        .append(ref.getClass().getName()).append("@").append(System.identityHashCode(ref)).append("\n");
                 }
                 visited.put(ref, null);
             }
 
+            if (LOG.isDebugEnabled()) {
+                traversalDebugMessage.append("Total size: ").append(result).append(" bytes\n");
+                LOG.debug(traversalDebugMessage.toString());
+            }
             return result;
         } catch (MaxDepthExceededException we) {
             we.addToMeasuredSize(result);
