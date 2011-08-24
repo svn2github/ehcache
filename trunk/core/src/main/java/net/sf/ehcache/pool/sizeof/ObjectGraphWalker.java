@@ -40,7 +40,8 @@ final class ObjectGraphWalker {
     private static final Logger LOG = LoggerFactory.getLogger(ObjectGraphWalker.class);
     private static final String TC_INTERNAL_FIELD_PREFIX = "$__tc_";
 
-    private static final String ABORTION_MESSAGE = "When trying to calculate the size of on-heap objects, we followed {0} references and still aren't done.\n" +
+    private static final String ABORTION_MESSAGE = "When trying to calculate the size of on-heap objects, we followed {0} references and " +
+                                                   "still aren't done.\n" +
                " you should consider using the @IgnoreSizeOf annotation to set some stop points somewhere in you object graph,\n" +
                " or raise the amount of references which is allowed to follow before you get a warning (by adding a\n" +
                " <sizeOfPolicy maxDepth=\"[new value]\"/> either to your cache manager or to your cache) or stop using size-based,\n" +
