@@ -62,8 +62,9 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
         long sizeOf = sizeOfEngine.sizeOf(key, value, container);
         if (sizeOf < 0) {
             abortedSizeOf = true;
+            sizeOf = Math.abs(sizeOf);
         }
-        return add(Math.abs(sizeOf), force);
+        return add(sizeOf, force);
     }
 
     /**
