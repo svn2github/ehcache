@@ -9,6 +9,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -55,7 +57,7 @@ public class EvictionListenerTest {
     }
 
     @Test
-    public void testEvictedOnlyOnce() throws InterruptedException {
+    public void testEvictedOnlyOnce() throws InterruptedException, ExecutionException {
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
         cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
         int amountOfEntries = 10000;
@@ -63,7 +65,7 @@ public class EvictionListenerTest {
             cache.get("key" + (1000 + (i % 10)));
             cache.put(new Element("key" + i, UUID.randomUUID().toString()));
         }
-        Thread.sleep(2000);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
         assertThat(cache.getMemoryStoreSize(), is(100L));
         System.out.println("\n\n ****");
         System.out.println("DiskStore store size : " + cache.getDiskStoreSize());
@@ -118,9 +120,9 @@ public class EvictionListenerTest {
     }
 
     @Test
-    public void testGetsAllEvictedKeys() throws InterruptedException {
+    public void testGetsAllEvictedKeys() throws InterruptedException, ExecutionException {
         CountingCacheEventListener countingCacheEventListener = accessCache(cache);
-        Thread.sleep(2000);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
         assertThat(cache.getMemoryStoreSize(), is(100L));
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
