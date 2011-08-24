@@ -1458,8 +1458,9 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets up the CacheConfiguration for runtime consumption
      * @param cacheManager The CacheManager as part of which the cache is being setup
+     * @param localStoreCacheConfig the individual cache config
      */
-    public void setupFor(final CacheManager cacheManager) {
+    public void setupFor(final CacheManager cacheManager, CacheConfiguration localStoreCacheConfig) {
         final Collection<ConfigError> errors = validate(cacheManager.getConfiguration());
         configCachePools(cacheManager.getConfiguration());
         errors.addAll(verifyPoolAllocationsBeforeAddingTo(cacheManager,
@@ -1497,7 +1498,8 @@ public class CacheConfiguration implements Cloneable {
             });
         }
 
-        if (overflowToOffHeap == null && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
+        if (overflowToOffHeap == null && localStoreCacheConfig.isOverflowToOffHeap()
+            && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
             overflowToOffHeap = true;
         }
         if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
