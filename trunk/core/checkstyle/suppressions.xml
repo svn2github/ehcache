@@ -65,6 +65,8 @@
     <suppress checks="MutableExceptionCheck" files="MaxDepthExceededException.java"/>
 
     <!-- Candidates for refactoring -->
+    <suppress checks="CyclomaticComplexity" files="ObjectGraphWalker.java"/>
+    <suppress checks="NPathComplexity" files="ObjectGraphWalker.java"/>
     <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>
     <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
     <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
