@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -93,7 +94,7 @@ public class KeySnapshotterTest {
         KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(mockedTcStore), 1, true, rotatingSnapshotFile);
         final CyclicBarrier barrier = new CyclicBarrier(2);
         final Set mockedSet = mock(Set.class);
-        final AtomicLong counter = new AtomicLong(0);
+        final AtomicInteger counter = new AtomicInteger(0);
         final int maxElementsToReturn = 100000;
         when(mockedSet.iterator()).thenAnswer(new Answer<Iterator>() {
 
@@ -126,7 +127,7 @@ public class KeySnapshotterTest {
         assertThat("We managed to get to a " + counter.get() + " keys written out, should _NEVER_ be " + maxElementsToReturn,
             counter.get() < 3000, is(true));
         final int elementsRead = rotatingSnapshotFile.readAll().size();
-        assertThat("Should be only a couple: " + elementsRead, elementsRead < 1000, is(true));
+        assertThat("Should be only a couple: " + elementsRead, elementsRead, is(counter.get() - 1));
     }
 
     @Test
