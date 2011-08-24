@@ -27,7 +27,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.1</version>
+            <version>4.8.2</version>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
@@ -103,7 +103,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <inherited>true</inherited>
                 <configuration>
                     <skip>true</skip>
                     <includes>
@@ -114,7 +113,6 @@
                         <exclude>**/Abstract*Test.java</exclude>
                     </excludes>
                     <forkMode>always</forkMode>
-                    <childDelegation>false</childDelegation>
                     <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>
                     <reportFormat>plain</reportFormat>
@@ -159,8 +157,6 @@
                             <excludes>
                                 <exclude>**/*$*</exclude>
                             </excludes>
-                            <enableAssertions>false</enableAssertions>
-                            <useSystemClassLoader>false</useSystemClassLoader>
                             <additionalClasspathElements>
                                 <additionalClasspathElement>target/classes</additionalClasspathElement>
                             </additionalClasspathElements>
@@ -251,7 +247,7 @@
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.0.1-alpha-2</version>
+                        <version>1.1.2</version>
                         <configuration>
                             <wait>false</wait>
                             <log>${basedir}/target/${cargo.id}/cargo.log</log>
@@ -259,7 +255,7 @@
                                 <containerId>${cargo.id}</containerId>
                                 <zipUrlInstaller>
                                     <url>${cargo.zipUrl}</url>
-                                    <installDir>${user.home}/cargo/${cargo.id}</installDir>
+                                    <extractDir>${user.home}/cargo/${cargo.id}</extractDir>
                                 </zipUrlInstaller>
                                 <timeout>300000</timeout>
                             </container>
