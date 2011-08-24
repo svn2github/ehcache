@@ -756,7 +756,7 @@ public class CachingFilterTest extends AbstractWebTest {
             }
 
         }));
-        assertEquals(1000, filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
+        assertEquals(Integer.valueOf(1000), filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
 
             public String getFilterName() {
                 return null;
@@ -776,7 +776,7 @@ public class CachingFilterTest extends AbstractWebTest {
 
         }));
         //120 seconds
-        assertEquals(120000, filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
+        assertEquals(Integer.valueOf(120000), filter.parseBlockingCacheTimeoutMillis(new FilterConfig() {
 
             public String getFilterName() {
                 return null;
