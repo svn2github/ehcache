@@ -189,7 +189,10 @@ public class Cache implements Ehcache, StoreListener {
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
 
-    private static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
+    /**
+     * The FQCN for offheap stores
+     */
+    public static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
 
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 

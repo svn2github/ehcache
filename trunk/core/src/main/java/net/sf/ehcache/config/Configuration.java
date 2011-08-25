@@ -17,11 +17,14 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.config.generator.ConfigurationSource;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
 
 import org.slf4j.Logger;
@@ -29,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -522,7 +526,37 @@ public final class Configuration {
      * @see MemoryUnit#parseSizeInBytes(String)
      */
     public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
-        setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+        if (isPercentage(maxBytesOffHeap)) {
+            long maxMemory = getOffHeapLimit();
+            long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOffHeap);
+            setMaxBytesLocalOffHeap(mem);
+        } else {
+            setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+        }
+    }
+
+    private long getOffHeapLimit() {
+        try {
+            Class<Store> offHeapStoreClass = ClassLoaderUtil.loadClass(Cache.OFF_HEAP_STORE_CLASSNAME);
+
+            try {
+                return (Long)offHeapStoreClass.getMethod("getMaxBytesAllocatable").invoke(null);
+            } catch (NoSuchMethodException e) {
+                throw new CacheException("Cache: " + getName() + " cannot find static factory"
+                                         + " method create(Ehcache, String)" + " in store class " + Cache.OFF_HEAP_STORE_CLASSNAME, e);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                throw new CacheException("Cache: " + getName() + " cannot instantiate store "
+                                         + Cache.OFF_HEAP_STORE_CLASSNAME, cause);
+            } catch (IllegalAccessException e) {
+                throw new CacheException("Cache: " + getName() + " cannot instantiate store "
+                                         + Cache.OFF_HEAP_STORE_CLASSNAME, e);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new CacheException("Cache " + getName()
+                                     + " cannot be configured because the off-heap store class could not be found. "
+                                     + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
+        }
     }
 
     /**
