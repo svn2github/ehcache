@@ -180,192 +180,242 @@ public interface SampledCacheMBean extends LiveCacheStatistics, SampledCacheStat
      *
      * @return Max entries local heap config setting value
      */
-    long getConfigMaxEntriesLocalHeap();
+    long getMaxEntriesLocalHeap();
+
+    /**
+     * setMaxEntriesLocalHeap
+     * @param maxEntries
+     */
+    void setMaxEntriesLocalHeap(long maxEntries);
 
     /**
      * Configuration property accessor
      *
      * @return Max elements in memory config setting value
-     * @deprecated use {@link #getConfigMaxEntriesLocalHeap()} instead
+     * @deprecated use {@link #getMaxEntriesLocalHeap()} instead
      */
     @Deprecated
-    int getConfigMaxElementsInMemory();
+    int getMaxElementsInMemory();
 
     /**
-     * setConfigMaxElementsInMemory
+     * setMaxElementsInMemory
      * @param maxElements
      */
-    void setConfigMaxElementsInMemory(int maxElements);
+    void setMaxElementsInMemory(int maxElements);
 
     /**
      * Configuration property accessor
      *
      * @return Max bytes local heap config setting value
      */
-    long getConfigMaxBytesLocalHeap();
+    long getMaxBytesLocalHeap();
+
+    /**
+     * setMaxBytesLocalHeap
+     * @param maxBytes
+     */
+    void setMaxBytesLocalHeap(long maxBytes);
+
+    /**
+     * setMaxBytesLocalHeap
+     * @param maxBytes
+     */
+    void setMaxBytesLocalHeapAsString(String maxBytes);
 
     /**
      * Configuration property accessor
      *
-     * @return Max entries local offheap config setting value
+     * @return Max bytes local heap config setting value as string
      */
-    long getConfigMaxEntriesLocalOffHeap();
+    String getMaxBytesLocalHeapAsString();
 
     /**
      * Configuration property accessor
      *
      * @return Max bytes local offheap config setting value
      */
-    long getConfigMaxBytesLocalOffHeap();
+    long getMaxBytesLocalOffHeap();
+
+    /**
+     * Configuration property accessor
+     *
+     * @return Max bytes local offheap config setting value as string
+     */
+    String getMaxBytesLocalOffHeapAsString();
 
     /**
      * Configuration property accessor
      *
      * @return Max entries local disk config setting value
      */
-    long getConfigMaxEntriesLocalDisk();
+    long getMaxEntriesLocalDisk();
+
+    /**
+     * setMaxEntriesLocalDisk
+     * @param maxEntries
+     */
+    void setMaxEntriesLocalDisk(long maxEntries);
 
     /**
      * Configuration property accessor
      *
      * @return Max elements on disk config setting value
-     * @deprecated use {@link #getConfigMaxEntriesLocalDisk()} instead
+     * @deprecated use {@link #getMaxEntriesLocalDisk()} instead
      */
     @Deprecated
-    int getConfigMaxElementsOnDisk();
+    int getMaxElementsOnDisk();
 
     /**
-     * setConfigMaxElementsOnDisk
+     * setMaxElementsOnDisk
      * @param maxElements
      */
-    void setConfigMaxElementsOnDisk(int maxElements);
+    void setMaxElementsOnDisk(int maxElements);
 
     /**
      * Configuration property accessor
      *
      * @return Max bytes local disk config setting value
      */
-    long getConfigMaxBytesLocalDisk();
+    long getMaxBytesLocalDisk();
+
+    /**
+     * setMaxBytesLocalDisk
+     * @param maxBytes
+     */
+    void setMaxBytesLocalDisk(long maxBytes);
+
+    /**
+     * setMaxBytesLocalDisk
+     * @param maxBytes
+     */
+    void setMaxBytesLocalDiskAsString(String maxBytes);
+
+    /**
+     * Configuration property accessor
+     *
+     * @return Max bytes local disk config setting value as string
+     */
+    String getMaxBytesLocalDiskAsString();
 
     /**
      * Configuration property accessor
      *
      * @return a String representation of the policy
      */
-    String getConfigMemoryStoreEvictionPolicy();
+    String getMemoryStoreEvictionPolicy();
 
     /**
-     * setConfigMemoryStoreEvictionPolicy
+     * setMemoryStoreEvictionPolicy
      * @param evictionPolicy
      */
-    void setConfigMemoryStoreEvictionPolicy(String evictionPolicy);
+    void setMemoryStoreEvictionPolicy(String evictionPolicy);
 
     /**
      * Configuration property accessor
      *
      * @return true if set to eternal in config
      */
-    boolean isConfigEternal();
+    boolean isEternal();
 
     /**
-     * setConfigEternal
+     * setEternal
      * @param eternal
      */
-    void setConfigEternal(boolean eternal);
+    void setEternal(boolean eternal);
 
     /**
      * Configuration property accessor
      *
      * @return TTI in config
      */
-    long getConfigTimeToIdleSeconds();
+    long getTimeToIdleSeconds();
 
     /**
-     * setConfigTimeToIdleSeconds
+     * setTimeToIdleSeconds
      * @param tti
      */
-    void setConfigTimeToIdleSeconds(long tti);
+    void setTimeToIdleSeconds(long tti);
 
     /**
      * Configuration property accessor
      *
      * @return TTL in config
      */
-    long getConfigTimeToLiveSeconds();
+    long getTimeToLiveSeconds();
 
     /**
-     * setConfigTimeToLiveSeconds
+     * setTimeToLiveSeconds
      * @param ttl
      */
-    void setConfigTimeToLiveSeconds(long ttl);
+    void setTimeToLiveSeconds(long ttl);
 
     /**
      * Configuration property accessor
      *
      * @return true if overflow to disk specified in config
      */
-    boolean isConfigOverflowToDisk();
+    boolean isOverflowToDisk();
 
     /**
-     * setConfigOverflowToDisk
+     * setOverflowToDisk
      * @param overflowToDisk
      */
-    void setConfigOverflowToDisk(boolean overflowToDisk);
+    void setOverflowToDisk(boolean overflowToDisk);
 
     /**
      * Configuration property accessor
      *
      * @return true if configured with disk persistence
      */
-    boolean isConfigDiskPersistent();
+    boolean isDiskPersistent();
 
     /**
-     * setConfigDiskPersistent
+     * setDiskPersistent
      * @param diskPersistent
      */
-    void setConfigDiskPersistent(boolean diskPersistent);
+    void setDiskPersistent(boolean diskPersistent);
 
     /**
      * Configuration property accessor
      *
      * @return Value for disk expiry thread interval in seconds specified in config
      */
-    long getConfigDiskExpiryThreadIntervalSeconds();
+    long getDiskExpiryThreadIntervalSeconds();
 
     /**
-     * setConfigDiskExpiryThreadIntervalSeconds
+     * setDiskExpiryThreadIntervalSeconds
      * @param seconds
      */
-    void setConfigDiskExpiryThreadIntervalSeconds(long seconds);
+    void setDiskExpiryThreadIntervalSeconds(long seconds);
 
     /**
      * Configuration property accessor
      *
      * @return true if logging is enabled on the cache
      */
-    boolean isConfigLoggingEnabled();
+    boolean isLoggingEnabled();
 
     /**
-     * setConfigLoggingEnabled
+     * setLoggingEnabled
      * @param enabled
      */
-    void setConfigLoggingEnabled(boolean enabled);
+    void setLoggingEnabled(boolean enabled);
 
     /**
      * Configuration property accessor
      *
      * @return true if the cache is pinned
-     * @see net.sf.ehcache.config.PinnedConfiguration
+     * @see net.sf.ehcache.config.PinningConfiguration
      */
-    boolean isConfigPinned();
+    boolean isPinned();
 
     /**
      * Configuration property accessor
      *
      * @return the store to which this cache is pinned
-     * @see net.sf.ehcache.config.PinnedConfiguration
+     * @see net.sf.ehcache.config.PinningConfiguration
      */
-    String getConfigPinnedToStore();
+    String getPinnedToStore();
 
     /**
      * Is there a registered Write-behind CacheWriter

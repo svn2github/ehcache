@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.config;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -367,6 +368,9 @@ public class CacheConfiguration implements Cloneable {
     private volatile Boolean copyOnWrite;
     private volatile boolean conflictingEternalValuesWarningLogged;
     private volatile Searchable searchable;
+    private String maxBytesLocalHeapInput;
+    private String maxBytesLocalOffHeapInput;
+    private String maxBytesLocalDiskInput;
     private Long maxBytesLocalHeap;
     private Long maxBytesLocalOffHeap;
     private Long maxBytesLocalDisk;
@@ -1016,8 +1020,8 @@ public class CacheConfiguration implements Cloneable {
         }
         checkDynamicChange();
         int oldCapacity = this.maxElementsOnDisk;
-        int newCapacity = (int)(long)maxElementsOnDisk;
-        this.maxElementsOnDisk = (int)(long)maxElementsOnDisk;
+        int newCapacity = (int)maxElementsOnDisk;
+        this.maxElementsOnDisk = (int)maxElementsOnDisk;
         fireDiskCapacityChanged(oldCapacity, newCapacity);
     }
 
@@ -1231,6 +1235,7 @@ public class CacheConfiguration implements Cloneable {
         } else {
             setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesHeap));
         }
+        maxBytesLocalHeapInput = maxBytesHeap;
     }
 
     /**
@@ -1252,7 +1257,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     private void fireMaxBytesOnLocalHeapChanged(final Long oldValue, final Long newValue) {
-        if ((oldValue != null && !oldValue.equals(newValue)) || newValue != null) {
+        if ((oldValue != null && !oldValue.equals(newValue)) || (newValue != null && !newValue.equals(oldValue))) {
             for (CacheConfigurationListener listener : listeners) {
                 listener.maxBytesLocalHeapChanged(oldValue != null ? oldValue : 0, newValue);
             }
@@ -1260,7 +1265,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     private void fireMaxBytesOnLocalDiskChanged(final Long oldValue, final Long newValue) {
-        if ((oldValue != null && !oldValue.equals(newValue)) || newValue != null) {
+        if ((oldValue != null && !oldValue.equals(newValue)) || (newValue != null && !newValue.equals(oldValue))) {
             for (CacheConfigurationListener listener : listeners) {
                 listener.maxBytesLocalDiskChanged(oldValue != null ? oldValue : 0, newValue);
             }
@@ -1288,6 +1293,14 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * The string form of the maximum amount of bytes the cache should occupy off heap
+     * @return value as string in bytes
+     */
+    public String getMaxBytesLocalOffHeapAsString() {
+        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalOffHeap());
+    }
+
+    /**
      * Setter for maximum bytes off heap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
      * @param maxBytesOffHeap String representation of the size, can be relative (in %)
      */
@@ -1297,6 +1310,7 @@ public class CacheConfiguration implements Cloneable {
         } else {
             setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
         }
+        maxBytesLocalOffHeapInput = maxBytesOffHeap;
     }
 
     /**
@@ -1313,6 +1327,14 @@ public class CacheConfiguration implements Cloneable {
      */
     public Integer getMaxBytesLocalHeapPercentage() {
         return maxBytesLocalHeapPercentage;
+    }
+
+    /**
+     * The string form of the maximum amount of bytes the cache should occupy on heap
+     * @return value as string in bytes
+     */
+    public String getMaxBytesLocalHeapAsString() {
+        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalHeap());
     }
 
     /**
@@ -1369,6 +1391,14 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * The string form of the maximum amount of bytes the cache should occupy on disk
+     * @return value as string in bytes
+     */
+    public String getMaxBytesLocalDiskAsString() {
+        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalDisk());
+    }
+
+    /**
      * Setter for maxBytesOnDisk as a String. Value can have a one char unit suffix or be a percentage (ending in %)
      * @param maxBytesDisk String representation of the size, can be relative (in %)
      */
@@ -1378,6 +1408,7 @@ public class CacheConfiguration implements Cloneable {
         } else {
             setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesDisk));
         }
+        maxBytesLocalDiskInput = maxBytesDisk;
     }
 
     /**
@@ -1479,7 +1510,6 @@ public class CacheConfiguration implements Cloneable {
         registerCacheConfiguration(cacheManager);
         if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet() || cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
             addConfigurationListener(new AbstractCacheConfigurationListener() {
-
                 @Override
                 public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
                     if (getMaxBytesLocalHeap() > 0
