@@ -985,7 +985,7 @@ public class CacheManager {
      * @param cache
      */
     void initializeEhcache(final Ehcache cache) {
-        cache.getCacheConfiguration().setupFor(this, cache.getCacheConfiguration());
+        cache.getCacheConfiguration().setupFor(this);
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
             cache.setDiskStorePath(diskStorePath);
