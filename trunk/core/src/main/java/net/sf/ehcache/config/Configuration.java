@@ -1186,5 +1186,13 @@ public final class Configuration {
                 throw new IllegalStateException(evt.getPropertyName() + " can't be changed dynamically");
             }
         }
+
+        /**
+         * Checks whether the CacheManager uses a OffHeapPool
+         * @return true if using one, false otherwise
+         */
+        public boolean hasOffHeapPool() {
+            return isMaxBytesLocalOffHeapSet();
+        }
     }
 }

@@ -1757,6 +1757,14 @@ public class CacheConfiguration implements Cloneable {
         return (maxEntriesLocalHeap != null && maxEntriesLocalHeap > 0) || maxElementsOnDisk > 0;
     }
 
+    /**
+     * Checks whether the overflowing to off heap behavior was explicitly set
+     * @return true if explicitly set, false otherwise
+     */
+    public boolean isOverflowToOffHeapSet() {
+        return overflowToOffHeap != null;
+    }
+
 
     /**
      * Configuration for the CacheEventListenerFactory.

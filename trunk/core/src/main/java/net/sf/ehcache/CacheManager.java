@@ -936,6 +936,16 @@ public class CacheManager {
         if (cache == null) {
             return;
         }
+        final CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+      final boolean verifyOffHeapUsage = runtimeCfg.hasOffHeapPool()
+                                         && !cacheConfiguration.isOverflowToOffHeapSet()
+                                         && !cacheConfiguration.isOverflowToDisk();
+      if (verifyOffHeapUsage &&
+            (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet()
+             || cacheConfiguration.isOverflowToOffHeap()
+             || cacheConfiguration.getMaxBytesLocalOffHeap() > 0)) {
+            throw new CacheException("CacheManager uses OffHeap settings, you can't add cache using offHeap dynamically!");
+        }
         addCacheNoCheck(cache, true);
     }
 
