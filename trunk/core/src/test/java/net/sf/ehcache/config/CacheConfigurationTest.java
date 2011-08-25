@@ -1,6 +1,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import org.junit.Before;
@@ -9,6 +10,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -77,6 +79,28 @@ public class CacheConfigurationTest {
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
             fail("Shouldn't have thrown an exception");
+        }
+    }
+
+    @Test
+    public void testMaxEntriesLocalDiskAndMaxElementsOnDiskAlias() {
+        CacheConfiguration configuration = new CacheConfiguration().maxElementsOnDisk(10);
+        assertThat(configuration.getMaxEntriesLocalDisk(), is(10L));
+        assertThat(configuration.getMaxElementsOnDisk(), is(10));
+        configuration.maxEntriesLocalDisk(20);
+        assertThat(configuration.getMaxEntriesLocalDisk(), is(20L));
+        assertThat(configuration.getMaxElementsOnDisk(), is(20));
+    }
+
+    @Test
+    public void testCantSetMaxEntriesLocalDiskWhenClustered() {
+        CacheConfiguration configuration = new CacheConfiguration("Test", 10)
+            .maxEntriesLocalDisk(10).terracotta(new TerracottaConfiguration());
+        try {
+            cacheManager.addCache(new Cache(configuration));
+            fail("This should throw InvalidConfigurationException");
+        } catch (CacheException e) {
+            assertThat(e.getMessage().contains("use maxElementsOnDisk instead"), is(true));
         }
     }
 

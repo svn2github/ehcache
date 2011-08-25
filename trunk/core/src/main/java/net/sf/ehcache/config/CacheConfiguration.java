@@ -376,6 +376,7 @@ public class CacheConfiguration implements Cloneable {
     private PoolUsage onHeapPoolUsage;
     private PoolUsage offHeapPoolUsage;
     private PoolUsage onDiskPoolUsage;
+    private volatile boolean maxEntriesLocalDiskExplicitlySet;
 
     /**
      * Default constructor.
@@ -1009,7 +1010,15 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
-        setMaxEntriesLocalDisk(maxElementsOnDisk);
+        if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
+            throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
+                                                    "MaxBytesLocalDisk set on cache");
+        }
+        checkDynamicChange();
+        int oldCapacity = this.maxElementsOnDisk;
+        int newCapacity = (int)(long)maxElementsOnDisk;
+        this.maxElementsOnDisk = (int)(long)maxElementsOnDisk;
+        fireDiskCapacityChanged(oldCapacity, newCapacity);
     }
 
     /**
@@ -1023,16 +1032,12 @@ public class CacheConfiguration implements Cloneable {
         if (maxEntriesOnDisk > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
         }
-
-        if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
-            throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
-                                                    "MaxBytesLocalDisk set on cache");
+        // This check against pool usage is only there to see if this configuration backs up a running cache
+        if (onDiskPoolUsage != null && isTerracottaClustered()) {
+            throw new IllegalStateException("Can't use local disks with Terracotta clustered caches!");
         }
-        checkDynamicChange();
-        int oldCapacity = this.maxElementsOnDisk;
-        int newCapacity = (int) maxEntriesOnDisk;
-        this.maxElementsOnDisk = (int) maxEntriesOnDisk;
-        fireDiskCapacityChanged(oldCapacity, newCapacity);
+        maxEntriesLocalDiskExplicitlySet = true;
+        setMaxElementsOnDisk((int)maxEntriesOnDisk);
     }
 
     /**
@@ -1661,6 +1666,12 @@ public class CacheConfiguration implements Cloneable {
     public Collection<ConfigError> validate(final Configuration configuration) {
 
         final Collection<ConfigError> errors = new ArrayList<ConfigError>();
+
+        if (isTerracottaClustered() && maxEntriesLocalDiskExplicitlySet) {
+            errors.add(new CacheConfigError("You can't set maxEntriesLocalDisk when clustering your cache with Terracotta, " +
+                                            "local disks won't be used! To control elements going in the cache cluster wide, " +
+                                            "use maxElementsOnDisk instead", getName()));
+        }
 
         if (maxEntriesLocalHeap == null && !configuration.isMaxBytesLocalHeapSet() && maxBytesLocalHeap == null) {
             errors.add(new CacheConfigError("If your CacheManager has no maxBytesLocalHeap set, you need to either set " +
