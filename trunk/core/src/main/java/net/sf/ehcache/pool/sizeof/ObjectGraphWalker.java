@@ -40,12 +40,20 @@ final class ObjectGraphWalker {
     private static final Logger LOG = LoggerFactory.getLogger(ObjectGraphWalker.class);
     private static final String TC_INTERNAL_FIELD_PREFIX = "$__tc_";
 
-    private static final String ABORTION_MESSAGE = "When trying to calculate the size of on-heap objects, we followed {0} references and " +
-                                                   "still aren't done.\n" +
-               " you should consider using the @IgnoreSizeOf annotation to set some stop points somewhere in you object graph,\n" +
-               " or raise the amount of references which is allowed to follow before you get a warning (by adding a\n" +
-               " <sizeOfPolicy maxDepth=\"[new value]\"/> either to your cache manager or to your cache) or stop using size-based,\n" +
-               " auto-tuned caches and use count-based ones instead.";
+    private static final String CONTINUE_MESSAGE =
+        "The configured limit of {0} object references was reached while attempting to calculate the size of the object graph." +
+        " Severe performance degradation could occur if the sizing operation continues. This can be avoided by setting the CacheManger or Cache" +
+        " <sizeOfPolicy> element's maxDepthExceededBehavior to \"abort\" or adding stop points with @IgnoreSizeOf annotations." +
+        " If performance degradation is NOT an issue at the configured limit, raise the limit value using the CacheManager or Cache <sizeOfPolicy>" +
+        " element's maxDepth attribute. For more information, see the Ehcache configuration documentation.";
+
+    private static final String ABORT_MESSAGE =
+        "The configured limit of {0} object references was reached while attempting to calculate the size of the object graph." +
+        " This can be avoided by adding stop points with @IgnoreSizeOf annotations." +
+        " Since the CacheManger or Cache <sizeOfPolicy> element's maxDepthExceededBehavior is set to \"abort\", the sizing operation has stopped" +
+        " and the reported cache size is not accurate. If performance degradation is NOT an issue at the configured limit, raise the limit value" +
+        " using the CacheManager or Cache <sizeOfPolicy> element's maxDepth attribute. For more information, see the Ehcache configuration documentation.";
+
 
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
@@ -168,9 +176,9 @@ final class ObjectGraphWalker {
                                   final IdentityHashMap<Object, Object> visited) {
         if (visited.size() >= maxDepth) {
             if (abortWhenMaxDepthExceeded) {
-                throw new MaxDepthExceededException(MessageFormat.format(ABORTION_MESSAGE, maxDepth));
+                throw new MaxDepthExceededException(MessageFormat.format(ABORT_MESSAGE, maxDepth));
             } else if (!warned) {
-                LOG.warn(MessageFormat.format(ABORTION_MESSAGE, maxDepth));
+                LOG.warn(MessageFormat.format(CONTINUE_MESSAGE, maxDepth));
                 warned = true;
             }
         }
@@ -189,6 +197,13 @@ final class ObjectGraphWalker {
             return fieldList;
         } else {
             Collection<Field> result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
+            if (LOG.isDebugEnabled()) {
+                for (Field field : result) {
+                    if (Modifier.isTransient(field.getModifiers())) {
+                        LOG.debug("SizeOf engine walking transient field {} of class {}", field.getName(), refClass);
+                    }
+                }
+            }
             fieldCache.put(refClass, new SoftReference<Collection<Field>>(result));
             return result;
         }
