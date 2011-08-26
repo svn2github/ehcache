@@ -1020,9 +1020,8 @@ public class CacheConfiguration implements Cloneable {
         }
         checkDynamicChange();
         int oldCapacity = this.maxElementsOnDisk;
-        int newCapacity = (int)maxElementsOnDisk;
-        this.maxElementsOnDisk = (int)maxElementsOnDisk;
-        fireDiskCapacityChanged(oldCapacity, newCapacity);
+        this.maxElementsOnDisk = maxElementsOnDisk;
+        fireDiskCapacityChanged(oldCapacity, this.maxElementsOnDisk);
     }
 
     /**
