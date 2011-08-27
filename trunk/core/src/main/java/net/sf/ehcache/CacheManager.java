@@ -993,9 +993,10 @@ public class CacheManager {
      * Initialize the given {@link Ehcache} without adding it to the {@link CacheManager}.
      *
      * @param cache
+     * @param registerCacheConfig
      */
-    void initializeEhcache(final Ehcache cache) {
-        cache.getCacheConfiguration().setupFor(this);
+    void initializeEhcache(final Ehcache cache, final boolean registerCacheConfig) {
+        cache.getCacheConfiguration().setupFor(this, registerCacheConfig);
         cache.setCacheManager(this);
         if (cache.getCacheConfiguration().getDiskStorePath() == null) {
             cache.setDiskStorePath(diskStorePath);
@@ -1050,7 +1051,7 @@ public class CacheManager {
             }
         }
 
-        initializeEhcache(cache);
+        initializeEhcache(cache, true);
 
         ehcache = ehcaches.putIfAbsent(cache.getName(), cache);
         if (ehcache != null) {

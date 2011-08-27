@@ -1491,10 +1491,18 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets up the CacheConfiguration for runtime consumption
+     * Sets up the CacheConfiguration for runtime consumption, also registers this cache configuration with the cache manager's configuration
      * @param cacheManager The CacheManager as part of which the cache is being setup
      */
     public void setupFor(final CacheManager cacheManager) {
+        setupFor(cacheManager, true);
+    }
+    /**
+     * Sets up the CacheConfiguration for runtime consumption
+     * @param cacheManager The CacheManager as part of which the cache is being setup
+     * @param register true to register this cache configuration with the cache manager.
+     */
+    public void setupFor(final CacheManager cacheManager, final boolean register) {
         final Collection<ConfigError> errors = validate(cacheManager.getConfiguration());
         configCachePools(cacheManager.getConfiguration());
         errors.addAll(verifyPoolAllocationsBeforeAddingTo(cacheManager,
@@ -1506,7 +1514,9 @@ public class CacheConfiguration implements Cloneable {
         }
 
         updateCacheManagerPoolSizes(cacheManager);
-        registerCacheConfiguration(cacheManager);
+        if (register) {
+            registerCacheConfiguration(cacheManager);
+        }
         if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet() || cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
             addConfigurationListener(new AbstractCacheConfigurationListener() {
                 @Override
