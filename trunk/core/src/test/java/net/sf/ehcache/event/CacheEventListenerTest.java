@@ -17,10 +17,13 @@
 package net.sf.ehcache.event;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
+import org.hibernate.engine.Cascade;
 import org.junit.After;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -39,6 +42,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -512,7 +516,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * trigger an eviction notification.
      */
     @Test
-    public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
+    public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException, ExecutionException {
         String sampleCache1 = "sampleCache1";
         cache = manager.getCache(sampleCache1);
         cache.removeAll();
@@ -528,8 +532,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.get(i + "");
         }
         assertThat(cache.getMemoryStoreSize(), is(10L));
-        // I'll go to hell for this!
-        Thread.sleep(1000);
+        DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
         assertThat(cache.getMemoryStoreSize(), is(10L));
         List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
         assertEquals(cacheEventNotificationService.getElementsEvictedCounter(), elementsEvictedCounter + 1);
