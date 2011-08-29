@@ -4,17 +4,16 @@ import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.net.Proxy;
-import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
@@ -33,7 +32,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
   private static long deepSizeOf(SizeOf sizeOf, Object... obj) {
     return sizeOf.deepSizeOf(1000, true, obj);
   }
-    
+
   @BeforeClass
   public static void setup() {
     deepSizeOf(new CrossCheckingSizeOf(), new EvilPair(new Object(), new SomeClass(true)));
