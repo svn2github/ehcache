@@ -18,6 +18,7 @@ package net.sf.ehcache.store.compound;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.PreferTCCLObjectInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -79,7 +80,7 @@ public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy
             ByteArrayInputStream bin = new ByteArrayInputStream((byte[]) storedValue.getObjectValue());
             ObjectInputStream ois = null;
             try {
-                ois = new ObjectInputStream(bin);
+                ois = new PreferTCCLObjectInputStream(bin);
                 return duplicateElementWithNewValue(storedValue, ois.readObject());
             } catch (Exception e) {
                 throw new CacheException("When configured copyOnRead or copyOnWrite, a Store will only accept Serializable values", e);
