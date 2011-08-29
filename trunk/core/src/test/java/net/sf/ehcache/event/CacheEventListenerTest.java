@@ -23,7 +23,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-import org.hibernate.engine.Cascade;
 import org.junit.After;
 
 import static org.hamcrest.CoreMatchers.equalTo;
