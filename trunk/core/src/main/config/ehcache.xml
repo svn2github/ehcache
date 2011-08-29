@@ -33,6 +33,30 @@ Terracotta Developer Console. With the "autodetect" value, the presence of Terra
 will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
 are "on" and "off".  The default is "autodetect". This setting does not perform any function when
 used with JMX monitors.
+
+* maxBytesLocalHeap - optional setting that constraints the memory usage of the Caches managed by the CacheManager
+configured through this file to use at most a maximum amount of bytes of the local VM's heap.
+* maxBytesLocalOffHeap - optional setting that constraints the offHeap usage of the Caches managed by the CacheManager
+configured through this file to use at most a maximum amount of bytes of the local VM's offHeap memory.
+* maxBytesLocalDisk - optional setting that constraints the disk usage of the Caches managed by the CacheManager
+configured through this file to use at most a maximum amount of bytes of the local disk.
+
+These settings let you define "resource pools", caches will share. For instance setting maxBytesLocalHeap to 100M, will result in
+all caches sharing 100 MegaBytes of ram. The CacheManager will balance these 100 MB across all caches based on their respective usage
+patterns. You can allocate a precise amount of bytes to a particular cache by setting the appropriate maxBytes* attribute for that cache.
+That amount will be subtracted from the CacheManager pools, so that if a cache a specified 30M requirement, the other caches will share
+the remaining 70M.
+
+Also, specifying a maxBytesLocalOffHeap at the CacheManager level will result in overflowToOffHeap to be true by default. If you don't want
+a specific cache to overflow to off heap, you'll have to set overflowToOffHeap="false" explicitly
+
+Here is an example of CacheManager level resource tuning, which will use up to 400M of heap and 2G of offHeap:
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+         updateCheck="true" monitoring="autodetect"
+         dynamicConfig="true" maxBytesLocalHeap="400M" maxBytesLocalOffHeap="2G">
+
 -->
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
@@ -402,21 +426,33 @@ used with JMX monitors.
     storage to improve performance. Off-heap memory is not subject to Java
     GC. The default value is false.
 
-    maxMemoryOffHeap:
-    (string) This feature is available only in enterprise versions of Ehcache.
-    Sets the amount of off-heap memory available to the cache.
-    This attribute's values are given as <number>k|K|m|M|g|G|t|T for
-    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terabytes
-    (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
-    off-heap memory.
+    maxBytesLocalHeap:
+    Defines how many bytes the cache may use from the VM's heap. If a CacheManager
+    maxBytesLocalHeap has been defined, this Cache's specified amount will be
+    subtracted from the CacheManager. Other caches will share the remainder.
+    This attribute's values are given as <number>k|K|m|M|g|G for
+    kilobytes (k|K), megabytes (m|M), or gigabytes (g|G).
+    For example, maxMemoryOffHeap="2g" allots 2 gigabytes to off-heap memory.
+    If you specify a maxBytesLocalHeap, you can't use the maxElementsInMemory attribute.
+    maxElementsInMemory can't be used if a CacheManager maxBytesLocalHeap is set.
 
-    This setting is in effect only if overflowToOffHeap is true.
+    Elements put into the cache will be measured in size using net.sf.ehcache.pool.sizeof.SizeOf
+    If you wish to ignore some part of the object graph, see net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf
+
+    maxBytesLocalOffHeap:
+    This feature is available only in enterprise versions of Ehcache.
+    Sets the amount of off-heap memory this cache can use, and will reserve.
+
+    This setting will set overflowToOffHeap to true. Set explicitly to false to disable overflow behavior.
 
     Note that it is recommended to set maxElementsInMemory to at least 100 elements
     when using an off-heap store, otherwise performance will be seriously degraded,
     and a warning will be logged.
 
     The minimum amount that can be allocated is 128MB. There is no maximum.
+
+    maxBytesLocalDisk:
+    As for maxBytesLocalHeap, but specifies the limit of disk storage this cache will ever use.
 
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
@@ -493,6 +529,9 @@ used with JMX monitors.
     * copyStrategy - Specifies a fully qualified class which implements
       net.sf.ehcache.store.compound.CopyStrategy. This strategy will be used for copyOnRead
       and copyOnWrite in place of the default which is serialization.
+
+    Example of cache level resource tuning:
+    <cache name="memBound" maxBytesLocalHeap="100m" maxBytesLocalOffHeap="4g" maxBytesLocalDisk="200g" />
 
 
     Cache Event Listeners
