@@ -1043,10 +1043,10 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         }
 
         //wait for cluster to drop back to just one: manager1
-        waitForPropagate();
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1);
 
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         final String keyBase = Long.toString(start);
         int count = 0;
 
@@ -1057,8 +1057,8 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             cache1.remove(key);
             count++;
 
-            final long end = System.currentTimeMillis();
-            if (end - start >= 1000) {
+            final long end = System.nanoTime();
+            if (end - start >= TimeUnit.SECONDS.toNanos(1)) {
                 start = end;
                 LOG.info("Items written: " + count);
                 //make sure it does not choke
