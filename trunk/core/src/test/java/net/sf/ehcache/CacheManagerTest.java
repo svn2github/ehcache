@@ -49,6 +49,7 @@ import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.distribution.AbstractRMITest;
 import net.sf.ehcache.distribution.JVMUtil;
 import net.sf.ehcache.distribution.RMIAsynchronousCacheReplicator;
 import net.sf.ehcache.distribution.RMIBootstrapCacheLoader;
@@ -60,6 +61,7 @@ import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.util.MemorySizeParser;
 
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -85,6 +87,11 @@ public class CacheManagerTest {
      * a CacheManager which is created as an instance
      */
     protected CacheManager instanceManager;
+
+    @BeforeClass
+    public static void installRMISocketFactory() {
+        AbstractRMITest.installRMISocketFactory();
+    }
 
     /**
      * Shutdown managers. Check that the manager is removed from
