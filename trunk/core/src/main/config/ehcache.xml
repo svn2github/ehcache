@@ -35,11 +35,11 @@ are "on" and "off".  The default is "autodetect". This setting does not perform 
 used with JMX monitors.
 
 * maxBytesLocalHeap - optional setting that constraints the memory usage of the Caches managed by the CacheManager
-configured through this file to use at most a maximum amount of bytes of the local VM's heap.
+to use at most the specified number of bytes of the local VM's heap.
 * maxBytesLocalOffHeap - optional setting that constraints the offHeap usage of the Caches managed by the CacheManager
-configured through this file to use at most a maximum amount of bytes of the local VM's offHeap memory.
+to use at most the specified number of bytes of the local VM's offHeap memory.
 * maxBytesLocalDisk - optional setting that constraints the disk usage of the Caches managed by the CacheManager
-configured through this file to use at most a maximum amount of bytes of the local disk.
+to use at most the specified number of bytes of the local disk.
 
 These settings let you define "resource pools", caches will share. For instance setting maxBytesLocalHeap to 100M, will result in
 all caches sharing 100 MegaBytes of ram. The CacheManager will balance these 100 MB across all caches based on their respective usage
@@ -401,12 +401,12 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     name:
     Sets the name of the cache. This is used to identify the cache. It must be unique.
 
-    maxElementsInMemory:
+    maxEntriesLocalHeap:
     Sets the maximum number of objects that will be created in memory.  0 = no limit.
     In practice no limit means Integer.MAX_SIZE (2147483647) unless the cache is distributed
     with a Terracotta server in which case it is limited by resources.
 
-    maxElementsOnDisk:
+    maxEntriesLocalDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
     The default value is zero, meaning unlimited.
 
@@ -433,8 +433,8 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     This attribute's values are given as <number>k|K|m|M|g|G for
     kilobytes (k|K), megabytes (m|M), or gigabytes (g|G).
     For example, maxMemoryOffHeap="2g" allots 2 gigabytes to off-heap memory.
-    If you specify a maxBytesLocalHeap, you can't use the maxElementsInMemory attribute.
-    maxElementsInMemory can't be used if a CacheManager maxBytesLocalHeap is set.
+    If you specify a maxBytesLocalHeap, you can't use the maxEntriesLocalHeap attribute.
+    maxEntriesLocalHeap can't be used if a CacheManager maxBytesLocalHeap is set.
 
     Elements put into the cache will be measured in size using net.sf.ehcache.pool.sizeof.SizeOf
     If you wish to ignore some part of the object graph, see net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf
@@ -445,7 +445,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     This setting will set overflowToOffHeap to true. Set explicitly to false to disable overflow behavior.
 
-    Note that it is recommended to set maxElementsInMemory to at least 100 elements
+    Note that it is recommended to set maxEntriesLocalHeap to at least 100 elements
     when using an off-heap store, otherwise performance will be seriously degraded,
     and a warning will be logged.
 
@@ -493,7 +493,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     To enable set statistics="true"
 
     memoryStoreEvictionPolicy:
-    Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+    Policy would be enforced upon reaching the maxEntriesLocalHeap limit. Default
     policy is Least Recently Used (specified as LRU). Other policies available -
     First In First Out (specified as FIFO) and Less Frequently Used
     (specified as LFU)
@@ -963,13 +963,13 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
     <defaultCache
-            maxElementsInMemory="10000"
+            maxEntriesLocalHeap="10000"
             eternal="false"
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
             overflowToDisk="true"
             diskSpoolBufferSizeMB="30"
-            maxElementsOnDisk="10000000"
+            maxEntriesLocalDisk="10000000"
             diskPersistent="false"
             diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
@@ -991,8 +991,8 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     defined on your system. On a standard Linux system this will be /tmp"
     -->
     <cache name="sampleCache1"
-           maxElementsInMemory="10000"
-           maxElementsOnDisk="1000"
+           maxEntriesLocalHeap="10000"
+           maxEntriesLocalDisk="1000"
            eternal="false"
            overflowToDisk="true"
            diskSpoolBufferSizeMB="20"
@@ -1010,7 +1010,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     timeToIdle are not used and do not need to be specified.
     -->
     <cache name="sampleCache2"
-           maxElementsInMemory="1000"
+           maxEntriesLocalHeap="1000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="FIFO"
@@ -1023,7 +1023,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     minutes, overriding the default of 2 minutes.
     -->
     <cache name="sampleCache3"
-           maxElementsInMemory="500"
+           maxEntriesLocalHeap="500"
            eternal="false"
            overflowToDisk="true"
            timeToIdleSeconds="300"
@@ -1040,7 +1040,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     It also bootstraps from the cluster, using default properties.
     -->
     <cache name="sampleReplicatedCache1"
-           maxElementsInMemory="10"
+           maxEntriesLocalHeap="10"
            eternal="false"
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
@@ -1059,7 +1059,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     It only replicates updates and does so synchronously via copy
     -->
     <cache name="sampleRepicatedCache2"
-           maxElementsInMemory="10"
+           maxEntriesLocalHeap="10"
            eternal="false"
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
@@ -1078,7 +1078,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     This one includes / and # which were illegal in ehcache 1.5.
     -->
     <cache name="sampleReplicatedCache3"
-           maxElementsInMemory="10"
+           maxEntriesLocalHeap="10"
            eternal="false"
            timeToIdleSeconds="100"
            timeToLiveSeconds="100"
@@ -1094,7 +1094,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     -->
     <!--
     <cache name="sampleTerracottaCache"
-           maxElementsInMemory="1000"
+           maxEntriesLocalHeap="1000"
            eternal="false"
            timeToIdleSeconds="3600"
            timeToLiveSeconds="1800"
@@ -1106,7 +1106,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     <!--
       Sample xa enabled cache named xaCache
     <cache name="xaCache"
-           maxElementsInMemory="500"
+           maxEntriesLocalHeap="500"
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
@@ -1122,7 +1122,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
       using the default (explicitly configured here as an example) ReadWriteSerializationCopyStrategy
       class could be any implementation of net.sf.ehcache.store.compound.CopyStrategy
     <cache name="copyCache"
-           maxElementsInMemory="500"
+           maxEntriesLocalHeap="500"
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
@@ -1137,7 +1137,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     <!--
       Sample, for Enterprise Ehcache only, demonstrating a tiered cache with in-memory, off-heap and disk stores. In this example the in-memory (on-heap) store is limited to 10,000 items ... which for example for 1k items would use 10MB of memory, the off-heap store is limited to 4GB and the disk store is unlimited in size.
     <cache name="tieredCache"
-           maxElementsInMemory="10000"
+           maxEntriesLocalHeap="10000"
            eternal="false"
            timeToLiveSeconds="600"
            overflowToOffHeap="true"
