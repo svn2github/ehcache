@@ -192,7 +192,7 @@ public class CacheConfiguration implements Cloneable {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
     private static final int HUNDRED_PERCENT = 100;
-
+    private static final int MINIMUM_RECOMMENDED_IN_MEMORY = 100;
 
     /**
      * the name of the cache.
@@ -1497,6 +1497,7 @@ public class CacheConfiguration implements Cloneable {
     public void setupFor(final CacheManager cacheManager) {
         setupFor(cacheManager, true);
     }
+
     /**
      * Sets up the CacheConfiguration for runtime consumption
      * @param cacheManager The CacheManager as part of which the cache is being setup
@@ -1547,7 +1548,19 @@ public class CacheConfiguration implements Cloneable {
         if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
             overflowToDisk = true;
         }
+        warnMaxEntriesForOverflowToOffHeap(register);
         freezePoolUsages(cacheManager);
+    }
+
+    private void warnMaxEntriesForOverflowToOffHeap(final boolean register) {
+        if (overflowToOffHeap != null && overflowToOffHeap && register) {
+            if (getMaxEntriesLocalHeap() > 0 && getMaxEntriesLocalHeap() < MINIMUM_RECOMMENDED_IN_MEMORY) {
+                LOG.warn("The " + getName() + " cache is configured for off-heap and has a maxEntriesLocalHeap/maxElementsInMemory of "
+                        + getMaxEntriesLocalHeap() + ".  It is recommended to set maxEntriesLocalHeap/maxElementsInMemory to at least "
+                        + MINIMUM_RECOMMENDED_IN_MEMORY + " elements when using an off-heap store, otherwise performance "
+                        + "will be seriously degraded.");
+              }
+        }
     }
 
     private void freezePoolUsages(final CacheManager cacheManager) {
@@ -1651,7 +1664,7 @@ public class CacheConfiguration implements Cloneable {
         if ((isMaxBytesLocalDiskPercentageSet() || getMaxBytesLocalDisk() > 0)
             && managerMaxBytesLocalDisk > 0 && managerMaxBytesLocalDisk - totalOnDiskAssignedMemory < 0) {
             configErrors.add(new ConfigError("Cache '" + getName()
-                                                    + "' er-allocates CacheManager's localOnDisk limit!"));
+                                                    + "' re-allocates CacheManager's localOnDisk limit!"));
         }
     }
 
@@ -1660,7 +1673,7 @@ public class CacheConfiguration implements Cloneable {
         if ((isMaxBytesLocalOffHeapPercentageSet() || getMaxBytesLocalOffHeap() > 0)
             && managerMaxBytesLocalOffHeap > 0 && managerMaxBytesLocalOffHeap - totalOffHeapAssignedMemory < 0) {
             configErrors.add(new ConfigError("Cache '" + getName()
-                                            + "' er-allocates CacheManager's localOffHeap limit!"));
+                                            + "' re-allocates CacheManager's localOffHeap limit!"));
         }
     }
 
