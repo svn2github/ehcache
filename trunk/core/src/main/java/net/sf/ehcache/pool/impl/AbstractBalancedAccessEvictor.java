@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.pool.PoolEvictor;
 
@@ -35,20 +37,33 @@ import net.sf.ehcache.pool.PoolEvictor;
 public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T> {
 
     private static final double ALPHA = 1.0;
+    private static final int SAMPLE_SIZE = 5;
 
     /**
      * Comparator used to rank the stores in order of eviction 'cost'.
      */
-    private class EvictionCostComparator implements Comparator<T> {
+    private final class EvictionCostComparator implements Comparator<T> {
 
         private final long unloadedSize;
+        private final Map<T, Float> evictionCostCache;
 
-        public EvictionCostComparator(long unloadedSize) {
+        public EvictionCostComparator(long unloadedSize, int collectionSize) {
             this.unloadedSize = unloadedSize;
+            this.evictionCostCache = new IdentityHashMap<T, Float>(collectionSize);
         }
 
         public int compare(T s1, T s2) {
-            return Float.compare(evictionCost(s1, unloadedSize), evictionCost(s2, unloadedSize));
+            Float f1 = evictionCostCache.get(s1);
+            if (f1 == null) {
+              f1 = evictionCost(s1, unloadedSize);
+              evictionCostCache.put(s1, f1);
+            }
+            Float f2 = evictionCostCache.get(s2);
+            if (f2 == null) {
+              f2 = evictionCost(s2, unloadedSize);
+              evictionCostCache.put(s2, f2);
+            }
+            return Float.compare(f1, f2);
         }
     }
 
@@ -101,22 +116,28 @@ public abstract class AbstractBalancedAccessEvictor<T> implements PoolEvictor<T>
         if (from == null || from.isEmpty()) {
             return false;
         }
-        List<T> sorted = new ArrayList<T>(from);
-        Collections.sort(sorted, new EvictionCostComparator(getDesiredUnloadedSize(from)));
+        List<T> random = new ArrayList<T>(from);
+        Collections.shuffle(random);
 
-        for (T store : sorted) {
-            int count;
-            long byteSize = byteSize(store);
-            long countSize = countSize(store);
-            if (countSize == 0 || byteSize == 0) {
-                count = 1;
-            } else {
-                count = (int) Math.max((bytes * countSize) / byteSize, 1L);
-            }
-            if (evict(store, count, bytes)) {
-                return true;
+        for (int i = 0; i < random.size(); i += SAMPLE_SIZE) {
+            List<T> sorted = random.subList(i, Math.min(SAMPLE_SIZE + i, random.size()));
+            Collections.sort(sorted, new EvictionCostComparator(getDesiredUnloadedSize(sorted), sorted.size() + 1));
+
+            for (T store : sorted) {
+                int count;
+                long byteSize = byteSize(store);
+                long countSize = countSize(store);
+                if (countSize == 0 || byteSize == 0) {
+                    count = 1;
+                } else {
+                    count = (int) Math.max((bytes * countSize) / byteSize, 1L);
+                }
+                if (evict(store, count, bytes)) {
+                    return true;
+                }
             }
         }
+
         return false;
     }
 
