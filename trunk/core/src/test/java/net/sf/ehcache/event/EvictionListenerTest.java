@@ -50,8 +50,8 @@ public class EvictionListenerTest {
 
     @Before
     public void setup() {
-        CacheConfiguration configuration = new CacheConfiguration(CACHE_NAME, 100).overflowToDisk(true).maxBytesLocalDisk(1,
-                MemoryUnit.MEGABYTES);
+        CacheConfiguration configuration = new CacheConfiguration(CACHE_NAME, 100).overflowToDisk(true)
+            .maxBytesLocalDisk(2, MemoryUnit.MEGABYTES);
         cache = new Cache(configuration);
         cacheManager.addCache(cache);
     }
@@ -67,15 +67,16 @@ public class EvictionListenerTest {
         }
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
         assertThat(cache.getMemoryStoreSize(), is(100L));
-        System.out.println("\n\n ****");
-        System.out.println("DiskStore store size : " + cache.getDiskStoreSize());
-        System.out.println(" ****\n\n");
+        final int diskStoreSize = cache.getDiskStoreSize();
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
+        System.out.println("\n\n ****");
+        System.out.println("DiskStore store size : " + diskStoreSize);
+        System.out.println(" ****\n\n");
         assertThat(cacheElementsEvicted.isEmpty(), is(false));
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
         }
-        assertThat(cacheElementsEvicted.size(), is((amountOfEntries - cache.getDiskStoreSize())));
+        assertThat(cacheElementsEvicted.size(), is((amountOfEntries - diskStoreSize)));
     }
 
     @Test
