@@ -4102,8 +4102,10 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Only Terracotta clustered cache instances currently support querying a thread's read lock hold status.
      */
-    public boolean isReadLockedByCurrentThread(Object key) {
+    public boolean isReadLockedByCurrentThread(Object key) throws UnsupportedOperationException {
         return getLockForKey(key).isHeldByCurrentThread(LockType.READ);
     }
 

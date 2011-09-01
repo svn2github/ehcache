@@ -1287,16 +1287,18 @@ public interface Ehcache extends Cloneable {
      *
      * @param key
      * @return true if a read lock for the key is held by the current thread
+     * @throws UnsupportedOperationException if querying the read lock state is not supported
      */
-    boolean isReadLockedByCurrentThread(Object key);
+    boolean isReadLockedByCurrentThread(Object key) throws UnsupportedOperationException;
 
     /**
      * Returns true if a write lock for the key is held by the current thread
      *
      * @param key
      * @return true if a write lock for the key is held by the current thread
+     * @throws UnsupportedOperationException if querying the write lock state is not supported
      */
-    boolean isWriteLockedByCurrentThread(Object key);
+    boolean isWriteLockedByCurrentThread(Object key) throws UnsupportedOperationException;
 
     /**
      * Returns true if at least one node in the cluster is in bulk-load mode. Returns false otherwise.
