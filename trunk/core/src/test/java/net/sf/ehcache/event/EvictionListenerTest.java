@@ -51,7 +51,7 @@ public class EvictionListenerTest {
     @Before
     public void setup() {
         CacheConfiguration configuration = new CacheConfiguration(CACHE_NAME, 100).overflowToDisk(true)
-            .maxBytesLocalDisk(2, MemoryUnit.MEGABYTES);
+            .maxBytesLocalDisk(1, MemoryUnit.MEGABYTES);
         cache = new Cache(configuration);
         cacheManager.addCache(cache);
     }
