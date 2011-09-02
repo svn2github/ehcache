@@ -944,7 +944,6 @@ public class CacheManager {
 
         if (verifyOffHeapUsage &&
             (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet()
-             || cacheConfiguration.isOverflowToOffHeap()
              || cacheConfiguration.getMaxBytesLocalOffHeap() > 0)) {
             throw new CacheException("CacheManager uses OffHeap settings, you can't add cache using offHeap dynamically!");
         }
