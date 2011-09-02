@@ -16,6 +16,8 @@
 
 package net.sf.ehcache;
 
+import java.io.Serializable;
+
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -69,8 +71,8 @@ public class CacheCopyOnRwPoolTest {
         Cache cache = cacheManager.getCache("memoryOnlyCache");
         Cache copyCache = cacheManager.getCache("memoryOnlyCache_copy");
 
-        cache.put(new Element(1000, 1000));
-        copyCache.put(new Element(1000, 1000));
+        cache.put(new Element(1000, new CrazyObject()));
+        copyCache.put(new Element(1000, new CrazyObject()));
 
         long cacheSize = cache.calculateInMemorySize();
         System.out.println("cache size : " + cacheSize);
@@ -101,8 +103,8 @@ public class CacheCopyOnRwPoolTest {
         Cache cache = cacheManager.getCache("overflowToDiskCache");
         Cache copyCache = cacheManager.getCache("overflowToDiskCache_copy");
 
-        cache.put(new Element(1000, 1000));
-        copyCache.put(new Element(1000, 1000));
+        cache.put(new Element(1000, new CrazyObject()));
+        copyCache.put(new Element(1000, new CrazyObject()));
 
         Thread.sleep(1000);
 
@@ -145,8 +147,8 @@ public class CacheCopyOnRwPoolTest {
         Cache cache = cacheManager.getCache("diskPersistentCache");
         Cache copyCache = cacheManager.getCache("diskPersistentCache_copy");
 
-        cache.put(new Element(1000, 1000));
-        copyCache.put(new Element(1000, 1000));
+        cache.put(new Element(1000, new CrazyObject()));
+        copyCache.put(new Element(1000, new CrazyObject()));
 
         Thread.sleep(1000);
 
@@ -167,5 +169,15 @@ public class CacheCopyOnRwPoolTest {
         assertTrue(cacheDiskSize != copyCacheDiskSize);
     }
 
+    static class CrazyObject implements Serializable {
+
+        public Object writeReplace() {
+            return new byte[1024];
+        }
+
+        public Object readResolve() {
+            return new CrazyObject();
+        }
+    }
 }
 
