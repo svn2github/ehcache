@@ -32,6 +32,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
@@ -672,11 +673,16 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
+            DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
+                SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT)
+            );
             long sizeInBytes = 0;
             for (Object o : map.values()) {
-                Element element = (Element) o;
+                Element element = (Element)o;
                 if (element != null) {
-                    sizeInBytes += element.getSerializedSize();
+                    long size = defaultSizeOfEngine.sizeOf(element.getObjectKey(), element, map.storedObject(element));
+                    sizeInBytes += Math.abs(size);
                 }
             }
             return sizeInBytes;
