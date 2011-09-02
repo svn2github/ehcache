@@ -937,10 +937,12 @@ public class CacheManager {
             return;
         }
         final CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
-      final boolean verifyOffHeapUsage = runtimeCfg.hasOffHeapPool()
-                                         && !cacheConfiguration.isOverflowToOffHeapSet()
-                                         && !cacheConfiguration.isOverflowToDisk();
-      if (verifyOffHeapUsage &&
+        final boolean verifyOffHeapUsage = runtimeCfg.hasOffHeapPool()
+                                           && ((!cacheConfiguration.isOverflowToDisk()
+                                                && !cacheConfiguration.isOverflowToOffHeapSet())
+                                               || cacheConfiguration.isOverflowToOffHeap());
+
+        if (verifyOffHeapUsage &&
             (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet()
              || cacheConfiguration.isOverflowToOffHeap()
              || cacheConfiguration.getMaxBytesLocalOffHeap() > 0)) {
