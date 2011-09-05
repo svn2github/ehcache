@@ -51,6 +51,7 @@ import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorServiceFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
@@ -58,6 +59,7 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
+import net.sf.ehcache.event.NonstopCacheEventListener;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
@@ -481,7 +483,21 @@ public class CacheManager {
      * @return a new cache event replicator
      */
     public CacheEventListener createTerracottaEventReplicator(Ehcache cache) {
-        return getClusteredInstanceFactory(cache).createEventReplicator(cache);
+        CacheEventListener cacheEventListener = getClusteredInstanceFactory(cache).createEventReplicator(cache);
+        CacheConfiguration cacheConfig = cache.getCacheConfiguration();
+        if (cacheConfig.isTerracottaClustered() && cacheConfig.getTerracottaConfiguration().isNonstopEnabled()) {
+            NonstopActiveDelegateHolder nonstopActiveDelegateHolder = getNonstopActiveDelegateHolder(cache);
+            cacheEventListener = new NonstopCacheEventListener(nonstopActiveDelegateHolder, cacheEventListener);
+        }
+        return cacheEventListener;
+    }
+
+    private NonstopActiveDelegateHolder getNonstopActiveDelegateHolder(Ehcache cache) {
+        if (cache instanceof Cache) {
+            return ((Cache) cache).getNonstopActiveDelegateHolder();
+        } else {
+            throw new CacheException("Cache event replication using Terracotta is not supported for Cache decorators");
+        }
     }
 
     /**
