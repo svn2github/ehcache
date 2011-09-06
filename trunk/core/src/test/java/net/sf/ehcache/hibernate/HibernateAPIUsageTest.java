@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.util.RetryAssert;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
@@ -29,6 +30,7 @@ import org.junit.After;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -52,8 +54,6 @@ import org.slf4j.LoggerFactory;
  */
 public class HibernateAPIUsageTest extends AbstractCacheTest {
     private static final Logger LOG = LoggerFactory.getLogger(HibernateAPIUsageTest.class.getName());
-    private static final int EMPTY_ELEMENT_SIZE = 238;
-
 
     /**
      * teardown
@@ -102,13 +102,16 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         org.hibernate.cache.EhCacheProvider provider = new org.hibernate.cache.EhCacheProvider();
         provider.start(null);
         final org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
+        final Serializable key = "key";
+        final Serializable value = "value";
+        assertThat(cache.getSizeInMemory(), CoreMatchers.is(0L));
+        cache.put(key, value);
+        final long EMPTY_ELEMENT_SIZE = cache.getSizeInMemory();
+        cache.clear();
 
         //Check created and name
         assertNotNull(cache.getRegionName());
         assertEquals("sampleCache1", cache.getRegionName());
-
-        Serializable key = "key";
-        Serializable value = "value";
 
         cache.put(key, value);
         assertEquals(value, cache.get(key));
@@ -298,13 +301,16 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         properties.setProperty("net.sf.ehcache.configurationResourceName", "ehcache-2.xml");
         provider.start(properties);
         final org.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
+        final Serializable key = "key";
+        final Serializable value = "value";
+        assertThat(cache.getSizeInMemory(), CoreMatchers.is(0L));
+        cache.put(key, value);
+        final long EMPTY_ELEMENT_SIZE = cache.getSizeInMemory();
+        cache.clear();
 
         //Check created and name
         assertNotNull(cache.getRegionName());
         assertEquals("sampleCache1", cache.getRegionName());
-
-        Serializable key = "key";
-        Serializable value = "value";
 
         cache.put(key, value);
         assertEquals(value, cache.get(key));
