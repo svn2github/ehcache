@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.net.Proxy;
+import java.nio.charset.CodingErrorAction;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -162,6 +163,13 @@ enum FlyweightType {
     PROXY(Proxy.class) {
         @Override
         boolean isShared(final Object obj) { return obj == Proxy.NO_PROXY; }
+    },
+    /**
+     * java.nio.charset.CodingErrorAction
+     */
+    CODINGERRORACTION(CodingErrorAction.class) {
+        @Override
+        boolean isShared(final Object obj) { return true; }
     },
     /**
      * misc comparisons that can not rely on the object's class.
