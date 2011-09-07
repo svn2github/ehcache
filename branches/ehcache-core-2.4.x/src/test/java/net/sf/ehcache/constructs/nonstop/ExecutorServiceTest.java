@@ -97,6 +97,29 @@ public class ExecutorServiceTest extends TestCase {
         Assert.assertEquals(extraRequests, countExecutorThreads() - initialThreadsCount);
     }
 
+    public void testNoThreadsCreatedAfterShutdown() throws Exception {
+        int initialThreadsCount = countExecutorThreads();
+        service.shutdown();
+        Thread thread = new Thread("LateThread") {
+            @Override
+            public void run() {
+                for (int i = 0; i < 10; i++) {
+                    try {
+                        service.execute(new NoopCallable(), 1000);
+                    } catch (TaskNotSubmittedTimeoutException timeout) {
+                        // This is the one we're expecting
+                    } catch (Exception e) {
+                        LOG.error("Exception executing after shutdown", e);
+                        fail("Got an unexpected exception executing after executer service shutdown.");
+                    }
+                }
+            }
+        };
+        thread.start();
+        thread.join();
+        Assert.assertEquals(initialThreadsCount, countExecutorThreads());
+    }
+
     // public void testMultipleExecutorThreadsCreatedPerAppThread() throws Exception {
     // int initialThreadsCount = countExecutorThreads();
     // int numRequests = 20;

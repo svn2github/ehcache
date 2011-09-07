@@ -49,14 +49,14 @@ public class NonstopThreadPool {
     private final ThreadLocal<WorkerThreadLocal> workerThreadLocal = new ThreadLocal<WorkerThreadLocal>() {
         @Override
         protected WorkerThreadLocal initialValue() {
-            WorkerThreadLocal local = new WorkerThreadLocal(threadFactory, gcedThreadsReferenceQueue);
             synchronized (workersLock) {
                 if (state.get() == State.SHUTDOWN) {
                     rejectExecutionAfterShutdown();
                 }
+                WorkerThreadLocal local = new WorkerThreadLocal(threadFactory, gcedThreadsReferenceQueue);
                 workers.put(Thread.currentThread(), local);
+                return local;
             }
-            return local;
         }
 
     };
