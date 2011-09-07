@@ -243,8 +243,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         cache.clear();
         assertEquals(0, cache.getElementCountInMemory());
         cache.put(key, value);
-        //Not Serializable therefore unmeasurable using ehcache's estimation algorithm
-        assertTrue(0 == cache.getSizeInMemory());
 
         //locks
         //timeout. This seems strange
