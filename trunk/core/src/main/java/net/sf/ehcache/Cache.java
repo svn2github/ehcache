@@ -4155,6 +4155,14 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
+     * Returns the {@link NonstopActiveDelegateHolder}
+     * @return the {@link NonstopActiveDelegateHolder}
+     */
+    protected NonstopActiveDelegateHolder getNonstopActiveDelegateHolder() {
+        return nonstopActiveDelegateHolder;
+    }
+
+    /**
      * Private class maintaining status of the cache
      *
      * @author Abhishek Sanoujam
