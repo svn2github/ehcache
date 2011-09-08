@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.TerracottaConfiguration;
 
 /**
  * Creates a wrapper for sending out cache events through the Terracotta cluster
@@ -37,42 +38,59 @@ public class TerracottaCacheEventReplication implements CacheEventListener {
      * {@inheritDoc}
      */
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-        createCacheEventReplicator(cache).notifyElementRemoved(cache, element);
+        if (isClustered(cache)) {
+            createCacheEventReplicator(cache).notifyElementRemoved(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-        createCacheEventReplicator(cache).notifyElementPut(cache, element);
+        if (isClustered(cache)) {
+            createCacheEventReplicator(cache).notifyElementPut(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-        createCacheEventReplicator(cache).notifyElementUpdated(cache, element);
+        if (isClustered(cache)) {
+            createCacheEventReplicator(cache).notifyElementUpdated(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementExpired(Ehcache cache, Element element) {
-        createCacheEventReplicator(cache).notifyElementExpired(cache, element);
+        if (isClustered(cache)) {
+            createCacheEventReplicator(cache).notifyElementExpired(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementEvicted(Ehcache cache, Element element) {
-        createCacheEventReplicator(cache).notifyElementEvicted(cache, element);
+        if (isClustered(cache)) {
+            createCacheEventReplicator(cache).notifyElementEvicted(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyRemoveAll(Ehcache cache) {
-        createCacheEventReplicator(cache).notifyRemoveAll(cache);
+        if (isClustered(cache)) {
+            createCacheEventReplicator(cache).notifyRemoveAll(cache);
+        }
+    }
+
+    private boolean isClustered(final Ehcache cache) {
+        final TerracottaConfiguration terracottaConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration();
+        return terracottaConfiguration != null && terracottaConfiguration.isClustered();
     }
 
     private CacheEventListener createCacheEventReplicator(Ehcache cache) {
