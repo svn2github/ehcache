@@ -189,7 +189,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
 
         StopWatch stopWatch = new StopWatch();
         long size = cache.calculateInMemorySize();
-        assertTrue("Size is " + size + ". Check it for reasonableness.", size > 100000 && size < 5000000);
+        assertTrue("Size is " + size + ". Check it for reasonableness.", size > 10000000 && size < 22000000);
         long elapsed = stopWatch.getElapsedTime();
         LOG.info("In-memory size in bytes: " + size
                 + " time to calculate in ms: " + elapsed);
