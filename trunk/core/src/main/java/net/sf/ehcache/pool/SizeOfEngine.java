@@ -31,7 +31,7 @@ public interface SizeOfEngine {
      * @param container the container of the element, ie: element object + eventual overhead
      * @return the size of the element in bytes
      */
-    long sizeOf(Object key, Object value, Object container);
+    Size sizeOf(Object key, Object value, Object container);
 
     /**
      * Make a copy of the SizeOf engine, preserving all of its internal state but overriding the specified parameters

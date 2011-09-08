@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.pool.sizeof;
 
+import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.sizeof.ObjectGraphWalker.Visitor;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
@@ -80,12 +81,12 @@ public abstract class SizeOf {
      * @return the total size in bytes for these objects
      * @see #sizeOf(Object)
      */
-    public long deepSizeOf(int maxDepth, boolean abortWhenMaxDepthExceeded, Object... obj) {
+    public Size deepSizeOf(int maxDepth, boolean abortWhenMaxDepthExceeded, Object... obj) {
         try {
-            return walker.walk(maxDepth, abortWhenMaxDepthExceeded, obj);
+            return new Size(walker.walk(maxDepth, abortWhenMaxDepthExceeded, obj), true);
         } catch (MaxDepthExceededException e) {
             LOG.warn(e.getMessage());
-            return -e.getMeasuredSize();
+            return new Size(e.getMeasuredSize(), false);
         }
     }
 

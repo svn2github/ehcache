@@ -25,7 +25,7 @@ import static org.junit.Assert.assertThat;
 public class PoolCacheManagerTest {
 
     private static long deepSizeOf(SizeOf sizeOf, Object... obj) {
-        return sizeOf.deepSizeOf(1000, true, obj);
+        return sizeOf.deepSizeOf(1000, true, obj).getCalculated();
     }
     
   

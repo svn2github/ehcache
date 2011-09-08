@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -59,20 +60,19 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      */
     public final long add(Object key, Object value, Object container, boolean force) {
         checkLinked();
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-        if (sizeOf < 0) {
+        Size sizeOf = sizeOfEngine.sizeOf(key, value, container);
+        if (!sizeOf.isExact()) {
             abortedSizeOf = true;
-            sizeOf = Math.abs(sizeOf);
         }
-        return add(sizeOf, force);
+        return add(sizeOf.getCalculated(), force);
     }
 
     /**
      * {@inheritDoc}
      */
     public final boolean canAddWithoutEvicting(Object key, Object value, Object container) {
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
-        return canAddWithoutEvicting(Math.abs(sizeOf));
+        Size sizeOf = sizeOfEngine.sizeOf(key, value, container);
+        return canAddWithoutEvicting(sizeOf.getCalculated());
     }
 
     /**
@@ -96,9 +96,9 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      * {@inheritDoc}
      */
     public final long replace(long currentSize, Object key, Object value, Object container, boolean force) {
-        long sizeOf = sizeOfEngine.sizeOf(key, value, container);
+        Size sizeOf = sizeOfEngine.sizeOf(key, value, container);
 
-        long delta = Math.abs(sizeOf) - currentSize;
+        long delta = sizeOf.getCalculated() - currentSize;
         if (delta < 0) {
             return -delete(-delta);
         } else {

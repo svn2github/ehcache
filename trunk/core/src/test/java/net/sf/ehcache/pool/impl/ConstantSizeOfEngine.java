@@ -1,5 +1,6 @@
 package net.sf.ehcache.pool.impl;
 
+import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -25,7 +26,7 @@ public class ConstantSizeOfEngine implements SizeOfEngine {
         this.containerSize = containerSize;
     }
 
-    public long sizeOf(Object key, Object value, Object container) {
+    public Size sizeOf(Object key, Object value, Object container) {
         long result = 0L;
 
         if (key != null) {
@@ -38,7 +39,7 @@ public class ConstantSizeOfEngine implements SizeOfEngine {
             result += containerSize;
         }
 
-        return result;
+        return new Size(result, true);
     }
 
     public SizeOfEngine copyWith(int maxDepth, boolean abortWhenMaxDepthExceeded) {

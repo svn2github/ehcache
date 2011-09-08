@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.store.disk;
 
+import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -28,17 +29,17 @@ public class DiskSizeOfEngine implements SizeOfEngine {
     /**
      * {@inheritDoc}
      */
-    public long sizeOf(Object key, Object value, Object container) {
+    public Size sizeOf(Object key, Object value, Object container) {
         if (container != null && !(container instanceof DiskStorageFactory.DiskMarker)) {
             throw new IllegalArgumentException("can only size DiskStorageFactory.DiskMarker");
         }
 
         if (container == null) {
-            return 0;
+            return new Size(0, true);
         }
 
         DiskStorageFactory.DiskMarker marker = (DiskStorageFactory.DiskMarker) container;
-        return marker.getSize();
+        return new Size(marker.getSize(), true);
     }
 
     /**

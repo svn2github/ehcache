@@ -13,7 +13,7 @@ import org.junit.Test;
 public class FilteredSizeOfTest extends AbstractSizeOfTest {
 
   private static long deepSizeOf(SizeOf sizeOf, Object... obj) {
-    return sizeOf.deepSizeOf(1000, true, obj);
+    return sizeOf.deepSizeOf(1000, true, obj).getCalculated();
   }
       
   @BeforeClass

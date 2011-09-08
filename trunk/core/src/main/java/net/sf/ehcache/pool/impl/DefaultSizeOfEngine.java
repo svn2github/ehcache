@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.sizeof.AgentSizeOf;
 import net.sf.ehcache.pool.sizeof.ReflectionSizeOf;
@@ -142,9 +143,9 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
     /**
      * {@inheritDoc}
      */
-    public long sizeOf(final Object key, final Object value, final Object container) {
-        long size = sizeOf.deepSizeOf(maxDepth, abortWhenMaxDepthExceeded, key, value, container);
-        LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size});
+    public Size sizeOf(final Object key, final Object value, final Object container) {
+        Size size = sizeOf.deepSizeOf(maxDepth, abortWhenMaxDepthExceeded, key, value, container);
+        LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size.getCalculated()});
         return size;
     }
 }
