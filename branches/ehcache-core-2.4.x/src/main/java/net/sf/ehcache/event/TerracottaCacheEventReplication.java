@@ -40,42 +40,54 @@ public class TerracottaCacheEventReplication implements CacheReplicator {
      * {@inheritDoc}
      */
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-        createCacheEventReplicator(cache).notifyElementRemoved(cache, element);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            createCacheEventReplicator(cache).notifyElementRemoved(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-        createCacheEventReplicator(cache).notifyElementPut(cache, element);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            createCacheEventReplicator(cache).notifyElementPut(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-        createCacheEventReplicator(cache).notifyElementUpdated(cache, element);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            createCacheEventReplicator(cache).notifyElementUpdated(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementExpired(Ehcache cache, Element element) {
-        createCacheEventReplicator(cache).notifyElementExpired(cache, element);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            createCacheEventReplicator(cache).notifyElementExpired(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementEvicted(Ehcache cache, Element element) {
-        createCacheEventReplicator(cache).notifyElementEvicted(cache, element);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            createCacheEventReplicator(cache).notifyElementEvicted(cache, element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyRemoveAll(Ehcache cache) {
-        createCacheEventReplicator(cache).notifyRemoveAll(cache);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            createCacheEventReplicator(cache).notifyRemoveAll(cache);
+        }
     }
 
     private CacheEventListener createCacheEventReplicator(Ehcache cache) {
