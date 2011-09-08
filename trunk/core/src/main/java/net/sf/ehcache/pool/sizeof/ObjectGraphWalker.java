@@ -200,7 +200,7 @@ final class ObjectGraphWalker {
             if (LOG.isDebugEnabled()) {
                 for (Field field : result) {
                     if (Modifier.isTransient(field.getModifiers())) {
-                        LOG.debug("SizeOf engine walking transient field {} of class {}", field.getName(), refClass);
+                        LOG.debug("SizeOf engine walking transient field '{}' of class {}", field.getName(), refClass.getName());
                     }
                 }
             }
