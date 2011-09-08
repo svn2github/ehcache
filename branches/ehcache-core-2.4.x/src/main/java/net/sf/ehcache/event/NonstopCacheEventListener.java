@@ -21,6 +21,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 
@@ -174,8 +175,15 @@ public class NonstopCacheEventListener implements CacheEventListener {
         }
 
         public Void performClusterOperationTimedOut(TimeoutBehaviorType configuredTimeoutBehavior) {
-            LOGGER.info("Terracotta clustered event notification timed out: operation: " + eventType + ", cache: " + cache.getName()
-                    + ", element: " + element);
+            final String msg = "Terracotta clustered event notification timed out: operation: " + eventType + ", cache: " + cache.getName()
+            + ", element: " + element;
+            switch (configuredTimeoutBehavior) {
+                case EXCEPTION: {
+                    throw new NonStopCacheException(msg);
+                }
+                default:
+                    LOGGER.info(msg);
+            }
             return null;
         }
 
