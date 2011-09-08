@@ -381,6 +381,7 @@ public class CacheConfiguration implements Cloneable {
     private PoolUsage offHeapPoolUsage;
     private PoolUsage onDiskPoolUsage;
     private volatile boolean maxEntriesLocalDiskExplicitlySet;
+    private volatile boolean maxBytesLocalDiskExplicitlySet;
 
     /**
      * Default constructor.
@@ -1407,6 +1408,7 @@ public class CacheConfiguration implements Cloneable {
         } else {
             setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesDisk));
         }
+        maxBytesLocalDiskExplicitlySet = true;
         maxBytesLocalDiskInput = maxBytesDisk;
     }
 
@@ -1423,6 +1425,7 @@ public class CacheConfiguration implements Cloneable {
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch disk pool!");
         }
+        maxBytesLocalDiskExplicitlySet = true;
         Long oldValue = this.maxBytesLocalDisk;
         this.maxBytesLocalDisk = maxBytesDisk;
         fireMaxBytesOnLocalDiskChanged(oldValue, maxBytesDisk);
@@ -1728,6 +1731,11 @@ public class CacheConfiguration implements Cloneable {
         if (maxEntriesLocalHeap == null && !configuration.isMaxBytesLocalHeapSet() && maxBytesLocalHeap == null) {
             errors.add(new CacheConfigError("If your CacheManager has no maxBytesLocalHeap set, you need to either set " +
                                             "maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level", getName()));
+        }
+
+        if (isTerracottaClustered() && maxBytesLocalDiskExplicitlySet) {
+            errors.add(new CacheConfigError("You can't set maxBytesLocalDisk when clustering your cache with Terracotta",
+                                            getName()));
         }
 
         if (isTerracottaClustered()) {
