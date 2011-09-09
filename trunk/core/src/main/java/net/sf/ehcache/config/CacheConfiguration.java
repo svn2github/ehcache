@@ -2667,6 +2667,13 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Intended for internal use only, and subject to change.
      */
+    public void internalSetMemCapacityInBytes(long capacity) {
+        this.maxBytesLocalHeap = capacity;
+    }
+
+    /**
+     * Intended for internal use only, and subject to change.
+     */
     public void internalSetDiskCapacity(int capacity) {
         this.maxElementsOnDisk = capacity;
     }
@@ -2698,4 +2705,5 @@ public class CacheConfiguration implements Cloneable {
     public Searchable getSearchable() {
         return searchable;
     }
+
 }
