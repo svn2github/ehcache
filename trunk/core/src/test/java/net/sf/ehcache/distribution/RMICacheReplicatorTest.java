@@ -1176,17 +1176,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
                 Integer key = Integer.valueOf((i));
                 int operationSelector = random.nextInt(4);
                 Cache cache = manager.getCache(cacheName);
-                if (operationSelector == 100) {
-                    cache.get(key);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": get " + key);
-                    }
-                } else if (operationSelector == 100) {
-                    cache.remove(key);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(cache.getGuid() + ": remove " + key);
-                    }
-                } else if (operationSelector == 2) {
+                if (operationSelector == 2) {
                     cache.put(new Element(key,
                             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
