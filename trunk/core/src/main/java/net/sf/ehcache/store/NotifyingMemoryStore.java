@@ -72,4 +72,16 @@ public final class NotifyingMemoryStore extends MemoryStore {
         cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void expireElements() {
+        for (Object key : keySet()) {
+            final Element element = expireElement(key);
+            if (element != null) {
+                cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
+            }
+        }
+    }
 }

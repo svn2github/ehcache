@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
@@ -350,7 +351,19 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * This is a default implementation which does nothing. Expiration on demand is only implemented for disk stores.
      */
     public void expireElements() {
-        // empty implementation
+        for (Object key : map.keySet()) {
+            expireElement(key);
+        }
+    }
+
+    /**
+     * Evicts the element for the given key, if it exists and is expired
+     * @param key the key
+     * @return the evicted element, if any. Otherwise null
+     */
+    protected Element expireElement(final Object key) {
+        Element value = get(key);
+        return value != null && value.isExpired() && map.remove(key, value) ? value : null;
     }
 
     /**
@@ -410,6 +423,14 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
     public final List<?> getKeys() {
         return new ArrayList<Object>(map.keySet());
+    }
+
+    /**
+     * Returns the keySet for this store
+     * @return keySet
+     */
+    protected Set<?> keySet() {
+        return map.keySet();
     }
 
     /**
