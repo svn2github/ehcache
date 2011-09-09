@@ -1134,7 +1134,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * </ol>
      */
     @Test
-    public void testCacheOperationsAynchronousMultiThreaded() throws Exception, InterruptedException {
+    public void testCacheOperationsAsynchronousMultiThreaded() throws Exception, InterruptedException {
 
         // Run a set of threads, that attempt to fetch the elements
         final List executables = new ArrayList();
