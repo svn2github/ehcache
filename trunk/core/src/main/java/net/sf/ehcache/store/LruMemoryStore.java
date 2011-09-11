@@ -23,6 +23,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
+import net.sf.ehcache.pool.Size;
+import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -339,8 +342,7 @@ public class LruMemoryStore extends AbstractStore {
 
 
     /**
-     * Measures the size of the memory store by measuring the serialized size of all elements.
-     * If the objects are not Serializable they count as 0.
+     * Measures the size of the memory store by using the sizeof engine.
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
      * per 1MB of entries. Running this method could create liveness problems
@@ -349,11 +351,17 @@ public class LruMemoryStore extends AbstractStore {
      * @return the size, in bytes
      */
     public final synchronized long getSizeInBytes() throws CacheException {
+        DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
+            SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+            SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT)
+        );
         long sizeInBytes = 0;
-        for (Iterator iterator = map.values().iterator(); iterator.hasNext();) {
-            Element element = (Element) iterator.next();
+        for (Object o : map.entrySet()) {
+            Map.Entry entry = (Map.Entry)o;
+            Element element = (Element) entry.getValue();
             if (element != null) {
-                sizeInBytes += element.getSerializedSize();
+                Size size = defaultSizeOfEngine.sizeOf(entry.getKey(), element, null);
+                sizeInBytes += size.getCalculated();
             }
         }
         return sizeInBytes;
