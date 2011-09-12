@@ -504,6 +504,12 @@ public class MemoryStoreTester extends AbstractCacheTest {
         runThreads(executables);
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end + start) + " ms");
+        tearDown();
+        System.gc();
+        System.gc();
+        Thread.sleep(1000);
+        System.gc();
+        System.gc();
     }
 
 
