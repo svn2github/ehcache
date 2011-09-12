@@ -261,7 +261,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         for (Object key : map.keySet()) {
             Element value = get(key);
             if (value != null && value.isExpired() && map.remove(key, value)) {
-                cache.getCacheEventNotificationService().notifyElementExpiry(value, false);
+                notifyExpiry(value);
             }
         }
     }
@@ -463,8 +463,16 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
 
         if (!spooled) {
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+          notifyEviction(element);
         }
+    }
+
+    /**
+     * Notify listeners about eviction
+     * @param element
+     */
+    protected void notifyEviction(final Element element) {
+        cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
     }
 
     /**
