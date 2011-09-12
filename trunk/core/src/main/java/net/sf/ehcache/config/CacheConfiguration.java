@@ -382,6 +382,7 @@ public class CacheConfiguration implements Cloneable {
     private PoolUsage onDiskPoolUsage;
     private volatile boolean maxEntriesLocalDiskExplicitlySet;
     private volatile boolean maxBytesLocalDiskExplicitlySet;
+    private volatile boolean maxBytesLocalOffHeapExplicitlySet;
 
     /**
      * Default constructor.
@@ -1311,6 +1312,7 @@ public class CacheConfiguration implements Cloneable {
             setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
         }
         maxBytesLocalOffHeapInput = maxBytesOffHeap;
+        maxBytesLocalOffHeapExplicitlySet = true;
     }
 
     /**
@@ -1368,6 +1370,7 @@ public class CacheConfiguration implements Cloneable {
         if (offHeapPoolUsage != null) {
             throw new IllegalStateException("OffHeap can't be set dynamically!");
         }
+        this.maxBytesLocalOffHeapExplicitlySet = true;
         this.maxBytesLocalOffHeap = maxBytesOffHeap;
     }
 
@@ -1722,6 +1725,23 @@ public class CacheConfiguration implements Cloneable {
 
         final Collection<ConfigError> errors = new ArrayList<ConfigError>();
 
+        verifyClutserdCacheConfiguration(configuration, errors);
+
+        if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
+            errors.add(new ConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
+                                                    "please adjust your -Xmx setting accordingly"));
+        }
+        
+        if (isOverflowToOffHeapSet() && !maxBytesLocalOffHeapExplicitlySet) {
+            errors.add(new CacheConfigError("\"overFlowToOffHeap\" is set, but \"maxBytesLocalOffHeap\" is not set.", getName()));
+        }
+
+        errors.addAll(validateCachePools(configuration));
+
+        return errors;
+    }
+
+    private void verifyClutserdCacheConfiguration(final Configuration configuration, final Collection<ConfigError> errors) {
         if (isTerracottaClustered() && maxEntriesLocalDiskExplicitlySet) {
             errors.add(new CacheConfigError("You can't set maxEntriesLocalDisk when clustering your cache with Terracotta, " +
                                             "local disks won't be used! To control elements going in the cache cluster wide, " +
@@ -1741,15 +1761,6 @@ public class CacheConfiguration implements Cloneable {
         if (isTerracottaClustered()) {
             validateTerracottaConfig(configuration, errors);
         }
-
-        if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
-            errors.add(new ConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
-                                                    "please adjust your -Xmx setting accordingly"));
-        }
-
-        errors.addAll(validateCachePools(configuration));
-
-        return errors;
     }
 
     /**
