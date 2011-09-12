@@ -1731,10 +1731,11 @@ public class CacheConfiguration implements Cloneable {
             errors.add(new ConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
                                                     "please adjust your -Xmx setting accordingly"));
         }
-        
-        if (isOverflowToOffHeapSet() && !maxBytesLocalOffHeapExplicitlySet) {
-            errors.add(new CacheConfigError("\"overFlowToOffHeap\" is set, but \"maxBytesLocalOffHeap\" is not set.", getName()));
-        }
+
+        //commenting this check until fixed for cachemanger is fixed
+        //if (isOverflowToOffHeapSet() && !maxBytesLocalOffHeapExplicitlySet) {
+        //    errors.add(new CacheConfigError("\"overFlowToOffHeap\" is set, but \"maxBytesLocalOffHeap\" is not set.", getName()));
+        //}
 
         errors.addAll(validateCachePools(configuration));
 
