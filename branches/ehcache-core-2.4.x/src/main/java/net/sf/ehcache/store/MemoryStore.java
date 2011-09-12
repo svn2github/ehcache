@@ -99,6 +99,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * The eviction policy to use
      */
     protected volatile Policy policy;
+    private final boolean notify;
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -107,11 +108,23 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param diskStore
      */
     protected MemoryStore(final Ehcache cache, final Store diskStore) {
+        this(cache, diskStore, true);
+    }
+
+    /**
+     * Constructs things that all MemoryStores have in common.
+     *
+     * @param cache
+     * @param diskStore
+     * @param notify whether to notify listeners on Eviction or Expiry
+     */
+    protected MemoryStore(final Ehcache cache, final Store diskStore, final boolean notify) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
         this.diskStore = diskStore;
         this.policy = determineEvictionPolicy();
+        this.notify = notify;
 
         // create the CHM with initialCapacity sufficient to hold maximumSize
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
@@ -150,6 +163,19 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     public static MemoryStore create(final Ehcache cache, final Store diskStore) {
         MemoryStore memoryStore = new MemoryStore(cache, diskStore);
+        cache.getCacheConfiguration().addConfigurationListener(memoryStore);
+        return memoryStore;
+    }
+
+    /**
+     * A factory method to create a MemoryStore that won't notify listeners on eviction & expiry
+     *
+     * @param cache
+     * @param diskStore
+     * @return an instance of a MemoryStore, configured with the appropriate eviction policy
+     */
+    public static MemoryStore createSilent(final Ehcache cache, final Store diskStore) {
+        MemoryStore memoryStore = new MemoryStore(cache, diskStore, false);
         cache.getCacheConfiguration().addConfigurationListener(memoryStore);
         return memoryStore;
     }
@@ -472,7 +498,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param element
      */
     protected void notifyEviction(final Element element) {
-        cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+        if (notify) {
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+        }
     }
 
     /**
@@ -481,7 +509,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param element
      */
     protected final void notifyExpiry(final Element element) {
-        cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
+        if (notify) {
+            cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
+        }
     }
 
     /**
