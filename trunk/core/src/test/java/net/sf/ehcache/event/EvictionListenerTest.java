@@ -76,7 +76,15 @@ public class EvictionListenerTest {
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
         }
-        assertThat(cacheElementsEvicted.size(), is((amountOfEntries - diskStoreSize)));
+        for (int i = 0; i < amountOfEntries; i++) {
+            String key = "key" + i;
+            if (!cache.isKeyInCache(key) && !cacheElementsEvicted.containsKey(key)) {
+                final String message = "Key '" + key + "' isn't in cache & we didn't get notified about its eviction!";
+                System.out.println(message);
+                assertThat(cacheElementsEvicted.size(), is((amountOfEntries - diskStoreSize)));
+                fail(message);
+            }
+        }
     }
 
     @Test
