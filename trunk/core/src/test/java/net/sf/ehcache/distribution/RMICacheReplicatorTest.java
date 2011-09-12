@@ -1062,7 +1062,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
                 start = end;
                 LOG.info("Items written: " + count);
                 //make sure it does not choke
-                assertTrue(count > 1000);
+                assertTrue("Got only to " + count + " in 1 second!", count > 1000);
                 count = 0;
             }
         }
