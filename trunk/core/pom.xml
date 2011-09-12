@@ -954,28 +954,6 @@
     </pluginRepository>
   </pluginRepositories>
 
-  <distributionManagement>
-    <repository>
-      <id>sourceforge-releases</id>
-      <name>Sourceforge Release Repository</name>
-      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-    </repository>
-    <snapshotRepository>
-      <id>sourceforge-snapshots</id>
-      <name>Sourceforge Snapshot Repository</name>
-      <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
-    </snapshotRepository>
-
-
-    <!-- The server id here defined must also appear in ~/.m2/settings.xml 
-      with username Note: site URL repeated here to ensure correct deployment path -->
-    <site>
-      <id>ehcache.org</id>
-      <name>EHCache Site</name>
-      <url>dav:https://echache-stage.terracotta.lan/export1/ehcache.org</url>
-    </site>
-  </distributionManagement>
-
   <scm>
     <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk</connection>
     <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk</developerConnection>
