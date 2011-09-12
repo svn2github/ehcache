@@ -255,13 +255,15 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     }
 
     /**
-     * Expire all elements.
-     * <p/>
-     * This is a default implementation which does nothing. Expiration on demand is only
-     * implemented for disk stores.
+     * {@inheritDoc}
      */
     public void expireElements() {
-        //empty implementation
+        for (Object key : map.keySet()) {
+            Element value = get(key);
+            if (value != null && value.isExpired() && map.remove(key, value)) {
+                cache.getCacheEventNotificationService().notifyElementExpiry(value, false);
+            }
+        }
     }
 
     /**
