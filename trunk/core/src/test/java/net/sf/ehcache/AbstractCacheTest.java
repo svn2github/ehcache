@@ -183,7 +183,7 @@ public abstract class AbstractCacheTest {
         int failures = runThreadsNoCheck(executables);
         LOG.info(failures + " failures");
         //CHM does have the occasional very slow time.
-        assertTrue("Failures = " + failures, failures <= 35);
+        assertTrue("Failures = " + failures, failures == 0);
     }
 
 
