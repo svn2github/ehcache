@@ -210,7 +210,7 @@ public class TestRejoinStore implements TerracottaStore {
         return map.get(key);
     }
 
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         alwaysCalledMethod();
         Map<Object, Element> rv = new HashMap<Object, Element>();
         for (Object key : keys) {
@@ -219,7 +219,7 @@ public class TestRejoinStore implements TerracottaStore {
         return rv;
     }
 
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         return getAllQuiet(keys);
     }
 
@@ -280,7 +280,7 @@ public class TestRejoinStore implements TerracottaStore {
         return map.remove(key);
     }
 
-    public void removeAll(Collection<Object> keys) {
+    public void removeAll(Collection<?> keys) {
         alwaysCalledMethod();
         for(Object key : keys) {
             map.remove(key);

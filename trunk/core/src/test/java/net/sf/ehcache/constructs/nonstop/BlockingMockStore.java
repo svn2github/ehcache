@@ -164,12 +164,12 @@ public class BlockingMockStore implements TerracottaStore {
         return null;
     }
 
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         neverReturn();
         return null;
     }
 
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         neverReturn();
         return null;
     }
@@ -228,7 +228,7 @@ public class BlockingMockStore implements TerracottaStore {
         return null;
     }
 
-    public void removeAll(Collection<Object> keys) {
+    public void removeAll(Collection<?> keys) {
         neverReturn();
     }
 

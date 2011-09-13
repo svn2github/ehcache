@@ -151,7 +151,7 @@ public class MockStoreWithFlag implements TerracottaStore {
         return null;
     }
 
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         markAccessFlag();
         Map<Object, Element> rv = new HashMap<Object, Element>();
         for (Object key : keys) {
@@ -160,7 +160,7 @@ public class MockStoreWithFlag implements TerracottaStore {
         return rv;
     }
 
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         markAccessFlag();
         return getAllQuiet(keys);
     }
@@ -219,7 +219,7 @@ public class MockStoreWithFlag implements TerracottaStore {
         return null;
     }
 
-    public void removeAll(Collection<Object> keys) {
+    public void removeAll(Collection<?> keys) {
         markAccessFlag();
     }
 
