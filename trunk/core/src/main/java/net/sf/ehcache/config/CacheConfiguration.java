@@ -1572,6 +1572,7 @@ public class CacheConfiguration implements Cloneable {
         if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
             overflowToDisk = true;
         }
+        warnMaxEntriesLocalHeap(register);
         warnMaxEntriesForOverflowToOffHeap(register);
         freezePoolUsages(cacheManager);
     }
@@ -1584,6 +1585,16 @@ public class CacheConfiguration implements Cloneable {
                         + MINIMUM_RECOMMENDED_IN_MEMORY + " elements when using an off-heap store, otherwise performance "
                         + "will be seriously degraded.");
               }
+        }
+    }
+
+    private void warnMaxEntriesLocalHeap(final boolean register) {
+        if (getMaxEntriesLocalHeap() == 0 && register) {
+            LOG.warn("Cache: " + getName() +
+                    " has a maxElementsInMemory of 0. This might lead to performance degradation or OutOfMemoryError at Terracotta client." +
+                    "From Ehcache 2.0 onwards this has been changed to mean a store" +
+                    " with no capacity limit. Set it to 1 if you want" +
+                    " no elements cached in memory");
         }
     }
 

@@ -1013,13 +1013,6 @@ public class Cache implements Ehcache, StoreListener {
                 onHeapPool = getCacheManager().getOnHeapPool();
             } else {
                 onHeapPool = new UnboundedPool();
-                if (configuration.getMaxElementsInMemory() == 0) {
-                    LOG.warn("Cache: " + configuration.getName() +
-                            " has a maxElementsInMemory of 0.  " +
-                            "In Ehcache 2.0 this has been changed to mean a store" +
-                            " with no capacity limit. Set it to 1 if you want" +
-                            " no elements cached in memory");
-                }
             }
 
             // on-disk pool configuration
@@ -1032,8 +1025,6 @@ public class Cache implements Ehcache, StoreListener {
             } else {
                 onDiskPool = new UnboundedPool();
             }
-
-
 
             ReadWriteCopyStrategy<Element> copyStrategy = null;
             if (configuration.getTransactionalMode().isTransactional()) {
