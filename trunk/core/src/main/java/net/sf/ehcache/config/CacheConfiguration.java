@@ -1497,6 +1497,24 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Checks whether the user explicitly set the maxBytesOffHeap
+     * @return true if set by user, false otherwise
+     * @see #setMaxBytesLocalOffHeap(Long)
+     */
+    public boolean isMaxBytesLocalOffHeapSet() {
+        return maxBytesLocalOffHeapExplicitlySet;
+    }
+
+    /**
+     * Tells the cache that maxBytesLocalHeap is being set by the cacheManager
+     * @param maxBytesLocalOffHeapExplicitlySet
+     */
+    public void setIsMaxBytesLocalHeapExplicitly(boolean maxBytesLocalOffHeapExplicitlySet) {
+        this.maxBytesLocalOffHeapExplicitlySet = maxBytesLocalOffHeapExplicitlySet;
+    }
+
+
+    /**
      * Sets up the CacheConfiguration for runtime consumption, also registers this cache configuration with the cache manager's configuration
      * @param cacheManager The CacheManager as part of which the cache is being setup
      */
@@ -1732,10 +1750,9 @@ public class CacheConfiguration implements Cloneable {
                                                     "please adjust your -Xmx setting accordingly"));
         }
 
-        //commenting this check until fixed for cachemanger is fixed
-        //if (isOverflowToOffHeapSet() && !maxBytesLocalOffHeapExplicitlySet) {
-        //    errors.add(new CacheConfigError("\"overFlowToOffHeap\" is set, but \"maxBytesLocalOffHeap\" is not set.", getName()));
-        //}
+        if (isOverflowToOffHeapSet() && !maxBytesLocalOffHeapExplicitlySet) {
+            errors.add(new CacheConfigError("\"overFlowToOffHeap\" is set, but \"maxBytesLocalOffHeap\" is not set.", getName()));
+        }
 
         errors.addAll(validateCachePools(configuration));
 

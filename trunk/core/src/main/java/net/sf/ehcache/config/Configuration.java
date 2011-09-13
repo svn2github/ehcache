@@ -89,7 +89,7 @@ public final class Configuration {
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
     private volatile RuntimeCfg cfg;
-    private List<PropertyChangeListener> propertyChangeListeners = new CopyOnWriteArrayList<PropertyChangeListener>();
+    private final List<PropertyChangeListener> propertyChangeListeners = new CopyOnWriteArrayList<PropertyChangeListener>();
 
     /**
      * Represents whether monitoring should be enabled or not.
@@ -238,9 +238,20 @@ public final class Configuration {
         final Collection<ConfigError> errors = new ArrayList<ConfigError>();
 
         for (CacheConfiguration cacheConfiguration : cacheConfigurations.values()) {
+            configureCacheManagerAttributesIntoCache(cacheConfiguration);
             errors.addAll(cacheConfiguration.validate(this));
         }
         return errors;
+    }
+
+    /**
+     * adds cache manager config attribute into individual cache config
+     * @param cacheConfiguration
+     */
+    private void configureCacheManagerAttributesIntoCache(CacheConfiguration cacheConfiguration) {
+        if (!cacheConfiguration.isMaxBytesLocalOffHeapSet() && isMaxBytesLocalOffHeapSet()) {
+            cacheConfiguration.setIsMaxBytesLocalHeapExplicitly(true);
+        }
     }
 
     /**
