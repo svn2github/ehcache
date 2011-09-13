@@ -240,7 +240,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         Map<Object, Element> rv = new HashMap<Object, Element>();
         for (Object key : keys) {
             rv.put(key, null);
@@ -251,7 +251,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         return getAllQuiet(keys);
     }
 
@@ -334,7 +334,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public void removeAll(Collection<Object> keys) {
+    public void removeAll(Collection<?> keys) {
     }
 
     /**

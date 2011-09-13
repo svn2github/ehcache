@@ -152,7 +152,7 @@ public abstract class AbstractStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public void removeAll(Collection<Object> keys) {
+    public void removeAll(Collection<?> keys) {
         for (Object key : keys) {
             remove(key);
         }
@@ -161,7 +161,7 @@ public abstract class AbstractStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         Map<Object, Element> elements = new HashMap<Object, Element>();
         for (Object key : keys) {
             elements.put(key, getQuiet(key));
@@ -172,7 +172,7 @@ public abstract class AbstractStore implements Store {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         Map<Object, Element> elements = new HashMap<Object, Element>();
         for (Object key : keys) {
             elements.put(key, get(key));

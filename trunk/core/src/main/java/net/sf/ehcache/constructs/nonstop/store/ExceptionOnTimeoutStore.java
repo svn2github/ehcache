@@ -94,14 +94,14 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         throw new NonStopCacheException("getAllQuiet for '" + keys.size() + "' keys timed out");
     }
 
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         throw new NonStopCacheException("getAll for '" + keys.size() + "' keys timed out");
     }
 
@@ -146,7 +146,7 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * <p>
      * Throws {@link NonStopCacheException}
      */
-    public void removeAll(final Collection<Object> keys) throws IllegalStateException {
+    public void removeAll(final Collection<?> keys) throws IllegalStateException {
         throw new NonStopCacheException("removeAll for " + keys.size() + "  keys timed out");
     }
 

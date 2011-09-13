@@ -109,7 +109,7 @@ public interface Store {
     /**
      * Removes a collection of elements from the cache.
      */
-    void removeAll(Collection<Object> keys);
+    void removeAll(Collection<?> keys);
 
     /**
      * Removes an item from the store and the cache writer manager in an atomic operation.
@@ -413,7 +413,7 @@ public interface Store {
      * @param keys a collection of keys to look for
      * @return a map of keys and their corresponding values
      */
-    Map<Object, Element> getAllQuiet(Collection<Object> keys);
+    Map<Object, Element> getAllQuiet(Collection<?> keys);
 
     /**
      * Retries the elements associated with a set of keys and update the statistics
@@ -423,5 +423,5 @@ public interface Store {
      * @param keys a collection of keys to look for
      * @return a map of keys and their corresponding values
      */
-    Map<Object, Element> getAll(Collection<Object> keys);
+    Map<Object, Element> getAll(Collection<?> keys);
 }

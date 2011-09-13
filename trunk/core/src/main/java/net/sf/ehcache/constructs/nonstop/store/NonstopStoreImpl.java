@@ -354,14 +354,14 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         return executorServiceStore.getAllQuiet(keys);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         return executorServiceStore.getAll(keys);
     }
 
@@ -417,7 +417,7 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
-    public void removeAll(final Collection<Object> keys) {
+    public void removeAll(final Collection<?> keys) {
         executorServiceStore.removeAll(keys);
     }
 

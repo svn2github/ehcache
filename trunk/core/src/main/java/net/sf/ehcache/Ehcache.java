@@ -232,7 +232,7 @@ public interface Ehcache extends Cloneable {
      * @throws NullPointerException if any key is null in the collection
      * @see #isExpired
      */
-    Map<Object, Element> getAll(Collection<Object> keys) throws IllegalStateException, CacheException, NullPointerException;
+    Map<Object, Element> getAll(Collection<?> keys) throws IllegalStateException, CacheException, NullPointerException;
 
     /**
      * Gets an element from the cache, without updating Element statistics. Cache statistics are
@@ -316,6 +316,7 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @deprecated versions since 2.1 do not return duplicates
      */
+    @Deprecated
     List getKeysNoDuplicateCheck() throws IllegalStateException;
 
     /**
@@ -355,7 +356,7 @@ public interface Ehcache extends Cloneable {
      * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws NullPointerException     if any key is null in the collection
      */
-    void removeAll(Collection<Object> keys) throws IllegalStateException, NullPointerException;
+    void removeAll(Collection<?> keys) throws IllegalStateException, NullPointerException;
 
     /**
      * Removes all cached items.
@@ -367,8 +368,8 @@ public interface Ehcache extends Cloneable {
      *                                    in which case this put should not initiate a further notification to doNotNotifyCacheReplicators cache peers
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-    void removeAll(Collection<Object> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException, NullPointerException;
-    
+    void removeAll(Collection<?> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException, NullPointerException;
+
     /**
      * Removes an {@link net.sf.ehcache.Element} from the Cache. This also removes it from any
      * stores it may be in.

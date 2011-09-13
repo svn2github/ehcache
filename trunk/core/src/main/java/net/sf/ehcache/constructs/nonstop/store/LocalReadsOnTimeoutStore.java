@@ -98,7 +98,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAllQuiet(Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         Map<Object, Element> rv = new HashMap<Object, Element>();
         for (Object key : keys) {
             rv.put(key, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key));
@@ -109,7 +109,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAll(Collection<Object> keys) {
+    public Map<Object, Element> getAll(Collection<?> keys) {
         Map<Object, Element> rv = new HashMap<Object, Element>();
         for (Object key : keys) {
             rv.put(key, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key));
@@ -151,7 +151,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * <p>
      * This is a no-op
      */
-    public void removeAll(final Collection<Object> keys) throws IllegalStateException {
+    public void removeAll(final Collection<?> keys) throws IllegalStateException {
         //no-op
     }
 

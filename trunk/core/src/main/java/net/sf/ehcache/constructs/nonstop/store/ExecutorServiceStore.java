@@ -388,7 +388,7 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAllQuiet(final Collection<Object> keys) {
+    public Map<Object, Element> getAllQuiet(final Collection<?> keys) {
         Map<Object, Element> rv = null;
         try {
             rv = executeWithExecutor(new Callable<Map<Object, Element>>() {
@@ -405,7 +405,7 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAll(final Collection<Object> keys) {
+    public Map<Object, Element> getAll(final Collection<?> keys) {
         Map<Object, Element> rv = null;
         try {
             rv = executeWithExecutor(new Callable<Map<Object, Element>>() {
@@ -456,7 +456,7 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     /**
      * {@inheritDoc}.
      */
-    public void removeAll(final Collection<Object> keys) {
+    public void removeAll(final Collection<?> keys) {
         try {
             executeWithExecutor(new Callable<Void>() {
                 public Void call() throws Exception {

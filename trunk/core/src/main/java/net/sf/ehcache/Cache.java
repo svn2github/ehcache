@@ -1620,7 +1620,7 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * {@inheritDoc}
      */
-    public Map<Object, Element> getAll(Collection<Object> keys) throws IllegalStateException, CacheException {
+    public Map<Object, Element> getAll(Collection<?> keys) throws IllegalStateException, CacheException {
         checkStatus();
 
         if (disabled) {
@@ -2016,7 +2016,7 @@ public class Cache implements Ehcache, StoreListener {
         return element;
     }
 
-    private Map<Object, Element> searchAllInStoreWithStats(Collection<Object> keys) {
+    private Map<Object, Element> searchAllInStoreWithStats(Collection<?> keys) {
         boolean wasOnDisk = false;
         boolean wasOffHeap = false;
         boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
@@ -2102,7 +2102,7 @@ public class Cache implements Ehcache, StoreListener {
     }
 
 
-    private Map<Object, Element> searchAllInStoreWithoutStats(Collection<Object> keys) {
+    private Map<Object, Element> searchAllInStoreWithoutStats(Collection<?> keys) {
         Map<Object, Element> elements = compoundStore.getAllQuiet(keys);
 
         for (Entry<Object, Element> entry : elements.entrySet()) {
@@ -2188,7 +2188,7 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * {@inheritDoc}
      */
-    public void removeAll(final Collection<Object> keys) throws IllegalStateException {
+    public void removeAll(final Collection<?> keys) throws IllegalStateException {
         removeAll(keys, false);
     }
 
@@ -2196,7 +2196,7 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * {@inheritDoc}
     */
-    public final void removeAll(final Collection<Object> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+    public final void removeAll(final Collection<?> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         removeAllInternal(keys, false, true, doNotNotifyCacheReplicators);
     }
 
@@ -2379,7 +2379,7 @@ public class Cache implements Ehcache, StoreListener {
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    private void removeAllInternal(final Collection<Object> keys, boolean expiry, boolean notifyListeners,
+    private void removeAllInternal(final Collection<?> keys, boolean expiry, boolean notifyListeners,
             boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         checkStatus();
 
