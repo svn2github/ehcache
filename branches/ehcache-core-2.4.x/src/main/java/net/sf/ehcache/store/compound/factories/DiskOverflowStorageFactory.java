@@ -212,6 +212,9 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     protected DiskMarker createMarker(long position, int size, Element element) {
         return new OverflowDiskMarker(this, position, size, element);
     }
@@ -221,11 +224,10 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
      */
     private final static class OverflowDiskMarker extends DiskMarker {
 
-        private final long expiry;
-
         private static final AtomicReferenceFieldUpdater<OverflowDiskMarker, Element> SOFTLOCKED_ELEMENT_UPDATER =
             AtomicReferenceFieldUpdater.newUpdater(OverflowDiskMarker.class, Element.class, "softLockedElement");
 
+        private final long expiry;
         private transient volatile Element softLockedElement;
 
         OverflowDiskMarker(DiskStorageFactory<? extends ElementSubstitute> factory, long position, int size, Element element) {
