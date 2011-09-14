@@ -68,6 +68,7 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
+import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonstopException;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStoreImpl;
 import net.sf.ehcache.constructs.nonstop.store.RejoinAwareNonstopStore;
 import net.sf.ehcache.event.CacheEventListener;
@@ -2120,6 +2121,10 @@ public class Cache implements Ehcache, StoreListener {
             writeLocked = syncForKey.tryLock(LockType.WRITE, 0);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } catch (LockOperationTimedOutNonstopException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Try lock attempt failed, inline expiry will not happen. Exception: " + e);
+            }
         } catch (Error e) {
             if (!(e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError"))) {
                throw e;

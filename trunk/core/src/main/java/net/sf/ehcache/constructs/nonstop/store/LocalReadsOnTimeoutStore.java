@@ -74,7 +74,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * Uses the underlying store to get the local value present in the VM
      */
     public Element get(Object key) throws IllegalStateException, CacheException {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
+        return getQuiet(key);
     }
 
     /**
@@ -83,7 +83,11 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * Uses the underlying store to get the local value present in the VM
      */
     public List getKeys() throws IllegalStateException, CacheException {
-        return Collections.unmodifiableList(new ArrayList(nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys()));
+        return Collections.unmodifiableList(new ArrayList(getUnderlyingLocalKeys()));
+    }
+
+    private Set getUnderlyingLocalKeys() {
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys();
     }
 
     /**
@@ -110,11 +114,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public Map<Object, Element> getAll(Collection<?> keys) {
-        Map<Object, Element> rv = new HashMap<Object, Element>();
-        for (Object key : keys) {
-            rv.put(key, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key));
-        }
-        return rv;
+        return getAllQuiet(keys);
     }
 
     /**
@@ -185,10 +185,9 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}.
      * <p>
-     * This is a no-op and always returns zero
      */
     public int getSize() throws IllegalStateException, CacheException {
-        return getKeys().size();
+        return getUnderlyingLocalKeys().size();
     }
 
     /**
@@ -216,7 +215,6 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      */
     public void addStoreListener(StoreListener listener) {
         // no-op
-
     }
 
     /**
@@ -235,8 +233,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * This is a no-op
      */
     public boolean containsKey(Object key) {
-        // no-op
-        return false;
+        return containsKeyInMemory(key);
     }
 
     /**
@@ -245,8 +242,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * This is a no-op
      */
     public boolean containsKeyInMemory(Object key) {
-        // no-op
-        return false;
+        return getUnderlyingLocalKeys().contains(key);
     }
 
     /**
@@ -312,8 +308,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * This is a no-op
      */
     public int getInMemorySize() {
-        // no-op
-        return 0;
+        return getUnderlyingLocalKeys().size();
     }
 
     /**
@@ -401,8 +396,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * This is a no-op
      */
     public int getTerracottaClusteredSize() {
-        // no-op
-        return 0;
+        return getUnderlyingLocalKeys().size();
     }
 
     /**
@@ -462,7 +456,6 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      */
     public void removeStoreListener(StoreListener listener) {
         // no-op
-
     }
 
     /**
@@ -493,7 +486,6 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      */
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
         // no-op
-
     }
 
     /**
@@ -503,7 +495,6 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      */
     public void setInMemoryEvictionPolicy(Policy policy) {
         // no-op
-
     }
 
     /**
@@ -513,7 +504,6 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      */
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
         // no-op
-
     }
 
     /**
@@ -523,7 +513,6 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException {
         // no-op
-
     }
 
     /**
@@ -537,28 +526,28 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public Set getLocalKeys() {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys();
+        return getUnderlyingLocalKeys();
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unlockedGet(Object key) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
+        return unlockedGetQuiet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unlockedGetQuiet(Object key) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unsafeGet(Object key) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
+        return unsafeGetQuiet(key);
     }
 
     /**

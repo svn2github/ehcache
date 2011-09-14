@@ -19,7 +19,6 @@ package net.sf.ehcache.constructs.nonstop.concurrency;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 
@@ -73,7 +72,7 @@ class NonstopSync implements Sync {
             }
 
             public Boolean performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
-                throw new NonStopCacheException("isHeldByCurrentThread() timed out");
+                throw new LockOperationTimedOutNonstopException("isHeldByCurrentThread() timed out");
             }
         });
     }
@@ -93,7 +92,7 @@ class NonstopSync implements Sync {
 
             public Void performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
                 // throw exception for all behaviors
-                throw new NonStopCacheException("lock() timed out");
+                throw new LockOperationTimedOutNonstopException("lock() timed out");
             }
         });
     }
@@ -116,7 +115,7 @@ class NonstopSync implements Sync {
 
             public Boolean performClusterOperationTimedOut(final TimeoutBehaviorType configuredTimeoutBehavior) {
                 // throw exception for all behaviors
-                throw new NonStopCacheException("tryLock() timed out");
+                throw new LockOperationTimedOutNonstopException("tryLock() timed out");
             }
         });
     }
@@ -148,7 +147,7 @@ class NonstopSync implements Sync {
                 // always clean up lock stack for unlock even on timeouts
                 appThreadLockContext.lockReleased();
                 // throw exception for all behaviors
-                throw new NonStopCacheException("unlock() timed out");
+                throw new LockOperationTimedOutNonstopException("unlock() timed out");
             }
         });
     }
