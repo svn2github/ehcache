@@ -112,9 +112,9 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     /**
      * {@inheritDoc}
      */
-    public SoftLockFactory getOrCreateSoftLockFactory(String cacheName) {
+    public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {
         client.waitUntilRejoinComplete();
-        return delegate.getOrCreateSoftLockFactory(cacheName);
+        return delegate.getOrCreateSoftLockFactory(cache);
     }
 
     /**
