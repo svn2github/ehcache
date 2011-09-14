@@ -50,6 +50,7 @@ import net.sf.ehcache.store.DiskStore.DiskElement;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.store.compound.ElementSubstitute;
 import net.sf.ehcache.store.compound.ElementSubstituteFilter;
+import net.sf.ehcache.transaction.SoftLock;
 
 /**
  * This will be the disk-persistent element substitute factory
@@ -285,6 +286,9 @@ public class DiskPersistentStorageFactory extends DiskStorageFactory<ElementSubs
 
         CachingDiskMarker(DiskPersistentStorageFactory factory, long position, int size, Element element) {
             super(factory, position, size, element);
+            if (element.getObjectValue() instanceof SoftLock) {
+                cache(element);
+            }
             this.expiry = element.getExpirationTime();
         }
 

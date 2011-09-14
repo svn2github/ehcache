@@ -729,6 +729,73 @@ public class LocalTransactionTest extends TestCase {
         transactionController.commit();
     }
 
+    public void testPersistent() throws Exception {
+        Ehcache txCachePersistent = cacheManager.getEhcache("txCachePersistent");
+        transactionController.begin();
+        txCachePersistent.removeAll();
+        transactionController.commit();
+
+        transactionController.begin();
+        txCachePersistent.put(new Element(1, "one"));
+        assertEquals(new Element(1, "one"), txCachePersistent.get(1));
+        assertEquals(1, txCachePersistent.getSize());
+
+        txCachePersistent.put(new Element(2, "two"));
+        assertEquals(new Element(2, "two"), txCachePersistent.get(2));
+        assertEquals(2, txCachePersistent.getSize());
+        transactionController.commit();
+
+        transactionController.begin();
+        assertEquals(new Element(1, "one"), txCachePersistent.get(1));
+        assertEquals(new Element(2, "two"), txCachePersistent.get(2));
+
+        txCachePersistent.put(new Element(1, "one#2"));
+        txCachePersistent.put(new Element(2, "two#2"));
+
+        assertEquals(new Element(1, "one#2"), txCachePersistent.get(1));
+        assertEquals(new Element(2, "two#2"), txCachePersistent.get(2));
+        assertNull(txCachePersistent.get(3));
+        assertEquals(2, txCachePersistent.getSize());
+        transactionController.commit();
+
+        transactionController.begin();
+        assertEquals(new Element(1, "one#2"), txCachePersistent.get(1));
+        assertEquals(new Element(2, "two#2"), txCachePersistent.get(2));
+        transactionController.commit();
+    }
+
+    public void testOverflow() throws Exception {
+        final Ehcache txCacheOverflow = cacheManager.getEhcache("txCacheOverflow");
+
+        transactionController.begin();
+        txCacheOverflow.put(new Element(1, "one"));
+        assertEquals(new Element(1, "one"), txCacheOverflow.get(1));
+        assertEquals(1, txCacheOverflow.getSize());
+
+        txCacheOverflow.put(new Element(2, "two"));
+        assertEquals(new Element(2, "two"), txCacheOverflow.get(2));
+        assertEquals(2, txCacheOverflow.getSize());
+        transactionController.commit();
+
+        transactionController.begin();
+        assertEquals(new Element(1, "one"), txCacheOverflow.get(1));
+        assertEquals(new Element(2, "two"), txCacheOverflow.get(2));
+
+        txCacheOverflow.put(new Element(1, "one#2"));
+        txCacheOverflow.put(new Element(2, "two#2"));
+
+        assertEquals(new Element(1, "one#2"), txCacheOverflow.get(1));
+        assertEquals(new Element(2, "two#2"), txCacheOverflow.get(2));
+        assertNull(txCacheOverflow.get(3));
+        assertEquals(2, txCacheOverflow.getSize());
+        transactionController.commit();
+
+        transactionController.begin();
+        assertEquals(new Element(1, "one#2"), txCacheOverflow.get(1));
+        assertEquals(new Element(2, "two#2"), txCacheOverflow.get(2));
+        transactionController.commit();
+    }
+
     private static class TxThread extends Thread {
         private volatile boolean failed;
 
