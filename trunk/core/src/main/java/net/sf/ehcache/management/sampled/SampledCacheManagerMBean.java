@@ -28,6 +28,11 @@ import java.util.Map;
  */
 public interface SampledCacheManagerMBean {
     /**
+     * CACHE_MANAGER_CHANGED
+     */
+    final String CACHE_MANAGER_CHANGED = "CacheManagerChanged";
+
+    /**
      * CACHES_ENABLED
      */
     final String CACHES_ENABLED = "CachesEnabled";
@@ -297,6 +302,21 @@ public interface SampledCacheManagerMBean {
     long getMaxBytesLocalDisk();
 
     /**
+     * @param maxBytes
+     */
+    void setMaxBytesLocalDisk(long maxBytes);
+
+    /**
+     * @param maxBytes
+     */
+    void setMaxBytesLocalDiskAsString(String maxBytes);
+
+    /**
+     * @return Original input for maxBytesLocalDisk
+     */
+    String getMaxBytesLocalDiskAsString();
+
+    /**
      * Maximum number of bytes of entries in the heap memory stores of all caches that
      * did not declare their own max size.
      *
@@ -306,6 +326,21 @@ public interface SampledCacheManagerMBean {
     long getMaxBytesLocalHeap();
 
     /**
+     * @return Original input for maxBytesLocalHeap
+     */
+    String getMaxBytesLocalHeapAsString();
+
+    /**
+     * @param maxBytes
+     */
+    void setMaxBytesLocalHeap(long maxBytes);
+
+    /**
+     * @param maxBytes
+     */
+    void setMaxBytesLocalHeapAsString(String maxBytes);
+
+    /**
      * Maximum number of bytes of entries in the off-heap stores of all caches that
      * did not declare their own max size.
      *
@@ -313,4 +348,9 @@ public interface SampledCacheManagerMBean {
      * did not declare their own max size.
      */
     long getMaxBytesLocalOffHeap();
+
+    /**
+     * @return Original input for maxBytesLocalOffHeap
+     */
+    String getMaxBytesLocalOffHeapAsString();
 }

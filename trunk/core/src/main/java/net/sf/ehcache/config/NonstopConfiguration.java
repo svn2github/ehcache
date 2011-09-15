@@ -207,6 +207,44 @@ public class NonstopConfiguration implements Cloneable {
         return this;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + bulkOpsTimeoutMultiplyFactor;
+        result = prime * result + (configFrozen ? 1231 : 1237);
+        result = prime * result + (enabled ? 1231 : 1237);
+        result = prime * result + (immediateTimeout ? 1231 : 1237);
+        result = prime * result + ((timeoutBehavior == null) ? 0 : timeoutBehavior.hashCode());
+        result = prime * result + (int) (timeoutMillis ^ (timeoutMillis >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        NonstopConfiguration other = (NonstopConfiguration) obj;
+        if (bulkOpsTimeoutMultiplyFactor != other.bulkOpsTimeoutMultiplyFactor ||
+            configFrozen != other.configFrozen ||
+            enabled != other.enabled ||
+            immediateTimeout != other.immediateTimeout ||
+            timeoutMillis != other.timeoutMillis) {
+            return false;
+        }
+        if (timeoutBehavior == null) {
+            if (other.timeoutBehavior != null) {
+                return false;
+            }
+        } else if (!timeoutBehavior.equals(other.timeoutBehavior)) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */

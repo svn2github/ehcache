@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -80,6 +81,10 @@ public final class Configuration {
      * Default value for monitoring
      */
     public static final Monitoring DEFAULT_MONITORING = Monitoring.AUTODETECT;
+    /**
+     * Default sizeOfPolicy configuration
+     */
+    public static final SizeOfPolicyConfiguration DEFAULT_SIZEOF_POLICY_CONFIGURATION = new SizeOfPolicyConfiguration();
 
     /**
      * Default transactionManagerLookupConfiguration
@@ -89,7 +94,7 @@ public final class Configuration {
     private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
     private volatile RuntimeCfg cfg;
-    private List<PropertyChangeListener> propertyChangeListeners = new CopyOnWriteArrayList<PropertyChangeListener>();
+    private final List<PropertyChangeListener> propertyChangeListeners = new CopyOnWriteArrayList<PropertyChangeListener>();
 
     /**
      * Represents whether monitoring should be enabled or not.
@@ -185,8 +190,11 @@ public final class Configuration {
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
     private Long maxBytesLocalHeap;
+    private String maxBytesLocalHeapInput;
     private Long maxBytesLocalOffHeap;
+    private String maxBytesLocalOffHeapInput;
     private Long maxBytesLocalDisk;
+    private String maxBytesLocalDiskInput;
 
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -275,10 +283,6 @@ public final class Configuration {
         FactoryConfiguration configuration = new FactoryConfiguration();
         configuration.setClass(DefaultTransactionManagerLookup.class.getName());
         return configuration;
-    }
-
-    private static SizeOfPolicyConfiguration getDefaultSizeOfPolicyConfiguration() {
-        return new SizeOfPolicyConfiguration();
     }
 
     /**
@@ -469,6 +473,14 @@ public final class Configuration {
         } else {
             setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
         }
+        maxBytesLocalHeapInput = maxBytesOnHeap;
+    }
+
+    /**
+     * @return Original input for maxBytesLocalHeap
+     */
+    public String getMaxBytesLocalHeapAsString() {
+        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalHeap());
     }
 
     private int parsePercentage(final String stringValue) {
@@ -533,6 +545,14 @@ public final class Configuration {
         } else {
             setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
         }
+        maxBytesLocalOffHeapInput = maxBytesOffHeap;
+    }
+
+    /**
+     * @return Original input for maxBytesLocalOffHeap
+     */
+    public String getMaxBytesLocalOffHeapAsString() {
+        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalOffHeap());
     }
 
     private long getOffHeapLimit() {
@@ -600,6 +620,14 @@ public final class Configuration {
      */
     public void setMaxBytesLocalDisk(final String maxBytesOnDisk) {
         setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
+        maxBytesLocalDiskInput = maxBytesOnDisk;
+    }
+
+    /**
+     * @return Original input for maxBytesLocalDisk
+     */
+    public String getMaxBytesLocalDiskAsString() {
+        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalDisk());
     }
 
     /**
@@ -943,7 +971,7 @@ public final class Configuration {
      */
     public final SizeOfPolicyConfiguration getSizeOfPolicyConfiguration() {
         if (sizeOfPolicyConfiguration == null) {
-            return getDefaultSizeOfPolicyConfiguration();
+            return DEFAULT_SIZEOF_POLICY_CONFIGURATION;
         }
         return sizeOfPolicyConfiguration;
     }

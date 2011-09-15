@@ -227,7 +227,8 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
      */
     @Override
     protected void endAttributes(NodeElement element) {
-        printWithoutSpacer(">");
+        String end = (element.getInnerContent() == null && !element.hasChildren()) ? "/>" : ">";
+        printWithoutSpacer(end);
         if (isOutputBehaviorEnabled(OutputBehavior.NEWLINE_FOR_EACH_ATTRIBUTE)) {
             indentBackward();
         }
@@ -271,10 +272,12 @@ public class XMLGeneratorVisitor extends AbstractDepthFirstVisitor {
      */
     @Override
     protected void endElement(NodeElement element) {
-        if (isOutputBehaviorEnabled(OutputBehavior.NEWLINE_FOR_EACH_ELEMENT)) {
-            newLine();
+        if (element.getInnerContent() != null || element.hasChildren()) {
+            if (isOutputBehaviorEnabled(OutputBehavior.NEWLINE_FOR_EACH_ELEMENT)) {
+                newLine();
+            }
+            print("</" + element.getName() + ">");
         }
-        print("</" + element.getName() + ">");
         if (element.equals(rootElement) && isOutputBehaviorEnabled(OutputBehavior.NEWLINE_AT_END)) {
             newLine();
         }

@@ -25,9 +25,14 @@ import net.sf.ehcache.Ehcache;
  * @author Ludovic Orban
  */
 public class SizeOfPolicyConfiguration implements Cloneable {
-
-    private static final int DEFAULT_MAX_SIZEOF_DEPTH = 1000;
-    private static final MaxDepthExceededBehavior DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR = MaxDepthExceededBehavior.CONTINUE;
+    /**
+     * Default max traversal depth
+     */
+    public static final int DEFAULT_MAX_SIZEOF_DEPTH = 1000;
+    /**
+     * Default max traversal depth exceeded behavior
+     */
+    public static final MaxDepthExceededBehavior DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR = MaxDepthExceededBehavior.CONTINUE;
 
     /**
      * Enum of the possible behaviors of the SizeOf engine when the max depth is exceeded
@@ -170,4 +175,23 @@ public class SizeOfPolicyConfiguration implements Cloneable {
         return sizeOfPolicyConfiguration;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + maxDepth;
+        result = prime * result + ((maxDepthExceededBehavior == null) ? 0 : maxDepthExceededBehavior.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        SizeOfPolicyConfiguration other = (SizeOfPolicyConfiguration) obj;
+        return (maxDepth == other.maxDepth && maxDepthExceededBehavior == other.maxDepthExceededBehavior);
+    }
 }

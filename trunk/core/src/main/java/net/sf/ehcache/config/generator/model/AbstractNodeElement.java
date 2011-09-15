@@ -131,7 +131,7 @@ public abstract class AbstractNodeElement implements NodeElement {
      * {@inheritDoc}
      */
     public boolean hasChildren() {
-        return children.isEmpty();
+        return !children.isEmpty();
     }
 
     /**

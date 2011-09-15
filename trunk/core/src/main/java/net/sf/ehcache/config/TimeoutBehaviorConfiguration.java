@@ -224,7 +224,7 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * Default value for property separator
      */
     public static final String DEFAULT_PROPERTY_SEPARATOR = ",";
-    
+
     /**
      * Default value for timeout behavior
      */
@@ -341,6 +341,41 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+        result = prime * result + ((propertySeparator == null) ? 0 : propertySeparator.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        TimeoutBehaviorConfiguration other = (TimeoutBehaviorConfiguration) obj;
+        if (properties == null) {
+            if (other.properties != null) {
+                return false;
+            }
+        } else if (!properties.equals(other.properties)) {
+            return false;
+        }
+        if (propertySeparator == null) {
+            if (other.propertySeparator != null) {
+                return false;
+            }
+        } else if (!propertySeparator.equals(other.propertySeparator)) {
+            return false;
+        }
+        return type == other.type;
     }
 
     /**

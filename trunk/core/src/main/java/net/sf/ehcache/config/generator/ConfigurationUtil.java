@@ -73,11 +73,12 @@ public abstract class ConfigurationUtil {
      *            the {@link CacheConfiguration}
      * @return text representing the {@link CacheConfiguration}
      */
-    public static String generateCacheConfigurationText(CacheConfiguration cacheConfiguration) {
+    public static String generateCacheConfigurationText(Configuration configuration, CacheConfiguration cacheConfiguration) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter out = new PrintWriter(baos);
         XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
-        visitCacheConfiguration(cacheConfiguration, configGenerator);
+        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
+        visitCacheConfiguration(configuration, cacheConfiguration, configGenerator);
         out.flush();
         out.close();
         return baos.toString();
@@ -89,8 +90,8 @@ public abstract class ConfigurationUtil {
      * @param cacheConfiguration
      * @param configGenerator
      */
-    static void visitCacheConfiguration(CacheConfiguration cacheConfiguration, NodeElementVisitor configGenerator) {
-        CacheConfigurationElement element = new CacheConfigurationElement(null, cacheConfiguration);
+    static void visitCacheConfiguration(Configuration configuration, CacheConfiguration cacheConfiguration, NodeElementVisitor configGenerator) {
+        CacheConfigurationElement element = new CacheConfigurationElement(null, configuration, cacheConfiguration);
         element.accept(configGenerator);
     }
 

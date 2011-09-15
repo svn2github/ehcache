@@ -17,27 +17,31 @@
 package net.sf.ehcache.config.generator.model.elements;
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 
+
 /**
  * {@link NodeElement} representing the {@link CacheConfiguration} of the "defaultCache"
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class DefaultCacheConfigurationElement extends SimpleNodeElement {
 
+    private final Configuration configuration;
     private final CacheConfiguration cacheConfiguration;
 
     /**
      * Constructor accepting the parent and the {@link CacheConfiguration}
-     * 
+     *
      * @param parent
      * @param cacheConfiguration
      */
-    public DefaultCacheConfigurationElement(NodeElement parent, CacheConfiguration cacheConfiguration) {
+    public DefaultCacheConfigurationElement(NodeElement parent, Configuration configuration, CacheConfiguration cacheConfiguration) {
         super(parent, "defaultCache");
+        this.configuration = configuration;
         this.cacheConfiguration = cacheConfiguration;
         init();
         this.optional = false;
@@ -47,7 +51,7 @@ public class DefaultCacheConfigurationElement extends SimpleNodeElement {
         if (cacheConfiguration == null) {
             return;
         }
-        CacheConfigurationElement.addCommonAttributesWithDefaultCache(this, cacheConfiguration);
+        CacheConfigurationElement.addCommonAttributesWithDefaultCache(this, configuration, cacheConfiguration);
 
         CacheConfigurationElement.addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
     }

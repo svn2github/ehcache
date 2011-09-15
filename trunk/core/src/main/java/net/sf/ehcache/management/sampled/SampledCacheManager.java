@@ -462,6 +462,37 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     /**
      * {@inheritDoc}
      */
+    public String getMaxBytesLocalDiskAsString() {
+        return cacheManager.getConfiguration().getMaxBytesLocalDiskAsString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxBytesLocalDisk(long maxBytes) {
+        try {
+            cacheManager.getConfiguration().setMaxBytesLocalDisk(maxBytes);
+            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
+        } catch (RuntimeException e) {
+            throw SampledCache.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxBytesLocalDiskAsString(String maxBytes) {
+        try {
+            cacheManager.getConfiguration().setMaxBytesLocalDisk(maxBytes);
+            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
+        } catch (RuntimeException e) {
+            throw SampledCache.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getMaxBytesLocalHeap() {
         return cacheManager.getConfiguration().getMaxBytesLocalHeap();
     }
@@ -469,8 +500,46 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     /**
      * {@inheritDoc}
      */
+    public String getMaxBytesLocalHeapAsString() {
+        return cacheManager.getConfiguration().getMaxBytesLocalHeapAsString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxBytesLocalHeap(long maxBytes) {
+        try {
+            cacheManager.getConfiguration().setMaxBytesLocalHeap(maxBytes);
+            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
+        } catch (RuntimeException e) {
+            throw SampledCache.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxBytesLocalHeapAsString(String maxBytes) {
+        try {
+            cacheManager.getConfiguration().setMaxBytesLocalHeap(maxBytes);
+            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
+        } catch (RuntimeException e) {
+            throw SampledCache.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getMaxBytesLocalOffHeap() {
         return cacheManager.getConfiguration().getMaxBytesLocalOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getMaxBytesLocalOffHeapAsString() {
+        return cacheManager.getConfiguration().getMaxBytesLocalOffHeapAsString();
     }
 
     /**
@@ -707,6 +776,22 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
             }
         }
         return true;
+    }
+
+    /**
+     * getCacheManagerAttributes
+     *
+     * @return map of attribute name -> value
+     */
+    public Map<String, Object> getCacheManagerAttributes() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("MaxBytesLocalHeapAsString", getMaxBytesLocalHeapAsString());
+        result.put("MaxBytesLocalOffHeapAsString", getMaxBytesLocalOffHeapAsString());
+        result.put("MaxBytesLocalDiskAsString", getMaxBytesLocalDiskAsString());
+        result.put("MaxBytesLocalHeap", getMaxBytesLocalHeap());
+        result.put("MaxBytesLocalOffHeap", getMaxBytesLocalOffHeap());
+        result.put("MaxBytesLocalDisk", getMaxBytesLocalDisk());
+        return result;
     }
 
     /**

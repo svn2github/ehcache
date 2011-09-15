@@ -47,7 +47,7 @@ public class TerracottaConfigurationElement extends SimpleNodeElement {
         if (tcConfiguration == null) {
             return;
         }
-        if (tcConfiguration.getNonstopConfiguration() != null) {
+        if (!TerracottaConfiguration.DEFAULT_NON_STOP_CONFIGURATION.equals(tcConfiguration.getNonstopConfiguration())) {
             this.addChildElement(new NonstopConfigurationElement(this, tcConfiguration.getNonstopConfiguration()));
         }
         addAttribute(new SimpleNodeAttribute("clustered", tcConfiguration.isClustered()).optional(true).defaultValue(

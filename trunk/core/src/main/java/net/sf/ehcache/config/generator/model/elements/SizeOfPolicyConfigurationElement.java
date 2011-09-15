@@ -42,7 +42,6 @@ public class SizeOfPolicyConfigurationElement extends SimpleNodeElement {
         init();
     }
 
-
     /**
      * Construtor accepting the element and the {@link net.sf.ehcache.config.SizeOfPolicyConfiguration}
      *
@@ -59,8 +58,9 @@ public class SizeOfPolicyConfigurationElement extends SimpleNodeElement {
         if (sizeOfPolicyConfiguration == null) {
             return;
         }
-        addAttribute(new SimpleNodeAttribute("maxDepth", "100").optional(true));
-        addAttribute(new SimpleNodeAttribute("maxDepthExceededBehavior", "continue").optional(true));
+        addAttribute(new SimpleNodeAttribute("maxDepth", SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH).optional(true));
+        addAttribute(new SimpleNodeAttribute("maxDepthExceededBehavior",
+                SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR).optional(true));
     }
 
 }

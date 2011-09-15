@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.config;
 
+import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,8 +39,6 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
 /**
  * A value object used to represent cache configuration.
@@ -1240,11 +1240,10 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Setter for maxBytesLocalDisk in bytes
-     * @param maxBytesHeap max bytes on disk in bytes
+     * Setter for maxBytesLocalHeap in bytes
+     * @param maxBytesHeap max bytes in heap in bytes
      */
     public void setMaxBytesLocalHeap(final Long maxBytesHeap) {
-        verifyGreaterThanZero(maxBytesHeap, "maxBytesLocalHeap");
         if (onHeapPoolUsage != null && getMaxEntriesLocalHeap() > 0) {
             throw new InvalidConfigurationException("MaxEntriesLocalHeap is not compatible with " +
                                                     "MaxBytesLocalHeap set on cache");
@@ -1252,6 +1251,7 @@ public class CacheConfiguration implements Cloneable {
         if (onHeapPoolUsage != null && onHeapPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch memory pool!");
         }
+        verifyGreaterThanZero(maxBytesHeap, "maxBytesLocalHeap");
         Long oldValue = this.maxBytesLocalHeap;
         this.maxBytesLocalHeap = maxBytesHeap;
         fireMaxBytesOnLocalHeapChanged(oldValue, maxBytesHeap);
@@ -1366,10 +1366,10 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesOffHeap max bytes on disk in bytes
      */
     public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
-        verifyGreaterThanZero(maxBytesOffHeap, "maxBytesLocalOffHeap");
         if (offHeapPoolUsage != null) {
             throw new IllegalStateException("OffHeap can't be set dynamically!");
         }
+        verifyGreaterThanZero(maxBytesOffHeap, "maxBytesLocalOffHeap");
         this.maxBytesLocalOffHeapExplicitlySet = true;
         this.maxBytesLocalOffHeap = maxBytesOffHeap;
     }
@@ -1420,7 +1420,6 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesDisk max bytes on disk in bytes
      */
     public void setMaxBytesLocalDisk(final Long maxBytesDisk) {
-        verifyGreaterThanZero(maxBytesDisk, "maxBytesLocalDisk");
         if (onDiskPoolUsage != null && getMaxEntriesLocalDisk() > 0) {
             throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
                                                     "MaxBytesLocalDisk set on cache");
@@ -1428,6 +1427,7 @@ public class CacheConfiguration implements Cloneable {
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch disk pool!");
         }
+        verifyGreaterThanZero(maxBytesDisk, "maxBytesLocalDisk");
         maxBytesLocalDiskExplicitlySet = true;
         Long oldValue = this.maxBytesLocalDisk;
         this.maxBytesLocalDisk = maxBytesDisk;
@@ -1597,12 +1597,16 @@ public class CacheConfiguration implements Cloneable {
             offHeapPoolUsage = CacheConfiguration.PoolUsage.None;
         }
 
-        if (getMaxBytesLocalDisk() > 0) {
-            onDiskPoolUsage = CacheConfiguration.PoolUsage.Cache;
-        } else if (cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
-            onDiskPoolUsage = CacheConfiguration.PoolUsage.CacheManager;
-        } else {
+        if (isTerracottaClustered()) {
             onDiskPoolUsage = CacheConfiguration.PoolUsage.None;
+        } else {
+            if (getMaxBytesLocalDisk() > 0) {
+                onDiskPoolUsage = CacheConfiguration.PoolUsage.Cache;
+            } else if (cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+                onDiskPoolUsage = CacheConfiguration.PoolUsage.CacheManager;
+            } else {
+                onDiskPoolUsage = CacheConfiguration.PoolUsage.None;
+            }
         }
     }
 
@@ -1715,7 +1719,7 @@ public class CacheConfiguration implements Cloneable {
             setMaxBytesLocalHeap(cacheAssignedMem);
         }
 
-        if (getMaxBytesLocalOffHeapPercentage() != null) {
+        if (offHeapPoolUsage == null && getMaxBytesLocalOffHeapPercentage() != null) {
             cacheAssignedMem = configuration.getMaxBytesLocalOffHeap() * getMaxBytesLocalOffHeapPercentage() / HUNDRED_PERCENT;
             setMaxBytesLocalOffHeap(cacheAssignedMem);
         }

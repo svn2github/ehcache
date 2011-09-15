@@ -47,7 +47,7 @@
     </module -->
 
     <module name="TreeWalker">
-        <!--<property name="cacheFile" value="checkstyle.cache}"/>-->
+        <property name="cacheFile" value="checkstyle.cache}"/>
         
         <!-- javadoc -->
         <module name="JavadocType">
@@ -203,7 +203,9 @@
         <module name="StringLiteralEquality"/>
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
-        <module name="MagicNumber"/>
+        <module name="MagicNumber">
+            <property name="ignoreHashCodeMethod" value="true"/>
+        </module>
         <module name="EqualsHashCode"/>
         <module name="MissingSwitchDefault"/>
 

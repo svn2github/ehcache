@@ -62,51 +62,99 @@ public class ConfigurationElement extends SimpleNodeElement {
                 String.valueOf(Configuration.DEFAULT_DYNAMIC_CONFIG)));
         addAttribute(new SimpleNodeAttribute("defaultTransactionTimeoutInSeconds", configuration.getDefaultTransactionTimeoutInSeconds())
                 .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_TRANSACTION_TIMEOUT)));
-        addAttribute(new SimpleNodeAttribute("maxBytesLocalHeap", configuration.getMaxBytesLocalHeap())
-                .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_ON_HEAP)));
-        addAttribute(new SimpleNodeAttribute("maxBytesLocalOffHeap", configuration.getMaxBytesLocalOffHeap())
-                .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_OFF_HEAP)));
-        addAttribute(new SimpleNodeAttribute("maxBytesLocalDisk", configuration.getMaxBytesLocalDisk())
-                .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_ON_DISK)));
+        testAddMaxBytesLocalHeapAttribute();
+        testAddMaxBytesLocalOffHeapAttribute();
+        testAddMaxBytesLocalDiskAttribute();
 
         // add the child elements
+        testAddDiskStoreElement();
+        testAddSizeOfPolicyElement();
+        testAddTransactionManagerLookupElement();
+        testAddCacheManagerEventListenerFactoryElement();
+        testAddCacheManagerPeerProviderFactoryElement();
+        testAddCacheManagerPeerListenerFactoryElement();
+
+        addChildElement(new DefaultCacheConfigurationElement(this, configuration, configuration.getDefaultCacheConfiguration()));
+        for (CacheConfiguration cacheConfiguration : configuration.getCacheConfigurations().values()) {
+            addChildElement(new CacheConfigurationElement(this, configuration, cacheConfiguration));
+        }
+
+        testAddTerracottaElement();
+    }
+
+    private void testAddMaxBytesLocalHeapAttribute() {
+        if (configuration.getMaxBytesLocalHeap() > 0) {
+            addAttribute(new SimpleNodeAttribute("maxBytesLocalHeap", configuration.getMaxBytesLocalHeapAsString())
+                    .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_ON_HEAP)));
+        }
+    }
+
+    private void testAddMaxBytesLocalOffHeapAttribute() {
+        if (configuration.getMaxBytesLocalOffHeap() > 0) {
+            addAttribute(new SimpleNodeAttribute("maxBytesLocalOffHeap", configuration.getMaxBytesLocalOffHeapAsString())
+                    .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_OFF_HEAP)));
+        }
+    }
+
+    private void testAddMaxBytesLocalDiskAttribute() {
+        if (configuration.getMaxBytesLocalDisk() > 0) {
+            addAttribute(new SimpleNodeAttribute("maxBytesLocalDisk", configuration.getMaxBytesLocalDiskAsString())
+                    .optional(true).defaultValue(String.valueOf(Configuration.DEFAULT_MAX_BYTES_ON_DISK)));
+        }
+    }
+
+    private void testAddDiskStoreElement() {
         DiskStoreConfiguration diskStoreConfiguration = configuration.getDiskStoreConfiguration();
         if (diskStoreConfiguration != null) {
             addChildElement(new DiskStoreConfigurationElement(this, diskStoreConfiguration));
         }
+    }
+
+    private void testAddSizeOfPolicyElement() {
         SizeOfPolicyConfiguration sizeOfPolicyConfiguration = configuration.getSizeOfPolicyConfiguration();
-        if (sizeOfPolicyConfiguration != null) {
+        if (sizeOfPolicyConfiguration != null &&
+                !Configuration.DEFAULT_SIZEOF_POLICY_CONFIGURATION.equals(sizeOfPolicyConfiguration)) {
             addChildElement(new SizeOfPolicyConfigurationElement(this, sizeOfPolicyConfiguration));
         }
+    }
+
+    private void testAddTransactionManagerLookupElement() {
         FactoryConfiguration transactionManagerLookupConfiguration = configuration.getTransactionManagerLookupConfiguration();
         if (transactionManagerLookupConfiguration != null
                 && !transactionManagerLookupConfiguration.equals(Configuration.DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG)) {
             addChildElement(new FactoryConfigurationElement(this, "transactionManagerLookup", transactionManagerLookupConfiguration));
         }
+    }
+
+    private void testAddCacheManagerEventListenerFactoryElement() {
         FactoryConfiguration cacheManagerEventListenerFactoryConfiguration = configuration
                 .getCacheManagerEventListenerFactoryConfiguration();
         if (cacheManagerEventListenerFactoryConfiguration != null) {
             addChildElement(new FactoryConfigurationElement(this, "cacheManagerEventListenerFactory",
                     cacheManagerEventListenerFactoryConfiguration));
         }
+    }
+
+    private void testAddCacheManagerPeerProviderFactoryElement() {
         List<FactoryConfiguration> cacheManagerPeerProviderFactoryConfiguration = configuration
                 .getCacheManagerPeerProviderFactoryConfiguration();
         if (cacheManagerPeerProviderFactoryConfiguration != null) {
             addAllFactoryConfigsAsChildElements(this, "cacheManagerPeerProviderFactory", cacheManagerPeerProviderFactoryConfiguration);
         }
+    }
+
+    private void testAddCacheManagerPeerListenerFactoryElement() {
         List<FactoryConfiguration> cacheManagerPeerListenerFactoryConfigurations = configuration
                 .getCacheManagerPeerListenerFactoryConfigurations();
         if (cacheManagerPeerListenerFactoryConfigurations != null && !cacheManagerPeerListenerFactoryConfigurations.isEmpty()) {
             addAllFactoryConfigsAsChildElements(this, "cacheManagerPeerListenerFactory", cacheManagerPeerListenerFactoryConfigurations);
         }
-        addChildElement(new DefaultCacheConfigurationElement(this, configuration.getDefaultCacheConfiguration()));
-        for (CacheConfiguration cacheConfiguration : configuration.getCacheConfigurations().values()) {
-            addChildElement(new CacheConfigurationElement(this, cacheConfiguration));
-        }
+    }
+
+    private void testAddTerracottaElement() {
         TerracottaClientConfiguration terracottaConfiguration = configuration.getTerracottaConfiguration();
         if (terracottaConfiguration != null) {
             addChildElement(new TerracottaConfigConfigurationElement(this, terracottaConfiguration));
         }
     }
-
 }

@@ -20,6 +20,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
 import net.sf.ehcache.config.ElementValueComparatorConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
@@ -38,6 +39,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy.MemoryStoreEvictionPolicyE
  */
 public class CacheConfigurationElement extends SimpleNodeElement {
 
+    private final Configuration configuration;
     private final CacheConfiguration cacheConfiguration;
 
     /**
@@ -46,8 +48,9 @@ public class CacheConfigurationElement extends SimpleNodeElement {
      * @param parent
      * @param cacheConfiguration
      */
-    public CacheConfigurationElement(NodeElement parent, CacheConfiguration cacheConfiguration) {
+    public CacheConfigurationElement(NodeElement parent, Configuration configuration,  CacheConfiguration cacheConfiguration) {
         super(parent, "cache");
+        this.configuration = configuration;
         this.cacheConfiguration = cacheConfiguration;
         init();
     }
@@ -57,17 +60,24 @@ public class CacheConfigurationElement extends SimpleNodeElement {
             return;
         }
         addAttribute(new SimpleNodeAttribute("name", cacheConfiguration.getName()).optional(false));
-        addCommonAttributesWithDefaultCache(this, cacheConfiguration);
+        addCommonAttributesWithDefaultCache(this, configuration, cacheConfiguration);
         addAttribute(new SimpleNodeAttribute("logging", cacheConfiguration.getLogging()).optional(true).defaultValue(
                 CacheConfiguration.DEFAULT_LOGGING));
 
         addCommonChildElementsWithDefaultCache(this, cacheConfiguration);
-        addAttribute(new SimpleNodeAttribute("maxBytesLocalHeap", cacheConfiguration.getMaxBytesLocalHeap())
-            .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_HEAP)));
-        addAttribute(new SimpleNodeAttribute("maxBytesLocalOffHeap", cacheConfiguration.getMaxBytesLocalOffHeap())
-                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_OFF_HEAP)));
-        addAttribute(new SimpleNodeAttribute("maxBytesLocalDisk", cacheConfiguration.getMaxBytesLocalDisk())
-            .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_DISK)));
+        if (cacheConfiguration.getMaxBytesLocalHeap() > 0 || cacheConfiguration.isMaxBytesLocalHeapPercentageSet()) {
+            addAttribute(new SimpleNodeAttribute("maxBytesLocalHeap", cacheConfiguration.getMaxBytesLocalHeapAsString())
+                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_HEAP)));
+        }
+        if (cacheConfiguration.getMaxBytesLocalOffHeap() > 0 || cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet()) {
+            addAttribute(new SimpleNodeAttribute("maxBytesLocalOffHeap", cacheConfiguration.getMaxBytesLocalOffHeapAsString())
+                    .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_OFF_HEAP)));
+        }
+        if (!cacheConfiguration.isTerracottaClustered() &&
+             (cacheConfiguration.getMaxBytesLocalDisk() > 0 || cacheConfiguration.isMaxBytesLocalDiskPercentageSet())) {
+            addAttribute(new SimpleNodeAttribute("maxBytesLocalDisk", cacheConfiguration.getMaxBytesLocalDiskAsString())
+                .optional(true).defaultValue(String.valueOf(CacheConfiguration.DEFAULT_MAX_BYTES_ON_DISK)));
+        }
     }
 
     /**
@@ -76,10 +86,12 @@ public class CacheConfigurationElement extends SimpleNodeElement {
      * @param element
      * @param cacheConfiguration
      */
-    public static void addCommonAttributesWithDefaultCache(NodeElement element, CacheConfiguration cacheConfiguration) {
+    public static void addCommonAttributesWithDefaultCache(NodeElement element, Configuration configuration, CacheConfiguration cacheConfiguration) {
         element.addAttribute(new SimpleNodeAttribute("eternal", cacheConfiguration.isEternal()).optional(false));
-        element.addAttribute(new SimpleNodeAttribute("maxElementsInMemory", cacheConfiguration.getMaxElementsInMemory()).optional(false));
-        element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalHeap", cacheConfiguration.getMaxEntriesLocalHeap()).optional(false));
+//        element.addAttribute(new SimpleNodeAttribute("maxElementsInMemory", cacheConfiguration.getMaxElementsInMemory()).optional(false));
+        if (!(cacheConfiguration.getMaxBytesLocalHeap() > 0 || configuration.getMaxBytesLocalHeap() > 0)) {
+            element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalHeap", cacheConfiguration.getMaxEntriesLocalHeap()).optional(false));
+        }
         element.addAttribute(new SimpleNodeAttribute("overflowToDisk", cacheConfiguration.isOverflowToDisk()).optional(false));
         element.addAttribute(new SimpleNodeAttribute("clearOnFlush", cacheConfiguration.isClearOnFlush()).optional(true).defaultValue(
                 String.valueOf(CacheConfiguration.DEFAULT_CLEAR_ON_FLUSH)));
@@ -101,12 +113,16 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 .defaultValue(CacheConfiguration.DEFAULT_TTI));
         element.addAttribute(new SimpleNodeAttribute("timeToLiveSeconds", cacheConfiguration.getTimeToLiveSeconds()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TTL));
-        element.addAttribute(new SimpleNodeAttribute("maxElementsOnDisk", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
-                .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
-        element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalDisk", cacheConfiguration.getMaxEntriesLocalDisk()).optional(true)
-                .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
-        element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxMemoryOffHeap()).optional(true)
-                .defaultValue(0));
+        if (cacheConfiguration.isTerracottaClustered()) {
+            element.addAttribute(new SimpleNodeAttribute("maxElementsOnDisk", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
+                    .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
+        }
+        if (!cacheConfiguration.isTerracottaClustered() && cacheConfiguration.getMaxEntriesLocalDisk() > 0) {
+            element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalDisk", cacheConfiguration.getMaxEntriesLocalDisk()).optional(true)
+                    .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
+        }
+//        element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxMemoryOffHeap()).optional(true)
+//                .defaultValue(0));
         element.addAttribute(new SimpleNodeAttribute("overflowToOffHeap", cacheConfiguration.isOverflowToOffHeap()).optional(true)
                 .defaultValue(false));
         element.addAttribute(new SimpleNodeAttribute("cacheLoaderTimeoutMillis", cacheConfiguration.getCacheLoaderTimeoutMillis())
@@ -168,7 +184,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
 
     private static void addSizeOfPolicyConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         SizeOfPolicyConfiguration sizeOfPolicyConfiguration = cacheConfiguration.getSizeOfPolicyConfiguration();
-        if (sizeOfPolicyConfiguration != null) {
+        if (sizeOfPolicyConfiguration != null &&
+                !Configuration.DEFAULT_SIZEOF_POLICY_CONFIGURATION.equals(sizeOfPolicyConfiguration)) {
             element.addChildElement(new SizeOfPolicyConfigurationElement(element, sizeOfPolicyConfiguration));
         }
     }

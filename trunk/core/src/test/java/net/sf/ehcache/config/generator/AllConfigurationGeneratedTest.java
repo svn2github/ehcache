@@ -32,6 +32,7 @@ import net.sf.ehcache.config.generator.model.NodeAttribute;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.XMLGeneratorVisitor;
 import net.sf.ehcache.config.generator.xsom.XSOMHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,15 +50,36 @@ public class AllConfigurationGeneratedTest extends TestCase {
     }
 
     public void testConfigurationGenerated() throws Exception {
-        NodeElement ehcacheCompleteXsdElement = generateEhcacheCompileXsdElement();
-        // for (int i = 0; i < 100; i++) {
-        doTest(ehcacheCompleteXsdElement);
-        // }
+        doTest(generateStandaloneEntryBasedConfigAttributesValueFactory());
+        doTest(generateClusteredEntryBasedConfigAttributesValueFactory());
+        doTest(generateStandaloneSizeBasedConfigAttributesValueFactory());
+        doTest(generateClusteredSizeBasedConfigAttributesValueFactory());
     }
 
-    private NodeElement generateEhcacheCompileXsdElement() throws Exception {
+    private NodeElement generateStandaloneEntryBasedConfigAttributesValueFactory() throws Exception {
         File ehcacheXsd = new File(SRC_CONFIG_DIR + "ehcache.xsd");
-        NodeElement ehcacheCompleteXsdElement = new XSOMHelper(new ValidDummyEhcacheConfigAttributesValueFactory()).createRootElement(
+        NodeElement ehcacheCompleteXsdElement = new XSOMHelper(new StandaloneEntryBasedConfigAttributesValueFactory()).createRootElement(
+                new FileInputStream(ehcacheXsd), "ehcache");
+        return ehcacheCompleteXsdElement;
+    }
+
+    private NodeElement generateClusteredEntryBasedConfigAttributesValueFactory() throws Exception {
+        File ehcacheXsd = new File(SRC_CONFIG_DIR + "ehcache.xsd");
+        NodeElement ehcacheCompleteXsdElement = new XSOMHelper(new ClusteredEntryBasedConfigAttributesValueFactory()).createRootElement(
+                new FileInputStream(ehcacheXsd), "ehcache");
+        return ehcacheCompleteXsdElement;
+    }
+
+    private NodeElement generateStandaloneSizeBasedConfigAttributesValueFactory() throws Exception {
+        File ehcacheXsd = new File(SRC_CONFIG_DIR + "ehcache.xsd");
+        NodeElement ehcacheCompleteXsdElement = new XSOMHelper(new StandaloneSizeBasedConfigAttributesValueFactory()).createRootElement(
+                new FileInputStream(ehcacheXsd), "ehcache");
+        return ehcacheCompleteXsdElement;
+    }
+
+    private NodeElement generateClusteredSizeBasedConfigAttributesValueFactory() throws Exception {
+        File ehcacheXsd = new File(SRC_CONFIG_DIR + "ehcache.xsd");
+        NodeElement ehcacheCompleteXsdElement = new XSOMHelper(new ClusteredSizeBasedConfigAttributesValueFactory()).createRootElement(
                 new FileInputStream(ehcacheXsd), "ehcache");
         return ehcacheCompleteXsdElement;
     }
@@ -77,8 +99,9 @@ public class AllConfigurationGeneratedTest extends TestCase {
         String ehcacheXmlWithoutTCUrl = writeEhcacheXmlWithoutTcURL(ehcacheCompleteXsdElement);
         unvisited = getUnvisited(ehcacheCompleteXsdElement, ehcacheXmlWithoutTCUrl);
         for (NodeElement element : unvisited.unvisitedAttributes.keySet()) {
+            String eltName = element.getName();
             // it is known attribute "url" of "terracottaConfig" element will not be thr
-            if ("terracottaConfig".equals(element.getName())) {
+            if ("terracottaConfig".equals(eltName)) {
                 Set<NodeAttribute> attributes = unvisited.unvisitedAttributes.get(element);
                 for (NodeAttribute attribute : attributes) {
                     if ("url".equals(attribute.getName())) {
@@ -166,6 +189,7 @@ public class AllConfigurationGeneratedTest extends TestCase {
         LOG.info("ehcache-dummy file: " + tmpFile.getAbsolutePath());
         FileOutputStream out = new FileOutputStream(tmpFile);
         PrintWriter pw = new PrintWriter(out);
+        String[] ignored;
         XMLGeneratorVisitor visitor = new AttributeIgnoringXMLGenerator(pw, "url");
         ehcacheCompleteElement.accept(visitor);
         pw.close();

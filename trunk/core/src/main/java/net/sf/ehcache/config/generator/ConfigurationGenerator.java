@@ -57,8 +57,8 @@ public class ConfigurationGenerator {
      * @deprecated use appropriate methods in {@link ConfigurationUtil} instead
      */
     @Deprecated
-    public String generate(CacheConfiguration cacheConfiguration) {
-        return ConfigurationUtil.generateCacheConfigurationText(cacheConfiguration);
+    public String generate(Configuration configuration, CacheConfiguration cacheConfiguration) {
+        return ConfigurationUtil.generateCacheConfigurationText(configuration, cacheConfiguration);
     }
 
 }

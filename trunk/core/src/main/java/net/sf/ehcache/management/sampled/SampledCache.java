@@ -180,7 +180,12 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         setNodeCoherent(!bulkLoadEnabled);
     }
 
-    private RuntimeException newPlainException(RuntimeException e) {
+    /**
+     * Create a standard RuntimeException from the input, if necessary.
+     * @param e
+     * @return either the original input or a new, standard RuntimeException
+     */
+    static RuntimeException newPlainException(RuntimeException e) {
         String type = e.getClass().getName();
         if (type.startsWith("java.") || type.startsWith("javax.")) {
             return e;

@@ -1503,7 +1503,7 @@ public class CacheManager {
             if (cacheConfiguration == null) {
                 throw new CacheException("Cache with name '" + cacheName + "' does not exist in the original configuration");
             }
-            return ConfigurationUtil.generateCacheConfigurationText(cacheConfiguration);
+            return ConfigurationUtil.generateCacheConfigurationText(runtimeCfg.getConfiguration(), cacheConfiguration);
         }
     }
 
@@ -1519,7 +1519,7 @@ public class CacheManager {
         if (config == null) {
             throw new CacheException("Cache with name '" + cacheName + "' does not exist");
         }
-        return ConfigurationUtil.generateCacheConfigurationText(config);
+        return ConfigurationUtil.generateCacheConfigurationText(runtimeCfg.getConfiguration(), config);
     }
 
     /**
