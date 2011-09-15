@@ -30,7 +30,7 @@ import java.util.Properties;
  */
 public class ProductInfo {
     private static final String VERSION_RESOURCE = "/ehcache-version.properties";
-    private static final String UNKNOWN = "UNKNOWN";
+    private static final String UNKNOWN = "unknown";
     private Properties props = new Properties();
 
     /**
@@ -105,6 +105,14 @@ public class ProductInfo {
     public String getBuiltBy() {
         return props.getProperty("built-by", UNKNOWN);
     }
+    
+    /**
+     * 
+     * @return the hostname
+     */
+    public String getBuildHostname() {
+        return props.getProperty("build-hostname", UNKNOWN);
+    } 
 
     /**
      * 
@@ -184,9 +192,9 @@ public class ProductInfo {
     public String toString() {
         String versionString = String
                 .format(
-                        "%s version %s was built on %s, at revision %s, with jdk %s by %s",
+                        "%s version %s was built on %s, at revision %s, with jdk %s by %s@%s",
                         getName(), getVersion(), getBuildTime(),
-                        getBuildRevision(), getBuildJdk(), getBuiltBy());
+                        getBuildRevision(), getBuildJdk(), getBuiltBy(), getBuildHostname());
         if (!UNKNOWN.equals(getPatchLevel())) {
             versionString = versionString + ". Patch level " + getPatchLevel();
         }

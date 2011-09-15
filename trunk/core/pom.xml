@@ -333,6 +333,12 @@
                       core_revision = getLastChangedRevision(project.basedir)
                 
                       project.properties.setProperty('build.revision', core_revision)
+                      def proc = "hostname".execute()
+                      proc.waitFor()
+                      def hostname = "unknown"
+                      if (proc.exitValue() == 0)
+                        hostname = proc.text.trim()
+                      project.properties.setProperty('build.hostname', hostname)
                     ]]></source>
             </configuration>
           </execution>
