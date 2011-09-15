@@ -34,9 +34,10 @@ public class ProductInfoTest {
         assertEquals("1078", pi.getBuildRevision());
         assertEquals("1.6.0_16", pi.getBuildJdk());
         assertEquals("hhuynh", pi.getBuiltBy());
+        assertEquals("barnabas", pi.getBuildHostname());
 
         assertEquals(
-                "Ehcache Core version 1.7.0-SNAPSHOT was built on 2009-09-18 02:15:49, at revision 1078, with jdk 1.6.0_16 by hhuynh",
+                "Ehcache Core version 1.7.0-SNAPSHOT was built on 2009-09-18 02:15:49, at revision 1078, with jdk 1.6.0_16 by hhuynh@barnabas",
                 pi.toString());
     }
 }
