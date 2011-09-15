@@ -175,8 +175,14 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         lock.lock();
         try {
             Element copy = copyElementForWriteIfNeeded(e);
-            cache.fill(copy);
-            return authority.put(copy);
+            final boolean put = authority.put(copy);
+            try {
+                cache.fill(copy);
+            } catch (OutOfMemoryError oome) {
+                authority.remove(e.getKey());
+                throw oome;
+            }
+            return put;
         } finally {
             lock.unlock();
         }
@@ -196,8 +202,14 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         lock.lock();
         try {
             Element copy = copyElementForWriteIfNeeded(e);
-            cache.fill(copy);
-            return authority.putWithWriter(copy, writer);
+            final boolean put = authority.putWithWriter(copy, writer);
+            try {
+                cache.fill(copy);
+            } catch (OutOfMemoryError oome) {
+                authority.remove(e.getKey());
+                throw oome;
+            }
+            return put;
         } finally {
             lock.unlock();
         }
@@ -251,7 +263,12 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             Element copy = copyElementForWriteIfNeeded(e);
             Element old = authority.putIfAbsent(copy);
             if (old == null) {
-                cache.fill(copy);
+                try {
+                    cache.fill(copy);
+                } catch (OutOfMemoryError oome) {
+                    authority.remove(copy.getKey());
+                    throw oome;
+                }
             }
             return copyElementForReadIfNeeded(old);
         } finally {
