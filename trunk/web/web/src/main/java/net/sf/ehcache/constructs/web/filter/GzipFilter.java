@@ -103,7 +103,7 @@ public class GzipFilter extends Filter {
                 return;
             }
             
-            // return on error or redirect code, because response is already committed
+            // return on these special cases when content is empty or unchanged
             switch (wrapper.getStatus()) {
             case HttpServletResponse.SC_NO_CONTENT:
             case HttpServletResponse.SC_RESET_CONTENT:
