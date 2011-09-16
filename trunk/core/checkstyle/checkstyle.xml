@@ -47,7 +47,7 @@
     </module -->
 
     <module name="TreeWalker">
-        <property name="cacheFile" value="checkstyle.cache}"/>
+        <property name="cacheFile" value="target/checkstyle.cache"/>
         
         <!-- javadoc -->
         <module name="JavadocType">
