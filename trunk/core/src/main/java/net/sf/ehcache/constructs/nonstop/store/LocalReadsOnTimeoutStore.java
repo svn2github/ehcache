@@ -317,8 +317,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * This is a no-op
      */
     public long getInMemorySizeInBytes() {
-        // no-op
-        return 0;
+        return this.nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getInMemorySizeInBytes();
     }
 
     /**
