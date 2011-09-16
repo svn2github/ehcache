@@ -122,7 +122,6 @@ public class GzipFilter extends Filter {
                 // No reason to add GZIP headers or write body if no content was written or status code specifies no
                 // content
                 response.setContentLength(0);
-                chain.doFilter(request, response);
                 return;
             }
 
