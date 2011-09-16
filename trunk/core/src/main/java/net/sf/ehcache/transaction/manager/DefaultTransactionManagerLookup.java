@@ -27,12 +27,15 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
+import net.sf.ehcache.util.ClassLoaderUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Default {@link TransactionManagerLookup} implementation, that will be used by an {@link net.sf.ehcache.Cache#initialise() initializing}
- * Cache should the user have not specified otherwise.<p>
+ * Cache should the user have not specified otherwise.
+ * <p>
  * This implementation will:
  * <ol>
  * <li>try lookup an {@link javax.naming.InitialContext};
@@ -41,8 +44,8 @@ import org.slf4j.LoggerFactory;
  * <li>and finally an Atomikos one.
  * </ol>
  *
- * To specify under what specific name the TransactionManager is to be found, you can provide a jndiName property
- * using {@link #setProperties(java.util.Properties)}. That can be set in the CacheManager's configuration file.
+ * To specify under what specific name the TransactionManager is to be found, you can provide a jndiName property using
+ * {@link #setProperties(java.util.Properties)}. That can be set in the CacheManager's configuration file.
  *
  * The first TransactionManager instance is then kept and returned on each {@link #getTransactionManager()} call
  *
@@ -52,21 +55,21 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultTransactionManagerLookup.class.getName());
 
-    private       transient TransactionManager transactionManager;
-    private       transient String             vendor             = "";
-    private       transient Properties         properties         = new Properties();
-    private final           Lock               lock               = new ReentrantLock();
+    private transient TransactionManager transactionManager;
+    private transient String vendor = "";
+    private transient Properties properties = new Properties();
+    private final Lock lock = new ReentrantLock();
 
     private final JndiSelector defaultJndiSelector = new JndiSelector("genericJNDI", "java:/TransactionManager");
 
     private final Selector[] transactionManagerSelectors = new Selector[] {defaultJndiSelector,
             new JndiSelector("Weblogic", "javax.transaction.TransactionManager"),
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
-            new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager"),
-    };
+            new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager")};
 
     /**
      * Lookup available txnManagers
+     *
      * @return TransactionManager
      */
     public TransactionManager getTransactionManager() {
@@ -119,14 +122,10 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
 
     private void registerResourceWithBitronix(String uniqueName, EhcacheXAResource resource) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        if (cl == null) {
-            cl = ClassLoader.getSystemClassLoader();
-        }
         try {
             // This requires BTM 2.0.0 at least
-            Class producerClass = cl.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
-            
+            Class producerClass = ClassLoaderUtil.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
+
             Class[] signature = new Class[] {String.class, XAResource.class};
             Object[] args = new Object[] {uniqueName, resource};
             Method method = producerClass.getMethod("registerXAResource", signature);
@@ -137,13 +136,9 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
 
     private void unregisterResourceWithBitronix(String uniqueName, EhcacheXAResource resource) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        if (cl == null) {
-            cl = ClassLoader.getSystemClassLoader();
-        }
         try {
             // This requires BTM 2.0.0 at least
-            Class producerClass = cl.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
+            Class producerClass = ClassLoaderUtil.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
 
             Class[] signature = new Class[] {String.class, XAResource.class};
             Object[] args = new Object[] {uniqueName, resource};
@@ -193,7 +188,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
 
     /**
-     * 
+     *
      */
     private static final class JndiSelector extends Selector {
 
@@ -247,12 +242,9 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         @Override
         protected TransactionManager lookup(final InitialContext initialContext) {
             TransactionManager transactionManager = null;
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            if (cl == null) {
-                cl = ClassLoader.getSystemClassLoader();
-            }
+
             try {
-                Class factoryClass = cl.loadClass(factoryClassName);
+                Class factoryClass = ClassLoaderUtil.loadClass(factoryClassName);
                 Class[] signature = null;
                 Object[] args = null;
                 Method method = factoryClass.getMethod("getTransactionManager", signature);
@@ -285,12 +277,9 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         @Override
         protected TransactionManager lookup(final InitialContext initialContext) {
             TransactionManager transactionManager = null;
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            if (cl == null) {
-                cl = ClassLoader.getSystemClassLoader();
-            }
+
             try {
-                Class txManagerClass = cl.loadClass(classname);
+                Class txManagerClass = ClassLoaderUtil.loadClass(classname);
                 transactionManager = (TransactionManager) txManagerClass.newInstance();
             } catch (ClassNotFoundException e) {
                 LOG.debug("FactorySelector failed lookup", e);
