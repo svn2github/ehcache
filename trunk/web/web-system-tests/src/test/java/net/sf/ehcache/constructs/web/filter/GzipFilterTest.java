@@ -245,6 +245,25 @@ public class GzipFilterTest extends AbstractWebTest {
     }
 
     /**
+     * When the servlet container generates a 400 (BAD REQUEST) with response body indicating why the request was rejected, 
+     * we want to treat it as if it were a normal page with normal content that could be gzipped
+     * <p/>
+     */
+    @Test
+    public void testErrorPageWithContent() throws Exception {
+        String url = buildUrl("/non_ok/BadRequestGzip.jsp");
+        HttpClient httpClient = new HttpClient();
+        HttpMethod httpMethod = new GetMethod(url);
+        httpMethod.addRequestHeader("If-modified-Since", "Fri, 13 May 3006 23:54:18 GMT");
+        httpMethod.addRequestHeader("Accept-Encoding", "gzip");
+        int responseCode = httpClient.executeMethod(httpMethod);
+        assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, responseCode);
+        String responseBody = httpMethod.getResponseBodyAsString();
+        assertNotNull(responseBody);
+        assertEquals("gzip", httpMethod.getResponseHeader("Content-Encoding").getValue());
+    }
+    
+    /**
      * When the servlet container generates a 404 page not found, we want to pass
      * it through without caching and without adding anything to it.
      * <p/>
