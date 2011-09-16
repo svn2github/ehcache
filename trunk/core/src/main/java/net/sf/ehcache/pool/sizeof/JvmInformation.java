@@ -763,16 +763,28 @@ public enum JvmInformation {
         return false;
     }
 
-    private static boolean isJRockit() {
+    /**
+     * Returns true if VM is JRockit
+     * @return true, if JRockit
+     */
+    public static boolean isJRockit() {
         return System.getProperty("jrockit.version") != null
                || System.getProperty("java.vm.name", "").toLowerCase().indexOf("jrockit") >= 0;
     }
 
-    private static boolean isHotspot() {
+    /**
+     * Returns true if VM vendor is Hotspot
+     * @return true, if Hotspot
+     */
+    public static boolean isHotspot() {
         return System.getProperty("java.vm.name", "").toLowerCase().contains("hotspot");
     }
 
-    private static boolean isIBM() {
+    /**
+     * Returns true if VM vendor is IBM
+     * @return true, if IBM
+     */
+    public static boolean isIBM() {
         return System.getProperty("java.vm.name", "").contains("IBM") && System.getProperty("java.vm.vendor").contains("IBM");
     }
 

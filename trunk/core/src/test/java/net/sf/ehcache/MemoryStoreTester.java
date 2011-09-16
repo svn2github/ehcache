@@ -17,11 +17,14 @@
 package net.sf.ehcache;
 
 import junit.framework.Assert;
+
+import net.sf.ehcache.pool.sizeof.JvmInformation;
 import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -35,6 +38,7 @@ import java.util.List;
 import java.util.Random;
 
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -466,6 +470,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     @Test
     public void testReadWriteThreadsSurya() throws Exception {
+        Assume.assumeThat(JvmInformation.isJRockit(), is(false));
 
         long start = System.currentTimeMillis();
         final List executables = new ArrayList();
@@ -527,6 +532,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     @Test
     public void testMemoryStoreOutOfMemoryLimit() throws Exception {
+        Assume.assumeThat(JvmInformation.isJRockit(), is(false));
         LOG.info("Starting out of memory limit test");
         //Set size so the second element overflows to disk.
         cache = manager.getCache("memoryLimitTest");
