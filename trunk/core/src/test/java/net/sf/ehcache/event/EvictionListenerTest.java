@@ -38,8 +38,8 @@ public class EvictionListenerTest {
     private static CacheManager cacheManager;
     private static final String CACHE_NAME = "listening";
     private Cache cache;
-    private static final int THREADS = 4;
-    private static final int PER_THREAD = 1500;
+    private static final int THREADS = 6;
+    private static final int PER_THREAD = 15000;
 
     @BeforeClass
     public static void createCacheManager() {
