@@ -8,9 +8,6 @@ import static org.ops4j.pax.exam.spi.container.PaxExamRuntime.getTestContainerFa
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.servlet.Servlet;
-import javax.servlet.http.HttpServlet;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -25,8 +22,6 @@ import org.ops4j.pax.exam.TestContainer;
 import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.TestProbeProvider;
 import org.ops4j.pax.exam.options.BootDelegationOption;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 public class BasicOsgiTest {
 
