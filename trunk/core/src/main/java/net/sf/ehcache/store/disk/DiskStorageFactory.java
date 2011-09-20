@@ -516,8 +516,9 @@ public class DiskStorageFactory {
                 FrontEndCacheTier frontEndCacheTier = eventService.getFrontEndCacheTier();
                 if (frontEndCacheTier != null) {
                     if (!frontEndCacheTier.isCached(placeholder.getKey())) {
-                        eventService.notifyElementEvicted(placeholder.getElement(), false);
-                        store.evict(placeholder.getKey(), placeholder);
+                        if (store.evict(placeholder.getKey(), placeholder)) {
+                            eventService.notifyElementEvicted(placeholder.getElement(), false);
+                        }
                     }
                 }
                 return null;
@@ -1095,11 +1096,19 @@ public class DiskStorageFactory {
             for (int i = 0; i < Math.min(MAX_EVICT, overflow); i++) {
                 DiskSubstitute target = getDiskEvictionTarget(keyHint, size);
                 if (target != null) {
-                    if (store.evict(target.getKey(), target) && (onDisk.get() <= diskCapacity)) {
+                    final Element element = store.evictElement(target.getKey(), target);
+                    notifyEvictionIfNotNull(element);
+                    if (element != null && onDisk.get() <= diskCapacity) {
                         break;
                     }
                 }
             }
+        }
+    }
+
+    private void notifyEvictionIfNotNull(final Element element) {
+        if (element != null) {
+            eventService.notifyElementEvicted(element, false);
         }
     }
 

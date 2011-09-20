@@ -14,6 +14,7 @@ import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -140,6 +141,7 @@ public class DiskStorePoolingTest {
     }
 
     @Test
+    @Ignore
     public void testPutNew() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             putNew();
@@ -190,6 +192,7 @@ public class DiskStorePoolingTest {
     }
 
     @Test
+    @Ignore
     public void testPutThenRemove() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             putThenRemove();
@@ -234,6 +237,7 @@ public class DiskStorePoolingTest {
 
 
     @Test
+    @Ignore
     public void testPutIfAbsentNew() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             putIfAbsentNew();

@@ -175,6 +175,24 @@ public class EvictionListenerTest {
         assertThat(cacheElementsEvicted.size() + noDiskCache.getSize(), is(THREADS * PER_THREAD));
     }
 
+    @Test
+    public void testGetsAllEvictedKeysWithDiskEntryBased() throws InterruptedException {
+        CacheConfiguration configuration = new CacheConfiguration().name("diskEntry").maxEntriesLocalHeap(100)
+            .overflowToDisk(true).maxEntriesLocalDisk(2000);
+        final Cache noDiskCache = new Cache(configuration);
+        cacheManager.addCache(noDiskCache);
+        CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
+        assertThat(noDiskCache.getMemoryStoreSize(), is(100L));
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
+        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
+            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
+        }
+        assertThat(noDiskCache.getSize(), not(is(0)));
+        assertThat(cacheElementsEvicted.size(), not(is(0)));
+        System.out.println(noDiskCache.getSize());
+        assertThat(cacheElementsEvicted.size() + noDiskCache.getSize(), is(THREADS * PER_THREAD));
+    }
+
     private CountingCacheEventListener accessCache(final Cache cacheUT) throws InterruptedException {
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
         cacheUT.getCacheEventNotificationService().registerListener(countingCacheEventListener);
@@ -189,7 +207,11 @@ public class EvictionListenerTest {
                 public void run() {
                     for (int j = index * PER_THREAD; j < (index + 1) * PER_THREAD; j++) {
                         cacheUT.get("key" + (1000 + (j % 10)));
-                        cacheUT.put(new Element("key" + j, UUID.randomUUID().toString()));
+                        if (j % 125 == 0) {
+                            cacheUT.put(new Element("key" + j, new Object()));
+                        } else {
+                            cacheUT.put(new Element("key" + j, UUID.randomUUID().toString()));
+                        }
                     }
                 }
             };
@@ -298,6 +320,7 @@ public class EvictionListenerTest {
 
         @Override
         public Object clone() throws CloneNotSupportedException {
+            super.clone();
             throw new UnsupportedOperationException("Don't clone me!");
         }
 

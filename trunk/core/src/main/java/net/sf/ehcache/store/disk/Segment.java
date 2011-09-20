@@ -729,7 +729,7 @@ public class Segment extends ReentrantReadWriteLock {
                     long deleteSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
                     LOG.debug("fault failed to add on disk, deleted {} from heap", deleteSize);
                     expect.onHeapSize = fault.onHeapSize + deleteSize;
-                    remove(key, hash, null, null);
+//                    remove(key, hash, null, null);
                     return false;
                 } else {
                     LOG.debug("fault added {} on disk", incomingDiskSize);
@@ -898,11 +898,11 @@ public class Segment extends ReentrantReadWriteLock {
      */
     boolean cleanUpFailedMarker(final Serializable key, final int hash) {
         boolean readLocked = false;
+        boolean failedMarker = false;
         if (!isWriteLockedByCurrentThread()) {
             readLock().lock();
             readLocked = true;
         }
-        boolean failedMarker = false;
         DiskSubstitute substitute = null;
         try {
             if (count != 0) {
@@ -923,13 +923,8 @@ public class Segment extends ReentrantReadWriteLock {
                 readLock().unlock();
             }
         }
-        boolean writeLocked = failedMarker && writeLock().tryLock();
-        if (writeLocked) {
-            try {
-                evict(key, hash, substitute);
-            } catch (Exception e) {
-                writeLock().unlock();
-            }
+        if (failedMarker) {
+            evict(key, hash, substitute);
         }
         return failedMarker;
     }
