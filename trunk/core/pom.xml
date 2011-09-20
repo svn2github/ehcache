@@ -905,7 +905,7 @@
     <profile>
       <id>maven-bundle-plugin-version-jdk16-plus</id>
       <activation>
-        <jdk>[1.6,</jdk>
+        <jdk>[1.6,1.8)</jdk>
       </activation>
       <properties>
         <maven.bundle.plugin.version>2.3.5</maven.bundle.plugin.version>
