@@ -179,6 +179,12 @@ public class TerracottaConfiguration implements Cloneable {
         }
     }
 
+    private void assertArgumentNotNull(String name, Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException(name + " cannot be null");
+        }
+    }
+
     /**
      * Indicates whether to cluster this cache with Terracotta.
      * <p/>
@@ -300,9 +306,7 @@ public class TerracottaConfiguration implements Cloneable {
      * Converts the {@code valueMode} string argument to uppercase and looks up enum constant in ValueMode.
      */
     public void setValueMode(String valueMode) {
-        if (valueMode == null) {
-            throw new IllegalArgumentException("Value mode must be non-null");
-        }
+        assertArgumentNotNull("Value Mode", valueMode);
         this.valueMode = ValueMode.valueOf(ValueMode.class, valueMode.toUpperCase());
     }
 
@@ -516,9 +520,7 @@ public class TerracottaConfiguration implements Cloneable {
      * Converts the {@code storageStrategy} string argument to uppercase and looks up enum constant in StorageStrategy.
      */
     public void setStorageStrategy(String storageStrategy) {
-        if (storageStrategy == null) {
-            throw new IllegalArgumentException("Storage Strategy must be non-null");
-        }
+        assertArgumentNotNull("Cache storageStrategy", storageStrategy);
         this.storageStrategy(StorageStrategy.valueOf(StorageStrategy.class, storageStrategy.toUpperCase()));
     }
 

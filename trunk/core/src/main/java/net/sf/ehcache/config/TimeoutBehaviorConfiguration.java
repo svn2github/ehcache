@@ -292,6 +292,9 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * @param properties
      */
     public void setProperties(String properties) {
+        if (properties == null) {
+            throw new IllegalArgumentException("Properties cannot be null");
+        }
         this.properties = properties;
     }
 
@@ -321,6 +324,9 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      * @param propertySeparator
      */
     public void setPropertySeparator(String propertySeparator) {
+        if (propertySeparator == null) {
+            throw new IllegalArgumentException("Property Separator cannot be null");
+        }
         this.propertySeparator = propertySeparator;
     }
 

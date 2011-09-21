@@ -494,6 +494,12 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
+    private void assertArgumentNotNull(String name, Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException(name + " cannot be null");
+        }
+    }
+
     /**
      * Sets the name of the cache.
      *
@@ -501,9 +507,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setName(String name) {
         checkDynamicChange();
-        if (name == null) {
-            throw new IllegalArgumentException("Cache name cannot be null.");
-        }
+        assertArgumentNotNull("Cache name", name);
         this.name = name;
     }
 
@@ -584,6 +588,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
         checkDynamicChange();
+        assertArgumentNotNull("Cache maxMemoryOffHeap", maxMemoryOffHeap);
         setMaxBytesLocalOffHeap(maxMemoryOffHeap);
     }
 
@@ -700,11 +705,12 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the eviction policy. An invalid argument will set it to null.
+     * Sets the eviction policy. An invalid argument will set it to LRU.
      *
      * @param memoryStoreEvictionPolicy a String representation of the policy. One of "LRU", "LFU" or "FIFO".
      */
     public final void setMemoryStoreEvictionPolicy(String memoryStoreEvictionPolicy) {
+        assertArgumentNotNull("Cache memoryStoreEvictionPolicy", memoryStoreEvictionPolicy);
         setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy.fromString(memoryStoreEvictionPolicy));
     }
 
@@ -1231,6 +1237,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesHeap String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalHeap(final String maxBytesHeap) {
+        assertArgumentNotNull("Cache maxBytesLocalHeap", maxBytesHeap);
         if (isPercentage(maxBytesHeap)) {
             maxBytesLocalHeapPercentage = parsePercentage(maxBytesHeap);
         } else {
@@ -1306,6 +1313,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesOffHeap String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
+        assertArgumentNotNull("Cache maxBytesLocalOffHeap", maxBytesOffHeap);
         if (isPercentage(maxBytesOffHeap)) {
             maxBytesLocalOffHeapPercentage = parsePercentage(maxBytesOffHeap);
         } else {
@@ -1406,6 +1414,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesDisk String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalDisk(final String maxBytesDisk) {
+        assertArgumentNotNull("Cache maxBytesLocalDisk", maxBytesDisk);
         if (isPercentage(maxBytesDisk)) {
             maxBytesLocalDiskPercentage = parsePercentage(maxBytesDisk);
         } else {
@@ -2094,9 +2103,7 @@ public class CacheConfiguration implements Cloneable {
      * @param transactionalMode one of OFF, LOCAL, XA, XA_STRICT
      */
     public final void setTransactionalMode(final String transactionalMode) {
-        if (null == transactionalMode) {
-            throw new IllegalArgumentException("TransactionalMode value must be non-null");
-        }
+        assertArgumentNotNull("Cache transactionalMode", transactionalMode);
         this.transactionalMode = TransactionalMode.valueOf(transactionalMode.toUpperCase());
     }
 

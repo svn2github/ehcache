@@ -302,12 +302,19 @@ public final class Configuration {
      * Allows BeanHandler to set the CacheManager name.
      */
     public final void setName(String name) {
+        assertArgumentNotNull("name", name);
         final String prop = "cacheManagerName";
         final boolean publishChange = checkDynChange(prop);
         String oldValue = this.cacheManagerName;
         this.cacheManagerName = name;
         if (publishChange) {
             firePropertyChange(prop, oldValue, name);
+        }
+    }
+
+    private void assertArgumentNotNull(String name, Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException(name + " cannot be null");
         }
     }
 
@@ -407,9 +414,7 @@ public final class Configuration {
      * Allows BeanHandler to set the monitoring flag
      */
     public final void setMonitoring(String monitoring) {
-        if (monitoring == null) {
-            throw new IllegalArgumentException("Monitoring value must be non-null");
-        }
+        assertArgumentNotNull("Monitoring", monitoring);
         monitoring(Monitoring.valueOf(Monitoring.class, monitoring.toUpperCase()));
     }
 
@@ -466,6 +471,7 @@ public final class Configuration {
      * @see MemoryUnit#parseSizeInBytes(String)
      */
     public void setMaxBytesLocalHeap(final String maxBytesOnHeap) {
+        assertArgumentNotNull("MaxBytesLocalHeap", maxBytesOnHeap);
         if (isPercentage(maxBytesOnHeap)) {
             long maxMemory = Runtime.getRuntime().maxMemory();
             long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOnHeap);
@@ -538,6 +544,7 @@ public final class Configuration {
      * @see MemoryUnit#parseSizeInBytes(String)
      */
     public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
+        assertArgumentNotNull("MaxBytesLocalOffHeap", maxBytesOffHeap);
         if (isPercentage(maxBytesOffHeap)) {
             long maxMemory = getOffHeapLimit();
             long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOffHeap);
@@ -619,6 +626,7 @@ public final class Configuration {
      * @see MemoryUnit#parseSizeInBytes(String)
      */
     public void setMaxBytesLocalDisk(final String maxBytesOnDisk) {
+        assertArgumentNotNull("MaxBytesLocalDisk", maxBytesOnDisk);
         setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
         maxBytesLocalDiskInput = maxBytesOnDisk;
     }
