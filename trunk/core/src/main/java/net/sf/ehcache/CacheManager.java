@@ -437,8 +437,8 @@ public class CacheManager {
                 final String msg = "Another "
                         + (isNamed ? "CacheManager with same name '" + name + "'" : "unnamed CacheManager")
                         + " already exists in the same VM. Please provide unique names for each CacheManager in the config or do one of following:\n"
-                        + "1. Use static factory methods CacheManager.create(..) to reuse same cacheManager with same name"
-                        + " if another already exists with same name\n"
+                        + "1. Use one of the CacheManager.create() static factory methods to reuse same CacheManager with same name"
+                        + " or create one if necessary\n"
                         + "2. Shutdown the earlier cacheManager before creating new one with same name.\n"
                         + "The source of the existing CacheManager is: "
                         + (configurationSource == null ? "[Programmatically configured]" : configurationSource);
@@ -811,7 +811,7 @@ public class CacheManager {
      * @param config
      */
     public static CacheManager create(Configuration config) throws CacheException {
-        return create(config, "Creating new CacheManager with InputStream");
+        return create(config, "Creating new CacheManager with Configuration Object");
     }
 
 
