@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
+import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
@@ -143,6 +145,10 @@ public class CacheManager {
     private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
             + " in the config. Please add a default cache config in the configuration.";
 
+    private static final Map<String, CacheManager> CACHE_MANAGERS_MAP = new HashMap<String, CacheManager>();
+
+    private static final IdentityHashMap<CacheManager, String> CACHE_MANAGERS_REVERSE_MAP = new IdentityHashMap<CacheManager, String>();
+
     /**
      * Status of the Cache Manager
      */
@@ -217,7 +223,12 @@ public class CacheManager {
      * This method does not act as a singleton. Callers must maintain their own reference to it.
      * <p/>
      * Note that if one of the {@link #create()} methods are called, a new singleton instance will be created, separate from any instances
-     * created in this method.
+     * created in this method. This note is not valid since 2.5, behavior of which is mentioned below.
+     *
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception.
+     * It is recommended to use one of the {@link #create()} methods to instantiate new CacheManagers as those methods return the same instance
+     * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @param configuration
      * @throws CacheException
@@ -231,7 +242,13 @@ public class CacheManager {
      * An ordinary constructor for CacheManager.
      * This method does not act as a singleton. Callers must maintain a reference to it.
      * Note that if one of the {@link #create()} methods are called, a new singleton will be created,
-     * separate from any instances created in this method.
+     * separate from any instances created in this method. This note is not valid since 2.5, behavior of which is mentioned below.
+     *
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link create()}
+     * methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #create()} methods to instantiate new CacheManagers as those methods return the same instance
+     * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @param configurationFileName
      *            an xml configuration file available through a file name. The configuration {@link File} is created
@@ -248,7 +265,14 @@ public class CacheManager {
      * An ordinary constructor for CacheManager.
      * This method does not act as a singleton. Callers must maintain a reference to it.
      * Note that if one of the {@link #create()} methods are called, a new singleton will be created,
-     * separate from any instances created in this method.
+     * separate from any instances created in this method. This note is not valid since 2.5, behavior of which is mentioned below.
+     *
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link create()}
+     * methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #create()} methods to instantiate new CacheManagers as those methods return the same instance
+     * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
+     *
      * <p/>
      * This method can be used to specify a configuration resource in the classpath other than the default of \"/ehcache.xml\":
      *
@@ -276,7 +300,13 @@ public class CacheManager {
      * An ordinary constructor for CacheManager.
      * This method does not act as a singleton. Callers must maintain a reference to it.
      * Note that if one of the {@link #create()} methods are called, a new singleton will be created,
-     * separate from any instances created in this method.
+     * separate from any instances created in this method. This note is not valid since 2.5, behavior of which is mentioned below.
+     *
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link create()}
+     * methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #create()} methods to instantiate new CacheManagers as those methods return the same instance
+     * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @param configurationInputStream
      *            an xml configuration file available through an inputstream
@@ -290,6 +320,12 @@ public class CacheManager {
 
     /**
      * Constructor.
+     *
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link create()}
+     * methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #create()} methods to instantiate new CacheManagers as those methods return the same instance
+     * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @throws CacheException
      */
@@ -310,7 +346,8 @@ public class CacheManager {
         } else {
             configuration = initialConfiguration;
         }
-        // TODO This has to go
+
+        assertNoCacheManagerExistsWithSameName(configuration);
 
         if (configuration.getTerracottaConfiguration() != null) {
             // TODO this shouldn't be done!
@@ -377,6 +414,36 @@ public class CacheManager {
             mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
+        }
+    }
+
+    private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
+        synchronized (CacheManager.class) {
+            final String name;
+            final boolean isNamed;
+            if (configuration.getName() != null) {
+                name = configuration.getName();
+                isNamed = true;
+            } else {
+                name = DEFAULT_NAME;
+                isNamed = false;
+            }
+            CacheManager cacheManager = CACHE_MANAGERS_MAP.get(name);
+            if (cacheManager == null) {
+                CACHE_MANAGERS_MAP.put(name, this);
+                CACHE_MANAGERS_REVERSE_MAP.put(this, name);
+            } else {
+                ConfigurationSource configurationSource = cacheManager.getConfiguration().getConfigurationSource();
+                final String msg = "Another "
+                        + (isNamed ? "CacheManager with same name '" + name + "'" : "unnamed CacheManager")
+                        + " already exists in the same VM. Please provide unique names for each CacheManager in the config or do one of following:\n"
+                        + "1. Use static factory methods CacheManager.create(..) to reuse same cacheManager with same name"
+                        + " if another already exists with same name\n"
+                        + "2. Shutdown the earlier cacheManager before creating new one with same name.\n"
+                        + "The source of the existing CacheManager is: "
+                        + (configurationSource == null ? "[Programmatically configured]" : configurationSource);
+                throw new CacheException(msg);
+            }
         }
     }
 
@@ -656,18 +723,7 @@ public class CacheManager {
      *             if the CacheManager cannot be created
      */
     public static CacheManager create() throws CacheException {
-        if (singleton != null) {
-            return singleton;
-        }
-        synchronized (CacheManager.class) {
-            if (singleton == null) {
-                LOG.debug("Creating new CacheManager with default config");
-                singleton = new CacheManager();
-            } else {
-                LOG.debug("Attempting to create an existing singleton. Existing singleton returned.");
-            }
-            return singleton;
-        }
+        return create(ConfigurationFactory.parseConfiguration(), "Creating new CacheManager with default config");
     }
 
     /**
@@ -687,6 +743,7 @@ public class CacheManager {
 
     /**
      * A factory method to create a singleton CacheManager with a specified configuration.
+     * Since 2.5, if the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
      *
      * @param configurationFileName
      *            an xml file compliant with the ehcache.xsd schema
@@ -695,16 +752,8 @@ public class CacheManager {
      *            no longer required, call shutdown to free resources.
      */
     public static CacheManager create(String configurationFileName) throws CacheException {
-        if (singleton != null) {
-            return singleton;
-        }
-        synchronized (CacheManager.class) {
-            if (singleton == null) {
-                LOG.debug("Creating new CacheManager with config file: {}", configurationFileName);
-                singleton = new CacheManager(configurationFileName);
-            }
-            return singleton;
-        }
+        return create(ConfigurationFactory.parseConfiguration(new File(configurationFileName)),
+                "Creating new CacheManager with config file: " + configurationFileName);
     }
 
     /**
@@ -722,6 +771,8 @@ public class CacheManager {
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
      *
+     * Since 2.5, if the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
+     *
      * @param configurationFileURL
      *            an URL to an xml file compliant with the ehcache.xsd schema
      *            <p/>
@@ -729,16 +780,8 @@ public class CacheManager {
      *            no longer required, call shutdown to free resources.
      */
     public static CacheManager create(URL configurationFileURL) throws CacheException {
-        if (singleton != null) {
-            return singleton;
-        }
-        synchronized (CacheManager.class) {
-            if (singleton == null) {
-                LOG.debug("Creating new CacheManager with config URL: {}", configurationFileURL);
-                singleton = new CacheManager(configurationFileURL);
-            }
-            return singleton;
-        }
+        return create(ConfigurationFactory.parseConfiguration(configurationFileURL), "Creating new CacheManager with config URL: "
+                + configurationFileURL);
     }
 
     /**
@@ -748,6 +791,8 @@ public class CacheManager {
      * inputstream.
      * <p/>
      *
+     * Since 2.5, if the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
+     *
      * @param inputStream
      *            InputStream of xml compliant with the ehcache.xsd schema
      *            <p/>
@@ -755,37 +800,45 @@ public class CacheManager {
      *            no longer required, call shutdown to free resources.
      */
     public static CacheManager create(InputStream inputStream) throws CacheException {
-        if (singleton != null) {
-            return singleton;
-        }
-        synchronized (CacheManager.class) {
-            if (singleton == null) {
-                LOG.debug("Creating new CacheManager with InputStream");
-                singleton = new CacheManager(inputStream);
-            }
-            return singleton;
-        }
+        return create(ConfigurationFactory.parseConfiguration(inputStream), "Creating new CacheManager with InputStream");
     }
 
     /**
      * A factory method to create a singleton CacheManager from a net.sf.ehcache.config.Configuration.
      * <p/>
-     * This method makes it possible to use an inputstream for configuration. Note: it is the clients responsibility to close the
-     * inputstream.
-     * <p/>
      *
+     * Since 2.5, if the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
      * @param config
      */
     public static CacheManager create(Configuration config) throws CacheException {
-        if (singleton != null) {
-            return singleton;
-        }
+        return create(config, "Creating new CacheManager with InputStream");
+    }
+
+
+    /**
+     * Returns a new cacheManager or returns already created one.
+     * If another cacheManager with same name already exists in the VM, returns it. Otherwise creates a new one and returns the new
+     * cacheManager.
+     * Subsequent calls with config having same name of the cacheManager will return same instance until it has been shut down.
+     * There can be only one unnamed CacheManager in the VM
+     *
+     * @param fileName name of the file to read the config from
+     * @param msg Message printed when creating new cacheManager
+     * @return a new cacheManager or an already existing one in the VM with same name
+     * @since 2.5
+     */
+    private static CacheManager create(Configuration configuration, String msg) throws CacheException {
         synchronized (CacheManager.class) {
-            if (singleton == null) {
-                LOG.debug("Creating new CacheManager with InputStream");
-                singleton = new CacheManager(config);
+            String name = configuration.getName();
+            if (name == null) {
+                name = DEFAULT_NAME;
             }
-            return singleton;
+            CacheManager cacheManager = CACHE_MANAGERS_MAP.get(name);
+            if (cacheManager == null) {
+                LOG.debug(msg);
+                cacheManager = new CacheManager(configuration);
+            }
+            return cacheManager;
         }
     }
 
@@ -1165,29 +1218,30 @@ public class CacheManager {
 
             cacheManagerEventListenerRegistry.dispose();
 
-            synchronized (CacheManager.class) {
-                ALL_CACHE_MANAGERS.remove(this);
+            ALL_CACHE_MANAGERS.remove(this);
 
-                for (Ehcache cache : ehcaches.values()) {
-                    if (cache != null) {
-                        cache.dispose();
-                    }
+            for (Ehcache cache : ehcaches.values()) {
+                if (cache != null) {
+                    cache.dispose();
                 }
-                if (defaultCache != null) {
-                    defaultCache.dispose();
-                }
-                status = Status.STATUS_SHUTDOWN;
-                XARequestProcessor.shutdown();
-
-                // only delete singleton if the singleton is shutting down.
-                if (this == singleton) {
-                    singleton = null;
-                }
-                terracottaClient.shutdown();
-                transactionController = null;
-                removeShutdownHook();
-                nonstopExecutorServiceFactory.shutdown(this);
             }
+            if (defaultCache != null) {
+                defaultCache.dispose();
+            }
+            status = Status.STATUS_SHUTDOWN;
+            XARequestProcessor.shutdown();
+
+            // only delete singleton if the singleton is shutting down.
+            if (this == singleton) {
+                singleton = null;
+            }
+            terracottaClient.shutdown();
+            transactionController = null;
+            removeShutdownHook();
+            nonstopExecutorServiceFactory.shutdown(this);
+
+            final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
+            CACHE_MANAGERS_MAP.remove(name);
         }
     }
 

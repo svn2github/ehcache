@@ -27,11 +27,11 @@ import net.sf.ehcache.config.ConfigurationFactory;
 
 /**
  * Class encapsulating the source of configuration for a cache manager
- * 
+ *
  * <p />
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
- * 
+ *
  */
 public abstract class ConfigurationSource {
     /**
@@ -43,7 +43,7 @@ public abstract class ConfigurationSource {
 
     /**
      * Utility factory method for creating a {@link ConfigurationSource} based on a file.
-     * 
+     *
      * @param file
      * @return ConfigurationSource for the input file
      */
@@ -53,7 +53,7 @@ public abstract class ConfigurationSource {
 
     /**
      * Utility factory method for creating a {@link ConfigurationSource} based on {@link URL}
-     * 
+     *
      * @param configFileURL
      * @return ConfigurationSource for the input URL
      */
@@ -63,7 +63,7 @@ public abstract class ConfigurationSource {
 
     /**
      * Utility factory method for creating a {@link ConfigurationSource} based on InputStream
-     * 
+     *
      * @param configFileStream
      * @return ConfigurationSource for the input InputStream
      */
@@ -74,7 +74,7 @@ public abstract class ConfigurationSource {
     /**
      * Utility factory method for creating a {@link ConfigurationSource} based on default settings (default ehcache.xml in classpath if one
      * is present or an ehcache-failsafe provided with the kit
-     * 
+     *
      * @return Default ConfigurationSource
      */
     public static ConfigurationSource getConfigurationSource() {
@@ -83,14 +83,14 @@ public abstract class ConfigurationSource {
 
     /**
      * Abstract method used for creating a {@link Configuration} based on the source
-     * 
+     *
      * @return {@link Configuration} based on the source
      */
     public abstract Configuration createConfiguration();
 
     /**
      * {@link ConfigurationSource} based on file name
-     * 
+     *
      */
     private static class FileNameSource extends ConfigurationSource {
 
@@ -98,7 +98,7 @@ public abstract class ConfigurationSource {
 
         /**
          * Constructor accepting the file name
-         * 
+         *
          * @param fileName
          */
         public FileNameSource(File file) {
@@ -107,25 +107,30 @@ public abstract class ConfigurationSource {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.config.generator.ConfigurationSource#getConfiguration()
          */
         @Override
         public Configuration createConfiguration() {
             return ConfigurationFactory.parseConfiguration(file);
         }
+
+        @Override
+        public String toString() {
+            return "FileNameSource [file=" + file + "]";
+        }
     }
 
     /**
      * {@link ConfigurationSource} based on URL
-     * 
+     *
      */
     private static class URLConfigurationSource extends ConfigurationSource {
         private final URL url;
 
         /**
          * Constructor accepting a URL
-         * 
+         *
          * @param url
          */
         public URLConfigurationSource(URL url) {
@@ -134,7 +139,7 @@ public abstract class ConfigurationSource {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.config.generator.ConfigurationSource#createConfiguration()
          */
         @Override
@@ -142,18 +147,22 @@ public abstract class ConfigurationSource {
             return ConfigurationFactory.parseConfiguration(url);
         }
 
+        @Override
+        public String toString() {
+            return "URLConfigurationSource [url=" + url + "]";
+        }
     }
 
     /**
      * {@link ConfigurationSource} based on {@link InputStream}
-     * 
+     *
      */
     private static class InputStreamConfigurationSource extends ConfigurationSource {
         private final InputStream stream;
 
         /**
          * Constructor accepting {@link InputStream}
-         * 
+         *
          * @param stream
          */
         public InputStreamConfigurationSource(InputStream stream) {
@@ -163,7 +172,7 @@ public abstract class ConfigurationSource {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.config.generator.ConfigurationSource#createConfiguration()
          */
         @Override
@@ -176,12 +185,17 @@ public abstract class ConfigurationSource {
             }
         }
 
+        @Override
+        public String toString() {
+            return "InputStreamConfigurationSource [stream=" + stream + "]";
+        }
+
     }
 
     /**
      * Default {@link ConfigurationSource} based on default ehcache.xml in classpath (if one is present) or the ehcache-failsafe.xml
      * provided with the kit
-     * 
+     *
      */
     private static class DefaultConfigurationSource extends ConfigurationSource {
 
@@ -199,12 +213,17 @@ public abstract class ConfigurationSource {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see net.sf.ehcache.config.generator.ConfigurationSource#createConfiguration()
          */
         @Override
         public Configuration createConfiguration() {
             return ConfigurationFactory.parseConfiguration();
+        }
+
+        @Override
+        public String toString() {
+            return "DefaultConfigurationSource [ ehcache.xml or ehcache-failsafe.xml ]";
         }
 
     }
