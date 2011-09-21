@@ -729,7 +729,8 @@ public class Segment extends ReentrantReadWriteLock {
                     long deleteSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
                     LOG.debug("fault failed to add on disk, deleted {} from heap", deleteSize);
                     expect.onHeapSize = fault.onHeapSize + deleteSize;
-//                    remove(key, hash, null, null);
+                    Element evicted = remove(key, hash, null, null);
+                    disk.notifyEvictionIfNotNull(evicted);
                     return false;
                 } else {
                     LOG.debug("fault added {} on disk", incomingDiskSize);

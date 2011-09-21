@@ -1106,7 +1106,12 @@ public class DiskStorageFactory {
         }
     }
 
-    private void notifyEvictionIfNotNull(final Element element) {
+    /**
+     * Fires an eviction notification if the specified element is not null
+     *
+     * @param element the element to notify about its eviction
+     */
+    void notifyEvictionIfNotNull(final Element element) {
         if (element != null) {
             eventService.notifyElementEvicted(element, false);
         }
