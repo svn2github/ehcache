@@ -2,7 +2,7 @@
 <document>
     <body>
       <release version="2.4.6" date="2011-10" description="Bug fixes">
-        	action dev="Ludovic Orban" type="update" issue="EHC-852">
+        	<action dev="Ludovic Orban" type="update" issue="EHC-852">
              NotSerializableException when Ehcache tries overflow data to disk in XA Mode
              </action>
              <action dev="Tim Eck" type="update" issue="EHC-879">
@@ -10,7 +10,7 @@
              </action>
             </release>
      <release version="2.4.5" date="2011-08" description="Bug fixes">
-    	action dev="Raghvendra Singh" type="update" issue="6129">
+    	<action dev="Raghvendra Singh" type="update" issue="6129">
              NonStopCache causing application to hang when it is shutdown (normal shutdown not kill command)
              </action>
              <action dev="Ludovic Orban" type="update" issue="6157">
