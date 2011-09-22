@@ -156,7 +156,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testCantSwitchPool() throws Exception {
         Configuration configuration = new Configuration();
-        CacheManager cacheManager = new CacheManager(configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES));
+        CacheManager cacheManager = new CacheManager(configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES).name("new-cacheManager"));
 
         CacheConfiguration cacheConfiguration = new CacheConfiguration("one", 0);
         cacheManager.addCache(new Cache(cacheConfiguration));
@@ -167,6 +167,7 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("one"));
         }
+        cacheManager.shutdown();
     }
 
     @Test(expected = InvalidConfigurationException.class)
@@ -212,7 +213,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testAdjustsPoolSizeDynamically() throws Exception {
         Configuration configuration = new Configuration();
-        CacheManager cacheManager = new CacheManager(configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES));
+        CacheManager cacheManager = new CacheManager(configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES).name("new-cacheManager"));
 
         // Three and Four share the CM Pool
         CacheConfiguration cacheConfiguration = new CacheConfiguration("three", 0);
@@ -246,6 +247,7 @@ public class CacheTest extends AbstractCacheTest {
         // 20M - 5M (one) - 4M (two has 20% of the 20M), leaves 11M for cache three and four sharing the CM Pool
         assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(11), cacheManager.getCache("three"));
         assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(11), cacheManager.getCache("four"));
+        cacheManager.shutdown();
     }
 
     private static void assertCachePoolSize(final long value, final Cache one) throws Exception {
@@ -625,7 +627,8 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(new Cache(new CacheConfiguration("overflow1", 10).maxBytesLocalDisk(10, MemoryUnit.MEGABYTES)));
         assertThat(manager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));
 
-        CacheManager cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("./temp-tests")).maxBytesLocalDisk(10, MemoryUnit.MEGABYTES));
+        CacheManager cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("./temp-tests"))
+                .maxBytesLocalDisk(10, MemoryUnit.MEGABYTES).name("new-cacheManager"));
         cacheManager.addCache(new Cache(new CacheConfiguration("overflow1", 10)));
         assertThat(cacheManager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));
         cacheManager.shutdown();
