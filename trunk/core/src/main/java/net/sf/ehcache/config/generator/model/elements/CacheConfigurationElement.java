@@ -88,7 +88,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
      */
     public static void addCommonAttributesWithDefaultCache(NodeElement element, Configuration configuration, CacheConfiguration cacheConfiguration) {
         element.addAttribute(new SimpleNodeAttribute("eternal", cacheConfiguration.isEternal()).optional(false));
-//        element.addAttribute(new SimpleNodeAttribute("maxElementsInMemory", cacheConfiguration.getMaxElementsInMemory()).optional(false));
         if (!(cacheConfiguration.getMaxBytesLocalHeap() > 0 || configuration.getMaxBytesLocalHeap() > 0)) {
             element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalHeap", cacheConfiguration.getMaxEntriesLocalHeap()).optional(false));
         }
@@ -121,8 +120,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
             element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalDisk", cacheConfiguration.getMaxEntriesLocalDisk()).optional(true)
                     .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
         }
-//        element.addAttribute(new SimpleNodeAttribute("maxMemoryOffHeap", cacheConfiguration.getMaxMemoryOffHeap()).optional(true)
-//                .defaultValue(0));
         element.addAttribute(new SimpleNodeAttribute("overflowToOffHeap", cacheConfiguration.isOverflowToOffHeap()).optional(true)
                 .defaultValue(false));
         element.addAttribute(new SimpleNodeAttribute("cacheLoaderTimeoutMillis", cacheConfiguration.getCacheLoaderTimeoutMillis())
