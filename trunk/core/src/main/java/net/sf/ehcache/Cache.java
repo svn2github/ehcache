@@ -3993,7 +3993,7 @@ public class Cache implements Ehcache, StoreListener {
         try {
             nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().dispose();
         } catch (Exception e) {
-            LOG.info("Ignoring exception while disposing old store on rejoin - " + e.getMessage());
+            LOG.debug("Ignoring exception while disposing old store on rejoin - " + e.getMessage());
         }
         cacheStatus.clusterRejoinInProgress();
     }
