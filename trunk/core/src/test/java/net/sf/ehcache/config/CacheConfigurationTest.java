@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -40,6 +41,42 @@ public class CacheConfigurationTest {
         Cache cache = cacheManager.getCache(name);
         assertThat(getDiskStorePath(cache), equalTo(path));
         cache.put(new Element("KEY", "VALUE"));
+    }
+
+    @Test
+    public void testTransactionalMode() {
+        CacheConfiguration configuration = new CacheConfiguration();
+        assertEquals(CacheConfiguration.TransactionalMode.OFF, configuration.getTransactionalMode());
+        try {
+            configuration.setTransactionalMode(null);
+            fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+        configuration.setTransactionalMode("local");
+        assertEquals(CacheConfiguration.TransactionalMode.LOCAL, configuration.getTransactionalMode());
+        try {
+            configuration.transactionalMode(CacheConfiguration.TransactionalMode.OFF);
+            fail("expected InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            // expected
+        }
+        try {
+            configuration.setTransactionalMode(null);
+            fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+
+        CacheConfiguration clone = configuration.clone();
+        assertEquals(CacheConfiguration.TransactionalMode.LOCAL, clone.getTransactionalMode());
+        try {
+            clone.transactionalMode(CacheConfiguration.TransactionalMode.XA);
+            fail("expected InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            // expected
+        }
     }
 
     @Test

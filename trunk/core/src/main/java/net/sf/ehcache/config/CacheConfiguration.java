@@ -358,7 +358,7 @@ public class CacheConfiguration implements Cloneable {
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
     private volatile boolean frozen;
-    private TransactionalMode transactionalMode = DEFAULT_TRANSACTIONAL_MODE;
+    private volatile TransactionalMode transactionalMode;
     private volatile boolean statistics = DEFAULT_STATISTICS;
     private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION.copy();
     private volatile SizeOfPolicyConfiguration sizeOfPolicyConfiguration;
@@ -2104,7 +2104,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setTransactionalMode(final String transactionalMode) {
         assertArgumentNotNull("Cache transactionalMode", transactionalMode);
-        this.transactionalMode = TransactionalMode.valueOf(transactionalMode.toUpperCase());
+        transactionalMode(TransactionalMode.valueOf(transactionalMode.toUpperCase()));
     }
 
     /**
@@ -2127,8 +2127,11 @@ public class CacheConfiguration implements Cloneable {
      * @see #setTransactionalMode(String)
      */
     public final CacheConfiguration transactionalMode(TransactionalMode transactionalMode) {
-        if (null == transactionalMode) {
+        if (transactionalMode == null) {
             throw new IllegalArgumentException("TransactionalMode value must be non-null");
+        }
+        if (this.transactionalMode != null) {
+            throw new InvalidConfigurationException("transactionalMode cannot be changed once set");
         }
         this.transactionalMode = transactionalMode;
         return this;
@@ -2201,7 +2204,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     private void validateTransactionalSettings() {
-        boolean transactional = transactionalMode.isTransactional();
+        boolean transactional = getTransactionalMode().isTransactional();
         if (copyOnRead == null) {
             if (terracottaConfiguration != null && terracottaConfiguration.isCopyOnReadSet()) {
                 copyOnRead = terracottaConfiguration.isCopyOnRead();
@@ -2508,6 +2511,9 @@ public class CacheConfiguration implements Cloneable {
      * @return transactionaMode
      */
     public final TransactionalMode getTransactionalMode() {
+        if (transactionalMode == null) {
+            return DEFAULT_TRANSACTIONAL_MODE;
+        }
         return transactionalMode;
     }
 
@@ -2518,7 +2524,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isXaStrictTransactional() {
         validateTransactionalSettings();
-        return transactionalMode.equals(TransactionalMode.XA_STRICT);
+        return getTransactionalMode().equals(TransactionalMode.XA_STRICT);
     }
 
     /**
@@ -2528,7 +2534,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isLocalTransactional() {
         validateTransactionalSettings();
-        return transactionalMode.equals(TransactionalMode.LOCAL);
+        return getTransactionalMode().equals(TransactionalMode.LOCAL);
     }
 
     /**
@@ -2538,7 +2544,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isXaTransactional() {
         validateTransactionalSettings();
-        return transactionalMode.equals(TransactionalMode.XA);
+        return getTransactionalMode().equals(TransactionalMode.XA);
     }
 
     /**
