@@ -1387,9 +1387,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getLocalHeapSizeInBytes()
      */
     public long getLocalHeapSizeInBytes() {
-        if (!isCacheManagerPooled() && getMaxBytesLocalHeap() == 0) {
-            return 0;
-        }
         try {
             return cache.getLiveCacheStatistics().getLocalHeapSizeInBytes();
         } catch (RuntimeException e) {
