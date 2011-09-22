@@ -22,6 +22,8 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.util.RetryAssert;
 
 import java.net.URL;
@@ -111,7 +113,9 @@ public class RemoteDebuggerTest extends TestCase {
         assertTrue(remoteDebuggerThread.isAlive());
         assertTrue(remoteDebugger.getDistributedCacheNames().length > 50);
 
-        CacheManager manager6 = new CacheManager(configResource);
+        Configuration config = ConfigurationFactory.parseConfiguration(configResource);
+        config.setName("manager6");
+        CacheManager manager6 = new CacheManager(config);
         Cache sendingCache = manager6.getCache("sampleCache1");
 
 
