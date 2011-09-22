@@ -1212,10 +1212,9 @@ public class Cache implements Ehcache, StoreListener {
             throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
                     + "Please remove the coherent attribute as its deprecated.");
         }
-        if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC
-                && !getCacheConfiguration().getTerracottaConfiguration().isLocalCacheEnabled()) {
-            throw new InvalidConfigurationException("Local Cache cannot be disabled with " + StorageStrategy.CLASSIC
-                    + " Storage strategy. Please enable local cache or use " + StorageStrategy.DCV2);
+        if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC) {
+            throw new InvalidConfigurationException(StorageStrategy.CLASSIC + " Storage strategy is not supported with "
+                    + "clustered cache. Please use " + StorageStrategy.DCV2);
         }
     }
 
