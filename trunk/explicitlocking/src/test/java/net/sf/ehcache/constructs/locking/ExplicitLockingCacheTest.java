@@ -36,7 +36,7 @@ public class ExplicitLockingCacheTest extends TestCase {
     }
 
     @After
-    public void teardown() {
+    public void tearDown() {
         manager.shutdown();
     }
 
