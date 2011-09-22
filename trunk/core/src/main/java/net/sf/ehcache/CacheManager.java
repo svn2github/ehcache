@@ -1698,7 +1698,12 @@ public class CacheManager {
      * @return the SoftLockFactory or null if there was no soft lock factory created for the specified cache
      */
     public SoftLockFactory getSoftLockFactory(String cacheName) {
-        return softLockFactories.get(cacheName);
+        Ehcache cache = getCache(cacheName);
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            return getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache);
+        } else {
+            return softLockFactories.get(cacheName);
+        }
     }
 
 
