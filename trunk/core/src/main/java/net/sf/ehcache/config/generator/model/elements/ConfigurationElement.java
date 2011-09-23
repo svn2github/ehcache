@@ -48,7 +48,7 @@ public class ConfigurationElement extends SimpleNodeElement {
     public ConfigurationElement(Configuration configuration) {
         super(null, "ehcache");
         this.cacheManager = null;
-        this.configuration = cacheManager.getConfiguration();
+        this.configuration = configuration;
         init();
     }
 
