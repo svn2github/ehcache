@@ -15,7 +15,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
   private static long deepSizeOf(SizeOf sizeOf, Object... obj) {
     return sizeOf.deepSizeOf(1000, true, obj).getCalculated();
   }
-      
+
   @BeforeClass
   public static void setup() {
     deepSizeOf(new CrossCheckingSizeOf(), new Object());
@@ -124,7 +124,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
             System.out.println("asserting 1.6+ / 64-bit / compressed OOPs / non-Hotspot CMS values");
             assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), is(168L));
             assertThat(deepSizeOf(sizeOf, new ResourceFilteredSubclass()), is(176L));
-            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(200L));
+            assertThat(deepSizeOf(sizeOf, new ResourceFilteredReferrer()), is(192L));
           }
         } else if (IS_JROCKIT) {
             System.out.println("asserting JRockit 1.6+ / 64-bit / 4GB compressed refs values");
