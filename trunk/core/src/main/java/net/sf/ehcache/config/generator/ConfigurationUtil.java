@@ -19,6 +19,7 @@ package net.sf.ehcache.config.generator;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.generator.model.NodeElementVisitor;
@@ -36,6 +37,35 @@ import net.sf.ehcache.config.generator.model.elements.ConfigurationElement;
  *
  */
 public abstract class ConfigurationUtil {
+
+    /**
+     * Generates Configuration text from a {@link CacheManager}
+     *
+     * @param cacheManager
+     *            the cacheManager
+     * @return text representing the cacheManager {@link Configuration}
+     */
+    public static String generateCacheManagerConfigurationText(CacheManager cacheManager) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter out = new PrintWriter(baos);
+        XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
+        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
+        visitConfiguration(cacheManager, configGenerator);
+        out.flush();
+        out.close();
+        return baos.toString();
+    }
+
+    /**
+     * package protected access so that tests can have access
+     *
+     * @param cacheManager
+     * @param visitor
+     */
+    static void visitConfiguration(CacheManager cacheManager, NodeElementVisitor visitor) {
+        ConfigurationElement configElement = new ConfigurationElement(cacheManager);
+        configElement.accept(visitor);
+    }
 
     /**
      * Generates Configuration text from a {@link Configuration}

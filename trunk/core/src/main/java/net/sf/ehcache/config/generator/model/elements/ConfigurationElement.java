@@ -18,6 +18,8 @@ package net.sf.ehcache.config.generator.model.elements;
 
 import java.util.List;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -35,6 +37,7 @@ import net.sf.ehcache.config.generator.model.SimpleNodeElement;
  */
 public class ConfigurationElement extends SimpleNodeElement {
 
+    private final CacheManager cacheManager;
     private final Configuration configuration;
 
     /**
@@ -44,7 +47,20 @@ public class ConfigurationElement extends SimpleNodeElement {
      */
     public ConfigurationElement(Configuration configuration) {
         super(null, "ehcache");
-        this.configuration = configuration;
+        this.cacheManager = null;
+        this.configuration = cacheManager.getConfiguration();
+        init();
+    }
+
+    /**
+     * Constructor accepting the {@link CacheManager}. This element does not have a parent and is always null.
+     *
+     * @param cacheManager
+     */
+    public ConfigurationElement(CacheManager cacheManager) {
+        super(null, "ehcache");
+        this.cacheManager = cacheManager;
+        this.configuration = cacheManager.getConfiguration();
         init();
     }
 
@@ -75,8 +91,18 @@ public class ConfigurationElement extends SimpleNodeElement {
         testAddCacheManagerPeerListenerFactoryElement();
 
         addChildElement(new DefaultCacheConfigurationElement(this, configuration, configuration.getDefaultCacheConfiguration()));
-        for (CacheConfiguration cacheConfiguration : configuration.getCacheConfigurations().values()) {
-            addChildElement(new CacheConfigurationElement(this, configuration, cacheConfiguration));
+
+        if (cacheManager != null) {
+            for (String cacheName : cacheManager.getCacheNames()) {
+                Cache cache = cacheManager.getCache(cacheName);
+                if (cache != null) {
+                    addChildElement(new CacheConfigurationElement(this, configuration, cache.getCacheConfiguration()));
+                }
+            }
+        } else {
+            for (CacheConfiguration cacheConfiguration : configuration.getCacheConfigurations().values()) {
+                addChildElement(new CacheConfigurationElement(this, configuration, cacheConfiguration));
+            }
         }
 
         testAddTerracottaElement();

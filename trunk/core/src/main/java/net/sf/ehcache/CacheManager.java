@@ -1538,7 +1538,7 @@ public class CacheManager {
      * @return Returns the active configuration text for this {@link CacheManager}
      */
     public String getActiveConfigurationText() {
-        return ConfigurationUtil.generateCacheManagerConfigurationText(runtimeCfg.getConfiguration());
+        return ConfigurationUtil.generateCacheManagerConfigurationText(this);
     }
 
     /**
@@ -1569,7 +1569,8 @@ public class CacheManager {
      * @throws CacheException if the cache with <code>cacheName</code> does not exist
      */
     public String getActiveConfigurationText(String cacheName) throws CacheException {
-        CacheConfiguration config = runtimeCfg.getConfiguration().getCacheConfigurations().get(cacheName);
+        Cache cache = getCache(cacheName);
+        CacheConfiguration config = cache != null ? cache.getCacheConfiguration() : null;
         if (config == null) {
             throw new CacheException("Cache with name '" + cacheName + "' does not exist");
         }
