@@ -349,6 +349,22 @@ public class CacheManager {
 
         assertNoCacheManagerExistsWithSameName(configuration);
 
+        try {
+            doInit(configuration);
+        } catch (Throwable t) {
+            synchronized (CacheManager.class) {
+                final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
+                CACHE_MANAGERS_MAP.remove(name);
+            }
+            if (t instanceof CacheException) {
+                throw (CacheException) t;
+            } else {
+                throw new CacheException(t);
+            }
+        }
+    }
+
+    private void doInit(Configuration configuration) {
         if (configuration.getTerracottaConfiguration() != null) {
             // TODO this shouldn't be done!
             configuration.getTerracottaConfiguration().freezeConfig();

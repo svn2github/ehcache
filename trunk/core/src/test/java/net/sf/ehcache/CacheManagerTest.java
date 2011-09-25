@@ -117,10 +117,13 @@ public class CacheManagerTest {
 
     @Test(expected = InvalidConfigurationException.class)
     public void testCantMixCountAndSizeBasedTunings() {
-        Configuration configuration = new Configuration()
-            .maxBytesLocalHeap(16, MemoryUnit.MEGABYTES);
+        Configuration configuration = new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES);
         CacheManager cacheManager = new CacheManager(configuration);
-        cacheManager.addCache(new Cache(new CacheConfiguration("zero", 10)));
+        try {
+            cacheManager.addCache(new Cache(new CacheConfiguration("zero", 10)));
+        } finally {
+            cacheManager.shutdown();
+        }
     }
 
     @Test
@@ -153,6 +156,8 @@ public class CacheManagerTest {
         assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(4)));
         two.maxBytesLocalHeap(2, MemoryUnit.MEGABYTES);
         assertThat(cacheManager.getOnHeapPool().getMaxSize(), is(MemoryUnit.MEGABYTES.toBytes(4)));
+
+        cacheManager.shutdown();
     }
 
     @Test
@@ -174,6 +179,7 @@ public class CacheManagerTest {
         assertThat(cacheManager.getConfiguration().getCacheConfigurations().get("three"), nullValue());
         assertThat(cacheManager.getConfiguration().getCacheConfigurations().size(), is(2));
         assertThat(cacheManager.getCacheNames().length, is(2));
+        cacheManager.shutdown();
     }
 
     // todo This should be addressed at some point: we're cloning things around too much...
@@ -208,6 +214,8 @@ public class CacheManagerTest {
         assertThat(cacheManager.getCache("one").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(2)));
         assertThat(cacheManager.getCache("two").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(MemoryUnit.MEGABYTES.toBytes(2)));
         assertThat(cacheManager.getCache("three").getCacheConfiguration().getMaxBytesLocalHeap(), equalTo(0L));
+
+        cacheManager.shutdown();
     }
 
     @Test
@@ -234,6 +242,7 @@ public class CacheManagerTest {
             .cache(configuration2);
         configuration1.setMaxBytesLocalHeap("2048");
         configuration2.setMaxBytesLocalHeap("20%");
+        cacheManager.shutdown();
 
         try {
             new CacheManager(configuration);
@@ -259,6 +268,7 @@ public class CacheManagerTest {
         } catch (IllegalStateException e) {
             assertThat(manager.getCache("after"), nullValue());
         }
+        manager.shutdown();
     }
 
     @Test
@@ -274,6 +284,7 @@ public class CacheManagerTest {
         configuration.setName("evenNewerName");
         assertThat(configuration.getName(), equalTo("evenNewerName"));
         assertThat(manager.getName(), equalTo("evenNewerName"));
+        manager.shutdown();
     }
 
     @Test
@@ -360,6 +371,7 @@ public class CacheManagerTest {
             assertThat(e.getMessage().contains("over-allocate"), is(true));
             assertThat(e.getMessage().contains("'four'"), is(true));
         }
+        cacheManager.shutdown();
     }
 
     @Test
@@ -395,7 +407,7 @@ public class CacheManagerTest {
     public void testCacheReferenceLookUps() {
         singletonManager = CacheManager.create();
         String cacheName = "randomNewCache";
-        singletonManager.addCache(cacheName);
+        singletonManager.addCache(new Cache(new CacheConfiguration().name(cacheName)));
 
         // Default state by name
         Cache cache = singletonManager.getCache(cacheName);
@@ -416,12 +428,14 @@ public class CacheManagerTest {
     public void testProgrammaticConfigurationFailsProperlyWhenNoDefaultCacheConfigured() {
         Configuration mgrConfig = new Configuration();
         mgrConfig.setUpdateCheck(false);
+        CacheManager cacheManager = null;
         try {
-            CacheManager cacheManager = new CacheManager(mgrConfig);
+            cacheManager = new CacheManager(mgrConfig);
             Assert.assertNotNull(cacheManager);
         } catch (Exception e) {
             fail("Creating cache manager having no default cache config shouldn't fail!");
         }
+        cacheManager.shutdown();
     }
 
     /**
@@ -481,10 +495,11 @@ public class CacheManagerTest {
      */
     @Test
     public void testCreateTwoCacheManagersWithSamePath() throws CacheException {
-        URL secondCacheConfiguration = this.getClass().getResource(
+        URL configUrl = this.getClass().getResource(
                 "/ehcache-2.xml");
 
-        singletonManager = CacheManager.create(secondCacheConfiguration);
+        singletonManager = CacheManager.create(configUrl);
+        Configuration secondCacheConfiguration = ConfigurationFactory.parseConfiguration(configUrl).name("some-name");
         instanceManager = new CacheManager(secondCacheConfiguration);
 
         String intialDiskStorePath = System.getProperty("java.io.tmpdir")
@@ -506,6 +521,7 @@ public class CacheManagerTest {
         }
         assertTrue(newDiskStorePathFound);
         newDiskStorePath.delete();
+        instanceManager.shutdown();
 
     }
 
@@ -520,8 +536,9 @@ public class CacheManagerTest {
         CacheManager.getInstance().getCache("sampleCache1").put(element1);
 
         // Check can start second one with a different disk path
-        URL secondCacheConfiguration = this.getClass().getResource(
+        URL configUrl = this.getClass().getResource(
                 "/ehcache-2.xml");
+        Configuration secondCacheConfiguration = ConfigurationFactory.parseConfiguration(configUrl).name("cm-2");
         instanceManager = new CacheManager(secondCacheConfiguration);
         instanceManager.getCache("sampleCache1").put(element2);
 
@@ -548,6 +565,9 @@ public class CacheManagerTest {
                 1 + ""));
         assertEquals(element2, CacheManager.getInstance().getCache(
                 "sampleCache1").get(2 + ""));
+
+        CacheManager.getInstance().shutdown();
+        instanceManager.shutdown();
     }
 
     /**
@@ -562,8 +582,9 @@ public class CacheManagerTest {
         String fileName = AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml";
         CacheManager.create(fileName).getCache("sampleCache1").put(element1);
 
+        Configuration secondConfig = ConfigurationFactory.parseConfiguration(new File(fileName)).name("cm-2");
         // Check can start second one with the same config
-        instanceManager = new CacheManager(fileName);
+        instanceManager = new CacheManager(secondConfig);
         instanceManager.getCache("sampleCache1").put(element2);
 
         assertEquals(element1, CacheManager.getInstance().getCache(
@@ -577,7 +598,7 @@ public class CacheManagerTest {
                 "sampleCache1").get(1 + ""));
 
         // Try shutting and recreating a new instance cache manager
-        instanceManager = new CacheManager(fileName);
+        instanceManager = new CacheManager(secondConfig);
         instanceManager.getCache("sampleCache1").put(element2);
         CacheManager.getInstance().shutdown();
         assertEquals(element2, instanceManager.getCache("sampleCache1").get(
@@ -589,6 +610,9 @@ public class CacheManagerTest {
                 1 + ""));
         assertEquals(element2, CacheManager.getInstance().getCache(
                 "sampleCache1").get(2 + ""));
+
+        CacheManager.getInstance().shutdown();
+        instanceManager.shutdown();
     }
 
     /**
@@ -654,8 +678,9 @@ public class CacheManagerTest {
     public void testInstanceCreateShutdownCreate() throws CacheException {
         singletonManager = CacheManager.create();
 
-        URL secondCacheConfiguration = this.getClass().getResource(
+        URL configUrl = this.getClass().getResource(
                 "/ehcache-2.xml");
+        Configuration secondCacheConfiguration = ConfigurationFactory.parseConfiguration(configUrl).name("cm-2");
         instanceManager = new CacheManager(secondCacheConfiguration);
         instanceManager.shutdown();
 
@@ -665,7 +690,7 @@ public class CacheManagerTest {
         instanceManager = new CacheManager(secondCacheConfiguration);
         assertNotNull(instanceManager);
         assertEquals(8, instanceManager.getCacheNames().length);
-
+        instanceManager.shutdown();
     }
 
     /**
@@ -827,6 +852,7 @@ public class CacheManagerTest {
         assertEquals(1, manager.getConfiguration().getCacheConfigurations().size());
         manager.removalAll();
         assertEquals(0, manager.getConfiguration().getCacheConfigurations().size());
+        manager.shutdown();
     }
 
     /**
@@ -1149,16 +1175,16 @@ public class CacheManagerTest {
     @Test
     public void testMultipleCacheManagers() {
         CacheManager[] managers = new CacheManager[2];
-        managers[0] = new CacheManager(makeCacheManagerConfig());
-        managers[1] = new CacheManager(makeCacheManagerConfig());
+        managers[0] = new CacheManager(makeCacheManagerConfig("cm1"));
+        managers[1] = new CacheManager(makeCacheManagerConfig("cm2"));
 
         managers[0].shutdown();
         managers[1].shutdown();
 
     }
 
-    private static Configuration makeCacheManagerConfig() {
-        Configuration config = new Configuration();
+    private static Configuration makeCacheManagerConfig(String cmName) {
+        Configuration config = new Configuration().name(cmName);
         CacheConfiguration defaults = new CacheConfiguration("cacheName", 10)
                 .eternal(true);
         config.setDefaultCacheConfiguration(defaults);
