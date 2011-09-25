@@ -50,6 +50,8 @@ public class DecoratorNoNameTest extends TestCase {
 
         checkDeclaredNamesExists(cacheNames);
 
+        cacheManager.shutdown();
+
     }
 
     private void checkDeclaredNamesExists(List<String> cacheNames) {
@@ -77,6 +79,8 @@ public class DecoratorNoNameTest extends TestCase {
         checkDeclaredCachesProperties(cacheManager);
 
         LOG.info("Testing default cache decorator properties Complete");
+
+        cacheManager.shutdown();
     }
 
     private void checkDeclaredCachesProperties(CacheManager cacheManager) {
@@ -107,6 +111,20 @@ public class DecoratorNoNameTest extends TestCase {
         checkMockDecoratorCache(cacheManager, "newDynamicCache", "defaultDecoratorKeyValue");
 
         LOG.info("Testing dynamic cache addition Complete");
+
+        cacheManager.shutdown();
+    }
+
+    @Test
+    public void testFailingConfig() {
+        LOG.info("Testing failing config");
+        try {
+            CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DECORATOR_NONAME_FAIL_TEST_XML));
+            fail("Config having multiple ambiguous decorators should fail to initialize");
+        } catch (CacheException e) {
+            // expected
+        }
+        LOG.info("Testing failing config Complete");
     }
 
     @Test
@@ -154,6 +172,8 @@ public class DecoratorNoNameTest extends TestCase {
         }
 
         LOG.info("Testing dynamic addCacheIfAbsent Complete");
+
+        cacheManager.shutdown();
     }
 
     private void checkMockDecoratorCache(CacheManager cacheManager, String name, String expectedKeyValue) {
@@ -162,17 +182,5 @@ public class DecoratorNoNameTest extends TestCase {
         assertEquals("Should be instanceof MockDecoratorFactoryCache : " + ehcache, true, ehcache instanceof MockDecoratorFactoryCache);
         MockDecoratorFactoryCache ns = (MockDecoratorFactoryCache) ehcache;
         assertEquals(expectedKeyValue, ns.getProperties().get("someKey"));
-    }
-
-    @Test
-    public void testFailingConfig() {
-        LOG.info("Testing failing config");
-        try {
-            CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream(EHCACHE_DECORATOR_NONAME_FAIL_TEST_XML));
-            fail("Config having multiple ambiguous decorators should fail to initialize");
-        } catch (CacheException e) {
-            // expected
-        }
-        LOG.info("Testing failing config Complete");
     }
 }

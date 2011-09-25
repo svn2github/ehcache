@@ -52,6 +52,8 @@ public class DefaultCacheDecoratorFactoryTest extends TestCase {
         assertTrue(cacheNames.contains("oneDecoratorCache-defaultDecoratorOne"));
         assertTrue(cacheNames.contains("oneDecoratorCache-defaultDecoratorTwo"));
 
+        cacheManager.shutdown();
+
     }
 
     @Test
@@ -74,6 +76,8 @@ public class DefaultCacheDecoratorFactoryTest extends TestCase {
 
         cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("oneDecoratorCacheFirst");
         assertEquals("oneFirst", cache.getProperties().getProperty("someKey"));
+
+        cacheManager.shutdown();
 
     }
 }

@@ -264,6 +264,8 @@ public class BasicRejoinTest extends TestCase {
         element = cache.get("newKey");
         assertNotNull(element);
         assertEquals("newValue", element.getValue());
+
+        cacheManager.shutdown();
     }
 
     @Test
@@ -322,7 +324,7 @@ public class BasicRejoinTest extends TestCase {
 
         LOG.info("Methods called during rejoin: " + testRejoinStore.getCalledMethods());
         Assert.assertTrue("dispose should have been called on rejoin", testRejoinStore.getCalledMethods().contains("dispose"));
-
+        cacheManager.shutdown();
     }
 
     @Test
@@ -399,7 +401,7 @@ public class BasicRejoinTest extends TestCase {
 
         LOG.info("Methods called during rejoin: " + testRejoinStore.getCalledMethods());
         Assert.assertTrue("dispose should have been called on rejoin", testRejoinStore.getCalledMethods().contains("dispose"));
-
+        cacheManager.shutdown();
     }
 
     public static class ClusterRejoinListener implements ClusterTopologyListener {

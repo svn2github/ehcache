@@ -52,6 +52,7 @@ public class TwinCachesTest {
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
         Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
+        manager.shutdown();
     }
 
     @Test
@@ -91,6 +92,7 @@ public class TwinCachesTest {
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
         Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
+        manager.shutdown();
     }
 
     @Test
@@ -125,6 +127,7 @@ public class TwinCachesTest {
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
         Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
+        manager.shutdown();
     }
 
     @Test
@@ -171,6 +174,7 @@ public class TwinCachesTest {
         Assert.assertEquals(ratioOne, ((float) one.getSize()) / total, 0.1f);
         Assert.assertEquals(ratioTwo - ratioOne, ((float) two.getSize()) / total, 0.1f);
         Assert.assertEquals(1 - ratioTwo, ((float) three.getSize()) / total, 0.1f);
+        manager.shutdown();
     }
 
     @Test
@@ -215,6 +219,7 @@ public class TwinCachesTest {
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
         Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
+        manager.shutdown();
     }
 
     @Test
@@ -295,6 +300,7 @@ public class TwinCachesTest {
         Assert.assertEquals(ratioOne, ((float) one.getSize()) / totalThree, 0.1f);
         Assert.assertEquals(ratioTwo - ratioOne, ((float) two.getSize()) / totalThree, 0.1f);
         Assert.assertEquals(1 - ratioTwo, ((float) three.getSize()) / totalThree, 0.1f);
+        manager.shutdown();
     }
 
     @Test
@@ -358,6 +364,7 @@ public class TwinCachesTest {
 
         Assert.assertEquals(bytesRatio, ((float) one.calculateInMemorySize()) / totalBytes, 0.1f);
         Assert.assertEquals(1f - bytesRatio, ((float) two.calculateInMemorySize()) / totalBytes, 0.1f);
+        manager.shutdown();
     }
 
     private static int getRandomKey(Random rndm, int max) {

@@ -55,6 +55,8 @@ public class CacheDecoratorFactoryTest extends TestCase {
         assertTrue(cacheNames.contains("fiveDecoratorFourth"));
         assertTrue(cacheNames.contains("fiveDecoratorFifth"));
 
+        cacheManager.shutdown();
+
     }
 
     @Test
@@ -86,6 +88,8 @@ public class CacheDecoratorFactoryTest extends TestCase {
 
         cache = (MockDecoratorFactoryCache) cacheManager.getEhcache("fiveDecoratorFifth");
         assertEquals("fiveFifth", cache.getProperties().getProperty("someKey"));
+
+        cacheManager.shutdown();
 
     }
 }

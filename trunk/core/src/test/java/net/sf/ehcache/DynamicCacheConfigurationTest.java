@@ -304,7 +304,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         Configuration managerConfig = new Configuration()
                 .dynamicConfig(false)
                 .defaultCache(new CacheConfiguration("definedCache1", 20))
-                .cache(new CacheConfiguration("definedCache", 10).eternal(true));
+                .cache(new CacheConfiguration("definedCache", 10).eternal(true)).name("new-cm");
 
         CacheManager manager = new CacheManager(managerConfig);
 
@@ -344,6 +344,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
         programmatic.put(new Element("key", "value"));
         Assert.assertNotNull(programmatic.get("key"));
+        manager.shutdown();
     }
 
     @Test

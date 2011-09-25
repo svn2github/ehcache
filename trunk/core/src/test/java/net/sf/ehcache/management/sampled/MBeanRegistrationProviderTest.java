@@ -114,22 +114,22 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
     @Test
     public void testMonitoringAutodetect() throws Exception {
         System.setProperty("tc.active", "false");
-        doTestMonitoringAutodetect(false);
+        doTestMonitoringAutodetect(false, "tc-not-active");
 
         System.setProperty("tc.active", "true");
-        doTestMonitoringAutodetect(true);
+        doTestMonitoringAutodetect(true, "tc-active");
 
         // reset property
         System.setProperty("tc.active", "false");
     }
 
-    public void doTestMonitoringAutodetect(boolean dsoActive) throws Exception {
+    public void doTestMonitoringAutodetect(boolean dsoActive, String name) throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-autodetect.xml");
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file).name(name);
         cacheManager = new CacheManager(configuration);
         if (dsoActive) {
             assertSampledMBeansGroupRegistered(3);
-            assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 1);
+            assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 0);
         } else {
             assertSampledMBeansGroupRegistered(0);
             assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 0);
@@ -163,7 +163,7 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
         CacheManager[] managers = new CacheManager[count];
         for (int i = 0; i < count; i++) {
             File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
-            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file).name("cm-" + i);
             managers[i] = new CacheManager(configuration);
             assertSampledMBeansGroupRegistered(3 * (i + 1));
             assertCacheManagerMBeansRegistered(i + 1);
@@ -172,7 +172,7 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
         CacheManager[] duplicates = new CacheManager[count];
         for (int i = 0; i < count; i++) {
             File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-on.xml");
-            Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+            Configuration configuration = ConfigurationFactory.parseConfiguration(file).name("cm-dup-" + i);
 
             duplicates[i] = new CacheManager(configuration);
             assertSampledMBeansGroupRegistered(3 * (i + 1) + count * 3);

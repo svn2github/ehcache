@@ -4,6 +4,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.TerracottaStore;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -34,7 +37,7 @@ public class KeySnapshotterTest {
     private static final long MAX_KEY = 10000;
     private static final String DUMPS_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "dumps";
 
-    final CacheManager cacheManager = new CacheManager();
+    private CacheManager cacheManager;
 
     private static void deleteFolder(File root) {
         if (root.isDirectory()) {
@@ -51,6 +54,16 @@ public class KeySnapshotterTest {
         if (root.exists()) {
             root.delete();
         }
+    }
+
+    @Before
+    public void setup() {
+        cacheManager = new CacheManager();
+    }
+
+    @After
+    public void teardown() {
+        cacheManager.shutdown();
     }
 
     @Test(expected = IllegalArgumentException.class)

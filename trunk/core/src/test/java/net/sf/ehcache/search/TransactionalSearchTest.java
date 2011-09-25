@@ -179,6 +179,7 @@ public class TransactionalSearchTest {
         } finally {
             commitTransaction(cacheManager);
         }
+        cacheManager.shutdown();
     }
 
     private void basicQueries(Ehcache cache) {

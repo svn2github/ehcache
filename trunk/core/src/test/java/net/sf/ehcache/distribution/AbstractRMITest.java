@@ -21,6 +21,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.rmi.server.RMISocketFactory;
@@ -35,6 +36,8 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
@@ -45,6 +48,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRMITest.class);
+
+    protected Configuration getConfiguration(String fileName) {
+        return ConfigurationFactory.parseConfiguration(new File(fileName));
+    }
 
     @BeforeClass
     public static void installRMISocketFactory() {

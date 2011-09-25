@@ -151,7 +151,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         ManagementService.registerMBeans(manager, mBeanServer, true, true, true, true, true);
         assertEquals(OBJECTS_IN_TEST_EHCACHE, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());
         File file = new File(AbstractCacheTest.SRC_CONFIG_DIR + "ehcache.xml");
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file).name("cm-2");
         net.sf.ehcache.CacheManager secondCacheManager = new net.sf.ehcache.CacheManager(configuration);
         ManagementService.registerMBeans(secondCacheManager, mBeanServer, true, true, true, true, true);
         assertEquals(OBJECTS_IN_TEST_EHCACHE + 19, mBeanServer.queryNames(new ObjectName("net.sf.ehcache:*"), null).size());

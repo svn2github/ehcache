@@ -24,6 +24,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import org.junit.After;
 
@@ -86,7 +88,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
         //Skip update checks. Causing an OutOfMemoryError
         System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
         super.setUp();
-        manager = new CacheManager();
+        Configuration config = ConfigurationFactory.parseConfiguration().name("selfPopulatingCacheTestCM");
+        manager = new CacheManager(config);
         cache = manager.getCache("sampleIdlingExpiringCache");
         selfPopulatingCache = new SelfPopulatingCache(cache, new CountingCacheEntryFactory("value"));
         cacheEntryFactoryRequests = 0;

@@ -194,7 +194,7 @@ public class NonstopTestUtil extends TestCase {
         CacheManager cacheManager = mock(CacheManager.class);
         CacheConfiguration cacheConfiguration = new CacheConfiguration("someName", 10000);
         TerracottaConfiguration terracottaConfiguration = new TerracottaConfiguration().clustered(true).storageStrategy(
-                StorageStrategy.CLASSIC);
+                StorageStrategy.DCV2);
         terracottaConfiguration.addNonstop(nonstopConfiguration);
         cacheConfiguration.addTerracotta(terracottaConfiguration);
         Searchable searchable = new Searchable();

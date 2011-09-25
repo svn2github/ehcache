@@ -91,6 +91,7 @@ public class BasicSearchTest {
             // expected
             System.err.println(se.getMessage());
         }
+        cacheManager.shutdown();
     }
 
     @Test
@@ -105,6 +106,7 @@ public class BasicSearchTest {
         } catch (CacheException e) {
             // expected
         }
+        cacheManager.shutdown();
     }
 
     @Test
@@ -135,6 +137,7 @@ public class BasicSearchTest {
         assertEquals(1, results.size());
         Object key = results.all().iterator().next().getKey();
         assertEquals("value", cache.get(key).getObjectValue());
+        cacheManager.shutdown();
     }
 
     @Test
@@ -225,6 +228,7 @@ public class BasicSearchTest {
         } catch (SearchException se) {
             // expected
         }
+        cacheManager.shutdown();
     }
 
     @Test
@@ -273,6 +277,7 @@ public class BasicSearchTest {
         } catch (IllegalArgumentException iae) {
             // expected
         }
+        cacheManager.shutdown();
     }
 
     @Test
@@ -287,6 +292,7 @@ public class BasicSearchTest {
 
         // uses bean attributes
         basicQueries(cacheManager.getEhcache("bean-attributes"));
+        cacheManager.shutdown();
     }
 
     @Test
@@ -329,6 +335,7 @@ public class BasicSearchTest {
         for (Result result : results.all()) {
             assertEquals(246, result.getAggregatorResults().get(0));
         }
+        cacheManager.shutdown();
     }
 
     @Test
@@ -475,6 +482,8 @@ public class BasicSearchTest {
                 assertEquals(4, result.getAggregatorResults().get(0));
             }
         }
+
+        cacheManager.shutdown();
     }
 
     @Test
@@ -541,6 +550,8 @@ public class BasicSearchTest {
 
         results = query.execute();
         assertEquals(2, results.size());
+
+        cacheManager.shutdown();
     }
 
     @Test
@@ -596,6 +607,8 @@ public class BasicSearchTest {
                 // expected
             }
         }
+
+        cacheManager.shutdown();
 
     }
 
@@ -736,6 +749,8 @@ public class BasicSearchTest {
         query.end();
 
         verifyOrdered(cache, query, 3, 1);
+
+        cacheManager.shutdown();
     }
 
     @Test
@@ -826,6 +841,8 @@ public class BasicSearchTest {
 
         verify(cache, query, 6);
 
+        cacheManager.shutdown();
+
     }
 
     @Test
@@ -871,6 +888,8 @@ public class BasicSearchTest {
         // with proper type search will execute
         cache.put(new Element(1, new Value(4)));
         assertEquals(1, query.execute().all().iterator().next().getKey());
+
+        cm.shutdown();
     }
 
     @Test
@@ -902,6 +921,8 @@ public class BasicSearchTest {
                 System.err.println("Expected " + e);
             }
         }
+
+        cacheManager.shutdown();
     }
 
     @Test
@@ -950,6 +971,8 @@ public class BasicSearchTest {
                 }
             }
         }
+
+        cacheManager.shutdown();
     }
 
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {

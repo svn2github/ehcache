@@ -701,9 +701,12 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testEmptyPeerListManualDistributedConfiguration() {
-        CacheManager cacheManager = new CacheManager(TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml");
+        Configuration config = ConfigurationFactory.parseConfiguration(
+                new File(TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml")).name("new-name");
+        CacheManager cacheManager = new CacheManager(config);
         assertEquals(0, cacheManager.getCacheManagerPeerProvider("RMI")
                 .listRemoteCachePeers(cacheManager.getCache("sampleCache1")).size());
+        cacheManager.shutdown();
 
     }
 
@@ -1109,17 +1112,18 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertTrue(copyCache.getCacheConfiguration().getCopyStrategy() instanceof FakeCopyStrategy);
 
         try {
-            new CacheManager(TEST_CONFIG_DIR + "ehcache-copy.xml");
+            Configuration config = ConfigurationFactory.parseConfiguration(new File(TEST_CONFIG_DIR + "ehcache-copy.xml")).name("new-cm");
+            new CacheManager(config);
             fail("This should have thrown an Exception");
         } catch (Exception e) {
             if (!(e instanceof InvalidConfigurationException)) {
                 e.printStackTrace();
-                fail("Expected InvalidConfigurationException, but got " + e.getClass().getSimpleName());
+                fail("Expected InvalidConfigurationException, but got " + e.getClass().getSimpleName() + ", msg: " + e.getMessage());
             }
         }
 
         file = new File(TEST_CONFIG_DIR + "ehcache-copy-tc.xml");
-        configuration = ConfigurationFactory.parseConfiguration(file);
+        configuration = ConfigurationFactory.parseConfiguration(file).name("new-cm");
         configurationHelper = new ConfigurationHelper(manager, configuration);
 
         Ehcache nonCopyCache = configurationHelper.createCacheFromName("nonCopyOnReadCacheTcTrue");
