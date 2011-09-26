@@ -16,14 +16,14 @@ public class TCCLReadWriteSerializationCopyStrategyTest {
 
     @Test
     public void test() throws Exception {
-        final DefaultElementValueComparator comparator = new DefaultElementValueComparator();
         final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
+        final DefaultElementValueComparator comparator = new DefaultElementValueComparator(copyStrategy);
 
         {
             // loaded via TCCL
             Element storageValue = copyStrategy.copyForWrite(new Element(1, new Foo(42)));
             Assert.assertTrue(storageValue.getObjectValue() instanceof byte[]);
-            Assert.assertTrue(comparator.equals(new Element(1, new Foo(42)), copyStrategy.copyForRead(storageValue)));
+            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, new Foo(42))), (storageValue)));
         }
 
         {
@@ -31,7 +31,7 @@ public class TCCLReadWriteSerializationCopyStrategyTest {
             Thread.currentThread().setContextClassLoader(null);
             Element storageValue = copyStrategy.copyForWrite(new Element(1, new Foo(42)));
             Assert.assertTrue(storageValue.getObjectValue() instanceof byte[]);
-            Assert.assertTrue(comparator.equals(new Element(1, new Foo(42)), copyStrategy.copyForRead(storageValue)));
+            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, new Foo(42))), (storageValue)));
         }
 
         {
@@ -44,7 +44,7 @@ public class TCCLReadWriteSerializationCopyStrategyTest {
 
             Element storageValue = copyStrategy.copyForWrite(new Element(1, foo));
             Assert.assertTrue(storageValue.getObjectValue() instanceof byte[]);
-            Assert.assertTrue(comparator.equals(new Element(1, createFooInOtherLoader(loader)), copyStrategy.copyForRead(storageValue)));
+            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, createFooInOtherLoader(loader))), (storageValue)));
         }
     }
 

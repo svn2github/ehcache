@@ -21,6 +21,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionID;
@@ -80,7 +81,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @param transactionIDFactory the transaction ID factory
      */
     public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup,
-                                 SoftLockFactory softLockFactory, TransactionIDFactory transactionIDFactory) {
+                                 SoftLockFactory softLockFactory, TransactionIDFactory transactionIDFactory,
+                                 ReadWriteCopyStrategy<Element> copyStrategy) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;
         this.transactionIDFactory = transactionIDFactory;
@@ -88,7 +90,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.softLockFactory = softLockFactory;
         this.processor = new XARequestProcessor(this);
         this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
-        this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance();
+        this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance(copyStrategy);
     }
 
     /**

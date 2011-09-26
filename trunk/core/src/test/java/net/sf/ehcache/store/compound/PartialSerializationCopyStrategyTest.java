@@ -5,7 +5,10 @@ import net.sf.ehcache.store.DefaultElementValueComparator;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Ludovic Orban
@@ -14,8 +17,8 @@ public class PartialSerializationCopyStrategyTest {
 
     @Test
     public void test() throws Exception {
-        final DefaultElementValueComparator comparator = new DefaultElementValueComparator();
         final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
+        final DefaultElementValueComparator comparator = new DefaultElementValueComparator(copyStrategy);
 
         {
             Element storageValue = copyStrategy.copyForWrite(null);
@@ -35,7 +38,7 @@ public class PartialSerializationCopyStrategyTest {
             Element storageValue = copyStrategy.copyForWrite(new Element(1, "one"));
             // element values are stored as byte[]
             Assert.assertTrue(storageValue.getObjectValue() instanceof byte[]);
-            Assert.assertTrue(comparator.equals(new Element(1, "one"), copyStrategy.copyForRead(storageValue)));
+            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, "one")), storageValue));
         }
 
         {
@@ -50,6 +53,45 @@ public class PartialSerializationCopyStrategyTest {
             Assert.assertTrue(Arrays.deepEquals(new Object[]{value}, new Object[]{copyStrategy.copyForRead(storageValue).getObjectValue()}));
         }
 
+        {
+            Foo foo1 = new Foo(1);
+            Foo foo11 = new Foo(1);
+            foo11.addExtra("extra");
+            Foo foo2 = new Foo(2);
+
+            Element storageValue = copyStrategy.copyForWrite(new Element(1, foo1));
+            Assert.assertTrue(storageValue.getObjectValue() instanceof byte[]);
+            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo1)), storageValue));
+            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo11)), storageValue));
+            Assert.assertFalse(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo2)), storageValue));
+        }
+    }
+
+    public static class Foo implements Serializable {
+
+        private final int val;
+        private final Set<String> extra = new HashSet<String>();
+
+        public Foo(int val) {
+            this.val = val;
+        }
+
+        public void addExtra(String s) {
+            extra.add(s);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Foo) {
+                return ((Foo) obj).val == val;
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return val;
+        }
     }
 
 }

@@ -10,6 +10,7 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
+import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import static org.junit.Assert.fail;
 public class MemoryStorePoolingTest {
 
     private static final int ITERATIONS = 10000;
+    private static final DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new ReadWriteSerializationCopyStrategy());
     private volatile Cache cache;
     private volatile Pool onHeapPool;
     private volatile MemoryStore memoryStore;
@@ -412,7 +414,7 @@ public class MemoryStorePoolingTest {
 
         // replace element on heap
         Object key = memoryStore.getKeys().iterator().next();
-        boolean replaced = memoryStore.replace(new Element(key, key + "#1"), new Element(key, key + "#2"), new DefaultElementValueComparator());
+        boolean replaced = memoryStore.replace(new Element(key, key + "#1"), new Element(key, key + "#2"), COMPARATOR);
 
         if (lastEvicted.getObjectKey().equals(key)) {
             assertFalse(replaced);
@@ -425,7 +427,7 @@ public class MemoryStorePoolingTest {
         memoryStore.put(new Element(4, "4#1"));
 
         // replace non-existent key
-        assertFalse(memoryStore.replace(new Element(-1, -1 + "#2"), new Element(-1, -1 + "#2"), new DefaultElementValueComparator()));
+        assertFalse(memoryStore.replace(new Element(-1, -1 + "#2"), new Element(-1, -1 + "#2"), COMPARATOR));
 
         assertEquals(1, memoryStore.getSize());
         assertEquals(16384, onHeapPool.getSize());
@@ -451,14 +453,14 @@ public class MemoryStorePoolingTest {
         assertEquals(16384 * 2, onHeapPool.getSize());
 
         // remove non-existent element
-        assertNull(memoryStore.removeElement(new Element(-1, -1 + ""), new DefaultElementValueComparator()));
+        assertNull(memoryStore.removeElement(new Element(-1, -1 + ""), COMPARATOR));
 
         assertEquals(2, memoryStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
 
         // remove element on heap
         Object key = memoryStore.getKeys().iterator().next();
-        assertEquals(new Element(key, key + ""), memoryStore.removeElement(new Element(key, key + ""), new DefaultElementValueComparator()));
+        assertEquals(new Element(key, key + ""), memoryStore.removeElement(new Element(key, key + ""), COMPARATOR));
 
         assertEquals(1, memoryStore.getSize());
         assertEquals(16384, onHeapPool.getSize());

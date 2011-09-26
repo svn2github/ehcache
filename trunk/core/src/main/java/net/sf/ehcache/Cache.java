@@ -326,7 +326,6 @@ public class Cache implements Ehcache, StoreListener {
 
         this.configuration = cacheConfiguration.clone();
         configuration.validateCompleteConfiguration();
-        elementValueComparator = cacheConfiguration.getElementValueComparatorConfiguration().getElementComparatorInstance();
 
         guid = createGuid();
 
@@ -1033,6 +1032,8 @@ public class Cache implements Ehcache, StoreListener {
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
+            elementValueComparator = configuration.getElementValueComparatorConfiguration().getElementComparatorInstance(copyStrategy);
+
             if (configuration.getTransactionalMode().isTransactional()
                 && configuration.isTerracottaClustered()
                 && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
@@ -1238,7 +1239,7 @@ public class Cache implements Ehcache, StoreListener {
 
             // this xaresource is for initial registration and recovery
             EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
-                    softLockFactory, transactionIDFactory);
+                    softLockFactory, transactionIDFactory, copyStrategy);
             transactionManagerLookup.register(xaResource);
 
             wrappedStore = new XATransactionStore(transactionManagerLookup, softLockFactory, transactionIDFactory, this, clusteredStore,
@@ -2791,7 +2792,9 @@ public class Cache implements Ehcache, StoreListener {
         copy.guid = createGuid();
         copy.cacheStatus = new CacheStatus();
         copy.cacheStatus.changeState(Status.STATUS_UNINITIALISED);
-        copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration().getElementComparatorInstance();
+        copy.configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
+        copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration()
+            .getElementComparatorInstance(copy.configuration.getCopyStrategyConfiguration().getCopyStrategyInstance());
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
         copy.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(copy);
         for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {

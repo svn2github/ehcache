@@ -18,10 +18,12 @@ import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.config.CacheConfiguration;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import bitronix.tm.TransactionManagerServices;
+import net.sf.ehcache.config.Configuration;
 
 /**
  * @author Alex Snaps
@@ -34,22 +36,26 @@ public class XATransactionalStoreTest {
 
     @Before
     public void setup() throws Exception {
+        TransactionManagerServices.getConfiguration().setServerId("XATransactionalStoreTest").setJournal("null");
         transactionManager = TransactionManagerServices.getTransactionManager();
-        CacheManager cacheManager = CacheManager.getInstance();
+
+        Configuration configuration = new Configuration();
+        configuration.cache(new CacheConfiguration("xaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
+        configuration.cache(new CacheConfiguration("otherXaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
+        CacheManager cacheManager = new CacheManager(configuration);
+
         cache = cacheManager.getCache("xaCache");
-        if (cache == null) {
-            cache = new Cache(new CacheConfiguration("xaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
-            cacheManager.addCache(cache);
-        }
         cach1 = cacheManager.getCache("otherXaCache");
-        if (cach1 == null) {
-            cach1 = new Cache(new CacheConfiguration("otherXaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
-            cacheManager.addCache(cach1);
-        }
+
         transactionManager.begin();
         cache.removeAll();
         cach1.removeAll();
         transactionManager.commit();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        TransactionManagerServices.getTransactionManager().shutdown();
     }
 
     @Test

@@ -8,6 +8,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LocalTransactionTest extends TestCase {
 
-    private final ElementValueComparator elementValueComparator = new DefaultElementValueComparator();
+    private final ElementValueComparator elementValueComparator = new DefaultElementValueComparator(new ReadWriteSerializationCopyStrategy());
     private CacheManager cacheManager;
     private Ehcache cache1;
     private Ehcache cache2;

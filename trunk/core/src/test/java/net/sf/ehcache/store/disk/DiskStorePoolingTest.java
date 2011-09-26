@@ -12,6 +12,7 @@ import net.sf.ehcache.pool.impl.FromLargestCacheOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 import net.sf.ehcache.store.DefaultElementValueComparator;
+import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ public class DiskStorePoolingTest {
 
     private static final int ELEMENT_SIZE_ON_DISK = 308;
     private static final int ITERATIONS = 100;
+    private static final DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new ReadWriteSerializationCopyStrategy());
 
     private volatile Cache cache;
     private volatile Pool onHeapPool;
@@ -433,7 +435,7 @@ public class DiskStorePoolingTest {
 
         // replace element on disk
         Object key = diskStore.getKeys().iterator().next();
-        assertTrue(diskStore.replace(diskStore.getQuiet(key), new Element(key, "20#2"), new DefaultElementValueComparator()));
+        assertTrue(diskStore.replace(diskStore.getQuiet(key), new Element(key, "20#2"), COMPARATOR));
         diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         if (lastEvicted.getObjectKey().equals(key)) {
@@ -448,7 +450,7 @@ public class DiskStorePoolingTest {
         }
 
         // replace non-existent key
-        assertFalse(diskStore.replace(new Element(1999, 1999 + "19#1"), new Element(1999, "19#2"), new DefaultElementValueComparator()));
+        assertFalse(diskStore.replace(new Element(1999, 1999 + "19#1"), new Element(1999, "19#2"), COMPARATOR));
         diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
@@ -478,7 +480,7 @@ public class DiskStorePoolingTest {
         assertEquals(ELEMENT_SIZE_ON_DISK * 2, onDiskPool.getSize());
 
         // remove non-existent element
-        assertNull(diskStore.removeElement(new Element(1999, 1999 + ""), new DefaultElementValueComparator()));
+        assertNull(diskStore.removeElement(new Element(1999, 1999 + ""), COMPARATOR));
 
         assertEquals(2, diskStore.getSize());
         assertEquals(16384 * 2, onHeapPool.getSize());
@@ -486,7 +488,7 @@ public class DiskStorePoolingTest {
 
         // remove element on disk
         Object key = diskStore.getKeys().iterator().next();
-        assertEquals(new Element(key, key + ""), diskStore.removeElement(new Element(key, key + ""), new DefaultElementValueComparator()));
+        assertEquals(new Element(key, key + ""), diskStore.removeElement(new Element(key, key + ""), COMPARATOR));
 
         assertEquals(1, diskStore.getSize());
         assertEquals(16384, onHeapPool.getSize());
@@ -496,7 +498,7 @@ public class DiskStorePoolingTest {
         diskStore.put(new Element(1004, "1004"));
 
         key = diskStore.getKeys().iterator().next();
-        assertEquals(new Element(key, key + ""), diskStore.removeElement(new Element(key, key + ""), new DefaultElementValueComparator()));
+        assertEquals(new Element(key, key + ""), diskStore.removeElement(new Element(key, key + ""), COMPARATOR));
 
         diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 

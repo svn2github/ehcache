@@ -16,6 +16,7 @@
 package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 
 import java.util.Arrays;
 
@@ -23,6 +24,17 @@ import java.util.Arrays;
  * @author Ludovic Orban
  */
 public class DefaultElementValueComparator implements ElementValueComparator {
+
+    private final ReadWriteCopyStrategy<Element> readWriteCopyStrategy;
+
+    /**
+     * Constructor
+     * 
+     * @param readWriteCopyStrategy the copy strategy used together with this ElementValueComparator
+     */
+    public DefaultElementValueComparator(final ReadWriteCopyStrategy<Element> readWriteCopyStrategy) {
+        this.readWriteCopyStrategy = readWriteCopyStrategy;
+    }
 
     /**
      * {@inheritDoc}
@@ -34,7 +46,7 @@ public class DefaultElementValueComparator implements ElementValueComparator {
             if (e1.getObjectValue() == null) {
                 return e2.getObjectValue() == null;
             } else {
-                return compareValues(e1.getObjectValue(), e2.getObjectValue());
+                return compareValues(copyForRead(e1).getObjectValue(), copyForRead(e2).getObjectValue());
             }
         } else {
             return false;
@@ -51,6 +63,13 @@ public class DefaultElementValueComparator implements ElementValueComparator {
                 return objectValue1.equals(objectValue2);
             }
         }
+    }
+
+    private Element copyForRead(Element element) {
+        if (readWriteCopyStrategy == null) {
+            return element;
+        }
+        return readWriteCopyStrategy.copyForRead(element);
     }
 
 }

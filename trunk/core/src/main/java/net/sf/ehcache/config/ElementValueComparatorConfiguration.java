@@ -15,7 +15,11 @@
  */
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * @author Ludovic Orban
@@ -47,23 +51,21 @@ public class ElementValueComparatorConfiguration {
     /**
      * Get (and potentially) instantiate the instance
      * 
+     * @param copyStrategy the copy strategy used together with the ElementValueComparator
      * @return the instance
      */
-    public synchronized ElementValueComparator getElementComparatorInstance() {
+    public synchronized ElementValueComparator getElementComparatorInstance(ReadWriteCopyStrategy<Element> copyStrategy) {
         if (comparator == null) {
             Class elementComparator = null;
             try {
-                elementComparator = Class.forName(className);
-                comparator = (ElementValueComparator) elementComparator.newInstance();
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Couldn't find the ElementValueComparator class!", e);
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Couldn't instantiate the ElementValueComparator instance!", e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Couldn't instantiate the ElementValueComparator instance!", e);
-            } catch (ClassCastException e) {
-                throw new RuntimeException(elementComparator != null ? elementComparator.getSimpleName()
-                        + " doesn't implement net.sf.ehcache.store.ElementValueComparator" : "Error with ElementValueComparator", e);
+                comparator = (ElementValueComparator) ClassLoaderUtil.createNewInstance(
+                    className,
+                    new Class[] {ReadWriteCopyStrategy.class},
+                    new Object[] {copyStrategy}
+                );
+            } catch (ClassCastException cce) {
+                throw new CacheException(elementComparator != null ? elementComparator.getSimpleName()
+                        + " doesn't implement " + ElementValueComparator.class.getName() : "Error loading ElementValueComparator", cce);
             }
         }
         return comparator;
