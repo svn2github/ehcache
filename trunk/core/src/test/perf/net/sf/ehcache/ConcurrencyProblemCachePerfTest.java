@@ -19,22 +19,20 @@ public class ConcurrencyProblemCachePerfTest extends AbstractCachePerfTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConcurrencyProblemCachePerfTest.class.getName());
 
-    private CacheManager manager;
-
     private Cache cache;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        manager = new CacheManager();
     }
 
     /**
      * teardown
      */
+    @Override
     @After
     public void tearDown() throws Exception {
-        manager.shutdown();
         super.tearDown();
     }
 
