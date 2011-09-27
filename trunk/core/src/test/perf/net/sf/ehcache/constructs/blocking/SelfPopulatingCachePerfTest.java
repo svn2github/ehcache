@@ -1,8 +1,8 @@
 package net.sf.ehcache.constructs.blocking;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.CachePerfTest;
 import net.sf.ehcache.Ehcache;
+
 import org.junit.After;
 import org.junit.Before;
 
@@ -11,10 +11,6 @@ import org.junit.Before;
  */
 public class SelfPopulatingCachePerfTest extends CachePerfTest {
 
-    /**
-     * Shared with subclass
-     */
-    protected CacheManager manager;
     /**
      * Shared with subclass
      */
@@ -35,10 +31,9 @@ public class SelfPopulatingCachePerfTest extends CachePerfTest {
     @Override
     @Before
     public void setUp() throws Exception {
-        //Skip update checks. Causing an OutOfMemoryError
+        // Skip update checks. Causing an OutOfMemoryError
         System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
         super.setUp();
-        manager = new CacheManager();
         cache = manager.getCache("sampleIdlingExpiringCache");
         selfPopulatingCache = new SelfPopulatingCache(cache, new CountingCachePerfEntryFactory("value"));
         cacheEntryFactoryRequests = 0;
@@ -52,9 +47,6 @@ public class SelfPopulatingCachePerfTest extends CachePerfTest {
     public void tearDown() throws Exception {
         if (selfPopulatingCache != null) {
             selfPopulatingCache.removeAll();
-        }
-        if (manager != null) {
-            manager.shutdown();
         }
         super.tearDown();
     }
