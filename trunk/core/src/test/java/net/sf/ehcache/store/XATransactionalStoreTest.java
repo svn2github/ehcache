@@ -33,6 +33,7 @@ public class XATransactionalStoreTest {
     private TransactionManager transactionManager;
     private Cache cach1;
     private Cache cache;
+    private CacheManager cacheManager;
 
     @Before
     public void setup() throws Exception {
@@ -42,7 +43,7 @@ public class XATransactionalStoreTest {
         Configuration configuration = new Configuration();
         configuration.cache(new CacheConfiguration("xaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
         configuration.cache(new CacheConfiguration("otherXaCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
-        CacheManager cacheManager = new CacheManager(configuration);
+        cacheManager = new CacheManager(configuration);
 
         cache = cacheManager.getCache("xaCache");
         cach1 = cacheManager.getCache("otherXaCache");
@@ -55,6 +56,7 @@ public class XATransactionalStoreTest {
 
     @After
     public void tearDown() throws Exception {
+        cacheManager.shutdown();
         TransactionManagerServices.getTransactionManager().shutdown();
     }
 
