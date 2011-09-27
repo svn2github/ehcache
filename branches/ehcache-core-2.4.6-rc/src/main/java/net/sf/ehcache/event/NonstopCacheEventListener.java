@@ -38,18 +38,17 @@ public class NonstopCacheEventListener implements CacheEventListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NonstopCacheEventListener.class);
 
-    private final NonstopStore nonstopStore;
+    private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
 
-    private final CacheEventListener underlyingListener;
+    private final NonstopStore nonstopStore;
 
     /**
      * Public constructor
      *
      * @param nonstopActiveDelegateHolder
-     * @param underlyingListener
      */
-    public NonstopCacheEventListener(NonstopActiveDelegateHolder nonstopActiveDelegateHolder, CacheEventListener underlyingListener) {
-        this.underlyingListener = underlyingListener;
+    public NonstopCacheEventListener(NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
+        this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.nonstopStore = nonstopActiveDelegateHolder.getNonstopStore();
     }
 
@@ -57,54 +56,56 @@ public class NonstopCacheEventListener implements CacheEventListener {
      * {@inheritDoc}
      */
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.REMOVED, underlyingListener,
-                element));
+        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.REMOVED,
+                nonstopActiveDelegateHolder.getCacheEventReplicator(), element));
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.PUT, underlyingListener, element));
+        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.PUT, nonstopActiveDelegateHolder
+                .getCacheEventReplicator(), element));
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.UPDATED, underlyingListener,
-                element));
+        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.UPDATED,
+                nonstopActiveDelegateHolder.getCacheEventReplicator(), element));
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementExpired(Ehcache cache, Element element) {
-        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.EXPIRED, underlyingListener,
-                element));
+        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.EXPIRED,
+                nonstopActiveDelegateHolder.getCacheEventReplicator(), element));
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyElementEvicted(Ehcache cache, Element element) {
-        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.EVICTED, underlyingListener,
-                element));
+        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.EVICTED,
+                nonstopActiveDelegateHolder.getCacheEventReplicator(), element));
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyRemoveAll(Ehcache cache) {
-        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.REMOVE_ALL, underlyingListener,
-                null));
+        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(cache, CacheEventType.REMOVE_ALL,
+                nonstopActiveDelegateHolder.getCacheEventReplicator(), null));
     }
 
     /**
      * {@inheritDoc}
      */
     public void dispose() {
-        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(null, CacheEventType.DISPOSE, underlyingListener, null));
+        this.nonstopStore.executeClusterOperation(new CacheEventClusteredOperation(null, CacheEventType.DISPOSE,
+                nonstopActiveDelegateHolder.getCacheEventReplicator(), null));
     }
 
     /**
@@ -176,7 +177,7 @@ public class NonstopCacheEventListener implements CacheEventListener {
 
         public Void performClusterOperationTimedOut(TimeoutBehaviorType configuredTimeoutBehavior) {
             final String msg = "Terracotta clustered event notification timed out: operation: " + eventType + ", cache: " + cache.getName()
-            + ", element: " + element;
+                    + ", element: " + element;
             switch (configuredTimeoutBehavior) {
                 case EXCEPTION: {
                     throw new NonStopCacheException(msg);
