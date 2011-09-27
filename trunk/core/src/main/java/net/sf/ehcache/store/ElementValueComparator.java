@@ -19,7 +19,8 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Element;
 
 /**
- * Used to compare two element values
+ * Used to compare two element values.
+ * Implementations must define a constructor accepting a single ReadWriteCopyStrategy argument.
  *
  * @author Ludovic Orban
  */
