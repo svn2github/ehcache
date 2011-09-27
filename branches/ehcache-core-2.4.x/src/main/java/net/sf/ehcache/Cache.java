@@ -3938,6 +3938,7 @@ public class Cache implements Ehcache, StoreListener {
         private volatile NonstopExecutorService nonstopExecutorService;
         private volatile CacheLockProvider underlyingCacheLockProvider;
         private volatile boolean nodeBulkLoadEnabled;
+        private volatile CacheEventListener cacheEventReplicator;
 
         public NonstopActiveDelegateHolderImpl(Cache cache) {
             this.cache = cache;
@@ -3986,6 +3987,7 @@ public class Cache implements Ehcache, StoreListener {
                 throw new AssertionError("TerracottaStore.getInternalContext() is not correct - "
                         + (context == null ? "NULL" : context.getClass().getName()));
             }
+            cacheEventReplicator = null;
         }
 
         public TerracottaStore getUnderlyingTerracottaStore() {
@@ -3998,6 +4000,21 @@ public class Cache implements Ehcache, StoreListener {
 
         public CacheLockProvider getUnderlyingCacheLockProvider() {
             return underlyingCacheLockProvider;
+        }
+
+        public CacheEventListener getCacheEventReplicator() {
+            if (cacheEventReplicator != null) {
+                return cacheEventReplicator;
+            } else {
+                synchronized (this) {
+                    if (cacheEventReplicator == null) {
+                        // don't use getCacheManager().createTerracottaEventReplicator(cache) but create one using the clustered instance
+                        // factory
+                        cacheEventReplicator = cache.getCacheManager().getClusteredInstanceFactory(cache).createEventReplicator(cache);
+                    }
+                    return cacheEventReplicator;
+                }
+            }
         }
 
     }

@@ -483,11 +483,13 @@ public class CacheManager {
      * @return a new cache event replicator
      */
     public CacheEventListener createTerracottaEventReplicator(Ehcache cache) {
-        CacheEventListener cacheEventListener = getClusteredInstanceFactory(cache).createEventReplicator(cache);
+        CacheEventListener cacheEventListener = null;
         CacheConfiguration cacheConfig = cache.getCacheConfiguration();
         if (cacheConfig.isTerracottaClustered() && cacheConfig.getTerracottaConfiguration().isNonstopEnabled()) {
             NonstopActiveDelegateHolder nonstopActiveDelegateHolder = getNonstopActiveDelegateHolder(cache);
-            cacheEventListener = new NonstopCacheEventListener(nonstopActiveDelegateHolder, cacheEventListener);
+            cacheEventListener = new NonstopCacheEventListener(nonstopActiveDelegateHolder);
+        } else {
+            cacheEventListener = getClusteredInstanceFactory(cache).createEventReplicator(cache);
         }
         return cacheEventListener;
     }
@@ -506,7 +508,7 @@ public class CacheManager {
      * @param cache the cache the clustered instance factory has to be returned for
      * @return the clustered instance factory
      */
-    private ClusteredInstanceFactory getClusteredInstanceFactory(Ehcache cache) {
+    protected ClusteredInstanceFactory getClusteredInstanceFactory(Ehcache cache) {
         ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
         if (null == clusteredInstanceFactory) {
             // adding a cache programmatically when there is no clustered store defined in the configuration
