@@ -1,0 +1,18 @@
+ ---
+ Architecture
+ ---
+
+{Architecture}
+
+    Ehcache distributed with TSA is different to the other distribution mechanisms. They all replicate data, with 100% of
+    data held in each node. Scaling is thus limited to how much can be comfortably held in each node. Replication is also
+    not JTA transactional or guaranteed coherent.
+
+    With TSA the data is split between an Ehcache node, which is the L1 Cache and the TSA, which is the L2 Cache. As with the
+    other replication mechanisms the L1 can hold as much data as is comfortable. All the rest lies in the L2. In Ehcache EX,
+    each CacheManager can have only one logical TSA (there can be multiple redundant TSAs for HA). In Ehcache FX, the TSAs
+    are striped for unlimited scale.
+
+    Data is held in-process in the Ehcache L1 for rapid access, however the data is also always in the TSA. So the cache
+    is unaffected by termination of an Ehcache node. When the node comes back up it reconnects to the TSA L2 and as it uses
+    data fills its local L1. There is thus no notion of a bootstrap as there is with the other distribution mechanisms.
