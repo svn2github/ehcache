@@ -1,28 +1,30 @@
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.AbstractCachePerfTest;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.CachePerfTest;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.StopWatch;
-import net.sf.ehcache.management.ManagementService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import net.sf.ehcache.AbstractCachePerfTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.StopWatch;
+import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.management.ManagementService;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Alex Snaps
@@ -88,11 +90,16 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
 //        System.gc();
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
-        manager1 = new CacheManager(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed1.xml");
-        manager2 = new CacheManager(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed2.xml");
-        manager3 = new CacheManager(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed3.xml");
-        manager4 = new CacheManager(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed4.xml");
-        manager5 = new CacheManager(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed5.xml");
+        manager1 = new CacheManager(ConfigurationFactory.parseConfiguration(
+                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed1.xml")).name("cm-1"));
+        manager2 = new CacheManager(ConfigurationFactory.parseConfiguration(
+                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed2.xml")).name("cm-2"));
+        manager3 = new CacheManager(ConfigurationFactory.parseConfiguration(
+                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed3.xml")).name("cm-3"));
+        manager4 = new CacheManager(ConfigurationFactory.parseConfiguration(
+                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed4.xml")).name("cm-4"));
+        manager5 = new CacheManager(ConfigurationFactory.parseConfiguration(
+                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed5.xml")).name("cm-5"));
 
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
@@ -157,7 +164,7 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
          */
         class ThreadVisitor {
 
-            private List threadList = new ArrayList();
+            private final List threadList = new ArrayList();
 
             // This method recursively visits all thread groups under `group'.
             private void visit(ThreadGroup group, int level) {
@@ -195,7 +202,7 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
         ThreadVisitor visitor = new ThreadVisitor();
         visitor.visit(root, 0);
         return visitor.threadList;
-    }    
+    }
 
 
     /**
