@@ -20,7 +20,7 @@ import net.sf.ehcache.Element;
 
 /**
  * Used to compare two element values.
- * Implementations must define a constructor accepting a single ReadWriteCopyStrategy argument.
+ * Implementations must define a constructor accepting a single CacheConfiguration argument.
  *
  * @author Ludovic Orban
  */

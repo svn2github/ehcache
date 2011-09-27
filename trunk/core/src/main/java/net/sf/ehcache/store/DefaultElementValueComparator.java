@@ -16,6 +16,7 @@
 package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 
 import java.util.Arrays;
@@ -26,14 +27,16 @@ import java.util.Arrays;
 public class DefaultElementValueComparator implements ElementValueComparator {
 
     private final ReadWriteCopyStrategy<Element> readWriteCopyStrategy;
+    private final boolean onlyCopyOnReadOrWrite;
 
     /**
      * Constructor
-     * 
-     * @param readWriteCopyStrategy the copy strategy used together with this ElementValueComparator
+     *
+     * @param cacheConfiguration the cache configuration
      */
-    public DefaultElementValueComparator(final ReadWriteCopyStrategy<Element> readWriteCopyStrategy) {
-        this.readWriteCopyStrategy = readWriteCopyStrategy;
+    public DefaultElementValueComparator(CacheConfiguration cacheConfiguration) {
+        this.readWriteCopyStrategy = cacheConfiguration.getCopyStrategy();
+        this.onlyCopyOnReadOrWrite = cacheConfiguration.isCopyOnRead() ^ cacheConfiguration.isCopyOnWrite();
     }
 
     /**
@@ -46,7 +49,7 @@ public class DefaultElementValueComparator implements ElementValueComparator {
             if (e1.getObjectValue() == null) {
                 return e2.getObjectValue() == null;
             } else {
-                return compareValues(copyForRead(e1).getObjectValue(), copyForRead(e2).getObjectValue());
+                return compareValues(copyForReadIfNeeded(e1).getObjectValue(), copyForReadIfNeeded(e2).getObjectValue());
             }
         } else {
             return false;
@@ -55,7 +58,7 @@ public class DefaultElementValueComparator implements ElementValueComparator {
 
     private static boolean compareValues(Object objectValue1, Object objectValue2) {
         if (objectValue1 != null && objectValue2 != null && objectValue1.getClass().isArray() && objectValue2.getClass().isArray()) {
-            return Arrays.deepEquals(new Object[] {objectValue1}, new Object[] {objectValue2});
+            return Arrays.deepEquals(new Object[] { objectValue1 }, new Object[] { objectValue2 });
         } else {
             if (objectValue1 == null) {
                 return objectValue2 == null;
@@ -65,8 +68,8 @@ public class DefaultElementValueComparator implements ElementValueComparator {
         }
     }
 
-    private Element copyForRead(Element element) {
-        if (readWriteCopyStrategy == null) {
+    private Element copyForReadIfNeeded(Element element) {
+        if (readWriteCopyStrategy == null || onlyCopyOnReadOrWrite) {
             return element;
         }
         return readWriteCopyStrategy.copyForRead(element);

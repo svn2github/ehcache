@@ -1,14 +1,12 @@
 package net.sf.ehcache.transaction.local;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
@@ -18,12 +16,15 @@ import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
+
 /**
  * @author lorban
  */
 public class LocalTransactionTest extends TestCase {
 
-    private final ElementValueComparator elementValueComparator = new DefaultElementValueComparator(new ReadWriteSerializationCopyStrategy());
+    private final ElementValueComparator elementValueComparator = new DefaultElementValueComparator(new CacheConfiguration().copyOnRead(true).copyOnWrite(false));
     private CacheManager cacheManager;
     private Ehcache cache1;
     private Ehcache cache2;

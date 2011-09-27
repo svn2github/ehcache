@@ -1032,7 +1032,7 @@ public class Cache implements Ehcache, StoreListener {
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
-            elementValueComparator = configuration.getElementValueComparatorConfiguration().getElementComparatorInstance(copyStrategy);
+            elementValueComparator = configuration.getElementValueComparatorConfiguration().getElementComparatorInstance(configuration);
 
             if (configuration.getTransactionalMode().isTransactional()
                 && configuration.isTerracottaClustered()
@@ -2794,7 +2794,7 @@ public class Cache implements Ehcache, StoreListener {
         copy.cacheStatus.changeState(Status.STATUS_UNINITIALISED);
         copy.configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration()
-            .getElementComparatorInstance(copy.configuration.getCopyStrategyConfiguration().getCopyStrategyInstance());
+            .getElementComparatorInstance(copy.configuration);
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
         copy.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(copy);
         for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {

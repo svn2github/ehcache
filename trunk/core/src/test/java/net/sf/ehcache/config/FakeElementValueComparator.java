@@ -25,7 +25,7 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
  */
 public class FakeElementValueComparator implements ElementValueComparator {
 
-    public FakeElementValueComparator(ReadWriteCopyStrategy rwcs) {
+    public FakeElementValueComparator(CacheConfiguration cacheConfiguration) {
     }
 
     public boolean equals(Element e1, Element e2) {

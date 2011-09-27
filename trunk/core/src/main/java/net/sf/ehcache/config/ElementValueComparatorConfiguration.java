@@ -51,17 +51,17 @@ public class ElementValueComparatorConfiguration {
     /**
      * Get (and potentially) instantiate the instance
      * 
-     * @param copyStrategy the copy strategy used together with the ElementValueComparator
+     * @param cacheConfiguration the cache configuration
      * @return the instance
      */
-    public synchronized ElementValueComparator getElementComparatorInstance(ReadWriteCopyStrategy<Element> copyStrategy) {
+    public synchronized ElementValueComparator getElementComparatorInstance(CacheConfiguration cacheConfiguration) {
         if (comparator == null) {
             Class elementComparator = null;
             try {
                 comparator = (ElementValueComparator) ClassLoaderUtil.createNewInstance(
                     className,
-                    new Class[] {ReadWriteCopyStrategy.class},
-                    new Object[] {copyStrategy}
+                    new Class[] {CacheConfiguration.class},
+                    new Object[] {cacheConfiguration}
                 );
             } catch (ClassCastException cce) {
                 throw new CacheException(elementComparator != null ? elementComparator.getSimpleName()

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.net.URLClassLoader;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 
 import org.junit.Assert;
@@ -16,8 +17,9 @@ public class TCCLReadWriteSerializationCopyStrategyTest {
 
     @Test
     public void test() throws Exception {
-        final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
-        final DefaultElementValueComparator comparator = new DefaultElementValueComparator(copyStrategy);
+        CacheConfiguration cacheConfiguration = new CacheConfiguration().copyOnRead(true).copyOnWrite(true);
+        ReadWriteCopyStrategy<Element> copyStrategy = cacheConfiguration.getCopyStrategy();
+        DefaultElementValueComparator comparator = new DefaultElementValueComparator(cacheConfiguration);
 
         {
             // loaded via TCCL

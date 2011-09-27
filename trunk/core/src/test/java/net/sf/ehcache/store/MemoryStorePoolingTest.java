@@ -10,7 +10,6 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
-import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,8 @@ import static org.junit.Assert.fail;
 public class MemoryStorePoolingTest {
 
     private static final int ITERATIONS = 10000;
-    private static final DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new ReadWriteSerializationCopyStrategy());
+    private static final DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new CacheConfiguration()
+        .copyOnRead(true).copyOnWrite(false));
     private volatile Cache cache;
     private volatile Pool onHeapPool;
     private volatile MemoryStore memoryStore;

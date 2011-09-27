@@ -1,6 +1,7 @@
 package net.sf.ehcache.store.compound;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,8 +18,9 @@ public class PartialSerializationCopyStrategyTest {
 
     @Test
     public void test() throws Exception {
-        final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
-        final DefaultElementValueComparator comparator = new DefaultElementValueComparator(copyStrategy);
+        CacheConfiguration cacheConfiguration = new CacheConfiguration().copyOnRead(true).copyOnWrite(true);
+        ReadWriteCopyStrategy<Element> copyStrategy = cacheConfiguration.getCopyStrategy();
+        DefaultElementValueComparator comparator = new DefaultElementValueComparator(cacheConfiguration);
 
         {
             Element storageValue = copyStrategy.copyForWrite(null);

@@ -12,7 +12,6 @@ import net.sf.ehcache.pool.impl.FromLargestCacheOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 import net.sf.ehcache.store.DefaultElementValueComparator;
-import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +34,9 @@ public class DiskStorePoolingTest {
 
     private static final int ELEMENT_SIZE_ON_DISK = 308;
     private static final int ITERATIONS = 100;
-    private static final DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new ReadWriteSerializationCopyStrategy());
+
+    private final static DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new CacheConfiguration()
+        .copyOnRead(true).copyOnWrite(false));
 
     private volatile Cache cache;
     private volatile Pool onHeapPool;
