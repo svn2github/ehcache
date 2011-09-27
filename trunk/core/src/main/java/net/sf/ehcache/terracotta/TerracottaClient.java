@@ -56,8 +56,10 @@ public class TerracottaClient {
     private final RejoinWorker rejoinWorker = new RejoinWorker();
     private final TerracottaClientRejoinListener rejoinListener;
     private final ExecutorService l1TerminatorThreadPool = Executors.newCachedThreadPool(new ThreadFactory() {
+        private final ThreadGroup threadGroup = new ThreadGroup("Rejoin Terminator Thread Group");
+
         public Thread newThread(Runnable runnable) {
-            Thread t = new Thread(runnable, "L1 Terminator");
+            Thread t = new Thread(threadGroup, runnable, "L1 Terminator");
             t.setDaemon(true);
             return t;
         }
