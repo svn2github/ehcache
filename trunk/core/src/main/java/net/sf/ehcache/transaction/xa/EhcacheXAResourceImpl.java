@@ -90,7 +90,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.softLockFactory = softLockFactory;
         this.processor = new XARequestProcessor(this);
         this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
-        this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance(cache.getCacheConfiguration());
+        this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
+            .getElementComparatorInstance(cache.getCacheConfiguration());
     }
 
     /**

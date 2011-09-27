@@ -16,9 +16,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**

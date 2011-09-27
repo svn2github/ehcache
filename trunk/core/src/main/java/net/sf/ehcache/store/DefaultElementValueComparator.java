@@ -58,7 +58,7 @@ public class DefaultElementValueComparator implements ElementValueComparator {
 
     private static boolean compareValues(Object objectValue1, Object objectValue2) {
         if (objectValue1 != null && objectValue2 != null && objectValue1.getClass().isArray() && objectValue2.getClass().isArray()) {
-            return Arrays.deepEquals(new Object[] { objectValue1 }, new Object[] { objectValue2 });
+            return Arrays.deepEquals(new Object[] {objectValue1}, new Object[] {objectValue2});
         } else {
             if (objectValue1 == null) {
                 return objectValue2 == null;
