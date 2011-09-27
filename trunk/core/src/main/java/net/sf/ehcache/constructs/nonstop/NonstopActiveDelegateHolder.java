@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.nonstop;
 
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.TerracottaStore;
 
 /**
@@ -63,5 +64,12 @@ public interface NonstopActiveDelegateHolder {
      * @return the nonstop store
      */
     public NonstopStore getNonstopStore();
+
+    /**
+     * Returns the cache event replicator
+     *
+     * @return the cache event replicator
+     */
+    public CacheEventListener getCacheEventReplicator();
 
 }
