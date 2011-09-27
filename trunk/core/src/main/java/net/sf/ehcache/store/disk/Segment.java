@@ -19,6 +19,13 @@
  */
 package net.sf.ehcache.store.disk;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
@@ -27,18 +34,12 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
+import net.sf.ehcache.util.FindBugsSuppressWarnings;
 import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
 import net.sf.ehcache.util.ratestatistics.RateStatistic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Segment implementation used in LocalStore.
@@ -897,6 +898,7 @@ public class Segment extends ReentrantReadWriteLock {
      * @param hash the key's hash
      * @return true if a failed marker was or is still there, false otherwise
      */
+    @FindBugsSuppressWarnings("UL_UNRELEASED_LOCK")
     boolean cleanUpFailedMarker(final Serializable key, final int hash) {
         boolean readLocked = false;
         boolean failedMarker = false;
