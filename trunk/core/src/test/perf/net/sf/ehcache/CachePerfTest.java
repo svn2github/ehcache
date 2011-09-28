@@ -3,7 +3,7 @@ package net.sf.ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.disk.DiskStoreHelper;
+import net.sf.ehcache.store.disk.PerfDiskStoreHelper;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -228,7 +228,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
             cache.put(new Element("" + i, new byte[480]));
         }
         LOG.info("Put time: " + stopWatch.getElapsedTime());
-        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+        PerfDiskStoreHelper.flushAllEntriesToDisk(cache).get();
         assertEquals(40000, cache.getMemoryStoreSize());
         assertEquals(80000, cache.getDiskStoreSize());
 
