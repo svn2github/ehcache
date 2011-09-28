@@ -1529,7 +1529,11 @@ public class CacheConfiguration implements Cloneable {
             throw new InvalidConfigurationException(errors);
         }
 
-        updateCacheManagerPoolSizes(cacheManager);
+
+        if (!isTerracottaClustered()) {
+            updateCacheManagerPoolSizes(cacheManager);
+        }
+
         if (register) {
             registerCacheConfiguration(cacheManager);
         }
