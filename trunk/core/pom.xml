@@ -426,14 +426,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>
         <configuration>
-          <includes>
-            <include>**/*Test.java</include>
-          </includes>
-          <excludes>
-            <exclude>**/*$*</exclude>
-            <exclude>**/Abstract*Test.java</exclude>
-            <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
-          </excludes>
           <forkMode>pertest</forkMode>
           <argLine>${tests.supplemental.args} -Xmx64m</argLine>
           <childDelegation>false</childDelegation>
@@ -452,6 +444,18 @@
           </classpathDependencyExcludes>
         </configuration>
         <executions>
+          <execution>
+            <!-- The default-test execution is automatically bound to the test phase by Surefire -->
+            <id>default-test</id>
+            <configuration>
+              <excludes>
+                <exclude>**/*$*</exclude>
+                <exclude>**/Abstract*Test.java</exclude>
+                <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
+                <exclude>**/*Integration*Test.java</exclude>
+              </excludes>
+            </configuration>
+          </execution>
           <execution>
             <!-- Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap -->
             <id>large-heap-test-execution</id>
