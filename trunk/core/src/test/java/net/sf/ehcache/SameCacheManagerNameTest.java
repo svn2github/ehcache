@@ -141,7 +141,7 @@ public class SameCacheManagerNameTest extends TestCase {
         } catch (CacheException e) {
             System.out.println("Caught expected exception: " + e);
             Assert.assertTrue(e.getMessage().contains(
-                    "The source of the existing CacheManager is: FileNameSource [file=src/test/resources/ehcache-nodisk.xml"));
+                    "The source of the existing CacheManager is: FileNameSource"));
             CacheManager alreadyCreatedCacheManager = CacheManager.create(configurationFileName);
             Assert.assertTrue(cacheManager == alreadyCreatedCacheManager);
         } finally {
@@ -274,7 +274,7 @@ public class SameCacheManagerNameTest extends TestCase {
         } catch (CacheException e) {
             System.out.println("Caught expected exception: " + e);
             Assert.assertTrue(e.getMessage().contains(
-                    "The source of the existing CacheManager is: FileNameSource [file=src/test/resources/ehcache-nodisk.xml"));
+                    "The source of the existing CacheManager is: FileNameSource"));
             CacheManager alreadyCreatedCacheManager = CacheManager.create(configurationFileName);
             Assert.assertTrue(cacheManager == alreadyCreatedCacheManager);
         } finally {
