@@ -860,6 +860,18 @@ public class CacheManager {
         }
     }
 
+
+    /**
+     * Checks if a cacheManager already exists for a given name
+     * @param name the cacheManager name
+     * @return if it exists already returns the CacheManager, otherwise returns null
+     */
+    public static CacheManager isCreated(String name) {
+        synchronized (CacheManager.class) {
+            return CACHE_MANAGERS_MAP.get(name);
+        }
+    }
+
     /**
      * Returns a concrete implementation of Cache, it it is available in the CacheManager.
      * Consider using getEhcache(String name) instead, which will return decorated caches that are registered.
