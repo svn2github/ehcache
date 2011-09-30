@@ -22,7 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 
 /**
- * ObjectInputStream that first uses the thread context classloader (TCCL) when resolving classes with  fallback to the regular rerializtion
+ * ObjectInputStream that first uses the thread context classloader (TCCL) when resolving classes with fallback to the regular rerializtion
  * loader semantics (which will use this class's loader to resolve classes)
  *
  * @author teck
@@ -41,11 +41,7 @@ public class PreferTCCLObjectInputStream extends ObjectInputStream {
 
     @Override
     protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-        try {
-            return Class.forName(desc.getName(), false, Thread.currentThread().getContextClassLoader());
-        } catch (ClassNotFoundException cnfe) {
-            return super.resolveClass(desc);
-        }
+        return ClassLoaderUtil.loadClass(desc.getName());
     }
 
 }

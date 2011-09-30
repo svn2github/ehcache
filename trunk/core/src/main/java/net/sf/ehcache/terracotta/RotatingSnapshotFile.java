@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.terracotta;
 
+import net.sf.ehcache.util.PreferTCCLObjectInputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,7 +136,7 @@ class RotatingSnapshotFile {
             final Set<T> values = new HashSet<T>();
             FileInputStream fis = new FileInputStream(currentSnapshot);
             try {
-                ObjectInputStream ois = new ObjectInputStream(fis);
+                ObjectInputStream ois = new PreferTCCLObjectInputStream(fis);
                 boolean eof = false;
                 while (!eof) {
                     try {

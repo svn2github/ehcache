@@ -16,20 +16,7 @@
 
 package net.sf.ehcache.store.disk;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.concurrent.ConcurrencyUtil;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PinningConfiguration;
-import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
-import net.sf.ehcache.store.FrontEndCacheTier;
-import net.sf.ehcache.store.disk.ods.FileAllocationTree;
-import net.sf.ehcache.store.disk.ods.Region;
-import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -40,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ConcurrentModificationException;
@@ -54,7 +40,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.concurrent.ConcurrencyUtil;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.event.RegisteredEventListeners;
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
+import net.sf.ehcache.store.FrontEndCacheTier;
+import net.sf.ehcache.store.disk.ods.FileAllocationTree;
+import net.sf.ehcache.store.disk.ods.Region;
+import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
+import net.sf.ehcache.util.PreferTCCLObjectInputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A mock-up of a on-disk element proxy factory.
@@ -371,23 +372,7 @@ public class DiskStorageFactory {
             data.readFully(buffer);
         }
 
-        ObjectInputStream objstr = new ObjectInputStream(new ByteArrayInputStream(buffer)) {
-            /**
-             * Overridden because of:
-             * Bug 1324221 ehcache DiskStore has issues when used in Tomcat
-             */
-            @Override
-            protected Class resolveClass(ObjectStreamClass clazz) throws ClassNotFoundException, IOException {
-                try {
-                    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                    return Class.forName(clazz.getName(), false, classLoader);
-                } catch (ClassNotFoundException e) {
-                    // Use the default as a fallback because of
-                    // bug 1517565 - DiskStore loadElementFromDiskElement
-                    return super.resolveClass(clazz);
-                }
-            }
-        };
+        ObjectInputStream objstr = new PreferTCCLObjectInputStream(new ByteArrayInputStream(buffer));
 
         try {
             return (Element) objstr.readObject();
@@ -1215,7 +1200,7 @@ public class DiskStorageFactory {
         }
 
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(indexFile));
+            ObjectInputStream ois = new PreferTCCLObjectInputStream(new FileInputStream(indexFile));
             try {
                 Object key = ois.readObject();
                 Object value = ois.readObject();
