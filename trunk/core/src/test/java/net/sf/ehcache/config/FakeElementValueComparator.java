@@ -18,7 +18,6 @@ package net.sf.ehcache.config;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 
 /**
  * @author Ludovic Orban
