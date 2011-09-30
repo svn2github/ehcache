@@ -61,7 +61,9 @@ public class BlockingCacheTest extends CacheTest {
     public void setUp() throws Exception {
         super.setUp();
         Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
-        blockingCache = new BlockingCache(cache);
+        if (cache != null) {
+            blockingCache = new BlockingCache(cache);
+        }
     }
 
     /**
@@ -71,7 +73,9 @@ public class BlockingCacheTest extends CacheTest {
     @After
     public void tearDown() throws Exception {
         if (manager.getStatus() == Status.STATUS_ALIVE) {
-            blockingCache.removeAll();
+            if (blockingCache != null) {
+                blockingCache.removeAll();
+            }
         }
         super.tearDown();
     }
