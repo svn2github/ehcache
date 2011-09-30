@@ -18,6 +18,8 @@ package net.sf.ehcache.transaction;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 import net.sf.ehcache.transaction.xa.XidTransactionIDImpl;
 
+import java.util.UUID;
+
 import javax.transaction.xa.Xid;
 
 /**
@@ -26,6 +28,9 @@ import javax.transaction.xa.Xid;
  * @author Ludovic Orban
  */
 public class TransactionIDFactoryImpl implements TransactionIDFactory {
+
+    private final String uuid = UUID.randomUUID().toString();
+
 
     /**
      * Create a new TransactionIDFactory
@@ -38,7 +43,7 @@ public class TransactionIDFactoryImpl implements TransactionIDFactory {
      * {@inheritDoc}
      */
     public TransactionID createTransactionID() {
-        return new TransactionIDImpl();
+        return new TransactionIDImpl(uuid);
     }
 
     /**

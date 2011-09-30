@@ -20,7 +20,6 @@ import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.SoftLockFactory;
-import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
@@ -72,13 +71,6 @@ public interface ClusteredInstanceFactory {
      * Cleans up any resources left behind after the shutdown of the associated CacheManager
      */
     void shutdown();
-
-    /**
-     * Create a TransactionIDFactory
-     * @param clusterUUID a UUID unique to the cluster
-     * @return a TransactionIDFactory
-     */
-    TransactionIDFactory createTransactionIDFactory(String clusterUUID);
 
     /**
      * Create a SoftLockFactory for a cache
