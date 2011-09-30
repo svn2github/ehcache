@@ -866,7 +866,7 @@ public class CacheManager {
      * @param name the cacheManager name
      * @return if it exists already returns the CacheManager, otherwise returns null
      */
-    public static CacheManager isCreated(String name) {
+    public static CacheManager getCacheManager(String name) {
         synchronized (CacheManager.class) {
             return CACHE_MANAGERS_MAP.get(name);
         }
