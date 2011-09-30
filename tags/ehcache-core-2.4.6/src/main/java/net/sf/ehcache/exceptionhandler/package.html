@@ -1,0 +1,17 @@
+<html>
+  <head>
+  </head>
+  <body>
+  This package is for exception handling.
+  <p/>
+  Normally, an exception will be thrown. However an exception handler may be registered at configuration
+  time in ehcache.xml, or set at runtime (a strategy), to handle an exception.
+  <p/>
+  If an exception handler is registered, the default behaviour of throwing the exception will not occur. The handler
+  method <code>onException</code> will be called. Of course, if the handler decides to throw the exception, it will
+  propagate up through the call stack. If the handler does not, it won't.
+  <p/>
+  This package defines an ExceptionHandler interface, and also a CacheExceptionHandlerFactory, which is used for
+  configuration.
+  </body>
+</html>
