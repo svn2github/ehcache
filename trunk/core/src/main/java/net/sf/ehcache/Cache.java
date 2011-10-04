@@ -4304,7 +4304,7 @@ public class Cache implements Ehcache, StoreListener {
                 throw new AssertionError("TerracottaStore.getInternalContext() is not correct - "
                         + (context == null ? "NULL" : context.getClass().getName()));
             }
-            cacheEventReplicator = getCacheEventReplicator();
+            cacheEventReplicator = cache.getCacheManager().getClusteredInstanceFactory(cache).createEventReplicator(cache);
         }
 
         public TerracottaStore getUnderlyingTerracottaStore() {
