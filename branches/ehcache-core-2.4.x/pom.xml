@@ -34,7 +34,7 @@
     <skipCheckstyle>false</skipCheckstyle>
     <build.timestamp>${maven.build.timestamp}</build.timestamp>
     <tests.supplemental.args></tests.supplemental.args>
-    <surefire.version>2.9</surefire.version>
+    <surefire.version>2.10</surefire.version>
   </properties>
 
   <dependencies>
