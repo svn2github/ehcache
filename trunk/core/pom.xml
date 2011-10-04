@@ -35,7 +35,7 @@
     <skipJavadoc>false</skipJavadoc>
     <build.timestamp>${maven.build.timestamp}</build.timestamp>
     <tests.supplemental.args></tests.supplemental.args>
-    <surefire.version>2.9</surefire.version>
+    <surefire.version>2.10</surefire.version>
     <pax.exam.version>2.1.0</pax.exam.version>
   </properties>
 
