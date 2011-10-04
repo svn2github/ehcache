@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="basic-cache-test">
+
+	<defaultCache maxElementsInMemory="10000" eternal="true"
+		overflowToDisk="false" />
+
+	<cache name="test" maxElementsInMemory="10000" eternal="true"
+		overflowToDisk="false">
+		<cacheWriter writeMode="write_behind" maxWriteDelay="8"
+			rateLimitPerSecond="5" writeCoalescing="true" writeBatching="true"
+			writeBatchSize="20" retryAttempts="2" retryAttemptDelaySeconds="2">
+			<cacheWriterFactory class="net.sf.ehcache.constructs.nonstop.MockCacheWriterFactory" />
+		</cacheWriter>
+	</cache>
+
+</ehcache>
