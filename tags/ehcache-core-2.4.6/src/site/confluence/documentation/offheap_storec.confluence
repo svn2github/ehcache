@@ -1,0 +1,216 @@
+h1. The Off-Heap FAQ
+
+Everything you ever needed to know about the off-heap memory feature.
+
+{toc:style=disc|indent=20px} Note: TOC is not supported yet. That is a blocker. See http://jira.codehaus.org/browse/DOXIA-398
+
+    This is a test confluence page.
+
+h3. Q. Is this feature included in the open source Ehcache release?
+A. No it is only available as a commercial offering. It is a separately licensed feature available for Enterprise Ehcache. To access the feature, users must use one of the Enterprise kits - either the ehcache-core-ee kit for standalone Ehcache or the terracotta-ee kit for distributed Ehcache. Trial downloads of these enterprise kits with a trial license key is available to users wishing to evaluate the feature.
+
+h3. Q. Where is the internal wiki page and what information does it include?
+A. The internal wiki - which explains how to access the internal repo and try the software is here:
+http://intranet.terracotta.lan/xwiki/bin/view/Main/Off-Heap+Caching
+
+h3. Q. Does this use JNI or non-Java code, does it require a special version of Java or JVM?
+A. No, it is 100% Java, and works with standard JVMs.
+
+h3. Q. Is this, or does this require, a custom garbage collector?
+A. No. It is compatible with all garbage collectors.
+
+h3. Q. Does it require a specific OS or OS version, or OS patches?
+A. No, though 64bit OSes are recommend to make the most of the feature.
+
+h3. Q. Where can the off-heap memory feature operate?
+A. In standalone Ehcache installations and on Terracotta server instances (L2s) in a Terracotta cluster. A second release is planned which will also incorporate the feature into clients (L1s) in a Terracotta cluster.
+
+h3. Q. How does off-heap memory improve performance?
+A. By reducing the number of Java GC operations that pause the world, reducing faulting from disk on the server, and reducing database roundtrips. In addition, a Terracotta cluster that's able to use the off-heap feature can handle the same amount of data with fewer stripes.
+
+h3. Q. How does the off-heap memory feature fit in with the other stores that Ehcache supports (eg Spill-to-Disk)?
+A. Ehcache provides a layered store solution. The first layered store in the heap-based memory store, the next is the off-heap memory store, the next is the disk store. Each layer has a high capacity, but a slower response time than the previous. Users can configure any combination of these.
+
+h3. Q. How do I know if this feature will help me?
+A. If you would like to bring more data closer to the app, but know you can't because increasing your heap size causes significant performance degradation and response time variability - due to GC - this should help you. If you already have all the data you need in memory, but are unsure about how using off-heap would help, a simple way to tell is to look at your current GC metrics (such as - how much time do you spend in GC)?
+
+h3. Q. How do I see how much time I currently spend doing GC?
+A. ENGINEERING: INSERT TIPS ON THE EASIEST WAY / SIMPLEST ENTRY LEVEL TOOL ETC - TO GET A VIEW ON HOW MUCH TIME I SPEND IN GC
+
+h3. Q. What steps are required to configure standalone Ehcache for off-heap memory ?
+A. Off-heap caching with Ehcache requires three things:
+1. Configure the in-memory cache(s) to overflow to off-heap
+2. Configure Java to use the ehcache-core-ee in lieu of the ehcache-core jar in the classpath, and increase the amount of direct memory your JVM allows
+3. Add the license "product.key" file to your classpath
+
+h4. STEP 1 Configure the cache.
+Configuring an Ehcache instance for offheap caching can be done either through XML in the ehcache.xml file or programatically.
+
+The following XML configuration creates an offheap cache with an in-heap front end with capacity 10,000 elements which overflows to a 1-gigabyte off-heap area.
+
+{code:xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache updateCheck="false" monitoring="off" dynamicConfig="false">
+        <defaultCache maxElementsInMemory="10000" eternal="true" memoryStoreEvictionPolicy="LRU" statistics="false" />
+        <cache name="offheap-cache" maxElementsInMemory="10000" eternal="true" memoryStoreEvictionPolicy="LRU" overflowToOffHeap="true" maxMemoryOffHeap="1G"/>
+</ehcache>
+{code}
+
+The equivalent cache can be created using the following programmatic configuration:
+
+{code}
+public Cache createOffHeapCache() {
+  CacheConfiguration config = new CacheConfiguration("offheap-cache", 10000).overflowToOffHeap(true).maxMemoryOffHeap("1G");
+  Cache cache = new Cache(config);
+  manager.addCache(cache);
+  return cache;
+}
+{code}
+
+h4. STEP 2 Configure Java to use the off-heap store.
+In order to use these configurations you must then use the ehcache-core-ee in lieu of the ehcache-core jar in the classpath, and modify your JVM command-line to increase the amount of direct memory allowed by the JVM.
+
+{code}
+java -XX:MaxDirectMemorySize=2G -cp "ehcache-core-ee-2.3.0.jar:slf4j-api-1.5.11.jar:slf4j-jdk14-1.5.11.jar"
+{code}
+
+h4. STEP 3 Install and use the "product.key" license file that is needed for the product?
+(PROVISIONAL ANSWER)
+The license key file specifies for the licensed JVM, the total amount of off-heap storage that can be used JVM-wide across all cache managers running in that JVM.
+
+There are several ways to do specify the location of the license:
+
+1. Specify it in the Java command line with:
+{code}
+-Dorg.terracotta.ehcachedx.productkey.path=/path/to/key
+{code}
+
+2. Include the product.key file in your classpath (much in the same way as you can include the ehcache.xml configuration in your classpath)
+
+3. Specify it in ehcache.xml, as follows:
+
+As CDATA
+
+{code:xml}
+<ehcache>
+        <product-key>CDATA of the key</product-key>
+</ehcache>
+{code}
+
+Or Path
+
+{code:xml}
+<ehcache>
+        <product-key-path>/path/to/key</product-key-path>
+</ehcache>
+{code}
+
+h3. Q. How is off-heap memory configured on the L2?
+A.  Start a server with the offHeapSize JVM option:
+(ENGINEERING: TO BE CONFIRMED)
+
+{code}
+${TERRACOTTA_HOME}/bin/start-tc-server.sh --offHeapSize=10g
+{code}
+
+This is equivalent to {{-XX:MaxDirectMemorySize=10g}}. "10g" is the value, in this case 10 gigabytes.
+
+You could also add the following Terracotta property to {{tc-config.xml}}: {{l2.offHeapCache.memorySize=10g}}.
+
+Also change the tc-config.xml for using Offheap in L2.
+Inside the <server><dso><persistence> tag add the following:
+
+{code:xml}
+<offheap>
+    <enabled>true</enabled>
+    <maxDataSize>10g</maxDataSize>
+</offheap>
+{code}
+
+h3. Q. Do JVMs have a default value for {{MaxDirectMemorySize}}?
+A. Sun HotSpot has a default equal to maximum heap size (-Xmx value), although certain early versions may default to a certain value. Oracle JRockit attempts to allocate memory until memory runs out, effectively giving a default value of "infinite". See the documentation for your JVM for more information.
+
+h3. Q. Can I use the L2 off-heap store with DSO (ie non Ehcache).
+A. Yes
+
+h3. Q. What kind of scale does the off-heap feature offer?
+A. For Terracotta server instances, swap-to-disk is triggered at 24MM objects instead of 3MM, an 8x gain. For standalone Ehcache, up to 64Gb (or more - TBC) of off-heap memory can be configured.
+
+h3. Q. Which JVMs are supported?
+A. For standalone Ehcache, the Java 5 and Java 6 versions of Sun Hotspot, IBM J9, and Oracle/BEA JRockit JVMs are supported. For Terracotta server instances, the Sun JVM is supported.
+
+h3. Q. Are there any special issues to be aware of?
+A. If using the Sun JVM, something special needs to happen.
+(ENGINEERING: NOT SURE WHAT THIS IS ABOUT .... MORE HERE ... OR DELETE)
+
+h3. Q. What is the maximum heap and off-heap size I can set for my JVM?
+The maximum heap size of a Java application is limited by a couple of key factors: the process data model (32-bit or 64-bit) and the associated operating system limitations, the amount of virtual memory available on the system, and the amount of physical memory available on the system.
+
+h3. Q. Can I use this with a 32-bit JVM?
+A. Yes, though the amount of heap-offload you can achieve is limited by the addressable memory. For a 32-bit process model, the maximum virtual address size of the process is typically 4 GB, though some operating systems limit this down to 2GB. The maximum heap size available to Java is lower still.
+(ENGINEERING: INCLUDE SPECIFICS FROM KALAI)
+
+h3. Q. How much of my total available hardware RAM should I make available to the Java heap for the standard heap-based Ehcache memory store, and how much to the off-heap store?
+A. Committing too much of a system's physical memory is likely to result in paging of virtual memory to disk, quite likely during garbage collection operations, leading to significant performance issues. On systems with multiple Java processes, or multiple processes in general, the sum of the Java heaps and off-stores for those processes should also not exceed the the size of the physical RAM in the system.
+
+Remember that {{maxDirectMemorySize}} sets an upper limit for the JVM to enforce, but does not actually allocate the specified memory. Overallocation of direct buffer space, therefore, is possible and could lead to paging or even memory-related errors. The limit on direct buffer space set by {{maxDirectMemorySize}} should take into account the total physical memory available, the amount of memory that is allotted to the JVM object heap, and the portion of direct buffer space that other Java processes may consume.
+
+h3. Q. Can you give an example of how to get the most out of say 8GB of memory for different app profiles?
+A. For example, for a data set of 7GB - say for a cache of 7M items (each 1kb in size), consider the following options:
+
+Those who want minimal application repsonse time variance (ie minimizing GC pause times), will likely want *all* the cache to be off-heap. Assuming that 1GB of heap is needed for the rest of the app, they will set their Java config as follows
+{code}
+-Xms1G -Xmx1G -XX:maxDirectMemorySize=7G
+{code}
+And their Ehcache config as
+{code:xml}
+maxElementsInMemory=1         (Note: that 0 has the special meaning of unlimited. NEW NOTE: this will change )
+overflowToOffHeap="true"
+maxMemoryOffHeap="8G"
+{code}
+
+Those who want best possible performance for a hot set of data while still reducing overall application repsonse time variance will likely want a combination of on-heap and off-heap. The heap will be used for the hot set, the offheap for the rest. So, for example if the hot set is 1M items (or 1GB) of the 7GB data.  They will set their Java config as follows
+{code}
+-Xms2G -Xmx2G -XX:maxDirectMemorySize=6G
+{code}
+And their Ehcache config as
+{code:xml}
+maxElementsInMemory= 1M
+overflowToOffHeap="true"
+maxMemoryOffHeap= 6GB
+{code}
+This configuration will compare VERY favorably against the alternative of keeping the less-hot set in a db (100x slower) or caching on local disk (20x slower).
+
+Where pauses are not a problem, the whole dataset can be kept on heap
+{code:xml}
+maxElementsInMemory=0
+overflowToOffHeap="false"
+{code}
+
+Where latency isn't an issue overflow to disk can be used
+{code:xml}
+maxElementsInMemory=1M
+overflowToOffDisk="true"
+{code}
+
+h3. Q. What other considerations do I need to think about when selecting between the using on-heap, off-heap or a mixture for my cache?
+A. If you don't have a hotset, or an on-heap cache that is 50% or more of your total cache, you should consider using an off-heap only cache. With a hotset a mixed cache will help performance.
+
+h3. Q. Why do I need to specify the amount of on-heap cache in terms of element count, and the off-heap cache in terms of size in bytes?
+A. This is an artifact of how the stores are implemented in the first release. In future versions we hope to be able to allow users to choose count or size independently of the store type (on-heap vs off-heap).
+
+h3. Q. I have already painstakingly tuned my Java heap to enable me to cache more than 2GB of data. Now I want to go off-heap with even more. Should I keep my JVM GC tuning parameters?
+A. No, the simplest and best advice is to fall back to standard settings. Re-tuning will not likely be needed.
+
+h3. Q. I tried moving my app from a 32-bit to 64-bit JVM and my app ran slower. Is there anything I can do about this?
+A. Yes, check out -XX:+UseCompressedOops - see: http://blog.juma.me.uk/2008/10/14/32-bit-or-64-bit-jvm-how-about-a-hybrid/
+
+h3. Q. I understand that to use the off-heap store I need to make my data serializable. Won't this slow my application down?
+A. Having to serialize the data will consume more CPU cycles, but most data bound apps are non CPU bound. For most data-bound applications, the performance advantage of being able to bring more data into cache outweighs the added cost of serializing and deserializing (ENGINEERING:COULD USE MORE HERE)
+
+h3. Q. I am trying to allocate as much memory as I can to my off-heap store, starting the app seems to be very slow. Is this normal?
+A. Yes, when there is a limited supply of memory, initializing the off-heap store may take longer. Once the memory has been allocated, performance should not be degraded unless the memory allocated to the JVM is being swapped out (which is typically a bad thing).
+
+h3. Q. Are there any tuning tips I should look at for my operating system to ensure optimal memory performance
+A. Linux users should review their configuration/usage of swappiness and hugepages etc.
+See: http://www.pythian.com/news/1326/performance-tuning-hugepages-in-linux/ and http://unixfoo.blogspot.com/2007/11/linux-performance-tuning.html
