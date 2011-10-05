@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.hamcrest.number.OrderingComparison.lessThan;
 
 /**
  * @author Alex Snaps
@@ -137,8 +138,7 @@ public class KeySnapshotterTest {
         barrier.await();
         snapshotter.dispose(true);
 
-        assertThat("We managed to get to a " + counter.get() + " keys written out, should _NEVER_ be " + maxElementsToReturn,
-            counter.get() < 3000, is(true));
+        assertThat("Snapshot was allowed to finish - this shouldn't happen (unless the snapshot happens really fast and the scheduler is *very* unfair)", counter.get(), lessThan(maxElementsToReturn));
         final int elementsRead = rotatingSnapshotFile.readAll().size();
         assertThat("Should be only a couple: " + elementsRead, elementsRead, is(counter.get() - 1));
     }
