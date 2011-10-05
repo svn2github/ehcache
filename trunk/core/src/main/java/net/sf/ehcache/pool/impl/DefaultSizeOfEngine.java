@@ -47,8 +47,11 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSizeOfEngine.class.getName());
     private static final String USER_FILTER_RESOURCE = "net.sf.ehcache.sizeof.filter";
+    private static final String VERBOSE_DEBUG_LOGGING = "net.sf.ehcache.sizeof.verboseDebugLogging";
 
     private static final SizeOfFilter DEFAULT_FILTER;
+    private static final boolean USE_VERBOSE_DEBUG_LOGGING;
+
     static {
         Collection<SizeOfFilter> filters = new ArrayList<SizeOfFilter>();
         filters.add(new AnnotationSizeOfFilter());
@@ -62,6 +65,8 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
             filters.add(getUserFilter());
         }
         DEFAULT_FILTER = new CombinationSizeOfFilter(filters.toArray(new SizeOfFilter[filters.size()]));
+
+        USE_VERBOSE_DEBUG_LOGGING = getVerboseSizeOfDebugLogging();
     }
 
     private final SizeOf sizeOf;
@@ -140,12 +145,22 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
         return null;
     }
 
+    private static boolean getVerboseSizeOfDebugLogging() {
+
+        String verboseString = System.getProperty(VERBOSE_DEBUG_LOGGING, "false").toLowerCase();
+
+        return verboseString.equals("true");
+    }
+
     /**
      * {@inheritDoc}
      */
     public Size sizeOf(final Object key, final Object value, final Object container) {
         Size size = sizeOf.deepSizeOf(maxDepth, abortWhenMaxDepthExceeded, key, value, container);
-        LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size.getCalculated()});
+
+        if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
+            LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size.getCalculated()});
+        }
         return size;
     }
 }
