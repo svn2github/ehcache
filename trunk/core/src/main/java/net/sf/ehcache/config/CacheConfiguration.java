@@ -1585,11 +1585,13 @@ public class CacheConfiguration implements Cloneable {
 
     private void warnMaxEntriesLocalHeap(final boolean register) {
         if (getMaxEntriesLocalHeap() == 0 && register) {
+            if (getMaxBytesLocalHeap() != 0) {
             LOG.warn("Cache: " + getName() +
                     " has a maxElementsInMemory of 0. This might lead to performance degradation or OutOfMemoryError at Terracotta client." +
                     "From Ehcache 2.0 onwards this has been changed to mean a store" +
                     " with no capacity limit. Set it to 1 if you want" +
                     " no elements cached in memory");
+            }
         }
     }
 
