@@ -571,7 +571,10 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         return masterLocks.getLockForKey(key);
     }
 
-    private List<ReadWriteLockSync> getAllLocks() {
+    /**
+     * Returns all ReadWriteLockSyncs guarding this store.
+     */
+    protected List<ReadWriteLockSync> getAllLocks() {
         return masterLocks.getAllSyncs();
     }
 
