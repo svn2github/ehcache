@@ -9,6 +9,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.store.disk.DiskStorageFactory;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,12 +17,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.NotSerializableException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Filter;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -46,6 +51,11 @@ public class EvictionListenerTest {
         Configuration configuration = new Configuration();
         configuration.diskStore(new DiskStoreConfiguration().path("./target/tmp/"));
         cacheManager = new CacheManager(configuration);
+        Logger.getLogger(DiskStorageFactory.class.getName()).setFilter(new Filter() {
+            public boolean isLoggable(LogRecord lr) {
+                return !(lr.getThrown() instanceof NotSerializableException);
+            }
+        });
     }
 
     @Before
@@ -278,7 +288,7 @@ public class EvictionListenerTest {
 
     @After
     public void tearDown() {
-        cacheManager.removeCache(CACHE_NAME);
+        cacheManager.removalAll();
     }
 
     @AfterClass
