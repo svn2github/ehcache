@@ -210,6 +210,7 @@ public class NonstopTestUtil extends TestCase {
         when(cacheManager.getCluster((ClusterScheme) any())).thenReturn(new NoopCacheCluster());
 
         CacheManagerMockHelper.mockGetNonstopExecutorService(cacheManager);
+        CacheManagerMockHelper.mockGetClusteredInstanceFactory(cacheManager, cache);
 
         cacheManager.addCache(cache);
         cache.setCacheManager(cacheManager);

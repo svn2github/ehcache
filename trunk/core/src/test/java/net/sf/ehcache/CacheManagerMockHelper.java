@@ -18,6 +18,8 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactoryWrapper;
 
 import org.mockito.Mockito;
 
@@ -26,6 +28,11 @@ public class CacheManagerMockHelper {
     public static void mockGetNonstopExecutorService(CacheManager cacheManager) {
         NonstopExecutorService executorService = CacheManagerExecutorServiceFactory.getInstance().getOrCreateNonstopExecutorService(cacheManager);
         Mockito.when(cacheManager.getNonstopExecutorService()).thenReturn(executorService);
+    }
+
+    public static void mockGetClusteredInstanceFactory(CacheManager cacheManager, Cache cache) {
+        ClusteredInstanceFactory clusteredInstanceFactory = Mockito.mock(ClusteredInstanceFactoryWrapper.class);
+        Mockito.when(cacheManager.getClusteredInstanceFactory(cache)).thenReturn(clusteredInstanceFactory);
     }
 
 }
