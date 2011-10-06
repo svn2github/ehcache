@@ -33,6 +33,7 @@ Terracotta Developer Console. With the "autodetect" value, the presence of Terra
 will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
 are "on" and "off".  The default is "autodetect". This setting does not perform any function when
 used with JMX monitors.
+
 * maxBytesLocalHeap - optional setting that constraints the memory usage of the Caches managed by the CacheManager
 to use at most the specified number of bytes of the local VM's heap.
 * maxBytesLocalOffHeap - optional setting that constraints the offHeap usage of the Caches managed by the CacheManager
@@ -55,6 +56,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
          updateCheck="true" monitoring="autodetect"
          dynamicConfig="true" maxBytesLocalHeap="400M" maxBytesLocalOffHeap="2G">
+
 -->
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
@@ -160,9 +162,11 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     Simplest example for pointing to a Terracotta server on this machine:
     <terracottaConfig url="localhost:9510"/>
 
-    This element has one attribute "rejoin" which can take values of either "true" or "false"
+    This element has one attribute "rejoin" which can take values of either "true" or "false":
     <terracottaConfig rejoin="true" url="localhost:9510" />
+
     By default, this attribute is true.
+
     If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
     server. When enabled, this allows the client to connect to the new cluster without the
@@ -250,7 +254,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     This setting will set overflowToOffHeap to true. Set explicitly to false to disable overflow behavior.
 
-
     Note that it is recommended to set maxEntriesLocalHeap to at least 100 elements
     when using an off-heap store, otherwise performance will be seriously degraded,
     and a warning will be logged.
@@ -259,6 +262,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     maxBytesLocalDisk:
     As for maxBytesLocalHeap, but specifies the limit of disk storage this cache will ever use.
+
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
     i.e. The maximum amount of time between accesses before an element expires
@@ -338,6 +342,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     Example of cache level resource tuning:
     <cache name="memBound" maxBytesLocalHeap="100m" maxBytesLocalOffHeap="4g" maxBytesLocalDisk="200g" />
 
+
     Cache Event Listeners
     +++++++++++++++++++++
 
@@ -381,7 +386,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     </cache>
 
 
-    Attributes may also be defined usign a JavaBean style. With the following attribute declaration
+    Attributes may also be defined using a JavaBean style. With the following attribute declaration
     a public method getAge() will be expected to be found on either the key or value for cache elements
 
     <cache>
@@ -473,6 +478,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     The SizeOf policy can be configured at the cache manager level (directly under <ehcache>) and at
     the cache level (under <cache> or <defaultCache>). The cache policy always overrides the cache manager
     one if both are set.
+    
     Transactions
     ++++++++++++
 
@@ -486,13 +492,15 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     If set, all cache operations will need to be done through transactions.
 
     To prevent users keeping references on stored elements and modifying them outside of any transaction's control,
-    transactions also require the cache to be configured copyOnRead and copyOnWrite.    Cache Writer
+    transactions also require the cache to be configured copyOnRead and copyOnWrite.
+
+    CacheWriter
     ++++++++++++
 
     A CacheWriter can be set to write to an underlying resource. Only one CacheWriter can be
     configured per cache.
 
-    It is configured as per the following example for write-through:
+    The following is an example of how to configure CacheWriter for write-through:
 
         <cacheWriter writeMode="write-through" notifyListenersOnException="true">
             <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"
@@ -563,8 +571,8 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     It is configured as per the following example:
 
         <cacheDecoratorFactory
-            class="com.company.DecoratedCacheFactory"
-            properties="property1=true ..." />
+      class="com.company.DecoratedCacheFactory"
+      properties="property1=true ..." />
 
     Distributed Caching with Terracotta
     +++++++++++++++++++++++++++++++++++
@@ -615,12 +623,9 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
 
     The <terracotta> sub-element also has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
-    cache operation cannot be completed within a set time or in the event of a clusterOffline message.
+    cache operation cannot be completed within a set time or in the event of a clusterOffline message. If this element does not appear, nonstop behavior is off.
 
-    From Ehcache 2.4 nonstop behaviour, even if the sub-element is missing, is enabled by default. In earlier versions it was
-    disabled by default.
-
-    It has the following attributes:
+    <nonstop> has the following attributes:
 
     *  enabled="true" - defaults to true.
 
