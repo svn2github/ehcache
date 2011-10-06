@@ -73,7 +73,6 @@ import net.sf.ehcache.transaction.DelegatingTransactionIDFactory;
 import net.sf.ehcache.transaction.ReadCommittedSoftLockFactoryImpl;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
-import net.sf.ehcache.transaction.TransactionIDFactoryImpl;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
 import net.sf.ehcache.util.FailSafeTimer;
