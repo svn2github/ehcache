@@ -33,6 +33,28 @@ Terracotta Developer Console. With the "autodetect" value, the presence of Terra
 will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
 are "on" and "off".  The default is "autodetect". This setting does not perform any function when
 used with JMX monitors.
+* maxBytesLocalHeap - optional setting that constraints the memory usage of the Caches managed by the CacheManager
+to use at most the specified number of bytes of the local VM's heap.
+* maxBytesLocalOffHeap - optional setting that constraints the offHeap usage of the Caches managed by the CacheManager
+to use at most the specified number of bytes of the local VM's offHeap memory.
+* maxBytesLocalDisk - optional setting that constraints the disk usage of the Caches managed by the CacheManager
+to use at most the specified number of bytes of the local disk.
+
+These settings let you define "resource pools", caches will share. For instance setting maxBytesLocalHeap to 100M, will result in
+all caches sharing 100 MegaBytes of ram. The CacheManager will balance these 100 MB across all caches based on their respective usage
+patterns. You can allocate a precise amount of bytes to a particular cache by setting the appropriate maxBytes* attribute for that cache.
+That amount will be subtracted from the CacheManager pools, so that if a cache a specified 30M requirement, the other caches will share
+the remaining 70M.
+
+Also, specifying a maxBytesLocalOffHeap at the CacheManager level will result in overflowToOffHeap to be true by default. If you don't want
+a specific cache to overflow to off heap, you'll have to set overflowToOffHeap="false" explicitly
+
+Here is an example of CacheManager level resource tuning, which will use up to 400M of heap and 2G of offHeap:
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+         updateCheck="true" monitoring="autodetect"
+         dynamicConfig="true" maxBytesLocalHeap="400M" maxBytesLocalOffHeap="2G">
 -->
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="ehcache.xsd"
@@ -139,11 +161,11 @@ used with JMX monitors.
     <terracottaConfig url="localhost:9510"/>
 
     This element has one attribute "rejoin" which can take values of either "true" or "false"
-    <terracottaConfig rejoin="false" url="localhost:9510" />
-    By default, this attribute is false.
+    <terracottaConfig rejoin="true" url="localhost:9510" />
+    By default, this attribute is true.
     If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
-    server. When enabled, this will enable the client to connect to the new cluster without the
+    server. When enabled, this allows the client to connect to the new cluster without the
     need to restart the node.
 
     Example using a path to Terracotta configuration file:
@@ -184,12 +206,12 @@ used with JMX monitors.
     name:
     Sets the name of the cache. This is used to identify the cache. It must be unique.
 
-    maxElementsInMemory:
+    maxEntriesLocalHeap:
     Sets the maximum number of objects that will be created in memory.  0 = no limit.
     In practice no limit means Integer.MAX_SIZE (2147483647) unless the cache is distributed
     with a Terracotta server in which case it is limited by resources.
 
-    maxElementsOnDisk:
+    maxEntriesLocalDisk:
     Sets the maximum number of objects that will be maintained in the DiskStore
     The default value is zero, meaning unlimited.
 
@@ -209,22 +231,34 @@ used with JMX monitors.
     storage to improve performance. Off-heap memory is not subject to Java
     GC. The default value is false.
 
-    maxMemoryOffHeap:
-    (string) This feature is available only in enterprise versions of Ehcache.
-    Sets the amount of off-heap memory available to the cache.
-    This attribute's values are given as <number>k|K|m|M|g|G|t|T for
-    kilobytes (k|K), megabytes (m|M), gigabytes (g|G), or terabytes
-    (t|T). For example, maxMemoryOffHeap="2g" allots 2 gigabytes to
-    off-heap memory.
+    maxBytesLocalHeap:
+    Defines how many bytes the cache may use from the VM's heap. If a CacheManager
+    maxBytesLocalHeap has been defined, this Cache's specified amount will be
+    subtracted from the CacheManager. Other caches will share the remainder.
+    This attribute's values are given as <number>k|K|m|M|g|G for
+    kilobytes (k|K), megabytes (m|M), or gigabytes (g|G).
+    For example, maxMemoryOffHeap="2g" allots 2 gigabytes to off-heap memory.
+    If you specify a maxBytesLocalHeap, you can't use the maxEntriesLocalHeap attribute.
+    maxEntriesLocalHeap can't be used if a CacheManager maxBytesLocalHeap is set.
 
-    This setting is in effect only if overflowToOffHeap is true.
+    Elements put into the cache will be measured in size using net.sf.ehcache.pool.sizeof.SizeOf
+    If you wish to ignore some part of the object graph, see net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf
 
-    Note that it is recommended to set maxElementsInMemory to at least 100 elements
+    maxBytesLocalOffHeap:
+    This feature is available only in enterprise versions of Ehcache.
+    Sets the amount of off-heap memory this cache can use, and will reserve.
+
+    This setting will set overflowToOffHeap to true. Set explicitly to false to disable overflow behavior.
+
+
+    Note that it is recommended to set maxEntriesLocalHeap to at least 100 elements
     when using an off-heap store, otherwise performance will be seriously degraded,
     and a warning will be logged.
 
     The minimum amount that can be allocated is 128MB. There is no maximum.
 
+    maxBytesLocalDisk:
+    As for maxBytesLocalHeap, but specifies the limit of disk storage this cache will ever use.
     timeToIdleSeconds:
     Sets the time to idle for an element before it expires.
     i.e. The maximum amount of time between accesses before an element expires
@@ -264,7 +298,7 @@ used with JMX monitors.
     To enable set statistics="true"
 
     memoryStoreEvictionPolicy:
-    Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+    Policy would be enforced upon reaching the maxEntriesLocalHeap limit. Default
     policy is Least Recently Used (specified as LRU). Other policies available -
     First In First Out (specified as FIFO) and Less Frequently Used
     (specified as LFU)
@@ -301,6 +335,8 @@ used with JMX monitors.
       net.sf.ehcache.store.compound.CopyStrategy. This strategy will be used for copyOnRead
       and copyOnWrite in place of the default which is serialization.
 
+    Example of cache level resource tuning:
+    <cache name="memBound" maxBytesLocalHeap="100m" maxBytesLocalOffHeap="4g" maxBytesLocalDisk="200g" />
 
     Cache Event Listeners
     +++++++++++++++++++++
@@ -401,6 +437,42 @@ used with JMX monitors.
         <cacheLoaderFactory class="com.example.ExampleCacheLoaderFactory"
                                       properties="type=int,startCounter=10"/>
 
+    Element value comparator
+    ++++++++++++++++++++++++
+
+    These two cache atomic methods:
+      removeElement(Element e)
+      replace(Element old, Element element)
+
+    rely on comparison of cached elements value. The default implementation relies on Object.equals()
+    but that can be changed in case you want to use a different way to compute equality of two elements.
+
+    This is configured as per the following example:
+
+    <elementValueComparator class="com.company.xyz.MyElementComparator"/>
+
+    The MyElementComparator class must implement the is net.sf.ehcache.store.ElementValueComparator
+    interface. The default implementation is net.sf.ehcache.store.DefaultElementValueComparator.
+
+
+    SizeOf Policy
+    +++++++++++++
+
+    Control how deep the SizeOf engine can go when sizing on-heap elements.
+
+    This is configured as per the following example:
+
+    <sizeOfPolicy maxDepth="100" maxDepthExceededBehavior="abort"/>
+
+    maxDepth controls how many linked objects can be visited before the SizeOf engine takes any action.
+    maxDepthExceededBehavior specifies what happens when the max depth is exceeded while sizing an object graph.
+     "continue" makes the SizeOf engine log a warning and continue the sizing. This is the default.
+     "abort"    makes the SizeOf engine abort the sizing, log a warning and mark the cache as not correctly tracking
+                memory usage. This makes Ehcache.hasAbortedSizeOf() return true when this happens.
+
+    The SizeOf policy can be configured at the cache manager level (directly under <ehcache>) and at
+    the cache level (under <cache> or <defaultCache>). The cache policy always overrides the cache manager
+    one if both are set.
     Transactions
     ++++++++++++
 
@@ -413,11 +485,12 @@ used with JMX monitors.
 
     If set, all cache operations will need to be done through transactions.
 
-    Cache Writer
+    To prevent users keeping references on stored elements and modifying them outside of any transaction's control,
+    transactions also require the cache to be configured copyOnRead and copyOnWrite.    Cache Writer
     ++++++++++++
 
-    A CacheWriter maybe be set to write to an underlying resource. Only one CacheWriter can be
-    been to a cache.
+    A CacheWriter can be set to write to an underlying resource. Only one CacheWriter can be
+    configured per cache.
 
     It is configured as per the following example for write-through:
 
@@ -426,7 +499,7 @@ used with JMX monitors.
                                 properties="type=int,startCounter=10"/>
         </cacheWriter>
 
-    And it is configured as per the following example for write-behind:
+    The following is an example of how to configure CacheWriter for write-behind:
 
         <cacheWriter writeMode="write-behind" minWriteDelay="1" maxWriteDelay="5"
                      rateLimitPerSecond="5" writeCoalescing="true" writeBatching="true" writeBatchSize="1"
@@ -521,7 +594,7 @@ used with JMX monitors.
       Note: This setting is only relevant for caches with valueMode=serialization
 
     * consistency=strong|eventual - Indicates whether this cache should have strong consistency or eventual
-      consistency. The default is strong. See the documentation for the meaning of these terms.
+      consistency. The default is eventual. See the documentation for the meaning of these terms.
 
     * synchronousWrites=true|false
 
@@ -556,7 +629,9 @@ used with JMX monitors.
     *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
        with the Terracotta Server Array were interrupted.
 
-    *  timeoutBehavior="noop|exception|localReads" - What to do when a timeout has occurred.
+    <nonstop> has one sub-element, <timeoutBehavior> which has the following attribute:
+
+    *  type="noop|exception|localReads" - What to do when a timeout has occurred. Exception is the default.
 
     Simplest example to indicate clustering:
         <terracotta/>
@@ -583,7 +658,7 @@ used with JMX monitors.
     The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
     <defaultCache
-           maxElementsInMemory="0"
+           maxEntriesLocalHeap="0"
            eternal="false"
            overflowToDisk="true"
            timeToIdleSeconds="1200"
@@ -606,8 +681,8 @@ used with JMX monitors.
     defined on your system. On a standard Linux system this will be /tmp"
     -->
     <cache name="sampleCache1"
-           maxElementsInMemory="10000"
-           maxElementsOnDisk="1000"
+           maxEntriesLocalHeap="10000"
+           maxEntriesLocalDisk="1000"
            eternal="false"
            overflowToDisk="true"
            diskSpoolBufferSizeMB="20"
@@ -625,7 +700,7 @@ used with JMX monitors.
     timeToIdle are not used and do not need to be specified.
     -->
     <cache name="sampleCache2"
-           maxElementsInMemory="1000"
+           maxEntriesLocalHeap="1000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="FIFO"
@@ -638,7 +713,7 @@ used with JMX monitors.
     minutes, overriding the default of 2 minutes.
     -->
     <cache name="sampleCache3"
-           maxElementsInMemory="500"
+           maxEntriesLocalHeap="500"
            eternal="false"
            overflowToDisk="true"
            timeToIdleSeconds="300"
@@ -653,7 +728,7 @@ used with JMX monitors.
     This cache uses Terracotta to cluster the contents of the cache.
     -->
     <cache name="sampleTerracottaCache"
-           maxElementsInMemory="1000"
+           maxBytesLocalHeap="10m"
            eternal="false"
            timeToIdleSeconds="3600"
            timeToLiveSeconds="1800"
@@ -664,7 +739,7 @@ used with JMX monitors.
     <!--
       Sample xa enabled cache named xaCache
     <cache name="xaCache"
-           maxElementsInMemory="500"
+           maxEntriesLocalHeap="500"
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
@@ -680,7 +755,7 @@ used with JMX monitors.
       using the default (explicitly configured here as an example) ReadWriteSerializationCopyStrategy
       class could be any implementation of net.sf.ehcache.store.compound.CopyStrategy
     <cache name="copyCache"
-           maxElementsInMemory="500"
+           maxEntriesLocalHeap="500"
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
@@ -695,7 +770,7 @@ used with JMX monitors.
     <!--
       Sample, for Enterprise Ehcache only, demonstrating a tiered cache with in-memory, off-heap and disk stores. In this example the in-memory (on-heap) store is limited to 10,000 items ... which for example for 1k items would use 10MB of memory, the off-heap store is limited to 4GB and the disk store is unlimited in size.
     <cache name="tieredCache"
-           maxElementsInMemory="10000"
+           maxEntriesLocalHeap="10000"
            eternal="false"
            timeToLiveSeconds="600"
            overflowToOffHeap="true"
