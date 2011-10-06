@@ -21,6 +21,7 @@ import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
@@ -90,6 +91,14 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     public Store createStore(Ehcache cache) {
         client.waitUntilRejoinComplete();
         return delegate.createStore(cache);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public TransactionIDFactory createTransactionIDFactory(String uuid) {
+        client.waitUntilRejoinComplete();
+        return delegate.createTransactionIDFactory(uuid);
     }
 
     /**

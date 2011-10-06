@@ -26,35 +26,14 @@ public final class TransactionIDImpl implements TransactionID {
 
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
-    private final String uuid;
-    private final long creationTime;
     private final int id;
     private volatile boolean commit;
 
     /**
      * Create a new TransactionIDImpl instance
-     *
-     * @param uuid a UUID
      */
-    public TransactionIDImpl(String uuid) {
-        this.uuid = uuid;
-        this.creationTime = System.currentTimeMillis();
+    TransactionIDImpl() {
         this.id = ID_GENERATOR.getAndIncrement();
-    }
-
-    /**
-     * Re-create a TransactionIDImpl instance from its internal state
-     *
-     * @param uuid the uuid
-     * @param creationTime the creation time
-     * @param id the id
-     * @param commit the commit flag
-     */
-    public TransactionIDImpl(String uuid, long creationTime, int id, boolean commit) {
-        this.uuid = uuid;
-        this.creationTime = creationTime;
-        this.id = id;
-        this.commit = commit;
     }
 
     /**
@@ -71,51 +50,32 @@ public final class TransactionIDImpl implements TransactionID {
         this.commit = true;
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final boolean equals(Object obj) {
-      if (obj instanceof TransactionIDImpl) {
-        TransactionIDImpl otherId = (TransactionIDImpl) obj;
-        return id == otherId.id &&
-               uuid.equals(otherId.uuid) &&
-               creationTime == otherId.creationTime;
-      }
-      return false;
+        if (obj instanceof TransactionIDImpl) {
+            TransactionIDImpl otherId = (TransactionIDImpl) obj;
+            return id == otherId.id;
+        }
+        return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final int hashCode() {
-      return (((id + (int) creationTime) * 31) ^ uuid.hashCode());
+        return id;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
-      return id + ":" + creationTime + "@" + uuid + (commit ? " (marked for commit)" : "");
-    }
-
-    /**
-     * Get the UUID of this transaction ID
-     *
-     * @return the uuid
-     */
-    public String getUuid() {
-        return uuid;
-    }
-
-    /**
-     * Get the creation time of this transaction ID
-     *
-     * @return the creation time
-     */
-    public long getCreationTime() {
-        return creationTime;
-    }
-
-    /**
-     * Get the ID of this transaction ID
-     *
-     * @return the ID
-     */
-    public int getId() {
-        return id;
+        return "" + id + (commit ? " (marked for commit)" : "");
     }
 }

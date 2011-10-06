@@ -36,32 +36,10 @@ public final class XidTransactionIDImpl implements XidTransactionID {
 
     /**
      * Constructor
-     *
      * @param xid a XID
      */
     public XidTransactionIDImpl(Xid xid) {
         this.xid = new SerializableXid(xid);
-    }
-
-    /**
-     * Re-create a XidTransactionIDImpl from its internal state
-     *
-     * @param xid the previous XID
-     * @param commit the previous commit state
-     * @param rollback the previous rollback state
-     */
-    public XidTransactionIDImpl(Xid xid, boolean commit, boolean rollback) {
-        if (commit && rollback) {
-            throw new IllegalArgumentException("a transaction ID cannot be marked for both commit and rollback");
-        }
-        this.xid = new SerializableXid(xid);
-
-        if (commit) {
-            this.decision = Decision.COMMIT;
-        }
-        if (rollback) {
-            this.decision = Decision.ROLLBACK;
-        }
     }
 
     /**
@@ -130,6 +108,6 @@ public final class XidTransactionIDImpl implements XidTransactionID {
      */
     @Override
     public String toString() {
-        return "XidTransactionIDImpl " + xid + " (decision: " + decision + ")";
+        return "Unclustered " + xid + " (decision: " + decision + ")";
     }
 }
