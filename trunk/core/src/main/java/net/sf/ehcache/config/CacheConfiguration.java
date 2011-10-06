@@ -1569,6 +1569,7 @@ public class CacheConfiguration implements Cloneable {
         }
         warnMaxEntriesLocalHeap(register, cacheManager);
         warnMaxEntriesForOverflowToOffHeap(register);
+        warnSizeOfPolicyConfiguration();
         freezePoolUsages(cacheManager);
     }
 
@@ -1592,6 +1593,13 @@ public class CacheConfiguration implements Cloneable {
                     " with no capacity limit. Set it to 1 if you want" +
                     " no elements cached in memory");
             }
+        }
+    }
+
+    private void warnSizeOfPolicyConfiguration() {
+        if (isTerracottaClustered() && getSizeOfPolicyConfiguration() != null) {
+            LOG.warn("Terracotta clustered cache: " + getName() + " has a sizeOf policy configuration specificed. " +
+                    "SizeOfPolicyConfiguration is unsupported for Terracotta clustered caches.");
         }
     }
 
