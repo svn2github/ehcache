@@ -69,6 +69,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaClientRejoinListener;
+import net.sf.ehcache.transaction.DelegatingTransactionIDFactory;
 import net.sf.ehcache.transaction.ReadCommittedSoftLockFactoryImpl;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
@@ -1656,13 +1657,7 @@ public class CacheManager {
      * @return a TransactionIDFactory
      */
     TransactionIDFactory createTransactionIDFactory() {
-        TransactionIDFactory transactionIDFactory;
-        if (terracottaClient.getClusteredInstanceFactory() != null) {
-            transactionIDFactory = terracottaClient.getClusteredInstanceFactory().createTransactionIDFactory(getClusterUUID());
-        } else {
-            transactionIDFactory = new TransactionIDFactoryImpl();
-        }
-        return transactionIDFactory;
+        return new DelegatingTransactionIDFactory(terracottaClient);
     }
 
     /**
