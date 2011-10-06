@@ -414,11 +414,11 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     Sets whether elements are eternal. If eternal,  timeouts are ignored and the
     element is never expired.
 
+    The following attributes and elements are optional.
+
     overflowToDisk:
     Sets whether elements can overflow to disk when the memory store
     has reached the maxInMemory limit.
-
-    The following attributes and elements are optional.
 
     overflowToOffHeap:
     (boolean) This feature is available only in enterprise versions of Ehcache.

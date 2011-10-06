@@ -98,7 +98,7 @@
             <xs:attribute name="maxEntriesLocalHeap" type="xs:integer" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
-            <xs:attribute name="overflowToDisk" type="xs:boolean" use="required"/>
+            <xs:attribute name="overflowToDisk" type="xs:boolean" use="optional"/>
             <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
@@ -139,7 +139,7 @@
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="name" type="xs:string" use="required"/>
-            <xs:attribute name="overflowToDisk" type="xs:boolean" use="required"/>
+            <xs:attribute name="overflowToDisk" type="xs:boolean" use="optional"/>
             <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
