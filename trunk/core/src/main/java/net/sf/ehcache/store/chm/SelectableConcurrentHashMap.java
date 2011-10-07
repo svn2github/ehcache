@@ -16,10 +16,12 @@
 package net.sf.ehcache.store.chm;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.PoolAccessor;
 
 /**
@@ -36,11 +38,19 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
     private final Random rndm = new Random();
     private final PoolAccessor poolAccessor;
     private final boolean elementPinningEnabled;
+    private volatile long maxSize;
+    private final RegisteredEventListeners cacheEventNotificationService;
 
-    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int initialCapacity, float loadFactor, int concurrency) {
+    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
         super(initialCapacity, loadFactor, concurrency);
         this.poolAccessor = poolAccessor;
         this.elementPinningEnabled = elementPinningEnabled;
+        this.maxSize = maximumSize;
+        this.cacheEventNotificationService = cacheEventNotificationService;
+    }
+
+    public void setMaxSize(final long maxSize) {
+        this.maxSize = maxSize;
     }
 
     public Element[] getRandomValues(final int size, Object keyHint) {
@@ -139,8 +149,19 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return new MemoryStoreSegment(initialCapacity, lf);
     }
 
+    public boolean evict() {
+        return getRandomSegment().evict();
+    }
+
+    private MemoryStoreSegment getRandomSegment() {
+        int randomHash = rndm.nextInt();
+        return (MemoryStoreSegment) segments[((randomHash >>> segmentShift) & segmentMask)];
+    }
 
     final class MemoryStoreSegment extends Segment<Object, Element> {
+
+        private Iterator<MemoryStoreHashEntry> evictionIterator = iterator();
+        private boolean fullyPinned;
 
         private MemoryStoreSegment(int initialCapacity, float lf) {
             super(initialCapacity, lf);
@@ -194,6 +215,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
 
         Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent) {
+            Element evicted = null;
             writeLock().lock();
             try {
                 int c = count;
@@ -222,21 +244,160 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     tab[index] = new MemoryStoreHashEntry(key, hash, first, value, sizeOf);
                     count = c; // write-volatile
                 }
+                if(onlyIfAbsent && oldValue != null || !onlyIfAbsent) {
+                    if (!value.isPinned()) {
+                        this.fullyPinned = false;
+                    }
+                    if (SelectableConcurrentHashMap.this.maxSize > 0
+                        && SelectableConcurrentHashMap.this.quickSize() > SelectableConcurrentHashMap.this.maxSize) {
+                        Element evict = nextExpiredOrToEvict();
+                        if (evict != null) {
+                            evicted = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                        }
+                    }
+                }
                 return oldValue;
             } finally {
                 writeLock().unlock();
+                notifyEvictionOrExpiry(evicted);
             }
         }
 
+        private void notifyEvictionOrExpiry(final Element element) {
+            if(element != null) {
+                if (element.isExpired()) {
+                    cacheEventNotificationService.notifyElementExpiry(element, false);
+                } else {
+                    cacheEventNotificationService.notifyElementEvicted(element, false);
+                }
+            }
+        }
+
+        @Override
+        Element get(final Object key, final int hash) {
+            readLock().lock();
+            try {
+                if (count != 0) { // read-volatile
+                    HashEntry<Object,Element> e = getFirst(hash);
+                    while (e != null) {
+                        if (e.hash == hash && key.equals(e.key)) {
+                            ((MemoryStoreHashEntry)e).accessed = true;
+                            return e.value;
+                        }
+                        e = e.next;
+                    }
+                }
+                return null;
+            } finally {
+                readLock().unlock();
+            }
+        }
+
+        private Element nextExpiredOrToEvict() {
+
+            Element lastUnpinned = null;
+            int i = 0;
+
+            while (!fullyPinned && i++ < count) {
+                if (!evictionIterator.hasNext()) {
+                    evictionIterator = iterator();
+                }
+                final MemoryStoreHashEntry next = evictionIterator.next();
+                if (next.value.isExpired() || !next.accessed) {
+                    return next.value;
+                } else {
+                    final boolean pinned = next.value.isPinned();
+                    if (!pinned) {
+                        lastUnpinned = next.value;
+                    }
+                    next.accessed = pinned;
+                }
+            }
+
+            this.fullyPinned = !this.fullyPinned && i >= count && lastUnpinned == null;
+
+            return lastUnpinned;
+        }
+
+        private Iterator<MemoryStoreHashEntry> iterator() {
+            return new MemoryStoreHashEntryIterator(this);
+        }
+
+        private boolean evict() {
+            Element remove = null;
+            writeLock().lock();
+            try {
+                Element evict = nextExpiredOrToEvict();
+                if (evict != null) {
+                    remove = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                }
+            } finally {
+                writeLock().unlock();
+            }
+            notifyEvictionOrExpiry(remove);
+            return remove != null;
+        }
     }
 
     static final class MemoryStoreHashEntry extends HashEntry<Object, Element> {
 
         volatile long sizeOf;
+        volatile boolean accessed = true;
 
         private MemoryStoreHashEntry(Object key, int hash, HashEntry<Object, Element> next, Element value, long sizeOf) {
             super(key, hash, next, value);
             this.sizeOf = sizeOf;
+        }
+    }
+
+    private class MemoryStoreHashEntryIterator implements Iterator<MemoryStoreHashEntry> {
+
+        int nextTableIndex;
+        HashEntry[] currentTable;
+        MemoryStoreHashEntry nextEntry;
+        MemoryStoreHashEntry lastReturned;
+        private final MemoryStoreSegment seg;
+
+        private MemoryStoreHashEntryIterator(final MemoryStoreSegment memoryStoreSegment) {
+            nextTableIndex = -1;
+            this.seg = memoryStoreSegment;
+            advance();
+        }
+
+        public boolean hasNext() {
+            return nextEntry != null;
+        }
+
+        public MemoryStoreHashEntry next() {
+            if (nextEntry == null)
+                return null;
+            lastReturned = nextEntry;
+            advance();
+            return lastReturned;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException("DON'T YOU DO THIS!");
+        }
+
+        final void advance() {
+            if (nextEntry != null && (nextEntry = (MemoryStoreHashEntry)nextEntry.next) != null)
+                return;
+
+            while (nextTableIndex >= 0) {
+                if ( (nextEntry = (MemoryStoreHashEntry) currentTable[nextTableIndex--]) != null)
+                    return;
+            }
+
+            if (seg.count != 0) {
+                currentTable = seg.table;
+                for (int j = currentTable.length - 1; j >= 0; --j) {
+                    if ( (nextEntry = (MemoryStoreHashEntry)currentTable[j]) != null) {
+                        nextTableIndex = j - 1;
+                        return;
+                    }
+                }
+            }
         }
     }
 }

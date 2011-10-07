@@ -55,6 +55,11 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
      */
     public static final MemoryStoreEvictionPolicy FIFO = new MemoryStoreEvictionPolicy("FIFO");
 
+    /**
+     * FIFO - first in first out, the oldest element by creation time.
+     */
+    public static final MemoryStoreEvictionPolicy CLOCK = new MemoryStoreEvictionPolicy("CLOCK");
+
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStoreEvictionPolicy.class.getName());
 
     private final String myName;
@@ -89,6 +94,8 @@ public final class MemoryStoreEvictionPolicy implements Serializable {
                 return LFU;
             } else if (policy.equalsIgnoreCase("FIFO")) {
                 return FIFO;
+            } else if (policy.equalsIgnoreCase("CLOCK")) {
+                return CLOCK;
             }
         }
             LOG.warn("The memoryStoreEvictionPolicy of {} cannot be resolved. The policy will be set to LRU", policy);

@@ -123,7 +123,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     protected MemoryStore(final Ehcache cache, Pool pool) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
-        this.maximumSize = cache.getCacheConfiguration().getMaxElementsInMemory();
+        this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
         this.policy = determineEvictionPolicy(cache);
 
         this.poolAccessor = pool.createPoolAccessor(this,
@@ -140,8 +140,10 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
 
         // create the CHM with initialCapacity sufficient to hold maximumSize
-        int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, DEFAULT_LOAD_FACTOR);
-        map = new SelectableConcurrentHashMap(poolAccessor, elementPinningEnabled, initialCapacity, DEFAULT_LOAD_FACTOR, CONCURRENCY_LEVEL);
+        final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
+        int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, loadFactor);
+        map = new SelectableConcurrentHashMap(poolAccessor, elementPinningEnabled, initialCapacity,
+            loadFactor, CONCURRENCY_LEVEL, isClockEviction() && !cachePinned ? maximumSize : 0, cache.getCacheEventNotificationService());
 
         status = Status.STATUS_ALIVE;
 
@@ -380,6 +382,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
             return new FifoPolicy();
         } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
             return new LfuPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.CLOCK)) {
+            return null;
         }
 
         throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
@@ -509,7 +513,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @param elementJustAdded the element added by the action calling this check
      */
     private void checkCapacity(final Element elementJustAdded) {
-        if (maximumSize > 0) {
+        if (maximumSize > 0 && !isClockEviction()) {
             int evict = Math.min(map.quickSize() - maximumSize, MAX_EVICTION_RATIO);
             for (int i = 0; i < evict; i++) {
                 removeElementChosenByEvictionPolicy(elementJustAdded);
@@ -526,6 +530,10 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     private boolean removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
 
         LOG.debug("Cache is full. Removing element ...");
+
+        if (policy == null) {
+            return map.evict();
+        }
 
         Element element = findEvictionCandidate(elementJustAdded);
         if (element == null) {
@@ -625,6 +633,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
         maximumSize = newCapacity;
+        if (isClockEviction() && !cachePinned) {
+            map.setMaxSize(maximumSize);
+        }
+    }
+
+    private boolean isClockEviction() {
+        return policy == null;
     }
 
     /**
@@ -894,6 +909,10 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * {@inheritDoc}
      */
     public boolean evictFromOnHeap(int count, long size) {
+        if (cachePinned) {
+            return false;
+        }
+
         for (int i = 0; i < count; i++) {
             boolean removed = removeElementChosenByEvictionPolicy(null);
             if (!removed) {

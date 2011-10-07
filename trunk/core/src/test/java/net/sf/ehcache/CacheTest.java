@@ -615,9 +615,11 @@ public class CacheTest extends AbstractCacheTest {
     public void testNoOverflowToDisk() throws Exception {
         //Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, false, false, 5, 2);
+//        cache.getCacheConfiguration().setMemoryStoreEvictionPolicyFromObject(MemoryStoreEvictionPolicy.LRU);
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
+        System.out.println(cache.getMemoryStoreSize());
         assertNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
     }

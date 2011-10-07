@@ -17,11 +17,15 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
+import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.store.*;
+import net.sf.ehcache.store.Store;
 import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
@@ -44,6 +48,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.rmi.registry.LocateRegistry;
 import java.util.Iterator;
 import java.util.List;
