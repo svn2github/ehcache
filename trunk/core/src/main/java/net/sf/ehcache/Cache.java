@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.AbstractExecutorService;
@@ -187,7 +186,6 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * The default interval between runs of the expiry thread.
-     *
      * @see CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS for a preferred way of setting
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
@@ -211,8 +209,6 @@ public class Cache implements Ehcache, StoreListener {
     private static final int EXECUTOR_CORE_POOL_SIZE = 1;
     private static final String EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP = "ehcache.clusteredStore.maxConcurrency";
     private static final int DEFAULT_EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY = 4096;
-    private static final int ONE_HUNDRED = 100;
-
 
     static {
         try {
@@ -291,9 +287,6 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile NonstopActiveDelegateHolderImpl nonstopActiveDelegateHolder;
 
-
-    private final Random random = new Random();
-
     /**
      * 2.0 and higher Constructor
      * <p/>
@@ -322,9 +315,9 @@ public class Cache implements Ehcache, StoreListener {
      * <p/>
      * Only the CacheManager can initialise them.
      *
-     * @param cacheConfiguration       the configuration that should be used to create the cache with
-     * @param registeredEventListeners a notification service. Optionally null, in which case a new one with no registered listeners will be created.
-     * @param bootstrapCacheLoader     the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
+     * @param cacheConfiguration the configuration that should be used to create the cache with
+     * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
+     * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
      */
     public Cache(CacheConfiguration cacheConfiguration,
                  RegisteredEventListeners registeredEventListeners,
@@ -367,6 +360,7 @@ public class Cache implements Ehcache, StoreListener {
     }
 
 
+
     /**
      * 1.0 Constructor.
      * <p/>
@@ -389,18 +383,18 @@ public class Cache implements Ehcache, StoreListener {
      * @param eternal             whether the elements in the cache are eternal, i.e. never expire
      * @param timeToLiveSeconds   the default amount of time to live for an element from its creation date
      * @param timeToIdleSeconds   the default amount of time to live for an element from its last accessed or modified date
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.0
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name, int maxElementsInMemory, boolean overflowToDisk,
                  boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .overflowToDisk(overflowToDisk)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds));
+                    .overflowToDisk(overflowToDisk)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds));
     }
 
 
@@ -423,9 +417,9 @@ public class Cache implements Ehcache, StoreListener {
      * @param diskPersistent      whether to persist the cache to disk between JVM restarts
      * @param diskExpiryThreadIntervalSeconds
      *                            how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.1
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name,
                  int maxElementsInMemory,
@@ -437,12 +431,12 @@ public class Cache implements Ehcache, StoreListener {
                  long diskExpiryThreadIntervalSeconds) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .overflowToDisk(overflowToDisk)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds)
-                .diskPersistent(diskPersistent)
-                .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds));
+                    .overflowToDisk(overflowToDisk)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds)
+                    .diskPersistent(diskPersistent)
+                    .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds));
 
         LOG.warn("An API change between ehcache-1.1 and ehcache-1.2 results in the persistence path being set to " +
                 DiskStoreConfiguration.getDefaultPath() + " when the ehcache-1.1 constructor is used. " +
@@ -473,9 +467,9 @@ public class Cache implements Ehcache, StoreListener {
      *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new
      *                                  one with no registered listeners will be created.
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.2
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name,
                  int maxElementsInMemory,
@@ -490,14 +484,14 @@ public class Cache implements Ehcache, StoreListener {
                  RegisteredEventListeners registeredEventListeners) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
-                .overflowToDisk(overflowToDisk)
-                .diskStorePath(diskStorePath)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds)
-                .diskPersistent(diskPersistent)
-                .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds),
+                    .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
+                    .overflowToDisk(overflowToDisk)
+                    .diskStorePath(diskStorePath)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds)
+                    .diskPersistent(diskPersistent)
+                    .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds),
                 registeredEventListeners,
                 null);
 
@@ -526,9 +520,9 @@ public class Cache implements Ehcache, StoreListener {
      *                                  how often to run the disk store expiry thread. A large number of 120 seconds plus is recommended
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.2.1
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name,
                  int maxElementsInMemory,
@@ -544,14 +538,14 @@ public class Cache implements Ehcache, StoreListener {
                  BootstrapCacheLoader bootstrapCacheLoader) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
-                .overflowToDisk(overflowToDisk)
-                .diskStorePath(diskStorePath)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds)
-                .diskPersistent(diskPersistent)
-                .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds),
+                    .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
+                    .overflowToDisk(overflowToDisk)
+                    .diskStorePath(diskStorePath)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds)
+                    .diskPersistent(diskPersistent)
+                    .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds),
                 registeredEventListeners,
                 bootstrapCacheLoader);
     }
@@ -580,9 +574,9 @@ public class Cache implements Ehcache, StoreListener {
      * @param registeredEventListeners  a notification service. Optionally null, in which case a new one with no registered listeners will be created.
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
      * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.2.4
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name,
                  int maxElementsInMemory,
@@ -599,15 +593,15 @@ public class Cache implements Ehcache, StoreListener {
                  int maxElementsOnDisk) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
-                .overflowToDisk(overflowToDisk)
-                .diskStorePath(diskStorePath)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds)
-                .diskPersistent(diskPersistent)
-                .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
-                .maxElementsOnDisk(maxElementsOnDisk),
+                    .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
+                    .overflowToDisk(overflowToDisk)
+                    .diskStorePath(diskStorePath)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds)
+                    .diskPersistent(diskPersistent)
+                    .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
+                    .maxElementsOnDisk(maxElementsOnDisk),
                 registeredEventListeners,
                 bootstrapCacheLoader);
     }
@@ -637,9 +631,9 @@ public class Cache implements Ehcache, StoreListener {
      * @param bootstrapCacheLoader      the BootstrapCacheLoader to use to populate the cache when it is first initialised. Null if none is required.
      * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.3
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name,
                  int maxElementsInMemory,
@@ -657,16 +651,16 @@ public class Cache implements Ehcache, StoreListener {
                  int diskSpoolBufferSizeMB) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
-                .overflowToDisk(overflowToDisk)
-                .diskStorePath(diskStorePath)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds)
-                .diskPersistent(diskPersistent)
-                .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
-                .maxElementsOnDisk(maxElementsOnDisk)
-                .diskSpoolBufferSizeMB(diskSpoolBufferSizeMB),
+                    .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
+                    .overflowToDisk(overflowToDisk)
+                    .diskStorePath(diskStorePath)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds)
+                    .diskPersistent(diskPersistent)
+                    .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
+                    .maxElementsOnDisk(maxElementsOnDisk)
+                    .diskSpoolBufferSizeMB(diskSpoolBufferSizeMB),
                 registeredEventListeners,
                 bootstrapCacheLoader);
     }
@@ -697,9 +691,9 @@ public class Cache implements Ehcache, StoreListener {
      * @param maxElementsOnDisk         the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
      * @param clearOnFlush              whether the in-memory storage should be cleared when {@link #flush flush()} is called on the cache
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.6.0
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name,
                  int maxElementsInMemory,
@@ -718,17 +712,17 @@ public class Cache implements Ehcache, StoreListener {
                  boolean clearOnFlush) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
-                .overflowToDisk(overflowToDisk)
-                .diskStorePath(diskStorePath)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds)
-                .diskPersistent(diskPersistent)
-                .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
-                .maxElementsOnDisk(maxElementsOnDisk)
-                .diskSpoolBufferSizeMB(diskSpoolBufferSizeMB)
-                .clearOnFlush(clearOnFlush),
+                    .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
+                    .overflowToDisk(overflowToDisk)
+                    .diskStorePath(diskStorePath)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds)
+                    .diskPersistent(diskPersistent)
+                    .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
+                    .maxElementsOnDisk(maxElementsOnDisk)
+                    .diskSpoolBufferSizeMB(diskSpoolBufferSizeMB)
+                    .clearOnFlush(clearOnFlush),
                 registeredEventListeners,
                 bootstrapCacheLoader);
     }
@@ -762,9 +756,9 @@ public class Cache implements Ehcache, StoreListener {
      * @param isTerracottaClustered     whether to cluster this cache with Terracotta
      * @param terracottaValueMode       either "SERIALIZATION" or "IDENTITY" mode, only used if isTerracottaClustered=true
      * @param terracottaCoherentReads   whether this cache should use coherent reads (usually should be true) unless optimizing for read-only
-     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
-     *      for full construction support of version 2.0 and higher features.
      * @since 1.7.0
+     * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
+     * for full construction support of version 2.0 and higher features.
      */
     public Cache(String name, int maxElementsInMemory, MemoryStoreEvictionPolicy memoryStoreEvictionPolicy, boolean overflowToDisk,
                  String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
@@ -773,18 +767,18 @@ public class Cache implements Ehcache, StoreListener {
                  boolean isTerracottaClustered, String terracottaValueMode, boolean terracottaCoherentReads) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
-                .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
-                .overflowToDisk(overflowToDisk)
-                .diskStorePath(diskStorePath)
-                .eternal(eternal)
-                .timeToLiveSeconds(timeToLiveSeconds)
-                .timeToIdleSeconds(timeToIdleSeconds)
-                .diskPersistent(diskPersistent)
-                .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
-                .maxElementsOnDisk(maxElementsOnDisk)
-                .diskSpoolBufferSizeMB(diskSpoolBufferSizeMB)
-                .clearOnFlush(clearOnFlush)
-                .terracotta(new TerracottaConfiguration()
+                    .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
+                    .overflowToDisk(overflowToDisk)
+                    .diskStorePath(diskStorePath)
+                    .eternal(eternal)
+                    .timeToLiveSeconds(timeToLiveSeconds)
+                    .timeToIdleSeconds(timeToIdleSeconds)
+                    .diskPersistent(diskPersistent)
+                    .diskExpiryThreadIntervalSeconds(diskExpiryThreadIntervalSeconds)
+                    .maxElementsOnDisk(maxElementsOnDisk)
+                    .diskSpoolBufferSizeMB(diskSpoolBufferSizeMB)
+                    .clearOnFlush(clearOnFlush)
+                    .terracotta(new TerracottaConfiguration()
                         .clustered(isTerracottaClustered)
                         .valueMode(terracottaValueMode)
                         .coherentReads(terracottaCoherentReads)),
@@ -797,7 +791,7 @@ public class Cache implements Ehcache, StoreListener {
      * A factory method to create a RegisteredEventListeners
      */
     private static void registerCacheListeners(CacheConfiguration cacheConfiguration,
-                                               RegisteredEventListeners registeredEventListeners) {
+                                                 RegisteredEventListeners registeredEventListeners) {
         List cacheEventListenerConfigurations = cacheConfiguration.getCacheEventListenerConfigurations();
         for (Object cacheEventListenerConfiguration : cacheEventListenerConfigurations) {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
@@ -980,17 +974,15 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * Get the TransactionManagerLookup implementation used to lookup the TransactionManager.
      * This is generally only set for XA transactional caches
-     *
      * @return The {@link net.sf.ehcache.transaction.manager.TransactionManagerLookup} instance
      */
     public TransactionManagerLookup getTransactionManagerLookup() {
-        return transactionManagerLookup;
+       return transactionManagerLookup;
     }
 
     /**
      * Sets the TransactionManagerLookup that needs to be used for this cache to lookup the TransactionManager
      * This needs to be set before {@link Cache#initialise()} is called
-     *
      * @param lookup The {@link net.sf.ehcache.transaction.manager.TransactionManagerLookup} instance
      */
     public void setTransactionManagerLookup(TransactionManagerLookup lookup) {
@@ -1043,8 +1035,8 @@ public class Cache implements Ehcache, StoreListener {
             elementValueComparator = configuration.getElementValueComparatorConfiguration().getElementComparatorInstance(configuration);
 
             if (configuration.getTransactionalMode().isTransactional()
-                    && configuration.isTerracottaClustered()
-                    && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
+                && configuration.isTerracottaClustered()
+                && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
                 throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
             }
             final Store store;
@@ -1059,8 +1051,8 @@ public class Cache implements Ehcache, StoreListener {
                 }
                 if (getCacheConfiguration().getMaxElementsOnDisk() == 0) {
                     LOG.warn("Performance may degrade and server disks could run out of space!\nThe distributed cache {} does not have " +
-                            "maxElementsOnDisk set. Failing to set maxElementsOnDisk could mean no eviction of its elements from the " +
-                            "Terracotta Server Array disk store. To avoid this, set maxElementsOnDisk to a non-zero value.", getName());
+                             "maxElementsOnDisk set. Failing to set maxElementsOnDisk could mean no eviction of its elements from the " +
+                             "Terracotta Server Array disk store. To avoid this, set maxElementsOnDisk to a non-zero value.", getName());
                 }
                 if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
                     getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
@@ -1236,7 +1228,7 @@ public class Cache implements Ehcache, StoreListener {
         if (configuration.isXaStrictTransactional()) {
             if (transactionManagerLookup.getTransactionManager() == null) {
                 throw new CacheException("You've configured cache " + cacheManager.getName() + "."
-                        + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
+                                         + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
             }
             //set xa enabled
             if (configuration.isTerracottaClustered()) {
@@ -1456,8 +1448,6 @@ public class Cache implements Ehcache, StoreListener {
             return;
         }
 
-        renice();
-
         element.resetAccessStatistics();
 
         applyDefaultsToElementWithoutLifespanSet(element);
@@ -1474,7 +1464,7 @@ public class Cache implements Ehcache, StoreListener {
                 notifyListeners = configuration.getCacheWriterConfiguration().getNotifyListenersOnException();
                 RuntimeException cause = e.getCause();
                 if (cause instanceof CacheWriterManagerException) {
-                    throw ((CacheWriterManagerException) cause).getCause();
+                    throw ((CacheWriterManagerException)cause).getCause();
                 }
                 throw cause;
             } finally {
@@ -1491,22 +1481,6 @@ public class Cache implements Ehcache, StoreListener {
                 element.updateUpdateStatistics();
             }
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
-        }
-    }
-
-    /**
-     * Fix for DEV-6081. This method can be called to just slow down the thread enough to allow gets to get through
-     * without being starved.
-     */
-    private void renice() {
-        System.nanoTime();
-        try {
-            int randomInteger = random.nextInt(ONE_HUNDRED);
-            if (randomInteger == 1) {
-                Thread.sleep(0, 0);
-            }
-        } catch (InterruptedException e) {
-            //noop
         }
     }
 
@@ -2060,16 +2034,16 @@ public class Cache implements Ehcache, StoreListener {
                     wasOffHeap = compoundStore.containsKeyOffHeap(key);
                     wasOffHeapMap.put(key, wasOffHeap);
                 }
-                if (!wasOffHeap) {
-                    if (hasOffHeap) {
-                        liveCacheStatisticsData.cacheMissOffHeap();
-                    }
-                    wasOnDisk = compoundStore.containsKeyOnDisk(key);
-                    wasOnDiskMap.put(key, wasOnDisk);
-                    if (hasOnDisk && !wasOnDisk) {
-                        liveCacheStatisticsData.cacheMissOnDisk();
-                    }
-                }
+              if (!wasOffHeap) {
+                  if (hasOffHeap) {
+                      liveCacheStatisticsData.cacheMissOffHeap();
+                  }
+                  wasOnDisk = compoundStore.containsKeyOnDisk(key);
+                  wasOnDiskMap.put(key, wasOnDisk);
+                  if (hasOnDisk && !wasOnDisk) {
+                      liveCacheStatisticsData.cacheMissOnDisk();
+                  }
+              }
             }
         }
         elements = compoundStore.getAll(keys);
@@ -2141,7 +2115,7 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     private void tryRemoveImmediately(final Object key, final boolean notifyListeners) {
-        Sync syncForKey = ((CacheLockProvider) getInternalContext()).getSyncForKey(key);
+        Sync syncForKey = ((CacheLockProvider)getInternalContext()).getSyncForKey(key);
         boolean writeLocked = false;
         try {
             writeLocked = syncForKey.tryLock(LockType.WRITE, 0);
@@ -2153,7 +2127,7 @@ public class Cache implements Ehcache, StoreListener {
             }
         } catch (Error e) {
             if (!(e.getClass().getName().equals("com.tc.exception.TCLockUpgradeNotSupportedError"))) {
-                throw e;
+               throw e;
             }
         }
         if (writeLocked) {
@@ -2170,9 +2144,9 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     private boolean skipUpdateAccessStatistics(Element element) {
-        return configuration.isFrozen() && element.isEternal()
-                && (configuration.getMaxElementsInMemory() == 0)
-                && (!configuration.isOverflowToDisk() || configuration.getMaxElementsOnDisk() == 0);
+      return configuration.isFrozen() && element.isEternal()
+              && (configuration.getMaxElementsInMemory() == 0)
+              && (!configuration.isOverflowToDisk() || configuration.getMaxElementsOnDisk() == 0);
     }
 
     /**
@@ -2226,7 +2200,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     */
+    */
     public final void removeAll(final Collection<?> keys, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         removeAllInternal(keys, false, true, doNotNotifyCacheReplicators);
     }
@@ -2335,7 +2309,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     private boolean removeInternal(Object key, boolean expiry, boolean notifyListeners,
-                                   boolean doNotNotifyCacheReplicators, boolean useCacheWriter)
+                           boolean doNotNotifyCacheReplicators, boolean useCacheWriter)
             throws IllegalStateException {
 
         if (useCacheWriter) {
@@ -2344,8 +2318,6 @@ public class Cache implements Ehcache, StoreListener {
 
         checkStatus();
         Element elementFromStore = null;
-
-        renice();
 
         if (useCacheWriter) {
             try {
@@ -2362,7 +2334,7 @@ public class Cache implements Ehcache, StoreListener {
         }
 
         return notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
-                elementFromStore);
+            elementFromStore);
     }
 
     private boolean notifyRemoveInternalListeners(Object key, boolean expiry, boolean notifyListeners, boolean doNotNotifyCacheReplicators,
@@ -2405,15 +2377,15 @@ public class Cache implements Ehcache, StoreListener {
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails. This exception
      * should be caught in those circumstances.
      *
-     * @param keys                        a collection of keys to operate on
-     * @param expiry                      if the reason this method is being called is to expire the element
-     * @param notifyListeners             whether to notify listeners
+     * @param keys a collection of keys to operate on
+     * @param expiry if the reason this method is being called is to expire the element
+     * @param notifyListeners whether to notify listeners
      * @param doNotNotifyCacheReplicators whether not to notify cache replicators
      * @return true if the element was removed, false if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     private void removeAllInternal(final Collection<?> keys, boolean expiry, boolean notifyListeners,
-                                   boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+            boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         checkStatus();
 
         if (disabled || keys.isEmpty()) {
@@ -2476,7 +2448,7 @@ public class Cache implements Ehcache, StoreListener {
         }
 
         if (bootstrapCacheLoader != null && bootstrapCacheLoader instanceof Disposable) {
-            ((Disposable) bootstrapCacheLoader).dispose();
+            ((Disposable)bootstrapCacheLoader).dispose();
         }
 
         if (executorService != null) {
@@ -2822,7 +2794,7 @@ public class Cache implements Ehcache, StoreListener {
         copy.cacheStatus.changeState(Status.STATUS_UNINITIALISED);
         copy.configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration()
-                .getElementComparatorInstance(copy.configuration);
+            .getElementComparatorInstance(copy.configuration);
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
         copy.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(copy);
         for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {
@@ -2880,7 +2852,7 @@ public class Cache implements Ehcache, StoreListener {
      * Get the optional store management bean for this cache.
      */
     public final Object getStoreMBean() {
-        return getStore().getMBean();
+      return getStore().getMBean();
     }
 
     /**
@@ -2895,7 +2867,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
-     * <p/>
+     * <p>
      * Since no assertions are made about the state of the Element it is possible that the
      * Element is expired, but this method still returns true.
      *
@@ -2907,7 +2879,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache in Memory, indicating a very low cost of retrieval.
-     * <p/>
+     * <p>
      * Since no assertions are made about the state of the Element it is possible that the
      * Element is expired, but this method still returns true.
      *
@@ -2920,7 +2892,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache in off-heap memory, indicating an intermediate cost of retrieval.
-     * <p/>
+     * <p>
      * Since no assertions are made about the state of the Element it is possible that the
      * Element is expired, but this method still returns true.
      *
@@ -2933,7 +2905,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
-     * <p/>
+     * <p>
      * Since no assertions are made about the state of the Element it is possible that the
      * Element is expired, but this method still returns true.
      *
@@ -2945,7 +2917,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Whether an Element is stored in the cache on Disk, indicating a higher cost of retrieval.
-     * <p/>
+     * <p>
      * Since no assertions are made about the state of the Element it is possible that the
      * Element is expired, but this method still returns true.
      *
@@ -3025,6 +2997,7 @@ public class Cache implements Ehcache, StoreListener {
      * This method is not synchronized. It is possible that an element may exist in the cache and be removed
      * before the check gets to it, or vice versa.  Since no assertions are made about the state of the Element
      * it is possible that the Element is expired, but this method still returns true.
+
      *
      * @param key the key to check.
      * @return true if an Element matching the key is found in the cache. No assertions are made about the state of the Element.
@@ -3352,9 +3325,9 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * Does the asynchronous put into the cache of the asynchronously loaded value.
      *
-     * @param key            the key to load
+     * @param key the key to load
      * @param specificLoader a specific loader to use. If null the default loader is used.
-     * @param argument       the argument to pass to the writer
+     * @param argument the argument to pass to the writer
      * @return a Future which can be used to monitor execution
      */
     Future asynchronousPut(final Object key, final CacheLoader specificLoader, final Object argument) {
@@ -3386,9 +3359,9 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * Does the asynchronous loading. But doesn't put it into the cache
      *
-     * @param key            the key to load
+     * @param key the key to load
      * @param specificLoader a specific loader to use. If null the default loader is used.
-     * @param argument       the argument to pass to the writer
+     * @param argument the argument to pass to the writer
      * @return a Future which can be used to monitor execution
      */
     Future<AtomicReference<Object>> asynchronousLoad(final Object key, final CacheLoader specificLoader, final Object argument) {
@@ -3420,10 +3393,9 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Will attempt to load the value for a key, either using the passedin loader, or falling back to registered ones
-     *
-     * @param key            the key to load for
+     * @param key the key to load for
      * @param specificLoader the loader to use, can be null to fallback to Cache registered loaders
-     * @param argument       the argument to pass the loader
+     * @param argument the argument to pass the loader
      * @return null if not present in the underlying SoR or if no loader available, otherwise the loaded object
      */
     private Object loadValueUsingLoader(final Object key, final CacheLoader specificLoader, final Object argument) {
@@ -3746,7 +3718,6 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     *
      * @deprecated use {@link #isClusterBulkLoadEnabled()} instead
      */
     @Deprecated
@@ -3756,7 +3727,6 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     *
      * @deprecated use {@link #isNodeBulkLoadEnabled()} instead
      */
     @Deprecated
@@ -3766,7 +3736,6 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     *
      * @deprecated use {@link #setNodeBulkLoadEnabled(boolean)} instead
      */
     @Deprecated
@@ -3776,7 +3745,6 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     *
      * @deprecated use {@link #waitUntilClusterBulkLoadComplete()} instead
      */
     @Deprecated
@@ -3790,19 +3758,19 @@ public class Cache implements Ehcache, StoreListener {
      * @param listener
      */
     public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
-        if (listener != null && propertyChangeSupport != null) {
-            propertyChangeSupport.removePropertyChangeListener(listener);
-            propertyChangeSupport.addPropertyChangeListener(listener);
-        }
+      if (listener != null && propertyChangeSupport != null) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+        propertyChangeSupport.addPropertyChangeListener(listener);
+      }
     }
 
     /**
      * @param listener
      */
     public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
-        if (listener != null && propertyChangeSupport != null) {
-            propertyChangeSupport.removePropertyChangeListener(listener);
-        }
+      if (listener != null && propertyChangeSupport != null) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+      }
     }
 
     /**
@@ -3811,13 +3779,13 @@ public class Cache implements Ehcache, StoreListener {
      * @param newValue
      */
     public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        PropertyChangeSupport pcs;
-        synchronized (this) {
-            pcs = propertyChangeSupport;
-        }
-        if (pcs != null && (oldValue != null || newValue != null)) {
-            pcs.firePropertyChange(propertyName, oldValue, newValue);
-        }
+      PropertyChangeSupport pcs;
+      synchronized (this) {
+        pcs = propertyChangeSupport;
+      }
+      if (pcs != null && (oldValue != null || newValue != null)) {
+        pcs.firePropertyChange(propertyName, oldValue, newValue);
+      }
     }
 
     /**
@@ -4000,7 +3968,7 @@ public class Cache implements Ehcache, StoreListener {
 
         if (!query.requestsKeys() && !query.requestsValues() && query.requestedAttributes().isEmpty() && query.getAggregatorInstances().isEmpty()) {
             String msg = "No results specified. " +
-                    "Please specify one or more of includeKeys(), includeValues(), includeAggregator() or includeAttribute()";
+            "Please specify one or more of includeKeys(), includeValues(), includeAggregator() or includeAttribute()";
             throw new SearchException(msg);
         }
 
@@ -4087,7 +4055,7 @@ public class Cache implements Ehcache, StoreListener {
      * Try to get a read lock on a given key. If can't get it in timeout millis then
      * return a boolean telling that it didn't get the lock
      *
-     * @param key     - The key that retrieves a value that you want to protect via locking
+     * @param key - The key that retrieves a value that you want to protect via locking
      * @param timeout - millis until giveup on getting the lock
      * @return whether the lock was awarded
      * @throws InterruptedException
@@ -4101,7 +4069,7 @@ public class Cache implements Ehcache, StoreListener {
      * Try to get a write lock on a given key. If can't get it in timeout millis then
      * return a boolean telling that it didn't get the lock
      *
-     * @param key     - The key that retrieves a value that you want to protect via locking
+     * @param key - The key that retrieves a value that you want to protect via locking
      * @param timeout - millis until giveup on getting the lock
      * @return whether the lock was awarded
      * @throws InterruptedException
@@ -4132,7 +4100,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Only Terracotta clustered cache instances currently support querying a thread's read lock hold status.
      */
     public boolean isReadLockedByCurrentThread(Object key) throws UnsupportedOperationException {
@@ -4186,7 +4154,6 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Returns the {@link NonstopActiveDelegateHolder}
-     *
      * @return the {@link NonstopActiveDelegateHolder}
      */
     protected NonstopActiveDelegateHolder getNonstopActiveDelegateHolder() {
@@ -4197,6 +4164,7 @@ public class Cache implements Ehcache, StoreListener {
      * Private class maintaining status of the cache
      *
      * @author Abhishek Sanoujam
+     *
      */
     private static class CacheStatus {
         private volatile Status status = Status.STATUS_UNINITIALISED;
@@ -4277,6 +4245,7 @@ public class Cache implements Ehcache, StoreListener {
      * Private Static class
      *
      * @author Abhishek Sanoujam
+     *
      */
     private static class NonstopActiveDelegateHolderImpl implements NonstopActiveDelegateHolder {
 
