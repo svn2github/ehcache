@@ -39,6 +39,7 @@ final class ObjectGraphWalker {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectGraphWalker.class);
     private static final String TC_INTERNAL_FIELD_PREFIX = "$__tc_";
+    private static final String VERBOSE_DEBUG_LOGGING = "net.sf.ehcache.sizeof.verboseDebugLogging";
 
     private static final String CONTINUE_MESSAGE =
         "The configured limit of {0} object references was reached while attempting to calculate the size of the object graph." +
@@ -54,6 +55,7 @@ final class ObjectGraphWalker {
         " accurate. If performance degradation is NOT an issue at the configured limit, raise the limit value using the CacheManager" +
         " or Cache <sizeOfPolicy> element's maxDepth attribute. For more information, see the Ehcache configuration documentation.";
 
+    private static final boolean USE_VERBOSE_DEBUG_LOGGING;
 
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
@@ -65,17 +67,8 @@ final class ObjectGraphWalker {
 
     private final Visitor visitor;
 
-    /**
-     * The visitor to execute the function on each node of the graph
-     * This is only to be used for the sizing of an object graph in memory!
-     */
-    static interface Visitor {
-        /**
-         * The visit method executed on each node
-         * @param object the reference at that node
-         * @return a long for you to do things with...
-         */
-        public long visit(Object object);
+    static {
+        USE_VERBOSE_DEBUG_LOGGING = getVerboseSizeOfDebugLogging();
     }
 
 
@@ -89,6 +82,25 @@ final class ObjectGraphWalker {
     ObjectGraphWalker(Visitor visitor, SizeOfFilter filter) {
         this.visitor = visitor;
         this.sizeOfFilter = filter;
+    }
+    private static boolean getVerboseSizeOfDebugLogging() {
+
+        String verboseString = System.getProperty(VERBOSE_DEBUG_LOGGING, "false").toLowerCase();
+
+        return verboseString.equals("true");
+    }
+
+    /**
+     * The visitor to execute the function on each node of the graph
+     * This is only to be used for the sizing of an object graph in memory!
+     */
+    static interface Visitor {
+        /**
+         * The visit method executed on each node
+         * @param object the reference at that node
+         * @return a long for you to do things with...
+         */
+        public long visit(Object object);
     }
 
     /**
@@ -107,18 +119,18 @@ final class ObjectGraphWalker {
             IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>();
 
             if (root != null) {
-                if (LOG.isDebugEnabled()) {
+                if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                     traversalDebugMessage = new StringBuilder();
                     traversalDebugMessage.append("visiting ");
                 }
                 for (Object object : root) {
                     nullSafeAdd(toVisit, object);
-                    if (LOG.isDebugEnabled() && object != null) {
+                    if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled() && object != null) {
                         traversalDebugMessage.append(object.getClass().getName())
                             .append("@").append(System.identityHashCode(object)).append(", ");
                     }
                 }
-                if (LOG.isDebugEnabled()) {
+                if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                     traversalDebugMessage.deleteCharAt(traversalDebugMessage.length() - 2).append("\n");
                 }
             }
@@ -149,19 +161,19 @@ final class ObjectGraphWalker {
                     }
 
                     long visitSize = visitor.visit(ref);
-                    if (LOG.isDebugEnabled()) {
+                    if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                         traversalDebugMessage.append("  ").append(visitSize).append("b\t\t")
                             .append(ref.getClass().getName()).append("@").append(System.identityHashCode(ref)).append("\n");
                     }
                     result += visitSize;
-                } else if (LOG.isDebugEnabled()) {
+                } else if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                     traversalDebugMessage.append("  ignored\t")
                         .append(ref.getClass().getName()).append("@").append(System.identityHashCode(ref)).append("\n");
                 }
                 visited.put(ref, null);
             }
 
-            if (LOG.isDebugEnabled()) {
+            if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                 traversalDebugMessage.append("Total size: ").append(result).append(" bytes\n");
                 LOG.debug(traversalDebugMessage.toString());
             }
@@ -197,7 +209,7 @@ final class ObjectGraphWalker {
             return fieldList;
         } else {
             Collection<Field> result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
-            if (LOG.isDebugEnabled()) {
+            if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                 for (Field field : result) {
                     if (Modifier.isTransient(field.getModifiers())) {
                         LOG.debug("SizeOf engine walking transient field '{}' of class {}", field.getName(), refClass.getName());
@@ -217,7 +229,7 @@ final class ObjectGraphWalker {
         }
         return cached.booleanValue();
     }
-    
+
     private static void nullSafeAdd(final Stack<Object> toVisit, final Object o) {
         if (o != null) {
             toVisit.push(o);
@@ -233,8 +245,8 @@ final class ObjectGraphWalker {
         Collection<Field> fields = new ArrayList<Field>();
         for (Class<?> klazz = refClass; klazz != null; klazz = klazz.getSuperclass()) {
             for (Field field : klazz.getDeclaredFields()) {
-                if (!Modifier.isStatic(field.getModifiers()) && 
-                        !field.getType().isPrimitive() && 
+                if (!Modifier.isStatic(field.getModifiers()) &&
+                        !field.getType().isPrimitive() &&
                         !field.getName().startsWith(TC_INTERNAL_FIELD_PREFIX)) {
                     try {
                         field.setAccessible(true);
