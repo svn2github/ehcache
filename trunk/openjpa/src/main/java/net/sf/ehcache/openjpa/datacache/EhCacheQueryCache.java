@@ -94,7 +94,7 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
         if (element == null) {
             return false;
         } else {
-            element.setPinned(true);
+            cache.setPinned(element.getObjectKey(), true);
             cache.put(element);
             return true;
         }
@@ -139,7 +139,7 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
         if (element == null) {
             return false;
         } else {
-            element.setPinned(false);
+            cache.setPinned(element.getObjectKey(), false);
             cache.put(element);
             return true;
         }

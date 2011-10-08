@@ -243,7 +243,7 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
         if (element == null) {
             return false;
         } else {
-            element.setPinned(pinned);
+            cache.setPinned(element.getObjectKey(), pinned);
             cache.put(element);
             return true;
         }
