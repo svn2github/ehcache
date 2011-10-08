@@ -35,6 +35,7 @@ import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.concurrency.ExplicitLockingContextThreadLocal;
+import net.sf.ehcache.constructs.nonstop.concurrency.NonStopCacheKeySet;
 import net.sf.ehcache.constructs.nonstop.concurrency.NonstopCacheLockProvider;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -355,7 +356,7 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
      * {@inheritDoc}
      */
     public List getKeys() {
-        return executorServiceStore.getKeys();
+        return new NonStopCacheKeySet(this, nonstopActiveDelegateHolder);
     }
 
     /**
