@@ -299,8 +299,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 underlyingStore.put(frozenElement);
             } else {
                 underlyingStore.remove(softLock.getKey());
-                //resetting in commit
-                underlyingStore.setPinned(softLock.getKey(), false);
             }
         }
 
