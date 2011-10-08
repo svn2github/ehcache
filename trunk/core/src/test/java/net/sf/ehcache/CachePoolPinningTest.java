@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class CachePoolPinningTest {
 
-    private static final int ELEMENT_COUNT = 40000;
+    private static final int ELEMENT_COUNT = 4000;
 
     private CacheManager cacheManager;
 

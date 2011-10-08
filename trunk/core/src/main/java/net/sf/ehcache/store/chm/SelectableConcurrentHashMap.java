@@ -15,14 +15,21 @@
  */
 package net.sf.ehcache.store.chm;
 
+import java.io.Serializable;
+import java.util.AbstractSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 
 /**
  * SelectableConcurrentHashMap subclasses a repackaged version of ConcurrentHashMap
@@ -34,12 +41,13 @@ import net.sf.ehcache.pool.PoolAccessor;
  * @author Chris Dennis
  */
 public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Element> {
-
+    public static final Element DUMMY_PINNED_ELEMENT = new Element(new DummyPinnedKey(), new DummyPinnedValue());
     private final Random rndm = new Random();
     private final PoolAccessor poolAccessor;
     private final boolean elementPinningEnabled;
     private volatile long maxSize;
     private final RegisteredEventListeners cacheEventNotificationService;
+    private final AtomicInteger dummyPinnedKeySize;
 
     public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
         super(initialCapacity, loadFactor, concurrency);
@@ -47,6 +55,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         this.elementPinningEnabled = elementPinningEnabled;
         this.maxSize = maximumSize;
         this.cacheEventNotificationService = cacheEventNotificationService;
+        this.dummyPinnedKeySize = new AtomicInteger();
     }
 
     public void setMaxSize(final long maxSize) {
@@ -74,7 +83,8 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             do {
                 for (HashEntry<Object, Element> e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
-                    if (value != null && (value.isExpired() || !(value.isPinned() && elementPinningEnabled))) {
+                    MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
+                    if (value != null && (value.isExpired() || !(mshe.pinned && elementPinningEnabled))) {
                         sampled.add(value);
                     }
                 }
@@ -101,7 +111,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
      * @return an object looking-alike the stored one
      */
     public Object storedObject(Element e) {
-        return new MemoryStoreHashEntry(null, 0, null, e, 0);
+        return new MemoryStoreHashEntry(null, 0, null, e, 0, false);
     }
 
     /**
@@ -144,6 +154,24 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return ((MemoryStoreSegment) segmentFor(hash)).put(key, hash, element, sizeOf, true);
     }
 
+    public int emptyPinnedKeySize() {
+        return dummyPinnedKeySize.intValue();
+    }
+
+    public void setPinned(Object key, boolean pinned) {
+        int hash = hash(key.hashCode());
+        ((MemoryStoreSegment) segmentFor(hash)).setPinned(key, pinned, hash);
+    }
+
+    public boolean isPinned(Object key) {
+        int hash = hash(key.hashCode());
+        return ((MemoryStoreSegment) segmentFor(hash)).isPinned(key, hash);
+    }
+
+    @Override
+    public Set<Object> keySet() {
+        return new KeySet();
+    }
     @Override
     protected Segment<Object, Element> createSegment(int initialCapacity, float lf) {
         return new MemoryStoreSegment(initialCapacity, lf);
@@ -167,11 +195,71 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             super(initialCapacity, lf);
         }
 
+        private void calculateEmptyPinnedKeySize(boolean pinned, MemoryStoreHashEntry mshe) {
+            if(mshe == null && pinned) {//want to pin first time
+                dummyPinnedKeySize.incrementAndGet();
+                return;
+            }
+            if(mshe == null || (pinned == mshe.pinned) || (!mshe.pinned && !pinned)) {
+              // 1. want to unpin which is not present
+              // 2. want to pin/unpin again (same operation)
+              // 3. want to unpin which was never pinned
+                return;
+            }
+            if(pinned) {//want to pin
+                dummyPinnedKeySize.incrementAndGet();
+            } else {//want to unpin
+                dummyPinnedKeySize.decrementAndGet();
+            }
+        }
+
+        public void setPinned(Object key, boolean pinned, int hash) {
+            writeLock().lock();
+            try {
+                HashEntry<Object,Element>[] tab = table;
+                int index = hash & (tab.length - 1);
+                HashEntry<Object,Element> first = tab[index];
+                HashEntry<Object,Element> e = first;
+                while (e != null && (e.hash != hash || !key.equals(e.key)))
+                    e = e.next;
+                MemoryStoreHashEntry mshe = null;
+                if (e != null) {
+                    mshe = (MemoryStoreHashEntry) e;
+                    mshe.setPinned(pinned);
+                } else {
+                    if(pinned) {
+                        putInternal(key, hash, DUMMY_PINNED_ELEMENT, 0, false, true);
+                    }
+                }
+                calculateEmptyPinnedKeySize(pinned, mshe);
+            } finally {
+                writeLock().unlock();
+            }
+        }
+
+        public boolean isPinned(Object key, int hash) {
+            readLock().lock();
+            try {
+                HashEntry<Object,Element>[] tab = table;
+                int index = hash & (tab.length - 1);
+                HashEntry<Object,Element> first = tab[index];
+                HashEntry<Object,Element> e = first;
+                while (e != null && (e.hash != hash || !key.equals(e.key)))
+                    e = e.next;
+                if (e != null) {
+                    return ((MemoryStoreHashEntry) e).pinned;
+                }
+                return false;
+            } finally {
+                readLock().unlock();
+            }
+        }
+
         @Override
         protected HashEntry<Object, Element> relinkHashEntry(HashEntry<Object, Element> e, HashEntry<Object, Element> next) {
             if (e instanceof MemoryStoreHashEntry) {
                 MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
-                return new MemoryStoreHashEntry(mshe.key, mshe.hash, next, mshe.value, mshe.sizeOf);
+                return new MemoryStoreHashEntry(mshe.key, mshe.hash, next, mshe.value, mshe.sizeOf, mshe.pinned);
             } else {
                 return new HashEntry<Object, Element>(e.key, e.hash, next, e.value);
             }
@@ -192,18 +280,24 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                 Element oldValue = null;
                 if (e != null) {
                     Element v = e.value;
+                    MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
                     if (value == null || value.equals(v)) {
                         oldValue = v;
-                        // All entries following removed node can stay
-                        // in list, but all preceding ones need to be
-                        // cloned.
                         ++modCount;
-                        HashEntry<Object,Element> newFirst = e.next;
-                        for (HashEntry<Object,Element> p = first; p != e; p = p.next)
-                            newFirst = relinkHashEntry(p, newFirst);
-                        tab[index] = newFirst;
+                        if(!mshe.pinned) {
+                         // All entries following removed node can stay
+                            // in list, but all preceding ones need to be
+                            // cloned.
+                            HashEntry<Object,Element> newFirst = e.next;
+                            for (HashEntry<Object,Element> p = first; p != e; p = p.next)
+                                newFirst = relinkHashEntry(p, newFirst);
+                            tab[index] = newFirst;
+                        } else {
+                            ++c;
+                            mshe.value = DUMMY_PINNED_ELEMENT;
+                            dummyPinnedKeySize.incrementAndGet();
+                        }
                         count = c; // write-volatile
-                        MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
                         poolAccessor.delete(mshe.sizeOf);
                     }
                 }
@@ -213,8 +307,11 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             }
         }
 
-
         Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent) {
+            return putInternal(key, hash, value, sizeOf, onlyIfAbsent, false);
+        }
+
+        Element putInternal(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean pinned) {
             Element evicted = null;
             writeLock().lock();
             try {
@@ -236,16 +333,19 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         poolAccessor.delete(mshe.sizeOf);
                         e.value = value;
                         mshe.sizeOf = sizeOf;
+                        if (oldValue == DUMMY_PINNED_ELEMENT && value != DUMMY_PINNED_ELEMENT) {
+                            dummyPinnedKeySize.decrementAndGet();
+                        }
                     }
                 }
                 else {
                     oldValue = null;
                     ++modCount;
-                    tab[index] = new MemoryStoreHashEntry(key, hash, first, value, sizeOf);
+                    tab[index] = new MemoryStoreHashEntry(key, hash, first, value, sizeOf, pinned);
                     count = c; // write-volatile
                 }
-                if(onlyIfAbsent && oldValue != null || !onlyIfAbsent) {
-                    if (!value.isPinned()) {
+                if(!pinned && (onlyIfAbsent && oldValue != null || !onlyIfAbsent)) {
+                    if (!isPinned(key, hash)) {
                         this.fullyPinned = false;
                     }
                     if (SelectableConcurrentHashMap.this.maxSize > 0
@@ -306,7 +406,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                 if (next.value.isExpired() || !next.accessed) {
                     return next.value;
                 } else {
-                    final boolean pinned = next.value.isPinned();
+                    final boolean pinned = next.pinned;
                     if (!pinned) {
                         lastUnpinned = next.value;
                     }
@@ -340,13 +440,18 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
     }
 
     static final class MemoryStoreHashEntry extends HashEntry<Object, Element> {
-
+        volatile boolean pinned;
         volatile long sizeOf;
         volatile boolean accessed = true;
 
-        private MemoryStoreHashEntry(Object key, int hash, HashEntry<Object, Element> next, Element value, long sizeOf) {
+        private MemoryStoreHashEntry(Object key, int hash, HashEntry<Object, Element> next, Element value, long sizeOf, boolean pinned) {
             super(key, hash, next, value);
             this.sizeOf = sizeOf;
+            this.pinned = pinned;
+        }
+
+        public void setPinned(boolean pinned) {
+            this.pinned = pinned;
         }
     }
 
@@ -400,4 +505,89 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             }
         }
     }
+
+    @IgnoreSizeOf
+    private static class DummyPinnedKey implements Serializable {
+
+    }
+
+    @IgnoreSizeOf
+    private static class DummyPinnedValue implements Serializable {
+
+    }
+
+    final class KeySet extends AbstractSet<Object> {
+
+        @Override
+        public Iterator<Object> iterator() {
+            return new HashEntryIterator();
+        }
+
+        @Override
+        public int size() {
+            int size = SelectableConcurrentHashMap.this.size() - SelectableConcurrentHashMap.this.dummyPinnedKeySize.intValue();
+            System.out.println("size "+size+" "+SelectableConcurrentHashMap.this.size()+" "+SelectableConcurrentHashMap.this.dummyPinnedKeySize.intValue());
+//            return size >=0 ? size : 0;
+            return size;
+        }
+
+        @Override
+        public Object[] toArray() {
+            Collection<Object> c = new ArrayList<Object>();
+            for (Object object : this)
+                c.add(object);
+            return c.toArray();
+        }
+        @Override
+        public <T> T[] toArray(T[] a) {
+            Collection<Object> c = new ArrayList<Object>();
+            for (Object object : this)
+                c.add(object);
+            return c.toArray(a);
+        }
+    }
+
+    final class HashEntryIterator extends HashIterator implements Iterator<Object> {
+        private HashEntry<Object, Element> myNextEntry;
+
+        public HashEntryIterator() {
+            advanceToNextNonSentinelEntry();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("DON'T YOU DO THIS!");
+        }
+
+        public Object next() {
+            if (myNextEntry == null) {
+                throw new NoSuchElementException();
+            }
+            Object key = myNextEntry.value.getObjectKey();
+            advanceToNextNonSentinelEntry();
+            return key;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return myNextEntry != null;
+        }
+
+        private void advanceToNextNonSentinelEntry() {
+            HashEntry<Object, Element> myEntry = null;
+            while(super.hasNext()) {
+                 myEntry = nextEntry();
+                 if(myEntry!=null && !isSentinelEntry(myEntry)) {
+                     break;
+                 }
+            }
+            myNextEntry = myEntry;
+        }
+
+        private boolean isSentinelEntry(HashEntry<Object, Element> hashEntry) {
+            MemoryStoreHashEntry mshe = (MemoryStoreHashEntry)hashEntry;
+            return mshe.value == DUMMY_PINNED_ELEMENT;
+        }
+    }
+
 }

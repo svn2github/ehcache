@@ -66,6 +66,21 @@ public class MockStoreWithFlag implements TerracottaStore {
         this.lastMethodInvoked = "";
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        markAccessFlag();
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        markAccessFlag();
+    }
+
     public boolean bufferFull() {
         markAccessFlag();
         return false;

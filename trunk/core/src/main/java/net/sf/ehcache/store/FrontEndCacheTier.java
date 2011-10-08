@@ -82,6 +82,35 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
+        try {
+            // checking in authority first then cache later
+           return authority.isPinned(key) || cache.isPinned(key);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
+        try {
+            // setting pinning in both authority first then cache later
+            authority.setPinned(key, pinned);
+            cache.setPinned(key, pinned);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
      * Perform copy on read on an element if configured
      *
      * @param element the element to copy for read
@@ -563,7 +592,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
 
     /**
      * Returns the ReadWriteLock guarding this key.
-     * 
+     *
      * @param key key of interest
      * @return lock for the supplied key
      */

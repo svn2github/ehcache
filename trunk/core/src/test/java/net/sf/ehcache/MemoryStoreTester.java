@@ -638,7 +638,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
             Element element = new Element("Kp-" + i, "#" + i);
             element.setTimeToIdle(1);
             element.setTimeToLive(1);
-            element.setPinned(true);
+            store.setPinned(element.getObjectKey(), true);
             store.put(element);
         }
 

@@ -91,6 +91,21 @@ public class TestRejoinStore implements TerracottaStore {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        alwaysCalledMethod();
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        alwaysCalledMethod();
+    }
+
     public void addStoreListener(StoreListener listener) {
         alwaysCalledMethod();
 

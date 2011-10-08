@@ -1,5 +1,23 @@
 package net.sf.ehcache.event;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
+import java.io.NotSerializableException;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Filter;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -11,29 +29,12 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.store.disk.DiskStorageFactory;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.NotSerializableException;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Filter;
-import java.util.logging.Logger;
-import java.util.logging.LogRecord;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * @author Alex Snaps
@@ -109,7 +110,7 @@ public class EvictionListenerTest {
         for (int i = 0; i < amountOfEntries; i++) {
             // cache.get("key" + (1000 + (i % 10)));
             Element element = new Element("key" + i, UUID.randomUUID().toString());
-            element.setPinned(true);
+            noDiskCache.setPinned(element.getObjectKey(), true);
             element.setEternal(true);
             noDiskCache.put(element);
         }
@@ -274,6 +275,7 @@ public class EvictionListenerTest {
             this.c = c;
         }
 
+        @Override
         public void run() {
             try {
                 for (int i = 0; i < 10000; i++) {

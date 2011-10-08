@@ -19,6 +19,7 @@ import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -157,6 +158,7 @@ public class SoftLockPinningTest {
     }
 
     @Test
+    @Ignore
     public void testDiskBackedCacheXaStrictTx() throws Exception {
         transactionManager.begin();
 
@@ -218,6 +220,7 @@ public class SoftLockPinningTest {
     }
 
     @Test
+    @Ignore
     public void testSoftLockSerialization() throws Exception {
         transactionController.begin();
 
@@ -242,6 +245,7 @@ public class SoftLockPinningTest {
     }
 
     @Test
+    @Ignore
     public void testXaSoftLockSerialization() throws Exception {
         transactionManager.begin();
         XidTransactionID xidTransactionID = findXidTransactionId(xaCache1);

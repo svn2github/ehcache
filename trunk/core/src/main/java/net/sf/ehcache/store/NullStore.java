@@ -46,6 +46,20 @@ public final class NullStore extends AbstractStore implements TierableStore {
     /**
      * {@inheritDoc}
      */
+    public boolean isPinned(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean put(Element element) throws CacheException {
         return false;
     }

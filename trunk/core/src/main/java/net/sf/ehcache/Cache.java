@@ -110,8 +110,8 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.store.disk.DiskStore;
+import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
@@ -235,6 +235,7 @@ public class Cache implements Ehcache, StoreListener {
      * The {@link import net.sf.ehcache.store.Store} of this {@link Cache}.
      */
     private volatile Store compoundStore;
+
     private volatile CacheLockProvider lockProvider;
 
     private volatile RegisteredEventListeners registeredEventListeners;
@@ -4150,6 +4151,28 @@ public class Cache implements Ehcache, StoreListener {
             // re-throw as cacheException
             throw new CacheException(e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        checkStatus();
+        if (disabled || key == null) {
+            return false;
+        }
+        return compoundStore.isPinned(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        checkStatus();
+        if (disabled || key == null) {
+            return;
+        }
+        compoundStore.setPinned(key, pinned);
     }
 
     /**

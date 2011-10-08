@@ -16,16 +16,16 @@
 
 package net.sf.ehcache;
 
+import static org.junit.Assert.assertNotNull;
 import junit.framework.Assert;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests for Cache pinning
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class CachePinningTest {
 
-    private static final int ELEMENT_COUNT = 40000;
+    private static final int ELEMENT_COUNT = 4000;
 
     private CacheManager cacheManager;
 
@@ -66,7 +66,7 @@ public class CachePinningTest {
     public void testMemoryOnly() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .statistics(true)
                         .name("memoryOnlyCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
@@ -75,7 +75,7 @@ public class CachePinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .statistics(true)
                         .name("memoryOnlyCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
@@ -84,7 +84,7 @@ public class CachePinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .statistics(true)
                         .name("memoryOnlyCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
@@ -96,7 +96,7 @@ public class CachePinningTest {
     public void testOverflowToDisk() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .statistics(true)
@@ -107,7 +107,7 @@ public class CachePinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .statistics(true)
@@ -118,7 +118,7 @@ public class CachePinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .statistics(true)
@@ -132,7 +132,7 @@ public class CachePinningTest {
     public void testDiskPersistent() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
@@ -144,7 +144,7 @@ public class CachePinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
@@ -156,7 +156,7 @@ public class CachePinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .maxElementsInMemory(10)
+                        .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)

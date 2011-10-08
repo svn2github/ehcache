@@ -69,6 +69,20 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isPinned(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setPinned(key, pinned);
+    }
+
+    /**
      * {@inheritDoc}.
      * <p>
      * Uses the underlying store to get the local value present in the VM

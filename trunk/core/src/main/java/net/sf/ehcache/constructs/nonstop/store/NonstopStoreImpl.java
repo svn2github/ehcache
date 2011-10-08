@@ -227,6 +227,20 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
+    public boolean isPinned(Object key) {
+        return executorServiceStore.isPinned(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        executorServiceStore.setPinned(key, pinned);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void addStoreListener(StoreListener listener) {
         executorServiceStore.addStoreListener(listener);
     }

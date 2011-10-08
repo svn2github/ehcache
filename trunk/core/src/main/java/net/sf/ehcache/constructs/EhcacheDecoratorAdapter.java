@@ -919,4 +919,18 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException {
         underlyingCache.waitUntilClusterBulkLoadComplete();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        return underlyingCache.isPinned(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        underlyingCache.setPinned(key, pinned);
+    }
 }

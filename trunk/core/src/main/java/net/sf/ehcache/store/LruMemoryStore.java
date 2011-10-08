@@ -31,9 +31,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -90,6 +92,20 @@ public class LruMemoryStore extends AbstractStore {
         this.diskStore = diskStore;
         map = new SpoolingLinkedHashMap();
         status = Status.STATUS_ALIVE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized boolean isPinned(Object key) {
+        return ((SpoolingLinkedHashMap)map).isPinned(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void setPinned(Object key, boolean pinned) {
+        ((SpoolingLinkedHashMap)map).setPinning(key, pinned);
     }
 
     private boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
@@ -456,6 +472,7 @@ public class LruMemoryStore extends AbstractStore {
     public final class SpoolingLinkedHashMap extends java.util.LinkedHashMap {
         private static final int INITIAL_CAPACITY = 100;
         private static final float GROWTH_FACTOR = .75F;
+        private final Set<Object> pinnedKeys = new HashSet<Object>(INITIAL_CAPACITY, GROWTH_FACTOR);
 
         /**
          * Default constructor.
@@ -464,6 +481,24 @@ public class LruMemoryStore extends AbstractStore {
          */
         public SpoolingLinkedHashMap() {
             super(INITIAL_CAPACITY, GROWTH_FACTOR, true);
+        }
+
+        /**
+         * Mark the key as pinned or not
+         * @param key the key to be pinned or not
+         * @param pinned true if the key should be pinned, false otherwise
+         */
+        public void setPinning(Object key, boolean pinned) {
+            boolean keyPinned = pinned ? pinnedKeys.add(key) : pinnedKeys.remove(key);
+        }
+
+        /**
+         * Check if the key is pinned
+         * @param key the key to be checked
+         * @return true if the element is pinned
+         */
+        public boolean isPinned(Object key) {
+            return pinnedKeys.contains(key);
         }
 
         /**
@@ -529,7 +564,7 @@ public class LruMemoryStore extends AbstractStore {
                 return true;
             }
 
-            if (isFull() && !cachePinned && !(element.isPinned() && elementPinningEnabled)) {
+            if (isFull() && !cachePinned && !(isPinned(element.getObjectKey()) && elementPinningEnabled)) {
                 evict(element);
                 return true;
             } else {

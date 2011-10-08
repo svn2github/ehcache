@@ -76,6 +76,24 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
+    public boolean isPinned(Object key) {
+        throw new NonStopCacheException("isKeyPinned for key - '" + key + "'  timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        throw new NonStopCacheException("setKeyPinning for key - '" + key + "'  timed out");
+    }
+
+    /**
      * {@inheritDoc}.
      * <p>
      * Throws {@link NonStopCacheException}
@@ -93,6 +111,8 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         throw new NonStopCacheException("getAllQuiet for '" + keys.size() + "' keys timed out");
@@ -100,6 +120,8 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Throws {@link NonStopCacheException}
      */
     public Map<Object, Element> getAll(Collection<?> keys) {
         throw new NonStopCacheException("getAll for '" + keys.size() + "' keys timed out");

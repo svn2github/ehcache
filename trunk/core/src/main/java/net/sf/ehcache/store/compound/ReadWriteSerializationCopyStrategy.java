@@ -106,7 +106,7 @@ public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy
     public Element duplicateElementWithNewValue(final Element element, final Object newValue) {
         return new Element(element.getObjectKey(), newValue, element.getVersion(),
                 element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), element.usesCacheDefaultLifespan(),
-                element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime(), element.isPinned());
+                element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime());
     }
 
 }

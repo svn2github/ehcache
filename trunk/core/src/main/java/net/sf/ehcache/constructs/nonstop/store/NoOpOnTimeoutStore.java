@@ -83,6 +83,21 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
+    public boolean isPinned(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public void addStoreListener(StoreListener listener) {
     }
 

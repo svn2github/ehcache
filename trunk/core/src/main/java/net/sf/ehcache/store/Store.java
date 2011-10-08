@@ -51,6 +51,20 @@ public interface Store {
     static final String NODE_COHERENT = "NodeCoherent";
 
     /**
+     * Check if the key is pinned
+     * @param key the key to be checked
+     * @return {@code true} if the element is pinned
+     */
+    boolean isPinned(Object key);
+
+    /**
+     * Mark the key as pinned or not
+     * @param key the key to be pinned or not
+     * @param pinned  true if the key should be pinned, false otherwise
+     */
+    void setPinned(Object key, boolean pinned);
+
+    /**
      * Add a listener to the store.
      * @param listener
      */

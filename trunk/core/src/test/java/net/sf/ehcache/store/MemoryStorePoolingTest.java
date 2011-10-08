@@ -1,5 +1,17 @@
 package net.sf.ehcache.store;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -10,21 +22,10 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Ludovic Orban
@@ -111,10 +112,9 @@ public class MemoryStorePoolingTest {
 
         for (int i = 0; i < 100; i++) {
             Element element = new Element(i, i);
-            element.setTimeToIdle(1);
-            element.setTimeToLive(1);
-            element.setPinned(true);
-
+            element.setTimeToIdle(2);
+            element.setTimeToLive(2);
+            memoryOnlyStore2.setPinned(element.getObjectKey(), true);
             memoryOnlyStore2.put(element);
         }
 
@@ -124,14 +124,14 @@ public class MemoryStorePoolingTest {
         assertEquals(16384 * 100, memoryOnlyStore2.getInMemorySizeInBytes());
 
         // wait until the elements expired
-        Thread.sleep(1200);
+        Thread.sleep(2200);
 
         for (int i = 0; i < 100; i++) {
             memoryStore.put(new Element(i, i));
         }
 
         assertEquals(1, memoryOnlyStore2.getSize());
-        assertEquals(16384, memoryOnlyStore2.getInMemorySizeInBytes());
+        assertEquals(16384 * 100, memoryOnlyStore2.getInMemorySizeInBytes());
         assertEquals(1, memoryStore.getSize());
         assertEquals(16384, memoryStore.getInMemorySizeInBytes());
         assertEquals(16384 * 2, onHeapPool.getSize());

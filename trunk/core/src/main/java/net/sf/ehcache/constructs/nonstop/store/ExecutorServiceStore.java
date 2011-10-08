@@ -302,6 +302,39 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(final Object key) {
+        boolean rv = false;
+        try {
+            rv = executeWithExecutor(new Callable<Boolean>() {
+                public Boolean call() throws Exception {
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isPinned(key);
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().isPinned(key);
+        }
+        return rv;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(final Object key, final boolean pinned) {
+        try {
+            executeWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setPinned(key, pinned);
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().setPinned(key, pinned);
+        }
+    }
+
+    /**
      * {@inheritDoc}.
      */
     public boolean put(final Element element) throws CacheException {

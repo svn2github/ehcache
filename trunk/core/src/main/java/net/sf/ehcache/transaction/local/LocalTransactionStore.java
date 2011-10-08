@@ -114,7 +114,8 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     private Element createElement(Object key, SoftLock softLock) {
         Element element = new Element(key, softLock);
         element.setEternal(true);
-        element.setPinned(true);
+//        amaheshw work on this later, disabling pinning as of now
+//        element.setPinned(true);
         return element;
     }
 

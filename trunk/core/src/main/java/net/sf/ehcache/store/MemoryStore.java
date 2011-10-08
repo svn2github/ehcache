@@ -199,8 +199,24 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         return memoryStore;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        if (elementPinningEnabled) {
+            map.setPinned(key, pinned);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        return map.isPinned(key);
+    }
+
     private boolean isPinningEnabled(Element element) {
-        return cachePinned || (elementPinningEnabled && element.isPinned());
+        return cachePinned || (elementPinningEnabled && isPinned(element.getObjectKey()));
     }
 
     /**
@@ -283,6 +299,10 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
             return null;
         } else {
             Element e = map.get(key);
+            boolean sentinelElementFound = (e != null) && (e.equals(SelectableConcurrentHashMap.DUMMY_PINNED_ELEMENT));
+            if (sentinelElementFound) {
+                e = null;
+            }
             if (e == null) {
                 missRate.event();
             } else {
@@ -393,8 +413,10 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * Remove all of the elements from the store.
      */
     public final void removeAll() throws CacheException {
-        map.clear();
-        poolAccessor.clear();
+        List keys = getKeys();
+        for (Object key : keys) {
+            remove(key);
+        }
     }
 
     /**
@@ -443,7 +465,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return The size value
      */
     public final int getSize() {
-        return map.size();
+        return map.size() - map.emptyPinnedKeySize();
     }
 
     /**

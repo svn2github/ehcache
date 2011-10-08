@@ -1021,7 +1021,6 @@ public class DiskStorageFactory {
      */
     int evict(int count) {
         // see void onDiskEvict(int size, Object keyHint)
-
         if (isPinningEnabled()) {
             return 0;
         }

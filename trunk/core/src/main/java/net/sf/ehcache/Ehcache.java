@@ -57,6 +57,23 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @version $Id$
  */
 public interface Ehcache extends Cloneable {
+
+    /**
+     * Check if the key is pinned
+     * @param key the key to be checked
+     * @return true if the element is pinned
+     */
+    boolean isPinned(Object key);
+
+    /**
+     * Mark the key as pinned or not. Pinning is associated with key. Once the key is pinned, the mapping is held in the memory
+     * until setPinned(key, false) is called. {@link #replace} and {@link #remove} does not change the pin state of key. This
+     * comes with little memory overhead that even if key is removed, it is still held in memory.
+     * @param key the key to be pinned or not
+     * @param pinned {@code true} if the key should be pinned, false otherwise
+     */
+    void setPinned(Object key, boolean pinned);
+
     /**
      * Put an element in the cache.
      * <p/>

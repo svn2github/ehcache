@@ -176,6 +176,21 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public boolean isPinned(Object key) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setPinned(Object key, boolean pinned) {
+        //no-op
+    }
+
+
+    /**
      * Generates a unique directory name for use in automatically creating a diskStorePath where there is a conflict.
      *
      * @return a path consisting of {@link #AUTO_DISK_PATH_DIRECTORY_PREFIX} followed by "_" followed by the current

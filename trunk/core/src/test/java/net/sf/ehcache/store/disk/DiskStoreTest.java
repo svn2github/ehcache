@@ -1,7 +1,19 @@
 package net.sf.ehcache.store.disk;
 
-import junit.framework.Assert;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
+
+import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -15,19 +27,10 @@ import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.MemoryOnlyStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.RetryAssert;
+
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Alex Snaps
@@ -79,7 +82,7 @@ public class DiskStoreTest {
 
         store.put(new Element(1, "one"));
         Element element2 = new Element(2, new Object());
-        element2.setPinned(true);
+        store.setPinned(element2.getObjectKey(), true);
         store.put(element2);
         store.dispose();
 
@@ -177,6 +180,61 @@ public class DiskStoreTest {
             assertTrue("Expected " + CacheException.class.getName() + ", but was " + e.getClass().getName(), e instanceof CacheException);
         }
         assertNull(xaStore.get(KEY));
+    }
+
+    @Test
+    public void testGetKeys() throws InterruptedException {
+        int unpinCount = 500;
+        int pinCount = 500; //please make sure that pinCount is even
+        Set<Object> pinnedKeys = new HashSet<Object>();
+        Set<Object> removedPinnedKeys = new HashSet<Object>();
+        Set<Object> unpinnedKeys = new HashSet<Object>();
+        Object key = null;
+        for (int i = 0; i < unpinCount; i++) {
+            key = "Ku-" + i;
+            unpinnedKeys.add(key);
+            Element element = new Element(key, i);
+            xaStore.put(element);
+        }
+
+        Thread.sleep(1000);
+
+        Assert.assertEquals(unpinCount, xaStore.getSize());
+
+        for (int i = 0; i < pinCount; i++) {
+            key = "Kp-" + i;
+            pinnedKeys.add(key);
+            Element element = new Element(key, i);
+            xaStore.setPinned(element.getObjectKey(), true);
+            xaStore.put(element);
+        }
+        Assert.assertEquals(pinCount+unpinCount, xaStore.getSize());
+        int halfPinned = pinCount/2;
+        for (int i = 0; i < halfPinned; i++) {
+            key = "Kp-" + i;
+            removedPinnedKeys.add(key);
+            xaStore.remove(key);
+        }
+
+        Thread.sleep(1000);
+        pinnedKeys.removeAll(removedPinnedKeys);
+        Assert.assertEquals(pinCount-halfPinned, pinnedKeys.size());
+        Assert.assertEquals(unpinCount+halfPinned, xaStore.getSize());
+
+        List keys = xaStore.getKeys();
+        Assert.assertEquals(unpinCount+halfPinned, xaStore.getSize());
+        Assert.assertEquals(unpinCount+halfPinned, keys.size());
+
+        for(Object okey : keys) {
+            System.out.println(okey);
+            Assert.assertFalse(removedPinnedKeys.contains(okey));
+            Assert.assertTrue(pinnedKeys.contains(okey) || unpinnedKeys.contains(okey));
+        }
+
+        xaStore.removeAll();
+        keys = xaStore.getKeys();
+        Assert.assertEquals(0, xaStore.getSize());
+        Assert.assertEquals(0, keys.size());
     }
 
 }
