@@ -1,3 +1,9 @@
+<release version="2.0.4" date="2011-10-14" desc="Bug fixes">
+    <action dev="Hung Huynh" type="fix" issue="EHCWEB-1">
+        GZIPFilter discards non-200 response bodies
+    </action>
+</release>
+
 <release version="2.0.2" date="2010-10-15" desc="Bug fixes">
     <action dev="Greg Luck" type="fix" issue="EHC-667">
         Caching filter doesn't cache int and date headers.
