@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class DiskStorePoolingTest {
 
-    private static final int ELEMENT_SIZE_ON_DISK = 308;
+    private static final int ELEMENT_SIZE_ON_DISK = 298;
     private static final int ITERATIONS = 100;
 
     private final static DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new CacheConfiguration()

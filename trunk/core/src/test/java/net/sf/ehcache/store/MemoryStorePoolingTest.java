@@ -111,9 +111,9 @@ public class MemoryStorePoolingTest {
         assertEquals(16384 * 2, memoryStore.getInMemorySizeInBytes());
 
         for (int i = 0; i < 100; i++) {
-            Element element = new Element(i, i);
-            element.setTimeToIdle(2);
-            element.setTimeToLive(2);
+            Element element = new Element(-i, i);
+            element.setTimeToIdle(1);
+            element.setTimeToLive(1);
             memoryOnlyStore2.setPinned(element.getObjectKey(), true);
             memoryOnlyStore2.put(element);
         }
@@ -124,14 +124,14 @@ public class MemoryStorePoolingTest {
         assertEquals(16384 * 100, memoryOnlyStore2.getInMemorySizeInBytes());
 
         // wait until the elements expired
-        Thread.sleep(2200);
+        Thread.sleep(1200);
 
         for (int i = 0; i < 100; i++) {
             memoryStore.put(new Element(i, i));
         }
 
         assertEquals(1, memoryOnlyStore2.getSize());
-        assertEquals(16384 * 100, memoryOnlyStore2.getInMemorySizeInBytes());
+        assertEquals(16384, memoryOnlyStore2.getInMemorySizeInBytes());
         assertEquals(1, memoryStore.getSize());
         assertEquals(16384, memoryStore.getInMemorySizeInBytes());
         assertEquals(16384 * 2, onHeapPool.getSize());
