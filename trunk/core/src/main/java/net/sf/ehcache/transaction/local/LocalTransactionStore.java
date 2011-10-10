@@ -97,6 +97,14 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         return currentTransactionContext;
     }
 
+    private void assertNotTimedOut(Object key, boolean wasPinned) {
+        if (!wasPinned) {
+            underlyingStore.setPinned(key, false);
+        }
+
+        assertNotTimedOut();
+    }
+
     private void assertNotTimedOut() {
         if (getCurrentTransactionContext().timedOut()) {
             throw new TransactionTimeoutException("transaction [" + getCurrentTransactionContext().getTransactionId() + "] timed out");
@@ -111,11 +119,12 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         return Math.max(0, getCurrentTransactionContext().getExpirationTimestamp() - System.currentTimeMillis());
     }
 
-    private Element createElement(Object key, SoftLock softLock) {
+    private Element createElement(Object key, SoftLock softLock, boolean isPinned) {
         Element element = new Element(key, softLock);
         element.setEternal(true);
-//        amaheshw work on this later, disabling pinning as of now
-//        element.setPinned(true);
+        if (!isPinned) {
+            underlyingStore.setPinned(softLock.getKey(), true);
+        }
         return element;
     }
 
@@ -129,6 +138,10 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     underlyingStore.replace(oldElement, frozenElement, comparator);
                 } else {
                     underlyingStore.removeElement(oldElement, comparator);
+                }
+            
+                if (!softLock.wasPinned()) {
+                    underlyingStore.setPinned(softLock.getKey(), false);
                 }
             } finally {
                 softLock.unfreeze();
@@ -152,14 +165,15 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         final Element element = copyElementForWrite(e);
         final Object key = element.getObjectKey();
         while (true) {
-            assertNotTimedOut();
+            final boolean isPinned = underlyingStore.isPinned(key);
+            assertNotTimedOut(key, isPinned);
 
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                        element, null);
+                        element, null, isPinned);
                 softLock.lock();
-                Element newElement = createElement(key, softLock);
+                Element newElement = createElement(key, softLock, isPinned);
                 oldElement = underlyingStore.putIfAbsent(newElement);
                 if (oldElement == null) {
                     // CAS succeeded, soft lock is in store, job done.
@@ -216,9 +230,9 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     }
                 } else {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                            element, oldElement);
+                            element, oldElement, isPinned);
                     softLock.lock();
-                    Element newElement = createElement(key, softLock);
+                    Element newElement = createElement(key, softLock, isPinned);
                     boolean replaced = underlyingStore.replace(oldElement, newElement, comparator);
                     if (replaced) {
                         // CAS succeeded, value replaced with soft lock, job done.
@@ -314,16 +328,17 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         if (key == null) {
             return null;
         }
-
+        
         while (true) {
-            assertNotTimedOut();
+            final boolean isPinned = underlyingStore.isPinned(key);
+            assertNotTimedOut(key, isPinned);
 
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                        null, null);
+                        null, null, isPinned);
                 softLock.lock();
-                Element newElement = createElement(key, softLock);
+                Element newElement = createElement(key, softLock, isPinned);
                 oldElement = underlyingStore.putIfAbsent(newElement);
                 if (oldElement == null) {
                     // CAS succeeded, value is in store, job done.
@@ -380,9 +395,9 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     }
                 } else {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                            null, oldElement);
+                            null, oldElement, isPinned);
                     softLock.lock();
-                    Element newElement = createElement(key, softLock);
+                    Element newElement = createElement(key, softLock, isPinned);
                     boolean replaced = underlyingStore.replace(oldElement, newElement, comparator);
                     if (replaced) {
                         // CAS succeeded, value replaced with soft lock, job done.
@@ -538,14 +553,15 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         final Element element = copyElementForWrite(e);
         final Object key = element.getObjectKey();
         while (true) {
-            assertNotTimedOut();
+            final boolean isPinned = underlyingStore.isPinned(key);
+            assertNotTimedOut(key, isPinned);
 
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null || !(oldElement.getObjectValue() instanceof SoftLock)) {
                 SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                        element, oldElement);
+                        element, oldElement, isPinned);
                 softLock.lock();
-                Element newElement = createElement(key, softLock);
+                Element newElement = createElement(key, softLock, isPinned);
                 oldElement = underlyingStore.putIfAbsent(newElement);
                 if (oldElement == null) {
                     // CAS succeeded, soft lock is in store, job done.
@@ -636,7 +652,8 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         final Element element = copyElementForWrite(e);
         final Object key = element.getObjectKey();
         while (true) {
-            assertNotTimedOut();
+            final boolean isPinned = underlyingStore.isPinned(key);
+            assertNotTimedOut(key, isPinned);
 
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null) {
@@ -694,9 +711,9 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     }
                 } else {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                            null, oldElement);
+                            null, oldElement, isPinned);
                     softLock.lock();
-                    Element newElement = createElement(key, softLock);
+                    Element newElement = createElement(key, softLock, isPinned);
 
                     boolean replaced = underlyingStore.replace(oldElement, newElement, comparator);
                     if (replaced) {
@@ -744,7 +761,8 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         final Element element = copyElementForWrite(ne);
         final Object key = element.getObjectKey();
         while (true) {
-            assertNotTimedOut();
+            final boolean isPinned = underlyingStore.isPinned(key);
+            assertNotTimedOut(key, isPinned);
 
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null) {
@@ -802,9 +820,9 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     }
                 } else {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                            element, oldElement);
+                            element, oldElement, isPinned);
                     softLock.lock();
-                    Element newElement = createElement(key, softLock);
+                    Element newElement = createElement(key, softLock, isPinned);
 
                     boolean replaced = underlyingStore.replace(oldElement, newElement, comparator);
                     if (replaced) {
@@ -838,7 +856,8 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             throw new NullPointerException("element key cannot be null");
         }
         while (true) {
-            assertNotTimedOut();
+            final boolean isPinned = underlyingStore.isPinned(key);
+            assertNotTimedOut(key, isPinned);
 
             Element oldElement = underlyingStore.getQuiet(key);
             if (oldElement == null) {
@@ -896,9 +915,9 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                     }
                 } else {
                     SoftLock softLock = softLockFactory.createSoftLock(getCurrentTransactionContext().getTransactionId(), key,
-                            element, oldElement);
+                            element, oldElement, isPinned);
                     softLock.lock();
-                    Element newElement = createElement(key, softLock);
+                    Element newElement = createElement(key, softLock, isPinned);
 
                     Element replaced = underlyingStore.replace(newElement);
                     if (replaced != null) {
@@ -931,6 +950,10 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
+            
+            if (!softLock.wasPinned()) {
+                underlyingStore.setPinned(softLock.getKey(), false);
+            }
         }
     }
 
@@ -946,6 +969,10 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                 underlyingStore.put(element);
             } else {
                 underlyingStore.remove(softLock.getKey());
+            }
+            
+            if (!softLock.wasPinned()) {
+                underlyingStore.setPinned(softLock.getKey(), false);
             }
         }
     }

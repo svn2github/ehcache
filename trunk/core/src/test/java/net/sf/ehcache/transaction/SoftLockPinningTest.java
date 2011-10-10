@@ -223,7 +223,7 @@ public class SoftLockPinningTest {
         transactionController.begin();
 
         TransactionID transactionId = transactionController.getCurrentTransactionContext().getTransactionId();
-        SoftLock originalSoftLock = cacheManager.getSoftLockFactory(cache1.getName()).createSoftLock(transactionId, -1, null, null);
+        SoftLock originalSoftLock = cacheManager.getSoftLockFactory(cache1.getName()).createSoftLock(transactionId, -1, null, null, false);
 
         // serialize a soft lock
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -247,7 +247,7 @@ public class SoftLockPinningTest {
         transactionManager.begin();
         XidTransactionID xidTransactionID = findXidTransactionId(xaCache1);
 
-        SoftLock originalSoftLock = cacheManager.getSoftLockFactory(xaCache1.getName()).createSoftLock(xidTransactionID, -1, null, null);
+        SoftLock originalSoftLock = cacheManager.getSoftLockFactory(xaCache1.getName()).createSoftLock(xidTransactionID, -1, null, null, false);
 
         // serialize a soft lock
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -33,6 +33,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     private static final int PRIME = 31;
 
     private final ReadCommittedSoftLockFactoryImpl factory;
+    private final boolean wasPinned;
     private final ReentrantLock lock;
     private final ReentrantReadWriteLock freezeLock;
 
@@ -51,10 +52,12 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      * @param key the element's key this soft lock is going to protect
      * @param newElement the new element, can be null
      * @param oldElement the old element, can be null
+     * @param wasPinned true if the key whose element is about to be replaced by this soft lock was pinned in the underlying store
      */
     ReadCommittedSoftLockImpl(ReadCommittedSoftLockFactoryImpl factory, TransactionID transactionID, Object key,
-                              Element newElement, Element oldElement) {
+                              Element newElement, Element oldElement, boolean wasPinned) {
         this.factory = factory;
+        this.wasPinned = wasPinned;
         this.cacheManagerName = factory.getCacheManagerName();
         this.cacheName = factory.getCacheName();
         this.transactionID = transactionID;
@@ -102,6 +105,13 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      */
     public TransactionID getTransactionID() {
         return transactionID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean wasPinned() {
+        return wasPinned;
     }
 
     /**

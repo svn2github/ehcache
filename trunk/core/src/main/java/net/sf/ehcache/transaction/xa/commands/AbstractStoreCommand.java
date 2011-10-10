@@ -65,9 +65,10 @@ public abstract class AbstractStoreCommand implements Command {
     public boolean prepare(Store store, SoftLockFactory softLockFactory, XidTransactionID transactionId,
                            ElementValueComparator comparator) {
         Object objectKey = getObjectKey();
+        final boolean wasPinned = store.isPinned(objectKey);
 
-        SoftLock softLock = softLockFactory.createSoftLock(transactionId, objectKey, newElement, oldElement);
-        softLockedElement = createElement(objectKey, softLock);
+        SoftLock softLock = softLockFactory.createSoftLock(transactionId, objectKey, newElement, oldElement, wasPinned);
+        softLockedElement = createElement(objectKey, softLock, store, wasPinned);
         softLock.lock();
         softLock.freeze();
 
@@ -103,16 +104,20 @@ public abstract class AbstractStoreCommand implements Command {
         }
 
         SoftLock softLock = (SoftLock) softLockedElement.getObjectValue();
+        if (!softLock.wasPinned()) {
+            store.setPinned(softLock.getKey(), false);
+        }
         softLock.unfreeze();
         softLock.unlock();
         softLockedElement = null;
     }
 
-    private Element createElement(Object key, SoftLock softLock) {
+    private Element createElement(Object key, SoftLock softLock, Store store, boolean wasPinned) {
         Element element = new Element(key, softLock);
         element.setEternal(true);
-//        amaheshw work on this later, disabling pinning as of now
-//        element.setPinned(true);
+        if (!wasPinned) {
+            store.setPinned(key, true);
+        }
         return element;
     }
 

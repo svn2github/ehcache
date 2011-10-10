@@ -218,6 +218,19 @@ public class LocalTransactionTest extends TestCase {
         transactionController.commit();
     }
 
+    public void testPinning() throws Exception {
+        transactionController.begin();
+        cache1.put(new Element(1, new Object[]{"one"}));
+        transactionController.commit();
+        assertFalse(cache1.isPinned(1));
+
+        transactionController.begin();
+        cache1.setPinned(2, true);
+        cache1.put(new Element(2, new Object[]{"two"}));
+        transactionController.commit();
+        assertTrue(cache1.isPinned(2));
+    }
+
     public void testTwoPuts() throws Exception {
         transactionController.begin();
         cache1.put(new Element(1, new Object[]{"one#1"}));

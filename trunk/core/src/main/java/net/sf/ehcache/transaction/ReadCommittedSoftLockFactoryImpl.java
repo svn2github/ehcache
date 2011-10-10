@@ -70,8 +70,8 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
     /**
      * {@inheritDoc}
      */
-    public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
-        ReadCommittedSoftLockImpl softLock = new ReadCommittedSoftLockImpl(this, transactionID, key, newElement, oldElement);
+    public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned) {
+        ReadCommittedSoftLockImpl softLock = new ReadCommittedSoftLockImpl(this, transactionID, key, newElement, oldElement, pinned);
 
         allLocks.put(softLock, MARKER);
 

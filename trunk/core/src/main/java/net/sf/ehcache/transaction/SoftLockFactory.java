@@ -33,9 +33,10 @@ public interface SoftLockFactory {
      * @param key the key of the Element this soft lock is protecting
      * @param newElement the new Element
      * @param oldElement the actual Element
+     * @param pinned true if the element that is going to be replaced by a soft lock is pinned
      * @return the soft lock
      */
-    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement);
+    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned);
 
     /**
      * Get a Set of keys protected by soft locks which must not be visible to a transaction context

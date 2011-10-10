@@ -39,6 +39,12 @@ public interface SoftLock extends Serializable {
     TransactionID getTransactionID();
 
     /**
+     * Check if the key was pinned in the underlying store before its element was replaced by this soft lock
+     * @return true if the key was pinned, false otherwise
+     */
+    boolean wasPinned();
+
+    /**
      * Get the element the current transaction is supposed to see.
      * @param currentTransactionId the current transaction under which this call is executed
      * @return the Element visible to the current transaction
