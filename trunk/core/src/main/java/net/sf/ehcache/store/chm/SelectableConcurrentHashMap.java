@@ -328,13 +328,14 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                 Element oldValue;
                 if (e != null) {
                     oldValue = e.value;
-                    if (!onlyIfAbsent) {
+                    if (e.value == DUMMY_PINNED_ELEMENT || !onlyIfAbsent) {
                         MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
                         poolAccessor.delete(mshe.sizeOf);
                         e.value = value;
                         mshe.sizeOf = sizeOf;
                         if (oldValue == DUMMY_PINNED_ELEMENT && value != DUMMY_PINNED_ELEMENT) {
                             dummyPinnedKeySize.decrementAndGet();
+                            oldValue = null;
                         }
                     }
                 }
