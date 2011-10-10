@@ -20,10 +20,7 @@ import java.beans.PropertyChangeListener;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.AbstractList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -131,8 +128,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void putQuiet(Element arg0) throws IllegalArgumentException, IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -146,8 +143,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void putWithWriter(Element arg0) throws IllegalArgumentException, IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -161,8 +158,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Map getAll(Collection arg0) throws IllegalStateException, CacheException, NullPointerException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -176,8 +173,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Element getQuiet(Serializable arg0) throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -191,8 +188,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Element getQuiet(Object arg0) throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -206,8 +203,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -221,8 +218,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public List getKeysNoDuplicateCheck() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -236,8 +233,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean removeQuiet(Serializable arg0) throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -251,8 +248,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean removeQuiet(Object arg0) throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -266,8 +263,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean removeWithWriter(Object arg0) throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -281,8 +278,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public int getSizeBasedOnAccuracy(int arg0) throws IllegalArgumentException, IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -296,8 +293,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public long calculateInMemorySize() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -311,8 +308,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public long calculateOffHeapSize() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -326,8 +323,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public long calculateOnDiskSize() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -341,8 +338,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean hasAbortedSizeOf() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -356,8 +353,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public long getMemoryStoreSize() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -371,8 +368,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public long getOffHeapStoreSize() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -386,8 +383,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public int getDiskStoreSize() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -401,8 +398,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isExpired(Element arg0) throws IllegalStateException, NullPointerException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -416,8 +413,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public RegisteredEventListeners getCacheEventNotificationService() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -431,23 +428,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean isElementInMemory(Serializable arg0) {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.isElementInMemory(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isElementInMemory(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -461,8 +443,23 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
+    public boolean isElementInMemory(Serializable arg0) {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.isElementInMemory(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public boolean isElementOnDisk(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -476,8 +473,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isElementOnDisk(Serializable arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -491,8 +488,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public String getGuid() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -506,8 +503,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public CacheManager getCacheManager() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -521,8 +518,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void clearStatistics() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -536,8 +533,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public int getStatisticsAccuracy() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -551,8 +548,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setStatisticsAccuracy(int arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -566,8 +563,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void evictExpiredElements() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -581,8 +578,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isKeyInCache(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -596,8 +593,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isValueInCache(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -611,8 +608,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Statistics getStatistics() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -626,8 +623,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -641,8 +638,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void registerCacheUsageListener(CacheUsageListener arg0) throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -656,8 +653,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void removeCacheUsageListener(CacheUsageListener arg0) throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -671,8 +668,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setCacheManager(CacheManager arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -686,8 +683,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public BootstrapCacheLoader getBootstrapCacheLoader() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -701,8 +698,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setBootstrapCacheLoader(BootstrapCacheLoader arg0) throws CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -716,8 +713,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setDiskStorePath(String arg0) throws CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -731,8 +728,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void initialise() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -746,8 +743,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void bootstrap() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -761,8 +758,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public CacheConfiguration getCacheConfiguration() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -776,8 +773,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void registerCacheExtension(CacheExtension arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -791,8 +788,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void unregisterCacheExtension(CacheExtension arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -806,8 +803,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public List getRegisteredCacheExtensions() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -821,8 +818,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public float getAverageGetTime() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -836,8 +833,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setCacheExceptionHandler(CacheExceptionHandler arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -851,8 +848,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public CacheExceptionHandler getCacheExceptionHandler() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -866,8 +863,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void registerCacheLoader(CacheLoader arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -881,8 +878,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void unregisterCacheLoader(CacheLoader arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -896,8 +893,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public List getRegisteredCacheLoaders() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -911,8 +908,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void registerCacheWriter(CacheWriter arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -926,8 +923,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void unregisterCacheWriter() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -941,8 +938,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public CacheWriter getRegisteredCacheWriter() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -956,8 +953,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Element getWithLoader(Object arg0, CacheLoader arg1, Object arg2) throws CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -971,8 +968,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Map getAllWithLoader(Collection arg0, Object arg1) throws CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -986,8 +983,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isDisabled() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1001,8 +998,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setDisabled(boolean arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1016,8 +1013,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isStatisticsEnabled() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1031,8 +1028,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setStatisticsEnabled(boolean arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1046,8 +1043,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public SampledCacheStatistics getSampledCacheStatistics() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1061,8 +1058,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setSampledStatisticsEnabled(boolean arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1076,8 +1073,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isSampledStatisticsEnabled() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1091,8 +1088,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Object getInternalContext() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1106,8 +1103,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void disableDynamicFeatures() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1121,8 +1118,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public CacheWriterManager getWriterManager() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1136,8 +1133,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isClusterCoherent() throws TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1151,8 +1148,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isNodeCoherent() throws TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1166,8 +1163,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setNodeCoherent(boolean arg0) throws UnsupportedOperationException, TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1181,8 +1178,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1196,8 +1193,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setTransactionManagerLookup(TransactionManagerLookup arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1211,8 +1208,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Attribute getSearchAttribute(String arg0) throws CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1226,8 +1223,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Query createQuery() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1241,8 +1238,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isSearchable() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1256,8 +1253,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public long getAverageSearchTime() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1271,8 +1268,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public long getSearchesPerSecond() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1286,8 +1283,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void acquireReadLockOnKey(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1301,8 +1298,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void acquireWriteLockOnKey(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1316,8 +1313,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean tryReadLockOnKey(Object arg0, long arg1) throws InterruptedException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1331,8 +1328,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean tryWriteLockOnKey(Object arg0, long arg1) throws InterruptedException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1346,8 +1343,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void releaseReadLockOnKey(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1361,8 +1358,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void releaseWriteLockOnKey(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1376,9 +1373,9 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean isReadLockedByCurrentThread(Object arg0) {
+    * {@inheritDoc}
+    */
+    public boolean isReadLockedByCurrentThread(Object arg0) throws UnsupportedOperationException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -1391,9 +1388,9 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean isWriteLockedByCurrentThread(Object arg0) {
+    * {@inheritDoc}
+    */
+    public boolean isWriteLockedByCurrentThread(Object arg0) throws UnsupportedOperationException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -1406,8 +1403,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isClusterBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1421,8 +1418,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean isNodeBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1436,8 +1433,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void setNodeBulkLoadEnabled(boolean arg0) throws UnsupportedOperationException, TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1451,8 +1448,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1466,69 +1463,53 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void put(Element arg0) throws IllegalArgumentException, IllegalStateException, CacheException {
+    * {@inheritDoc}
+    */
+    public void loadAll(Collection arg0, Object arg1) throws CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
         t.setContextClassLoader(this.classLoader);
         try {
-            this.cache.put(arg0);
+            this.cache.loadAll(arg0, arg1);
         } finally {
             t.setContextClassLoader(prev);
         }
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void put(Element arg0, boolean arg1) throws IllegalArgumentException, IllegalStateException, CacheException {
+    * {@inheritDoc}
+    */
+    public boolean isPinned(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
         t.setContextClassLoader(this.classLoader);
         try {
-            this.cache.put(arg0, arg1);
+            return this.cache.isPinned(arg0);
         } finally {
             t.setContextClassLoader(prev);
         }
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object clone() throws CloneNotSupportedException {
+    * {@inheritDoc}
+    */
+    public void setPinned(Object arg0, boolean arg1) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
         t.setContextClassLoader(this.classLoader);
         try {
-            return this.cache.clone();
+            this.cache.setPinned(arg0, arg1);
         } finally {
             t.setContextClassLoader(prev);
         }
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public String getName() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getName();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     @Override
     public String toString() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
@@ -1543,38 +1524,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public boolean replace(Element arg0, Element arg1) throws NullPointerException, IllegalArgumentException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.replace(arg0, arg1);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element replace(Element arg0) throws NullPointerException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.replace(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Element get(Object arg0) throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1588,8 +1539,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public Element get(Serializable arg0) throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1603,8 +1554,99 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
+    public void put(Element arg0) throws IllegalArgumentException, IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.put(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public void put(Element arg0, boolean arg1) throws IllegalArgumentException, IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.put(arg0, arg1);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.clone();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public String getName() {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.getName();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public Element replace(Element arg0) throws NullPointerException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.replace(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public boolean replace(Element arg0, Element arg1) throws NullPointerException, IllegalArgumentException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.replace(arg0, arg1);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public void putAll(Collection arg0) throws IllegalArgumentException, IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1618,53 +1660,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void load(Object arg0) throws CacheException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.load(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean remove(Serializable arg0) throws IllegalStateException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.remove(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean remove(Object arg0) throws IllegalStateException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.remove(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean remove(Serializable arg0, boolean arg1) throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1678,8 +1675,38 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
+    public boolean remove(Object arg0) throws IllegalStateException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.remove(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public boolean remove(Serializable arg0) throws IllegalStateException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.remove(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public boolean remove(Object arg0, boolean arg1) throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1693,8 +1720,23 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
+    public void load(Object arg0) throws CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.load(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public void setName(String arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1708,8 +1750,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void flush() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1723,8 +1765,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public int getSize() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1738,68 +1780,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void removeAll(Collection arg0) throws IllegalStateException, NullPointerException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.removeAll(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeAll(Collection arg0, boolean arg1) throws IllegalStateException, NullPointerException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.removeAll(arg0, arg1);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeAll() throws IllegalStateException, CacheException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.removeAll();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeAll(boolean arg0) throws IllegalStateException, CacheException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.removeAll(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public boolean removeElement(Element arg0) throws NullPointerException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1813,8 +1795,68 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
+    public void removeAll(boolean arg0) throws IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.removeAll(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public void removeAll() throws IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.removeAll();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public void removeAll(Collection arg0, boolean arg1) throws IllegalStateException, NullPointerException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.removeAll(arg0, arg1);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public void removeAll(Collection arg0) throws IllegalStateException, NullPointerException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.removeAll(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public Element putIfAbsent(Element arg0) throws NullPointerException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1828,8 +1870,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void addPropertyChangeListener(PropertyChangeListener arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1843,23 +1885,8 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void dispose() throws IllegalStateException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.dispose();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
     public void removePropertyChangeListener(PropertyChangeListener arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1873,23 +1900,38 @@ public class ClassLoaderAwareCache implements Ehcache {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public List getKeys() throws IllegalStateException, CacheException {
+    * {@inheritDoc}
+    */
+    public void dispose() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
         t.setContextClassLoader(this.classLoader);
         try {
-            return Collections.unmodifiableList(new ClassLoaderAwareList(this.cache.getKeys()));
+            this.cache.dispose();
         } finally {
             t.setContextClassLoader(prev);
         }
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * {@inheritDoc}
+    */
+    public List getKeys() throws IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.getKeys();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public Status getStatus() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1902,135 +1944,5 @@ public class ClassLoaderAwareCache implements Ehcache {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void loadAll(Collection arg0, Object arg1) throws CacheException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.loadAll(arg0, arg1);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPinned(Object key) {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.isPinned(key);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPinned(Object key, boolean pinned) {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.setPinned(key, pinned);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-     * This class take care of loading and unloading of classloader appropriately.
-     * @author amaheshw
-     *
-     */
-    private class ClassLoaderAwareList extends AbstractList {
-        private final Collection delegate;
-
-        public ClassLoaderAwareList(final Collection delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public Object get(int index) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int size() {
-            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-            Thread t = Thread.currentThread();
-            ClassLoader prev = t.getContextClassLoader();
-            t.setContextClassLoader(classLoader);
-            try {
-                return this.delegate.size();
-            } finally {
-                t.setContextClassLoader(prev);
-            }
-        }
-
-        @Override
-        public Iterator iterator() {
-            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-            Thread t = Thread.currentThread();
-            ClassLoader prev = t.getContextClassLoader();
-            t.setContextClassLoader(classLoader);
-            try {
-                return new ClassLoaderAwareIterator(delegate.iterator());
-            } finally {
-                t.setContextClassLoader(prev);
-            }
-        }
-
-    }
-
-    /**
-     * Iterator needed for ClassLoaderAwareList
-     * @author amaheshw
-     *
-     */
-    private class ClassLoaderAwareIterator implements Iterator {
-        private final Iterator delegate;
-
-        public ClassLoaderAwareIterator(final Iterator delegate) {
-            this.delegate = delegate;
-        }
-
-        public boolean hasNext() {
-            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-            Thread t = Thread.currentThread();
-            ClassLoader prev = t.getContextClassLoader();
-            t.setContextClassLoader(classLoader);
-            try {
-                return delegate.hasNext();
-            } finally {
-                t.setContextClassLoader(prev);
-            }
-        }
-
-        public Object next() {
-            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-            Thread t = Thread.currentThread();
-            ClassLoader prev = t.getContextClassLoader();
-            t.setContextClassLoader(classLoader);
-            try {
-                return delegate.next();
-            } finally {
-                t.setContextClassLoader(prev);
-            }
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
 
 }

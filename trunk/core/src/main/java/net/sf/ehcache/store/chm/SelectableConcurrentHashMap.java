@@ -526,8 +526,6 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         @Override
         public int size() {
             int size = SelectableConcurrentHashMap.this.size() - SelectableConcurrentHashMap.this.dummyPinnedKeySize.intValue();
-            System.out.println("size "+size+" "+SelectableConcurrentHashMap.this.size()+" "+SelectableConcurrentHashMap.this.dummyPinnedKeySize.intValue());
-//            return size >=0 ? size : 0;
             return size;
         }
 

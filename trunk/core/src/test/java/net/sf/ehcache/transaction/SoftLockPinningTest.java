@@ -1,8 +1,21 @@
 package net.sf.ehcache.transaction;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.internal.TransactionStatusChangeListener;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.xa.Xid;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -19,24 +32,11 @@ import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.xa.Xid;
-
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
+import bitronix.tm.BitronixTransactionManager;
+import bitronix.tm.TransactionManagerServices;
+import bitronix.tm.internal.TransactionStatusChangeListener;
 
 /**
  * @author lorban
@@ -158,7 +158,6 @@ public class SoftLockPinningTest {
     }
 
     @Test
-    @Ignore
     public void testDiskBackedCacheXaStrictTx() throws Exception {
         transactionManager.begin();
 
@@ -220,7 +219,6 @@ public class SoftLockPinningTest {
     }
 
     @Test
-    @Ignore
     public void testSoftLockSerialization() throws Exception {
         transactionController.begin();
 
@@ -245,7 +243,6 @@ public class SoftLockPinningTest {
     }
 
     @Test
-    @Ignore
     public void testXaSoftLockSerialization() throws Exception {
         transactionManager.begin();
         XidTransactionID xidTransactionID = findXidTransactionId(xaCache1);
