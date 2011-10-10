@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoinException;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 
 /**
  * Class used by NonStopCache for executing tasks within a timeout limit.
@@ -76,6 +77,10 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
             } catch (ExecutionException e) {
                 Throwable rootCause = getRootCause(e);
                 if (rootCause.getClass().getSimpleName().equals("TCNotRunningException")) {
+                    throw new TimeoutException(rootCause.getMessage());
+                }
+
+                if (rootCause instanceof TerracottaNotRunningException) {
                     throw new TimeoutException(rootCause.getMessage());
                 }
 
