@@ -134,6 +134,10 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return (int) size - emptyPinnedKeySize();
     }
 
+    @Override
+    public int size() {
+        return super.size() - emptyPinnedKeySize();
+    }
 
     public ReentrantReadWriteLock lockFor(Object key) {
         int hash = hash(key.hashCode());
@@ -154,7 +158,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return ((MemoryStoreSegment) segmentFor(hash)).put(key, hash, element, sizeOf, true);
     }
 
-    public int emptyPinnedKeySize() {
+    private int emptyPinnedKeySize() {
         return dummyPinnedKeySize.intValue();
     }
 
@@ -526,8 +530,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         @Override
         public int size() {
-            int size = SelectableConcurrentHashMap.this.size() - SelectableConcurrentHashMap.this.dummyPinnedKeySize.intValue();
-            return size;
+            return SelectableConcurrentHashMap.this.size();
         }
 
         @Override

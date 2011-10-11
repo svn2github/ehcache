@@ -464,7 +464,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return The size value
      */
     public final int getSize() {
-        return map.size() - map.emptyPinnedKeySize();
+        return map.size();
     }
 
     /**
