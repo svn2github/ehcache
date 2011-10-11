@@ -555,7 +555,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException("DON'T YOU DO THIS!");
+            throw new UnsupportedOperationException();
         }
 
         public Object next() {
