@@ -413,8 +413,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * Remove all of the elements from the store.
      */
     public final void removeAll() throws CacheException {
-        List keys = getKeys();
-        for (Object key : keys) {
+        for (Object key : map.keySet()) {
             remove(key);
         }
     }
