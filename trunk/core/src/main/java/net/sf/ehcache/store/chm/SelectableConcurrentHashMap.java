@@ -131,7 +131,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         if (size > Integer.MAX_VALUE)
             return Integer.MAX_VALUE;
-        return (int) size;
+        return (int) size - emptyPinnedKeySize();
     }
 
 
