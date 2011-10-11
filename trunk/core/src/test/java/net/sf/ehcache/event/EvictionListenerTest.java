@@ -187,21 +187,22 @@ public class EvictionListenerTest {
     }
 
     @Test
-    public void testGetsAllEvictedKeysWithDiskEntryBased() throws InterruptedException {
+    public void testGetsAllEvictedKeysWithDiskEntryBased() throws InterruptedException, ExecutionException {
         CacheConfiguration configuration = new CacheConfiguration().name("diskEntry").maxEntriesLocalHeap(100)
             .overflowToDisk(true).maxEntriesLocalDisk(2000);
-        final Cache noDiskCache = new Cache(configuration);
-        cacheManager.addCache(noDiskCache);
-        CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
-        assertThat(noDiskCache.getMemoryStoreSize(), is(100L));
-        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
+        final Cache diskCache = new Cache(configuration);
+        cacheManager.addCache(diskCache);
+        CountingCacheEventListener countingCacheEventListener = accessCache(diskCache);
+        assertThat(diskCache.getMemoryStoreSize(), is(100L));
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(diskCache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
         }
-        assertThat(noDiskCache.getSize(), not(is(0)));
+        assertThat(diskCache.getSize(), not(is(0)));
         assertThat(cacheElementsEvicted.size(), not(is(0)));
-        System.out.println(noDiskCache.getSize());
-        assertThat(cacheElementsEvicted.size() + noDiskCache.getSize(), is(THREADS * PER_THREAD));
+        DiskStoreHelper.flushAllEntriesToDisk(diskCache).get();
+        System.out.println(diskCache.getSize());
+        assertThat(cacheElementsEvicted.size() + diskCache.getSize(), is(THREADS * PER_THREAD));
     }
 
     private CountingCacheEventListener accessCache(final Cache cacheUT) throws InterruptedException {
