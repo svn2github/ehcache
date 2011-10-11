@@ -72,14 +72,15 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public boolean isPinned(Object key) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isPinned(key);
+        //no-op
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
     public void setPinned(Object key, boolean pinned) {
-        nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setPinned(key, pinned);
+        //no-op
     }
 
     /**
