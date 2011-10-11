@@ -574,11 +574,13 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         private void advanceToNextNonSentinelEntry() {
             HashEntry<Object, Element> myEntry = null;
-            while(super.hasNext()) {
-                 myEntry = nextEntry();
-                 if(myEntry!=null && !isSentinelEntry(myEntry)) {
-                     break;
-                 }
+            while (super.hasNext()) {
+                myEntry = nextEntry();
+                if (myEntry != null && !isSentinelEntry(myEntry)) {
+                    break;
+                } else {
+                    myEntry = null;
+                }
             }
             myNextEntry = myEntry;
         }
