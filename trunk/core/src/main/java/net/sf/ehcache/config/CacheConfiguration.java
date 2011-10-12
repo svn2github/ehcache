@@ -640,6 +640,9 @@ public class CacheConfiguration implements Cloneable {
      * @param maxEntriesInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
      */
     public final void setMaxEntriesLocalHeap(long maxEntriesInMemory) {
+        if (maxEntriesInMemory < 0) {
+            throw new InvalidConfigurationException("Number of entries on local heap cannot be negative");
+        }
         if (maxEntriesInMemory > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Values larger than Integer.MAX_VALUE are not currently supported.");
         }
@@ -1040,6 +1043,9 @@ public class CacheConfiguration implements Cloneable {
      * @param maxEntriesOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      */
     public void setMaxEntriesLocalDisk(long maxEntriesOnDisk) {
+        if (maxEntriesOnDisk < 0) {
+            throw new InvalidConfigurationException("Number of entries on disk cannot be negative");
+        }
         if (maxEntriesOnDisk > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
         }
