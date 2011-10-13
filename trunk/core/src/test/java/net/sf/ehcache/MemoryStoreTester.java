@@ -37,7 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import static junit.framework.Assert.assertTrue;
+import net.sf.ehcache.config.CacheConfiguration;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
@@ -519,16 +519,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
 
     /**
-     * Test behaviour of memory store using 1 million records.
-     * This is expected to run out of memory on a 64MB machine. Where it runs out
-     * is asserted so that design changes do not start using more memory per element.
-     * <p/>
-     * This test will fail (ie not get an out of memory error) on VMs configured to be server which do not have a fixed upper memory limit.
-     * <p/>
-     * Takes too long to run therefore switch off
-     * <p/>
-     * These memory size asserts were 100,000 and 60,000. The ApacheLRU map does not get quite as high numbers.
-     * This test varies according to architecture. 64 bit architectures
+     * Test that the memory store can fit 65k elements in a 64Mb heap.
      */
     @Test
     public void testMemoryStoreOutOfMemoryLimit() throws Exception {
@@ -537,40 +528,13 @@ public class MemoryStoreTester extends AbstractCacheTest {
         //Set size so the second element overflows to disk.
         cache = manager.getCache("memoryLimitTest");
         if (cache == null) {
-            cache = new Cache("memoryLimitTest", 1000000, false, false, 500, 500);
+            cache = new Cache(new CacheConfiguration("memoryLimitTest", 0));
             manager.addCache(cache);
         }
-        int i = 0;
-        try {
-            for (; i < 1000000; i++) {
-                cache.put(new Element("" +
-                        i, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                        + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                        + "AAAAA " + i));
-            }
-            LOG.info("About to fail out of memory limit test");
-            fail();
-        } catch (OutOfMemoryError e) {
-            cache.removeAll();
-            Thread.sleep(1000);
-            System.gc();
-            Thread.sleep(2000);
-            System.gc();
-
-            try {
-                LOG.info("Ran out of memory putting " + i + "th element");
-                assertTrue(i > 65000);
-            } catch (OutOfMemoryError e1) {
-                //sometimes if we are really out of memory we cannot do anything
-            }
-
+        for (int i = 0; i < 65000; i++) {
+            cache.put(new Element(Integer.valueOf(i), new String(new char[218])));
         }
-        Thread.sleep(1000);
-        System.gc();
-        Thread.sleep(1000);
+        assertEquals(65000, cache.getSize());
     }
 
     @Test
