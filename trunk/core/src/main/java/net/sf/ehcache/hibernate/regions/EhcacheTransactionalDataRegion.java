@@ -126,8 +126,7 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
         try {
             Element element = new Element(key, value);
             if (value instanceof SoftLock) {
-//                amaheshw work on this later, disabling pinning as of now
-//                element.setPinned(true)
+                cache.setPinned(key, true);
                 element.setEternal(true);
             }
             cache.put(element);
@@ -150,6 +149,7 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
     public final void remove(Object key) throws CacheException {
         try {
             cache.remove(key);
+            cache.setPinned(key, false);
         } catch (ClassCastException e) {
             throw new CacheException(e);
         } catch (IllegalStateException e) {
@@ -169,6 +169,7 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
     public final void clear() throws CacheException {
         try {
             cache.removeAll();
+            cache.unpinAll();
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {
