@@ -69,6 +69,13 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        underlyingStore.unpinAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         return underlyingStore.isPinned(key);
     }

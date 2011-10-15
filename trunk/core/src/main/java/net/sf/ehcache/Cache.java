@@ -4156,6 +4156,17 @@ public class Cache implements Ehcache, StoreListener {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        checkStatus();
+        if (disabled) {
+            return;
+        }
+        compoundStore.unpinAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         checkStatus();
         if (disabled || key == null) {

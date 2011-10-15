@@ -198,6 +198,14 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         cache.getCacheConfiguration().addConfigurationListener(memoryStore);
         return memoryStore;
     }
+    /**
+     * {@inheritDoc}
+     */
+    public void unpinAll() {
+        if (elementPinningEnabled) {
+            map.unpinAll();
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -212,7 +220,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * {@inheritDoc}
      */
     public boolean isPinned(Object key) {
-        return map.isPinned(key);
+        return elementPinningEnabled && map.isPinned(key);
     }
 
     private boolean isPinningEnabled(Element element) {

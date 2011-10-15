@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
@@ -47,7 +46,6 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
     private final boolean elementPinningEnabled;
     private volatile long maxSize;
     private final RegisteredEventListeners cacheEventNotificationService;
-    private final AtomicInteger dummyPinnedKeySize;
 
     public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
         super(initialCapacity, loadFactor, concurrency);
@@ -55,7 +53,6 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         this.elementPinningEnabled = elementPinningEnabled;
         this.maxSize = maximumSize;
         this.cacheEventNotificationService = cacheEventNotificationService;
-        this.dummyPinnedKeySize = new AtomicInteger();
     }
 
     public void setMaxSize(final long maxSize) {
@@ -123,21 +120,49 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
      * @return the number of key-value mappings in this map
      */
     public int quickSize() {
+        return quickSizeInternal(false);
+    }
+
+    private int quickSizeInternal(final boolean grabAllSegmentsLock) {
         long size = 0;
-
-        for (Segment<Object, Element> segment : this.segments) {
-            size += segment.count;
+        long numDummyPinnedKeys = 0;
+        if(grabAllSegmentsLock) {
+            grabAllSegmentsLock();
         }
+        try {
+            for (Segment<Object, Element> segment : this.segments) {
+                MemoryStoreSegment mss = (MemoryStoreSegment)segment;
+                size += segment.count;
+                numDummyPinnedKeys += mss.numDummyPinnedKeys;
+            }
 
-        if (size > Integer.MAX_VALUE)
-            return Integer.MAX_VALUE;
-        return (int) size - emptyPinnedKeySize();
+            long quickSize = size - numDummyPinnedKeys;
+
+            if (quickSize > Integer.MAX_VALUE)
+                return Integer.MAX_VALUE;
+            return (int)quickSize;
+        } finally {
+            if(grabAllSegmentsLock) {
+                releaseAllSegmentsLock();
+            }
+        }
     }
 
     @Override
     public int size() {
-        return super.size() - emptyPinnedKeySize();
+        return quickSizeInternal(true);
     }
+
+    private void grabAllSegmentsLock() {
+        for (int i = 0; i < segments.length; ++i)
+            segments[i].readLock().lock();
+    }
+
+    private void releaseAllSegmentsLock() {
+        for (int i = 0; i < segments.length; ++i)
+            segments[i].readLock().unlock();
+    }
+
 
     public ReentrantReadWriteLock lockFor(Object key) {
         int hash = hash(key.hashCode());
@@ -158,8 +183,11 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return ((MemoryStoreSegment) segmentFor(hash)).put(key, hash, element, sizeOf, true);
     }
 
-    private int emptyPinnedKeySize() {
-        return dummyPinnedKeySize.intValue();
+    public void unpinAll() {
+        for (Segment<Object, Element> segment : this.segments) {
+            MemoryStoreSegment mss = (MemoryStoreSegment)segment;
+            mss.unpinAll();
+        }
     }
 
     public void setPinned(Object key, boolean pinned) {
@@ -194,26 +222,32 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         private Iterator<MemoryStoreHashEntry> evictionIterator = iterator();
         private boolean fullyPinned;
+        private volatile int numDummyPinnedKeys;
 
         private MemoryStoreSegment(int initialCapacity, float lf) {
             super(initialCapacity, lf);
         }
 
         private void calculateEmptyPinnedKeySize(boolean pinned, MemoryStoreHashEntry mshe) {
-            if(mshe == null && pinned) {//want to pin first time
-                dummyPinnedKeySize.incrementAndGet();
-                return;
-            }
-            if(mshe == null || (pinned == mshe.pinned) || (!mshe.pinned && !pinned)) {
-              // 1. want to unpin which is not present
-              // 2. want to pin/unpin again (same operation)
-              // 3. want to unpin which was never pinned
-                return;
-            }
-            if(pinned) {//want to pin
-                dummyPinnedKeySize.incrementAndGet();
-            } else {//want to unpin
-                dummyPinnedKeySize.decrementAndGet();
+            writeLock().lock();
+            try {
+                if(mshe == null && pinned) {//want to pin first time
+                    ++numDummyPinnedKeys;
+                    return;
+                }
+                if(mshe == null || (pinned == mshe.pinned) || (!mshe.pinned && !pinned)) {
+                  // 1. want to unpin which is not present
+                  // 2. want to pin/unpin again (same operation)
+                  // 3. want to unpin which was never pinned
+                    return;
+                }
+                if(pinned) {//want to pin
+                    ++numDummyPinnedKeys;
+                } else {//want to unpin
+                    --numDummyPinnedKeys;
+                }
+            } finally {
+                writeLock().unlock();
             }
         }
 
@@ -259,6 +293,26 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             }
         }
 
+        public void unpinAll() {
+            writeLock().lock();
+            if(numDummyPinnedKeys == count) {
+                clear();
+                return;
+            }
+            try {
+                Iterator<MemoryStoreHashEntry> itr = iterator();
+                // using clock iterator here so maintaining number of visited entries
+                int numVisited = 0;
+                while(itr.hasNext() && numVisited < count) {
+                    MemoryStoreHashEntry mshe = itr.next();
+                    mshe.setPinned(false);
+                    ++numVisited;
+                }
+            } finally {
+                writeLock().unlock();
+            }
+        }
+
         @Override
         protected HashEntry<Object, Element> relinkHashEntry(HashEntry<Object, Element> e, HashEntry<Object, Element> next) {
             if (e instanceof MemoryStoreHashEntry) {
@@ -299,7 +353,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         } else {
                             ++c;
                             mshe.value = DUMMY_PINNED_ELEMENT;
-                            dummyPinnedKeySize.incrementAndGet();
+                            ++numDummyPinnedKeys;
                         }
                         count = c; // write-volatile
                         poolAccessor.delete(mshe.sizeOf);
@@ -338,7 +392,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         e.value = value;
                         mshe.sizeOf = sizeOf;
                         if (oldValue == DUMMY_PINNED_ELEMENT && value != DUMMY_PINNED_ELEMENT) {
-                            dummyPinnedKeySize.decrementAndGet();
+                            --numDummyPinnedKeys;
                             oldValue = null;
                         }
                     }
@@ -487,18 +541,16 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         }
 
         public void remove() {
-            throw new UnsupportedOperationException("DON'T YOU DO THIS!");
+            throw new UnsupportedOperationException("remove is not supported");
         }
 
         final void advance() {
             if (nextEntry != null && (nextEntry = (MemoryStoreHashEntry)nextEntry.next) != null)
                 return;
-
             while (nextTableIndex >= 0) {
                 if ( (nextEntry = (MemoryStoreHashEntry) currentTable[nextTableIndex--]) != null)
                     return;
             }
-
             if (seg.count != 0) {
                 currentTable = seg.table;
                 for (int j = currentTable.length - 1; j >= 0; --j) {
@@ -558,7 +610,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("remove is not supported");
         }
 
         public Object next() {

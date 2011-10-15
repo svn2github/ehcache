@@ -51,6 +51,11 @@ public interface Store {
     static final String NODE_COHERENT = "NodeCoherent";
 
     /**
+     * unpin all pinned keys
+     */
+    void unpinAll();
+
+    /**
      * Check if the key is pinned
      * @param key the key to be checked
      * @return {@code true} if the element is pinned

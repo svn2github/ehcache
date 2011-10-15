@@ -97,6 +97,13 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    public synchronized void unpinAll() {
+        ((SpoolingLinkedHashMap)map).unpinAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public synchronized boolean isPinned(Object key) {
         return ((SpoolingLinkedHashMap)map).isPinned(key);
     }
@@ -499,6 +506,13 @@ public class LruMemoryStore extends AbstractStore {
          */
         public boolean isPinned(Object key) {
             return pinnedKeys.contains(key);
+        }
+
+        /**
+         * unpin all pinned keys
+         */
+        public void unpinAll() {
+            pinnedKeys.clear();
         }
 
         /**

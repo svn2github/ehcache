@@ -84,6 +84,20 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        writeLock();
+        try {
+            // unpin in both authority first then cache later
+            authority.unpinAll();
+            cache.unpinAll();
+        } finally {
+            writeUnlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         Lock lock = getLockFor(key).readLock();
         lock.lock();

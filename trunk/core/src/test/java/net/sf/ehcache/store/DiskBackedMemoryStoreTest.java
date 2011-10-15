@@ -14,14 +14,23 @@ import org.junit.Test;
  * @author Ludovic Orban
  */
 public class DiskBackedMemoryStoreTest {
+    int unpinCount = 200;
+    int pinCount = 400;
+    int maxElementsOnDisk = 300;
 
     @Test
     public void testElementPinning() throws Exception {
-        int unpinCount = 200;
-        int pinCount = 400;
-        int maxElementsOnDisk = 300;
+        pinningTest(0);
+    }
+
+    @Test
+    public void testElementPinningWithMaxElements() throws Exception {
+        pinningTest(100);
+    }
+
+    public void pinningTest(int maxElementsInMemory) throws Exception {
         CacheManager cm = new CacheManager();
-        Cache cache = new Cache(new CacheConfiguration("myCache", 0).overflowToDisk(true).maxElementsOnDisk(maxElementsOnDisk));
+        Cache cache = new Cache(new CacheConfiguration("myCache", maxElementsInMemory).overflowToDisk(true).maxElementsOnDisk(maxElementsOnDisk));
         cm.addCache(cache);
 
         for (int i = 0; i < unpinCount; i++) {
@@ -53,6 +62,21 @@ public class DiskBackedMemoryStoreTest {
             assertNull(cache.get("Kp-" + i));
         }
         Assert.assertEquals(unpinCount, cache.getSize());
+
+        cache.unpinAll();
+        for (int i = 0; i < pinCount; i++) {
+            Assert.assertFalse(cache.isPinned("Kp-" + i));
+        }
+        Thread.sleep(2200);
+        Assert.assertEquals(unpinCount, cache.getSize());
+
+        // triggering eviction via this put
+        if(maxElementsInMemory != 0) {
+            cache.put(new Element("sample","sample"));
+            Thread.sleep(60 * 1000);
+//            Assert.assertEquals(maxElementsInMemory, cache.getSize());
+        }
+
         cm.shutdown();
     }
 }

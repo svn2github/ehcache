@@ -66,6 +66,13 @@ public class LegacyStoreWrapper extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        memory.unpinAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         return memory.isPinned(key);
     }

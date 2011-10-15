@@ -94,6 +94,13 @@ public class TestRejoinStore implements TerracottaStore {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        alwaysCalledMethod();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         alwaysCalledMethod();
         return false;

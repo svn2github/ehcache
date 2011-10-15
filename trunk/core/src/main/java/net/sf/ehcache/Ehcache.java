@@ -59,6 +59,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
 public interface Ehcache extends Cloneable {
 
     /**
+     * unpin all pinned keys
+     */
+    void unpinAll();
+
+    /**
      * Check if the key is pinned
      * @param key the key to be checked
      * @return true if the element is pinned

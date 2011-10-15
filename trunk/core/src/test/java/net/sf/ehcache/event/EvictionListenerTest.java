@@ -18,6 +18,8 @@ import java.util.logging.Filter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import junit.framework.Assert;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -137,6 +139,23 @@ public class EvictionListenerTest {
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
         }
+
+        noDiskCache.unpinAll();
+        for (int i = 0; i < amountOfEntries; i++) {
+            Object key = "key"+i;
+            Assert.assertFalse("key "+key+" still pinned", noDiskCache.isPinned(key));
+        }
+
+        // triggering eviction via this put
+        element = new Element("key" + amountOfEntries, UUID.randomUUID().toString());
+        noDiskCache.put(element);
+
+        // now eviction should have happened for all keys which are unpinned just above
+        cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
+        System.out.println("after eviction, Memory store size : " + noDiskCache.getMemoryStoreSize()+" size "+noDiskCache.getSize()+" evicted "+cacheElementsEvicted.size());
+        Assert.assertTrue(cacheElementsEvicted.size() > 1);
+        Assert.assertTrue("cache size "+noDiskCache.getSize(), noDiskCache.getSize() < amountOfEntries);
+        Assert.assertTrue("memoryStore size "+noDiskCache.getMemoryStoreSize(), noDiskCache.getMemoryStoreSize() < amountOfEntries);
     }
 
     @Test

@@ -46,6 +46,13 @@ public final class NullStore extends AbstractStore implements TierableStore {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         return false;
     }

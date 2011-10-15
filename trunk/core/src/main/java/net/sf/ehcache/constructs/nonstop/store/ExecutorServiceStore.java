@@ -305,6 +305,22 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        try {
+            executeWithExecutor(new Callable<Void>() {
+                public Void call() throws Exception {
+                    nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unpinAll();
+                    return null;
+                }
+            });
+        } catch (TimeoutException e) {
+            timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unpinAll();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(final Object key) {
         boolean rv = false;
         try {

@@ -69,6 +69,13 @@ public class MockStoreWithFlag implements TerracottaStore {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        markAccessFlag();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         markAccessFlag();
         return false;

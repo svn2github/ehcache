@@ -71,8 +71,15 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
-        //no-op
+        // no-op
         return false;
     }
 
@@ -80,7 +87,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * {@inheritDoc}
      */
     public void setPinned(Object key, boolean pinned) {
-        //no-op
+        // no-op
     }
 
     /**

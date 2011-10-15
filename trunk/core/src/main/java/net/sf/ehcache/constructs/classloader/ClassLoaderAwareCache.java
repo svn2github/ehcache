@@ -1480,6 +1480,21 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
+    public void unpinAll() {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.unpinAll();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public boolean isPinned(Object arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();

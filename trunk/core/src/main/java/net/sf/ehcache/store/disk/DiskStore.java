@@ -178,6 +178,13 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         return false;
     }
@@ -186,7 +193,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * {@inheritDoc}
      */
     public void setPinned(Object key, boolean pinned) {
-        //no-op
+        // no-op
     }
 
 

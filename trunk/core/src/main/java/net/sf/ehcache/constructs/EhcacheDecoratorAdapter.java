@@ -923,6 +923,13 @@ public class EhcacheDecoratorAdapter implements Ehcache {
     /**
      * {@inheritDoc}
      */
+    public void unpinAll() {
+        underlyingCache.unpinAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isPinned(Object key) {
         return underlyingCache.isPinned(key);
     }

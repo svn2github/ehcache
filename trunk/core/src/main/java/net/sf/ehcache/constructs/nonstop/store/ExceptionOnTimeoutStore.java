@@ -80,8 +80,17 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * <p>
      * Throws {@link NonStopCacheException}
      */
+    public void unpinAll() {
+        throw new NonStopCacheException("unpinAll timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Throws {@link NonStopCacheException}
+     */
     public boolean isPinned(Object key) {
-        throw new NonStopCacheException("isKeyPinned for key - '" + key + "'  timed out");
+        throw new NonStopCacheException("isPinned timed out");
     }
 
     /**
@@ -90,7 +99,7 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * Throws {@link NonStopCacheException}
      */
     public void setPinned(Object key, boolean pinned) {
-        throw new NonStopCacheException("setKeyPinning for key - '" + key + "'  timed out");
+        throw new NonStopCacheException("setPinned timed out");
     }
 
     /**
@@ -99,14 +108,14 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * Throws {@link NonStopCacheException}
      */
     public Element get(final Object key) throws IllegalStateException, CacheException {
-        throw new NonStopCacheException("get for key - '" + key + "'  timed out");
+        throw new NonStopCacheException("get timed out");
     }
 
     /**
      * {@inheritDoc}
      */
     public Element getQuiet(final Object key) throws IllegalStateException, CacheException {
-        throw new NonStopCacheException("getQuiet for key - '" + key + "'  timed out");
+        throw new NonStopCacheException("getQuiet timed out");
     }
 
     /**
@@ -142,7 +151,7 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * Throws {@link NonStopCacheException}
      */
     public boolean put(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
-        throw new NonStopCacheException("put for element - '" + element + "' timed out");
+        throw new NonStopCacheException("put timed out");
     }
 
     /**
@@ -160,7 +169,7 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      * Throws {@link NonStopCacheException}
      */
     public Element remove(final Object key) throws IllegalStateException {
-        throw new NonStopCacheException("remove for key - '" + key + "' timed out");
+        throw new NonStopCacheException("remove timed out");
     }
 
     /**
