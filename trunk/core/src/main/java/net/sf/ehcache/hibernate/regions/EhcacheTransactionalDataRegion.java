@@ -128,6 +128,8 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
             if (value instanceof SoftLock) {
                 cache.setPinned(key, true);
                 element.setEternal(true);
+            } else {
+              cache.setPinned(key, false);
             }
             cache.put(element);
         } catch (IllegalArgumentException e) {
