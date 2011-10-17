@@ -661,19 +661,18 @@ public class SelfPopulatingCacheTest extends CacheTest {
     public void testRefreshQuietly() throws Exception {
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
-        CountingCacheEventListener.resetCounters();
         cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
 
         //check initial conditions on counters
-        assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsUpdated().size());
 
         Element e1 = selfPopulatingCache.get("key1");
         Element e2 = selfPopulatingCache.get("key2");
         assertEquals(2, factory.getCount());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsUpdated().size());
         long lastUpdateTime1 = e1.getLastUpdateTime();
         long lastUpdateTime2 = e2.getLastUpdateTime();
 
@@ -683,8 +682,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
         // full refresh
         selfPopulatingCache.refresh();
         assertEquals(4, factory.getCount());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsUpdated().size());
         e1 = selfPopulatingCache.get("key1");
         e2 = selfPopulatingCache.get("key2");
         assertTrue("getLastUpdateTime() should be the same", lastUpdateTime1 == e1.getLastUpdateTime());
@@ -697,8 +696,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
         // single element refresh
         e2 = selfPopulatingCache.refresh("key2");
         assertEquals(5, factory.getCount());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsUpdated().size());
         assertTrue("getLastUpdateTime() should be the same", lastUpdateTime2 == e2.getLastUpdateTime());
     }
 
@@ -707,19 +706,18 @@ public class SelfPopulatingCacheTest extends CacheTest {
     public void testRefreshNoisily() throws Exception {
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
-        CountingCacheEventListener.resetCounters();
         cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
 
         //check initial conditions on counters
-        assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsUpdated().size());
 
         Element e1 = selfPopulatingCache.get("key1");
         Element e2 = selfPopulatingCache.get("key2");
         assertEquals(2, factory.getCount());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(0, countingCacheEventListener.getCacheElementsUpdated().size());
         long lastUpdateTime1 = e1.getLastUpdateTime();
         long lastUpdateTime2 = e2.getLastUpdateTime();
 
@@ -729,13 +727,13 @@ public class SelfPopulatingCacheTest extends CacheTest {
         // full refresh
         selfPopulatingCache.refresh(false);
         assertEquals(4, factory.getCount());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsUpdated().size());
         e1 = selfPopulatingCache.get("key1");
         e2 = selfPopulatingCache.get("key2");
         assertEquals(4, factory.getCount());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsUpdated().size());
         assertFalse("getLastUpdateTime() should not be the same (" + lastUpdateTime1 + ")", lastUpdateTime1 == e1.getLastUpdateTime());
         assertFalse("getLastUpdateTime() should not be the same (" + lastUpdateTime2 + ")", lastUpdateTime2 == e2.getLastUpdateTime());
         lastUpdateTime2 = e2.getLastUpdateTime();
@@ -746,8 +744,8 @@ public class SelfPopulatingCacheTest extends CacheTest {
         // single element refresh
         e2 = selfPopulatingCache.refresh("key2", false);
         assertEquals(5, factory.getCount());
-        assertEquals(2, CountingCacheEventListener.getCacheElementsPut(cache).size());
-        assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+        assertEquals(2, countingCacheEventListener.getCacheElementsPut().size());
+        assertEquals(3, countingCacheEventListener.getCacheElementsUpdated().size());
         assertFalse("getLastUpdateTime() should not be the same (" + lastUpdateTime2 + ")", lastUpdateTime2 == e2.getLastUpdateTime());
     }
 

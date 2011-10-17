@@ -199,38 +199,38 @@ public class CacheWriterTest extends AbstractCacheTest {
         // without listeners notification
         cache.getCacheConfiguration().getCacheWriterConfiguration().setNotifyListenersOnException(false);
 
-        CountingCacheEventListener.resetCounters();
+        CountingCacheEventListener listener = CountingCacheEventListener.getCountingCacheEventListener(cache);
 
         try {
             cache.putWithWriter(new Element("key1", "value1"));
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
-            assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
+            assertEquals(0, listener.getCacheElementsPut().size());
         } catch(Throwable e) {
             fail("Didn't expect a " + e.getClass().getName());
         }
 
-        CountingCacheEventListener.resetCounters();
+        listener.resetCounters();
 
         try {
             cache.putWithWriter(new Element("key1", "value1"));
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
-            assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+            assertEquals(0, listener.getCacheElementsUpdated().size());
         } catch(Throwable e) {
             fail("Didn't expect a " + e.getClass().getName());
         }
 
-        CountingCacheEventListener.resetCounters();
+        listener.resetCounters();
 
         try {
             cache.removeWithWriter("key1");
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
-            assertEquals(0, CountingCacheEventListener.getCacheElementsRemoved(cache).size());
+            assertEquals(0, listener.getCacheElementsRemoved().size());
         } catch(Throwable e) {
             fail("Didn't expect a " + e.getClass().getName());
         }
@@ -238,20 +238,20 @@ public class CacheWriterTest extends AbstractCacheTest {
         // with listeners notification
         cache.getCacheConfiguration().getCacheWriterConfiguration().setNotifyListenersOnException(true);
 
-        CountingCacheEventListener.resetCounters();
+        listener.resetCounters();
 
         try {
             cache.putWithWriter(new Element("key1", "value1"));
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
-            assertEquals(0, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
-            assertEquals(1, CountingCacheEventListener.getCacheElementsPut(cache).size());
+            assertEquals(0, listener.getCacheElementsUpdated().size());
+            assertEquals(1, listener.getCacheElementsPut().size());
         } catch(Throwable e) {
             fail("Didn't expect a " + e.getClass().getName());
         }
 
-        CountingCacheEventListener.resetCounters();
+        listener.resetCounters();
 
         try {
             assertNotNull(cache.get("key1"));
@@ -259,20 +259,20 @@ public class CacheWriterTest extends AbstractCacheTest {
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
-            assertEquals(0, CountingCacheEventListener.getCacheElementsPut(cache).size());
-            assertEquals(1, CountingCacheEventListener.getCacheElementsUpdated(cache).size());
+            assertEquals(0, listener.getCacheElementsPut().size());
+            assertEquals(1, listener.getCacheElementsUpdated().size());
         } catch(Throwable e) {
             fail("Didn't expect a " + e.getClass().getName());
         }
 
-        CountingCacheEventListener.resetCounters();
+        listener.resetCounters();
 
         try {
             cache.removeWithWriter("key1");
             fail("Expected UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
             // expected
-            assertEquals(1, CountingCacheEventListener.getCacheElementsRemoved(cache).size());
+            assertEquals(1, listener.getCacheElementsRemoved().size());
         }
     }
 

@@ -178,9 +178,10 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), is(0));
         }
 
-        CountingCacheEventListener.resetCounters();
         cache1 = manager1.getCache(cacheName);
         cache2 = manager2.getCache(cacheName);
+        CountingCacheEventListener.getCountingCacheEventListener(cache1).resetCounters();
+        CountingCacheEventListener.getCountingCacheEventListener(cache2).resetCounters();
     }
 
     /**
@@ -463,11 +464,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
 
     @Test
     public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
-
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
-        assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager1.getCache("sampleCache1")).size());
-        assertEquals(1, CountingCacheEventListener.getCacheElementsPut(manager2.getCache("sampleCache1")).size());
-
+        assertEquals(1, CountingCacheEventListener.getCountingCacheEventListener(manager1.getCache("sampleCache1")).getCacheElementsPut().size());
+        assertEquals(1, CountingCacheEventListener.getCountingCacheEventListener(manager2.getCache("sampleCache1")).getCacheElementsPut().size());
     }
 
     /**
@@ -581,10 +580,12 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
 
         waitForPropagate();
 
+        CountingCacheEventListener listener1 = CountingCacheEventListener.getCountingCacheEventListener(cache1);
+        CountingCacheEventListener listener2 = CountingCacheEventListener.getCountingCacheEventListener(cache2);
         //local initiating cache's counting listener should have been notified
-        assertEquals(4, CountingCacheEventListener.getCacheElementsPut(cache1).size());
+        assertEquals(4, listener1.getCacheElementsPut().size());
         //remote receiving caches' counting listener should have been notified
-        assertEquals(3, CountingCacheEventListener.getCacheElementsPut(cache2).size());
+        assertEquals(3, listener2.getCacheElementsPut().size());
 
         //Update
         cache1.put(new Element("1", new Date()));
@@ -597,9 +598,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         waitForPropagate();
 
         //local initiating cache's counting listener should have been notified
-        assertEquals(4, CountingCacheEventListener.getCacheElementsUpdated(cache1).size());
+        assertEquals(4, listener1.getCacheElementsUpdated().size());
         //remote receiving caches' counting listener should have been notified
-        assertEquals(3, CountingCacheEventListener.getCacheElementsUpdated(cache2).size());
+        assertEquals(3, listener2.getCacheElementsUpdated().size());
 
         //Remove
         cache1.remove("1");
@@ -610,10 +611,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         waitForPropagate();
 
         //local initiating cache's counting listener should have been notified
-        assertEquals(4, CountingCacheEventListener.getCacheElementsRemoved(cache1).size());
+        assertEquals(4, listener1.getCacheElementsRemoved().size());
         //remote receiving caches' counting listener should have been notified
-        assertEquals(3, CountingCacheEventListener.getCacheElementsRemoved(cache2).size());
-
+        assertEquals(3, listener2.getCacheElementsRemoved().size());
     }
 
 

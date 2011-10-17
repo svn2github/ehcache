@@ -24,7 +24,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.CountingCacheEventListener;
 
 import org.junit.After;
 
@@ -121,7 +120,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
             assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), is(0));
         }
 
-        CountingCacheEventListener.resetCounters();
         cache1 = manager1.getCache(cacheName);
         cache2 = manager2.getCache(cacheName);
     }

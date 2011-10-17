@@ -48,7 +48,6 @@ public class CacheExtensionTest {
      */
     @Before
     public void setUp() throws Exception {
-        CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-cacheextension.xml");
     }
 

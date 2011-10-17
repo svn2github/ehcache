@@ -37,7 +37,6 @@ import org.junit.Test;
  * @version $Id$
  */
 public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventListenerTest {
-    private CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
 
     /**
      * {@inheritDoc}
@@ -47,12 +46,11 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
     @Override
     @Before
     public void setUp() throws Exception {
-        CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-nolisteners.xml");
         cache = manager.getCache(cacheName);
         cache.removeAll();
         //this call can be repeated. Attempts to further register the listener are ignored.
-        cache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
+        cache.getCacheEventNotificationService().registerListener(new CountingCacheEventListener());
     }
 
     /**
@@ -62,8 +60,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
      */
     @Test
     public void testAttemptDoubleRegistrationOfSameInstance() {
-        cache.getCacheEventNotificationService().registerListener(
-                countingCacheEventListener);
+        cache.getCacheEventNotificationService().registerListener(CountingCacheEventListener.getCountingCacheEventListener(cache));
         // should just be the one from setUp
         assertEquals(2, cache.getCacheEventNotificationService()
                 .getCacheEventListeners().size());
@@ -83,8 +80,7 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
      */
     @Test
     public void testAttemptDoubleRegistrationOfSeparateInstance() {
-        cache.getCacheEventNotificationService().registerListener(
-                new CountingCacheEventListener());
+        cache.getCacheEventNotificationService().registerListener(new CountingCacheEventListener());
         // should just be the one from setUp
         assertEquals(3, cache.getCacheEventNotificationService()
                 .getCacheEventListeners().size());

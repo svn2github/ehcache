@@ -61,7 +61,6 @@ public class CacheExceptionHandlerTest {
      */
     @Before
     public void setUp() throws Exception {
-        CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         cache = manager.getEhcache(cacheName);
         cache.removeAll();

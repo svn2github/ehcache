@@ -22,7 +22,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.collection.IsEmptyCollection;
@@ -102,7 +101,6 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
 
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
-        CountingCacheEventListener.resetCounters();
         manager1 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
         manager2 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));;
 
