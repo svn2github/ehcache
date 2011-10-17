@@ -36,6 +36,8 @@ import java.util.List;
  */
 public class CountingCacheEventListener implements CacheEventListener {
 
+    private static final boolean DEBUG = false;
+    
     private final List<CacheEvent> elementsPut = Collections.synchronizedList(new ArrayList<CacheEvent>());
     private final List<CacheEvent> elementsUpdated = Collections.synchronizedList(new ArrayList<CacheEvent>());
     private final List<CacheEvent> elementsRemoved = Collections.synchronizedList(new ArrayList<CacheEvent>());
@@ -165,7 +167,11 @@ public class CountingCacheEventListener implements CacheEventListener {
          */
         public CacheEvent(Element element) {
             this.element = element;
-            this.stack = new Throwable();
+            if (DEBUG) {
+                this.stack = new Throwable();
+            } else {
+                this.stack = null;
+            }
         }
 
         /**
@@ -182,9 +188,11 @@ public class CountingCacheEventListener implements CacheEventListener {
         @Override
         public String toString() {
           StringBuilder sb = new StringBuilder(element.toString()).append("\n");
-          StringWriter writer = new StringWriter();
-          stack.printStackTrace(new PrintWriter(writer));
-          sb.append(writer);
+          if (stack != null) {
+            StringWriter writer = new StringWriter();
+            stack.printStackTrace(new PrintWriter(writer));
+            sb.append(writer);
+          }
           return sb.toString();
         }
     }
