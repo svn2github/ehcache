@@ -72,7 +72,7 @@ final class AgentLoader {
 
     private static Class<?> getVirtualMachineClass() throws ClassNotFoundException {
         try {
-            return Class.forName(VIRTUAL_MACHINE_CLASSNAME);
+            return ClassLoader.getSystemClassLoader().loadClass(VIRTUAL_MACHINE_CLASSNAME);
         } catch (ClassNotFoundException cnfe) {
             for (File jar : getPossibleToolsJars()) {
                 try {
