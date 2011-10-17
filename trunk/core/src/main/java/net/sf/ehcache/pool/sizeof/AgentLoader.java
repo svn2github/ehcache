@@ -25,6 +25,8 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,18 +74,31 @@ final class AgentLoader {
 
     private static Class<?> getVirtualMachineClass() throws ClassNotFoundException {
         try {
-            return ClassLoader.getSystemClassLoader().loadClass(VIRTUAL_MACHINE_CLASSNAME);
-        } catch (ClassNotFoundException cnfe) {
-            for (File jar : getPossibleToolsJars()) {
-                try {
-                    Class<?> vmClass = new URLClassLoader(new URL[] {jar.toURL()}).loadClass(VIRTUAL_MACHINE_CLASSNAME);
-                    LOGGER.info("Located valid 'tools.jar' at '{}'", jar);
-                    return vmClass;
-                } catch (Throwable t) {
-                    LOGGER.info("Exception while loading tools.jar from '{}': {}", jar, t);
+            return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+                public Class<?> run() {
+                    try {
+                        return ClassLoader.getSystemClassLoader().loadClass(VIRTUAL_MACHINE_CLASSNAME);
+                    } catch (ClassNotFoundException cnfe) {
+                        for (File jar : getPossibleToolsJars()) {
+                            try {
+                                Class<?> vmClass = new URLClassLoader(new URL[] {jar.toURL()}).loadClass(VIRTUAL_MACHINE_CLASSNAME);
+                                LOGGER.info("Located valid 'tools.jar' at '{}'", jar);
+                                return vmClass;
+                            } catch (Throwable t) {
+                                LOGGER.info("Exception while loading tools.jar from '{}': {}", jar, t);
+                            }
+                        }
+                        // wrap the ClassNotFoundException in a RuntimeException to make AccessController.doPrivileged() propagate it
+                        throw new RuntimeException(new ClassNotFoundException(VIRTUAL_MACHINE_CLASSNAME));
+                    }
                 }
+            });
+        } catch (RuntimeException re) {
+            if (re.getCause() instanceof ClassNotFoundException) {
+                // unwrap the ClassNotFoundException
+                throw (ClassNotFoundException) re.getCause();
             }
-            throw new ClassNotFoundException(VIRTUAL_MACHINE_CLASSNAME);
+            throw re;
         }
     }
 
