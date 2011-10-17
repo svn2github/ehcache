@@ -16,8 +16,12 @@
 
 package net.sf.ehcache.terracotta;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +36,7 @@ import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
+import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
@@ -453,7 +458,19 @@ public class TerracottaClient {
         }
 
         private void waitUntilRejoinRequested() {
-            info("Rejoin worker waiting until rejoin requested...");
+            String message = "Rejoin worker waiting until rejoin requested";
+            List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
+            for (MemoryPoolMXBean memoryPoolMXBean : memoryPoolMXBeans) {
+                String name = memoryPoolMXBean.getName();
+                if (!name.contains("Perm Gen")) {
+                    continue;
+                }
+                MemoryUsage usage = memoryPoolMXBean.getUsage();
+                message += " (" + name + " : " + MemoryUnit.BYTES.toMegaBytes(usage.getUsed()) + "M / "
+                           + MemoryUnit.BYTES.toMegaBytes(usage.getMax()) + "M)";
+            }
+            info(message + "...");
+
             synchronized (rejoinSync) {
                 while (!rejoinRequestHolder.isRejoinRequested()) {
                     if (shutdown) {
