@@ -33,10 +33,10 @@ import static org.junit.Assert.fail;
  */
 public class PoolableMemoryStoreTest {
 
+    private static final int ENTRIES = 2;
     private volatile Cache cache;
     private volatile BoundedPool onHeapPool;
     private volatile MemoryStore memoryStore;
-    private volatile Element lastEvicted;
 
     private static Collection<Object> keysOfOnHeapElements(MemoryStore store) {
         return (Collection<Object>) store.getKeys();
@@ -58,7 +58,6 @@ public class PoolableMemoryStoreTest {
     public void setUp() {
         cache = new Cache(new CacheConfiguration("myCache1", 0).eternal(true));
 
-        lastEvicted = null;
         cache.getCacheEventNotificationService().registerListener(new CacheEventListener() {
             public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException { }
 
@@ -69,7 +68,6 @@ public class PoolableMemoryStoreTest {
             public void notifyElementExpired(Ehcache cache, Element element) { }
 
             public void notifyElementEvicted(Ehcache cache, Element element) {
-                lastEvicted = element;
             }
 
             public void notifyRemoveAll(Ehcache cache) { }
@@ -83,7 +81,7 @@ public class PoolableMemoryStoreTest {
         });
 
         onHeapPool = new BoundedPool(
-                16384 * 2, // == 2 elements
+                16384 * ENTRIES, // == 2 elements
                 new RoundRobinOnHeapPoolEvictor(),
                 new ConstantSizeOfEngine(
                         1536,  /* 1.5 KB*/
@@ -108,24 +106,24 @@ public class PoolableMemoryStoreTest {
         for (int i = 0; i < 20; i++) {
             Element e = new Element(i, "" + i);
             memoryStore.put(e);
-            assertTrue("#" + i, countElementsOnHeap(memoryStore) <= 2);
+            assertTrue("#" + i, countElementsOnHeap(memoryStore) <= ENTRIES);
         }
 
-        assertEquals(2, countElementsOnHeap(memoryStore));
-        assertEquals(16384 * 2, onHeapPool.getSize());
+        assertEquals(ENTRIES, countElementsOnHeap(memoryStore));
+        assertEquals(16384 * ENTRIES, onHeapPool.getSize());
 
         // get an on-heap element
         Object key = keysOfOnHeapElements(memoryStore).iterator().next();
         memoryStore.get(key);
 
-        assertEquals(2, countElementsOnHeap(memoryStore));
-        assertEquals(16384 * 2, onHeapPool.getSize());
+        assertEquals(ENTRIES, countElementsOnHeap(memoryStore));
+        assertEquals(16384 * ENTRIES, onHeapPool.getSize());
 
         // put a new element on-heap
         memoryStore.put(new Element(-1, "-1"));
 
-        assertEquals(2, countElementsOnHeap(memoryStore));
-        assertEquals(16384 * 2, onHeapPool.getSize());
+        assertEquals(ENTRIES, countElementsOnHeap(memoryStore));
+        assertEquals(16384 * ENTRIES, onHeapPool.getSize());
     }
 
     @Test
