@@ -26,7 +26,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,8 +75,8 @@ final class AgentLoader {
 
     private static Class<?> getVirtualMachineClass() throws ClassNotFoundException {
         try {
-            return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
-                public Class<?> run() {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+                public Class<?> run() throws Exception {
                     try {
                         return ClassLoader.getSystemClassLoader().loadClass(VIRTUAL_MACHINE_CLASSNAME);
                     } catch (ClassNotFoundException cnfe) {
@@ -88,17 +89,16 @@ final class AgentLoader {
                                 LOGGER.info("Exception while loading tools.jar from '{}': {}", jar, t);
                             }
                         }
-                        // wrap the ClassNotFoundException in a RuntimeException to make AccessController.doPrivileged() propagate it
-                        throw new RuntimeException(new ClassNotFoundException(VIRTUAL_MACHINE_CLASSNAME));
+                        throw new ClassNotFoundException(VIRTUAL_MACHINE_CLASSNAME);
                     }
                 }
             });
-        } catch (RuntimeException re) {
-            if (re.getCause() instanceof ClassNotFoundException) {
-                // unwrap the ClassNotFoundException
-                throw (ClassNotFoundException) re.getCause();
+        } catch (PrivilegedActionException pae) {
+            Throwable actual = pae.getCause();
+            if (actual instanceof ClassNotFoundException) {
+                throw (ClassNotFoundException) actual;
             }
-            throw re;
+            throw new AssertionError("Unexpected checked exception : " + actual);
         }
     }
 
