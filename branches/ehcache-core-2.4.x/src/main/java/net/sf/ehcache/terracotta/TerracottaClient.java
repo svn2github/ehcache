@@ -16,8 +16,12 @@
 
 package net.sf.ehcache.terracotta;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -49,6 +53,7 @@ public class TerracottaClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
     private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
+    private static final long BYTES_PER_MB = 1024L * 1024L;
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
     private volatile ClusteredInstanceFactoryWrapper clusteredInstanceFactory;
@@ -453,7 +458,19 @@ public class TerracottaClient {
         }
 
         private void waitUntilRejoinRequested() {
-            info("Rejoin worker waiting until rejoin requested...");
+            String message = "Rejoin worker waiting until rejoin requested";
+            List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
+            for (MemoryPoolMXBean memoryPoolMXBean : memoryPoolMXBeans) {
+                String name = memoryPoolMXBean.getName();
+                if (!name.contains("Perm Gen")) {
+                    continue;
+                }
+                MemoryUsage usage = memoryPoolMXBean.getUsage();
+                message += " (" + name + " : " + (usage.getUsed() / BYTES_PER_MB) + "M / "
+                           + (usage.getMax() / BYTES_PER_MB) + "M)";
+            }
+            info(message + "...");
+            
             synchronized (rejoinSync) {
                 while (!rejoinRequestHolder.isRejoinRequested()) {
                     if (shutdown) {
@@ -677,7 +694,7 @@ public class TerracottaClient {
         /**
          * Constructor
          *
-         * @param clusterNode
+         * @param currentNode
          * @param latch
          */
         public FireRejoinEventListener(ClusterNode currentNode, CountDownLatch latch) {
