@@ -288,6 +288,8 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile NonstopActiveDelegateHolderImpl nonstopActiveDelegateHolder;
 
+    private volatile EhcacheXAResource xaResource;
+
     /**
      * 2.0 and higher Constructor
      * <p/>
@@ -1239,7 +1241,7 @@ public class Cache implements Ehcache, StoreListener {
             TransactionIDFactory transactionIDFactory = cacheManager.createTransactionIDFactory();
 
             // this xaresource is for initial registration and recovery
-            EhcacheXAResource xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
+            xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
                     softLockFactory, transactionIDFactory, copyStrategy);
             transactionManagerLookup.register(xaResource);
 
@@ -2468,6 +2470,11 @@ public class Cache implements Ehcache, StoreListener {
         if (compoundStore != null) {
             compoundStore.removeStoreListener(this);
             compoundStore.dispose();
+        }
+
+        if (xaResource != null) {
+            transactionManagerLookup.unregister(xaResource);
+            xaResource = null;
         }
 
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
