@@ -34,7 +34,7 @@ public final class NotifyingMemoryStore extends MemoryStore {
      * @param pool  the pool tracking the on-heap usage
      */
     private NotifyingMemoryStore(final Ehcache cache, Pool pool) {
-        super(cache, pool);
+        super(cache, pool, true);
         this.cache = cache;
     }
 

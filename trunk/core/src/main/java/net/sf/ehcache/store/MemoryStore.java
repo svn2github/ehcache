@@ -119,8 +119,9 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      *
      * @param cache the cache
      * @param pool the pool tracking the on-heap usage
+     * @param doNotifications whether to notify the Cache's EventNotificationService on eviction and expiry
      */
-    protected MemoryStore(final Ehcache cache, Pool pool) {
+    protected MemoryStore(final Ehcache cache, Pool pool, final boolean doNotifications) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
@@ -143,7 +144,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, loadFactor);
         map = new SelectableConcurrentHashMap(poolAccessor, elementPinningEnabled, initialCapacity,
-            loadFactor, CONCURRENCY_LEVEL, isClockEviction() && !cachePinned ? maximumSize : 0, cache.getCacheEventNotificationService());
+            loadFactor, CONCURRENCY_LEVEL, isClockEviction() && !cachePinned ? maximumSize : 0,
+                doNotifications ? cache.getCacheEventNotificationService() : null);
 
         status = Status.STATUS_ALIVE;
 
@@ -194,7 +196,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
     public static MemoryStore create(final Ehcache cache, Pool pool) {
-        MemoryStore memoryStore = new MemoryStore(cache, pool);
+        MemoryStore memoryStore = new MemoryStore(cache, pool, false);
         cache.getCacheConfiguration().addConfigurationListener(memoryStore);
         return memoryStore;
     }

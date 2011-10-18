@@ -407,11 +407,13 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     if (!isPinned(key, hash)) {
                         this.fullyPinned = false;
                     }
-                    if (SelectableConcurrentHashMap.this.maxSize > 0
-                        && SelectableConcurrentHashMap.this.quickSize() > SelectableConcurrentHashMap.this.maxSize) {
-                        Element evict = nextExpiredOrToEvict();
-                        if (evict != null) {
-                            evicted = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                    if (!fullyPinned && SelectableConcurrentHashMap.this.maxSize > 0) {
+                        long runs = Math.min(5, SelectableConcurrentHashMap.this.quickSize() - SelectableConcurrentHashMap.this.maxSize);
+                        while (runs-- > 0) {
+                            Element evict = nextExpiredOrToEvict(value);
+                            if (evict != null) {
+                                evicted = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                            }
                         }
                     }
                 }
@@ -423,7 +425,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         }
 
         private void notifyEvictionOrExpiry(final Element element) {
-            if(element != null) {
+            if(element != null && cacheEventNotificationService != null) {
                 if (element.isExpired()) {
                     cacheEventNotificationService.notifyElementExpiry(element, false);
                 } else {
@@ -452,7 +454,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             }
         }
 
-        private Element nextExpiredOrToEvict() {
+        private Element nextExpiredOrToEvict(final Element justAdded) {
 
             Element lastUnpinned = null;
             int i = 0;
@@ -466,7 +468,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     return next.value;
                 } else {
                     final boolean pinned = next.pinned;
-                    if (!pinned) {
+                    if (!pinned && next.value != justAdded) {
                         lastUnpinned = next.value;
                     }
                     next.accessed = pinned;
@@ -486,7 +488,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             Element remove = null;
             writeLock().lock();
             try {
-                Element evict = nextExpiredOrToEvict();
+                Element evict = nextExpiredOrToEvict(null);
                 if (evict != null) {
                     remove = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
                 }
