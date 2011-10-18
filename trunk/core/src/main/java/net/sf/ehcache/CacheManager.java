@@ -861,12 +861,18 @@ public class CacheManager {
 
 
     /**
-     * Checks if a cacheManager already exists for a given name
-     * @param name the cacheManager name
-     * @return if it exists already returns the CacheManager, otherwise returns null
+     * Checks if a cacheManager already exists for a given name and gets it.
+     *
+     * @param name the cacheManager name.
+     * @return if a cacheManager exists with given name returns the CacheManager, otherwise returns null. If <code>name</code> is null,
+     *         returns the default unnamed cacheManager if it has been created
+     *         already otherwise returns null
      */
     public static CacheManager getCacheManager(String name) {
         synchronized (CacheManager.class) {
+            if (name == null) {
+                name = DEFAULT_NAME;
+            }
             return CACHE_MANAGERS_MAP.get(name);
         }
     }

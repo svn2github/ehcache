@@ -341,12 +341,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
             return null;
         }
 
-        // remove single item.
-        Element element = map.remove(key);
-        if (element == null && LOG.isDebugEnabled()) {
-            LOG.debug(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");
-        }
-        return element;
+        return map.remove(key);
     }
 
     /**
@@ -557,8 +552,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return true if an element was removed, false otherwise.
      */
     private boolean removeElementChosenByEvictionPolicy(final Element elementJustAdded) {
-
-        LOG.debug("Cache is full. Removing element ...");
 
         if (policy == null) {
             return map.evict();
