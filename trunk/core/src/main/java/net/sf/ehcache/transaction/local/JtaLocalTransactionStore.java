@@ -116,7 +116,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
                 if (Boolean.getBoolean(ALTERNATIVE_TERMINATION_MODE_SYS_PROPERTY_NAME)) {
 
                     JtaLocalEhcacheXAResource xaRes = new JtaLocalEhcacheXAResource(transactionController,
-                            transactionController.getCurrentTransactionContext().getTransactionId());
+                            transactionController.getCurrentTransactionContext().getTransactionId(), transactionManagerLookup);
                     transactionManagerLookup.register(xaRes);
                     tx.enlistResource(xaRes);
                 } else {
@@ -179,15 +179,19 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
     private static final class JtaLocalEhcacheXAResource implements EhcacheXAResource {
         private final TransactionController transactionController;
         private final TransactionID transactionId;
+        private final TransactionManagerLookup transactionManagerLookup;
 
-        private JtaLocalEhcacheXAResource(TransactionController transactionController, TransactionID transactionId) {
+        private JtaLocalEhcacheXAResource(TransactionController transactionController, TransactionID transactionId,
+                                          TransactionManagerLookup transactionManagerLookup) {
             this.transactionController = transactionController;
             this.transactionId = transactionId;
+            this.transactionManagerLookup = transactionManagerLookup;
         }
 
         public void commit(Xid xid, boolean onePhase) throws XAException {
             transactionController.commit(true);
             JtaLocalTransactionStore.BOUND_JTA_TRANSACTIONS.remove();
+            transactionManagerLookup.unregister(this);
         }
 
         public void end(Xid xid, int flag) throws XAException {
@@ -217,6 +221,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
         public void rollback(Xid xid) throws XAException {
             transactionController.rollback();
             JtaLocalTransactionStore.BOUND_JTA_TRANSACTIONS.remove();
+            transactionManagerLookup.unregister(this);
         }
 
         public boolean setTransactionTimeout(int timeout) throws XAException {
