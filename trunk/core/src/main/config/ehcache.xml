@@ -777,7 +777,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     The SizeOf policy can be configured at the cache manager level (directly under <ehcache>) and at
     the cache level (under <cache> or <defaultCache>). The cache policy always overrides the cache manager
-    one if both are set.
+    one if both are set. This element has no effect on distributed caches.
     
     Transactions
     ++++++++++++
