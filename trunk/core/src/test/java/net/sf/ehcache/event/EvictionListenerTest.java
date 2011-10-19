@@ -29,6 +29,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.disk.DiskStorageFactory;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
@@ -163,6 +164,22 @@ public class EvictionListenerTest {
         CountingCacheEventListener countingCacheEventListener = accessCache(cache);
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
         assertThat(cache.getMemoryStoreSize(), is(100L));
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
+        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
+            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
+        }
+        assertThat(cache.getSize(), not(is(0)));
+        assertThat(cacheElementsEvicted.size() + cache.getSize(), is(THREADS * PER_THREAD));
+    }
+
+    @Test
+    public void testGetsAllEvictedKeysClockEviction() throws InterruptedException, ExecutionException {
+        cacheManager.removeCache(CACHE_NAME);
+        CacheConfiguration configuration = new CacheConfiguration(CACHE_NAME, 100)
+            .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.CLOCK);
+        cache = new Cache(configuration);
+        cacheManager.addCache(cache);
+        CountingCacheEventListener countingCacheEventListener = accessCache(cache);
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));

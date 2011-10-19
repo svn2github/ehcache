@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -220,6 +221,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
     final class MemoryStoreSegment extends Segment<Object, Element> {
 
+        private static final int MAX_EVICTION = 5;
         private Iterator<MemoryStoreHashEntry> evictionIterator = iterator();
         private boolean fullyPinned;
         private volatile int numDummyPinnedKeys;
@@ -370,7 +372,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         }
 
         Element putInternal(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean pinned) {
-            Element evicted = null;
+            Element[] evicted = new Element[MAX_EVICTION];
             writeLock().lock();
             try {
                 int c = count;
@@ -408,11 +410,11 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         this.fullyPinned = false;
                     }
                     if (!fullyPinned && SelectableConcurrentHashMap.this.maxSize > 0) {
-                        long runs = Math.min(5, SelectableConcurrentHashMap.this.quickSize() - SelectableConcurrentHashMap.this.maxSize);
+                        int runs = Math.min(MAX_EVICTION, SelectableConcurrentHashMap.this.quickSize() - (int) SelectableConcurrentHashMap.this.maxSize);
                         while (runs-- > 0) {
                             Element evict = nextExpiredOrToEvict(value);
                             if (evict != null) {
-                                evicted = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                                evicted[runs] = (remove(evict.getKey(), hash(evict.getKey().hashCode()), null));
                             }
                         }
                     }
@@ -420,7 +422,9 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                 return oldValue;
             } finally {
                 writeLock().unlock();
-                notifyEvictionOrExpiry(evicted);
+                for (Element element : evicted) {
+                    notifyEvictionOrExpiry(element);
+                }
             }
         }
 
