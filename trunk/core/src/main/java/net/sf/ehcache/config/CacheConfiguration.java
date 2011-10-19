@@ -189,6 +189,11 @@ public class CacheConfiguration implements Cloneable {
      */
     public static final long DEFAULT_MAX_BYTES_ON_DISK  = 0;
 
+    /**
+     * Default eternal value
+     */
+    public static final boolean DEFAULT_ETERNAL_VALUE = true;
+
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
     private static final int HUNDRED_PERCENT = 100;
@@ -242,7 +247,7 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether elements are eternal. If eternal, timeouts are ignored and the element
      * is never expired.
      */
-    protected volatile boolean eternal;
+    protected volatile boolean eternal = DEFAULT_ETERNAL_VALUE;
 
     /**
      * the time to idle for an element before it expires. Is only used

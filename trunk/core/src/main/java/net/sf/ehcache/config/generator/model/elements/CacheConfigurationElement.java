@@ -87,7 +87,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
      * @param cacheConfiguration
      */
     public static void addCommonAttributesWithDefaultCache(NodeElement element, Configuration configuration, CacheConfiguration cacheConfiguration) {
-        element.addAttribute(new SimpleNodeAttribute("eternal", cacheConfiguration.isEternal()).optional(false));
+        element.addAttribute(new SimpleNodeAttribute("eternal", cacheConfiguration.isEternal()).optional(true).defaultValue(
+                CacheConfiguration.DEFAULT_ETERNAL_VALUE));
         if (!(cacheConfiguration.getMaxBytesLocalHeap() > 0 || configuration.getMaxBytesLocalHeap() > 0)) {
             element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalHeap", cacheConfiguration.getMaxEntriesLocalHeap()).optional(false));
         }
