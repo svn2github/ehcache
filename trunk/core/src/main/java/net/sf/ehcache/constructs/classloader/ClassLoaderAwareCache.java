@@ -20,7 +20,10 @@ import java.beans.PropertyChangeListener;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -1938,7 +1941,7 @@ public class ClassLoaderAwareCache implements Ehcache {
         ClassLoader prev = t.getContextClassLoader();
         t.setContextClassLoader(this.classLoader);
         try {
-            return this.cache.getKeys();
+            return Collections.unmodifiableList(new ClassLoaderAwareList(this.cache.getKeys()));
         } finally {
             t.setContextClassLoader(prev);
         }
@@ -1959,5 +1962,89 @@ public class ClassLoaderAwareCache implements Ehcache {
         }
     }
 
+    /**
+     * This class takes care of loading and unloading of classloader appropriately.
+     * @author amaheshw
+     *
+     */
+    private class ClassLoaderAwareList extends AbstractList {
+        private final Collection delegate;
+
+        public ClassLoaderAwareList(final Collection delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Object get(int index) {
+            throw new UnsupportedOperationException("get(index) not supported for this List");
+        }
+
+        @Override
+        public int size() {
+            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+            Thread t = Thread.currentThread();
+            ClassLoader prev = t.getContextClassLoader();
+            t.setContextClassLoader(classLoader);
+            try {
+                return this.delegate.size();
+            } finally {
+                t.setContextClassLoader(prev);
+            }
+        }
+
+        @Override
+        public Iterator iterator() {
+            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+            Thread t = Thread.currentThread();
+            ClassLoader prev = t.getContextClassLoader();
+            t.setContextClassLoader(classLoader);
+            try {
+                return new ClassLoaderAwareIterator(delegate.iterator());
+            } finally {
+                t.setContextClassLoader(prev);
+            }
+        }
+    }
+
+    /**
+     * Iterator needed for ClassLoaderAwareList
+     * @author amaheshw
+     *
+     */
+    private class ClassLoaderAwareIterator implements Iterator {
+        private final Iterator delegate;
+
+        public ClassLoaderAwareIterator(final Iterator delegate) {
+            this.delegate = delegate;
+        }
+
+        public boolean hasNext() {
+            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+            Thread t = Thread.currentThread();
+            ClassLoader prev = t.getContextClassLoader();
+            t.setContextClassLoader(classLoader);
+            try {
+                return delegate.hasNext();
+            } finally {
+                t.setContextClassLoader(prev);
+            }
+        }
+
+        public Object next() {
+            // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+            Thread t = Thread.currentThread();
+            ClassLoader prev = t.getContextClassLoader();
+            t.setContextClassLoader(classLoader);
+            try {
+                return delegate.next();
+            } finally {
+                t.setContextClassLoader(prev);
+            }
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException("remove not supported for this Iterator");
+        }
+    }
 
 }
