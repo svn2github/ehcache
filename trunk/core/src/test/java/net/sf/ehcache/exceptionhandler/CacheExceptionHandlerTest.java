@@ -17,23 +17,22 @@
 package net.sf.ehcache.exceptionhandler;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
+
 import org.junit.After;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>

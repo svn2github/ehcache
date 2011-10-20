@@ -38,7 +38,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.ConfigurationFactory;
-import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.collection.IsEmptyCollection;
