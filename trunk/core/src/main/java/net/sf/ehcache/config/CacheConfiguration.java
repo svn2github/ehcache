@@ -192,7 +192,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Default eternal value
      */
-    public static final boolean DEFAULT_ETERNAL_VALUE = true;
+    public static final boolean DEFAULT_ETERNAL_VALUE = false;
 
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class.getName());
