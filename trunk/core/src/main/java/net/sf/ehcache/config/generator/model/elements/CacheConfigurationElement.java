@@ -129,9 +129,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 .defaultValue(CacheConfiguration.DEFAULT_TRANSACTIONAL_MODE));
         element.addAttribute(new SimpleNodeAttribute("statistics", cacheConfiguration.getStatistics()).optional(true).defaultValue(
                 CacheConfiguration.DEFAULT_STATISTICS));
-        element.addAttribute(new SimpleNodeAttribute("memoryStoreEvictionPolicy", MemoryStoreEvictionPolicyEnum.valueOf(cacheConfiguration
-                .getMemoryStoreEvictionPolicy().toString())).optional(true).defaultValue(
-                CacheConfiguration.DEFAULT_MEMORY_STORE_EVICTION_POLICY.toString().toLowerCase()));
+        element.addAttribute(new SimpleNodeAttribute("memoryStoreEvictionPolicy", cacheConfiguration.getMemoryStoreEvictionPolicy()
+                .toString().toUpperCase()).optional(true).defaultValue(CacheConfiguration.DEFAULT_MEMORY_STORE_EVICTION_POLICY.toString().toUpperCase()));
     }
 
     /**
