@@ -29,7 +29,6 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy.MemoryStoreEvictionPolicyEnum;
 
 /**
  * Element representing the {@link CacheConfiguration}
@@ -130,7 +129,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         element.addAttribute(new SimpleNodeAttribute("statistics", cacheConfiguration.getStatistics()).optional(true).defaultValue(
                 CacheConfiguration.DEFAULT_STATISTICS));
         element.addAttribute(new SimpleNodeAttribute("memoryStoreEvictionPolicy", cacheConfiguration.getMemoryStoreEvictionPolicy()
-                .toString().toUpperCase()).optional(true).defaultValue(CacheConfiguration.DEFAULT_MEMORY_STORE_EVICTION_POLICY.toString().toUpperCase()));
+                .toString().toUpperCase()).optional(true).defaultValue(
+                CacheConfiguration.DEFAULT_MEMORY_STORE_EVICTION_POLICY.toString().toUpperCase()));
     }
 
     /**
