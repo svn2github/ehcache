@@ -2404,7 +2404,7 @@ public class Cache implements Ehcache, StoreListener {
 
     /**
      * Removes all cached items.
-     * Synchronization is handled within the method.
+     * Terracotta clustered caches may require more time to execute this operation because cached items must also be removed from the Terracotta Server Array. Synchronization is handled within the method.
      * <p/>
      * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
      * This exception should be caught in those circumstances.
