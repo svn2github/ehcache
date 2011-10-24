@@ -24,6 +24,7 @@ import java.util.Set;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
@@ -538,6 +539,13 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
      */
     public Set getLocalKeys() {
         throw new NonStopCacheException("getLocalKeys() timed out");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheConfiguration.TransactionalMode getTransactionalMode() {
+        throw new NonStopCacheException("getTransactionalMode() timed out");
     }
 
     /**

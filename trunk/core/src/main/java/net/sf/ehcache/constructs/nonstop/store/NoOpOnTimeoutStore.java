@@ -27,6 +27,7 @@ import java.util.Set;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
@@ -434,6 +435,13 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
      */
     public Set getLocalKeys() {
         return Collections.EMPTY_SET;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheConfiguration.TransactionalMode getTransactionalMode() {
+        return null;
     }
 
     /**

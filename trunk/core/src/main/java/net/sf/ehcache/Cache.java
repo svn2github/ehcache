@@ -1067,6 +1067,12 @@ public class Cache implements Ehcache, StoreListener {
                             "CacheManager should create instances of TerracottaStore for Terracotta Clustered caches instead of - "
                                     + (tempStore == null ? "null" : tempStore.getClass().getName()));
                 }
+                CacheConfiguration.TransactionalMode clusteredTransactionalMode = ((TerracottaStore)tempStore).getTransactionalMode();
+                if (clusteredTransactionalMode != null && !clusteredTransactionalMode.equals(configuration.getTransactionalMode())) {
+                    throw new InvalidConfigurationException("Transactional mode cannot be changed on clustered caches. "
+                        + "Please reconfigure cache '" + getName() + "' with transactionalMode = " + clusteredTransactionalMode
+                    );
+                }
                 TerracottaStore terracottaStore = (TerracottaStore) makeXaStrictTransactionalIfNeeded(tempStore, copyStrategy);
 
                 NonstopConfiguration nonstopConfig = getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();

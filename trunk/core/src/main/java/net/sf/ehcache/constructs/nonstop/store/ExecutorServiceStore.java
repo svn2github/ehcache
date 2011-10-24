@@ -33,6 +33,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
@@ -1098,6 +1099,21 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
             });
         } catch (TimeoutException e) {
             return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getLocalKeys();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheConfiguration.TransactionalMode getTransactionalMode() {
+        try {
+            return executeWithExecutor(new Callable<CacheConfiguration.TransactionalMode>() {
+                public CacheConfiguration.TransactionalMode call() throws Exception {
+                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getTransactionalMode();
+                }
+            });
+        } catch (TimeoutException e) {
+            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().getTransactionalMode();
         }
     }
 

@@ -28,6 +28,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -325,6 +326,11 @@ public class MockStoreWithFlag implements TerracottaStore {
     }
 
     public Set getLocalKeys() {
+        markAccessFlag();
+        return null;
+    }
+
+    public CacheConfiguration.TransactionalMode getTransactionalMode() {
         markAccessFlag();
         return null;
     }

@@ -488,6 +488,13 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
+    public CacheConfiguration.TransactionalMode getTransactionalMode() {
+      return executorServiceStore.getTransactionalMode();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Element unlockedGet(Object key) {
         return executorServiceStore.unlockedGet(key);
     }

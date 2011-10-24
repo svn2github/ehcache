@@ -26,6 +26,7 @@ import java.util.Set;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Result;
@@ -372,6 +373,16 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
     public Set getLocalKeys() {
         if (underlyingStore instanceof TerracottaStore) {
             return ((TerracottaStore) underlyingStore).getLocalKeys();
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheConfiguration.TransactionalMode getTransactionalMode() {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore) underlyingStore).getTransactionalMode();
         }
         throw new CacheException("underlying store is not an instance of TerracottaStore");
     }

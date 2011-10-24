@@ -28,6 +28,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.constructs.nonstop.NullCacheLockProvider;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -361,6 +362,11 @@ public class TestRejoinStore implements TerracottaStore {
     }
 
     public Set getLocalKeys() {
+        alwaysCalledMethod();
+        return null;
+    }
+
+    public CacheConfiguration.TransactionalMode getTransactionalMode() {
         alwaysCalledMethod();
         return null;
     }

@@ -19,6 +19,7 @@ package net.sf.ehcache.store;
 import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 
 /**
  * Use for internal purpose only. Teaser: Stores of Terracotta clustered caches implements this interface.
@@ -68,8 +69,19 @@ public interface TerracottaStore extends Store {
     
     /**
      * Returns set of keys from the cache which are present in the node locally.
+     *
      * @return set of keys present locally in the node
      */
     public Set getLocalKeys();
+
+
+    /**
+     * Get the transactional mode of this store. The returned value is the
+     * String value of CacheConfiguration.TransactionalMode.
+     *
+     * @return a String representation of this store's transactional mode.
+     * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
+     */
+    public CacheConfiguration.TransactionalMode getTransactionalMode();
 
 }
