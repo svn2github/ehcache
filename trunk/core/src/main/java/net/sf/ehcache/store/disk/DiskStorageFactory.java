@@ -497,14 +497,22 @@ public class DiskStorageFactory {
                 }
             } catch (Throwable e) {
                 LOG.error("Disk Write of " + placeholder.getKey() + " failed: ", e);
-                placeholder.setFailedToFlush(true);
                 FrontEndCacheTier frontEndCacheTier = eventService.getFrontEndCacheTier();
                 if (frontEndCacheTier != null) {
-                    if (!frontEndCacheTier.isCached(placeholder.getKey())) {
-                        if (store.evict(placeholder.getKey(), placeholder)) {
-                            eventService.notifyElementEvicted(placeholder.getElement(), false);
+                    Lock l = frontEndCacheTier.getLockFor(placeholder.getKey()).writeLock();
+                    l.lock();
+                    try {
+                        placeholder.setFailedToFlush(true);
+                        if (!frontEndCacheTier.isCached(placeholder.getKey())) {
+                            if (store.evict(placeholder.getKey(), placeholder)) {
+                                eventService.notifyElementEvicted(placeholder.getElement(), false);
+                            }
                         }
+                    } finally {
+                        l.unlock();
                     }
+                } else {
+                    placeholder.setFailedToFlush(true);
                 }
                 return null;
             }

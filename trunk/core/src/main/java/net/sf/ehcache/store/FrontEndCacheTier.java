@@ -610,7 +610,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
      * @param key key of interest
      * @return lock for the supplied key
      */
-    protected ReadWriteLock getLockFor(Object key) {
+    public ReadWriteLock getLockFor(Object key) {
         return masterLocks.getLockForKey(key);
     }
 
@@ -679,7 +679,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
      * @return true if cached, false otherwise
      */
     public boolean isCached(final Object key) {
-        return cache.containsKey(key);
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
+        try {
+            return cache.containsKey(key);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**

@@ -27,7 +27,6 @@ import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEv
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
@@ -523,9 +522,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
-        assertThat(cache.getMemoryStoreSize(), is(10L));
+        assertThat(cache.getMemoryStoreSize(), equalTo(10L));
         DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
-        assertThat(cache.getMemoryStoreSize(), is(10L));
+        assertThat(cache.getMemoryStoreSize(), equalTo(10L));
 
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
         assertThat(listener.getCacheElementsEvicted(), hasSize(1));
