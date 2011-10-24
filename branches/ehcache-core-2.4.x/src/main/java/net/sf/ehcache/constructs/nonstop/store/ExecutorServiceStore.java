@@ -37,6 +37,7 @@ import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.concurrency.CacheOperationUnderExplicitLockCallable;
 import net.sf.ehcache.constructs.nonstop.concurrency.ExplicitLockingContextThreadLocal;
+import net.sf.ehcache.constructs.nonstop.concurrency.NonStopCacheKeySet;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -376,7 +377,7 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
         try {
             rv = executeWithExecutor(new Callable<List>() {
                 public List call() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getKeys();
+                    return new NonStopCacheKeySet(nonstopActiveDelegateHolder, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getKeys());
                 }
             });
         } catch (TimeoutException e) {

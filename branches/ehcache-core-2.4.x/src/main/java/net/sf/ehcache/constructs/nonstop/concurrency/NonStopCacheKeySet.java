@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.nonstop.concurrency;
 
 import java.util.AbstractList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
@@ -33,15 +34,17 @@ import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 public class NonStopCacheKeySet extends AbstractList {
     private final NonstopStore nonstopStore;
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
+    private final List keys;
 
     /**
      * Non stop store to iterate over key set
-     * @param nonstopStore
      * @param nonstopActiveDelegateHolder
+     * @param list
      */
-    public NonStopCacheKeySet(NonstopStore nonstopStore, NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
-        this.nonstopStore = nonstopStore;
+    public NonStopCacheKeySet(NonstopActiveDelegateHolder nonstopActiveDelegateHolder, List keys) {
+        this.nonstopStore = nonstopActiveDelegateHolder.getNonstopStore();
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
+        this.keys = keys;
     }
 
     /**
@@ -50,7 +53,7 @@ public class NonStopCacheKeySet extends AbstractList {
      */
     @Override
     public Iterator iterator() {
-        return new NonStopCacheKeySetIterator(nonstopStore, nonstopActiveDelegateHolder);
+        return new NonStopCacheKeySetIterator(nonstopStore, keys);
     }
 
     /**
@@ -61,11 +64,20 @@ public class NonStopCacheKeySet extends AbstractList {
         return this.nonstopStore.executeClusterOperation(new ClusterOperation<Integer>() {
 
             public Integer performClusterOperation() throws Exception {
-                return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getKeys().size();
+                return keys.size();
             }
 
             public Integer performClusterOperationTimedOut(TimeoutBehaviorType configuredTimeoutBehavior) {
-                throw new NonStopCacheException("keySet.size() timed out");
+                switch(configuredTimeoutBehavior) {
+                    case LOCAL_READS:
+                        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys().size();
+                    case NOOP:
+                        return 0;
+                    case EXCEPTION:
+                        throw new NonStopCacheException("keySet.size() timed out");
+                    default:
+                        throw new AssertionError("configuredTimeoutBehavior of unknown type");
+                }
             }
         });
     }
@@ -79,12 +91,12 @@ public class NonStopCacheKeySet extends AbstractList {
         private final NonstopStore nonstopStore;
         private final Iterator iterator;
 
-        public NonStopCacheKeySetIterator(final NonstopStore nonstopStore, final NonstopActiveDelegateHolder nonstopActiveDelegateHolder) {
+        public NonStopCacheKeySetIterator(final NonstopStore nonstopStore, final List keys) {
             this.nonstopStore = nonstopStore;
             this.iterator = this.nonstopStore.executeClusterOperation(new ClusterOperation<Iterator>() {
 
                 public Iterator performClusterOperation() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getKeys().iterator();
+                    return keys.iterator();
                 }
 
                 public Iterator performClusterOperationTimedOut(TimeoutBehaviorType configuredTimeoutBehavior) {
