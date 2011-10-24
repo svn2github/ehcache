@@ -43,6 +43,7 @@ import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Or;
+import org.junit.Ignore;
 
 public class BasicSearchTest {
 
@@ -975,6 +976,45 @@ public class BasicSearchTest {
         cacheManager.shutdown();
     }
 
+    @Test
+    @Ignore
+    public void testSearchWithPinnedKeys() {
+        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+        try {
+            Ehcache cache1 = cacheManager.getEhcache("cache1");
+            Ehcache cache2 = cacheManager.getEhcache("cache2");
+            Ehcache bean_attributes = cacheManager.getEhcache("bean-attributes");
+            cache1.setPinned(0, true);
+            cache2.setPinned(0, true);
+            bean_attributes.setPinned(0, true);
+
+            // uses expression attribute extractors
+            basicQueries(cache1);
+
+            // uses a "custom" attribute extractor too
+            basicQueries(cache2);
+
+            // uses bean attributes
+            basicQueries(bean_attributes);
+
+            cache1.setPinned(1, true);
+            cache2.setPinned(1, true);
+            bean_attributes.setPinned(1, true);
+
+            // uses expression attribute extractors
+            basicQueries(cache1);
+
+            // uses a "custom" attribute extractor too
+            basicQueries(cache2);
+
+            // uses bean attributes
+            basicQueries(bean_attributes);
+
+        } finally {
+            cacheManager.shutdown();
+        }
+    }
+    
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
         assertEquals(expectedKeys.length, results.size());
