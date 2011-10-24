@@ -977,7 +977,6 @@ public class BasicSearchTest {
     }
 
     @Test
-    @Ignore
     public void testSearchWithPinnedKeys() {
         CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         try {
