@@ -17,6 +17,7 @@ package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
@@ -29,6 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author Ludovic Orban
  */
+@IgnoreSizeOf
 public class ReadCommittedSoftLockImpl implements SoftLock {
     private static final int PRIME = 31;
 

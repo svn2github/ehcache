@@ -316,6 +316,14 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
         return underlyingStore.getSearchAttribute(attributeName);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasAbortedSizeOf() {
+        return underlyingStore.hasAbortedSizeOf();
+    }
+
     /* TerracottaStore methods */
 
     /**
