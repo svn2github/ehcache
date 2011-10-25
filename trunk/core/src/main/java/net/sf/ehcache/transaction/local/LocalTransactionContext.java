@@ -121,6 +121,14 @@ public class LocalTransactionContext {
     }
 
     /**
+     * Check if anything was locked in this transaction's context
+     * @return true if at least one soft lock got registered, false otherwise
+     */
+    public boolean hasLockedAnything() {
+        return !softLockMap.isEmpty();
+    }
+
+    /**
      * Commit all work done in the context and release all registered soft locks
      * @param ignoreTimeout true if commit should proceed no matter the timeout
      */
