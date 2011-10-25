@@ -2,6 +2,3 @@
 org.hibernate.cache.CacheKey.type
 org.hibernate.cache.CacheKey.entityOrRoleName
 org.hibernate.cache.CacheKey.entityMode
-#This TC internal field is shared amongst all clustered entries
-org.terracotta.cache.serialization.SerializedEntry.tcClazz
-org.terracotta.cache.serialization.SerializedEntry.cachedValueHolder

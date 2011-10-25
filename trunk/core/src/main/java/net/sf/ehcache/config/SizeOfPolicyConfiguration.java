@@ -46,7 +46,25 @@ public class SizeOfPolicyConfiguration implements Cloneable {
         /**
          * Warn about the exceeded max depth but continue traversal of the sized element
          */
-        CONTINUE,
+        CONTINUE;
+
+        /**
+         * Returns true if this behavior is equal to ABORT
+         *
+         * @return true if this behavior is equal to ABORT
+         */
+        public boolean isAbort() {
+            return this == ABORT;
+        }
+
+        /**
+         * Returns true if this behavior is equal to CONTINUE
+         *
+         * @return true if this behavior is equal to CONTINUE
+         */
+        public boolean isContinue() {
+            return this == CONTINUE;
+        }
     }
 
     private volatile int maxDepth = DEFAULT_MAX_SIZEOF_DEPTH;

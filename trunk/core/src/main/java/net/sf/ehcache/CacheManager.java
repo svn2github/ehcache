@@ -1816,7 +1816,7 @@ public class CacheManager {
             }
             return new DefaultSizeOfEngine(
                 sizeOfPolicyConfiguration.getMaxDepth(),
-                sizeOfPolicyConfiguration.getMaxDepthExceededBehavior().equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+                sizeOfPolicyConfiguration.getMaxDepthExceededBehavior().isAbort());
         }
     }
 

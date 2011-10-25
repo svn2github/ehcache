@@ -19,20 +19,26 @@ package net.sf.ehcache.pool.sizeof;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Stack;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This will walk an object graph and let you execute some "function" along the way
+ *
  * @author Alex Snaps
  */
 final class ObjectGraphWalker {
@@ -48,6 +54,7 @@ final class ObjectGraphWalker {
         " If performance degradation is NOT an issue at the configured limit, raise the limit value using the CacheManager or Cache" +
         " <sizeOfPolicy> element's maxDepth attribute. For more information, see the Ehcache configuration documentation.";
 
+
     private static final String ABORT_MESSAGE =
         "The configured limit of {0} object references was reached while attempting to calculate the size of the object graph." +
         " This can be avoided by adding stop points with @IgnoreSizeOf annotations. Since the CacheManger or Cache <sizeOfPolicy>" +
@@ -56,6 +63,11 @@ final class ObjectGraphWalker {
         " or Cache <sizeOfPolicy> element's maxDepth attribute. For more information, see the Ehcache configuration documentation.";
 
     private static final boolean USE_VERBOSE_DEBUG_LOGGING;
+
+    private static final String SERIALIZED_ENTRY_CLASS_NAME = "org.terracotta.cache.serialization.SerializedEntry";
+    private static final String SERIALIZED_ENTRY_CUSTOM_CLASS_NAME = "org.terracotta.cache.serialization.CustomLifespanSerializedEntry";
+    private static final String SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME = "getPreCalculatedSize";
+    private static volatile Method serializedEntryGetPreCalculatedSizeMethod;
 
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
@@ -69,11 +81,18 @@ final class ObjectGraphWalker {
 
     static {
         USE_VERBOSE_DEBUG_LOGGING = getVerboseSizeOfDebugLogging();
+        Class klass = null;
+        try {
+            klass = ClassLoaderUtil.loadClass(SERIALIZED_ENTRY_CLASS_NAME);
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+        serializedEntryGetPreCalculatedSizeMethod = getSerializedEntryGetPreCalculatedSizeMethod(klass);
     }
-
 
     /**
      * Constructor
+     *
      * @param visitor the visitor to use
      * @param filter the filtering
      * @see Visitor
@@ -83,11 +102,24 @@ final class ObjectGraphWalker {
         this.visitor = visitor;
         this.sizeOfFilter = filter;
     }
+
     private static boolean getVerboseSizeOfDebugLogging() {
 
         String verboseString = System.getProperty(VERBOSE_DEBUG_LOGGING, "false").toLowerCase();
 
         return verboseString.equals("true");
+    }
+
+    private static Method getSerializedEntryGetPreCalculatedSizeMethod(Class klass) {
+        Method method = null;
+        if (klass != null) {
+            try {
+                method = klass.getMethod(SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME, new Class[0]);
+            } catch (Exception e) {
+                // ignored
+            }
+        }
+        return method;
     }
 
     /**
@@ -97,6 +129,7 @@ final class ObjectGraphWalker {
     static interface Visitor {
         /**
          * The visit method executed on each node
+         *
          * @param object the reference at that node
          * @return a long for you to do things with...
          */
@@ -105,6 +138,7 @@ final class ObjectGraphWalker {
 
     /**
      * Walk the graph and call into the "visitor"
+     *
      * @param maxDepth maximum depth to traverse the object graph
      * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
      * @param root the roots of the objects (a shared graph will only be visited once)
@@ -160,7 +194,7 @@ final class ObjectGraphWalker {
                         }
                     }
 
-                    long visitSize = visitor.visit(ref);
+                    long visitSize = calculateSize(ref);
                     if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                         traversalDebugMessage.append("  ").append(visitSize).append("b\t\t")
                             .append(ref.getClass().getName()).append("@").append(System.identityHashCode(ref)).append("\n");
@@ -184,6 +218,47 @@ final class ObjectGraphWalker {
         }
     }
 
+    private long calculateSize(Object ref) {
+        long visitSize = 0;
+        if (ref == null) {
+            return 0;
+        } else if (isSerializedEntry(ref.getClass())) {
+            visitSize = getSerializedEntrySize(ref);
+        } else {
+            visitSize = visitor.visit(ref);
+        }
+        return visitSize;
+    }
+
+    private long getSerializedEntrySize(final Object ref) {
+        if (serializedEntryGetPreCalculatedSizeMethod == null) {
+            Method method = getSerializedEntryGetPreCalculatedSizeMethod(ref != null ? ref.getClass() : null);
+            if (method == null) {
+                throw new CacheException("Could not find " + SERIALIZED_ENTRY_CLASS_NAME + "."
+                        + SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME + "() method from ref: " + ref);
+            }
+            serializedEntryGetPreCalculatedSizeMethod = method;
+        }
+        int rv;
+        try {
+            rv = (Integer) serializedEntryGetPreCalculatedSizeMethod.invoke(ref, new Object[0]);
+        } catch (Exception e) {
+            throw new CacheException("Caught exception while trying to get SerializedEntry.getPreCalculatedSize() for " + ref, e);
+        }
+        return rv;
+    }
+
+    private boolean isSerializedEntry(Class<?> refClass) {
+        if (refClass != null) {
+            if (SERIALIZED_ENTRY_CLASS_NAME.equals(refClass.getName())) {
+                return true;
+            } else if (SERIALIZED_ENTRY_CUSTOM_CLASS_NAME.equals(refClass.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean checkMaxDepth(final int maxDepth, final boolean abortWhenMaxDepthExceeded, boolean warned,
                                   final IdentityHashMap<Object, Object> visited) {
         if (visited.size() >= maxDepth) {
@@ -199,6 +274,7 @@ final class ObjectGraphWalker {
 
     /**
      * Returns the filtered fields for a particular type
+     *
      * @param refClass the type
      * @return A collection of fields to be visited
      */
@@ -208,7 +284,12 @@ final class ObjectGraphWalker {
         if (fieldList != null) {
             return fieldList;
         } else {
-            Collection<Field> result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
+            Collection<Field> result;
+            if (isSerializedEntry(refClass)) {
+                result = Collections.EMPTY_LIST;
+            } else {
+                result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
+            }
             if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                 for (Field field : result) {
                     if (Modifier.isTransient(field.getModifiers())) {
@@ -238,6 +319,7 @@ final class ObjectGraphWalker {
 
     /**
      * Returns all non-primitive fields for the entire class hierarchy of a type
+     *
      * @param refClass the type
      * @return all fields for that type
      */
