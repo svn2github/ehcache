@@ -320,8 +320,6 @@ public class TerracottaClient {
      *
      */
     private class RejoinWorker implements Runnable {
-
-        private final Thread jvmShutdownCheckThread = new Thread();
         private final Object rejoinSync = new Object();
         private final RejoinStatus rejoinStatus = new RejoinStatus();
         private final AtomicInteger rejoinCount = new AtomicInteger();
@@ -376,6 +374,7 @@ public class TerracottaClient {
             try {
                 // Detect whether the JVM is going down by adding a shutdown hook, if it's shutting down
                 // we should get an IllegalStateException.
+                Thread jvmShutdownCheckThread = new Thread();
                 Runtime.getRuntime().addShutdownHook(jvmShutdownCheckThread);
                 Runtime.getRuntime().removeShutdownHook(jvmShutdownCheckThread);
                 return false;
