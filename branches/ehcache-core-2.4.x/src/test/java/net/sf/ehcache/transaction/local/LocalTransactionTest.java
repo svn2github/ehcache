@@ -191,6 +191,41 @@ public class LocalTransactionTest extends TestCase {
         }
     }
 
+    public void testTimeoutInsteadOfDeadlock() throws Exception {
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        transactionController.begin(1);
+
+        TxThread tx2 = new TxThread() {
+            @Override
+            public void exec() throws Exception {
+                transactionController.begin();
+
+                cache1.put(new Element(1, "one"));
+                barrier.await();
+                // sleep more than TX1's timeout
+                Thread.sleep(1500);
+
+                transactionController.commit();
+            }
+        };
+        tx2.start();
+
+        // wait for TX2 to lock key 1
+        barrier.await();
+
+        try {
+            cache1.put(new Element(1, "one"));
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        transactionController.rollback();
+
+        tx2.join();
+        tx2.assertNotFailed();
+    }
+
     public void testCopyOnRead() throws Exception {
         transactionController.begin();
         Object putValue = new Object[]{"one#1"};
@@ -316,8 +351,8 @@ public class LocalTransactionTest extends TestCase {
 
                 try {
                     cache1.remove(1);
-                    fail("expected DeadLockException");
-                } catch (DeadLockException e) {
+                    fail("expected TransactionTimeoutException");
+                } catch (TransactionTimeoutException e) {
                     // expected
                 }
 

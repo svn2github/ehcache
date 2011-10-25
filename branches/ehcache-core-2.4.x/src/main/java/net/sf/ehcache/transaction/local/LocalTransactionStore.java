@@ -197,9 +197,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                             if (!locked) {
                                 LOG.debug("put: cache [{}] key [{}] soft locked in foreign transaction and not released before" +
                                         " current transaction timeout", cacheName, key);
-                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
-                                        " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
-                                        " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                if (getCurrentTransactionContext().hasLockedAnything()) {
+                                    throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
+                                            " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
+                                            " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                } else {
+                                    continue;
+                                }
                             }
                             softLock.clearTryLock();
                         } catch (InterruptedException ie) {
@@ -361,9 +365,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                             if (!locked) {
                                 LOG.debug("remove: cache [{}] key [{}] soft locked in foreign transaction and not released before" +
                                         " current transaction timeout", cacheName, key);
-                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "] between" +
-                                        " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
-                                        " transaction [" + softLock.getTransactionID() + "]");
+                                if (getCurrentTransactionContext().hasLockedAnything()) {
+                                    throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
+                                            " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
+                                            " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                } else {
+                                    continue;
+                                }
                             }
                             softLock.clearTryLock();
                         } catch (InterruptedException ie) {
@@ -599,9 +607,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                         if (!locked) {
                             LOG.debug("putIfAbsent: cache [{}] key [{}] soft locked in foreign transaction and not released before" +
                                     " current transaction timeout", cacheName, key);
-                            throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "] between" +
-                                    " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
-                                    " transaction [" + softLock.getTransactionID() + "]");
+                            if (getCurrentTransactionContext().hasLockedAnything()) {
+                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
+                                        " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
+                                        " and foreign transaction [" + softLock.getTransactionID() + "]");
+                            } else {
+                                continue;
+                            }
                         }
                         softLock.clearTryLock();
                     } catch (InterruptedException ie) {
@@ -677,9 +689,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                             if (!locked) {
                                 LOG.debug("removeElement: cache [{}] key [{}] soft locked in foreign transaction and not released" +
                                         " before current transaction timeout", cacheName, key);
-                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "] between" +
-                                        " current transaction [" + getCurrentTransactionContext().getTransactionId() + "] and foreign" +
-                                        " transaction [" + softLock.getTransactionID() + "]");
+                                if (getCurrentTransactionContext().hasLockedAnything()) {
+                                    throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
+                                            " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
+                                            " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                } else {
+                                    continue;
+                                }
                             }
                             softLock.clearTryLock();
                         } catch (InterruptedException ie) {
@@ -785,9 +801,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                             if (!locked) {
                                 LOG.debug("replace: cache [{}] key [{}] soft locked in foreign transaction and not released before" +
                                         " current transaction timeout", cacheName, key);
-                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
-                                        " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
-                                        " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                if (getCurrentTransactionContext().hasLockedAnything()) {
+                                    throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
+                                            " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
+                                            " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                } else {
+                                    continue;
+                                }
                             }
                             softLock.clearTryLock();
                         } catch (InterruptedException ie) {
@@ -879,9 +899,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                             if (!locked) {
                                 LOG.debug("replace: cache [{}] key [{}] soft locked in foreign transaction and not released before" +
                                         " current transaction timeout", cacheName, key);
-                                throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
-                                        " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
-                                        " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                if (getCurrentTransactionContext().hasLockedAnything()) {
+                                    throw new DeadLockException("deadlock detected in cache [" + cacheName + "] on key [" + key + "]" +
+                                            " between current transaction [" + getCurrentTransactionContext().getTransactionId() + "]" +
+                                            " and foreign transaction [" + softLock.getTransactionID() + "]");
+                                } else {
+                                    continue;
+                                }
                             }
                             softLock.clearTryLock();
                         } catch (InterruptedException ie) {
