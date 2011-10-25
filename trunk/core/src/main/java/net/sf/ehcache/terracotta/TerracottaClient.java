@@ -60,16 +60,8 @@ public class TerracottaClient {
     private final TerracottaCacheCluster cacheCluster = new TerracottaCacheCluster();
     private final RejoinWorker rejoinWorker = new RejoinWorker();
     private final TerracottaClientRejoinListener rejoinListener;
-    private final ExecutorService l1TerminatorThreadPool = Executors.newCachedThreadPool(new ThreadFactory() {
-        private final ThreadGroup threadGroup = new ThreadGroup("Rejoin Terminator Thread Group");
-
-        public Thread newThread(Runnable runnable) {
-            Thread t = new Thread(threadGroup, runnable, "L1 Terminator");
-            t.setDaemon(true);
-            return t;
-        }
-    });
     private final CacheManager cacheManager;
+    private ExecutorService l1TerminatorThreadPool;
 
     /**
      * Constructor accepting the {@link TerracottaClientRejoinListener} and the {@link TerracottaClientConfiguration}
@@ -234,6 +226,21 @@ public class TerracottaClient {
         rejoinWorker.waitUntilRejoinComplete();
     }
 
+    private synchronized ExecutorService getL1TerminatorThreadPool() {
+        if (l1TerminatorThreadPool == null) {
+            l1TerminatorThreadPool = Executors.newCachedThreadPool(new ThreadFactory() {
+                private final ThreadGroup threadGroup = new ThreadGroup("Rejoin Terminator Thread Group");
+
+                public Thread newThread(Runnable runnable) {
+                    Thread t = new Thread(threadGroup, runnable, "L1 Terminator");
+                    t.setDaemon(true);
+                    return t;
+                }
+            });
+        }
+        return l1TerminatorThreadPool;
+    }
+
     /**
      * Rejoins the cluster
      */
@@ -270,7 +277,7 @@ public class TerracottaClient {
             // run in another thread, so that this thread (a thread from the L1) can just go back
             // also mark that its forced shutdown first
             rejoinWorker.setForcedShutdown();
-            l1TerminatorThreadPool.execute(rejoinRunnable);
+            getL1TerminatorThreadPool().execute(rejoinRunnable);
         } else {
             // no need to run in separate thread as this is just initiating the rejoin
             rejoinRunnable.run();
