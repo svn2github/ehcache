@@ -50,8 +50,10 @@
             <version>${ehcache-web.version}</version>
             <scope>runtime</scope>
             <exclusions>
-              <groupId>net.sf.ehcache</groupId>
-              <artifactId>ehcache-core</artifactId>
+              <exclusion>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+              </exclusion>
             </exclusions>
         </dependency>
 
