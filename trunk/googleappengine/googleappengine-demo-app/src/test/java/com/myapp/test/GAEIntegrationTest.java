@@ -13,6 +13,9 @@ import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
 /**
  * The idea of this test is to do a simple get against the deployed app on GAE.
  *
@@ -38,36 +41,13 @@ public class GAEIntegrationTest {
          */
         @Test
         public void testListenerExists() throws Exception {
-            URL u = new URL("http://" + name + ".appspot.com/");
-            System.out.println("URL: " + u);
-            HttpURLConnection httpURLConnection = (HttpURLConnection) u.openConnection();
-            httpURLConnection.setRequestMethod("GET");
-
-            assertEquals(200, httpURLConnection.getResponseCode());
-
-            String responseBody = inputStreamToText(httpURLConnection.getInputStream());
-            assertTrue(responseBody.indexOf("Welcome to") != 0);
+            String url = "http://" + name + ".appspot.com/";
+            System.out.println("URL: " + url);
+			WebClient webClient = new WebClient();
+			HtmlPage page = webClient.getPage(url);
+            System.out.println("Response: " + page.asText());
+			assertEquals(200, page.getWebResponse().getStatusCode());
+            assertTrue(page.asText().indexOf("Welcome to") != 0);
+			webClient.closeAllWindows();
         }
-
-        /**
-         * Converts a response in an InputStream to a byte[] for easy manipulation
-         */
-        public static byte[] inputStreamToBytes(InputStream inputStream) throws IOException {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            byte[] buffer = new byte[10000];
-            int r;
-            while ((r = inputStream.read(buffer)) != -1) {
-                byteArrayOutputStream.write(buffer, 0, r);
-            }
-            return byteArrayOutputStream.toByteArray();
-        }
-
-        /**
-         * Converts a response in an InputStream to a String for easy comparisons
-         */
-        public static String inputStreamToText(InputStream inputStream) throws IOException {
-            byte[] bytes = inputStreamToBytes(inputStream);
-            return new String(bytes);
-        }
-
     }

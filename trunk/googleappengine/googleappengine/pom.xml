@@ -23,7 +23,7 @@
         <project_charset>UTF-8</project_charset>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <ehcache-core.version>2.5.0-SNAPSHOT</ehcache-core.version>
+        <ehcache-core.version>2.4.7-SNAPSHOT</ehcache-core.version>
         <ehcache-web.version>2.0.5-SNAPSHOT</ehcache-web.version>
         <gae.version>1.4.3</gae.version>
         <slf4j.version>1.6.1</slf4j.version>
