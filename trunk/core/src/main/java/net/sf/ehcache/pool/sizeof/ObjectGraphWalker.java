@@ -30,6 +30,7 @@ import java.util.Stack;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
 
 import org.slf4j.Logger;
@@ -66,14 +67,13 @@ final class ObjectGraphWalker {
     private static final String SERIALIZED_ENTRY_CLASS_NAME = "org.terracotta.cache.serialization.SerializedEntry";
     private static final String SERIALIZED_ENTRY_CUSTOM_CLASS_NAME = "org.terracotta.cache.serialization.CustomLifespanSerializedEntry";
     private static final String SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME = "getPreCalculatedSize";
+    private static volatile Method serializedEntryGetPreCalculatedSizeMethod;
 
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
             new WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>>();
     private final WeakIdentityConcurrentMap<Class<?>, Boolean> classCache =
             new WeakIdentityConcurrentMap<Class<?>, Boolean>();
-    private final WeakIdentityConcurrentMap<Class<?>, Method> calculatedSizeMethods =
-            new  WeakIdentityConcurrentMap<Class<?>, Method>();
 
     private final SizeOfFilter sizeOfFilter;
 
@@ -81,6 +81,13 @@ final class ObjectGraphWalker {
 
     static {
         USE_VERBOSE_DEBUG_LOGGING = getVerboseSizeOfDebugLogging();
+        Class klass = null;
+        try {
+            klass = ClassLoaderUtil.loadClass(SERIALIZED_ENTRY_CLASS_NAME);
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+        serializedEntryGetPreCalculatedSizeMethod = getSerializedEntryGetPreCalculatedSizeMethod(klass);
     }
 
     /**
@@ -104,15 +111,15 @@ final class ObjectGraphWalker {
     }
 
     private static Method getSerializedEntryGetPreCalculatedSizeMethod(Class klass) {
-        if (klass == null) {
-            return null;
-        } else {
+        Method method = null;
+        if (klass != null) {
             try {
-                return klass.getMethod(SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME, new Class[0]);
+                method = klass.getMethod(SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME, new Class[0]);
             } catch (Exception e) {
-                return null;
+                // ignored
             }
         }
+        return method;
     }
 
     /**
@@ -224,22 +231,21 @@ final class ObjectGraphWalker {
     }
 
     private long getSerializedEntrySize(final Object ref) {
-        Class klazz = ref.getClass();
-        Method method = calculatedSizeMethods.get(klazz);
-        if (method == null) {
-            method = getSerializedEntryGetPreCalculatedSizeMethod(klazz);
+        if (serializedEntryGetPreCalculatedSizeMethod == null) {
+            Method method = getSerializedEntryGetPreCalculatedSizeMethod(ref != null ? ref.getClass() : null);
             if (method == null) {
                 throw new CacheException("Could not find " + SERIALIZED_ENTRY_CLASS_NAME + "."
                         + SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME + "() method from ref: " + ref);
-            } else {
-                calculatedSizeMethods.put(klazz, method);
             }
+            serializedEntryGetPreCalculatedSizeMethod = method;
         }
+        int rv;
         try {
-            return (Integer) method.invoke(ref);
+            rv = (Integer) serializedEntryGetPreCalculatedSizeMethod.invoke(ref, new Object[0]);
         } catch (Exception e) {
             throw new CacheException("Caught exception while trying to get SerializedEntry.getPreCalculatedSize() for " + ref, e);
         }
+        return rv;
     }
 
     private boolean isSerializedEntry(Class<?> refClass) {

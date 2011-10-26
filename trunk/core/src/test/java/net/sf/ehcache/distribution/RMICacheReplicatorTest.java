@@ -48,7 +48,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.event.CountingCacheEventListener;
-import net.sf.ehcache.util.Pounder;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.collection.IsEmptyCollection;
@@ -58,7 +57,6 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +72,6 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-@RunWith(Pounder.class)
 public class RMICacheReplicatorTest extends AbstractRMITest {
 
     @BeforeClass
@@ -221,7 +218,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         }, IsEmptyCollection.<Thread>empty());
     }
 
-    //@Test
+    @Test
     public void testCASOperationsNotSupported() throws Exception {
         LOG.info("START TEST");
 
@@ -264,7 +261,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     /**
      * Does a new cache manager in the cluster get detected?
      */
-    //@Test
+    @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
         //Add new CacheManager to cluster
         manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
@@ -276,7 +273,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
-    //@Test
+    @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
         //Drop a CacheManager from the cluster
         manager5.shutdown();
@@ -288,7 +285,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     /**
      * Does a down cache manager in the cluster get removed?
      */
-    //@Test
+    @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
         try {
             CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
@@ -315,7 +312,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    //@Test
+    @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
 
         //Put
@@ -358,7 +355,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Tests what happens when a CacheManager in the cluster comes and goes. In ehcache-1.2.4 this would cause the new RMI CachePeers in the CacheManager to
      * be permanently corrupt.
      */
-    //@Test
+    @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
 
         manager3.shutdown();
@@ -406,7 +403,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     /**
      * manager1 adds a replicating cache, then manager2 and so on. Then we remove one. Does everything work as expected?
      */
-    //@Test
+    @Test
     public void testPutWithNewCacheAddedProgressively() throws InterruptedException {
 
         manager1.addCache("progressiveAddCache");
@@ -443,7 +440,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
-    //@Test
+    @Test
     public void testPutWithExplicitReplicationConfig() throws InterruptedException {
 
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
@@ -454,7 +451,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
-    //@Test
+    @Test
     public void testPutWithThreadKiller() throws InterruptedException {
 
         putTestWithThreadKiller(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
@@ -465,7 +462,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * of a remote event by a CachePeer.
      */
 
-    //@Test
+    @Test
     public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
         putTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
         assertEquals(1, CountingCacheEventListener.getCountingCacheEventListener(manager1.getCache("sampleCache1")).getCacheElementsPut().size());
@@ -476,7 +473,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=false, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
-    //@Test
+    @Test
     public void testPutWithExplicitReplicationSynchronousConfig() throws InterruptedException {
         putTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
@@ -486,7 +483,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test put replicated for cache4 - no properties.
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
-    //@Test
+    @Test
     public void testPutWithEmptyReplicationPropertiesConfig() throws InterruptedException {
         putTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
@@ -496,7 +493,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      * should equal replicateAsynchronously=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
-    //@Test
+    @Test
     public void testPutWithOneMissingReplicationPropertyConfig() throws InterruptedException {
         putTest(manager1.getCache("sampleCache5"), manager2.getCache("sampleCache5"), ASYNCHRONOUS);
     }
@@ -564,7 +561,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    //@Test
+    @Test
     public void testRemotePutNotificationGetsToOtherListeners() throws CacheException, InterruptedException {
 
         Serializable key = new Date();
@@ -624,7 +621,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
-    //@Test
+    @Test
     public void testRemoveWithExplicitReplicationConfig() throws InterruptedException {
         removeTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
@@ -633,7 +630,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
-    //@Test
+    @Test
     public void testRemoveWithExplicitReplicationSynchronousConfig() throws InterruptedException {
         removeTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
@@ -643,7 +640,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test put replicated for cache4 - no properties.
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
-    //@Test
+    @Test
     public void testRemoveWithEmptyReplicationPropertiesConfig() throws InterruptedException {
         removeTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
@@ -686,7 +683,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     /**
      * test removeAll sync
      */
-    //@Test
+    @Test
     public void testRemoveAllAsynchronous() throws Exception {
         removeAllTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
@@ -694,7 +691,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     /**
      * test removeAll async
      */
-    //@Test
+    @Test
     public void testRemoveAllSynchronous() throws Exception {
         removeAllTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
@@ -744,7 +741,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
-    //@Test
+    @Test
     public void testUpdateWithExplicitReplicationConfig() throws Exception {
         updateViaCopyTest(manager1.getCache("sampleCache1"), manager2.getCache("sampleCache1"), ASYNCHRONOUS);
     }
@@ -753,7 +750,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test various cache configurations for cache1 - explicit setting of:
      * properties="replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true "/>
      */
-    //@Test
+    @Test
     public void testUpdateWithExplicitReplicationSynchronousConfig() throws Exception {
         updateViaCopyTest(manager1.getCache("sampleCache3"), manager2.getCache("sampleCache3"), SYNCHRONOUS);
     }
@@ -763,7 +760,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * Test put replicated for cache4 - no properties.
      * Defaults should be replicateAsynchronously=true, replicatePuts=true, replicateUpdates=true, replicateUpdatesViaCopy=true, replicateRemovals=true
      */
-    //@Test
+    @Test
     public void testUpdateWithEmptyReplicationPropertiesConfig() throws Exception {
         updateViaCopyTest(manager1.getCache("sampleCache4"), manager2.getCache("sampleCache4"), ASYNCHRONOUS);
     }
@@ -815,7 +812,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    //@Test
+    @Test
     public void testPutViaInvalidate() throws CacheException, InterruptedException, IOException {
 
         cache1 = manager1.getCache("sampleCache2");
@@ -865,7 +862,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    //@Test
+    @Test
     public void testUpdateViaInvalidate() throws CacheException, InterruptedException, IOException {
 
         cache1 = manager1.getCache("sampleCache2");
@@ -902,7 +899,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * <p/>
      * This test goes into an infinite loop if the chain of notifications is not somehow broken.
      */
-    //@Test
+    @Test
     public void testUpdateViaInvalidateNonSerializableValue() throws CacheException, InterruptedException, IOException {
 
         cache1 = manager1.getCache("sampleCache2");
@@ -946,7 +943,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     /**
      * What happens when two cache instances replicate to each other and a change is initiated
      */
-    //@Test
+    @Test
     public void testInfiniteNotificationsLoop() throws InterruptedException {
 
         Serializable key = "1";
@@ -1051,7 +1048,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
 
         long start = System.nanoTime();
         final String keyBase = Long.toString(start);
-        int total = 0;
         int count = 0;
 
         for (int i = 0; i < 100000; i++) {
@@ -1064,8 +1060,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             final long end = System.nanoTime();
             if (end - start >= TimeUnit.SECONDS.toNanos(1)) {
                 start = end;
-                total += count;
-                LOG.info("Items written: " + count + " total: " + total);
+                LOG.info("Items written: " + count);
                 //make sure it does not choke
                 assertTrue("Got only to " + count + " in 1 second!", count > 1000);
                 count = 0;
@@ -1109,7 +1104,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * If a deadlock occurs, processing will stop until a SocketTimeout exception is thrown and
      * the deadlock will be released.
      */
-    //@Test
+    @Test
     public void testCacheOperationsSynchronousMultiThreaded() throws Exception, InterruptedException {
 
         // Run a set of threads, that attempt to fetch the elements
@@ -1138,7 +1133,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      * <li>we do puts, gets and removes to explore all the execution paths
      * </ol>
      */
-    //@Test
+    @Test
     public void testCacheOperationsAsynchronousMultiThreaded() throws Exception, InterruptedException {
 
         // Run a set of threads, that attempt to fetch the elements
