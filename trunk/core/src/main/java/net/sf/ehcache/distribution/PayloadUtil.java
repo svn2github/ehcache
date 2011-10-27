@@ -35,7 +35,7 @@ import java.util.zip.GZIPOutputStream;
  * <p/>
  * Care is taken to fit the payload into the MTU of ethernet, which is 1500 bytes. The algorithms in this class are capable of creating
  * payloads for CacheManagers containing approximately 500 cache peers to be replicated.
- * 
+ *
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
@@ -71,7 +71,7 @@ final class PayloadUtil {
     /**
      * Creates a list of compressed (using gzip) url list. Breaks up the list of urlList such that size of each compressed entry in the list
      * does not exceed the {@link #MTU} and the number of url's in each compressed entry does not exceed the maximumPeersPerSend parameter
-     * 
+     *
      * @param localCachePeers
      *            List containing the peers
      * @param maximumPeersPerSend
@@ -93,7 +93,7 @@ final class PayloadUtil {
     /**
      * Generates a list of compressed urlList's for the input CachePeers list. Each compressed payload is limited by size by the
      * maxSizePerPayload parameter and will break up into multiple payloads if necessary to limit the payload size
-     * 
+     *
      * @param list The list of CachePeers whose payload needs to be generated
      * @param maxSizePerPayload The maximum size each payload can have
      * @return A list of compressed urlList's, each compressed entry not exceeding maxSizePerPayload
@@ -117,7 +117,7 @@ final class PayloadUtil {
                 LOG.error("The replicated cache url is too long. Unless configured with a smaller name, " +
                         "heartbeat won't work for this cache. " +
                         "Compressed url size: " + compressed.length + " MTU: " + maxSizePerPayload + " URL: " + url);
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
             List<CachePeer> list1 = list.subList(0, list.size() / 2);
             List<CachePeer> list2 = list.subList(list.size() / 2, list.size());
@@ -129,7 +129,7 @@ final class PayloadUtil {
 
     /**
      * Assembles a list of URLs
-     * 
+     *
      * @param localCachePeers
      * @return an uncompressed payload with catenated rmiUrls.
      */
@@ -156,7 +156,7 @@ final class PayloadUtil {
 
     /**
      * Gzips a byte[]. For text, approximately 10:1 compression is achieved.
-     * 
+     *
      * @param ungzipped
      *            the bytes to be gzipped
      * @return gzipped bytes
@@ -179,7 +179,7 @@ final class PayloadUtil {
      * gunzips 100000 of ungzipped content in 9ms on the reference machine.
      * It does not use a fixed size buffer and is therefore suitable for arbitrary
      * length arrays.
-     * 
+     *
      * @param gzipped
      * @return a plain, uncompressed byte[]
      */

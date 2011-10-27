@@ -42,14 +42,14 @@ public class NullResults implements Results {
      * {@inheritDoc}
      */
     public List<Result> all() throws SearchException {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
      * {@inheritDoc}
      */
     public List<Result> range(int start, int count) throws SearchException, IndexOutOfBoundsException {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**

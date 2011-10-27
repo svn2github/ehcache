@@ -93,7 +93,7 @@ public class XSOMHelper {
 
     private List<XSAttributeUse> getXSAttributeUses(XSElementDecl element) {
         if (!element.getType().isComplexType()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return new ArrayList<XSAttributeUse>(element.getType().asComplexType().getAttributeUses());
     }
@@ -121,7 +121,7 @@ public class XSOMHelper {
     private List<XSElementDeclWrapper> getChildElements(XSElementDecl element) {
         XSType type = element.getType();
         if (!type.isComplexType()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         List<XSElementDeclWrapper> rv = new ArrayList<XSElementDeclWrapper>();
         XSContentType xsContentType = type.asComplexType().getContentType();

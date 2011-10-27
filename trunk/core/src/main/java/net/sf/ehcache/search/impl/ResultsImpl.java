@@ -87,7 +87,7 @@ public class ResultsImpl implements Results {
         int size = results.size();
 
         if (start > size - 1 || length == 0) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         int end = start + length;

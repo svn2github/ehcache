@@ -88,6 +88,6 @@ public class NoopCacheCluster implements CacheCluster {
      * {@inheritDoc}
      */
     public List<ClusterTopologyListener> getTopologyListeners() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }

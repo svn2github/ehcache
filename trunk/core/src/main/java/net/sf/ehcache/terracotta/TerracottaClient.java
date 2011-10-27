@@ -420,7 +420,7 @@ public class TerracottaClient {
             info("Starting Terracotta Rejoin (as client id: " + (oldNodeReference == null ? "null" : oldNodeReference.getId())
                     + " left the cluster) [rejoin count = " + rejoinNumber + "] ... ");
             rejoinListener.clusterRejoinStarted();
-            clusteredInstanceFactory = createNewClusteredInstanceFactory(Collections.EMPTY_MAP);
+            clusteredInstanceFactory = createNewClusteredInstanceFactory(Collections.<String, CacheConfiguration>emptyMap());
             // now reinitialize all existing caches with the new instance factory, outside lock
             rejoinListener.clusterRejoinComplete();
             // now fire the clusterRejoined event

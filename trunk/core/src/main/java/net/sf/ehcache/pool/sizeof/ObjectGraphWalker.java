@@ -280,7 +280,7 @@ final class ObjectGraphWalker {
         } else {
             Collection<Field> result;
             if (isSerializedEntry(refClass)) {
-                result = Collections.EMPTY_LIST;
+                result = Collections.emptyList();
             } else {
                 result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
             }

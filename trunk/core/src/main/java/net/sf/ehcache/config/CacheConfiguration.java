@@ -2757,7 +2757,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public Map<String, SearchAttribute> getSearchAttributes() {
         if (searchable == null) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
         return searchable.getSearchAttributes();
     }
