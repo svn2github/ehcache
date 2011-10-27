@@ -866,6 +866,15 @@
         </plugins>
       </build>
     </profile>
+    
+    <!-- Profile for building ehcache skipping javadoc and checkstyle -->
+    <profile>
+      <id>fast</id>
+      <properties>
+        <skipCheckstyle>true</skipCheckstyle>
+        <skipJavadoc>true</skipJavadoc>
+      </properties>
+    </profile>
   </profiles>
 
 
