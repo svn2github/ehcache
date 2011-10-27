@@ -88,7 +88,7 @@ public final class EhCacheProvider extends AbstractEhcacheProvider {
                 configurationResourceName = (String) properties.get(NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME);
             }
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
-                manager = new CacheManager();
+                manager = CacheManager.create();
             } else {
                 URL url;
                 try {
@@ -96,7 +96,7 @@ public final class EhCacheProvider extends AbstractEhcacheProvider {
                 } catch (MalformedURLException e) {
                     url = loadResource(configurationResourceName);
                 }
-                manager = new CacheManager(HibernateUtil.loadAndCorrectConfiguration(url));
+                manager = CacheManager.create(HibernateUtil.loadAndCorrectConfiguration(url));
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);
         } catch (net.sf.ehcache.CacheException e) {
