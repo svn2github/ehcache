@@ -489,9 +489,13 @@ public class DiskStorageFactory {
          */
         public DiskMarker call() {
             try {
-                DiskMarker marker = write(placeholder.getElement());
-                if (marker != null && store.fault(placeholder.getKey(), placeholder, marker)) {
-                    return marker;
+                if (store.containsKey(placeholder.getKey())) {
+                    DiskMarker marker = write(placeholder.getElement());
+                    if (marker != null && store.fault(placeholder.getKey(), placeholder, marker)) {
+                        return marker;
+                    } else {
+                        return null;
+                    }
                 } else {
                     return null;
                 }

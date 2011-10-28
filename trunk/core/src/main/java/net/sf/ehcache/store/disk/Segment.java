@@ -670,6 +670,57 @@ public class Segment extends ReentrantReadWriteLock {
     }
 
     /**
+     * Remove the matching mapping.
+     *
+     * @param key key to match against
+     * @param hash spread-hash for the key
+     */
+    void removeNoReturn(Object key, int hash) {
+        writeLock().lock();
+        try {
+            HashEntry[] tab = table;
+            int index = hash & (tab.length - 1);
+            HashEntry first = tab[index];
+            HashEntry e = first;
+            while (e != null && (e.hash != hash || !key.equals(e.key))) {
+                e = e.next;
+            }
+
+            if (e != null) {
+                // All entries following removed node can stay
+                // in list, but all preceding ones need to be
+                // cloned.
+                ++modCount;
+                HashEntry newFirst = e.next;
+                for (HashEntry p = first; p != e; p = p.next) {
+                    newFirst = new HashEntry(p.key, p.hash, newFirst, p.element);
+                }
+                tab[index] = newFirst;
+                /*
+                 * make sure we re-get from the HashEntry - since the decode in the conditional
+                 * may have faulted in a different type - we must make sure we know what type
+                 * to do the free on.
+                 */
+                DiskSubstitute onDiskSubstitute = e.element;
+                free(onDiskSubstitute);
+
+                final long outgoingHeapSize = onHeapPoolAccessor.delete(onDiskSubstitute.onHeapSize);
+                LOG.debug("remove deleted {} from heap", outgoingHeapSize);
+
+                if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
+                    final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) onDiskSubstitute).getSize());
+                    LOG.debug("remove deleted {} from disk", outgoingDiskSize);
+                }
+
+                // write-volatile
+                count = count - 1;
+            }
+        } finally {
+            writeLock().unlock();
+        }
+    }
+    
+    /**
      * Removes all mappings from this segment.
      */
     void clear() {

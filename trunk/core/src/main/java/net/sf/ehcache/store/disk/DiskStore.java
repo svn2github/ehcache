@@ -575,6 +575,16 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
+    public void removeNoReturn(Object key) {
+        if (key != null) {
+            int hash = hash(key.hashCode());
+            segmentFor(hash).removeNoReturn(key, hash);
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) {
         Element removed = remove(key);
         if (writerManager != null) {
