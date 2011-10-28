@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
@@ -266,8 +267,14 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
             for (int i = 0; i < CacheManager.ALL_CACHE_MANAGERS.size(); i++) {
                 CacheManager cacheManager = CacheManager.ALL_CACHE_MANAGERS.get(i);
                 if (cacheManager.getName().equals(cacheManagerName)) {
-                    ReadCommittedSoftLockFactoryImpl softLockFactory = (ReadCommittedSoftLockFactoryImpl)cacheManager.getSoftLockFactory(cacheName);
-                    return softLockFactory.getLock(transactionID, key);
+                    try {
+                        ReadCommittedSoftLockFactoryImpl softLockFactory =
+                            (ReadCommittedSoftLockFactoryImpl) cacheManager.getSoftLockFactory(cacheName);
+                        return softLockFactory.getLock(transactionID, key);
+                    } catch (CacheException ce) {
+                        throw new TransactionException("cannot deserialize SoftLock from cache " + cacheName +
+                                                       " as the cache cannot be found in cache manager " + cacheManagerName);
+                    }
                 }
             }
             throw new TransactionException("unable to find referent SoftLock in " + cacheManagerName + " " + cacheName +

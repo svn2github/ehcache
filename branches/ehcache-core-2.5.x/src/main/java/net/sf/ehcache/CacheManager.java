@@ -1729,6 +1729,9 @@ public class CacheManager {
      */
     public SoftLockFactory getSoftLockFactory(String cacheName) {
         Ehcache cache = getCache(cacheName);
+        if (cache == null) {
+            throw new CacheException("cache '" + cacheName + "' is not registered");
+        }
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
             return getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache);
         } else {
