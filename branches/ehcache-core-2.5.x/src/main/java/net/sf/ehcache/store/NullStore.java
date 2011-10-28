@@ -109,6 +109,12 @@ public final class NullStore extends AbstractStore implements TierableStore {
     /**
      * {@inheritDoc}
      */
+    public void removeNoReturn(Object key) {
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         return null;
     }

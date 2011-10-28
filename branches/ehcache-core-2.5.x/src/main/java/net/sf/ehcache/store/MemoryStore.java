@@ -349,6 +349,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * {@inheritDoc}
      */
+    public void removeNoReturn(final Object key) {
+        remove(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public final Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         if (key == null) {
             return null;

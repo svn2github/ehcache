@@ -39,4 +39,9 @@ public interface TierableStore extends Store {
      * @see #remove(Object)
      */
     boolean removeIfTierNotPinned(Object key);
+
+    /**
+     * Removes an item from the cache.
+     */
+    void removeNoReturn(Object key);
 }

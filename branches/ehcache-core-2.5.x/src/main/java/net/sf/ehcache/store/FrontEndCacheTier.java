@@ -269,8 +269,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         Lock lock = getLockFor(key).writeLock();
         lock.lock();
         try {
-            cache.remove(key);
-            return copyElementForReadIfNeeded(authority.remove(key));
+            Element e = cache.remove(key);
+            if (e == null) {
+                return copyElementForReadIfNeeded(authority.remove(key));
+            } else {
+                authority.removeNoReturn(key);
+                return copyElementForReadIfNeeded(e);
+            }
         } finally {
             lock.unlock();
         }
