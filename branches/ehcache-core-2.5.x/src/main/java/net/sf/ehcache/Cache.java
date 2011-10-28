@@ -112,6 +112,7 @@ import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.StoreUpdateException;
+import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
@@ -156,7 +157,7 @@ import org.slf4j.LoggerFactory;
  * @author Geert Bevin
  * @version $Id$
  */
-public class Cache implements Ehcache, StoreListener {
+public class Cache implements InternalEhcache, StoreListener {
 
     /**
      * A reserved word for cache names. It denotes a default configuration
@@ -2200,12 +2201,31 @@ public class Cache implements Ehcache, StoreListener {
     }
 
     /**
+     * Removes an {@link Element} from the Cache and returns it. This also removes it from any
+     * stores it may be in.
+     * <p/>
+     * Also notifies the CacheEventListener after the element was removed, but only if an Element with the key actually existed.
+     * <p/>
+     * Synchronization is handled within the method.
+     * <p/>
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails. This exception
+     * should be caught in those circumstances.
+     * <p/>
+     *
+     * @param key the element key to operate on
+     * @return element the removed element associated with the key, null if no mapping exists
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    public final Element removeAndReturnElement(Object key) throws IllegalStateException {
+        return removeInternal(key, false, true, false, false);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public void removeAll(final Collection<?> keys) throws IllegalStateException {
         removeAll(keys, false);
     }
-
 
     /**
      * {@inheritDoc}
@@ -2252,7 +2272,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
-        return removeInternal(key, false, true, doNotNotifyCacheReplicators, false);
+        return (removeInternal(key, false, true, doNotNotifyCacheReplicators, false) != null);
     }
 
     /**
@@ -2266,7 +2286,7 @@ public class Cache implements Ehcache, StoreListener {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final boolean removeQuiet(Serializable key) throws IllegalStateException {
-        return removeInternal(key, false, false, false, false);
+       return (removeInternal(key, false, false, false, false) != null);
     }
 
     /**
@@ -2275,8 +2295,8 @@ public class Cache implements Ehcache, StoreListener {
      * <p/>
      * Listeners are not called.
      * <p/>
-     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails.
-     * This exception should be caught in those circumstances.
+     * Caches which use synchronous replication can throw RemoteCacheException here if the replication to the cluster fails. This exception
+     * should be caught in those circumstances.
      *
      * @param key the element key to operate on
      * @return true if the element was removed, false if it was not found in the cache
@@ -2284,14 +2304,14 @@ public class Cache implements Ehcache, StoreListener {
      * @since 1.2
      */
     public final boolean removeQuiet(Object key) throws IllegalStateException {
-        return removeInternal(key, false, false, false, false);
+        return (removeInternal(key, false, false, false, false) != null);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean removeWithWriter(Object key) throws IllegalStateException {
-        return removeInternal(key, false, true, false, true);
+        return (removeInternal(key, false, true, false, true) != null);
     }
 
     /**
@@ -2314,10 +2334,10 @@ public class Cache implements Ehcache, StoreListener {
      * @param notifyListeners             whether to notify listeners
      * @param doNotNotifyCacheReplicators whether not to notify cache replicators
      * @param useCacheWriter              if the element should else be removed from the cache writer
-     * @return true if the element was removed, false if it was not found in the cache
+     * @return element if the element was removed, null if it was not found in the cache
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    private boolean removeInternal(Object key, boolean expiry, boolean notifyListeners,
+    private Element removeInternal(Object key, boolean expiry, boolean notifyListeners,
                            boolean doNotNotifyCacheReplicators, boolean useCacheWriter)
             throws IllegalStateException {
 
@@ -2342,8 +2362,10 @@ public class Cache implements Ehcache, StoreListener {
             elementFromStore = compoundStore.remove(key);
         }
 
-        return notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
+        notifyRemoveInternalListeners(key, expiry, notifyListeners, doNotNotifyCacheReplicators,
             elementFromStore);
+
+        return elementFromStore;
     }
 
     private boolean notifyRemoveInternalListeners(Object key, boolean expiry, boolean notifyListeners, boolean doNotNotifyCacheReplicators,

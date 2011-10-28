@@ -1015,6 +1015,34 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
+     * Test removeAndReturnElement method
+     * <p/>
+     * It makes sure that the method removes and returns the correct element
+     */
+    @Test
+    public void testCacheDirectRemoveAndReturnElement() throws Exception {
+
+        int MAX_ELEMENTS_IN_MEMORY = 100;
+
+        final Cache cache = new Cache("test", MAX_ELEMENTS_IN_MEMORY, false, true, 0, 0);
+        manager.addCache(cache);
+
+        // put stuff in cache
+        for (int i = 0; i < MAX_ELEMENTS_IN_MEMORY; i++) {
+            cache.put(new Element(i, i));
+        }
+
+        // tests the removeAndReturnElement
+        for (int i = 0; i < MAX_ELEMENTS_IN_MEMORY; i++) {
+            Element e = cache.removeAndReturnElement(i);
+            assertEquals(i, e.getKey());
+            assertNull(cache.get(i));
+        }
+
+    }
+
+
+    /**
      * Test getKeys after expiry
      * <p/>
      * Makes sure that if an element is expired, its key should also be expired

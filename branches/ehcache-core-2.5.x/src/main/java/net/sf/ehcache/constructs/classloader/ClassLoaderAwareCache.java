@@ -57,8 +57,15 @@ import net.sf.ehcache.writer.CacheWriterManager;
  */
 public class ClassLoaderAwareCache implements Ehcache {
 
-    private final ClassLoader classLoader;
-    private final Ehcache cache;
+    /**
+     * Used by InternalClassLoaderAwareCache
+     */
+    protected final ClassLoader classLoader;
+
+    /**
+     * Used by InternalClassLoaderAwareCache
+     */
+    protected final Ehcache cache;
 
     /**
      * Constructor
