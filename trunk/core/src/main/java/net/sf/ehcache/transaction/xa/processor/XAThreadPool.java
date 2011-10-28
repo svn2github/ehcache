@@ -58,6 +58,7 @@ public class XAThreadPool {
         private volatile Callable callable;
         private volatile boolean released;
         private volatile Object result;
+        private volatile Exception exception;
 
         private MultiRunner() {
         }
@@ -79,9 +80,13 @@ public class XAThreadPool {
 
             try {
                 this.callable = callable;
+                this.exception = null;
                 startBarrier.await();
 
                 endBarrier.await();
+                if (exception != null) {
+                    throw new ExecutionException("XA execution error", exception);
+                }
                 return result;
             } catch (BrokenBarrierException e) {
                 throw new ExecutionException("error executing " + callable, e);
@@ -112,15 +117,20 @@ public class XAThreadPool {
                     startBarrier.await();
 
                     if (callable != null) {
-                        result = callable.call();
+                        try {
+                            result = callable.call();
+                        } catch (Exception e) {
+                            exception = e;
+                        }
                         endBarrier.await();
                     } else {
                         return;
                     }
                 }
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 released = true;
-                e.printStackTrace();
+            } catch (BrokenBarrierException e) {
+                released = true;
             }
         }
     }
