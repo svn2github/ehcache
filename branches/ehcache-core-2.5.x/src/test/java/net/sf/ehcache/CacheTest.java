@@ -2577,6 +2577,17 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void testRemoveOfPinnedKey() {
+        Cache cache = new Cache(new CacheConfiguration("sampleCacheForPinnedRemove", 2));
+        manager.addCache(cache);
+        cache.setPinned("key", true);
+        assertNull(cache.removeAndReturnElement("key"));
+        cache.put(new Element("key", "value"));
+        assertNotNull(cache.removeAndReturnElement("key"));
+        assertNull(cache.removeAndReturnElement("key"));
+    }
+
     static class GetCacheMemorySize implements Callable<Long> {
 
         private final Ehcache cache;
