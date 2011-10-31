@@ -412,18 +412,17 @@ public class Segment extends ReentrantReadWriteLock {
     Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
         boolean installed = false;
         DiskSubstitute encoded = disk.create(element);
+        final long incomingHeapSize = onHeapPoolAccessor.add(key, encoded, NULL_HASH_ENTRY, cachePinned);
+        if (incomingHeapSize < 0) {
+            LOG.debug("put failed to add on heap");
+            return null;
+        } else {
+            LOG.debug("put added {} on heap", incomingHeapSize);
+            encoded.onHeapSize = incomingHeapSize;
+        }
 
         writeLock().lock();
         try {
-            final long incomingHeapSize = onHeapPoolAccessor.add(key, encoded, NULL_HASH_ENTRY, cachePinned);
-            if (incomingHeapSize < 0) {
-                LOG.debug("put failed to add on heap");
-                return null;
-            } else {
-                LOG.debug("put added {} on heap", incomingHeapSize);
-                encoded.onHeapSize = incomingHeapSize;
-            }
-
             // ensure capacity
             if (count + 1 > threshold) {
                 rehash();
