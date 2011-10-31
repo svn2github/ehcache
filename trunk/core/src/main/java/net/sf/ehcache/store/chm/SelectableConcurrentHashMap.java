@@ -218,7 +218,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         Set<Entry<Object, Element>> es = entrySet;
         return (es != null) ? es : (entrySet = new EntrySet());
     }
-    
+
     @Override
     protected Segment<Object, Element> createSegment(int initialCapacity, float lf) {
         return new MemoryStoreSegment(initialCapacity, lf);
@@ -359,7 +359,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         oldValue = v;
                         ++modCount;
                         if(!mshe.pinned) {
-                         // All entries following removed node can stay
+                            // All entries following removed node can stay
                             // in list, but all preceding ones need to be
                             // cloned.
                             HashEntry<Object,Element> newFirst = e.next;
@@ -369,6 +369,9 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         } else {
                             ++c;
                             mshe.value = DUMMY_PINNED_ELEMENT;
+                            if (oldValue == DUMMY_PINNED_ELEMENT) {
+                               oldValue = null;
+                            }
                             ++numDummyPinnedKeys;
                         }
                         count = c; // write-volatile
@@ -609,22 +612,22 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         public boolean isEmpty() {
             return SelectableConcurrentHashMap.this.isEmpty();
         }
-        
+
         @Override
         public boolean contains(Object o) {
             return SelectableConcurrentHashMap.this.containsKey(o);
         }
-        
+
         @Override
         public boolean remove(Object o) {
             return SelectableConcurrentHashMap.this.remove(o) != null;
         }
-        
+
         @Override
         public void clear() {
             SelectableConcurrentHashMap.this.clear();
         }
-        
+
         @Override
         public Object[] toArray() {
             Collection<Object> c = new ArrayList<Object>();
@@ -642,7 +645,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
     }
 
     final class Values extends AbstractCollection<Element> {
-      
+
         @Override
         public Iterator<Element> iterator() {
             return new ValueIterator();
@@ -657,17 +660,17 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         public boolean isEmpty() {
             return SelectableConcurrentHashMap.this.isEmpty();
         }
-        
+
         @Override
         public boolean contains(Object o) {
             return SelectableConcurrentHashMap.this.containsValue(o);
         }
-        
+
         @Override
         public void clear() {
             SelectableConcurrentHashMap.this.clear();
         }
-        
+
         @Override
         public Object[] toArray() {
             Collection<Object> c = new ArrayList<Object>();
@@ -684,9 +687,9 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             return c.toArray(a);
         }
     }
-    
+
     final class EntrySet extends AbstractSet<Entry<Object, Element>> {
-      
+
         @Override
         public Iterator<Entry<Object, Element>> iterator() {
             return new EntryIterator();
@@ -701,7 +704,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         public boolean isEmpty() {
             return SelectableConcurrentHashMap.this.isEmpty();
         }
-        
+
         @Override
         public boolean contains(Object o) {
             if (!(o instanceof Entry))
@@ -710,7 +713,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             Element v = SelectableConcurrentHashMap.this.get(e.getKey());
             return v != null && v.equals(e.getValue());
         }
-        
+
         @Override
         public boolean remove(Object o) {
             if (!(o instanceof Entry))
@@ -718,7 +721,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             Entry<?,?> e = (Entry<?,?>)o;
             return SelectableConcurrentHashMap.this.remove(e.getKey(), e.getValue());
         }
-        
+
         @Override
         public void clear() {
             SelectableConcurrentHashMap.this.clear();
@@ -739,14 +742,14 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             return c.toArray(a);
         }
     }
-    
+
     final class KeyIterator extends HashEntryIterator implements Iterator<Object> {
 
         public Object next() {
             return nextEntry().key;
         }
     }
-    
+
     final class ValueIterator extends HashEntryIterator implements Iterator<Element> {
 
         public Element next() {
@@ -776,7 +779,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             };
         }
     }
-    
+
     abstract class HashEntryIterator extends HashIterator {
         private HashEntry<Object, Element> myNextEntry;
 
