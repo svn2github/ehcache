@@ -58,7 +58,7 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
       if (now != previous && value > previousSample) {
         try {
           float nowRate = ((float) (value - previousSample)) / (now - previous);
-          rateSample = iterateMovingAverage(nowRate, now, rateSample, previous); //returned NEGATIVE-INFINITY
+          rateSample = iterateMovingAverage(nowRate, now, rateSample, previous);
           previousSample = value;
           long suggestedSampleRateMask = Long.highestOneBit(Math.max(1L, (long) (getRateAveragePeriod() * rateSample))) - 1;
           if (suggestedSampleRateMask != sampleRateMask) {
@@ -96,7 +96,7 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
       return thenAverage;
     } else {
       float nowValue = ((float) (count.get() - lastSample)) / (now - then);
-      final float rate = iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1); //returned NEGATIVE-INFINITY
+      final float rate = iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1);
       if (Float.isNaN(rate)) {
         if (Float.isNaN(thenAverage)) {
           return 0f;
