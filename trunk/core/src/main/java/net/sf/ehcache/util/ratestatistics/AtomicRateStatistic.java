@@ -30,7 +30,7 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
   private static final long CALCULATION_FLAG = 0x1L;
 
   private final AtomicLong count = new AtomicLong(0L);
-  private final AtomicLong rateSampleTime = new AtomicLong(System.nanoTime() << SAMPLE_TIME_FLAG_BITS);
+  private final AtomicLong rateSampleTime = new AtomicLong(getTime() << SAMPLE_TIME_FLAG_BITS);
 
   private volatile float rateSample = Float.NaN;
 
@@ -53,18 +53,20 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
   public void event() {
     long value = count.incrementAndGet();
     if ((value & sampleRateMask) == 0L) {
-      long now = System.nanoTime();
+      long now = getTime();
       long previous = startIncrementTime(now);
-      try {
-        float nowRate = ((float) (value - previousSample)) / (now - previous);
-        rateSample = iterateMovingAverage(nowRate, now, rateSample, previous);
-        previousSample = value;
-        long suggestedSampleRateMask = Long.highestOneBit(Math.max(1L, (long) (getRateAveragePeriod() * rateSample))) - 1;
-        if (suggestedSampleRateMask != sampleRateMask) {
-          sampleRateMask = suggestedSampleRateMask;
+      if (now != previous && value > previousSample) {
+        try {
+          float nowRate = ((float) (value - previousSample)) / (now - previous);
+          rateSample = iterateMovingAverage(nowRate, now, rateSample, previous); //returned NEGATIVE-INFINITY
+          previousSample = value;
+          long suggestedSampleRateMask = Long.highestOneBit(Math.max(1L, (long) (getRateAveragePeriod() * rateSample))) - 1;
+          if (suggestedSampleRateMask != sampleRateMask) {
+            sampleRateMask = suggestedSampleRateMask;
+          }
+        } finally {
+          finishIncrementTime(now);
         }
-      } finally {
-        finishIncrementTime(now);
       }
     }
   }
@@ -89,18 +91,21 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
       thenAverage = rateSample;
     } while (!validateTimeRead(then));
 
-    long now = System.nanoTime();
-    float nowValue = ((float) (count.get() - lastSample)) / (now - then);
-
-    final float rate = iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1);
-    if (Float.isNaN(rate)) {
-      if (Float.isNaN(thenAverage)) {
-        return 0f;
-      } else {
-        return thenAverage;
-      }
+    long now = getTime();
+    if (now == then) {
+      return thenAverage;
     } else {
-      return rate;
+      float nowValue = ((float) (count.get() - lastSample)) / (now - then);
+      final float rate = iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1); //returned NEGATIVE-INFINITY
+      if (Float.isNaN(rate)) {
+        if (Float.isNaN(thenAverage)) {
+          return 0f;
+        } else {
+          return thenAverage;
+        }
+      } else {
+        return rate;
+      }
     }
   }
 
@@ -130,5 +135,10 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
 
   private boolean validateTimeRead(long current) {
     return rateSampleTime.get() == (current << SAMPLE_TIME_FLAG_BITS);
+  }
+
+
+  private static long getTime() {
+    return System.nanoTime();
   }
 }

@@ -50,13 +50,15 @@ public class UnlockedRateStatistic extends AbstractRateStatistic {
     if ((value & sampleRateMask) == 0) {
       long now = System.nanoTime();
       long previous = rateSampleTime;
-      rateSampleTime = now;
-      float nowRate = ((float) (value - previousSample) / (now - previous));
-      previousSample = value;
-      rateSample = iterateMovingAverage(nowRate, now, rateSample, previous);
-      long suggestedSampleRateMask = Long.highestOneBit(Math.max(1L, (long) (getRateAveragePeriod() * rateSample))) - 1;
-      if (suggestedSampleRateMask != sampleRateMask) {
-        sampleRateMask = suggestedSampleRateMask;
+      if (now != previous && value > previousSample) {
+        rateSampleTime = now;
+        float nowRate = ((float) (value - previousSample) / (now - previous));
+        previousSample = value;
+        rateSample = iterateMovingAverage(nowRate, now, rateSample, previous);
+        long suggestedSampleRateMask = Long.highestOneBit(Math.max(1L, (long) (getRateAveragePeriod() * rateSample))) - 1;
+        if (suggestedSampleRateMask != sampleRateMask) {
+          sampleRateMask = suggestedSampleRateMask;
+        }
       }
     }
   }
@@ -76,16 +78,20 @@ public class UnlockedRateStatistic extends AbstractRateStatistic {
     long lastSample = previousSample;
     float thenAverage = rateSample;
     long now = System.nanoTime();
-    float nowValue = ((float) (count - lastSample)) / (now - then);
-    final float rate = iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1);
-    if (Float.isNaN(rate)) {
-      if (Float.isNaN(thenAverage)) {
-        return 0f;
-      } else {
-        return thenAverage;
-      }
+    if (now == then) {
+      return thenAverage;
     } else {
-      return rate;
+      float nowValue = ((float) (count - lastSample)) / (now - then);
+      final float rate = iterateMovingAverage(nowValue, now, thenAverage, then) * TimeUnit.SECONDS.toNanos(1);
+      if (Float.isNaN(rate)) {
+        if (Float.isNaN(thenAverage)) {
+          return 0f;
+        } else {
+          return thenAverage;
+        }
+      } else {
+        return rate;
+      }
     }
   }
 }
