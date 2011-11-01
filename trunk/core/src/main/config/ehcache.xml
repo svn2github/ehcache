@@ -357,7 +357,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     This element has one attribute "rejoin" which can take values of either "true" or "false":
     <terracottaConfig rejoin="true" url="localhost:9510" />
 
-    By default, this attribute is true.
+    By default, this attribute is false.
 
     If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
