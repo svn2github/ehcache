@@ -55,18 +55,18 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
     if ((value & sampleRateMask) == 0L) {
       long now = getTime();
       long previous = startIncrementTime(now);
-      if (now != previous && value > previousSample) {
-        try {
-          float nowRate = ((float) (value - previousSample)) / (now - previous);
+      try {
+        if (now != previous && value > previousSample) {
+          float nowRate = ((float)(value - previousSample)) / (now - previous);
           rateSample = iterateMovingAverage(nowRate, now, rateSample, previous);
           previousSample = value;
-          long suggestedSampleRateMask = Long.highestOneBit(Math.max(1L, (long) (getRateAveragePeriod() * rateSample))) - 1;
+          long suggestedSampleRateMask = Long.highestOneBit(Math.max(1L, (long)(getRateAveragePeriod() * rateSample))) - 1;
           if (suggestedSampleRateMask != sampleRateMask) {
             sampleRateMask = suggestedSampleRateMask;
           }
-        } finally {
-          finishIncrementTime(now);
         }
+      } finally {
+        finishIncrementTime(now);
       }
     }
   }
