@@ -233,6 +233,11 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         return (MemoryStoreSegment) segments[((randomHash >>> segmentShift) & segmentMask)];
     }
 
+    public void recalculateSize(Object key) {
+        int hash = hash(key.hashCode());
+        ((MemoryStoreSegment) segmentFor(hash)).recalculateSize(key, hash);
+    }
+
     final class MemoryStoreSegment extends Segment<Object, Element> {
 
         private static final int MAX_EVICTION = 5;
@@ -386,6 +391,50 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent) {
             return putInternal(key, hash, value, sizeOf, onlyIfAbsent, false);
+        }
+
+        public void recalculateSize(Object key, int hash) {
+            Element value = null;
+            long oldSize = 0;
+            readLock().lock();
+            try {
+                HashEntry<Object, Element>[] tab = table;
+                int index = hash & (tab.length - 1);
+                HashEntry<Object, Element> first = tab[index];
+                HashEntry<Object, Element> e = first;
+                while (e != null && (e.hash != hash || !key.equals(e.key))) {
+                    e = e.next;
+                }
+                if (e != null) {
+                    MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
+                    key = mshe.key;
+                    value = mshe.value;
+                    oldSize = mshe.sizeOf;
+                }
+            } finally {
+                readLock().unlock();
+            }
+            if (value != null) {
+                long delta = poolAccessor.replace(oldSize, key, value, storedObject(value), true);
+                writeLock().lock();
+                try {
+                    HashEntry<Object, Element>[] tab = table;
+                    int index = hash & (tab.length - 1);
+                    HashEntry<Object, Element> first = tab[index];
+                    HashEntry<Object, Element> e = first;
+                    while (e != null && key != e.key) {
+                        e = e.next;
+                    }
+
+                    if (e != null && e.value == value && oldSize == ((MemoryStoreHashEntry) e).sizeOf) {
+                        ((MemoryStoreHashEntry) e).sizeOf = oldSize + delta;
+                    } else {
+                        poolAccessor.delete(delta);
+                    }
+                } finally {
+                    writeLock().unlock();
+                }
+            }
         }
 
         Element putInternal(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean pinned) {

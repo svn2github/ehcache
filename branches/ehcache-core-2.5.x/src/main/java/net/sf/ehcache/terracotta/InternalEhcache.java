@@ -39,4 +39,10 @@ public interface InternalEhcache extends Ehcache {
      */
     Element removeAndReturnElement(Object key) throws IllegalStateException;
 
+    /**
+     * Recalculate the size of the element mapped to the key
+     * @param key the key
+     */
+    void recalculateSize(Object key);
+
 }

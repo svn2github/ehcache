@@ -1284,4 +1284,11 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
             operation.clusterRejoined();
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        throw new UnsupportedOperationException();
+    }
 }

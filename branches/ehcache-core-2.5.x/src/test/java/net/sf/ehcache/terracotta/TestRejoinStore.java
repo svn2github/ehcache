@@ -391,4 +391,9 @@ public class TestRejoinStore implements TerracottaStore {
         return null;
     }
 
+    public void recalculateSize(Object key) {
+        alwaysCalledMethod();
+    }
+
+
 }

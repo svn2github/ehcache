@@ -355,4 +355,8 @@ public class MockStoreWithFlag implements TerracottaStore {
         return null;
     }
 
+    public void recalculateSize(Object key) {
+        markAccessFlag();
+    }
+
 }

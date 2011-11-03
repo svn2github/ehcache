@@ -362,4 +362,8 @@ public class BlockingMockStore implements TerracottaStore {
         return null;
     }
 
+    public void recalculateSize(Object key) {
+        neverReturn();
+    }
+
 }

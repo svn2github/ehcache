@@ -582,4 +582,11 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
     public <V> V executeClusterOperation(ClusterOperation<V> operation) {
         return operation.performClusterOperationTimedOut(TimeoutBehaviorType.EXCEPTION);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        throw new UnsupportedOperationException();
+    }
 }

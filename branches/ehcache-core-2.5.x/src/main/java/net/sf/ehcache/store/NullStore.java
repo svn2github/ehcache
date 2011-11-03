@@ -111,7 +111,7 @@ public final class NullStore extends AbstractStore implements TierableStore {
      */
     public void removeNoReturn(Object key) {
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -308,5 +308,12 @@ public final class NullStore extends AbstractStore implements TierableStore {
      */
     public boolean removeIfTierNotPinned(final Object key) {
         return remove(key) != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        // no-op
     }
 }

@@ -19,13 +19,12 @@ package net.sf.ehcache.constructs.classloader;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.InternalEhcache;
 
-
 /**
  * Extension of Class Loader Aware cache to accommodate the removeAndReturnElement method.
  *
  * @author dhruv
  */
-public class InternalClassLoaderAwareCache extends ClassLoaderAwareCache implements InternalEhcache  {
+public class InternalClassLoaderAwareCache extends ClassLoaderAwareCache implements InternalEhcache {
 
     /**
      * Constructor
@@ -35,20 +34,32 @@ public class InternalClassLoaderAwareCache extends ClassLoaderAwareCache impleme
      */
     public InternalClassLoaderAwareCache(InternalEhcache cache, ClassLoader classLoader) {
 
-       super(cache, classLoader);
+        super(cache, classLoader);
     }
-
 
     /**
      * {@inheritDoc}
      */
     public Element removeAndReturnElement(Object arg0) throws IllegalStateException {
-
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
         t.setContextClassLoader(this.classLoader);
         try {
             return ((InternalEhcache) this.cache).removeAndReturnElement(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object arg0) {
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            ((InternalEhcache) this.cache).recalculateSize(arg0);
         } finally {
             t.setContextClassLoader(prev);
         }

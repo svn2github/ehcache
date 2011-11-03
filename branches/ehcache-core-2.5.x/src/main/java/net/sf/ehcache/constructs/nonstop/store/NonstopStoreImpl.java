@@ -534,4 +534,11 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
         executorServiceStore.clusterRejoined();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        throw new UnsupportedOperationException();
+    }
+
 }

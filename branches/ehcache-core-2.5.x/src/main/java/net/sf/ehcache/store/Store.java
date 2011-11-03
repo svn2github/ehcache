@@ -443,4 +443,10 @@ public interface Store {
      * @return a map of keys and their corresponding values
      */
     Map<Object, Element> getAll(Collection<?> keys);
+
+    /**
+     * Recalculate size of the element mapped to the key
+     * @param key the key
+     */
+    void recalculateSize(Object key);
 }
