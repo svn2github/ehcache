@@ -709,4 +709,16 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public boolean hasAbortedSizeOf() {
         return cache.hasAbortedSizeOf() || authority.hasAbortedSizeOf();
     }
+
+    @Override
+    public void recalculateSize(Object key) {
+        Lock lock = getLockFor(key).writeLock();
+        lock.lock();
+        try {
+            authority.recalculateSize(key);
+            cache.recalculateSize(key);
+        } finally {
+            lock.unlock();
+        }
+    }
 }

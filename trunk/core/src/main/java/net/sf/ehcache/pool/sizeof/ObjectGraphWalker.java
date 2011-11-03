@@ -19,16 +19,13 @@ package net.sf.ehcache.pool.sizeof;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Stack;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
 
@@ -63,17 +60,11 @@ final class ObjectGraphWalker {
 
     private static final boolean USE_VERBOSE_DEBUG_LOGGING;
 
-    private static final String SERIALIZED_ENTRY_CLASS_NAME = "org.terracotta.cache.serialization.SerializedEntry";
-    private static final String SERIALIZED_ENTRY_CUSTOM_CLASS_NAME = "org.terracotta.cache.serialization.CustomLifespanSerializedEntry";
-    private static final String SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME = "getPreCalculatedSize";
-
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
             new WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>>();
     private final WeakIdentityConcurrentMap<Class<?>, Boolean> classCache =
             new WeakIdentityConcurrentMap<Class<?>, Boolean>();
-    private final WeakIdentityConcurrentMap<Class<?>, Method> calculatedSizeMethods =
-            new  WeakIdentityConcurrentMap<Class<?>, Method>();
 
     private final SizeOfFilter sizeOfFilter;
 
@@ -101,18 +92,6 @@ final class ObjectGraphWalker {
         String verboseString = System.getProperty(VERBOSE_DEBUG_LOGGING, "false").toLowerCase();
 
         return verboseString.equals("true");
-    }
-
-    private static Method getSerializedEntryGetPreCalculatedSizeMethod(Class klass) {
-        if (klass == null) {
-            return null;
-        } else {
-            try {
-                return klass.getMethod(SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME);
-            } catch (Exception e) {
-                return null;
-            }
-        }
     }
 
     /**
@@ -215,42 +194,10 @@ final class ObjectGraphWalker {
         long visitSize = 0;
         if (ref == null) {
             return 0;
-        } else if (isSerializedEntry(ref.getClass())) {
-            visitSize = getSerializedEntrySize(ref);
         } else {
             visitSize = visitor.visit(ref);
         }
         return visitSize;
-    }
-
-    private long getSerializedEntrySize(final Object ref) {
-        Class klazz = ref.getClass();
-        Method method = calculatedSizeMethods.get(klazz);
-        if (method == null) {
-            method = getSerializedEntryGetPreCalculatedSizeMethod(klazz);
-            if (method == null) {
-                throw new CacheException("Could not find " + SERIALIZED_ENTRY_CLASS_NAME + "."
-                        + SERIALIZED_ENTRY_GET_PRE_CALCULATED_SIZE_METHOD_NAME + "() method from ref: " + ref);
-            } else {
-                calculatedSizeMethods.put(klazz, method);
-            }
-        }
-        try {
-            return (Integer) method.invoke(ref);
-        } catch (Exception e) {
-            throw new CacheException("Caught exception while trying to get SerializedEntry.getPreCalculatedSize() for " + ref, e);
-        }
-    }
-
-    private boolean isSerializedEntry(Class<?> refClass) {
-        if (refClass != null) {
-            if (SERIALIZED_ENTRY_CLASS_NAME.equals(refClass.getName())) {
-                return true;
-            } else if (SERIALIZED_ENTRY_CUSTOM_CLASS_NAME.equals(refClass.getName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean checkMaxDepth(final int maxDepth, final boolean abortWhenMaxDepthExceeded, boolean warned,
@@ -279,11 +226,7 @@ final class ObjectGraphWalker {
             return fieldList;
         } else {
             Collection<Field> result;
-            if (isSerializedEntry(refClass)) {
-                result = Collections.emptyList();
-            } else {
-                result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
-            }
+            result = sizeOfFilter.filterFields(refClass, getAllFields(refClass));
             if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
                 for (Field field : result) {
                     if (Modifier.isTransient(field.getModifiers())) {

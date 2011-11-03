@@ -592,4 +592,11 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     public <V> V executeClusterOperation(ClusterOperation<V> operation) {
         return operation.performClusterOperationTimedOut(TimeoutBehaviorType.LOCAL_READS);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        throw new UnsupportedOperationException();
+    }
 }

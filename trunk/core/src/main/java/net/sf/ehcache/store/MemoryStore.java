@@ -1047,5 +1047,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         String cachePropertyKey = "net.sf.ehcache.store." + cacheName + ".config." + property;
         return Boolean.parseBoolean(System.getProperty(cachePropertyKey, System.getProperty(globalPropertyKey, Boolean.toString(defaultValue))));
     }
+
+    @Override
+    public void recalculateSize(Object key) {
+        if (key == null) {
+            return;
+        }
+        map.recalculateSize(key);
+    }
 }
 

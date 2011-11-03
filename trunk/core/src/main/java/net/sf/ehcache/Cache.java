@@ -4230,6 +4230,13 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        this.compoundStore.recalculateSize(key);
+    }
+
+    /**
      * Private class maintaining status of the cache
      *
      * @author Abhishek Sanoujam

@@ -186,4 +186,11 @@ public abstract class AbstractStore implements Store {
     public boolean hasAbortedSizeOf() {
         return false;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        // overriden on necessity
+    }
 }

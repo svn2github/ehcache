@@ -479,4 +479,11 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
         return operation.performClusterOperationTimedOut(TimeoutBehaviorType.NOOP);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        throw new UnsupportedOperationException();
+    }
+
 }

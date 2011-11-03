@@ -39,6 +39,7 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
@@ -52,7 +53,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @author Abhishek Sanoujam
  *
  */
-public class EhcacheDecoratorAdapter implements Ehcache {
+public class EhcacheDecoratorAdapter implements InternalEhcache {
 
     /**
      * The decorated {@link Ehcache}, has protected visibility so that sub-classes can have access to it.
@@ -939,5 +940,31 @@ public class EhcacheDecoratorAdapter implements Ehcache {
      */
     public void setPinned(Object key, boolean pinned) {
         underlyingCache.setPinned(key, pinned);
+    }
+
+    private InternalEhcache asInternalEhcache() {
+        return (InternalEhcache) underlyingCache;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element removeAndReturnElement(Object key) throws IllegalStateException {
+        if (underlyingCache instanceof InternalEhcache) {
+            return asInternalEhcache().removeAndReturnElement(key);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void recalculateSize(Object key) {
+        if (underlyingCache instanceof InternalEhcache) {
+            asInternalEhcache().recalculateSize(key);
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 }
