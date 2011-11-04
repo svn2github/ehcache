@@ -121,49 +121,70 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
      * @return the number of key-value mappings in this map
      */
     public int quickSize() {
-        return quickSizeInternal(false);
-    }
-
-    private int quickSizeInternal(final boolean grabAllSegmentsLock) {
-        long size = 0;
-        long numDummyPinnedKeys = 0;
-        if(grabAllSegmentsLock) {
-            grabAllSegmentsLock();
+        final Segment<?, ?>[] segments = this.segments;
+        long sum = 0;
+        for (Segment<?, ?> seg : segments) {
+            sum += seg.count - ((MemoryStoreSegment) seg).numDummyPinnedKeys;
         }
-        try {
-            for (Segment<Object, Element> segment : this.segments) {
-                MemoryStoreSegment mss = (MemoryStoreSegment)segment;
-                size += segment.count;
-                numDummyPinnedKeys += mss.numDummyPinnedKeys;
-            }
 
-            long quickSize = size - numDummyPinnedKeys;
-
-            if (quickSize > Integer.MAX_VALUE)
-                return Integer.MAX_VALUE;
-            return (int)quickSize;
-        } finally {
-            if(grabAllSegmentsLock) {
-                releaseAllSegmentsLock();
-            }
+        if (sum > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        } else {
+            return (int)sum;
         }
     }
 
     @Override
     public int size() {
-        return quickSizeInternal(true);
-    }
+        final Segment<?, ?>[] segments = this.segments;
 
-    private void grabAllSegmentsLock() {
-        for (int i = 0; i < segments.length; ++i)
+        for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
+            int[] mc = new int[segments.length];
+            long check = 0;
+            long sum = 0;
+            int mcsum = 0;
+            for (int i = 0; i < segments.length; ++i) {
+                sum += segments[i].count - ((MemoryStoreSegment) segments[i]).numDummyPinnedKeys;
+                mcsum += mc[i] = segments[i].modCount;
+            }
+            if (mcsum != 0) {
+                for (int i = 0; i < segments.length; ++i) {
+                    check += segments[i].count - ((MemoryStoreSegment) segments[i]).numDummyPinnedKeys;
+                    if (mc[i] != segments[i].modCount) {
+                        check = -1; // force retry
+                        break;
+                    }
+                }
+            }
+            if (check == sum) {
+                if (sum > Integer.MAX_VALUE) {
+                    return Integer.MAX_VALUE;
+                } else {
+                    return (int)sum;
+                }
+            }
+        }
+
+        long sum = 0;
+        for (int i = 0; i < segments.length; ++i) {
             segments[i].readLock().lock();
-    }
+        }
+        try {
+            for (int i = 0; i < segments.length; ++i) {
+                sum += segments[i].count - ((MemoryStoreSegment) segments[i]).numDummyPinnedKeys;
+            }
+        } finally {
+            for (int i = 0; i < segments.length; ++i) {
+                segments[i].readLock().unlock();
+            }
+        }
 
-    private void releaseAllSegmentsLock() {
-        for (int i = 0; i < segments.length; ++i)
-            segments[i].readLock().unlock();
+        if (sum > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        } else {
+            return (int)sum;
+        }
     }
-
 
     public ReentrantReadWriteLock lockFor(Object key) {
         int hash = hash(key.hashCode());
