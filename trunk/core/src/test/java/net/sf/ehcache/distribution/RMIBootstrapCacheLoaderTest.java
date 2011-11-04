@@ -28,6 +28,7 @@ import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -182,14 +183,10 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
         }
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
 
-        Thread.sleep(8000);
-        assertEquals(2000, manager1.getCache("sampleCache1").getSize());
+        RetryAssert.assertBy(16, TimeUnit.SECONDS, RetryAssert.sizeOf(manager1.getCache("sampleCache1")), equalTo(2000));
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
-        Thread.sleep(5000);
-        assertEquals(2000, manager3.getCache("sampleCache1").getSize());
-
-
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, RetryAssert.sizeOf(manager3.getCache("sampleCache1")), equalTo(2000));
     }
 
     /**
@@ -217,8 +214,7 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
 
         assertEquals(2000, manager2.getCache("sampleCache2").getSize());
 
-        Thread.sleep(8000);
-        assertEquals(2000, manager1.getCache("sampleCache2").getSize());
+        RetryAssert.assertBy(16, TimeUnit.SECONDS, RetryAssert.sizeOf(manager1.getCache("sampleCache2")), equalTo(2000));
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
         //Should not need to wait because the load is synchronous
@@ -245,8 +241,7 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
         manager2.addCache("testBootstrap1");
         Cache testBootstrap2 = manager2.getCache("testBootstrap1");
         //wait for async bootstrap
-        Thread.sleep(3000);
-        assertEquals(1000, testBootstrap2.getSize());
+        RetryAssert.assertBy(6, TimeUnit.SECONDS, RetryAssert.sizeOf(testBootstrap2), equalTo(1000));
 
 
     }
