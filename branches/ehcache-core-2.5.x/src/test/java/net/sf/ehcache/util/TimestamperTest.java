@@ -16,8 +16,8 @@ import static org.junit.Assert.assertThat;
  */
 public class TimestamperTest {
 
+    public static final int TOTAL_RUNS = 750000;
     public static final int THREADS  = 8;
-    public static final int DURATION = 2;
 
     @Test
     public void testNext() throws Exception {
@@ -25,6 +25,8 @@ public class TimestamperTest {
         final ConcurrentMap<Long, Integer> values = new ConcurrentHashMap<Long, Integer>();
         final AtomicLong errors = new AtomicLong();
         final AtomicLong totalRuns = new AtomicLong();
+        final AtomicLong stoppedAt = new AtomicLong();
+        
         Thread[] threads = new Thread[THREADS];
         for(int i =0; i < THREADS; i++) {
             threads[i] = new Thread() {
@@ -33,12 +35,15 @@ public class TimestamperTest {
 
                 @Override
                 public void run() {
-                    while (!stopped.get()) {
+                    while (!stopped.get() && runs < (TOTAL_RUNS / THREADS)) {
 //                        Timestamper.next();
                         ++runs;
                         if(values.putIfAbsent(Timestamper.next(), 0) != null) {
                             errors.incrementAndGet();
                         }
+                    }
+                    if (stopped.compareAndSet(false, true)) {
+                      stoppedAt.set(System.nanoTime());
                     }
                     totalRuns.addAndGet(runs);
                 }
@@ -47,14 +52,11 @@ public class TimestamperTest {
         for (Thread thread : threads) {
             thread.start();
         }
-        Thread.sleep(TimeUnit.SECONDS.toMillis(DURATION));
-        stopped.set(true);
-        long start = System.nanoTime();
         for (Thread thread : threads) {
             thread.join();
         }
         assertThat("Shouldn't wait that long for all threads to join!",
-            TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start), is(0L));
+            TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - stoppedAt.get()), is(0L));
         // Only meaning full if you don't put values in the chm!
 //        System.out.println(totalRuns.get() / DURATION / THREADS + " tps per thread" );
         assertThat(errors.get(), is(0L));
