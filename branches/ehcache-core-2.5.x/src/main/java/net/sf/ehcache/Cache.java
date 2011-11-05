@@ -62,6 +62,7 @@ import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
@@ -1053,7 +1054,9 @@ public class Cache implements InternalEhcache, StoreListener {
                             + maxConcurrency + ". Please reconfigure cache '" + getName() + "' with concurrency value <= " + maxConcurrency
                             + " or use system property '" + EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP + "' to override the default");
                 }
-                if (getCacheConfiguration().getMaxElementsOnDisk() == 0) {
+                boolean cachePinned = getCacheConfiguration().getPinningConfiguration() != null
+                        && getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
+                if (!cachePinned && getCacheConfiguration().getMaxElementsOnDisk() == 0) {
                     LOG.warn("Performance may degrade and server disks could run out of space!\nThe distributed cache {} does not have " +
                              "maxElementsOnDisk set. Failing to set maxElementsOnDisk could mean no eviction of its elements from the " +
                              "Terracotta Server Array disk store. To avoid this, set maxElementsOnDisk to a non-zero value.", getName());
