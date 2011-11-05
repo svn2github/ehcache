@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.terracotta;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -71,8 +69,8 @@ public class TerracottaCacheCluster implements CacheCluster {
      * Fire Rejoin event to all listeners.
      * Package protected method
      *
-     * @param clusterNode
      * @param oldNode
+     * @param newNode
      */
     void fireNodeRejoinedEvent(ClusterNode oldNode, ClusterNode newNode) {
         Set<ClusterTopologyListener> firedToListeners = new HashSet<ClusterTopologyListener>();
@@ -90,7 +88,7 @@ public class TerracottaCacheCluster implements CacheCluster {
 
     private void fireRejoinEvent(ClusterNode oldNode, ClusterNode newNode, ClusterTopologyListener listener) {
         try {
-            listener.clusterRejoined(new DisconnectedClusterNode(oldNode), newNode);
+            listener.clusterRejoined(oldNode, newNode);
         } catch (Throwable e) {
             LOGGER.error("Caught exception while firing rejoin event", e);
         }
@@ -165,59 +163,6 @@ public class TerracottaCacheCluster implements CacheCluster {
             throw new CacheException(
                     "The underlying cache cluster has not been initialized. Probably the terracotta client has not been configured yet.");
         }
-    }
-
-    /**
-     * Until fixed in terracotta core, getHostName() and getIp() does not work after node has disconnected.
-     * Temporary fix for beta release.
-     *
-     */
-    private static class DisconnectedClusterNode implements ClusterNode {
-
-        private final ClusterNode delegateNode;
-
-        /**
-         * Constructor accepting the actual delegate node
-         *
-         * @param actualNode
-         */
-        public DisconnectedClusterNode(final ClusterNode actualNode) {
-            this.delegateNode = actualNode;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public String getId() {
-            return delegateNode.getId();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public String getHostname() {
-            String hostName = "";
-            try {
-                hostName = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException e) {
-                hostName = "[Can't determine hostname and " + delegateNode.getId() + " has DISCONNECTED]";
-            }
-            return hostName;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public String getIp() {
-            String ip = "";
-            try {
-                ip = InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
-                ip = "[Can't determine IP and " + delegateNode.getId() + " has DISCONNECTED]";
-            }
-            return ip;
-        }
-
     }
 
     /**
