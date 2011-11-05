@@ -1774,7 +1774,12 @@ public class CacheConfiguration implements Cloneable {
 
         final Collection<ConfigError> errors = new ArrayList<ConfigError>();
 
-        verifyClutserdCacheConfiguration(configuration, errors);
+        verifyClusteredCacheConfiguration(configuration, errors);
+
+        if (maxEntriesLocalHeap == null && !configuration.isMaxBytesLocalHeapSet() && maxBytesLocalHeap == null) {
+            errors.add(new CacheConfigError("If your CacheManager has no maxBytesLocalHeap set, you need to either set " +
+                    "maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level", getName()));
+        }
 
         if (configuration.isMaxBytesLocalHeapSet() && Runtime.getRuntime().maxMemory() - configuration.getMaxBytesLocalHeap() < 0) {
             errors.add(new ConfigError("You've assigned more memory to the on-heap than the VM can sustain, " +
@@ -1791,26 +1796,27 @@ public class CacheConfiguration implements Cloneable {
         return errors;
     }
 
-    private void verifyClutserdCacheConfiguration(final Configuration configuration, final Collection<ConfigError> errors) {
-        if (isTerracottaClustered() && maxEntriesLocalDiskExplicitlySet) {
+    private void verifyClusteredCacheConfiguration(final Configuration configuration, final Collection<ConfigError> errors) {
+        if (!isTerracottaClustered()) { return; }
+
+        if (getPinningConfiguration() != null && getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE
+                && getMaxElementsOnDisk() != 0) {
+            errors.add(new CacheConfigError("maxElementsOnDisk may not be used on a pinned cache.", getName()));
+        }
+
+        if (maxEntriesLocalDiskExplicitlySet) {
             errors.add(new CacheConfigError("You can't set maxEntriesLocalDisk when clustering your cache with Terracotta, " +
-                                            "local disks won't be used! To control elements going in the cache cluster wide, " +
-                                            "use maxElementsOnDisk instead", getName()));
+                    "local disks won't be used! To control elements going in the cache cluster wide, " +
+                    "use maxElementsOnDisk instead", getName()));
         }
 
-        if (maxEntriesLocalHeap == null && !configuration.isMaxBytesLocalHeapSet() && maxBytesLocalHeap == null) {
-            errors.add(new CacheConfigError("If your CacheManager has no maxBytesLocalHeap set, you need to either set " +
-                                            "maxEntriesLocalHeap or maxBytesLocalHeap at the Cache level", getName()));
-        }
 
-        if (isTerracottaClustered() && maxBytesLocalDiskExplicitlySet) {
+        if (maxBytesLocalDiskExplicitlySet) {
             errors.add(new CacheConfigError("You can't set maxBytesLocalDisk when clustering your cache with Terracotta",
-                                            getName()));
+                    getName()));
         }
 
-        if (isTerracottaClustered()) {
-            validateTerracottaConfig(configuration, errors);
-        }
+        validateTerracottaConfig(configuration, errors);
     }
 
     /**
