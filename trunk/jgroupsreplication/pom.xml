@@ -120,6 +120,7 @@
 				<version>2.10</version>
                 <configuration>
                     <forkMode>pertest</forkMode>
+		    <argLine>-Djgroups.bind_addr=127.0.0.1</argLine>
                     <childDelegation>false</childDelegation>
                     <disableXmlReport>false</disableXmlReport>
                     <printSummary>true</printSummary>
