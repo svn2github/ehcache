@@ -165,7 +165,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     This element has one attribute "rejoin" which can take values of either "true" or "false":
     <terracottaConfig rejoin="true" url="localhost:9510" />
 
-    By default, this attribute is true.
+    By default, this attribute is false.
 
     If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
@@ -477,7 +477,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     The SizeOf policy can be configured at the cache manager level (directly under <ehcache>) and at
     the cache level (under <cache> or <defaultCache>). The cache policy always overrides the cache manager
-    one if both are set.
+    one if both are set. This element has no effect on distributed caches.
     
     Transactions
     ++++++++++++
