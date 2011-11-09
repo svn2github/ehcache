@@ -1,7 +1,0 @@
-#These fields reference common graphs between all keys in a given entity/collection cache
-org.hibernate.cache.CacheKey.type
-org.hibernate.cache.CacheKey.entityOrRoleName
-org.hibernate.cache.CacheKey.entityMode
-
-#This TC internal field is shared amongst all clustered entries
-org.terracotta.cache.serialization.SerializedEntry.tcClazz
