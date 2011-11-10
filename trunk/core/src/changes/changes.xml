@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+     <release version="2.5.0" date="2011-11" description="New Release">
+        	<action dev="Ludovic Orban" type="update" issue="EHC-849">
+            transactionalMode setting via code has no effect
+             </action>
+             <action dev="Ludovic Orban" type="update" issue="EHC-867">
+            Transactional cache with short TTI / TTL can provoke deadlocks
+             </action>
+             <action dev="Alex Snaps" type="update" issue="EHC-858">
+			ManagementService does not check for both class type of caches "Ehcache" and "Cache" which causes an NullPointerException if you attempt to use BlockingCache            
+			 </action>
+			 <action dev="Alex Snaps" type="update" issue="EHC-440">
+			  absolute memory configuration
+			 </action>
+			  <action dev="Chris Dennis" type="update" issue="EHC-868">
+			Misleading AssertionError in DiskPersistentStorageFactory.loadIndex
+			 </action>
+			 <action dev="Chris Dennis" type="update" issue="EHC-847">
+			Expose the Java property user.name for use in setting up the Disk Store
+			 </action>
+			 <action dev="Chris Dennis" type="update" issue="EHC-820">
+             Use region.contains() in ReadOnlyEhcacheEntityRegionAccessStrategy
+			 </action>
+			 <action dev="Hung Huynh" type="update" issue="EHC-856">
+		    Ehcache core now compatible with Maven3
+			 </action>
+			 <action dev="James House" type="update" issue="EHC-837">
+			putIfAbsent does not work as intended with synchronous RMI distributed caches
+			 </action>
+            </release>
       <release version="2.4.6" date="2011-10" description="Bug fixes">
         	<action dev="Ludovic Orban" type="update" issue="EHC-852">
              NotSerializableException when Ehcache tries overflow data to disk in XA Mode
