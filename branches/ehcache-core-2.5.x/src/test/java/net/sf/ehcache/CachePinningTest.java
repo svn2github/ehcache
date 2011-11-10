@@ -185,5 +185,42 @@ public class CachePinningTest {
         Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
     }
 
+    @Test
+    public void testElementPinningWithMaxElements() throws Exception {
+
+        int maxElementsInMemory = 100;
+        int unpinCount = maxElementsInMemory * 2;
+        int pinCount = unpinCount * 2;
+
+        Cache cache = new Cache(new CacheConfiguration("myCache", maxElementsInMemory));
+        cacheManager.addCache(cache);
+
+        for (int i = 0; i < unpinCount; i++) {
+            Element element = new Element("Ku-" + i, "" + i);
+            cache.put(element);
+        }
+
+        Assert.assertEquals(maxElementsInMemory, cache.getSize());
+
+        for (int i = 0; i < pinCount; i++) {
+            Element element = new Element("Kp-" + i, new Object());
+            cache.setPinned(element.getObjectKey(), true);
+            cache.put(element);
+        }
+
+        Assert.assertEquals(pinCount, cache.getSize());
+
+        for (int i = 0; i < pinCount; i++) {
+            Assert.assertTrue(cache.isPinned("Kp-" + i));
+        }
+
+        cache.unpinAll();
+        for (int i = 0; i < pinCount; i++) {
+            Assert.assertFalse(cache.isPinned("Kp-" + i));
+            Element element = new Element("Ku-" + i, new Object());
+            cache.put(element);
+        }
+        Assert.assertEquals(maxElementsInMemory, cache.getSize());
+    }
 }
 

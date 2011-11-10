@@ -8,7 +8,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -63,46 +62,4 @@ public class DiskBackedMemoryStoreTest {
         Assert.assertEquals(unpinCount, cache.getSize());
         cm.shutdown();
     }
-
-    @Test
-    @Ignore
-    public void testElementPinningWithMaxElements() throws Exception {
-        int maxElementsInMemory = 100;
-        CacheManager cm = new CacheManager();
-        Cache cache = new Cache(new CacheConfiguration("myCache", maxElementsInMemory).maxElementsOnDisk(maxElementsOnDisk));
-        cm.addCache(cache);
-
-        for (int i = 0; i < unpinCount; i++) {
-            Element element = new Element("Ku-" + i, "" + i);
-            cache.put(element);
-        }
-
-        Thread.sleep(1000);
-
-        Assert.assertEquals(maxElementsInMemory, cache.getSize());
-
-        for (int i = 0; i < pinCount; i++) {
-            Element element = new Element("Kp-" + i, new Object());
-            cache.setPinned(element.getObjectKey(), true);
-            cache.put(element);
-        }
-
-        Thread.sleep(1000);
-
-        Assert.assertEquals(pinCount, cache.getSize());
-
-        for (int i = 0; i < pinCount; i++) {
-            Assert.assertTrue(cache.isPinned("Kp-" + i));
-        }
-
-        cache.unpinAll();
-        for (int i = 0; i < pinCount; i++) {
-            Assert.assertFalse(cache.isPinned("Kp-" + i));
-        }
-        Thread.sleep(5000);
-        System.out.println(" getSize "+ cache.getSize()+" memoryStoreSize "+cache.getMemoryStoreSize());
-        Assert.assertEquals(maxElementsInMemory, cache.getSize());
-        cm.shutdown();
-    }
-
 }
