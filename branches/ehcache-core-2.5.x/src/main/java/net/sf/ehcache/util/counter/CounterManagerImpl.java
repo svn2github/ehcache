@@ -16,8 +16,11 @@
 
 package net.sf.ehcache.util.counter;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
@@ -79,8 +82,19 @@ public class CounterManagerImpl implements CounterManager {
         }
         Counter counter = config.createCounter();
         if (counter instanceof SampledCounterImpl) {
-            SampledCounterImpl sampledCounter = (SampledCounterImpl) counter;
-            timer.schedule(sampledCounter.getTimerTask(), sampledCounter.getIntervalMillis(), sampledCounter.getIntervalMillis());
+            final SampledCounterImpl sampledCounter = (SampledCounterImpl) counter;
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        public Object run() {
+                            sampledCounter.getTimerTask().run();
+                            return null;
+                        }
+                    });
+                }
+            };
+            timer.schedule(timerTask, sampledCounter.getIntervalMillis(), sampledCounter.getIntervalMillis());
         }
         counters.add(counter);
         return counter;

@@ -409,7 +409,9 @@ public class TerracottaClient {
             if (rejoinRequest == null) {
                 return;
             }
-            final ClusterNode oldNodeReference = rejoinRequest.getRejoinOldNode();
+            // copy the disconnected ClusterNode to prevent keeping a ref to it for the whole duration of
+            // the rejoin and allow the GC to immediately clean up the disconnected L1.
+            final ClusterNode oldNodeReference = new DisconnectedClusterNode(rejoinRequest.getRejoinOldNode());
             rejoinStatus.rejoinStarted();
             if (Thread.currentThread().isInterrupted()) {
                 // clear interrupt status if set
