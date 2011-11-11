@@ -45,6 +45,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -173,14 +174,10 @@ public class ManagementServiceTest extends AbstractCacheTest {
         assertEquals(Long.valueOf(0), mBeanServer.getAttribute(name, "ObjectCount"));
         cache.put(new Element("1", "value"));
         cache.get("1");
-        Thread.sleep(20);
+        DiskStoreHelper.flushAllEntriesToDisk((net.sf.ehcache.Cache)cache).get();
         assertEquals(Long.valueOf(1), mBeanServer.getAttribute(name, "ObjectCount"));
         assertEquals(Long.valueOf(1), mBeanServer.getAttribute(name, "MemoryStoreObjectCount"));
         assertEquals(Long.valueOf(1), mBeanServer.getAttribute(name, "DiskStoreObjectCount"));
-
-//        Thread.sleep(1000000);
-
-
     }
 
     /**
