@@ -16,8 +16,12 @@
 
 package net.sf.ehcache.writer;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -26,10 +30,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -77,6 +83,35 @@ public class CacheWriterTest extends AbstractCacheTest {
         if (!manager.getStatus().equals(Status.STATUS_SHUTDOWN)) {
             manager.shutdown();
         }
+    }
+
+
+    @Test
+    public void testClonesDefaultCacheProperly() throws Exception {
+
+        final ConcurrentHashMap<Cache, CacheWriter> values = new ConcurrentHashMap<Cache, CacheWriter>();
+
+        manager.addCache("first");
+        final Cache first = manager.getCache("first");
+        first.registerCacheWriter(new TestCacheWriter(new Properties()) {{ assertThat(values.putIfAbsent(first, this), nullValue()); }});
+        assertThat(((AbstractTestCacheWriter) first.getRegisteredCacheWriter()).isInitialized(), is(true));
+
+        manager.addCache("second");
+        final Cache second = manager.getCache("second");
+        second.registerCacheWriter(new TestCacheWriter(new Properties()) {{ assertThat(values.putIfAbsent(second, this), nullValue()); }});
+
+        // Verify the second cache's WriteManager has a reference to the cache passed in
+        final CacheWriterManager writerManager = second.getWriterManager();
+        final Field declaredField = writerManager.getClass().getDeclaredField("cache");
+        declaredField.setAccessible(true);
+        assertThat(declaredField.get(writerManager), notNullValue());
+
+        // Make sure both caches got their very own writer
+        assertThat(values.get(first), notNullValue());
+        assertThat(values.get(second), notNullValue());
+        assertThat(values.get(first), not(sameInstance(values.get(second))));
+
+        first.putWithWriter(new Element(new Object(), new Object()));
     }
 
     @Test

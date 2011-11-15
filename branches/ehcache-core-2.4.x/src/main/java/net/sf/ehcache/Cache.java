@@ -238,9 +238,9 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile CacheWriterManager cacheWriterManager;
 
-    private final AtomicBoolean cacheWriterManagerInitFlag = new AtomicBoolean(false);
+    private volatile AtomicBoolean cacheWriterManagerInitFlag = new AtomicBoolean(false);
 
-    private final ReentrantLock cacheWriterManagerInitLock = new ReentrantLock();
+    private volatile ReentrantLock cacheWriterManagerInitLock = new ReentrantLock();
 
     private volatile CacheWriter registeredCacheWriter;
 
@@ -2547,6 +2547,8 @@ public class Cache implements Ehcache, StoreListener {
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration().getElementComparatorInstance();
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
         copy.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(copy);
+        copy.cacheWriterManagerInitFlag = new AtomicBoolean(false);
+        copy.cacheWriterManagerInitLock = new ReentrantLock();
         for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {
             copy.addPropertyChangeListener(propertyChangeListener);
         }
