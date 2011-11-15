@@ -211,9 +211,9 @@ public class Cache implements Ehcache, StoreListener {
 
     private volatile CacheWriterManager cacheWriterManager;
 
-    private final AtomicBoolean cacheWriterManagerInitFlag = new AtomicBoolean(false);
+    private volatile AtomicBoolean cacheWriterManagerInitFlag = new AtomicBoolean(false);
 
-    private final ReentrantLock cacheWriterManagerInitLock = new ReentrantLock();
+    private volatile ReentrantLock cacheWriterManagerInitLock = new ReentrantLock();
 
     private volatile CacheWriter registeredCacheWriter;
 
@@ -2393,6 +2393,8 @@ public class Cache implements Ehcache, StoreListener {
 
         copy.configuration = configuration.clone();
         copy.guid = createGuid();
+        copy.cacheWriterManagerInitFlag = new AtomicBoolean(false);
+        copy.cacheWriterManagerInitLock = new ReentrantLock();
 
         RegisteredEventListeners registeredEventListenersFromCopy = copy.getCacheEventNotificationService();
         if (registeredEventListenersFromCopy == null || registeredEventListenersFromCopy.getCacheEventListeners().size() == 0) {
