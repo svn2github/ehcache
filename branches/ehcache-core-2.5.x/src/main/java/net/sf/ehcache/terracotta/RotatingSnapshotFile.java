@@ -86,6 +86,7 @@ class RotatingSnapshotFile {
      */
     void writeAll(final Iterable localKeys) throws IOException {
         writeLock.lock();
+        long writtenKeys = 0;
         try {
             File inProgress = newSnapshotFile();
 
@@ -100,9 +101,10 @@ class RotatingSnapshotFile {
             try {
                 for (Object localKey : localKeys) {
                     if (shutdownOnThreadInterrupted && Thread.currentThread().isInterrupted()) {
-                        return;
+                        break;
                     }
                     oos.writeObject(localKey);
+                    ++writtenKeys;
                 }
             } finally {
                 fileOutputStream.close();
@@ -110,6 +112,7 @@ class RotatingSnapshotFile {
 
             swapForOldWithNewSnapshot(inProgress);
         } finally {
+            LOG.info("Did a snapshot of " + writtenKeys + " local keys");
             writeLock.unlock();
         }
     }
