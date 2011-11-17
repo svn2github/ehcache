@@ -101,7 +101,7 @@ class RotatingSnapshotFile {
             try {
                 for (Object localKey : localKeys) {
                     if (shutdownOnThreadInterrupted && Thread.currentThread().isInterrupted()) {
-                        break;
+                        return;
                     }
                     oos.writeObject(localKey);
                     ++writtenKeys;
