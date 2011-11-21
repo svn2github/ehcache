@@ -85,11 +85,12 @@ public class DiskOverflowStorageFactory extends DiskStorageFactory<ElementSubsti
 
         final File diskDir = new File(diskPath);
         // Make sure the cache directory exists
-        if (diskDir.exists() && !diskDir.isDirectory()) {
-            throw new CacheException("Store directory \"" + diskDir.getAbsolutePath() + "\" exists and is not a directory.");
-        }
-        if (!diskDir.exists() && !diskDir.mkdirs()) {
-            throw new CacheException("Could not create cache directory \"" + diskDir.getAbsolutePath() + "\".");
+        if (!diskDir.mkdirs() && !diskDir.isDirectory()) {
+            if (diskDir.exists()) {
+                throw new CacheException("Store directory \"" + diskDir.getAbsolutePath() + "\" exists and is not a directory.");
+            } else {
+                throw new CacheException("Could not create cache directory \"" + diskDir.getAbsolutePath() + "\".");
+            }
         }
 
         File data = new File(diskDir, getDataFileName(cache));
