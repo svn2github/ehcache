@@ -226,7 +226,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     }
 
     private boolean isPinningEnabled(Element element) {
-        return cachePinned || (elementPinningEnabled && isPinned(element.getObjectKey()));
+        return cachePinned || isPinned(element.getObjectKey());
     }
 
     /**
