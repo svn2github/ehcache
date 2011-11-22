@@ -24,8 +24,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
@@ -41,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RejoinEventSequenceTest extends TestCase {
-
+    private static final AtomicBoolean nodeLeftFired = new AtomicBoolean(false);
     private static final Logger LOG = LoggerFactory.getLogger(RejoinEventSequenceTest.class);
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
 
@@ -49,10 +52,19 @@ public class RejoinEventSequenceTest extends TestCase {
     public void testRejoinEventAfterJoinAndOnline() throws Exception {
         final ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
         final MockCacheCluster mockCacheCluster = new MockCacheCluster();
-
+        final CyclicBarrier barrier = new CyclicBarrier(2);
         TerracottaUnitTesting.setupTerracottaTesting(mockFactory, new Runnable() {
-
+            AtomicBoolean firstTime = new AtomicBoolean(true);
             public void run() {
+                if(!firstTime.getAndSet(false) && nodeLeftFired.get()) {
+                    try {
+                        barrier.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (BrokenBarrierException e) {
+                        e.printStackTrace();
+                    }
+                }
                 mockCacheCluster.removeAllListeners();
             }
 
@@ -60,21 +72,22 @@ public class RejoinEventSequenceTest extends TestCase {
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
 
         CacheManager cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/rejoin/basic-rejoin-test.xml"));
-        RecordingListener listener = new RecordingListener();
+        RecordingListener listener = new RecordingListener(barrier);
         cacheManager.getCluster(ClusterScheme.TERRACOTTA).addTopologyListener(listener);
 
         // do rejoin for 20 times
         int n = 0;
         while (n < 20) {
             n++;
-            info("Sleeping for 3 secs...");
-            Thread.sleep(5000);
+            nodeLeftFired.set(false);
             info("================================= Run: " + n + " =========================================================");
+            info("Sleeping for 5 secs...");
+            Thread.sleep(5000);
             info("firing node left...");
             // trigger rejoin
             mockCacheCluster.fireCurrentNodeLeft();
 
-            info("Sleeping for 3 secs");
+            info("Sleeping for 2 secs");
             Thread.sleep(2000);
             info("Waiting until rejoin");
             listener.verifyAndWaitUntil(EventType.REJOINED);
@@ -86,6 +99,9 @@ public class RejoinEventSequenceTest extends TestCase {
 
             info("Clearing events");
             listener.clearEvents();
+            if(nodeLeftFired.get()) {
+                barrier.reset();
+            }
         }
     }
 
@@ -96,6 +112,11 @@ public class RejoinEventSequenceTest extends TestCase {
     private static final class RecordingListener implements ClusterTopologyListener {
         private final List<Event> events = new ArrayList<Event>();
         private volatile EventType state;
+        private final CyclicBarrier barrier;
+
+        public RecordingListener(CyclicBarrier barrier) {
+            this.barrier = barrier;
+        }
 
         public synchronized void nodeJoined(ClusterNode node) {
             info("XXX node joined");
@@ -113,6 +134,14 @@ public class RejoinEventSequenceTest extends TestCase {
             events.add(new Event(EventType.LEFT));
             state = EventType.LEFT;
             notifyAll();
+            nodeLeftFired.set(true);
+            try {
+                barrier.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (BrokenBarrierException e) {
+                e.printStackTrace();
+            }
         }
 
         public synchronized void clusterOnline(ClusterNode node) {
