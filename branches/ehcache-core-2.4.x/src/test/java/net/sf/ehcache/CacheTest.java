@@ -61,6 +61,7 @@ import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.util.RetryAssert;
+import net.sf.ehcache.util.TimeUtil;
 
 import org.junit.After;
 import org.junit.Test;
@@ -939,6 +940,12 @@ public class CacheTest extends AbstractCacheTest {
 
     /**
      * Expire elements and verify size is correct.
+     * <p>
+     * Since {@link TimeUtil#toSecs(long)} uses {@link Math#ceil(double)} the
+     * Element timestamps can move forward by just short of a second when
+     * being written to disk.  This can effectively subtract up to 999ms from
+     * the sleep time in this test - hence we now sleep for 3 seconds not 2 as
+     * before.
      */
     @Test
     public void testGetSizeAfterExpiry() throws Exception {
@@ -949,7 +956,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key2", "value1"));
 
         // Let the idle expire
-        Thread.sleep(1999);
+        Thread.sleep(3000);
         assertEquals(null, cache.get("key2"));
         assertEquals(null, cache.get("key1"));
 
