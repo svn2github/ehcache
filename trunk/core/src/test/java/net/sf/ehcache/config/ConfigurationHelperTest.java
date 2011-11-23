@@ -171,4 +171,11 @@ public class ConfigurationHelperTest extends AbstractCacheTest {
             }
         }
     }
+    
+    @Test
+    public void testSizeOfPolicy_EHC_990() {
+        Configuration config = new Configuration();
+        config.addTransactionManagerLookup(new FactoryConfiguration().className("foo.Bar"));
+        config.addSizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(10).maxDepthExceededBehavior(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+    }
 }

@@ -717,11 +717,11 @@ public final class Configuration {
      *
      * @param sizeOfPolicyConfiguration the SizeOfPolicy Configuration
      */
-    public final void addSizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
-        if (transactionManagerLookupConfiguration != null) {
+    public final void addSizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicy) {
+        if (sizeOfPolicyConfiguration != null) {
             throw new ObjectExistsException("The SizeOfPolicy class has already been configured");
         }
-        this.sizeOfPolicyConfiguration = sizeOfPolicyConfiguration;
+        sizeOfPolicyConfiguration = sizeOfPolicy;
     }
 
     /**
