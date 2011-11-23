@@ -96,7 +96,8 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
             // don't re-wrap needlessly
             return results;
         }
-        return new TxSearchResults(underlyingStore.executeQuery(query));
+
+        return new TxSearchResults(results);
     }
 
     /* non-transactional methods */
