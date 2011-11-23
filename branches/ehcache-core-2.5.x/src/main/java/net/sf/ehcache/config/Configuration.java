@@ -715,7 +715,7 @@ public final class Configuration {
     /**
      * Sets the default SizeOfPolicyConfiguration for this cache manager.
      *
-     * @param sizeOfPolicyConfiguration the SizeOfPolicy Configuration
+     * @param sizeOfPolicy the SizeOfPolicy Configuration
      */
     public final void addSizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicy) {
         if (sizeOfPolicyConfiguration != null) {
