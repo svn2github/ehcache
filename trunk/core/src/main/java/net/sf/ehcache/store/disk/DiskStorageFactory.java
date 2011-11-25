@@ -1043,9 +1043,11 @@ public class DiskStorageFactory {
             DiskSubstitute target = this.getDiskEvictionTarget(null, count);
             if (target != null) {
                 Element evictedElement = store.evictElement(target.getKey(), null);
-                if (evictedElement != null && cacheEventNotificationService != null) {
+                if (evictedElement != null) {
                     evicted++;
-                    cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
+                    if (cacheEventNotificationService != null) {
+                        cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
+                    }
                 }
             }
         }
