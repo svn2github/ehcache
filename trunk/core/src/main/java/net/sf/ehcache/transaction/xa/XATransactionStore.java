@@ -48,7 +48,7 @@ import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.commands.StorePutCommand;
 import net.sf.ehcache.transaction.xa.commands.StoreRemoveCommand;
 import net.sf.ehcache.util.LargeSet;
-import net.sf.ehcache.util.SetWrapperList;
+import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
@@ -337,7 +337,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         };
         keys.addAll(context.getAddedKeys());
         keys.removeAll(context.getRemovedKeys());
-        return new SetWrapperList(keys);
+        return new SetAsList<Object>(keys);
     }
 
 
