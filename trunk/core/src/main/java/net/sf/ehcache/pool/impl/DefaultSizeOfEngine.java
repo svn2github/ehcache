@@ -45,8 +45,9 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultSizeOfEngine implements SizeOfEngine {
 
+    public static final String USER_FILTER_RESOURCE = "net.sf.ehcache.sizeof.filter";
+    
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSizeOfEngine.class.getName());
-    private static final String USER_FILTER_RESOURCE = "net.sf.ehcache.sizeof.filter";
     private static final String VERBOSE_DEBUG_LOGGING = "net.sf.ehcache.sizeof.verboseDebugLogging";
 
     private static final SizeOfFilter DEFAULT_FILTER;
