@@ -45,6 +45,19 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultSizeOfEngine implements SizeOfEngine {
 
+    /**
+     * System property defining a user specific resource based size-of filter.
+     * <p>
+     * The resource pointed to by this property must be a list of fully qualified
+     * field or class names, one per line:
+     * <pre>
+     * # This is a comment
+     * org.mycompany.domain.MyType
+     * org.mycompany.domain.MyOtherType.myField
+     * </pre>
+     * Fields or types matching against lines in this resource will be ignored
+     * when calculating the size of the object graph.
+     */
     public static final String USER_FILTER_RESOURCE = "net.sf.ehcache.sizeof.filter";
     
     private static final Logger LOG = LoggerFactory.getLogger(DefaultSizeOfEngine.class.getName());
