@@ -337,11 +337,11 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
         public void unpinAll() {
             writeLock().lock();
-            if(numDummyPinnedKeys == count) {
-                clear();
-                return;
-            }
             try {
+                if(numDummyPinnedKeys == count) {
+                    clear();
+                    return;
+                }
                 Iterator<MemoryStoreHashEntry> itr = iterator();
                 // using clock iterator here so maintaining number of visited entries
                 int numVisited = 0;
