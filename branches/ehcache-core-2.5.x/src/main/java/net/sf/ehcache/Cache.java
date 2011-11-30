@@ -1490,9 +1490,6 @@ public class Cache implements InternalEhcache, StoreListener {
             }
         } else {
             boolean elementExists = !compoundStore.put(element);
-            if (elementExists) {
-                element.updateUpdateStatistics();
-            }
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
         }
     }
