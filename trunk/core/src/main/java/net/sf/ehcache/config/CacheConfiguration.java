@@ -413,6 +413,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheConfiguration(String name, int maxEntriesLocalHeap) {
         this.name = name;
+        verifyGreaterThanOrEqualToZero((long) maxEntriesLocalHeap, "maxEntriesLocalHeap");
         this.maxEntriesLocalHeap = maxEntriesLocalHeap;
     }
 
@@ -642,13 +643,11 @@ public class CacheConfiguration implements Cloneable {
      * <p/>
      * This property can be modified dynamically while the cache is operating.
      *
-     * @param maxEntriesInMemory The maximum number of elements in memory, before they are evicted (0 == no limit)
+     * @param maxEntriesLocalHeap The maximum number of elements in memory, before they are evicted (0 == no limit)
      */
-    public final void setMaxEntriesLocalHeap(long maxEntriesInMemory) {
-        if (maxEntriesInMemory < 0) {
-            throw new InvalidConfigurationException("Number of entries on local heap cannot be negative");
-        }
-        if (maxEntriesInMemory > Integer.MAX_VALUE) {
+    public final void setMaxEntriesLocalHeap(long maxEntriesLocalHeap) {
+        verifyGreaterThanOrEqualToZero(maxEntriesLocalHeap, "maxEntriesLocalHeap");
+        if (maxEntriesLocalHeap > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Values larger than Integer.MAX_VALUE are not currently supported.");
         }
 
@@ -657,9 +656,9 @@ public class CacheConfiguration implements Cloneable {
             throw new InvalidConfigurationException("MaxEntriesLocalHeap is not compatible with " +
                                                     "MaxBytesLocalHeap set on cache");
         }
-        int oldCapacity = maxEntriesLocalHeap == null ? 0 : maxEntriesLocalHeap;
-        int newCapacity = (int) maxEntriesInMemory;
-        this.maxEntriesLocalHeap = (int) maxEntriesInMemory;
+        int oldCapacity = this.maxEntriesLocalHeap == null ? 0 : this.maxEntriesLocalHeap;
+        int newCapacity = (int) maxEntriesLocalHeap;
+        this.maxEntriesLocalHeap = (int) maxEntriesLocalHeap;
         fireMemoryCapacityChanged(oldCapacity, newCapacity);
     }
 
@@ -835,6 +834,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setTimeToIdleSeconds(long timeToIdleSeconds) {
         checkDynamicChange();
+        verifyGreaterThanOrEqualToZero(timeToIdleSeconds, "timeToIdleSeconds");
         if (!isEternalValueConflictingWithTTIOrTTL(eternal, 0, timeToIdleSeconds)) {
             long oldTti = this.timeToIdleSeconds;
             long newTti = timeToIdleSeconds;
@@ -868,6 +868,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void setTimeToLiveSeconds(long timeToLiveSeconds) {
         checkDynamicChange();
+        verifyGreaterThanOrEqualToZero(timeToLiveSeconds, "timeToLiveSeconds");
         if (!isEternalValueConflictingWithTTIOrTTL(eternal, timeToLiveSeconds, 0)) {
             long oldTtl = this.timeToLiveSeconds;
             long newTtl = timeToLiveSeconds;
@@ -1034,6 +1035,7 @@ public class CacheConfiguration implements Cloneable {
             throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
                                                     "MaxBytesLocalDisk set on cache");
         }
+        verifyGreaterThanOrEqualToZero((long) maxElementsOnDisk, "maxElementsOnDisk");
         checkDynamicChange();
         int oldCapacity = this.maxElementsOnDisk;
         this.maxElementsOnDisk = maxElementsOnDisk;
@@ -1045,13 +1047,11 @@ public class CacheConfiguration implements Cloneable {
      * <p/>
      * This property can be modified dynamically while the cache is operating.
      *
-     * @param maxEntriesOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
+     * @param maxEntriesLocalDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      */
-    public void setMaxEntriesLocalDisk(long maxEntriesOnDisk) {
-        if (maxEntriesOnDisk < 0) {
-            throw new InvalidConfigurationException("Number of entries on disk cannot be negative");
-        }
-        if (maxEntriesOnDisk > Integer.MAX_VALUE) {
+    public void setMaxEntriesLocalDisk(long maxEntriesLocalDisk) {
+        verifyGreaterThanOrEqualToZero(maxEntriesLocalDisk, "maxEntriesLocalDisk");
+        if (maxEntriesLocalDisk > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
         }
         // This check against pool usage is only there to see if this configuration backs up a running cache
@@ -1059,7 +1059,7 @@ public class CacheConfiguration implements Cloneable {
             throw new IllegalStateException("Can't use local disks with Terracotta clustered caches!");
         }
         maxEntriesLocalDiskExplicitlySet = true;
-        setMaxElementsOnDisk((int)maxEntriesOnDisk);
+        setMaxElementsOnDisk((int)maxEntriesLocalDisk);
     }
 
     /**
@@ -1465,9 +1465,15 @@ public class CacheConfiguration implements Cloneable {
         return this;
     }
 
-    private void verifyGreaterThanZero(final Long maxBytesOnHeap, final String field) {
-        if (maxBytesOnHeap != null && maxBytesOnHeap < 1) {
-            throw new IllegalArgumentException(field + " has to be larger than 0");
+    private void verifyGreaterThanZero(final Long fieldVal, final String fieldName) {
+        if (fieldVal != null && fieldVal < 1) {
+            throw new IllegalArgumentException(fieldName + " has to be larger than 0");
+        }
+    }
+
+    private void verifyGreaterThanOrEqualToZero(final Long fieldVal, final String fieldName) {
+        if (fieldVal != null && fieldVal < 0) {
+            throw new IllegalArgumentException(fieldName + " has to be larger than or equal to 0");
         }
     }
 
