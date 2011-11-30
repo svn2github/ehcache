@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package net.sf.ehcache.store.compound;
 
@@ -35,14 +35,14 @@ import net.sf.ehcache.util.VmUtils;
  * In addition to the typical CHM-like methods, this classes additionally supports
  * replacement under a read lock - which is accomplished using an atomic CAS on the
  * associated HashEntry.
- * 
+ *
  * @author Chris Dennis
  */
 class Segment extends ReentrantReadWriteLock {
 
     private static final float LOAD_FACTOR = 0.75f;
     private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE);
-    
+
     /**
      * Count of elements in the map.
      * <p>
@@ -63,7 +63,7 @@ class Segment extends ReentrantReadWriteLock {
      * This is the substitute type used to store <code>Element</code>s when they are first added to the store.
      */
     private final InternalElementSubstituteFactory primaryFactory;
-    
+
     /**
      * The single identity substitute factory.  Identity substitute factories store the elements as <code>Element</code>s.
      * <p>
@@ -71,7 +71,7 @@ class Segment extends ReentrantReadWriteLock {
      * factory calls for the stored bare elements.
      */
     private final InternalElementSubstituteFactory identityFactory;
-    
+
     /**
      * Table of HashEntry linked lists, indexed by the least-significant bits of the spread-hash value.
      * <p>
@@ -80,7 +80,7 @@ class Segment extends ReentrantReadWriteLock {
      * size operations, we wouldn't need a volatile reference here.
      */
     private volatile HashEntry[] table;
-    
+
     /**
      * Size at which the next rehashing of this Segment should occur
      */
@@ -94,7 +94,7 @@ class Segment extends ReentrantReadWriteLock {
     /**
      * Create a Segment with the given initial capacity, load factor, and primary element substitute factory.  If the primary factory is not an
      * identity element substitute factory then it will be assumed that there is no identity element substitute factory.
-     * 
+     *
      * @param initialCapacity initial capacity of store
      * @param loadFactor fraction of capacity at which rehash occurs
      * @param primary primary element substitute factory
@@ -113,7 +113,7 @@ class Segment extends ReentrantReadWriteLock {
      * <p>
      * If a <code>null</code> identity element substitute factory is specified then encountering a raw element (i.e. as a result of using an
      * identity element substitute factory) will result in a null pointer exception during decode.
-     * 
+     *
      * @param initialCapacity initial capacity of store
      * @param loadFactor fraction of capacity at which rehash occurs
      * @param primary primary element substitute factory
@@ -122,7 +122,7 @@ class Segment extends ReentrantReadWriteLock {
     Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity) {
         this(initialCapacity, loadFactor, primary, identity, false, false, null);
     }
-    
+
     /**
      * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
      * <p>
@@ -141,7 +141,7 @@ class Segment extends ReentrantReadWriteLock {
      * @param copyOnWrite true should we copy Elements on writes, otherwise false
      * @param copyStrategy the strategy to use to copy (can't be null if copyOnRead or copyOnWrite is true)
      */
-    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity, 
+    Segment(int initialCapacity, float loadFactor, InternalElementSubstituteFactory primary, IdentityElementSubstituteFactory identity,
             boolean copyOnRead, boolean copyOnWrite, final ReadWriteCopyStrategy<Element> copyStrategy) {
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
@@ -155,15 +155,15 @@ class Segment extends ReentrantReadWriteLock {
         }
         this.copyStrategy = copyStrategy;
     }
-    
+
     private HashEntry getFirst(int hash) {
         HashEntry[] tab = table;
         return tab[hash & (tab.length - 1)];
     }
-    
+
     /**
-     * Decode the possible ElementSubstitute 
-     * 
+     * Decode the possible ElementSubstitute
+     *
      * @param key
      * @param object
      * @return
@@ -210,10 +210,10 @@ class Segment extends ReentrantReadWriteLock {
             ((ElementSubstitute) object).getFactory().free(writeLock(), (ElementSubstitute) object);
         }
     }
-    
+
     /**
      * Get the element mapped to this key (or null if there is no mapping for this key)
-     * 
+     *
      * @param key key to lookup
      * @param hash spread-hash for this key
      * @return mapped element
@@ -239,7 +239,7 @@ class Segment extends ReentrantReadWriteLock {
 
     /**
      * Return the unretrieved (undecoded) value for this key
-     * 
+     *
      * @param key key to lookup
      * @param hash spread-hash for the key
      * @return Element or ElementSubstitute
@@ -261,10 +261,10 @@ class Segment extends ReentrantReadWriteLock {
         }
         return null;
     }
-    
+
     /**
      * Return true if this segment contains a mapping for this key
-     * 
+     *
      * @param key key to check for
      * @param hash spread-hash for key
      * @return <code>true</code> if there is a mapping for this key
@@ -287,10 +287,10 @@ class Segment extends ReentrantReadWriteLock {
             readLock().unlock();
         }
     }
-    
+
     /**
      * Return true if this segment maps any key the given element.
-     * 
+     *
      * @param value element to check for
      * @return <code>true</code> if a key is mapped to this element
      */
@@ -318,7 +318,7 @@ class Segment extends ReentrantReadWriteLock {
 
     /**
      * Replace the element mapped to this key only if currently mapped to the given element.
-     * 
+     *
      *
      * @param key key to map the element to
      * @param hash spread-hash for the key
@@ -330,7 +330,7 @@ class Segment extends ReentrantReadWriteLock {
     boolean replace(Object key, int hash, Element oldElement, Element newElement, ElementValueComparator comparator) {
         boolean installed = false;
         Object encoded = create(key, newElement);
-        
+
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -356,7 +356,7 @@ class Segment extends ReentrantReadWriteLock {
             return replaced;
         } finally {
             writeLock().unlock();
-            
+
             if ((installed && encoded instanceof ElementSubstitute)) {
                 ((ElementSubstitute) encoded).installed();
             }
@@ -369,16 +369,16 @@ class Segment extends ReentrantReadWriteLock {
 
     /**
      * Replace the entry for this key only if currently mapped to some element.
-     * 
+     *
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param newElement element to add
-     * @return previous element mapped to this key 
+     * @return previous element mapped to this key
      */
     Element replace(Object key, int hash, Element newElement) {
         boolean installed = false;
         Object encoded = create(key, newElement);
-        
+
         writeLock().lock();
         try {
             HashEntry e = getFirst(hash);
@@ -399,7 +399,7 @@ class Segment extends ReentrantReadWriteLock {
             return oldElement;
         } finally {
             writeLock().unlock();
-            
+
             if ((installed && encoded instanceof ElementSubstitute)) {
                 ((ElementSubstitute) encoded).installed();
             }
@@ -410,10 +410,10 @@ class Segment extends ReentrantReadWriteLock {
      * Add the supplied mapping.
      * <p>
      * The supplied element is substituted using the primary element proxy factory
-     * before being stored in the cache.  If <code>onlyIfAbsent</code> is set 
+     * before being stored in the cache.  If <code>onlyIfAbsent</code> is set
      * then the mapping will only be added if no element is currently mapped
      * to that key.
-     * 
+     *
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param element element to store
@@ -423,7 +423,7 @@ class Segment extends ReentrantReadWriteLock {
     Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
         boolean installed = false;
         Object encoded = create(key, element);
-        
+
         writeLock().lock();
         try {
             // ensure capacity
@@ -442,6 +442,8 @@ class Segment extends ReentrantReadWriteLock {
             if (e != null) {
                 Object old = e.getElement();
                 if (!onlyIfAbsent) {
+                    element.updateUpdateStatistics();
+                    encoded = create(key, element);
                     e.setElement(encoded);
                     installed = true;
                     oldElement = decode(null, old);
@@ -461,20 +463,20 @@ class Segment extends ReentrantReadWriteLock {
             return oldElement;
         } finally {
             writeLock().unlock();
-            
+
             if ((installed && encoded instanceof ElementSubstitute)) {
                 ((ElementSubstitute) encoded).installed();
             }
         }
     }
 
-    
+
     /**
      * Add the supplied pre-encoded mapping.
      * <p>
      * The supplied encoded element is directly inserted into the segment
      * if there is no other mapping for this key.
-     * 
+     *
      * @param key key to map the element to
      * @param hash spread-hash for the key
      * @param encoded encoded element to store
@@ -508,11 +510,11 @@ class Segment extends ReentrantReadWriteLock {
             }
         } finally {
             writeLock().unlock();
-        }        
+        }
     }
-    
+
     private void rehash() {
-        HashEntry[] oldTable = table;            
+        HashEntry[] oldTable = table;
         int oldCapacity = oldTable.length;
         if (oldCapacity >= MAXIMUM_CAPACITY) {
             return;
@@ -577,9 +579,9 @@ class Segment extends ReentrantReadWriteLock {
     /**
      * Remove the matching mapping.
      * <p>
-     * If <code>value</code> is <code>null</code> then match on the key only, 
+     * If <code>value</code> is <code>null</code> then match on the key only,
      * else match on both the key and the value.
-     * 
+     *
      *
      * @param key key to match against
      * @param hash spread-hash for the key
@@ -650,7 +652,7 @@ class Segment extends ReentrantReadWriteLock {
             writeLock().unlock();
         }
     }
-    
+
     /**
      * Atomically switch (CAS) the <code>expect</code> representation of this element for the
      * <code>fault</code> representation.
@@ -658,7 +660,7 @@ class Segment extends ReentrantReadWriteLock {
      * A successful switch will return <code>true</code>, and free the replaced element/element-proxy.
      * A failed switch will return <code>false</code> and free the element/element-proxy which was not
      * installed.
-     * 
+     *
      * @param key key to which this element (proxy) is mapped
      * @param hash spread-hash for this key
      * @param expect element (proxy) expected
@@ -667,7 +669,7 @@ class Segment extends ReentrantReadWriteLock {
      */
     boolean tryFault(Object key, int hash, Object expect, Object fault) {
         boolean installed = false;
-        
+
         if (readLock().tryLock()) {
             try {
                 installed = install(key, hash, expect, fault);
@@ -682,7 +684,7 @@ class Segment extends ReentrantReadWriteLock {
                 }
             }
         }
-        
+
         free(fault);
         return false;
     }
@@ -739,7 +741,7 @@ class Segment extends ReentrantReadWriteLock {
     /**
      * Remove the matching mapping.  Unlike the {@link Segment#remove(Object, int, Element, net.sf.ehcache.store.ElementValueComparator)} method
      * evict does referential comparison of the unretrieved substitute against the argument value.
-     * 
+     *
      * @param key key to match against
      * @param hash spread-hash for the key
      * @param value optional value to match against
@@ -779,7 +781,7 @@ class Segment extends ReentrantReadWriteLock {
                         return true;
                     }
                 }
-                
+
                 return false;
             } finally {
                 writeLock().unlock();
@@ -791,7 +793,7 @@ class Segment extends ReentrantReadWriteLock {
 
     /**
      * Select a random sample of elements generated by the supplied factory.
-     * 
+     *
      * @param <T> type of the elements or element substitutes
      * @param filter filter of substitute types
      * @param sampleSize minimum number of elements to return
@@ -898,7 +900,7 @@ class Segment extends ReentrantReadWriteLock {
             lastReturned = null;
         }
     }
-    
+
     private HashEntry newHashEntry(Object key, int hash, HashEntry newFirst, Object element) {
         if (VmUtils.isInGoogleAppEngine()) {
             return new SynchronizedHashEntry(key, hash, newFirst, element);

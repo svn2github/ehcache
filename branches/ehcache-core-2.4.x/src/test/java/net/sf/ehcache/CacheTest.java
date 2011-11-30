@@ -111,6 +111,42 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     /**
+     * test last update time is updated when a key is updated
+     * @param cache
+     * @throws InterruptedException
+     */
+    @Test
+    public void testLastupdateTime() throws InterruptedException {
+        Cache cache = new Cache("lastUpdateCache", 0, true, false, 0, 0);
+        manager.addCache(cache);
+
+        Element e3 = new Element("key", "value3");
+        Thread.sleep(1000);
+
+        Element e2 = new Element("key", "value2");
+        Thread.sleep(1000);
+
+        Element e1 = new Element("key", "value1");
+        Thread.sleep(1000);
+
+        cache.put(e1);
+        Thread.sleep(1000);
+
+        cache.put(e2);
+        Thread.sleep(1000);
+
+        long firstTime = cache.get("key").getLastUpdateTime();
+        Thread.sleep(1000);
+
+        cache.put(e3);
+        long secondTime = cache.get("key").getLastUpdateTime();
+
+        System.out.println("testLastupdateTime (" + secondTime + " - " + firstTime + ") " + (secondTime - firstTime));
+
+        assertTrue("(secondTime - firstTime) " + (secondTime - firstTime), secondTime > firstTime);
+      }
+
+    /**
      * Checks we cannot use a cache after shutdown
      */
     @Test
@@ -316,13 +352,16 @@ public class CacheTest extends AbstractCacheTest {
         element = cache.get("key1");
         LOG.info("version: " + element.getVersion());
         LOG.info("creationTime: " + element.getCreationTime());
-        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+        long firstUpdate = element.getLastUpdateTime();
+        LOG.info("lastUpdateTime: " + firstUpdate);
 
         cache.put(new Element("key1", "value1"));
         element = cache.get("key1");
         LOG.info("version: " + element.getVersion());
         LOG.info("creationTime: " + element.getCreationTime());
-        LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
+        long secondUpdate = element.getLastUpdateTime();
+        LOG.info("lastUpdateTime: " + secondUpdate);
+        assertTrue("secondUpdate-firstUpdate= "+(secondUpdate-firstUpdate), secondUpdate > firstUpdate);
     }
 
 

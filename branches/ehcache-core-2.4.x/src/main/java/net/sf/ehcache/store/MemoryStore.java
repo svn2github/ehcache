@@ -203,6 +203,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             if (writerManager != null) {
                 writerManager.put(element);
             }
+            if (!newPut) {
+                element.updateUpdateStatistics();
+            }
             doPut(element);
         }
         return newPut;

@@ -108,6 +108,9 @@ public class LruMemoryStore extends AbstractStore {
             if (writerManager != null) {
                 writerManager.put(element);
             }
+            if (!newPut) {
+                element.updateUpdateStatistics();
+            }
             doPut(element);
         }
         return newPut;
@@ -349,7 +352,7 @@ public class LruMemoryStore extends AbstractStore {
         boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
-                if (LOG.isWarnEnabled()) { 
+                if (LOG.isWarnEnabled()) {
                     LOG.warn(new StringBuilder("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
