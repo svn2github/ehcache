@@ -262,6 +262,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                 checkCapacity(element);
                 return true;
             } else {
+                element.updateUpdateStatistics();
                 return false;
             }
         } else {

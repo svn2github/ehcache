@@ -79,7 +79,6 @@ import net.sf.ehcache.util.TimeUtil;
 
 import org.hamcrest.core.Is;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +152,7 @@ public class CacheTest extends AbstractCacheTest {
         Thread.sleep(1000);
 
         long firstTime = cache.get("key").getLastUpdateTime();
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         cache.put(e3);
         long secondTime = cache.get("key").getLastUpdateTime();
@@ -162,47 +161,6 @@ public class CacheTest extends AbstractCacheTest {
 
         assertTrue("(secondTime - firstTime) " + (secondTime - firstTime), secondTime > firstTime);
       }
-
-    /**
-     * test we do not touch version in our code and version is always 1 if not provided by user
-     * @param cache
-     * @throws InterruptedException
-     */
-    @Test
-    @Ignore
-    public void testVersion() throws InterruptedException {
-      System.setProperty("net.sf.ehcache.element.version.auto", "true");
-      try {
-          Cache cache = new Cache("lastUpdateCache", 0, true, true, 0, 0);
-          manager.addCache(cache);
-
-          Element e3 = new Element("key", "value3");
-          Thread.sleep(1000);
-
-          Element e2 = new Element("key", "value2");
-          Thread.sleep(1000);
-
-          Element e1 = new Element("key", "value1");
-          Thread.sleep(1000);
-
-          cache.put(e1);
-          Thread.sleep(1000);
-
-          cache.put(e2);
-          Thread.sleep(1000);
-
-          long firstTime = cache.get("key").getVersion();
-          Thread.sleep(2000);
-
-          cache.put(e3);
-          long secondTime = cache.get("key").getVersion();
-
-          System.out.println("testVersion (" + secondTime + " - " + firstTime + ") " + (secondTime - firstTime));
-          assertEquals(secondTime, firstTime);
-      } finally {
-          System.getProperties().remove("net.sf.ehcache.element.version.auto");
-      }
-    }
 
     /**
      * Checks we cannot use a cache after shutdown

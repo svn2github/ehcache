@@ -157,6 +157,9 @@ public class LruMemoryStore extends AbstractStore {
         boolean newPut = true;
         if (element != null) {
             newPut = map.put(element.getObjectKey(), element) == null;
+            if (!newPut) {
+                element.updateUpdateStatistics();
+            }
             if (writerManager != null) {
                 writerManager.put(element);
             }

@@ -439,6 +439,8 @@ public class Segment extends ReentrantReadWriteLock {
             if (e != null) {
                 DiskSubstitute onDiskSubstitute = e.element;
                 if (!onlyIfAbsent) {
+                    element.updateUpdateStatistics();
+                    encoded = disk.create(element);
                     e.element = encoded;
                     installed = true;
                     oldElement = decode(onDiskSubstitute);
@@ -718,7 +720,7 @@ public class Segment extends ReentrantReadWriteLock {
             writeLock().unlock();
         }
     }
-    
+
     /**
      * Removes all mappings from this segment.
      */
