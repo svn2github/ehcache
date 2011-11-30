@@ -356,11 +356,28 @@ public class TerracottaClient {
                             break;
                         }
                         LOGGER.warn("Caught exception while trying to rejoin cluster", e);
-                        info("Trying to rejoin again in " + REJOIN_SLEEP_MILLIS_ON_EXCEPTION + " msecs...");
-                        sleep(REJOIN_SLEEP_MILLIS_ON_EXCEPTION);
+                        if (isError(e)) {
+                            info("Rejoin worker thread exiting - unrecoverable error condition", e);
+                            shutdown = true;
+                            break;
+                        } else {
+                            info("Trying to rejoin again in " + REJOIN_SLEEP_MILLIS_ON_EXCEPTION + " msecs...");
+                            sleep(REJOIN_SLEEP_MILLIS_ON_EXCEPTION);
+                        }
                     }
                 }
             }
+        }
+
+        private boolean isError(Throwable t) {
+            while (t != null) {
+                if (t instanceof Error) {
+                    return true;
+                } else {
+                    t = t.getCause();
+                }
+            }
+            return false;
         }
 
         public synchronized boolean getAndClearForcedShutdown() {
