@@ -248,7 +248,6 @@
         <configuration>
           <skip>${skipJavadoc}</skip>
           <author>true</author>
-          <bottom>true</bottom>
           <!--<destDir>${project.build.directory}/site/javadoc</destDir> -->
           <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
           <minmemory>128m</minmemory>
@@ -277,7 +276,6 @@
               <!--${ydoc.home}/lib/ydoc.jar -umlautogen -->
               <!--</additionalparam> -->
               <author>true</author>
-              <bottom>true</bottom>
               <!--<destDir>${project.build.directory}/site/javadoc</destDir> -->
               <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
               <minmemory>128m</minmemory>
