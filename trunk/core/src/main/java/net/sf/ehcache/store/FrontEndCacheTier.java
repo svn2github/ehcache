@@ -157,6 +157,20 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     }
 
     /**
+     * Perform copy for the element If both copy on read and copy on write are set to true
+     *
+     * @param element the element to copy for removal
+     * @return a copy of the element with a storage-ready value
+     */
+    private Element copyElementForRemovalIfNeeded(Element element) {
+        if (copyOnRead && copyOnWrite) {
+            return copyStrategy.copyForWrite(element);
+        } else {
+            return element;
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public Element get(Object key) {
@@ -334,7 +348,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         lock.lock();
         try {
             cache.remove(e.getObjectKey());
-            return copyElementForReadIfNeeded(authority.removeElement(e, comparator));
+            return copyElementForReadIfNeeded(authority.removeElement(copyElementForRemovalIfNeeded(e), comparator));
         } finally {
             lock.unlock();
         }
@@ -351,7 +365,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         try {
             Element copy = copyElementForWriteIfNeeded(e);
             cache.remove(old.getObjectKey());
-            return authority.replace(old, copy, comparator);
+                return authority.replace(copyElementForRemovalIfNeeded(old), copy, comparator);
         } finally {
             lock.unlock();
         }
@@ -695,6 +709,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
 
     /**
      * Whether evicting this from the cache should fire when evicting from upper tiers
+     *
      * @param key the key to the element
      * @return true if we should fire, otherwise false
      */
