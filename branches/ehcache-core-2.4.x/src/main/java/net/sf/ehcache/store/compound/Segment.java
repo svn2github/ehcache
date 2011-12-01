@@ -443,7 +443,6 @@ class Segment extends ReentrantReadWriteLock {
                 Object old = e.getElement();
                 if (!onlyIfAbsent) {
                     element.updateUpdateStatistics();
-                    encoded = create(key, element);
                     e.setElement(encoded);
                     installed = true;
                     oldElement = decode(null, old);
