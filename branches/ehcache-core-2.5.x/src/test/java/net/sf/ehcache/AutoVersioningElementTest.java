@@ -16,10 +16,10 @@
 
 package net.sf.ehcache;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class AutoVersioningElementTest {
 
