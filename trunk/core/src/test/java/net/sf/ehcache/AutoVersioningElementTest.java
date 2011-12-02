@@ -16,16 +16,14 @@
 
 package net.sf.ehcache;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class AutoVersioningElementTest {
 
     @Test
-    @Ignore
     public void testVersioningCanRevertToOldBehavior() {
         System.setProperty("net.sf.ehcache.element.version.auto", "true");
         try {
@@ -41,12 +39,12 @@ public class AutoVersioningElementTest {
             Element b = new Element("a key", "a value");
             cache.put(b);
             Element bAfter = cache.get("a key");
-            assertEquals(1L, bAfter.getVersion());
+            assertEquals(bAfter.getLastUpdateTime(), bAfter.getVersion());
 
             Element c = new Element("a key", "a value", 3L);
             cache.put(c);
             Element cAfter = cache.get("a key");
-            assertEquals(3L, cAfter.getVersion());
+            assertEquals(cAfter.getLastUpdateTime(), cAfter.getVersion());
         } finally {
             System.getProperties().remove("net.sf.ehcache.element.version.auto");
         }
