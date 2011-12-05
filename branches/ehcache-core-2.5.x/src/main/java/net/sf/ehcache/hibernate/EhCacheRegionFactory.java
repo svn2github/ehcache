@@ -67,7 +67,7 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
             }
             if (configurationResourceName == null || configurationResourceName.length() == 0) {
                 Configuration configuration = ConfigurationFactory.parseConfiguration();
-                manager = CacheManager.create(configuration);
+                manager = new CacheManager(configuration);
             } else {
                 URL url;
                 try {
@@ -76,7 +76,7 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
                     url = loadResource(configurationResourceName);
                 }
                 Configuration configuration = HibernateUtil.loadAndCorrectConfiguration(url);
-                manager = CacheManager.create(configuration);
+                manager = new CacheManager(configuration);
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);
         } catch (net.sf.ehcache.CacheException e) {
