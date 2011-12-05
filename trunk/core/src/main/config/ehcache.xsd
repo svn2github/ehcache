@@ -94,15 +94,15 @@
             <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
             <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="optional" default="false"/>
-            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
-            <xs:attribute name="maxEntriesLocalHeap" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxElementsInMemory" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="maxEntriesLocalHeap" type="xs:nonNegativeInteger" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
             <xs:attribute name="overflowToDisk" type="xs:boolean" use="optional"/>
-            <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
-            <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
-            <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
-            <xs:attribute name="maxEntriesLocalDisk" type="xs:integer" use="optional"/>
+            <xs:attribute name="timeToIdleSeconds" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="timeToLiveSeconds" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="maxElementsOnDisk" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="maxEntriesLocalDisk" type="xs:nonNegativeInteger" use="optional"/>
             <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off"/>
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
@@ -134,16 +134,16 @@
             <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
             <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
             <xs:attribute name="eternal" type="xs:boolean" use="optional" default="false"/>
-            <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
-            <xs:attribute name="maxEntriesLocalHeap" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxElementsInMemory" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="maxEntriesLocalHeap" type="xs:nonNegativeInteger" use="optional"/>
             <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
             <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
             <xs:attribute name="name" type="xs:string" use="required"/>
             <xs:attribute name="overflowToDisk" type="xs:boolean" use="optional"/>
-            <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
-            <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
-            <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
-            <xs:attribute name="maxEntriesLocalDisk" type="xs:integer" use="optional"/>
+            <xs:attribute name="timeToIdleSeconds" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="timeToLiveSeconds" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="maxElementsOnDisk" type="xs:nonNegativeInteger" use="optional"/>
+            <xs:attribute name="maxEntriesLocalDisk" type="xs:nonNegativeInteger" use="optional"/>
             <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off" />
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
