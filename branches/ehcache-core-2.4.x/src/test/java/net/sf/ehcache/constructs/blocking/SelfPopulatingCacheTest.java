@@ -655,6 +655,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
     }
 
     @Test
+	@Ignore
     public void testRefreshQuietly() throws Exception {
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
