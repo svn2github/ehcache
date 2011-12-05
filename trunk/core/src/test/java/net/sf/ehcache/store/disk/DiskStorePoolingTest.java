@@ -14,6 +14,7 @@ import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -184,7 +185,7 @@ public class DiskStorePoolingTest {
             Element e = new Element(1, "" + i);
             diskStore.put(e);
         }
-        
+
         for (int i = 0; i < 1000; i++) {
             Element element = diskStore.get(1);
             assertNotNull(element);
@@ -272,6 +273,7 @@ public class DiskStorePoolingTest {
     }
 
     @Test
+    @Ignore
     public void testPutUpdate() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             putUpdate();
@@ -305,7 +307,7 @@ public class DiskStorePoolingTest {
         // update element 2x
         key = diskStore.getKeys().iterator().next();
         diskStore.put(new Element(key, key.toString()));
-        
+
         diskStore.waitUntilEverythingGotFlushedToDisk(3000);
 
         assertEquals(2, diskStore.getSize());
