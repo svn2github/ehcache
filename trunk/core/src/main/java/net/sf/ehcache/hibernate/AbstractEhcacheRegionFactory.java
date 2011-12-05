@@ -20,7 +20,6 @@ import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
 import net.sf.ehcache.hibernate.nonstop.NonstopAccessStrategyFactory;
 import net.sf.ehcache.hibernate.regions.EhcacheQueryResultsRegion;
