@@ -105,7 +105,7 @@ public final class HibernateUtil {
      */
     static Configuration overwriteCacheManagerIfConfigured(final Configuration configuration, final Properties properties) {
         final String cacheManagerName = properties.getProperty(AbstractEhcacheRegionFactory.NET_SF_EHCACHE_CACHE_MANAGER_NAME);
-        if(cacheManagerName != null) {
+        if (cacheManagerName != null) {
             configuration.setName(cacheManagerName);
         }
         return configuration;
