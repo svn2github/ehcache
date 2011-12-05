@@ -74,7 +74,7 @@ public class SingletonEhCacheRegionFactory extends AbstractEhcacheRegionFactory 
                     url = loadResource(configurationResourceName);
                 }
                 Configuration configuration = HibernateUtil.loadAndCorrectConfiguration(url);
-                manager = CacheManager.create(configuration);
+                manager = CacheManager.create(HibernateUtil.overwriteCacheManagerIfConfigured(configuration, properties));
                 REFERENCE_COUNT.incrementAndGet();
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);

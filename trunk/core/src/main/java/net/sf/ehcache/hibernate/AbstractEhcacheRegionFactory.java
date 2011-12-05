@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
 import net.sf.ehcache.hibernate.nonstop.NonstopAccessStrategyFactory;
 import net.sf.ehcache.hibernate.regions.EhcacheQueryResultsRegion;
@@ -62,6 +63,13 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      * If set to say ehcache-1.xml, ehcache-1.xml will be looked for in the root of the classpath.
      */
     public static final String NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME = "net.sf.ehcache.configurationResourceName";
+
+    /**
+     * The Hibernate system property specifying the name of the CacheManager being created.
+     * <p/>
+     * If not set, it will either use the ehcache.xml to name the CacheManager, or fallback to default CacheManager naming.
+     */
+    public static final String NET_SF_EHCACHE_CACHE_MANAGER_NAME = "net.sf.ehcache.cacheManagerName";
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractEhcacheRegionFactory.class);
 

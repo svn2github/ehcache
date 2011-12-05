@@ -76,7 +76,7 @@ public class EhCacheRegionFactory extends AbstractEhcacheRegionFactory {
                     url = loadResource(configurationResourceName);
                 }
                 Configuration configuration = HibernateUtil.loadAndCorrectConfiguration(url);
-                manager = new CacheManager(configuration);
+                manager = new CacheManager(HibernateUtil.overwriteCacheManagerIfConfigured(configuration, properties));
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);
         } catch (net.sf.ehcache.CacheException e) {
