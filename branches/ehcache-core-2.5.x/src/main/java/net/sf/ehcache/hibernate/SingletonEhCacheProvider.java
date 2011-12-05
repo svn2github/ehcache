@@ -20,12 +20,16 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.hibernate.management.impl.ProviderMBeanRegistrationHelper;
 
 import org.hibernate.cache.CacheException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static net.sf.ehcache.hibernate.HibernateUtil.overwriteCacheManagerIfConfigured;
 
 /**
  * Singleton cache Provider plugin for Hibernate 3.2 and ehcache-1.2. New in this provider is support for
@@ -97,7 +101,8 @@ public final class SingletonEhCacheProvider extends AbstractEhcacheProvider {
                 }
                 url = loadResource(configurationResourceName);
             }
-            manager = CacheManager.create(url);
+            final Configuration configuration = ConfigurationFactory.parseConfiguration(url);
+            manager = CacheManager.create(overwriteCacheManagerIfConfigured(configuration, properties));
             referenceCount++;
         }
         mbeanRegistrationHelper.registerMBean(manager, properties);

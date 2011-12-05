@@ -16,6 +16,7 @@
 package net.sf.ehcache.hibernate;
 
 import java.net.URL;
+import java.util.Properties;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -95,5 +96,18 @@ public final class HibernateUtil {
         }
     }
 
-
+    /**
+     * Will overwrite the CacheManager name from the passed in configuration with the value of
+     * net.sf.ehcache.hibernate.AbstractEhcacheRegionFactory#NET_SF_EHCACHE_CACHE_MANAGER_NAME of the passed in Properties
+     * @param configuration the configuration
+     * @param properties the properties passed in from Hibernate
+     * @return the configuration object passed in, only for convenience
+     */
+    static Configuration overwriteCacheManagerIfConfigured(final Configuration configuration, final Properties properties) {
+        final String cacheManagerName = properties.getProperty(AbstractEhcacheRegionFactory.NET_SF_EHCACHE_CACHE_MANAGER_NAME);
+        if(cacheManagerName != null) {
+            configuration.setName(cacheManagerName);
+        }
+        return configuration;
+    }
 }

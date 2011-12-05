@@ -27,6 +27,8 @@ import org.hibernate.cache.CacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static net.sf.ehcache.hibernate.HibernateUtil.overwriteCacheManagerIfConfigured;
+
 /**
  * Cache Provider plugin for Hibernate 3.2 and ehcache-1.2. New in this provider are ehcache support for multiple
  * Hibernate session factories, each with its own ehcache configuration, and non Serializable keys and values.
@@ -96,7 +98,7 @@ public final class EhCacheProvider extends AbstractEhcacheProvider {
                 } catch (MalformedURLException e) {
                     url = loadResource(configurationResourceName);
                 }
-                manager = new CacheManager(HibernateUtil.loadAndCorrectConfiguration(url));
+                manager = new CacheManager(overwriteCacheManagerIfConfigured(HibernateUtil.loadAndCorrectConfiguration(url), properties));
             }
             mbeanRegistrationHelper.registerMBean(manager, properties);
         } catch (net.sf.ehcache.CacheException e) {
