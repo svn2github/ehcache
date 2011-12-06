@@ -1,0 +1,8 @@
+ ---
+ Team List
+ ---
+
+{Team List}
+
+%{snippet|file=src/site/include/teamlist-contents.html|verbatim=false}
+
