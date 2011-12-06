@@ -1,0 +1,26 @@
+#Latex is very sensitive to whitespace in this file. If it stops working check against previous versions for whitespace differences.
+
+#v=1
+toc=1
+index=1
+lang=en
+paper=a4
+latex.documentclass=book
+html.css=/css/book.css
+html.paging=0
+.gif.eps=giftopnm %F | pnmtops --noturn -scale=0.45 -rle > %G
+.png.eps=pngtopnm -mix -background=rgb:ff/ff/ff %F | pnmtops --noturn -scale=0.45 -rle > %G
+.fig.jpg=fig2dev -L jpeg %F %G
+
+
+latex.resizegraphics=yes
+
+# -K is needed by psnup -2 because it chokes on %%Page contained
+# in certain EPS graphics.
+ps.pass2=dvips -K -j0 -G0 -o %O doc
+# Embed fonts
+pdf.pass3=ps2pdf -dEmbedAllFonts=true doc.ps %O
+
+.fig.gif=fig2dev -L gif %F %G
+.fig.eps=fig2dev -L eps %F %G
+.fig.ppm=fig2dev -L ppm %F %G
