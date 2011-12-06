@@ -29,7 +29,7 @@ public class DynamicCacheConfigurationValidityTest {
             Assert.fail("should not be able to create config with negative maxEntriesLocalHeap");
         } catch (IllegalArgumentException e) {
             // expected exception;
-            Assert.assertEquals(e.getMessage(), "maxEntriesLocalHeap has to be larger than or equal to 0");
+            Assert.assertEquals("Illegal value -1 for maxEntriesLocalHeap: has to be larger than or equal to 0", e.getMessage());
         }
 
         cacheConfiguration = new CacheConfiguration(TEST_NAME, 0);
@@ -41,7 +41,7 @@ public class DynamicCacheConfigurationValidityTest {
             Assert.fail("should not be able to set negative maxEntriesLocalHeap");
         } catch (IllegalArgumentException e) {
             // expected exception;
-            Assert.assertEquals(e.getMessage(), "maxEntriesLocalHeap has to be larger than or equal to 0");
+            Assert.assertEquals("Illegal value -1234 for maxEntriesLocalHeap: has to be larger than or equal to 0", e.getMessage());
         }
 
         Assert.assertEquals(0, cache.getCacheConfiguration().getMaxEntriesLocalHeap());
@@ -85,7 +85,7 @@ public class DynamicCacheConfigurationValidityTest {
             Assert.fail("should not be able to set negative maxEntriesLocalDisk");
         } catch (IllegalArgumentException e) {
             // expected exception;
-            Assert.assertEquals(e.getMessage(), "maxEntriesLocalDisk has to be larger than or equal to 0");
+            Assert.assertEquals("Illegal value -1234 for maxEntriesLocalDisk: has to be larger than or equal to 0", e.getMessage());
         }
 
         Assert.assertEquals(0, cache.getCacheConfiguration().getMaxEntriesLocalDisk());
@@ -105,7 +105,7 @@ public class DynamicCacheConfigurationValidityTest {
             Assert.fail("should not be able to set negative maxElementsOnDisk");
         } catch (IllegalArgumentException e) {
             // expected exception;
-            Assert.assertEquals(e.getMessage(), "maxElementsOnDisk has to be larger than or equal to 0");
+            Assert.assertEquals("Illegal value -1234 for maxElementsOnDisk: has to be larger than or equal to 0", e.getMessage());
         }
 
         Assert.assertEquals(0, cache.getCacheConfiguration().getMaxElementsOnDisk());
@@ -123,7 +123,7 @@ public class DynamicCacheConfigurationValidityTest {
             Assert.fail("should not be able to set negative TTL");
         } catch (IllegalArgumentException e) {
             // expected exception;
-            Assert.assertEquals(e.getMessage(), "timeToLiveSeconds has to be larger than or equal to 0");
+            Assert.assertEquals("Illegal value -1234 for timeToLiveSeconds: has to be larger than or equal to 0", e.getMessage());
         }
 
         Assert.assertEquals(0, cache.getCacheConfiguration().getTimeToLiveSeconds());
@@ -150,7 +150,7 @@ public class DynamicCacheConfigurationValidityTest {
             Assert.fail("should not be able to set negative TTI");
         } catch (IllegalArgumentException e) {
             // expected exception;
-            Assert.assertEquals(e.getMessage(), "timeToIdleSeconds has to be larger than or equal to 0");
+            Assert.assertEquals("Illegal value -1234 for timeToIdleSeconds: has to be larger than or equal to 0", e.getMessage());
         }
 
         Assert.assertEquals(0, cache.getCacheConfiguration().getTimeToIdleSeconds());
