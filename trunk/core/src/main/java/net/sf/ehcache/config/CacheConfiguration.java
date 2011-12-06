@@ -1467,13 +1467,13 @@ public class CacheConfiguration implements Cloneable {
 
     private void verifyGreaterThanZero(final Long fieldVal, final String fieldName) {
         if (fieldVal != null && fieldVal < 1) {
-            throw new IllegalArgumentException(fieldName + " has to be larger than 0");
+            throw new IllegalArgumentException("Illegal value " + fieldVal + " for " + fieldName + ": has to be larger than 0");
         }
     }
 
     private void verifyGreaterThanOrEqualToZero(final Long fieldVal, final String fieldName) {
         if (fieldVal != null && fieldVal < 0) {
-            throw new IllegalArgumentException(fieldName + " has to be larger than or equal to 0");
+            throw new IllegalArgumentException("Illegal value " + fieldVal + " for " + fieldName + ": has to be larger than or equal to 0");
         }
     }
 
