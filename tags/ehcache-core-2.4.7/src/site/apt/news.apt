@@ -1,0 +1,8 @@
+ ---
+ News
+ ---
+
+{News}
+
+%{snippet|file=src/site/include/news-contents.html|verbatim=false}
+

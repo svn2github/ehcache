@@ -1,0 +1,105 @@
+ ---
+ Building from Source
+ ---
+ 
+{Building from Source}
+
+    These instructions work for each of the modules, except for JMS Replication, which requires installation
+    of a message queue. See that module for details.
+
+*   {Building an Ehcache distribution from source}
+
+    To build Ehcache from source:
+
+    [[1]] Check the source out from the subversion repository.
+
+    [[1]] Ensure you have a valid JDK and Maven 2 installation.
+
+    [[1]] From within the ehcache/core directory, type <<<mvn -Dmaven.test.skip=true install>>>
+
+
+*   {Running Tests for Ehcache}
+
+    To run the test suite for Ehcache:
+
+    [[1]] Check the source out from the subversion repository.
+
+    [[1]] Ensure you have a valid JDK and Maven 2 installation.
+
+    [[1]] From within the ehcache/core directory, type <<<mvn test>>>
+
+    [[1]] If some {performance tests fail}, add a <<<-D net.sf.ehcache.speedAdjustmentFactor=x>>> System property to
+            your command line, where x is how many times your machine is slower than the reference machine. Try setting
+            it to 5 for a start.
+
+*   Deploying Maven Artifacts
+
+    Ehcache has a repository and snapshot repository at oss.sonatype.org.
+
+    The repository is synced with the Maven Central Repository.
+
+
+    To deploy:
+
+---
+   mvn deploy
+---
+
+    This will fail because SourceForge has disabled ssh exec. You need to create missing directories manually using
+    sftp access <<<sftp gregluck,ehcache@web.sourceforge.net>>>
+
+*   {Building the Site}
+
+    (These instructions are for project maintainers)
+
+    You need the following unix utilities installed:
+
+    * {maven} 2.2.1
+
+    * a latex distribution  (e.g. Tex Live 2008)
+
+    * ghostscript
+
+    * pdftk
+
+    * aptconvert
+
+    * netpbm
+
+    * xfig 
+
+    You also need a yDoc license.
+
+    With all that, build the site as below:
+
+---
+    mvn -Dmaven.test.skip=true package site
+---
+
+    The site needs to be deployed from the target/site directory using:
+
+    rsync -v -r * ehcache-stage.terracotta.lan:/export1/ehcache.org
+
+    sudo -u maven -H /usr/local/bin/syncEHcache.sh
+
+*   Deploying a release
+
+**  {Maven Release}
+
+---
+    mvn deploy
+---
+
+**  {Sourceforge Release}
+
+---
+    mvn assembly:assembly
+---
+
+    then manually upload to SourceForge
+
+    <<<sftp gregluck@frs.sourceforge.net>>>
+
+    and complete the file release process
+
+

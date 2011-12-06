@@ -1,0 +1,37 @@
+ ------
+ Ehcache Core Training
+ ------
+ ------
+ Date
+ ------
+
+Ehcache Core Training
+
+    Terracotta training courses give you an edge in building world-class, highly scalable and available java applications with Terracotta.
+
+    Ehcache Core training is available as an intensive 2 day course including hands-on lab sessions.
+
+    Learn how to:
+
+    * Get immediate performance gains, enhanced operational control, and seamless scalability.
+
+    * Understand common uses for Ehcache.
+
+    * Use the various Ehcache editions and leverage each to meet your performance and scale needs.
+
+    * Identify what data & how much data to cache.
+
+    * Use the Ehcache console and developer tools to maximize your productivity.
+
+    * Configure, manage, and tune your caches for optimal performance, reliability, availability and scale.
+
+    * Instantly boost application scale and performance through Hibernate interface.
+
+    * Learn about the advanced capabilities of Terracotta Ehcache and Terracotta Core Platform.
+
+    Deploy Ehcache in traditional enterprise architectures and highly virtualized architectures.
+
+
+    {{{/Ehcache_Core_2_Day_Training_Curriculum_v5.pdf}2 Day Course Curriculum [PDF]}}
+
+    See {{http://www.terracotta.org/training/}} for a training schedule and to arrange attendance.
