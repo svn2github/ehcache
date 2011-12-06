@@ -63,6 +63,7 @@ import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
+import org.junit.Ignore;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -334,6 +335,7 @@ public class CacheTest extends AbstractCacheTest {
      * />
      */
     @Test
+		@Ignore
     public void testLastUpdate() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCache1");
