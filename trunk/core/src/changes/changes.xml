@@ -33,7 +33,18 @@
 			putIfAbsent does not work as intended with synchronous RMI distributed caches
 			 </action>
             </release>
-      <release version="2.4.6" date="2011-10" description="Bug fixes">
+            <release version="2.4.7" date="2011-12" description="Bug Fixes">
+        	<action dev="Hung Huynh" type="update" issue="EHC-887">
+            Thread is spawn prematurely
+             </action>
+             <action dev="Chris Dennis" type="update" issue="EHC-897">
+            Race condition in Ehcache disk overflow storage initialization
+             </action>
+             <action dev="Tim Eck" type="update" issue="EHC-899">
+			Ehcache Transaction Search Error: "count", "sum" errors when the cache is "Local" transaction cache            
+			 </action>
+		   </release>
+     <release version="2.4.6" date="2011-10" description="Bug fixes">
         	<action dev="Ludovic Orban" type="update" issue="EHC-852">
              NotSerializableException when Ehcache tries overflow data to disk in XA Mode
              </action>
