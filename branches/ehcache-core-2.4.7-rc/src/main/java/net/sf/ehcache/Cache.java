@@ -2238,6 +2238,9 @@ public class Cache implements Ehcache, StoreListener {
             compoundStore.dispose();
         }
 
+        if (cacheManager != null) {
+            cacheManager.getCacheRejoinAction().unregister(this);
+        }
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 
@@ -2834,7 +2837,11 @@ public class Cache implements Ehcache, StoreListener {
      */
     public void setCacheManager(CacheManager cacheManager) {
         CacheManager oldValue = getCacheManager();
+        if (oldValue != null) {
+            oldValue.getCacheRejoinAction().unregister(this);
+        }
         this.cacheManager = cacheManager;
+        cacheManager.getCacheRejoinAction().register(this);
         firePropertyChange("CacheManager", oldValue, cacheManager);
     }
 
