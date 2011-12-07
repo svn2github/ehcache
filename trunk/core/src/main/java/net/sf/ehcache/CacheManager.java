@@ -215,6 +215,8 @@ public class CacheManager {
     private final NonstopExecutorServiceFactory nonstopExecutorServiceFactory = CacheManagerExecutorServiceFactory.getInstance();
     private volatile Configuration.RuntimeCfg runtimeCfg;
 
+    private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
+
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
@@ -262,8 +264,6 @@ public class CacheManager {
         status = Status.STATUS_UNINITIALISED;
         init(null, configurationFileName, null, null);
     }
-
-    private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
 
     /**
      * An ordinary constructor for CacheManager.
