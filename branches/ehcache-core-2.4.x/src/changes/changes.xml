@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-    <release version="2.4.4" date="2011-08" description="Bug fixes">
+      <release version="2.4.7" date="2011-12" description="Bug Fixes">
+        	<action dev="Hung Huynh" type="update" issue="EHC-887">
+            Thread is spawn prematurely
+             </action>
+             <action dev="Chris Dennis" type="update" issue="EHC-897">
+            Race condition in Ehcache disk overflow storage initialization
+             </action>
+             <action dev="Tim Eck" type="update" issue="EHC-899">
+			Ehcache Transaction Search Error: "count", "sum" errors when the cache is "Local" transaction cache            
+			 </action>
+		   </release>
+      <release version="2.4.6" date="2011-10" description="Bug fixes">
+        	<action dev="Ludovic Orban" type="update" issue="EHC-852">
+             NotSerializableException when Ehcache tries overflow data to disk in XA Mode
+             </action>
+             <action dev="Tim Eck" type="update" issue="EHC-879">
+              ReadWriteSerializationCopyStrategy does not use TCCL for resolving classes
+             </action>
+            </release>
+     <release version="2.4.5" date="2011-08" description="Bug fixes">
+    	<action dev="Raghvendra Singh" type="update" issue="6129">
+             NonStopCache causing application to hang when it is shutdown (normal shutdown not kill command)
+             </action>
+             <action dev="Ludovic Orban" type="update" issue="6157">
+               Cache.replace(oldElement, newElement) with local cache and big memory throws ClassCastException
+             </action>
+            </release>
+     <release version="2.4.4" date="2011-08" description="Bug fixes">
              <action dev="Tim Eck" type="update" issue="CDV-1593">
               Replicated cache events on TC clustered caches may not work in all configurations             </action>
              <action dev="James House" type="update" issue="5993">
