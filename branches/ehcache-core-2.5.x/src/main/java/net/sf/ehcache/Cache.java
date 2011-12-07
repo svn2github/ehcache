@@ -2510,6 +2510,9 @@ public class Cache implements InternalEhcache, StoreListener {
         // null the lockProvider too explicitly to help gc
         lockProvider = null;
 
+        if (cacheManager != null) {
+            cacheManager.getCacheRejoinAction().unregister(this);
+        }
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 
@@ -3128,7 +3131,11 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public void setCacheManager(CacheManager cacheManager) {
         CacheManager oldValue = getCacheManager();
+        if (oldValue != null) {
+            oldValue.getCacheRejoinAction().unregister(this);
+        }
         this.cacheManager = cacheManager;
+        cacheManager.getCacheRejoinAction().register(this);
         firePropertyChange("CacheManager", oldValue, cacheManager);
     }
 

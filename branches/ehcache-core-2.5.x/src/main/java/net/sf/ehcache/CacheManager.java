@@ -71,7 +71,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -211,6 +214,8 @@ public class CacheManager {
 
     private final NonstopExecutorServiceFactory nonstopExecutorServiceFactory = CacheManagerExecutorServiceFactory.getInstance();
     private volatile Configuration.RuntimeCfg runtimeCfg;
+
+    private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -380,15 +385,7 @@ public class CacheManager {
             this.onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
         }
 
-        terracottaClient = new TerracottaClient(this, new TerracottaClientRejoinListener() {
-            public void clusterRejoinStarted() {
-                CacheManager.this.clusterRejoinStarted();
-            }
-
-            public void clusterRejoinComplete() {
-                CacheManager.this.clusterRejoinComplete();
-            }
-        }, configuration.getTerracottaConfiguration());
+        terracottaClient = new TerracottaClient(this, cacheRejoinAction, configuration.getTerracottaConfiguration());
 
         Map<String, CacheConfiguration> cacheConfigs = configuration.getCacheConfigurations();
         if (configuration.getDefaultCacheConfiguration() != null
@@ -1274,6 +1271,7 @@ public class CacheManager {
             transactionController = null;
             removeShutdownHook();
             nonstopExecutorServiceFactory.shutdown(this);
+            getCacheRejoinAction().unregisterAll();
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);
@@ -1830,4 +1828,115 @@ public class CacheManager {
     protected NonstopExecutorService getNonstopExecutorService() {
         return nonstopExecutorServiceFactory.getOrCreateNonstopExecutorService(this);
     }
+
+    /**
+     * Get the CacheRejoinAction
+     * @return the CacheRejoinAction
+     */
+    CacheRejoinAction getCacheRejoinAction() {
+        return cacheRejoinAction;
+    }
+
+    /**
+     * Class which handles rejoin events and notifies Caches implementations about them.
+     */
+    class CacheRejoinAction implements TerracottaClientRejoinListener {
+        private final Collection<WeakReference<Cache>> caches = new CopyOnWriteArrayList<WeakReference<Cache>>();
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterRejoinStarted() {
+            // send clusterRejoinStarted event to all TC clustered caches
+            Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
+            for (final WeakReference<Cache> cacheRef : caches) {
+                Cache cache = cacheRef.get();
+                if (cache == null) {
+                    toRemove.add(cacheRef);
+                    continue;
+                }
+                if (cache.getCacheConfiguration().isTerracottaClustered()) {
+                    cache.clusterRejoinStarted();
+                }
+            }
+            caches.removeAll(toRemove);
+
+            // shutdown the current nonstop executor service
+            nonstopExecutorServiceFactory.shutdown(CacheManager.this);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void clusterRejoinComplete() {
+            // restart nonstop executor service
+            nonstopExecutorServiceFactory.getOrCreateNonstopExecutorService(CacheManager.this);
+
+            // send clusterRejoinComplete event to all TC clustered caches
+            Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
+            for (final WeakReference<Cache> cacheRef : caches) {
+                Cache cache = cacheRef.get();
+                if (cache == null) {
+                    toRemove.add(cacheRef);
+                    continue;
+                }
+                if (cache.getCacheConfiguration().isTerracottaClustered()) {
+                    cache.clusterRejoinComplete();
+                }
+            }
+            caches.removeAll(toRemove);
+
+            if (mbeanRegistrationProvider.isInitialized()) {
+                // re-register mbeans
+                try {
+                    mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
+                } catch (MBeanRegistrationProviderException e) {
+                    throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
+                            + mbeanRegistrationProvider.getClass().getName(), e);
+                }
+            }
+            // recreate TransactionController with fresh TransactionIDFactory
+            transactionController = new TransactionController(createTransactionIDFactory(), runtimeCfg.getConfiguration()
+                    .getDefaultTransactionTimeoutInSeconds());
+        }
+
+        /**
+         * Register a Cache implementation
+         *
+         * @param cache the cache
+         */
+        public void register(Cache cache) {
+            caches.add(new WeakReference<Cache>(cache));
+        }
+
+        /**
+         * Unregister a Cache implementation
+         *
+         * @param cache the cache
+         */
+        public void unregister(Cache cache) {
+            Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
+            for (final WeakReference<Cache> cacheRef : caches) {
+                Cache c = cacheRef.get();
+                if (c == null) {
+                    toRemove.add(cacheRef);
+                    continue;
+                }
+
+                if (c == cache) {
+                    toRemove.add(cacheRef);
+                    return;
+                }
+            }
+            caches.removeAll(toRemove);
+        }
+
+        /**
+         * Unregister all caches
+         */
+        public void unregisterAll() {
+            caches.clear();
+        }
+    }
+
 }
