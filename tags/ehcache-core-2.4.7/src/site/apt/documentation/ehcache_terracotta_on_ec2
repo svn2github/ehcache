@@ -1,0 +1,114 @@
+ ---
+ Ehcache backed with Terracotta on EC2
+ ---
+
+{Ehcache backed with Terracotta on EC2}
+
+
+    This shows how to get Examinator deployed on EC2 using the Cloud Toolkit
+     internal version as at 2 March 2010.
+
+  Currenty this is an internal only tool set for deploys and manages Terracotta Server
+  arrays on EC2 and Eucalyptus.
+
+
+* Requirements
+
+  * EC2 Account
+
+  * Terracotta FX, trial key OK
+
+
+*   Steps
+
+  Create a bootstrap node from the terracotta.ami (search for Terracotta in the Community AMIs)
+
+  Use Firefox. Safari is broken.
+
+
+  create a terracotta-cloud dir.
+
+  cp gregluck.pem to terracotta-cloud dir.
+  cp pk and cert matching the pem to terracotta-cloud/etc
+
+  Edit terracotta-cloud.cfg and add
+
+---
+# aws or eucalyptus
+mode=aws
+
+cchost=64.95.112.237
+bootstrapnode=ec2-184-73-39-83.compute-1.amazonaws.com
+bootstrapuser=root
+bootstraphomedir=/mnt
+localprivatekey=./gregluck.pem
+
+
+accesskey=
+secretkey=
+pkfile=/mnt/etc/pk-ALINKNZXVSKDWQBAGDMW6TDRHBU452UJ.pem
+certfile=/mnt/etc/mnt/cert-ALINKNZXVSKDWQBAGDMW6TDRHBU452UJ.pem
+keypair=gregluck
+
+#Terracotta AMI
+workerami=ami-2f8d6246
+EC2Home=/home/ec2
+ElbHome=/mnt/ElasticLoadBalancing-1.0.3.4
+TcHome=/tc/terracotta
+
+
+l2size=m1.small
+l2securitygroup=terracotta_security_group
+l2type=fx
+l1size=m1.small
+l1securitygroup=terracotta_security_group
+
+
+s3appurl=s3://gregluck/terracotta-cloud
+s3app=tc.tgz
+appinstalldirectory=/tc
+applicationlaunchcommand=start-client.sh
+---
+
+  Then bundle.sh to create the toolset
+
+  BOOTSTRAP.sh to copy the bundle up to your bootstrapnode.
+
+
+** Using the Bootstrap Node
+
+ ssh to the toolset machine.
+
+ cd /mnt
+
+ START-ALL.sh no_of_l1s no_of_l2s
+
+ The number of L2s is the total. An active and a passive are created for each stripe. Divide by two to get stripes.
+
+ The bootstrap machine is always used as an L2 and as the DB for Examinator.
+
+
+  
+
+** Creating the Loadbalancer
+
+    From AWS Console, create a load balancer called examinator.
+
+---
+  80 forwarding to 8080 (HTTP)
+
+
+    * add custom health check
+
+---
+     Ping Target:
+     TCP:8080
+     Timeout:
+     5 seconds
+     Interval:
+     30 seconds
+     Unhealthy Threshold:
+     2
+---
+
+  

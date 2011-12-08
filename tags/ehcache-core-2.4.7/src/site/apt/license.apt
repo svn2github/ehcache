@@ -1,0 +1,40 @@
+ ----
+ License
+ ----
+
+Ehcache Licensing
+
+    Ehcache is developed and maintained by {{{http://www.terracotta.org/} Terracotta, Inc}}, a commercial open source company.  Terracotta engineers lead the development of Ehcache, which is made available as both an open source project and the commercial {{{http://www.terracotta.org/ehcache/} Enterprise Ehcache}} product.
+
+    Enterprise Ehcache users get the best of both worlds: enterprise-class features and support, all based on the popular open source project.  Users of open source Ehcache can easily upgrade to Enterprise Ehcache.
+
+
+Commercial License and Support 
+
+    Looking for a commercially licensed and supported edition of Ehcache?
+
+    To find out more about the Enterprise Ehcache product, support, and 
+    licensing, please refer the to the
+    {{{http://www.terracotta.org/ehcache/} product description}}.
+
+Open Source License
+
+    The open source Ehcache project is licensed under the Apache 2.0 License.  The text
+    of the license is available below:
+
+--------------------------------------------
+/**
+ *  Copyright 2003-2010 Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+--------------------------------------------
