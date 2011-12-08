@@ -9,7 +9,7 @@ public class SizeOfAgent {
 
   private static volatile Instrumentation instrumentation;
   private static final String INSTRUMENTATION_INSTANCE_SYSTEM_PROPERTY_NAME = "net.sf.ehcache.sizeof.agent.instrumentation";
-  private static final String NO_INSTRUMENTATION_SYSTEM_PROPERTY_NAME = "net.sf.ehcache.sizeof.agent.noInstrumentationSystemProperty";
+  private static final String NO_INSTRUMENTATION_SYSTEM_PROPERTY_NAME = "net.sf.ehcache.sizeof.agent.instrumentationSystemProperty";
 
   public static void premain(String options, Instrumentation inst) {
     SizeOfAgent.instrumentation = inst;
@@ -22,7 +22,7 @@ public class SizeOfAgent {
   }
 
   private static void registerSystemProperty() {
-    if (!Boolean.getBoolean(NO_INSTRUMENTATION_SYSTEM_PROPERTY_NAME)) {
+    if (Boolean.getBoolean(NO_INSTRUMENTATION_SYSTEM_PROPERTY_NAME)) {
       System.getProperties().put(INSTRUMENTATION_INSTANCE_SYSTEM_PROPERTY_NAME, instrumentation);
     }
   }
