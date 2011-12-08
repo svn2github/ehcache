@@ -1466,7 +1466,7 @@ public class Cache implements InternalEhcache, StoreListener {
         applyDefaultsToElementWithoutLifespanSet(element);
 
         backOffIfDiskSpoolFull();
-
+        element.updateUpdateStatistics();
         if (useCacheWriter) {
             boolean elementExists = false;
             boolean notifyListeners = true;
@@ -1481,9 +1481,6 @@ public class Cache implements InternalEhcache, StoreListener {
                 }
                 throw cause;
             } finally {
-                if (elementExists) {
-                    element.updateUpdateStatistics();
-                }
                 if (notifyListeners) {
                     notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
                 }
@@ -3868,7 +3865,7 @@ public class Cache implements InternalEhcache, StoreListener {
         element.resetAccessStatistics();
         applyDefaultsToElementWithoutLifespanSet(element);
         backOffIfDiskSpoolFull();
-
+        element.updateUpdateStatistics();
         Element result = compoundStore.putIfAbsent(element);
         if (result == null) {
             notifyPutInternalListeners(element, false, false);

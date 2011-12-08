@@ -17,18 +17,6 @@
 package net.sf.ehcache.constructs.blocking;
 
 import static junit.framework.Assert.assertSame;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.CacheTest;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ConfigurationFactory;
-import net.sf.ehcache.event.CountingCacheEventListener;
-import org.junit.After;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -39,15 +27,23 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheTest;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.event.CountingCacheEventListener;
+
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -658,7 +654,6 @@ public class SelfPopulatingCacheTest extends CacheTest {
     }
 
     @Test
-		@Ignore
     public void testRefreshQuietly() throws Exception {
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
@@ -703,7 +698,6 @@ public class SelfPopulatingCacheTest extends CacheTest {
     }
 
     @Test
-    @Ignore //FIXME started breaking 8/10
     public void testRefreshNoisily() throws Exception {
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory("value");
         CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
