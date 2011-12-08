@@ -34,7 +34,7 @@ public class AutoVersioningElementTest {
             Element a = new Element("a key", "a value", 1L);
             cache.put(a);
             Element aAfter = cache.get("a key");
-            assertEquals(1L, aAfter.getVersion());
+            assertEquals(aAfter.getLastUpdateTime(), aAfter.getVersion());
 
             Element b = new Element("a key", "a value");
             cache.put(b);

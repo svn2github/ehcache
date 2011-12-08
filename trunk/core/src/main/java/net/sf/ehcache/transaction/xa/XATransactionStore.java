@@ -443,8 +443,6 @@ public class XATransactionStore extends AbstractTransactionStore {
         isNull = underlyingStore.get(element.getKey()) == null;
         if (isNull) {
             isNull = context.get(element.getKey()) == null;
-        } else {
-            element.updateUpdateStatistics();
         }
         context.addCommand(putCommand, element);
         return isNull;
