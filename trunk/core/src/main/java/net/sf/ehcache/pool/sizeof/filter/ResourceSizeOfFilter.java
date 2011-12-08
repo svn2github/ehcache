@@ -55,8 +55,11 @@ public class ResourceSizeOfFilter implements SizeOfFilter {
                         String field = r.readLine();
                         if (field == null) {
                             break;
-                        } else if (!field.startsWith("#")) {
-                            filtered.add(field);
+                        } else {
+                            field = field.trim();
+                            if (!field.isEmpty() && !field.startsWith("#")) {
+                                filtered.add(field);
+                            }
                         }
                     }
                     filteredTerms = Collections.unmodifiableSet(filtered);
@@ -86,6 +89,17 @@ public class ResourceSizeOfFilter implements SizeOfFilter {
      * {@inheritDoc}
      */
     public boolean filterClass(Class<?> klazz) {
-        return !filteredTerms.contains(klazz.getName());
+        String klazzName = klazz.getName();
+        if (filteredTerms.contains(klazzName)) {
+            return false;
+        }
+        int lastDot = klazzName.lastIndexOf('.');
+        if (lastDot >= 0) {
+            String packageName = klazzName.substring(0, lastDot);
+            if (!packageName.isEmpty() && filteredTerms.contains(packageName)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
