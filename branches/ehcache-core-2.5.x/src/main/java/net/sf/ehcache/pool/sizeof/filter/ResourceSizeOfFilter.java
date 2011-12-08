@@ -57,7 +57,7 @@ public class ResourceSizeOfFilter implements SizeOfFilter {
                             break;
                         } else {
                             field = field.trim();
-                            if (!field.isEmpty() && !field.startsWith("#")) {
+                            if (field.length() > 0 && !field.startsWith("#")) {
                                 filtered.add(field);
                             }
                         }
@@ -96,7 +96,7 @@ public class ResourceSizeOfFilter implements SizeOfFilter {
         int lastDot = klazzName.lastIndexOf('.');
         if (lastDot >= 0) {
             String packageName = klazzName.substring(0, lastDot);
-            if (!packageName.isEmpty() && filteredTerms.contains(packageName)) {
+            if (packageName.length() > 0 && filteredTerms.contains(packageName)) {
                 return false;
             }
         }
