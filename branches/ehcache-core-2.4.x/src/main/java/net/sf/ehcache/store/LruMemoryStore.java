@@ -108,9 +108,6 @@ public class LruMemoryStore extends AbstractStore {
             if (writerManager != null) {
                 writerManager.put(element);
             }
-            if (!newPut) {
-                element.updateUpdateStatistics();
-            }
             doPut(element);
         }
         return newPut;

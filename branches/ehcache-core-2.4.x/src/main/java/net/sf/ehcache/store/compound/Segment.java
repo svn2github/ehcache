@@ -442,7 +442,6 @@ class Segment extends ReentrantReadWriteLock {
             if (e != null) {
                 Object old = e.getElement();
                 if (!onlyIfAbsent) {
-                    element.updateUpdateStatistics();
                     e.setElement(encoded);
                     installed = true;
                     oldElement = decode(null, old);

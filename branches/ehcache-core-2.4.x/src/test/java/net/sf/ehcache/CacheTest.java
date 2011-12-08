@@ -63,7 +63,6 @@ import net.sf.ehcache.store.compound.CompoundStore;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
-import org.junit.Ignore;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -118,33 +117,32 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testLastupdateTime() throws InterruptedException {
+        long startTime = System.currentTimeMillis();
         Cache cache = new Cache("lastUpdateCache", 0, true, false, 0, 0);
         manager.addCache(cache);
 
         Element e3 = new Element("key", "value3");
-        Thread.sleep(1000);
-
         Element e2 = new Element("key", "value2");
-        Thread.sleep(1000);
-
         Element e1 = new Element("key", "value1");
-        Thread.sleep(1000);
 
         cache.put(e1);
-        Thread.sleep(1000);
+        Thread.sleep(1);
+        long firstTime = cache.get("key").getLastUpdateTime();
+        assertTrue("firstTime "+firstTime+" startTime "+startTime, firstTime > startTime);
 
         cache.put(e2);
-        Thread.sleep(1000);
+        Thread.sleep(1);
 
-        long firstTime = cache.get("key").getLastUpdateTime();
-        Thread.sleep(1000);
+        long firstUpdate = cache.get("key").getLastUpdateTime();
+        assertTrue("firstUpdate "+firstUpdate+" firstTime "+firstTime, firstUpdate > firstTime);
+        Thread.sleep(1);
 
         cache.put(e3);
-        long secondTime = cache.get("key").getLastUpdateTime();
+        long secondUpdate = cache.get("key").getLastUpdateTime();
 
-        System.out.println("testLastupdateTime (" + secondTime + " - " + firstTime + ") " + (secondTime - firstTime));
+        System.out.println("testLastupdateTime (" + secondUpdate + " - " + firstUpdate + ") " + (secondUpdate - firstUpdate));
 
-        assertTrue("(secondTime - firstTime) " + (secondTime - firstTime), secondTime > firstTime);
+        assertTrue("(secondTime - firstTime) " + (secondUpdate - firstUpdate), secondUpdate > firstUpdate);
       }
 
     /**
@@ -335,28 +333,35 @@ public class CacheTest extends AbstractCacheTest {
      * />
      */
     @Test
-		@Ignore
     public void testLastUpdate() throws Exception {
         //Set size so the second element overflows to disk.
         Ehcache cache = manager.getCache("sampleCache1");
         long beforeElementCreation = System.currentTimeMillis();
         //put in delay because time resolution is not exact on Windows
         Thread.sleep(10);
-        cache.put(new Element("key1", "value1"));
+        Element newElement = new Element("key1", "value1");
+        long startTime = System.currentTimeMillis();
+        Thread.sleep(1);
+        cache.put(newElement);
         Element element = cache.get("key1");
         assertTrue(element.getCreationTime() >= beforeElementCreation);
         LOG.info("version: " + element.getVersion());
         LOG.info("creationTime: " + element.getCreationTime());
         LOG.info("lastUpdateTime: " + element.getLastUpdateTime());
-        assertEquals(0, element.getLastUpdateTime());
+        long firstTime = element.getLastUpdateTime();
+        LOG.info("lastUpdateTime: " + firstTime);
+        assertTrue("firstTime "+firstTime+" startTime "+startTime, firstTime > startTime);
 
+        Thread.sleep(1);
         cache.put(new Element("key1", "value1"));
         element = cache.get("key1");
         LOG.info("version: " + element.getVersion());
         LOG.info("creationTime: " + element.getCreationTime());
         long firstUpdate = element.getLastUpdateTime();
         LOG.info("lastUpdateTime: " + firstUpdate);
+        assertTrue("firstUpdate "+firstUpdate+" firstTime "+firstTime, firstUpdate > firstTime);
 
+        Thread.sleep(1);
         cache.put(new Element("key1", "value1"));
         element = cache.get("key1");
         LOG.info("version: " + element.getVersion());

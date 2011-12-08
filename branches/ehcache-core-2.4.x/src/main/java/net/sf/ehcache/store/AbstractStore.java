@@ -32,17 +32,6 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
  *
  */
 public abstract class AbstractStore implements Store {
-
-    /**
-     * key for checkContainsKeyOnPut property
-     */
-    protected static final String EHCACHE_CHECK_CONTAINS_KEY_ON_PUT = "net.sf.ehcache.checkContainsKeyOnPut";
-
-    /**
-     * if true, checks the key existence before put
-     */
-    protected static final boolean CHECK_CONTAINS_KEY_ON_PUT = Boolean.getBoolean(EHCACHE_CHECK_CONTAINS_KEY_ON_PUT);
-
     /**
      * listener list
      */
