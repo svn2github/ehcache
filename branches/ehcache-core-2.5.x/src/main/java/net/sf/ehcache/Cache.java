@@ -2651,6 +2651,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public boolean hasAbortedSizeOf() {
+        checkStatus();
         return compoundStore.hasAbortedSizeOf();
     }
 
@@ -2933,6 +2934,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @since 1.2
      */
     public final boolean isElementInMemory(Object key) {
+        checkStatus();
         return compoundStore.containsKeyInMemory(key);
     }
 
@@ -2946,6 +2948,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @since 2.3
      */
     public final boolean isElementOffHeap(Object key) {
+        checkStatus();
         return compoundStore.containsKeyOffHeap(key);
     }
 
@@ -2971,6 +2974,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @since 1.2
      */
     public final boolean isElementOnDisk(Object key) {
+        checkStatus();
         return compoundStore.containsKeyOnDisk(key);
     }
 
@@ -3034,6 +3038,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * Causes all elements stored in the Cache to be synchronously checked for expiry, and if expired, evicted.
      */
     public void evictExpiredElements() {
+        checkStatus();
         compoundStore.expireElements();
     }
 
@@ -3644,6 +3649,7 @@ public class Cache implements InternalEhcache, StoreListener {
      *         dynamically set.
      */
     public Policy getMemoryStoreEvictionPolicy() {
+        checkStatus();
         return compoundStore.getInMemoryEvictionPolicy();
     }
 
@@ -3658,6 +3664,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @param policy the new policy
      */
     public void setMemoryStoreEvictionPolicy(Policy policy) {
+        checkStatus();
         Policy oldValue = getMemoryStoreEvictionPolicy();
         compoundStore.setInMemoryEvictionPolicy(policy);
         firePropertyChange("MemoryStoreEvictionPolicy", oldValue, policy);
@@ -3755,6 +3762,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public Object getInternalContext() {
+        checkStatus();
         return compoundStore.getInternalContext();
     }
 
@@ -3980,6 +3988,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         // We don't trust config here since the store is the real authority
+        checkStatus();
         Attribute<T> searchAttribute = compoundStore.getSearchAttribute(attributeName);
 
         if (searchAttribute == null) {
@@ -4070,6 +4079,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return the lock object for the passed in key
      */
     protected Sync getLockForKey(final Object key) {
+        checkStatus();
         return lockProvider.getSyncForKey(key);
     }
 
@@ -4168,6 +4178,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public boolean isClusterBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
+        checkStatus();
         return !compoundStore.isClusterCoherent();
     }
 
@@ -4175,6 +4186,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public boolean isNodeBulkLoadEnabled() throws UnsupportedOperationException, TerracottaNotRunningException {
+        checkStatus();
         return !compoundStore.isNodeCoherent();
     }
 
@@ -4194,6 +4206,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException {
+        checkStatus();
         try {
             compoundStore.waitUntilClusterCoherent();
         } catch (InterruptedException e) {
@@ -4247,6 +4260,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public void recalculateSize(Object key) {
+        checkStatus();
         this.compoundStore.recalculateSize(key);
     }
 

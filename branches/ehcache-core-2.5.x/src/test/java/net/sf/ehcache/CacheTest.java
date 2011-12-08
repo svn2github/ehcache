@@ -79,7 +79,6 @@ import net.sf.ehcache.util.TimeUtil;
 
 import org.hamcrest.core.Is;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +166,6 @@ public class CacheTest extends AbstractCacheTest {
      * Checks we cannot use a cache after shutdown
      */
     @Test
-    @Ignore
     public void testUseCacheAfterManagerShutdown() throws CacheException {
         Ehcache cache = getSampleCache1();
         manager.shutdown();
