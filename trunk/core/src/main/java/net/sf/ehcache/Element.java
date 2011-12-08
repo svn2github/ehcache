@@ -60,7 +60,7 @@ public class Element implements Serializable, Cloneable {
     private static final boolean ELEMENT_VERSION_AUTO = Boolean.getBoolean("net.sf.ehcache.element.version.auto");
 
     static {
-        if(ELEMENT_VERSION_AUTO) {
+        if (ELEMENT_VERSION_AUTO) {
             LOG.warn("Note that net.sf.ehcache.element.version.auto is set and user provided version will not be honored");
         }
     }
