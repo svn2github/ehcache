@@ -1,7 +1,6 @@
 package net.sf.ehcache.pool.sizeof;
 
 import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -88,7 +87,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
     list1.add(someInstance);
     list2.add(someInstance);
 
-    assertThat(deepSizeOf(sizeOf, list1), equalTo(deepSizeOf(sizeOf, list2)));
+    assertThat(deepSizeOf(sizeOf, list1), is(deepSizeOf(sizeOf, list2)));
     assertThat(deepSizeOf(sizeOf, list1, list2) < (deepSizeOf(sizeOf, list1) + deepSizeOf(sizeOf, list2)), is(true));
     list2.add(new Object());
     assertThat(deepSizeOf(sizeOf, list2) > deepSizeOf(sizeOf, list1), is(true));
@@ -214,21 +213,21 @@ public class SizeOfTest extends AbstractSizeOfTest {
   }
 
   private void verifyFlyweights(SizeOf sizeOf) {
-    assertThat(sizeOf.sizeOf(TimeUnit.SECONDS), equalTo(0L));
-    assertThat(sizeOf.sizeOf(Object.class), equalTo(0L));
-    assertThat(sizeOf.sizeOf(1), equalTo(0L));
-    assertThat(sizeOf.sizeOf(BigInteger.ZERO), is(0L));
-    assertThat(sizeOf.sizeOf(BigDecimal.ZERO), is(0L));
-    assertThat(sizeOf.sizeOf(MathContext.UNLIMITED), is(0L));
-    assertThat(sizeOf.sizeOf(Locale.ENGLISH), is(0L));
-    assertThat(sizeOf.sizeOf(Logger.global), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_SET), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_LIST), is(0L));
-    assertThat(sizeOf.sizeOf(Collections.EMPTY_MAP), is(0L));
-    assertThat(sizeOf.sizeOf(String.CASE_INSENSITIVE_ORDER), is(0L));
-    assertThat(sizeOf.sizeOf(System.err), equalTo(0L));
-    assertThat(sizeOf.sizeOf(Proxy.NO_PROXY), equalTo(0L));
-    assertThat(sizeOf.sizeOf(CodingErrorAction.REPORT), equalTo(0L));
+    assertThat(deepSizeOf(sizeOf, TimeUnit.SECONDS), is(0L));
+    assertThat(deepSizeOf(sizeOf, Object.class), is(0L));
+    assertThat(deepSizeOf(sizeOf, 1), is(0L));
+    assertThat(deepSizeOf(sizeOf, BigInteger.ZERO), is(0L));
+    assertThat(deepSizeOf(sizeOf, BigDecimal.ZERO), is(0L));
+    assertThat(deepSizeOf(sizeOf, MathContext.UNLIMITED), is(0L));
+    assertThat(deepSizeOf(sizeOf, Locale.ENGLISH), is(0L));
+    assertThat(deepSizeOf(sizeOf, Logger.global), is(0L));
+    assertThat(deepSizeOf(sizeOf, Collections.EMPTY_SET), is(0L));
+    assertThat(deepSizeOf(sizeOf, Collections.EMPTY_LIST), is(0L));
+    assertThat(deepSizeOf(sizeOf, Collections.EMPTY_MAP), is(0L));
+    assertThat(deepSizeOf(sizeOf, String.CASE_INSENSITIVE_ORDER), is(0L));
+    assertThat(deepSizeOf(sizeOf, System.err), is(0L));
+    assertThat(deepSizeOf(sizeOf, Proxy.NO_PROXY), is(0L));
+    assertThat(deepSizeOf(sizeOf, CodingErrorAction.REPORT), is(0L));
   }
 
   @Test

@@ -67,7 +67,7 @@ public class AgentSizeOf extends SizeOf {
     }
 
     @Override
-    protected long measureSizeOf(Object obj) {
+    public long sizeOf(Object obj) {
         return Math.max(CURRENT_JVM_INFORMATION.getMinimumObjectSize(),
                 AgentLoader.agentSizeOf(obj) + CURRENT_JVM_INFORMATION.getAgentSizeOfAdjustment());
     }

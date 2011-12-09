@@ -56,10 +56,10 @@ public class CrossCheckingSizeOf extends SizeOf {
   }
 
   @Override
-  protected long measureSizeOf(Object obj) {
+  public long sizeOf(Object obj) {
     long[] values = new long[engines.size()];
     for (int i = 0; i < engines.size(); i++) {
-      values[i] = engines.get(i).measureSizeOf(obj);
+      values[i] = engines.get(i).sizeOf(obj);
     }
     for (long value : values) {
       if (values[0] != value) {

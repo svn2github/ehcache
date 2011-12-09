@@ -151,7 +151,7 @@ final class ObjectGraphWalker {
                 }
 
                 Class<?> refClass = ref.getClass();
-                if (shouldWalkClass(refClass)) {
+                if (!isSharedFlyweight(ref) && shouldWalkClass(refClass)) {
                     if (refClass.isArray() && !refClass.getComponentType().isPrimitive()) {
                         for (int i = 0; i < Array.getLength(ref); i++) {
                             nullSafeAdd(toVisit, Array.get(ref, i));
@@ -280,4 +280,10 @@ final class ObjectGraphWalker {
         }
         return fields;
     }
+
+    private static boolean isSharedFlyweight(Object obj) {
+        FlyweightType type = FlyweightType.getFlyweightType(obj.getClass());
+        return type != null && type.isShared(obj);
+    }
+
 }

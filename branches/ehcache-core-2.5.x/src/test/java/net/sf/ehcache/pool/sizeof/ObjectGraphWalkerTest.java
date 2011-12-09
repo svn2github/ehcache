@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -57,9 +58,9 @@ public class ObjectGraphWalkerTest {
     assertThat(map.isEmpty(), is(true));
 
     if (javaVersion.startsWith("1.5")) {
-      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new SomeInnerClass()), is(14L));
+      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new SomeInnerClass()), is(13L));
     } else if (javaVersion.startsWith("1.6") || javaVersion.startsWith("1.7")) {
-      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new SomeInnerClass()), is(15L));
+      assertThat(walker.walk(MAX_SIZEOF_DEPTH, false, new SomeInnerClass()), is(14L));
       assertThat(map.remove("java.util.concurrent.locks.ReentrantReadWriteLock$Sync$ThreadLocalHoldCounter"), is(1L));
     } else {
       throw new AssertionError("Unexpected Java Version : " + javaVersion);
@@ -72,7 +73,8 @@ public class ObjectGraphWalkerTest {
     assertThat(map.remove(ReentrantReadWriteLock.ReadLock.class.getName()), is(1L));
     assertThat(map.remove(ReentrantReadWriteLock.WriteLock.class.getName()), is(1L));
     assertThat(map.remove(Object[].class.getName()), is(1L));
-    assertThat(map.remove(Integer.class.getName()), is(1L));
+    // auto-boxed '0' is a flyweight - it doesn't get walked
+    assertThat(map.remove(Integer.class.getName()), nullValue());
     assertThat(map.remove(int[].class.getName()), is(1L));
     assertThat(map.isEmpty(), is(true));
 

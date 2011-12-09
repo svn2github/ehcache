@@ -24,6 +24,3 @@ org.hibernate.engine.spi.TypedValue.entityMode
 
 # This TC internal field is shared amongst all clustered entries
 org.terracotta.cache.serialization.SerializedEntry.tcClazz
-
-# JDK Classes
-java.lang.Class
