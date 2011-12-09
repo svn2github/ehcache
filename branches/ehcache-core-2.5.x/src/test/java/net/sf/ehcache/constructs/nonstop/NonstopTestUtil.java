@@ -211,6 +211,7 @@ public class NonstopTestUtil extends TestCase {
 
         CacheManagerMockHelper.mockGetNonstopExecutorService(cacheManager);
         CacheManagerMockHelper.mockGetClusteredInstanceFactory(cacheManager, cache);
+        CacheManagerMockHelper.mockGetCacheRejoinAction(cacheManager);
 
         cacheManager.addCache(cache);
         cache.setCacheManager(cacheManager);
