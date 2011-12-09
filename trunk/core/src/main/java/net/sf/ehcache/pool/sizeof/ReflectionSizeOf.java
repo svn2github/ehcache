@@ -76,7 +76,7 @@ public class ReflectionSizeOf extends SizeOf {
      * {@inheritDoc}
      */
     @Override
-    protected long measureSizeOf(Object obj) {
+    public long sizeOf(Object obj) {
         if (obj == null) {
             return 0;
         }

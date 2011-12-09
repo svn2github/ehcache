@@ -56,20 +56,7 @@ public abstract class SizeOf {
      * @param obj the object to measure the size of
      * @return the object size in memory in bytes
      */
-    public long sizeOf(Object obj) {
-        if (isSharedFlyweight(obj)) {
-            return 0;
-        } else {
-            return measureSizeOf(obj);
-        }
-    }
-
-    /**
-     * Measure the size of an instance
-     * @param obj the reference to measure
-     * @return the size occupied on heap in bytes
-     */
-    protected abstract long measureSizeOf(Object obj);
+    public abstract long sizeOf(Object obj);
 
     /**
      * Measures the size in memory (heap) of the objects passed in, walking their graph down
@@ -88,11 +75,6 @@ public abstract class SizeOf {
             LOG.warn(e.getMessage());
             return new Size(e.getMeasuredSize(), false);
         }
-    }
-
-    private static boolean isSharedFlyweight(Object obj) {
-        FlyweightType type = FlyweightType.getFlyweightType(obj.getClass());
-        return type != null && type.isShared(obj);
     }
 
     /**
@@ -122,11 +104,9 @@ public abstract class SizeOf {
             Long cachedSize = cache.get(klazz);
             if (cachedSize == null) {
                 if (klazz.isArray()) {
-                    return measureSizeOf(object);
-                } else if (isSharedFlyweight(object)) {
-                    return 0;
+                    return sizeOf(object);
                 } else {
-                    long size = measureSizeOf(object);
+                    long size = sizeOf(object);
                     cache.put(klazz, size);
                     return size;
                 }

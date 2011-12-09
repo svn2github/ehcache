@@ -103,7 +103,7 @@ public class UnsafeSizeOf extends SizeOf {
      * {@inheritDoc}
      */
     @Override
-    protected long measureSizeOf(Object obj) {
+    public long sizeOf(Object obj) {
         if (obj.getClass().isArray()) {
             Class<?> klazz = obj.getClass();
             int base = UNSAFE.arrayBaseOffset(klazz);
