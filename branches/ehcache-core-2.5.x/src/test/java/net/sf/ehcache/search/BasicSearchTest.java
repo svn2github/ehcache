@@ -27,8 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -43,7 +41,8 @@ import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Or;
-import org.junit.Ignore;
+
+import org.junit.Test;
 
 public class BasicSearchTest {
 
@@ -1013,7 +1012,7 @@ public class BasicSearchTest {
             cacheManager.shutdown();
         }
     }
-    
+
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
         assertEquals(expectedKeys.length, results.size());

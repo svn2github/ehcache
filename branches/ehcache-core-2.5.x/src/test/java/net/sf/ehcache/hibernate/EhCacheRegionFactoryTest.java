@@ -13,8 +13,6 @@ import java.util.Map;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
-import org.hamcrest.Matcher;
-import org.hibernate.Cache;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
