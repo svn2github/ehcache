@@ -120,22 +120,23 @@ public class CacheTest extends AbstractCacheTest {
         long startTime = System.currentTimeMillis();
         Cache cache = new Cache("lastUpdateCache", 0, true, false, 0, 0);
         manager.addCache(cache);
+        Thread.sleep(50);
 
         Element e3 = new Element("key", "value3");
         Element e2 = new Element("key", "value2");
         Element e1 = new Element("key", "value1");
 
         cache.put(e1);
-        Thread.sleep(1);
+        Thread.sleep(50);
         long firstTime = cache.get("key").getLastUpdateTime();
         assertTrue("firstTime "+firstTime+" startTime "+startTime, firstTime > startTime);
 
         cache.put(e2);
-        Thread.sleep(1);
+        Thread.sleep(50);
 
         long firstUpdate = cache.get("key").getLastUpdateTime();
         assertTrue("firstUpdate "+firstUpdate+" firstTime "+firstTime, firstUpdate > firstTime);
-        Thread.sleep(1);
+        Thread.sleep(50);
 
         cache.put(e3);
         long secondUpdate = cache.get("key").getLastUpdateTime();
@@ -341,7 +342,7 @@ public class CacheTest extends AbstractCacheTest {
         Thread.sleep(10);
         Element newElement = new Element("key1", "value1");
         long startTime = System.currentTimeMillis();
-        Thread.sleep(1);
+        Thread.sleep(50);
         cache.put(newElement);
         Element element = cache.get("key1");
         assertTrue(element.getCreationTime() >= beforeElementCreation);
@@ -352,7 +353,7 @@ public class CacheTest extends AbstractCacheTest {
         LOG.info("lastUpdateTime: " + firstTime);
         assertTrue("firstTime "+firstTime+" startTime "+startTime, firstTime > startTime);
 
-        Thread.sleep(1);
+        Thread.sleep(50);
         cache.put(new Element("key1", "value1"));
         element = cache.get("key1");
         LOG.info("version: " + element.getVersion());
@@ -361,7 +362,7 @@ public class CacheTest extends AbstractCacheTest {
         LOG.info("lastUpdateTime: " + firstUpdate);
         assertTrue("firstUpdate "+firstUpdate+" firstTime "+firstTime, firstUpdate > firstTime);
 
-        Thread.sleep(1);
+        Thread.sleep(50);
         cache.put(new Element("key1", "value1"));
         element = cache.get("key1");
         LOG.info("version: " + element.getVersion());
