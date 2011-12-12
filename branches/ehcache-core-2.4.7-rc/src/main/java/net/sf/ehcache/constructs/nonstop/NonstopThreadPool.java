@@ -170,7 +170,19 @@ public class NonstopThreadPool {
         }
 
         public <T> Future<T> submit(Callable<T> task) {
-            FutureTask<T> ftask = new FutureTask<T>(task);
+            final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+            FutureTask<T> ftask = new FutureTask<T>(task) {
+                @Override
+                public void run() {
+                    ClassLoader prev = Thread.currentThread().getContextClassLoader();
+                    Thread.currentThread().setContextClassLoader(tccl);
+                    try {
+                        super.run();
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(prev);
+                    }
+                }
+            };
             worker.addTask(ftask);
             return ftask;
         }
