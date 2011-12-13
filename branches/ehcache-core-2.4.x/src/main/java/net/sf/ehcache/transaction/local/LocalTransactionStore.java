@@ -107,7 +107,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     }
 
     private long timeBeforeTimeout() {
-        return Math.max(0, getCurrentTransactionContext().getExpirationTimestamp() - System.currentTimeMillis());
+        return getCurrentTransactionContext().timeBeforeTimeout();
     }
 
     private Element createElement(Object key, SoftLock softLock) {
