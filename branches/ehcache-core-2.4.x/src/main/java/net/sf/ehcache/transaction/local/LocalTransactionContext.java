@@ -53,7 +53,8 @@ public class LocalTransactionContext {
      * @param transactionId the unique transaction ID of the context
      */
     public LocalTransactionContext(int transactionTimeout, TransactionID transactionId) {
-        this.expirationTimestamp = MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) + MILLISECONDS.convert(transactionTimeout, TimeUnit.SECONDS);
+        this.expirationTimestamp = MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) +
+                MILLISECONDS.convert(transactionTimeout, TimeUnit.SECONDS);
         this.transactionId = transactionId;
     }
 
