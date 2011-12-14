@@ -14,6 +14,7 @@ import net.sf.ehcache.transaction.TransactionTimeoutException;
 
 import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.AssertionFailedError;
@@ -417,6 +418,7 @@ public class LocalTransactionTest extends TestCase {
     }
 
     public void testTwoConcurrentUpdates() throws Exception {
+        final CyclicBarrier barrier = new CyclicBarrier(2);
         final long WAIT_TIME = 1500;
         final long ERROR_MARGIN = 200;
         final long[] times = new long[2];
@@ -428,15 +430,15 @@ public class LocalTransactionTest extends TestCase {
 
         TxThread tx2 = new TxThread() {
             @Override
-            public void exec() throws InterruptedException {
+            public void exec() throws Exception {
                 //TX 1
                 transactionController.begin(4);
 
-                times[0] = System.currentTimeMillis();
+                times[0] = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
                 cache1.put(new Element(1, "tx2-one"));
-                times[1] = System.currentTimeMillis();
+                times[1] = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
 
-                Thread.sleep(WAIT_TIME);
+                barrier.await();
 
                 //TX 1
                 transactionController.commit();
@@ -454,6 +456,7 @@ public class LocalTransactionTest extends TestCase {
         //TX 2
         transactionController.commit();
 
+        barrier.await();
         tx2.join();
         tx2.assertNotFailed();
 

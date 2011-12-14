@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.concurrent.TimeUnit;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -54,13 +55,14 @@ import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 /**
  * @author Ludovic Orban
  */
 public class XATransactionStore extends AbstractTransactionStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(XATransactionStore.class.getName());
-    private static final long MILLISECOND_PER_SECOND = 1000L;
 
     private final TransactionManagerLookup transactionManagerLookup;
     private final TransactionIDFactory transactionIdFactory;
@@ -214,25 +216,29 @@ public class XATransactionStore extends AbstractTransactionStore {
             }
 
             Transaction transaction = getCurrentTransaction();
-
-            EhcacheXAResource xaResource = transactionToXAResourceMap.get(transaction);
             Long timeoutTimestamp = transactionToTimeoutMap.get(transaction);
-            if (xaResource != null && timeoutTimestamp == null) {
-                int xaResourceTimeout = xaResource.getTransactionTimeout();
-
-                timeoutTimestamp = System.currentTimeMillis() + (xaResourceTimeout * MILLISECOND_PER_SECOND);
+            long now = MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
+            if (timeoutTimestamp == null) {
+                long timeout;
+                EhcacheXAResource xaResource = transactionToXAResourceMap.get(transaction);
+                if (xaResource != null) {
+                    int xaResourceTimeout = xaResource.getTransactionTimeout();
+                    timeout = MILLISECONDS.convert(xaResourceTimeout, TimeUnit.SECONDS);
+                } else {
+                    int defaultTransactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
+                    timeout = MILLISECONDS.convert(defaultTransactionTimeout, TimeUnit.SECONDS);
+                }
+                timeoutTimestamp = now + timeout;
                 transactionToTimeoutMap.put(transaction, timeoutTimestamp);
-            } else if (timeoutTimestamp == null) {
-                int defaultTransactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
-                timeoutTimestamp = System.currentTimeMillis() + (defaultTransactionTimeout * MILLISECOND_PER_SECOND);
-                transactionToTimeoutMap.put(transaction, timeoutTimestamp);
+                return timeout;
+            } else {
+                long timeToExpiry = timeoutTimestamp - now;
+                if (timeToExpiry <= 0) {
+                    throw new TransactionTimeoutException("transaction timed out");
+                } else {
+                    return timeToExpiry;
+                }
             }
-
-            if (timeoutTimestamp <= System.currentTimeMillis()) {
-                throw new TransactionTimeoutException("transaction timed out");
-            }
-
-            return timeoutTimestamp - System.currentTimeMillis();
         } catch (SystemException e) {
             throw new TransactionException("cannot get the current transaction", e);
         } catch (XAException e) {

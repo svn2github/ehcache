@@ -27,6 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * A local transaction's thread context
@@ -36,7 +39,6 @@ import java.util.Map;
 public class LocalTransactionContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalTransactionContext.class.getName());
-    private static final long MILLISECONDS_PER_SECOND = 1000L;
 
     private boolean rollbackOnly;
     private final long expirationTimestamp;
@@ -51,16 +53,9 @@ public class LocalTransactionContext {
      * @param transactionId the unique transaction ID of the context
      */
     public LocalTransactionContext(int transactionTimeout, TransactionID transactionId) {
-        this.expirationTimestamp = System.currentTimeMillis() + transactionTimeout * MILLISECONDS_PER_SECOND;
+        this.expirationTimestamp = MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) +
+                MILLISECONDS.convert(transactionTimeout, TimeUnit.SECONDS);
         this.transactionId = transactionId;
-    }
-
-    /**
-     * Get the timestamp at which this context will expire
-     * @return a timestamp in milliseconds at which this context will expire
-     */
-    public long getExpirationTimestamp() {
-        return expirationTimestamp;
     }
 
     /**
@@ -68,9 +63,17 @@ public class LocalTransactionContext {
      * @return true if the context timed out, false otherwise
      */
     public boolean timedOut() {
-        return expirationTimestamp <= System.currentTimeMillis();
+        return timeBeforeTimeout() <= 0;
     }
 
+    /**
+     * Get the time until this context will expire
+     * @return the time in milliseconds after which this context will expire
+     */
+    public long timeBeforeTimeout() {
+        return Math.max(0, expirationTimestamp - MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS));
+    }
+    
     /**
      * Mark the context for rollback
      */
