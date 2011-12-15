@@ -497,7 +497,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      *         the Element has expired.
      */
     public final boolean containsKey(final Object key) {
-        return map.containsKey(key);
+        final Element element = map.get(key);
+        return element != null && !element.equals(SelectableConcurrentHashMap.DUMMY_PINNED_ELEMENT);
     }
 
     /**

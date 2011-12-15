@@ -16,16 +16,27 @@
 
 package net.sf.ehcache;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import junit.framework.Assert;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Tests for Cache pinning
@@ -167,11 +178,12 @@ public class CachePinningTest {
         doAssertions(cacheManager.getCache("diskPersistentCache_inCache"), 10, ELEMENT_COUNT - 10);
     }
 
-    private void doAssertions(Cache cache, long expectedMemoryHits, long expectedDiskHits) {
+    private void doAssertions(Cache cache, long expectedMemoryHits, long expectedDiskHits) throws ExecutionException, InterruptedException {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
             cache.put(new Element(i, i));
         }
 
+        flushDisk(cache);
         Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
 
         for (int i = 0; i < ELEMENT_COUNT; i++) {
@@ -200,6 +212,7 @@ public class CachePinningTest {
             cache.put(element);
         }
 
+        flushDisk(cache);
         Assert.assertEquals(maxElementsInMemory, cache.getSize());
 
         for (int i = 0; i < pinCount; i++) {
@@ -208,6 +221,7 @@ public class CachePinningTest {
             cache.put(element);
         }
 
+        flushDisk(cache);
         Assert.assertEquals(pinCount, cache.getSize());
 
         for (int i = 0; i < pinCount; i++) {
@@ -215,12 +229,36 @@ public class CachePinningTest {
         }
 
         cache.unpinAll();
+        flushDisk(cache);
         for (int i = 0; i < pinCount; i++) {
             Assert.assertFalse(cache.isPinned("Kp-" + i));
             Element element = new Element("Ku-" + i, new Object());
             cache.put(element);
         }
+        flushDisk(cache);
         Assert.assertEquals(maxElementsInMemory, cache.getSize());
+    }
+
+    @Test
+    public void testNonPresentPinnedKeysAreNotInCache()  {
+        final Cache cache = new Cache(new CacheConfiguration().name("nonPresentPinned")
+            .diskPersistent(false)
+            .maxEntriesLocalDisk(10)
+            .maxEntriesLocalHeap(5)
+            .eternal(true));
+        cacheManager.addCache(cache);
+        final Object key = new Object();
+        assertThat(cache.isKeyInCache(key), Matchers.is(false));
+        cache.setPinned(key, true);
+        assertThat(cache.get(key), nullValue());
+        assertThat(cache.isKeyInCache(key), Matchers.is(false));
+    }
+
+    private void flushDisk(final Cache cache) throws InterruptedException, ExecutionException {
+        final Future<Void> future = DiskStoreHelper.flushAllEntriesToDisk(cache);
+        if(future != null) {
+            future.get();
+        }
     }
 }
 
