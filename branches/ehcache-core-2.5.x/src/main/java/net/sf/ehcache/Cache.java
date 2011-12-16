@@ -3054,7 +3054,7 @@ public class Cache implements InternalEhcache, StoreListener {
         if (key == null) {
             return false;
         }
-        return isElementInMemory(key) || isElementOffHeap(key) || isElementOnDisk(key);
+        return compoundStore.containsKey(key);
     }
 
     /**
