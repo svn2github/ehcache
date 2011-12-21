@@ -25,8 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 
 /**
@@ -64,6 +67,14 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU);
     }
 
+    @Test
+    public void testContainsKey() {
+        final Object key = new Object();
+        assertThat(store.containsKey(key), is(false));
+        store.setPinned(key, true);
+        assertThat(store.get(key), nullValue());
+        assertThat(store.containsKey(key), is(false));
+    }
 
     /**
      * Test the LRU policy
