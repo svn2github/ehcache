@@ -308,11 +308,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         if (key == null) {
             return null;
         } else {
-            Element e = map.get(key);
-            boolean sentinelElementFound = (e != null) && (e.equals(SelectableConcurrentHashMap.DUMMY_PINNED_ELEMENT));
-            if (sentinelElementFound) {
-                e = null;
-            }
+            final Element e = map.get(key);
             if (e == null) {
                 missRate.event();
             } else {
@@ -497,8 +493,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      *         the Element has expired.
      */
     public final boolean containsKey(final Object key) {
-        final Element element = map.get(key);
-        return element != null && !element.equals(SelectableConcurrentHashMap.DUMMY_PINNED_ELEMENT);
+        return map.containsKey(key);
     }
 
     /**

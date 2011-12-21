@@ -41,7 +41,7 @@ import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
  * @author Chris Dennis
  */
 public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Element> {
-    public static final Element DUMMY_PINNED_ELEMENT = new Element(new DummyPinnedKey(), new DummyPinnedValue());
+    private static final Element DUMMY_PINNED_ELEMENT = new Element(new DummyPinnedKey(), new DummyPinnedValue());
     private final Random rndm = new Random();
     private final PoolAccessor poolAccessor;
     private final boolean elementPinningEnabled;
@@ -193,6 +193,16 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
 
     public ReentrantReadWriteLock[] locks() {
         return segments;
+    }
+
+    @Override
+    public Element put(final Object key, final Element value) {
+        return put(key, value, 0);
+    }
+
+    @Override
+    public Element putIfAbsent(final Object key, final Element value) {
+        return putIfAbsent(key, value, 0);
     }
 
     public Element put(Object key, Element element, long sizeOf) {
@@ -532,7 +542,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                 if (count != 0) { // read-volatile
                     HashEntry<Object,Element> e = getFirst(hash);
                     while (e != null) {
-                        if (e.hash == hash && key.equals(e.key)) {
+                        if (e.hash == hash && key.equals(e.key) && !e.value.equals(DUMMY_PINNED_ELEMENT)) {
                             ((MemoryStoreHashEntry)e).accessed = true;
                             return e.value;
                         }
@@ -540,6 +550,24 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     }
                 }
                 return null;
+            } finally {
+                readLock().unlock();
+            }
+        }
+
+        @Override
+        boolean containsKey(final Object key, final int hash) {
+            readLock().lock();
+            try {
+                if (count != 0) { // read-volatile
+                    HashEntry<Object,Element> e = getFirst(hash);
+                    while (e != null) {
+                        if (e.hash == hash && key.equals(e.key) && !e.value.equals(DUMMY_PINNED_ELEMENT))
+                            return true;
+                        e = e.next;
+                    }
+                }
+                return false;
             } finally {
                 readLock().unlock();
             }
