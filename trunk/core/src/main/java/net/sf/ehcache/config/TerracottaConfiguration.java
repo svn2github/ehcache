@@ -65,6 +65,10 @@ public class TerracottaConfiguration implements Cloneable {
      * Default copy on read setting
      */
     public static final boolean DEFAULT_COPY_ON_READ = false;
+    /**
+     * Default compression setting
+     */
+    public static final boolean DEFAULT_COMPRESSION_ENABLED = false;
 
     /**
      * Default value for {@link NonstopConfiguration}
@@ -160,6 +164,7 @@ public class TerracottaConfiguration implements Cloneable {
     private volatile boolean storageStrategySet;
     private Consistency consistency = DEFAULT_CONSISTENCY_TYPE;
     private volatile boolean localCacheEnabled = DEFAULT_LOCAL_CACHE_ENABLED;
+    private volatile boolean compressionEnabled = DEFAULT_COMPRESSION_ENABLED;
 
     /**
      * Clones this object, following the usual contract.
@@ -224,6 +229,13 @@ public class TerracottaConfiguration implements Cloneable {
     }
 
     /**
+     * Used by BeanHandler to set the compressionEnaled flag during parsing
+     */
+    public void setCompressionEnabled(boolean enabled) {
+        this.compressionEnabled = enabled;
+    }
+
+    /**
      * Whether the copyOnRead was explicitly set
      *
      * @return true if set by config
@@ -238,6 +250,14 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public TerracottaConfiguration copyOnRead(boolean isCopyOnRead) {
         setCopyOnRead(isCopyOnRead);
+        return this;
+    }
+
+    /**
+     * @return this configuration instance
+     */
+    public TerracottaConfiguration compressionEnabled(boolean enabled) {
+        setCompressionEnabled(enabled);
         return this;
     }
 
@@ -269,6 +289,13 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public boolean isCopyOnRead() {
         return this.isCopyOnRead;
+    }
+
+    /**
+     * Check whether compression is enabled
+     */
+    public boolean isCompressionEnabled() {
+        return this.compressionEnabled;
     }
 
     /**

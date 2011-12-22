@@ -921,6 +921,8 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
       ("Distributed Cache Version 2"). The key functional difference is that DCV2 does not consume local memory
       for key storage.
 
+    * compressionEnabled=true|false - Enable/disable compression of serialized cache data
+
 
     The <terracotta> sub-element also has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
     cache operation cannot be completed within a set time or in the event of a clusterOffline message. If this element does not appear, nonstop behavior is off.
