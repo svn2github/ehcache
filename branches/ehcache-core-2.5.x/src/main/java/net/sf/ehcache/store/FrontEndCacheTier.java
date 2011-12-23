@@ -30,6 +30,7 @@ import net.sf.ehcache.concurrent.ReadWriteLockSync;
 import net.sf.ehcache.concurrent.StripedReadWriteLock;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 /**
@@ -462,7 +463,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     public List<?> getKeys() {
         readLock();
         try {
-            return authority.getKeys();
+            if (cache.isTierPinned() && !authority.isPersistent()) {
+                return cache.getKeys();
+            } else {
+                return new SetAsList<Object>(
+                    new CacheKeySet<Object>(
+                        authority.getKeys(), cache.isTierPinned() ? cache.getKeys() : cache.getPresentPinnedKeys()));
+            }
         } finally {
             readUnlock();
         }

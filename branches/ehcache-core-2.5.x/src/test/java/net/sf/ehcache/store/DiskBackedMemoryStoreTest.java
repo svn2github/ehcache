@@ -53,6 +53,9 @@ public class DiskBackedMemoryStoreTest {
             assertNull(cache.get("Kp-" + i));
         }
         Assert.assertEquals(unpinCount, cache.getSize());
+        for (int i = 0; i < pinCount; i++) {
+            Assert.assertTrue(cache.isPinned("Kp-" + i));
+        }
 
         cache.unpinAll();
         for (int i = 0; i < pinCount; i++) {

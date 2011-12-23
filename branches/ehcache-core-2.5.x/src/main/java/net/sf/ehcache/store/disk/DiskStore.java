@@ -98,6 +98,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private final int segmentShift;
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
     private final boolean tierPinned;
+    private final boolean persistent;
 
     private volatile CacheLockProvider lockProvider;
     private volatile Set<Object> keySet;
@@ -123,6 +124,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.status.set(Status.STATUS_ALIVE);
         this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
                      cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
+        persistent = cache.getCacheConfiguration().isDiskPersistent();
     }
 
     /**
@@ -581,7 +583,28 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
             segmentFor(hash).removeNoReturn(key, hash);
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isTierPinned() {
+        return tierPinned;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getPresentPinnedKeys() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPersistent() {
+        return persistent;
+    }
+
     /**
      * {@inheritDoc}
      */

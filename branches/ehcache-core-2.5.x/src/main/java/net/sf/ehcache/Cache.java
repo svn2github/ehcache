@@ -1892,7 +1892,8 @@ public class Cache implements InternalEhcache, StoreListener {
     /**
      * Returns a list of all element keys in the cache, whether or not they are expired.
      * <p/>
-     * The returned keys are unique and can be considered a set.
+     * The returned keys are unique and can almost be considered a set. See {@link net.sf.ehcache.store.CacheKeySet CacheKeySet} for
+     * more details.
      * <p/>
      * The List returned is not live. It is a copy.
      * <p/>
@@ -1901,6 +1902,7 @@ public class Cache implements InternalEhcache, StoreListener {
      *
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     * @see net.sf.ehcache.store.CacheKeySet
      */
     public final List getKeys() throws IllegalStateException, CacheException {
         checkStatus();
