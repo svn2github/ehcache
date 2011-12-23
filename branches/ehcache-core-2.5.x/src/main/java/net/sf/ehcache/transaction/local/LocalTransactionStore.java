@@ -33,7 +33,7 @@ import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
 import net.sf.ehcache.util.LargeSet;
-import net.sf.ehcache.util.SetWrapperList;
+import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
@@ -141,7 +141,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                 } else {
                     underlyingStore.removeElement(oldElement, comparator);
                 }
-            
+
                 if (!softLock.wasPinned()) {
                     underlyingStore.setPinned(softLock.getKey(), false);
                 }
@@ -448,7 +448,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
 
         keys.removeAll(softLockFactory.getKeysInvisibleInContext(getCurrentTransactionContext()));
 
-        return new SetWrapperList(keys);
+        return new SetAsList<Object>(keys);
     }
 
     /**
