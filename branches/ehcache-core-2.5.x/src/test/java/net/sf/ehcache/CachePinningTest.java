@@ -16,7 +16,7 @@
 
 package net.sf.ehcache;
 
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -34,6 +34,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.List;
 
 /**
  * Tests for Cache pinning
