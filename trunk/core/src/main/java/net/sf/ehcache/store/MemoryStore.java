@@ -352,6 +352,27 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * {@inheritDoc}
      */
+    public boolean isTierPinned() {
+        return tierPinned;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getPresentPinnedKeys() {
+        return map.pinnedKeySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPersistent() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public final Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
         if (key == null) {
             return null;

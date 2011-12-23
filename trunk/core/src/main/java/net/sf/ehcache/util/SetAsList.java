@@ -32,6 +32,7 @@ import java.util.Set;
 public class SetAsList<E> implements List<E> {
 
     private final Set<E> set;
+    private transient Object[] array;
 
     /**
      * @param set
@@ -144,7 +145,13 @@ public class SetAsList<E> implements List<E> {
      * @param index Index
      */
     public E get(int index) {
-        throw new UnsupportedOperationException("Delegates to set, operation not supported");
+        if (this.array == null) {
+            this.array = toArray();
+        }
+        if (array.length <= index) {
+            throw new IndexOutOfBoundsException();
+        }
+        return (E) this.array[index];
     }
 
     /**

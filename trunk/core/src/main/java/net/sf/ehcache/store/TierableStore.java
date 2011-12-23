@@ -17,6 +17,8 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 
+import java.util.Set;
+
 /**
  * This is the interface for all tierable stores.
  *
@@ -44,4 +46,22 @@ public interface TierableStore extends Store {
      * Removes an item from the cache.
      */
     void removeNoReturn(Object key);
+
+    /**
+     * Is this TierableStore pinned ?
+     * @return true if pinned
+     */
+    boolean isTierPinned();
+
+    /**
+     * Returns all the keys that are pinned, for which there is a mapping present
+     * @return the set of keys with values that are currently pinned
+     */
+    Set getPresentPinnedKeys();
+
+    /**
+     * Is this store persistent (data survives a JVM restart)
+     * @return true if persistent
+     */
+    boolean isPersistent();
 }

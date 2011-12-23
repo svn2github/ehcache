@@ -24,6 +24,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A store implementation which does not store anything.
@@ -110,6 +111,27 @@ public final class NullStore extends AbstractStore implements TierableStore {
      * {@inheritDoc}
      */
     public void removeNoReturn(Object key) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isTierPinned() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set getPresentPinnedKeys() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isPersistent() {
+        return false;
     }
 
     /**
