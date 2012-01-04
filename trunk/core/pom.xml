@@ -829,7 +829,7 @@
         </property>
       </activation>
       <properties>
-        <tests.supplemental.args>-XXfullSystemGC</tests.supplemental.args>
+        <tests.supplemental.args>-XXfullSystemGC -Xverbose:systemgc</tests.supplemental.args>
       </properties>
     </profile>
 
