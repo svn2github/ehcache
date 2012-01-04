@@ -159,9 +159,11 @@ public abstract class AbstractCacheTest {
         do {
             total = runtime.totalMemory();
             freeBefore = runtime.freeMemory();
+            System.err.println("Total: " + total + "\tFree: " + freeBefore + "\tGCing...");
             gc();
             freeAfter = runtime.freeMemory();
-        } while (total != runtime.totalMemory() || freeAfter > freeBefore);
+            System.err.println("\tFree: " + freeAfter);
+        } while (total != runtime.totalMemory() || freeAfter < freeBefore);
         return total - freeAfter;
     }
 
