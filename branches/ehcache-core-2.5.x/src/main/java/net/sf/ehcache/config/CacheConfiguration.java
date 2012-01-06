@@ -1719,7 +1719,7 @@ public class CacheConfiguration implements Cloneable {
         if ((isMaxBytesLocalDiskPercentageSet() || getMaxBytesLocalDisk() > 0)
             && managerMaxBytesLocalDisk > 0 && managerMaxBytesLocalDisk - totalOnDiskAssignedMemory < 0) {
             configErrors.add(new ConfigError("Cache '" + getName()
-                                                    + "' re-allocates CacheManager's localOnDisk limit!"));
+                                                    + "' over-allocates CacheManager's localOnDisk limit!"));
         }
     }
 
@@ -1728,7 +1728,7 @@ public class CacheConfiguration implements Cloneable {
         if ((isMaxBytesLocalOffHeapPercentageSet() || getMaxBytesLocalOffHeap() > 0)
             && managerMaxBytesLocalOffHeap > 0 && managerMaxBytesLocalOffHeap - totalOffHeapAssignedMemory < 0) {
             configErrors.add(new ConfigError("Cache '" + getName()
-                                            + "' re-allocates CacheManager's localOffHeap limit!"));
+                                            + "' over-allocates CacheManager's localOffHeap limit!"));
         }
     }
 
