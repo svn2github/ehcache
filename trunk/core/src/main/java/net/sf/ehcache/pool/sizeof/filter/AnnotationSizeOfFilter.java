@@ -44,9 +44,23 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
      * {@inheritDoc}
      */
     public boolean filterClass(Class<?> klazz) {
-        boolean classAnnotated = klazz.isAnnotationPresent(IgnoreSizeOf.class);
+        boolean classAnnotated = isAnnotationPresentOrInherited(klazz);
         Package pack = klazz.getPackage();
         boolean packageAnnotated = pack == null ? false : pack.isAnnotationPresent(IgnoreSizeOf.class);
         return !classAnnotated && !packageAnnotated;
+    }
+
+    private boolean isAnnotationPresentOrInherited(final Class<?> instanceKlazz) {
+        Class<?> klazz = instanceKlazz;
+        while (klazz != null) {
+            final IgnoreSizeOf annotation = klazz.getAnnotation(IgnoreSizeOf.class);
+            if (annotation != null) {
+                if (klazz == instanceKlazz || annotation.inherited()) {
+                    return true;
+                }
+            }
+            klazz = klazz.getSuperclass();
+        }
+        return false;
     }
 }

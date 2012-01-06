@@ -30,4 +30,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.TYPE, ElementType.PACKAGE })
 public @interface IgnoreSizeOf {
 
+    /**
+     * Controls whether the annotation, when applied to a {@link ElementType#TYPE type} is to be applied to all its subclasses
+     * as well or solely on that type only. true if inherited by subtypes, false otherwise
+     */
+    boolean inherited() default false;
 }
