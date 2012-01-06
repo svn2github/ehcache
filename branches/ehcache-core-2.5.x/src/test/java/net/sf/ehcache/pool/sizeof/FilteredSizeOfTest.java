@@ -2,6 +2,7 @@ package net.sf.ehcache.pool.sizeof;
 
 import net.sf.ehcache.pool.sizeof.annotationfiltered.AnnotationFilteredPackage;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThan;
@@ -44,6 +45,10 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     long emptyReferrerSize = deepSizeOf(sizeOf, new Referrer(null));
     assertThat(deepSizeOf(sizeOf, new Referrer(new AnnotationFilteredClass())), equalTo(emptyReferrerSize));
     assertThat(deepSizeOf(sizeOf, new Referrer(new AnnotationFilteredPackage())), equalTo(emptyReferrerSize));
+    assertThat(deepSizeOf(sizeOf, new Parent()), equalTo(0L));
+    assertThat(deepSizeOf(sizeOf, new Child()), equalTo(0L));
+    assertThat(deepSizeOf(sizeOf, new ChildChild()), equalTo(0L));
+    assertThat(deepSizeOf(sizeOf, new ChildChildChild()), equalTo(0L));
   }
 
   @Test
@@ -75,6 +80,16 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
   public static class AnnotationFilteredClass {
       private final byte[] bigArray = new byte[16 * 1024];
   }
+
+  @IgnoreSizeOf(inherited = true)
+  public static class Parent {}
+
+  public static class Child extends Parent {}
+    
+  @IgnoreSizeOf
+  public static class ChildChild extends Child {}
+    
+  public static class ChildChildChild extends ChildChild {}
   
   public static class ResourceFilteredField {
     private final byte[] bigArray = new byte[16 * 1024];
