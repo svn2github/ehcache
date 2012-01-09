@@ -67,7 +67,7 @@
         Manual discovery is configured as per the following example:
         <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                               properties="peerDiscovery=manual,
-                              rmiUrls=//server1:40000/sampleCache1|//server2:40000/sampleCache1|//server1:40000/sampleCache2|//server2:40000/sampleCache2"/>
+                              rmiUrls=//server1:5010/sampleCache1|//server2:5010/sampleCache1|//server1:5010/sampleCache2|//server2:5010/sampleCache2"/>
 
         Valid properties are:
         - peerDiscovery (mandatory) - specify "manual"
@@ -95,7 +95,7 @@
         which is configured using RMICacheManagerPeerListenerFactory. It is configured as per the following example:
 
         <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                              properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+                              properties="hostName=localhost, port=5011, socketTimeoutMillis=2000"/>
 
         Valid properties are:
         - hostName (optional) - the hostName of the host the listener is running on. Specify where the host is multihomed
@@ -109,7 +109,7 @@
 
     -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                                     properties="hostName=, port=40001, remoteObjectPort=47000, socketTimeoutMillis="/>
+                                     properties="hostName=, port=5011, remoteObjectPort=5700, socketTimeoutMillis="/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through

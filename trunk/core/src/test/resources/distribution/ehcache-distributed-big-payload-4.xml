@@ -8,7 +8,7 @@
 
   <cacheManagerPeerListenerFactory
     class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-    properties="port=40004, socketTimeoutMillis=2000"/>
+    properties="port=5014, socketTimeoutMillis=2000"/>
 
   <defaultCache maxElementsInMemory="10000" eternal="false"
     timeToIdleSeconds="120" timeToLiveSeconds="120" overflowToDisk="false"

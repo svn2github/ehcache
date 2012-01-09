@@ -65,7 +65,7 @@
         which is configured using RMICacheManagerPeerListenerFactory. It is configured as per the following example:
 
         <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                              properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+                              properties="hostName=localhost, port=5011, socketTimeoutMillis=2000"/>
 
         Valid properties are:
         - hostName (optional) - the hostName of the host the listener is running on. Specify where the host is multihomed
@@ -77,7 +77,7 @@
 
     -->
     
-    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory" properties="port=40004, socketTimeoutMillis=2000"/>
+    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory" properties="port=5014, socketTimeoutMillis=2000"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through

@@ -64,7 +64,7 @@ public class RMICacheManagerPeerTest extends AbstractRMITest {
      */
     protected CacheManager manager;
     private final String hostName = "localhost";
-    private final Integer port = Integer.valueOf(40000);
+    private final Integer port = Integer.valueOf(5010);
     private RMICacheManagerPeerListener peerListener;
     private Cache cache;
 
