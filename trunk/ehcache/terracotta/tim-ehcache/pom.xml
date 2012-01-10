@@ -33,7 +33,7 @@
    <properties>
       <forgeTags>Integration Module</forgeTags>
       <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
-	  <ehcache-standalone.version>2.6.0-SNAPSHOT</ehcache-standalone.version>
+	    <ehcache-standalone.version>2.6.0-SNAPSHOT</ehcache-standalone.version>
    </properties>
 
    <modules>
