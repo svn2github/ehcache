@@ -773,6 +773,15 @@ public enum JvmInformation {
     }
 
     /**
+     * Return true if the VM's vendor is Apple
+     * @return true, if OS X
+     */
+    public static boolean isOSX() {
+        final String vendor = System.getProperty("java.vm.vendor");
+        return vendor != null && vendor.startsWith("Apple");
+    }
+
+    /**
      * Returns true if VM vendor is Hotspot
      * @return true, if Hotspot
      */

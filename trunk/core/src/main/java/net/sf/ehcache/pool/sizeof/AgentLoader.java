@@ -127,6 +127,7 @@ final class AgentLoader {
     static boolean loadAgent() {
         if (!agentIsAvailable() && VIRTUAL_MACHINE_LOAD_AGENT != null) {
             try {
+                warnIfOSX();
                 String name = ManagementFactory.getRuntimeMXBean().getName();
                 Object vm = VIRTUAL_MACHINE_ATTACH.invoke(null, name.substring(0, name.indexOf('@')));
                 try {
@@ -145,6 +146,16 @@ final class AgentLoader {
         }
 
         return agentIsAvailable();
+    }
+
+    private static void warnIfOSX() {
+        if (JvmInformation.isOSX() && System.getProperty("java.io.tmpdir") != null) {
+            LOGGER.warn("Loading the SizeOfAgent will probably fail, as you are running on Apple OS X and have a value set for java.io.tmpdir\n" +
+                        "They both result in a bug, not yet fixed by Apple, that won't let us attach to the VM and load the agent.\n" +
+                        "Most probably, you'll also get a full thread-dump after this because of the failure... Nothing to worry about!\n" +
+                        "You can bypass trying to load the Agent entirely by setting the System property '"
+                        + net.sf.ehcache.pool.sizeof.AgentSizeOf.BYPASS_LOADING + "'  to true");
+        }
     }
 
     private static File getAgentFile() throws IOException {
