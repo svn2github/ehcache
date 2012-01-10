@@ -15,9 +15,7 @@
 
 
   <modules>
-    <module>tim-ehcache-2.x-hibernate-ui</module>
-    <module>tim-ehcache-2.x</module>
-    <module>tim-ehcache-2.x-ui</module>  
+    <module>tim-ehcache</module>
     <module>bootstrap</module>
     <module>packaging</module>
     <module>system-tests</module>
