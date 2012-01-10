@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>org.terracotta.forge</groupId>
+      <artifactId>tim-parent</artifactId>
+      <version>1.9.0-SNAPSHOT</version>
+   </parent>
+
+   <groupId>org.terracotta.modules</groupId>
+   <artifactId>tim-ehcache</artifactId>
+   <version>1.9.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+   <name>tim-ehcache</name>
+   <description>
+      Terracotta Integration Module for clustering Ehcache.
+      This project comes with modules for Ehcache 1.7 and higher
+   </description>
+
+  <licenses>
+    <license>
+      <name>Terracotta Public License</name>
+      <url>http://www.terracotta.org/license.txt</url>
+    </license>
+  </licenses>
+
+   <scm>
+      <connection>scm:svn:http://svn.terracotta.org/svn/forge/projects/tim-ehcache/trunk</connection>
+      <developerConnection>scm:svn:https://svn.terracotta.org/repo/forge/projects/tim-ehcache/trunk</developerConnection>
+      <url>http://svn.terracotta.org/svn/forge/projects/tim-ehcache/trunk</url>
+   </scm>
+
+   <properties>
+      <forgeTags>Integration Module</forgeTags>
+      <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+	  <ehcache-core.version>2.6.0-SNAPSHOT</ehcache-core.version>
+   </properties>
+
+   <modules>
+      <module>tim-ehcache-2.x-hibernate-ui</module>
+      <module>tim-ehcache-2.x</module>
+      <module>tim-ehcache-2.x-system-tests</module>
+      <module>tim-ehcache-2.x-ui</module>
+   </modules>
+
+   <repositories>
+      <repository>
+         <id>terracotta-repository</id>
+         <url>http://www.terracotta.org/download/reflector/releases</url>
+         <releases>
+            <enabled>true</enabled>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+         </snapshots>
+      </repository>
+   </repositories>
+
+   <!-- 
+      HACK:
+
+      We're increasing the heap size for javadoc, since large projects like this
+      could run into an OOME during site generation.
+      
+      We also exclude javadoc generation for the test code, which seems to be causing
+      javadoc 1.6 to choke out. Passing the -source parameter and setting it to 1.5
+      or 5 does not seem to have any effect.
+
+      We'll eventually want to put this configuration into forge-parent and/or figure 
+      out which TC artifact is causing the site generation to NPE on javadoc.
+   -->
+   <reporting>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.6</version>
+            <configuration>
+               <!-- additionalJOption>-source 1.5 -J-Xdebug -J-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</additionalJOption -->
+               <!-- additionalJOption>-source 5</additionalJOption -->
+               <minmemory>128m</minmemory>
+               <maxmemory>1g</maxmemory>
+               <debug>true</debug>
+               <verbose>true</verbose>
+               <!-- fix for INT-851: can't find java.lang package -->
+               <bootclasspath>${java.home}/lib/rt.jar</bootclasspath>
+            </configuration>
+            <reportSets>
+               <reportSet>
+                  <reports>
+                     <report>aggregate</report>
+                     <!-- report>test-javadoc</report -->
+                  </reports>
+               </reportSet>
+            </reportSets>
+         </plugin>
+      </plugins>
+   </reporting>
+   
+</project>

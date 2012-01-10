@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>ehcache-parent</artifactId>
+    <groupId>net.sf.ehcache</groupId>
+    <version>2.1</version>
+  </parent>
+
+  <groupId>net.sf.ehcache</groupId>
+  <artifactId>ehcache</artifactId>
+  <version>2.6.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>ehcache</name>
+
+  <description>This is a pom artifact to pull in ehcache-core and ehcache-terracotta for clustering. Make sure to set 'type' to 'pom' in your dependency.</description>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+    <license>
+      <name>Terracotta Public License</name>
+      <url>http://www.terracotta.org/legal/terracotta-public-license</url>
+    </license>
+  </licenses>
+  <url>http://ehcache.org</url>
+
+  <properties>
+    <ehcache-core.version>2.6.0-SNAPSHOT</ehcache-core.version>
+    <ehcache-terracotta.version>${project.version}</ehcache-terracotta.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>${ehcache-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-terracotta</artifactId>
+      <version>${ehcache-terracotta.version}</version>
+    </dependency>
+
+    <!--Add concrete implementation to the assembly only-->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.6.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+
+    <!--Add sources and javadoc to the assembly. These are not classpath dependencies-->
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>${ehcache-core.version}</version>
+      <classifier>javadoc</classifier>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>${ehcache-core.version}</version>
+      <classifier>sources</classifier>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>package-tc</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.groovy.maven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <version>1.0</version>
+            <executions>
+              <execution>
+                <id>unjar-tc-kit</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <source>
+                tc_kit_url = project.properties['tc-kit-url']
+                if (tc_kit_url == null) {
+                  fail("Need to pass option '-Dtc-kit-url='")
+                }
+                ant.mkdir(dir:project.build.directory)
+                dest_file = project.build.directory + "/tc.tar.gz"
+                if (tc_kit_url.startsWith("http")) {
+                  ant.get(src:tc_kit_url, dest:dest_file, usetimestamp:true)
+                } else {
+                  ant.copy(file:tc_kit_url, tofile:dest_file)
+                }
+                tmp_dir = project.build.directory + "/tmp"
+                ant.delete(dir:tmp_dir, quiet:true)
+                ant.mkdir(dir:tmp_dir)
+                ant.untar(src:dest_file, dest:tmp_dir, compression:"gzip")
+                // assume only one folder inside tmp
+                kit_path = null
+                new File(tmp_dir).eachFile {
+                  kit_path = it.getAbsolutePath()
+                }
+                project.properties.setProperty('kit_path', kit_path)
+              </source>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.2-beta-5</version>
+            <configuration>
+              <filters>
+                <filter>${basedir}/src/assemble/filter.properties</filter>
+              </filters>
+              <descriptors>
+                <descriptor>${basedir}/src/assemble/distribution.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>gnu</tarLongFileMode>
+            </configuration>
+            <executions>
+              <execution>
+                <id>make-assembly</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+
+
+  <distributionManagement>
+    <repository>
+      <id>sourceforge-releases</id>
+      <name>Sourceforge Release Repository</name>
+      <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+    </repository>
+    <snapshotRepository>
+      <id>sourceforge-snapshots</id>
+      <name>Sourceforge Snapshot Repository</name>
+      <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <repositories>
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+  </repositories> 
+
+</project>

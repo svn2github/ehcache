@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.terracotta.modules</groupId>
+    <artifactId>tim-ehcache</artifactId>
+    <version>1.9.0-SNAPSHOT</version>
+  </parent>
+
+  <packaging>jar</packaging>
+  <groupId>org.terracotta.modules</groupId>
+  <artifactId>tim-ehcache-2.x-ui</artifactId>
+  <name>tim-ehcache-2.x-ui</name>
+
+  <!-- This controls what the panel will be named in the developer console -->
+  <description>Ehcache</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.terracotta</groupId>
+      <artifactId>terracotta</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.terracotta.modules</groupId>
+      <artifactId>tim-ehcache-2.x-hibernate-ui</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-maven-plugin</artifactId>
+        <configuration>
+          <presentationFactory>org.terracotta.modules.ehcache.presentation.EhcachePresentationFactory</presentationFactory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+    <repository>
+      <id>jboss-repository</id>
+      <url>http://repository.jboss.org/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+</project>

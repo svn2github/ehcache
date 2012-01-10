@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+    <defaultCache
+            maxElementsInMemory="10000"
+            eternal="true"
+            overflowToDisk="false"/>
+
+    <cache name="testAll"
+           maxElementsInMemory="10000"
+           eternal="true"
+           overflowToDisk="false">
+
+        <cacheEventListenerFactory class="org.terracotta.ehcache.tests.EhcacheTerracottaEventListenerFactory" listenFor="all" />
+        <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
+
+        <terracotta clustered="true"/>
+    </cache>
+
+    <cache name="testLocal"
+           maxElementsInMemory="10000"
+           eternal="true"
+           overflowToDisk="false">
+
+        <cacheEventListenerFactory class="org.terracotta.ehcache.tests.EhcacheTerracottaEventListenerFactory" listenFor="local" />
+        <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
+
+        <terracotta clustered="true"/>
+    </cache>
+
+    <cache name="testRemote"
+           maxElementsInMemory="10000"
+           eternal="true"
+           overflowToDisk="false">
+
+        <cacheEventListenerFactory class="org.terracotta.ehcache.tests.EhcacheTerracottaEventListenerFactory" listenFor="remote" />
+        <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
+
+        <terracotta clustered="true"/>
+    </cache>
+
+    <terracottaConfig url="localhost:PORT"/>
+
+</ehcache>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+  All content copyright Terracotta, Inc., unless otherwise indicated.
+  All rights reserved.
+
+-->
+<project>
+  <version position="left"/>
+  <body>
+    <menu name="${project.name}">
+      <item name="Introduction" href="index.html"></item>
+    </menu>
+    <menu name="Reports" ref="reports" inherit="top"/>
+    
+  </body>
+</project>

@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-root</artifactId>
+    <version>2.6.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>ehcache-core</artifactId>
+  <packaging>jar</packaging>
+  <name>Ehcache Core</name>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>src/assemble/EHCACHE-CORE-LICENSE.txt</url>
+    </license>
+  </licenses>
+  <url>http://ehcache.org</url>
+
+
+  <properties>
+
+  </properties>
+
+  <dependencies>
+    <!-- Versions of these artifacts coming from the ehcache-root pom -->
+    
+    <!--Compile scope. If you add something to this section, you have to do the same thing in standalone/pom.xml -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-standalone</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-terracotta</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>    
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <id>unpack-standalone-and-terracotta</id>
+            <configuration>
+              <includeGroupIds>net.sf.ehcache</includeGroupIds>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+              <excludes>**/META-INF/maven/**,**/license.txt,**/thirdpartylicenses.txt</excludes>
+            </configuration>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!--plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.4</version>
+        <configuration>
+          <descriptors>
+            <descriptor>${basedir}/src/assemble/distribution.xml</descriptor>
+          </descriptors>
+          <tarLongFileMode>gnu</tarLongFileMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-distribution</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin-->
+    </plugins>
+  </build>
+
+  <!-- The JBoss repository is only here to satisfy the 'provided' dependency
+    on hibernate-core -->
+  <repositories>
+    <repository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>    
+  </pluginRepositories>
+
+  <scm>
+    <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk</connection>
+    <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk</developerConnection>
+    <tag/>
+    <url>http://svn.terracotta.org/svn/ehcache/trunk</url>
+  </scm>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>https://jira.terracotta.org/jira/browse/EHC</url>
+  </issueManagement>
+
+</project>

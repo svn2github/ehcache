@@ -1,0 +1,232 @@
+#set ($includedTims = ["tim-ehcache-1.3", "tim-ehcache-1.4.1", "tim-ehcache-1.5.0", "tim-ehcache-1.7"])
+#set ($multipleTims = $includedTims.size() > 1)
+#set ($timArtifactId = $includedTims.get(0))
+#set ($isApi = false)
+
+{Introduction}
+
+  Welcome to the ${project.name} project pages. ${project.name} is a Terracotta Integration Module for clustering Ehcache.  This project comes with modules for Ehcache 1.3 and Ehcache 1.4.1
+
+* How It's Implemented
+
+    The Clustered Ehcache module provides a fragment of Terracotta configuration to instrument certain
+    classes under the net.sf.ehcache package. Additionally, relevant Ehcache internals have been re-implemented
+    to benefit from Terracotta-specific features and optimizations such as:
+
+      * fine-grained read and write locks
+
+      * an optimized eviction policy
+
+      * increased scalability, and
+
+      * cluster-wide cache coherency
+
+    For these to be activated, you don't have to do anything. They are automatically plugged in and effortlessly
+    replace the original code when the Clustered Ehcache module is activated.
+
+* Differences with Ehcache Clustering
+
+    Due to some overlap between the features of Ehcache and Terracotta, a number of standard Ehcache behaviors
+    are not directly supported.
+
+    These are:
+
+
+** standard eviction policies:
+
+    The standard LRU, LFU and FIFO cache eviction policies are automatically replaced by a time-based eviction policy
+    that is optimized for Terracotta. The following standard Ehcache parameters are used:
+
+      * diskExpiryThreadIntervalSeconds: The number of seconds between eviction runs
+
+      * timeToIdleSeconds: Sets the time to idle for an element before it expires
+
+      * timeToLiveSeconds: Sets the time to live for an element before it expires
+
+** notifications:
+
+    To reduce cluster-wide locks, we don't support cache notifications. Since this is mainly used in Ehcache's
+    traditional distribution strategy, there's little use for these when Terracotta is active. In case you do require
+    notifications for other purposes, please contact our support team.
+
+** disk storage:
+
+    Terracotta has its own persistent mode that is more flexible than Ehcache's since it doesn't require cache keys
+    and values to be serializable. None of the standard Ehcache disk storage features are available when Terracotta
+    is used.
+
+** 'eternal' cache parameter:
+
+    The eternal parameter currently isn't available for cache configuration. However, by setting the timeToIdleSeconds and timeToLiveSeconds
+    parameters to 0, the same characteristics can be obtained.
+
+** 'maxElementsInCache' cache parameter:
+
+    This parameter is currently not supported.
+
+
+#if ($isApi)
+### Adapt the following so that it describes how this TIM can be used as an API.
+   ${project.name} is a both a Terracotta Integration Module (TIM) and a JAR file that can be coded against as an API. Javadocs are included. ##Use ${project.name} to integrate your satcom management application with Terracotta to cluster shared data. Your application's code can also take advantage of the ${project.name} API to receive, process, and cache satcom-specific messages.
+#end
+
+  For information on how to configure Terracotta to use TIMs, see the {{{http://www.terracotta.org/web/display/docs/Configuration+Guide+and+Reference#ConfigurationGuideandReference-TIMs}Configuration Guide and Reference}}.
+
+{Installation}
+
+* TIM Update Center
+
+  Most TIMs can be installed through the TIM Update Center, which provides the simplest way to work with TIMs. The TIM Update Center validates TIM versions to ensure that the correct one is available for your installation. It also provides guidance on configuring Terracotta to use the TIM. See the {{{http://www.terracotta.org/web/display/docs/tim-get}TIM Update Center documentation}} for more information on the tim-get tool, which is used to access the TIM Update Center.
+
+  Note: You must have Terracotta installed to use tim-get.
+
+#if ($multipleTims)
+  The ${project.name} project contains the following TIMs.
+  #foreach ($tim in $includedTims)
+    ## The blank line below is necessary for APT to recognize the bullet list.
+    
+    * $tim
+  #end
+
+  The instructions below show how to install and use $timArtifactId.  To install and use one of the other TIMs included in this project, simply substitute the name of the TIM you would like to use.
+#else
+  The ${project.name} project contains a single TIM named $timArtifactId.  Use the instructions below to install and use $timArtifactId.
+#end
+
+** Install on Linux/UNIX
+
+  To download and install $timArtifactId on Linux/UNIX, enter:
+
++-------------------------------------------------------------------------------
+   $ $TERRACOTTA_HOME/bin/tim-get.sh install $timArtifactId
++-------------------------------------------------------------------------------
+
+  $timArtifactId will be installed in the Terracotta modules directory, $TERRACOTTA_HOME/modules/.
+
+** Install on Microsoft Windows
+
+  To download and install $timArtifactId on Microsoft Windows, enter:
+
++-------------------------------------------------------------------------------
+   > %TERRRACOTTA_HOME%\bin\tim-get.bat install $timArtifactId
++-------------------------------------------------------------------------------
+
+  $timArtifactId will be installed in the Terracotta modules directory, {%TERRACOTTA_HOME%}\modules\.
+
+{Configuration}
+
+* Terracotta Configuration
+
+  To use ${project.name} you must add a module declaration to the Terracotta configuration file, tc-config.xml.  You can simply copy and paste one of the following module declarations into your tc-config.xml file.  (Note that you should include only one of the ehcache modules, and that it is not necessary to include tim-ehcache-commons.)
+
++-------------------------------------------------------------------------------
+<clients>
+  <modules>
+  #foreach ($tim in $includedTims)
+    <module name="$tim" version="${project.version}"/>
+  #end
+  </modules>
+</clients>
+
++-------------------------------------------------------------------------------
+
+* Using ${project.name} with a Terracotta Client Application
+
+    Client apps will need to declare a CacheManager field, and mark it as root
+    So in your code, if you have the following field declared:
+
+---
+package foo.bar.baz;
+import net.sf.ehcache.CacheManager;
+
+public class FooBar {
+   protected CacheManager manager = new CacheManager();
+}
+---
+
+    You will also need to have the following entry in your configuration file:
+
+---
+<roots>
+   <root>
+      <field-name>foo.bar.baz.FooBar.manager</field-name>
+   </root>
+</roots>
+---
+
+    If the client app uses the singleton methods <<<CacheManager.getInstance()>>> or <<<CacheManager.create()>>>
+    to instantiate a <<<CacheManager>>> then there is no need to declare the field <<<foo.bar.baz.FooBar.manager>>>
+    a root, the integration module already does that for you.
+
+    You will also need to download <<<jsr107cache-1.0.jar>>> and add it to your classpath before running your client application.  You can obtain this jar either from the {{{http://sourceforge.net/project/showfiles.php?group_id=185211} project download area}} or by including it in your Maven pom.xml dependencies as follows:
+
+---
+<dependencies>
+   <dependency>
+      <artifactId>jsr107cache</artifactId>
+      <version>1.0</version>
+      <scope>runtime</scope>
+      <groupId>net.sf.jsr107cache</groupId>
+   </dependency>
+</dependencies>
+---
+
+* Maven
+
+  To use ${project.name} in a Maven project, you can copy and paste the following dependency information into your project's POM.
+
+--------------------------------------------------------------------------------
+#foreach ($tim in $includedTims)
+<dependency>
+  <groupId>${project.groupId}</groupId>
+  <artifactId>$tim</artifactId>
+  <version>${project.version}</version>
+</dependency>
+#end
+--------------------------------------------------------------------------------
+
+  At the time of this writing, the Terracotta Forge artifacts are not yet available from Maven's central repository. You must configure your project to use the Terracotta Maven repository:
+
+    http://www.terracotta.org/download/reflector/maven2
+
+  To tell Maven about this location, set the remoteRepositories property by including the following in the command line when invoking Maven:
+
+--------------------------------------------------------------------------------
+   -DremoteRepositories=http://www.terracotta.org/download/reflector/maven2
+--------------------------------------------------------------------------------
+
+  If your project has other Terracotta Artifacts as dependencies, add the following sections to your project's POM:
+
++-------------------------------------------------------------------------------
+<repositories>
+  <repository>
+    <id>terracotta-repository</id>
+    <url>http://www.terracotta.org/download/reflector/maven2</url>
+  </repository>
+</repositories>
+<pluginRepositories>
+  <pluginRepository>
+    <id>terracotta-repository</id>
+    <url>http://www.terracotta.org/download/reflector/maven2</url>
+  </pluginRepository>
+</pluginRepositories>
++-------------------------------------------------------------------------------
+
+{For Developers}
+
+  Check out the project from the Terracotta Subversion repository:
+
++-------------------------------------------------------------------------------
+  $ svn checkout \
+  ${project.scm.url} \
+  ${project.name}-${project.version}
++-------------------------------------------------------------------------------
+
+  Copy the ${project.name}-${project.version} to the modules directory under the Terracotta installation directory. Be sure to add ${project.name} to the Terracotta configuration file. See the {{{http://www.terracotta.org/web/display/docs/Configuration+Guide+and+Reference#ConfigurationGuideandReference-TIMs}Configuration Guide and Reference}} for more information.
+
+  To install ${project.name} in your local Maven repository, enter:
+
++-------------------------------------------------------------------------------
+   $ cd ${project.name}-${project.version}
+   $ mvn clean install
++-------------------------------------------------------------------------------
