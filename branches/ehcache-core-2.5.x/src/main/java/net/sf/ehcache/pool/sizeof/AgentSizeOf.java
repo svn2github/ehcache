@@ -30,7 +30,12 @@ import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
  */
 public class AgentSizeOf extends SizeOf {
 
-    private static final boolean AGENT_LOADED = AgentLoader.loadAgent();
+    /**
+     * System property name to bypass attaching to the VM and loading of Java agent to measure Object sizes.
+     */
+    public  static final String  BYPASS_LOADING = "net.sf.ehcache.pool.sizeof.AgentSizeOf.bypass";
+
+    private static final boolean AGENT_LOADED   = !Boolean.getBoolean(BYPASS_LOADING) && AgentLoader.loadAgent();
 
     /**
      * Builds a new SizeOf that will not filter fields and will cache reflected fields
