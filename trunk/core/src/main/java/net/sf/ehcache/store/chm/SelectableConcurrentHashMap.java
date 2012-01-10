@@ -662,7 +662,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     evictionIterator = iterator();
                 }
                 final MemoryStoreHashEntry next = evictionIterator.next();
-                if (next.value.isExpired() || !next.accessed) {
+                if (!next.accessed || next.value.isExpired()) {
                     return next.value;
                 } else {
                     final boolean pinned = next.pinned;
