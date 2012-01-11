@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -74,6 +75,7 @@ import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
@@ -2608,6 +2610,92 @@ public class CacheTest extends AbstractCacheTest {
         assertNull(cache.removeAndReturnElement("key"));
     }
 
+    @Test
+    public void testRedundantDiskReads() throws Exception {
+        final Cache cache = new Cache("testRedundantDiskReads", 1, true, true, 0, 0);
+        manager.addCache(cache);
+        
+        for (int i = 0; i < 10; i++) {
+            cache.put(new Element(i, new SlowDeserializer(Integer.toString(i))));
+        }
+        
+        DiskStoreHelper.flushAllEntriesToDisk(cache);
+
+        int parties = 8;
+        final Object[] values = new Object[parties];
+        final CyclicBarrier barrier = new CyclicBarrier(parties + 1);
+        final Thread[] readers = new Thread[parties];
+        
+        for (int i = 0; i < readers.length; i++) {
+            final int index = i;
+            readers[index] = new Thread() {
+                
+                public void run() {
+                    try {
+                        for (int i = 0; i < 10; i++) {
+                            barrier.await();
+                            values[index] = cache.get(i).getObjectValue();
+                            barrier.await();
+                        }
+                    } catch (Exception e) {
+                        values[index] = e;
+                    }
+                }
+            };
+        }
+        
+        for (Thread t : readers) {
+            t.start();
+        }
+        
+        for (int i = 0; i < 10; i++) {
+            barrier.await();
+            barrier.await();
+            Object first = values[0];
+            
+            for (Object o : values) {
+                assertSame(first, o);
+            }
+        }
+    }
+
+    static class SlowDeserializer implements Serializable {
+        private final String data;
+
+        public SlowDeserializer(String data) {
+            this.data = data;
+        }
+        
+        private Object readResolve() {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+            return this;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            } else {
+                SlowDeserializer other = (SlowDeserializer) obj;
+                return data == null ? other.data == null : data.equals(other.data);
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return data == null ? 0 : data.hashCode();
+        }
+        
+        @Override
+        public String toString() {
+            return "SlowDeserializer(" + data + ") @" + Integer.toHexString(System.identityHashCode(this));
+        }
+    }
+    
     static class GetCacheMemorySize implements Callable<Long> {
 
         private final Ehcache cache;

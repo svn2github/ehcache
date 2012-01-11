@@ -19,6 +19,8 @@ package net.sf.ehcache.store;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -59,6 +61,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     private final boolean copyOnRead;
     private final boolean copyOnWrite;
     private final ReadWriteCopyStrategy<Element> copyStrategy;
+    private final ConcurrentMap<Object, Fault> faults = new ConcurrentHashMap<Object, Fault>();
 
     /**
      * Constructor for FrontEndCacheTier
@@ -184,9 +187,18 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         try {
             Element e = cache.get(key);
             if (e == null) {
-                e = authority.get(key);
-                if (e != null) {
-                    cache.put(e);
+                Fault fault = faults.putIfAbsent(key, new Fault());
+                if (fault == null) {
+                    try {
+                        e = authority.get(key);
+                        if (e != null) {
+                            cache.put(e);
+                        }
+                    } finally {
+                        faults.remove(key).complete(e);
+                    }
+                } else {
+                    e = fault.get();
                 }
             }
             return copyElementForReadIfNeeded(e);
@@ -208,9 +220,18 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         try {
             Element e = cache.getQuiet(key);
             if (e == null) {
-                e = authority.getQuiet(key);
-                if (e != null) {
-                    cache.put(e);
+                Fault fault = faults.putIfAbsent(key, new Fault());
+                if (fault == null) {
+                    try {
+                        e = authority.getQuiet(key);
+                        if (e != null) {
+                            cache.put(e);
+                        }
+                    } finally {
+                        faults.remove(key).complete(e);
+                    }
+                } else {
+                    e = fault.get();
                 }
             }
             return copyElementForReadIfNeeded(e);
@@ -741,6 +762,43 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
             cache.recalculateSize(key);
         } finally {
             lock.unlock();
+        }
+    }
+
+    /**
+     * Type on which multiple concurrent authority fetches will wait.
+     */
+    private static final class Fault {
+
+        private Element result;
+        private boolean complete;
+        
+        public Element get() {
+            boolean interrupted = false;
+            try {
+                synchronized (this) {
+                    while (!complete) {
+                        try {
+                            wait();
+                        } catch (InterruptedException ex) {
+                            interrupted = true;
+                        }
+                    }
+                }
+            } finally {
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            return result;
+        }
+
+        public void complete(Element e) {
+            synchronized (this) {
+                result = e;
+                complete = true;
+                notifyAll();
+            }
         }
     }
 }
