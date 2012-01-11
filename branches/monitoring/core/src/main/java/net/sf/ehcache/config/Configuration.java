@@ -186,6 +186,7 @@ public final class Configuration {
     private FactoryConfiguration transactionManagerLookupConfiguration;
     private FactoryConfiguration cacheManagerEventListenerFactoryConfiguration;
     private TerracottaClientConfiguration terracottaConfigConfiguration;
+    private ManagementRESTServiceConfiguration managementRESTService;
     private final Map<String, CacheConfiguration> cacheConfigurations = new ConcurrentHashMap<String, CacheConfiguration>();
     private ConfigurationSource configurationSource;
     private boolean dynamicConfig = DEFAULT_DYNAMIC_CONFIG;
@@ -859,6 +860,21 @@ public final class Configuration {
         }
     }
 
+    public final void addManagementRESTService(ManagementRESTServiceConfiguration managementRESTServiceConfiguration) throws ObjectExistsException {
+        if (this.managementRESTService != null) {
+            throw new ObjectExistsException("The ManagementRESTService has already been configured");
+        }
+
+        final String prop = "managementRESTService";
+        final boolean publish = checkDynChange(prop);
+        final ManagementRESTServiceConfiguration oldValue = this.managementRESTService;
+        this.managementRESTService = managementRESTServiceConfiguration;
+        if (publish) {
+            firePropertyChange(prop, oldValue, managementRESTServiceConfiguration);
+        }
+    }
+
+
     /**
      * Builder method to set the default cache configuration, this can only be used once.
      *
@@ -1020,6 +1036,13 @@ public final class Configuration {
      */
     public final TerracottaClientConfiguration getTerracottaConfiguration() {
         return this.terracottaConfigConfiguration;
+    }
+
+    /**
+     * Gets the ManagementRESTServiceConfiguration
+     */
+    public final ManagementRESTServiceConfiguration getManagementRESTService() {
+        return managementRESTService;
     }
 
     /**

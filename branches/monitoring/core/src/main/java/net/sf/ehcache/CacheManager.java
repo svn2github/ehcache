@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache;
 
+import com.tc.monitoring.StandaloneServer;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
@@ -24,6 +25,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationSource;
@@ -205,6 +207,8 @@ public class CacheManager {
     private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile TransactionController transactionController;
+
+    private volatile StandaloneServer standaloneRestServer;
 
     private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
 
@@ -426,6 +430,18 @@ public class CacheManager {
             mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
+        }
+
+        ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
+        if (managementRESTService != null && managementRESTService.isEnabled()) {
+            try {
+                standaloneRestServer = new StandaloneServer();
+                standaloneRestServer.setBasePackage("net.sf.ehcache.monitoring");
+                standaloneRestServer.setBind(managementRESTService.getBind());
+                standaloneRestServer.start();
+            } catch (Exception e) {
+                LOG.warn("Failed to initialize the ManagementRESTService", e);
+            }
         }
     }
 
@@ -1236,6 +1252,16 @@ public class CacheManager {
                 LOG.debug("CacheManager already shutdown");
                 return;
             }
+
+            if (this.standaloneRestServer != null) {
+                try {
+                    standaloneRestServer.stop();
+                } catch (Exception e) {
+                    LOG.warn("Failed to shutdown the ManagementRESTService", e);
+                }
+                standaloneRestServer = null;
+            }
+
             for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
                 if (cacheManagerPeerProvider != null) {
                     cacheManagerPeerProvider.dispose();
