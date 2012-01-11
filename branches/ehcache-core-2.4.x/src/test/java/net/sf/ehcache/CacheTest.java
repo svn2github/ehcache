@@ -172,6 +172,12 @@ public class CacheTest extends AbstractCacheTest {
         } catch (IllegalStateException e) {
             assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
         }
+        try {
+            cache.isElementInMemory("key");
+            fail();
+        } catch (IllegalStateException e) {
+            assertEquals("The sampleCache1 Cache is not alive.", e.getMessage());
+        }
 
     }
 
