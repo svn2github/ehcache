@@ -590,7 +590,14 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         while (runs-- > 0) {
                             Element evict = nextExpiredOrToEvict(value);
                             if (evict != null) {
-                                evicted[runs] = (remove(evict.getKey(), hash(evict.getKey().hashCode()), null));
+                                Element removed;
+                                while ((removed = remove(evict.getKey(), hash(evict.getKey().hashCode()), null)) == null) {
+                                    evict = nextExpiredOrToEvict(value);
+                                    if (evict == null) {
+                                        break;
+                                    }
+                                }
+                                evicted[runs] = removed;
                             }
                         }
                     }
