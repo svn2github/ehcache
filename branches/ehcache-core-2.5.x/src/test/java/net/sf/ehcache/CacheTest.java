@@ -80,7 +80,9 @@ import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
 import org.hamcrest.core.Is;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2614,6 +2616,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testRedundantDiskReads() throws Exception {
         final Cache cache = new Cache("testRedundantDiskReads", 1, true, true, 0, 0);
         manager.addCache(cache);
+        Assume.assumeThat(cache.getStore(), IsInstanceOf.instanceOf(FrontEndCacheTier.class));
         
         for (int i = 0; i < 10; i++) {
             cache.put(new Element(i, new SlowDeserializer(Integer.toString(i))));
