@@ -8,14 +8,14 @@
     <version>3.0-SNAPSHOT</version>
   </parent>
 
-  <name>Ehcache Root</name>
+  <name>ehcache-root</name>
   <groupId>net.sf.ehcache</groupId>
   <artifactId>ehcache-root</artifactId>
   <packaging>pom</packaging>
   <version>2.6.0-SNAPSHOT</version>
 
   <modules>
-    <module>standalone</module>
+    <module>core</module>
     <module>terracotta</module>
     <module>packaging</module>
   </modules>

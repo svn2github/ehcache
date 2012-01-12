@@ -26,8 +26,8 @@
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-standalone</artifactId>
-      <version>${ehcache-standalone.version}</version>
+      <artifactId>ehcache-core</artifactId>
+      <version>${ehcache-core.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>

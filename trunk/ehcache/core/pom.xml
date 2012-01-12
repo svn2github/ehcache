@@ -12,19 +12,11 @@
   <packaging>jar</packaging>
   <version>2.6.0-SNAPSHOT</version>
 
-  <name>Ehcache Core</name>
+  <name>ehcache-core</name>
   <description>Internal ehcache-core module</description>
 
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>src/assemble/EHCACHE-CORE-LICENSE.txt</url>
-    </license>
-  </licenses>
-  <url>http://ehcache.org</url>
-
-
   <properties>
+    <product.name>Ehcache</product.name>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <net.sf.ehcache.speedAdjustmentFactor>5</net.sf.ehcache.speedAdjustmentFactor>
