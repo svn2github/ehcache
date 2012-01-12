@@ -18,6 +18,7 @@
     <module>core</module>
     <module>terracotta</module>
     <module>packaging</module>
+    <module>system</module>
   </modules>
 
   <properties>
