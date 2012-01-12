@@ -373,7 +373,7 @@ public class CacheManager {
             // TODO this shouldn't be done!
             configuration.getTerracottaConfiguration().freezeConfig();
         }
-        runtimeCfg = configuration.setupFor(this, super.toString());
+        runtimeCfg = configuration.setupFor(this, DEFAULT_NAME);
 
         if (configuration.isMaxBytesLocalHeapSet()) {
             PoolEvictor<PoolableStore> evictor = new BalancedAccessOnHeapPoolEvictor();

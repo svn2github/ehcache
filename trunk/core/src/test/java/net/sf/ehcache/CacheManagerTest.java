@@ -1254,6 +1254,16 @@ public class CacheManagerTest {
         }
     }
 
+    @Test
+    public void testUnnamedCacheManagerDefaultName() {
+        CacheManager cacheManager1 = new CacheManager();
+        try {
+            Assert.assertNotNull(CacheManager.getCacheManager(cacheManager1.getName()));
+        } finally {
+            cacheManager1.shutdown();
+        }
+    }
+
     /**
      * Tests that the CacheManager implements clearAll():void and clearAllStartingWith(String):void properly
      */
