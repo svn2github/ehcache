@@ -122,6 +122,15 @@
   </dependencies>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.terracotta</groupId>
+          <artifactId>maven-forge-plugin</artifactId>
+          <version>1.0.5-SNAPSHOT</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -135,11 +144,10 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 
-  <repositories>
+  <repositories> 
     <repository>
       <id>terracotta-snapshots</id>
       <url>http://www.terracotta.org/download/reflector/snapshots</url>
@@ -163,35 +171,20 @@
     <repository>
       <releases>
         <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
       </releases>
       <snapshots>
         <enabled>false</enabled>
-        <updatePolicy>never</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
       </snapshots>
       <id>jboss</id>
       <name>JBoss Repository</name>
-      <url>http://repository.jboss.com/maven2</url>
-      <layout>default</layout>
+      <url>https://repository.jboss.org/nexus/content/repositories/public/</url>
     </repository>
     <repository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-        <updatePolicy>never</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
-      </snapshots>
       <id>atomikos</id>
       <name>Atomikos Repository</name>
       <url>http://repo.atomikos.com/</url>
       <layout>default</layout>
-    </repository>
+    </repository>    
   </repositories>
 
   <pluginRepositories>
