@@ -15,7 +15,7 @@
  */
 package net.sf.ehcache;
 
-import com.tc.monitoring.StandaloneServer;
+import com.terracotta.management.embedded.StandaloneServer;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
@@ -436,8 +436,9 @@ public class CacheManager {
         if (managementRESTService != null && managementRESTService.isEnabled()) {
             try {
                 standaloneRestServer = new StandaloneServer();
-                standaloneRestServer.setBasePackage("net.sf.ehcache.monitoring");
-                standaloneRestServer.setBind(managementRESTService.getBind());
+                standaloneRestServer.setBasePackage("net.sf.ehcache.management");
+                standaloneRestServer.setHost(managementRESTService.getHost());
+                standaloneRestServer.setPort(managementRESTService.getPort());
                 standaloneRestServer.start();
             } catch (Exception e) {
                 LOG.warn("Failed to initialize the ManagementRESTService", e);

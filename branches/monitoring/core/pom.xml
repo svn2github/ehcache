@@ -71,6 +71,12 @@
     <!-- Provided scope. This one, or another concrete logging implementation
       must be provided. -->
     <dependency>
+      <groupId>com.terracotta</groupId>
+      <artifactId>management-core</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
       <version>1.6.1</version>

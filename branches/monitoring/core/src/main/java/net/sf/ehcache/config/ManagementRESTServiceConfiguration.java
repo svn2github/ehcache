@@ -34,6 +34,24 @@ public class ManagementRESTServiceConfiguration {
     public String getBind() {
         return bind;
     }
+    
+    public String getHost() {
+        if (bind == null) {
+            return null;
+        }
+        return bind.split("\\:")[0];
+    }
+    
+    public int getPort() {
+        if (bind == null) {
+            return -1;
+        }
+        String[] split = bind.split("\\:");
+        if (split.length != 2) {
+            throw new IllegalArgumentException("invalid bind format (should be IP:port)");
+        }
+        return Integer.parseInt(split[1]);
+    }
 
     public void setBind(String bind) {
         this.bind = bind;
