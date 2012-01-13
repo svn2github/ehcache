@@ -18,7 +18,7 @@
     <module>core</module>
     <module>terracotta</module>
     <module>packaging</module>
-    <module>system</module>
+    <module>system-tests</module>
   </modules>
 
   <properties>
@@ -138,10 +138,19 @@
         <version>1.3.0</version>
       </dependency>
     </dependencies>   
-  </dependencyManagement>  
+  </dependencyManagement>
   <build>
     <pluginManagement>                                                           
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.3.2</version>
+          <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+          </configuration>
+        </plugin>      
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>

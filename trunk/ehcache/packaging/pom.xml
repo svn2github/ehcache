@@ -11,6 +11,7 @@
   <artifactId>ehcache</artifactId>
   <packaging>jar</packaging>
   <name>Ehcache</name>
+  <description>Ehcache is an open source, standards-based cache used to boost performance, offload the database and simplify scalability. Ehcache is robust, proven and full-featured and this has made it the most widely-used Java-based cache.</description>
 
   <licenses>
     <license>
@@ -25,25 +26,22 @@
 
   </properties>
 
-  <dependencies>
-    <!-- Versions of these artifacts coming from the ehcache-root pom -->
-    
-    <!--Compile scope. If you add something to this section, you have to do the same thing in core/pom.xml -->
+  <dependencies>  
+    <!--Compile scope. If you add something to compile scope, you have to do the same thing in core/pom.xml -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <scope>compile</scope>
     </dependency>
     
-    <!-- bootstrap code -->
+    
+    <!-- provided scope, used for packaging purpose only -->
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-terracotta-bootstrap</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
-
-    <!-- TIMs that we bundle in this express package -->
     <dependency>
       <groupId>org.terracotta.modules</groupId>
       <artifactId>tim-ehcache-2.x</artifactId>
@@ -62,13 +60,13 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>  
+    </dependency>
+    
   </dependencies>
 
   <build>
@@ -120,7 +118,7 @@
           </execution>
           
           <execution>
-            <id>unpack-TIMs</id>
+            <id>copy-TIMs</id>
             <configuration>
               <includeGroupIds>org.terracotta.modules</includeGroupIds>
               <outputDirectory>${project.build.outputDirectory}/META-INF/terracotta/TIMs</outputDirectory>
@@ -164,6 +162,7 @@
           <rootPath>${basedir}/..</rootPath>
           <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
           <manifestEntries>
+            <License>Apache Software License, Version 2.0</License>
             <Terracotta-ProjectStatus>Supported</Terracotta-ProjectStatus>
             <Terracotta-Name>${project.artifactId}</Terracotta-Name>
             <Terracotta-Description>${project.description}</Terracotta-Description>
