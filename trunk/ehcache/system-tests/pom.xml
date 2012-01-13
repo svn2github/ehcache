@@ -32,12 +32,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-standalone</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.6.1</version>
