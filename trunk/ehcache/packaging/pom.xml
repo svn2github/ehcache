@@ -128,6 +128,35 @@
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
+          </execution>
+
+          <execution>
+            <id>copy-javadoc-sources</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>net.sf.ehcache</groupId>
+                  <artifactId>ehcache-core</artifactId>
+                  <version>${project.version}</version>
+                  <classifier>sources</classifier>
+                  <overWrite>true</overWrite>
+                  <destFileName>${project.artifactId}-${project.version}-sources.jar</destFileName>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>net.sf.ehcache</groupId>
+                  <artifactId>ehcache-core</artifactId>
+                  <version>${project.version}</version>
+                  <classifier>javadoc</classifier>
+                  <overWrite>true</overWrite>
+                  <destFileName>${project.artifactId}-${project.version}-javadoc.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+            </configuration>
           </execution>          
         </executions>
       </plugin>
@@ -210,8 +239,6 @@
     </plugins>
   </build>
 
-  <!-- The JBoss repository is only here to satisfy the 'provided' dependency
-    on hibernate-core -->
   <repositories>
     <repository>
       <id>terracotta-snapshots</id>
