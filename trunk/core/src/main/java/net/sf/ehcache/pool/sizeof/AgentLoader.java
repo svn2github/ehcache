@@ -141,7 +141,6 @@ final class AgentLoader {
                         VIRTUAL_MACHINE_DETACH.invoke(vm);
                     }
                 } catch (Throwable e) {
-                    e.printStackTrace();
                     LOGGER.info("Failed to attach to VM and load the agent: {}: {}", e.getClass(), e.getMessage());
                 }
             }
