@@ -619,8 +619,9 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
          replicatePutsViaCopy=false,
          replicateUpdates=true,
          replicateUpdatesViaCopy=true,
-         replicateRemovals=true
-         asynchronousReplicationIntervalMillis=<number of milliseconds"
+         replicateRemovals=true,
+         asynchronousReplicationIntervalMillis=<number of milliseconds>,
+         asynchronousReplicationMaximumBatchSize=<number of operations>"
          propertySeparator="," />
 
     The RMICacheReplicatorFactory recognises the following properties:
@@ -646,6 +647,9 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
       replicator runs at a set interval of milliseconds. The default is 1000. The minimum
       is 10. This property is only applicable if replicateAsynchronously=true
 
+    * asynchronousReplicationMaximumBatchSize=<number of operations> - The maximum
+      number of operations that will be batch within a single RMI message.  The default
+      is 1000. This property is only applicable if replicateAsynchronously=true
 
     JGroups Replication
     +++++++++++++++++++

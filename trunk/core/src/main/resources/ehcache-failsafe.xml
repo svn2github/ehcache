@@ -245,6 +245,9 @@
       replicator runs at a set interval of milliseconds. The default is 1000. The minimum
       is 10. This property is only applicable if replicateAsynchronously=true
 
+    * asynchronousReplicationMaximumBatchSize=<number of operations> - The maximum
+      number of operations that will be batch within a single RMI message.  The default
+      is 1000. This property is only applicable if replicateAsynchronously=true
 
     The RMIBootstrapCacheLoader bootstraps caches in clusters where RMICacheReplicators are
     used. It is configured as per the following example:

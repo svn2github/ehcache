@@ -47,6 +47,11 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
      * before checking again.
      */
     protected static final int DEFAULT_ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS = 1000;
+    
+    /**
+     * A default for the maximum number of operations in an RMI message.
+     */
+    protected static final int DEFAULT_ASYNCHRONOUS_REPLICATION_MAXIMUM_BATCH_SIZE = 1000;
 
     private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorFactory.class.getName());
     private static final String REPLICATE_PUTS = "replicatePuts";
@@ -56,6 +61,7 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
     private static final String REPLICATE_REMOVALS = "replicateRemovals";
     private static final String REPLICATE_ASYNCHRONOUSLY = "replicateAsynchronously";
     private static final String ASYNCHRONOUS_REPLICATION_INTERVAL_MILLIS = "asynchronousReplicationIntervalMillis";
+    private static final String ASYNCHRONOUS_REPLICATION_MAXIMUM_BATCH_SIZE = "asynchronousReplicationMaximumBatchSize";
     private static final int MINIMUM_REASONABLE_INTERVAL = 10;
 
     /**
@@ -94,7 +100,8 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         boolean replicateUpdatesViaCopy = extractReplicateUpdatesViaCopy(properties);
         boolean replicateRemovals = extractReplicateRemovals(properties);
         boolean replicateAsynchronously = extractReplicateAsynchronously(properties);
-        int asynchronousReplicationIntervalMillis = extractReplicationIntervalMilis(properties);
+        int replicationIntervalMillis = extractReplicationIntervalMilis(properties);
+        int maximumBatchSize = extractMaximumBatchSize(properties);
 
         if (replicateAsynchronously) {
             return new RMIAsynchronousCacheReplicator(
@@ -103,7 +110,8 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
                     replicateUpdates,
                     replicateUpdatesViaCopy,
                     replicateRemovals,
-                    asynchronousReplicationIntervalMillis);
+                    replicationIntervalMillis,
+                    maximumBatchSize);
         } else {
             return new RMISynchronousCacheReplicator(
                     replicatePuts,
@@ -145,6 +153,27 @@ public class RMICacheReplicatorFactory extends CacheEventListenerFactory {
         return asynchronousReplicationIntervalMillis;
     }
 
+    /**
+     * Extracts the value of maximumBatchSize. Sets it to 1024 if
+     * either not set or there is a problem parsing the number
+     * @param properties
+     */
+    protected int extractMaximumBatchSize(Properties properties) {
+        String maximumBatchSizeString = 
+                PropertyUtil.extractAndLogProperty(ASYNCHRONOUS_REPLICATION_MAXIMUM_BATCH_SIZE, properties);
+        if (maximumBatchSizeString == null) {
+            return DEFAULT_ASYNCHRONOUS_REPLICATION_MAXIMUM_BATCH_SIZE;
+        } else {
+            try {
+                return Integer.parseInt(maximumBatchSizeString);
+            } catch (NumberFormatException e) {
+                LOG.warn("Number format exception trying to set maximumBatchSize. " +
+                        "Using the default instead. String value was: '" + maximumBatchSizeString + "'");
+                return DEFAULT_ASYNCHRONOUS_REPLICATION_MAXIMUM_BATCH_SIZE;
+            }
+        }
+    }
+    
     /**
      * Extracts the value of replicateAsynchronously from the properties
      * @param properties

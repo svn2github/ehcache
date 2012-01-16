@@ -21,12 +21,13 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
-import java.io.Serializable;
+import java.lang.ref.SoftReference;
 import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import net.sf.ehcache.distribution.EventMessage.EventType;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -63,18 +64,23 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
     /**
      * A thread which handles replication, so that replication can take place asynchronously and not hold up the cache
      */
-    protected Thread replicationThread = new ReplicationThread();
+    private final Thread replicationThread = new ReplicationThread();
 
     /**
      * The amount of time the replication thread sleeps after it detects the replicationQueue is empty
      * before checking again.
      */
-    protected int asynchronousReplicationInterval;
+    private final int replicationInterval;
+
+    /**
+     * The maximum number of Element replication in single RMI message.
+     */
+    private final int maximumBatchSize;
 
     /**
      * A queue of updates.
      */
-    protected final Queue<CacheEventMessage> replicationQueue = new ConcurrentLinkedQueue<CacheEventMessage>();
+    private final Queue<Object> replicationQueue = new ConcurrentLinkedQueue<Object>();
 
     /**
      * Constructor for internal and subclass use
@@ -85,13 +91,15 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             boolean replicateUpdates,
             boolean replicateUpdatesViaCopy,
             boolean replicateRemovals,
-            int asynchronousReplicationInterval) {
+            int replicationInterval,
+            int maximumBatchSize) {
         super(replicatePuts,
                 replicatePutsViaCopy,
                 replicateUpdates,
                 replicateUpdatesViaCopy,
                 replicateRemovals);
-        this.asynchronousReplicationInterval = asynchronousReplicationInterval;
+        this.replicationInterval = replicationInterval;
+        this.maximumBatchSize = maximumBatchSize;
         status = Status.STATUS_ALIVE;
         replicationThread.start();
     }
@@ -106,7 +114,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             // Wait for elements in the replicationQueue
             while (alive() && replicationQueue != null && replicationQueue.isEmpty()) {
                 try {
-                    Thread.sleep(asynchronousReplicationInterval);
+                    Thread.sleep(replicationInterval);
                 } catch (InterruptedException e) {
                     LOG.debug("Spool Thread interrupted.");
                     return;
@@ -116,7 +124,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 return;
             }
             try {
-                flushReplicationQueue();
+                writeReplicationQueue();
             } catch (Throwable e) {
                 LOG.error("Exception on flushing of replication queue: " + e.getMessage() + ". Continuing...", e);
             }
@@ -148,7 +156,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
+            addToReplicationQueue(new EventMessage(cache, EventType.PUT, null, element));
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
@@ -157,7 +165,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
+            addToReplicationQueue(new EventMessage(cache, EventType.REMOVE, element.getKey(), null));
         }
 
     }
@@ -190,7 +198,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new CacheEventMessage(EventMessage.PUT, cache, element, null));
+            addToReplicationQueue(new EventMessage(cache, EventType.PUT, null, element));
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
@@ -199,7 +207,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
+            addToReplicationQueue(new EventMessage(cache, EventType.REMOVE, element.getKey(), null));
         }
     }
 
@@ -231,7 +239,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             }
             return;
         }
-        addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE, cache, null, element.getKey()));
+        addToReplicationQueue(new EventMessage(cache, EventType.REMOVE, element.getKey(), null));
     }
 
 
@@ -256,7 +264,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             return;
         }
 
-        addToReplicationQueue(new CacheEventMessage(EventMessage.REMOVE_ALL, cache, null, null));
+        addToReplicationQueue(new EventMessage(cache, EventType.REMOVE_ALL, null, null));
     }
 
 
@@ -268,17 +276,24 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      *
      * @param cacheEventMessage
      */
-    protected void addToReplicationQueue(CacheEventMessage cacheEventMessage) {
+    protected void addToReplicationQueue(EventMessage eventMessage) {
         if (!replicationThread.isAlive()) {
             LOG.error("CacheEventMessages cannot be added to the replication queue because the replication thread has died.");
         } else {
-            replicationQueue.add(cacheEventMessage);
+            switch (eventMessage.getType()) {
+                case PUT:
+                    replicationQueue.add(new SoftReference(eventMessage));
+                    break;
+                default:
+                    replicationQueue.add(eventMessage);
+                    break;
+            }
         }
     }
 
 
     /**
-     * Gets called once per {@link #asynchronousReplicationInterval}.
+     * Gets called once per {@link #replicationInterval}.
      * <p/>
      * Sends accumulated messages in bulk to each peer. i.e. if ther are 100 messages and 1 peer,
      * 1 RMI invocation results, not 100. Also, if a peer is unavailable this is discovered in only 1 try.
@@ -290,42 +305,32 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * <p/>
      * This method issues warnings for problems that can be fixed with configuration changes.
      */
-    private void flushReplicationQueue() {
-        CacheEventMessage head = replicationQueue.peek();
-        if (head == null) {
-            return;
-        }
-        Ehcache cache = head.cache;
-        List cachePeers = listRemoteCachePeers(cache);
+    private void writeReplicationQueue() {
+        List<EventMessage> eventMessages = extractEventMessages(maximumBatchSize);
 
-        int limit = replicationQueue.size();
-        List<EventMessage> resolvedEventMessages = extractAndResolveEventMessages(limit);
-
-        for (int j = 0; j < cachePeers.size(); j++) {
-            CachePeer cachePeer = (CachePeer) cachePeers.get(j);
-            try {
-                cachePeer.send(resolvedEventMessages);
-            } catch (UnmarshalException e) {
-                String message = e.getMessage();
-                if (message.contains("Read time out") || message.contains("Read timed out")) {
-                    LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
-                            " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " +
-                            "Message was: " + message);
-                } else {
-                    LOG.debug("Unable to send message to remote peer.  Message was: " + message);
+        if (!eventMessages.isEmpty()) {
+            for (CachePeer cachePeer : listRemoteCachePeers(eventMessages.get(0).getEhcache())) {
+                try {
+                    cachePeer.send(eventMessages);
+                } catch (UnmarshalException e) {
+                    String message = e.getMessage();
+                    if (message.contains("Read time out") || message.contains("Read timed out")) {
+                        LOG.warn("Unable to send message to remote peer due to socket read timeout. Consider increasing" +
+                                " the socketTimeoutMillis setting in the cacheManagerPeerListenerFactory. " +
+                                "Message was: " + message);
+                    } else {
+                        LOG.debug("Unable to send message to remote peer.  Message was: " + message);
+                    }
+                } catch (Throwable t) {
+                    LOG.warn("Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
                 }
-            } catch (Throwable t) {
-                LOG.warn("Unable to send message to remote peer.  Message was: " + t.getMessage(), t);
             }
         }
-        if (LOG.isWarnEnabled()) {
-            int eventMessagesNotResolved = limit - resolvedEventMessages.size();
-            if (eventMessagesNotResolved > 0) {
-                LOG.warn(eventMessagesNotResolved + " messages were discarded on replicate due to reclamation of " +
-                        "SoftReferences by the VM. Consider increasing the maximum heap size and/or setting the " +
-                        "starting heap size to a higher value.");
-            }
+    }
 
+    private void flushReplicationQueue() {
+        while (!replicationQueue.isEmpty()) {
+            writeReplicationQueue();
         }
     }
 
@@ -338,18 +343,31 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      * @param replicationQueueCopy
      * @return a list of EventMessages which were able to be resolved
      */
-    private List extractAndResolveEventMessages(int limit) {
-        List list = new ArrayList();
-        for (int i = 0; i < limit; i++) {
-            CacheEventMessage message = replicationQueue.poll();
-            if (message == null) {
+    private List<EventMessage> extractEventMessages(int limit) {
+        List<EventMessage> list = new ArrayList(Math.min(replicationQueue.size(), limit));
+
+        int droppedMessages = 0;
+        
+        while (list.size() < limit) {
+            Object polled = replicationQueue.poll();
+            if (polled == null) {
                 break;
+            } else if (polled instanceof EventMessage) {
+                list.add((EventMessage) polled);
             } else {
-                EventMessage eventMessage = message.getEventMessage();
-                if (eventMessage != null && eventMessage.isValid()) {
-                    list.add(eventMessage);
+                EventMessage message = ((SoftReference<EventMessage>) polled).get();
+                if (message == null) {
+                    droppedMessages++;
+                } else {
+                    list.add(message);
                 }
             }
+        }
+        
+        if (droppedMessages > 0) {
+            LOG.warn(droppedMessages + " messages were discarded on replicate due to reclamation of " +
+                    "SoftReferences by the VM. Consider increasing the maximum heap size and/or setting the " +
+                    "starting heap size to a higher value.");
         }
         return list;
     }
@@ -370,33 +388,6 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         public final void run() {
             replicationThreadMain();
         }
-    }
-
-
-    /**
-     * A wrapper around an EventMessage, which enables the element to be enqueued along with
-     * what is to be done with it.
-     * <p/>
-     * The wrapper holds a {@link java.lang.ref.SoftReference} to the {@link EventMessage}, so that the queue is never
-     * the cause of an {@link OutOfMemoryError}
-     */
-    private static class CacheEventMessage {
-
-        private final Ehcache cache;
-        private final EventMessage eventMessage;
-
-        public CacheEventMessage(int event, Ehcache cache, Element element, Serializable key) {
-            eventMessage = new EventMessage(event, key, element);
-            this.cache = cache;
-        }
-
-        /**
-         * Gets the component EventMessage
-         */
-        public final EventMessage getEventMessage() {
-            return eventMessage;
-        }
-
     }
 
     /**
@@ -421,7 +412,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
         //shutup checkstyle
         super.clone();
         return new RMIAsynchronousCacheReplicator(replicatePuts, replicatePutsViaCopy,
-                replicateUpdates, replicateUpdatesViaCopy, replicateRemovals, asynchronousReplicationInterval);
+                replicateUpdates, replicateUpdatesViaCopy, replicateRemovals, replicationInterval, maximumBatchSize);
     }
 
 

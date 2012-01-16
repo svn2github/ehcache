@@ -33,6 +33,7 @@ import java.io.ObjectOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
+import net.sf.ehcache.distribution.EventMessage.EventType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ public class EventMessageTest {
     @Test
     public void testSerialization() throws IOException, ClassNotFoundException {
 
-        EventMessage eventMessage = new EventMessage(EventMessage.PUT, "key", new Element("key", "element"));
+        EventMessage eventMessage = new EventMessage(null, EventType.PUT, "key", new Element("key", "element"));
 
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bout);
@@ -95,9 +96,7 @@ public class EventMessageTest {
         //Check after Serialization
         assertEquals("key", eventMessage2.getSerializableKey());
         assertEquals("element", eventMessage2.getElement().getObjectValue());
-        assertEquals(EventMessage.PUT, eventMessage2.getEvent());
-        assertTrue(eventMessage2.isValid());
-
+        assertEquals(EventType.PUT, eventMessage2.getType());
     }
 
 
