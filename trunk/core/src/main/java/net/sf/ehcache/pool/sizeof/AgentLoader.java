@@ -125,27 +125,29 @@ final class AgentLoader {
      * @return true if agent was loaded (which could have happened thought the -javaagent switch)
      */
     static boolean loadAgent() {
-        if (!agentIsAvailable() && VIRTUAL_MACHINE_LOAD_AGENT != null) {
-            try {
-                warnIfOSX();
-                String name = ManagementFactory.getRuntimeMXBean().getName();
-                Object vm = VIRTUAL_MACHINE_ATTACH.invoke(null, name.substring(0, name.indexOf('@')));
+        synchronized (AgentLoader.class.getName().intern()) {
+            if (!agentIsAvailable() && VIRTUAL_MACHINE_LOAD_AGENT != null) {
                 try {
-                    File agent = getAgentFile();
-                    LOGGER.info("Trying to load agent @ {}", agent);
-                    if (agent != null) {
-                        VIRTUAL_MACHINE_LOAD_AGENT.invoke(vm, agent.getAbsolutePath());
+                    warnIfOSX();
+                    String name = ManagementFactory.getRuntimeMXBean().getName();
+                    Object vm = VIRTUAL_MACHINE_ATTACH.invoke(null, name.substring(0, name.indexOf('@')));
+                    try {
+                        File agent = getAgentFile();
+                        LOGGER.info("Trying to load agent @ {}", agent);
+                        if (agent != null) {
+                            VIRTUAL_MACHINE_LOAD_AGENT.invoke(vm, agent.getAbsolutePath());
+                        }
+                    } finally {
+                        VIRTUAL_MACHINE_DETACH.invoke(vm);
                     }
-                } finally {
-                    VIRTUAL_MACHINE_DETACH.invoke(vm);
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    LOGGER.info("Failed to attach to VM and load the agent: {}: {}", e.getClass(), e.getMessage());
                 }
-            } catch (Throwable e) {
-                e.printStackTrace();
-                LOGGER.info("Failed to attach to VM and load the agent: {}: {}", e.getClass(), e.getMessage());
             }
-        }
 
-        return agentIsAvailable();
+            return agentIsAvailable();
+        }
     }
 
     private static void warnIfOSX() {
