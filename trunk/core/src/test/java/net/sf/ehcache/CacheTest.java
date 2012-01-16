@@ -1694,7 +1694,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(new Object(), new Object()));
         cache.put(new Element(new Object(), new Object()));
 
-        Thread.sleep(200);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
         assertEquals(1, cache.getSize());
         assertEquals(0, cache.getDiskStoreSize());
