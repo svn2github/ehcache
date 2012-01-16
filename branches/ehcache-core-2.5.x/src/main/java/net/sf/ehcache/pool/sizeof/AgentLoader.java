@@ -208,6 +208,13 @@ final class AgentLoader {
                 instrumentation = (Instrumentation)getInstrumentationMethod.invoke(sizeOfAgentClass);
             }
             return instrumentation != null;
+        } catch (SecurityException e) {
+            LOGGER.warn("Couldn't access the system classloader because of the security policies applied by " +
+                    "the security manager. You either want to loosen these, so ClassLoader.getSystemClassLoader() and " +
+                    "reflection API calls are permitted or the sizing will be done using some other mechanism.\n" +
+                    "Alternatively, set the system property net.sf.ehcache.sizeof.agent.instrumentationSystemProperty to true " +
+                    "to have the agent put the required instances in the System Properties for the loader to access.");
+            return false;
         } catch (Throwable e) {
             return false;
         }
