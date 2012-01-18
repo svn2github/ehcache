@@ -38,6 +38,7 @@ import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoin
 public class NonstopExecutorServiceImpl implements NonstopExecutorService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NonstopExecutorServiceImpl.class);
+    private static final String EOL = System.getProperty("line.separator");
     private final NonstopThreadPool nonstopThreadPool;
 
     /**
@@ -58,9 +59,11 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
         V result = null;
         long startTime = System.nanoTime();
         while (true) {
+            boolean success = false;
             try {
                 attempt++;
                 result = nonstopThreadPool.submit(callable).get(timeoutValueInMillis, TimeUnit.MILLISECONDS);
+                success = true;
                 break;
             } catch (InterruptedException e) {
                 // XXX: do something here?
@@ -97,9 +100,33 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
             } catch (TimeoutException e) {
                 // rethrow timeout exception
                 throw e;
+            } finally {
+                if (!success) {
+                    printNonstopThreadStackTrace(callable, timeoutValueInMillis);
+                }
             }
         }
         return result;
+    }
+
+    private void printNonstopThreadStackTrace(Callable callable, long timeoutValueInMillis) {
+        // check property at runtime always
+        if (Boolean.getBoolean(PRINT_STACK_TRACE_ON_EXCEPTION_PROPERTY)) {
+            StackTraceElement[] stackTrace = nonstopThreadPool.getNonstopThreadStackTrace();
+            StringBuilder builder = new StringBuilder();
+            builder.append("Nonstop thread Stacktrace for callable: ").append(callable).append(", timeoutValueMillis: ")
+                    .append(timeoutValueInMillis).append(", current thread: ").append(Thread.currentThread().getName()).append(EOL);
+            if (stackTrace.length > 0) {
+                for (StackTraceElement ste : stackTrace) {
+                    builder.append("  at ").append(ste.getClassName()).append(".").append(ste.getMethodName()).append("(")
+                            .append(ste.getFileName() == null ? "<no file name info>" : ste.getFileName()).append(":")
+                            .append((ste.getLineNumber() >= 0 ? ste.getLineNumber() + "" : "<unknown line number>") + ")").append(EOL);
+                }
+            } else {
+                builder.append("<No stacktrace info available>");
+            }
+            LOGGER.info(builder.toString());
+        }
     }
 
     private Throwable getRootCause(final Throwable exception) {

@@ -29,6 +29,11 @@ import net.sf.ehcache.CacheException;
 public interface NonstopExecutorService {
 
     /**
+     * System property name which if set to true prints stack trace of nonstop thread upon exception
+     */
+    public static final String PRINT_STACK_TRACE_ON_EXCEPTION_PROPERTY = "net.sf.ehcache.nonstop.printStackTraceOnException";
+
+    /**
      * Execute a {@link Callable} task with timeout. If the task does not complete within the timeout specified, throws a
      * {@link TimeoutException}
      *
