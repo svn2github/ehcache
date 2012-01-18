@@ -154,29 +154,22 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
 
     private <V> V executeWithExecutor(final Callable<V> callable, final long timeOutMills, final boolean force) throws CacheException,
             TimeoutException {
+        Callable<V> effectiveCallable = callable;
+        final long start = System.nanoTime();
+        if (!force) {
+            checkForClusterOffline(start, timeOutMills);
+        }
+        final boolean operationUnderExplicitLock = explicitLockingContextThreadLocal.areAnyExplicitLocksAcquired();
+        if (operationUnderExplicitLock) {
+            effectiveCallable = new CacheOperationUnderExplicitLockCallable<V>(
+                    explicitLockingContextThreadLocal.getCurrentThreadLockContext(), nonstopConfiguration, callable);
+        }
         try {
-            Callable<V> effectiveCallable = callable;
-            final long start = System.nanoTime();
-            if (!force) {
-                checkForClusterOffline(start, timeOutMills);
-            }
-            final boolean operationUnderExplicitLock = explicitLockingContextThreadLocal.areAnyExplicitLocksAcquired();
-            if (operationUnderExplicitLock) {
-                effectiveCallable = new CacheOperationUnderExplicitLockCallable<V>(
-                        explicitLockingContextThreadLocal.getCurrentThreadLockContext(), nonstopConfiguration, callable);
-            }
-            try {
-                final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
-                return nonstopActiveDelegateHolder.getNonstopExecutorService().execute(effectiveCallable, remaining);
-            } catch (InterruptedException e) {
-                // rethrow as CacheException
-                throw new CacheException(e);
-            }
-        } catch (TimeoutException th) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("TimeoutException in executeWithExecutor" + th);
-            }
-            throw th;
+            final long remaining = timeOutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+            return nonstopActiveDelegateHolder.getNonstopExecutorService().execute(effectiveCallable, remaining);
+        } catch (InterruptedException e) {
+            // rethrow as CacheException
+            throw new CacheException(e);
         }
     }
 
