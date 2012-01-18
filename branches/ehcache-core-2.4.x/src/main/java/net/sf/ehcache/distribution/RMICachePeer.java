@@ -25,6 +25,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import net.sf.ehcache.distribution.EventMessage.EventType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,11 +217,11 @@ public class RMICachePeer extends UnicastRemoteObject implements CachePeer, Remo
     public void send(List eventMessages) throws RemoteException {
         for (int i = 0; i < eventMessages.size(); i++) {
             EventMessage eventMessage = (EventMessage) eventMessages.get(i);
-            if (eventMessage.getEvent() == EventMessage.PUT) {
+            if (eventMessage.getType() == EventType.PUT) {
                 put(eventMessage.getElement());
-            } else if (eventMessage.getEvent() == EventMessage.REMOVE) {
+            } else if (eventMessage.getType() == EventType.REMOVE) {
                 remove(eventMessage.getSerializableKey());
-            } else if (eventMessage.getEvent() == EventMessage.REMOVE_ALL) {
+            } else if (eventMessage.getType() == EventType.REMOVE_ALL) {
                 removeAll();
             } else {
                 LOG.error("Unknown event: " + eventMessage);
