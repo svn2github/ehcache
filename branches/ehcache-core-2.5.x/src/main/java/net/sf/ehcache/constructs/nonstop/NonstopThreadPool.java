@@ -20,9 +20,9 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -149,6 +149,13 @@ public class NonstopThreadPool {
     }
 
     /**
+     * Get the stack trace details of the nonstop thread for the current thread
+     */
+    public StackTraceElement[] getNonstopThreadStackTrace() {
+        return workerThreadLocal.get().getStackTrace();
+    }
+
+    /**
      * Private class
      *
      * @author Abhishek Sanoujam
@@ -163,6 +170,10 @@ public class NonstopThreadPool {
             this.worker = new Worker();
             threadFactory.newThread(worker).start();
             this.appThreadReference = new WeakWorkerReference(this.worker, Thread.currentThread(), gcedThreadsReferenceQueue);
+        }
+
+        public StackTraceElement[] getStackTrace() {
+            return worker.getStackTrace();
         }
 
         public void shutdownNow() {
@@ -195,6 +206,7 @@ public class NonstopThreadPool {
      *
      */
     private static class Worker implements Runnable {
+        private static final StackTraceElement[] EMPTY_STACK_TRACE = new StackTraceElement[0];
         private final WorkerTaskHolder workerTaskHolder;
         private volatile boolean shutdown;
         private volatile Thread workerThread;
@@ -202,6 +214,13 @@ public class NonstopThreadPool {
 
         public Worker() {
             this.workerTaskHolder = new WorkerTaskHolder();
+        }
+
+        public StackTraceElement[] getStackTrace() {
+            if (workerThread == null) {
+                return EMPTY_STACK_TRACE;
+            }
+            return workerThread.getStackTrace();
         }
 
         public void run() {
