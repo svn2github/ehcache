@@ -23,7 +23,11 @@
 
 
   <properties>
-
+    <kit.name>${project.artifactId}-${project.version}-distribution</kit.name>
+    <root.dir>${project.build.directory}/${kit.name}</root.dir>
+    <terracotta.kit.path>${project.build.directory}/tmp/terracotta</terracotta.kit.path>
+    <ehcache.sample.version>3.7.0-SNAPSHOT</ehcache.sample.version>
+    <gmaven-plugin.version>1.3</gmaven-plugin.version>
   </properties>
 
   <dependencies>  
@@ -36,6 +40,11 @@
     
     
     <!-- provided scope, used for packaging purpose only -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <scope>provided</scope>
+    </dependency>    
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-terracotta-bootstrap</artifactId>
@@ -65,8 +74,7 @@
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>
-    
+    </dependency>   
   </dependencies>
 
   <build>
@@ -238,28 +246,180 @@
       </plugin-->
     </plugins>
   </build>
-
+  
+  <profiles>
+    <profile>
+      <id>package-tc</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <version>${gmaven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>unjar-tc-kit</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <source>
+                    if (new File(project.properties['terracotta.kit.path']).exists()) {
+                      return
+                    }
+                    tc_kit_url = project.properties['tc-kit-url']
+                    if (tc_kit_url == null) {
+                      println "-Dtc-kit-url option is missing. Building the kit without Terracotta"
+                    } else {
+                      ant.mkdir(dir:project.build.directory)
+                      dest_file = project.build.directory + "/tc.tar.gz"
+                      if (tc_kit_url.startsWith("http")) {
+                        ant.get(src:tc_kit_url, dest:dest_file, usetimestamp:true)
+                      } else {
+                        ant.copy(file:tc_kit_url, tofile:dest_file)
+                      }
+                      tmp_dir = project.build.directory + "/tmp"
+                      ant.delete(dir:tmp_dir, quiet:true)
+                      ant.mkdir(dir:tmp_dir)
+                      ant.untar(src:dest_file, dest:tmp_dir, compression:"gzip")
+                      // assume only one folder inside tmp
+                      kit_path = null
+                      new File(tmp_dir).eachFile {
+                        kit_path = it
+                      }
+                      kit_path.renameTo(new File(project.properties['terracotta.kit.path']))
+                    }
+                  </source>
+                </configuration>                
+              </execution>
+              <execution>
+                <id>create-tarball</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>         
+                  <source>
+                    def srcdir = new File(project.basedir, "target/${kit.name}") 
+                    ant.tar(destfile: "${srcdir}.tar.gz", longfile: "gnu", compression: "gzip") {
+                      tarfileset(dir: "${srcdir}", prefix: "${kit.name}", excludes: "**/.placeholder,**/bin/**,**/lib/**,**/*.sh,**/*.bat")
+                      tarfileset(dir: "${srcdir}", prefix: "${kit.name}", includes: "**/bin/**,**/lib/**,**/*.sh,**/*.bat", filemode: "755")
+                    } 
+                  </source>
+                </configuration>
+              </execution>              
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.goldin.plugins</groupId>
+            <artifactId>maven-copy-plugin</artifactId>
+            <version>0.2.3.6</version>
+            <configuration>
+              <verbose>false</verbose>
+              <resources>
+                <!-- clean up -->
+                <resource>
+                  <runIf>{{ new File( project.build.directory, "${kit.name}" ).isDirectory() }}</runIf>
+                  <directory>${root.dir}</directory>
+                  <includes>
+                    <include>**/**</include>
+                  </includes>
+                  <clean>true</clean>
+                  <cleanEmptyDirectories>true</cleanEmptyDirectories>
+                </resource>
+                <!-- skeleton -->                
+                <resource>
+                  <targetPath>${root.dir}</targetPath>
+                  <directory>${basedir}/src/main/assembly/root</directory>
+                  <preservePath>true</preservePath>
+                </resource>
+                <!-- lib -->                
+                <resource>
+                  <targetPath>${root.dir}/lib</targetPath>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
+                </resource>
+                <resource>
+                  <targetPath>${root.dir}/lib</targetPath>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-jdk14</artifactId>
+                    </dependency>
+                    <dependency>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-api</artifactId>
+                    </dependency>
+                  </dependencies>
+                </resource>
+                <!-- src -->
+                <resource>
+                  <targetPath>${root.dir}/src</targetPath>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
+                  <unpack>true</unpack>
+                </resource>
+                <!-- javadoc -->
+                <resource>
+                  <targetPath>${root.dir}/javadoc</targetPath>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
+                  <unpack>true</unpack>
+                </resource>
+                <!-- terracotta -->                
+                <resource>
+                  <targetPath>${root.dir}/terracotta</targetPath>
+                  <directory>${terracotta.kit.path}</directory>
+                  <excludes>
+                    <exclude>**/ehcache/**</exclude>
+                    <exclude>**/quartz/**</exclude>
+                    <exclude>**/sessions/**</exclude>
+                  </excludes>
+                  <preservePath>true</preservePath>
+                </resource>
+                <resource>
+                  <targetPath>${root.dir}/samples</targetPath>
+                  <directory>${terracotta.kit.path}/ehcache/samples</directory>
+                  <preservePath>true</preservePath>
+                </resource>
+                <resource>
+                  <targetPath>${root.dir}/samples/colorcache/bin</targetPath>
+                  <directory>${basedir}/src/main/assembly</directory>
+                  <includes>
+                    <include>relative-paths.*</include>
+                  </includes>
+                </resource>
+                <resource>
+                  <targetPath>${root.dir}/samples/events/bin</targetPath>
+                  <directory>${basedir}/src/main/assembly</directory>
+                  <includes>
+                    <include>relative-paths.*</include>
+                  </includes>
+                </resource>                
+              </resources>
+            </configuration>
+            <executions>
+              <execution>
+                <id>prepare-terracotta</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+              </execution>
+            </executions>            
+          </plugin>        
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
   <repositories>
     <repository>
       <id>terracotta-snapshots</id>
       <url>http://www.terracotta.org/download/reflector/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
     </repository>
 
     <repository>
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
   </repositories>
 
@@ -267,22 +427,14 @@
     <pluginRepository>
       <id>terracotta-snapshots</id>
       <url>http://www.terracotta.org/download/reflector/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
     </pluginRepository>
     <pluginRepository>
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>maven-copy-plugin</id>
+      <url>http://evgeny-goldin.org/artifactory/repo/</url>
     </pluginRepository>    
   </pluginRepositories>
 
