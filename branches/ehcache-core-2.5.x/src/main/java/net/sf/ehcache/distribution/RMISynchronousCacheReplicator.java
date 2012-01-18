@@ -330,7 +330,7 @@ public class RMISynchronousCacheReplicator implements CacheReplicator {
      * @param cache
      * @return a list of {@link CachePeer} peers for the given cache, excluding the local peer.
      */
-    static List listRemoteCachePeers(Ehcache cache) {
+    static List<CachePeer> listRemoteCachePeers(Ehcache cache) {
         CacheManagerPeerProvider provider = cache.getCacheManager().getCacheManagerPeerProvider("RMI");
         return provider.listRemoteCachePeers(cache);
     }

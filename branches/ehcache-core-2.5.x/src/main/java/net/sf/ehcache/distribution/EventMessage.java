@@ -16,11 +16,10 @@
 
 package net.sf.ehcache.distribution;
 
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.lang.ref.SoftReference;
 
 /**
  * An Event Message, in respect of a particular cache.
@@ -35,62 +34,73 @@ import java.lang.ref.SoftReference;
  */
 public class EventMessage implements Serializable {
 
+    private static final long serialVersionUID = -293616939110963630L;
 
 
 
     /**
-     * A put or update event.
+     * Enumeration of event types.
      */
-    public static final int PUT = 0;
+    public enum EventType {
 
-    /**
-     * A remove or invalidate event.
-     */
-    public static final int REMOVE = 1;
-
-
-    /**
-     * A removeAll, which removes all elements from a cache
-     */
-    public static final int REMOVE_ALL = 3;
-
-    private static final long serialVersionUID = -293616939110963629L;
+        /**
+         * A put or update event.
+         */
+        PUT,
+        
+        /**
+         * A remove or invalidate event.
+         */
+        REMOVE,
+        
+        /**
+         * A removeAll, which removes all elements from a cache
+         */
+        REMOVE_ALL;
+    }
 
     /**
      * The event component.
      */
-    private final int event;
+    private final EventType type;
 
     /**
-     * The element component. This is held by a SoftReference, so as to prevent
-     * out of memory errors.
+     * The element component.
      */
-    private transient SoftReference elementSoftReference;
+    private final Element element;
+
     /**
      * The key component.
      */
     private final Serializable key;
 
-
     /**
-     * Used to check if the value has been GCed
+     * The associated cache.
      */
-    private final boolean wasElementNotNull;
-
+    private final transient Ehcache cache;
 
     /**
      * Full constructor.
      *
-     * @param event
+     * @param cache
+     * @param type
      * @param key
      * @param element
      */
-    public EventMessage(int event, Serializable key, Element element) {
-        this.event = event;
+    public EventMessage(Ehcache cache, EventType type, Serializable key, Element element) {
+        this.cache = cache;
+        this.type = type;
         this.key = key;
+        this.element = element;
+    }
 
-        wasElementNotNull = element != null;
-        elementSoftReference = new SoftReference(element);
+    /**
+     * Gets the associated {@code Ehcache}.
+     *
+     * @return the associated cache
+     */
+    public final Ehcache getEhcache() {
+        return cache;
     }
 
     /**
@@ -98,15 +108,15 @@ public class EventMessage implements Serializable {
      *
      * @return either {@link #PUT} or {@link #REMOVE}
      */
-    public final int getEvent() {
-        return event;
+    public final EventType getType() {
+        return type;
     }
 
     /**
      * @return the element component of the message. null if a {@link #REMOVE} event
      */
     public final Element getElement() {
-        return (Element) elementSoftReference.get();
+        return element;
     }
 
     /**
@@ -115,29 +125,4 @@ public class EventMessage implements Serializable {
     public final Serializable getSerializableKey() {
         return key;
     }
-
-
-    /**
-     * @return true if because of SoftReference GC this EventMessage is no longer valid
-     */
-    public boolean isValid() {
-        if (!wasElementNotNull) {
-            return true;
-        } else {
-            return getElement() != null;
-        }
-    }
-
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        Element element = getElement();
-        out.writeObject(element);
-    }
-
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        Element element = (Element) in.readObject();
-        elementSoftReference = new SoftReference(element);
-    }
 }
-

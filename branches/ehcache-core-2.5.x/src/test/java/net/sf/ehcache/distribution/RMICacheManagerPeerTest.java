@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import net.sf.ehcache.distribution.EventMessage.EventType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +185,7 @@ public class RMICacheManagerPeerTest extends AbstractRMITest {
 
         CachePeer cachePeer = new ManualRMICacheManagerPeerProvider().lookupRemoteCachePeer(rmiCachePeer.getUrl());
         Element element = new Element("1", new Date());
-        EventMessage eventMessage = new EventMessage(EventMessage.PUT, null, element);
+        EventMessage eventMessage = new EventMessage(null, EventType.PUT, null, element);
         List eventMessages = new ArrayList();
         eventMessages.add(eventMessage);
         cachePeer.send(eventMessages);
