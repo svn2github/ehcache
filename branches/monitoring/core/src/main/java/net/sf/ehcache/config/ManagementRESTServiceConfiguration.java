@@ -31,6 +31,11 @@ public class ManagementRESTServiceConfiguration {
         this.enabled = enabled;
     }
 
+    public ManagementRESTServiceConfiguration enabled(boolean enabled) {
+        setEnabled(enabled);
+        return this;
+    }
+
     public String getBind() {
         return bind;
     }
@@ -55,5 +60,10 @@ public class ManagementRESTServiceConfiguration {
 
     public void setBind(String bind) {
         this.bind = bind;
+    }
+
+    public ManagementRESTServiceConfiguration bind(String bind) {
+        setBind(bind);
+        return this;
     }
 }

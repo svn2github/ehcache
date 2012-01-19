@@ -874,6 +874,11 @@ public final class Configuration {
         }
     }
 
+    public final Configuration managementRESTService(ManagementRESTServiceConfiguration managementRESTServiceConfiguration) throws ObjectExistsException {
+        addManagementRESTService(managementRESTServiceConfiguration);
+        return this;
+    }
+
 
     /**
      * Builder method to set the default cache configuration, this can only be used once.
