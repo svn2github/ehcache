@@ -860,6 +860,10 @@ public final class Configuration {
         }
     }
 
+    /**
+     * @param managementRESTServiceConfiguration
+     * @throws ObjectExistsException
+     */
     public final void addManagementRESTService(ManagementRESTServiceConfiguration managementRESTServiceConfiguration) throws ObjectExistsException {
         if (this.managementRESTService != null) {
             throw new ObjectExistsException("The ManagementRESTService has already been configured");
@@ -874,7 +878,13 @@ public final class Configuration {
         }
     }
 
-    public final Configuration managementRESTService(ManagementRESTServiceConfiguration managementRESTServiceConfiguration) throws ObjectExistsException {
+    /**
+     * @param managementRESTServiceConfiguration
+     * @return
+     * @throws ObjectExistsException
+     */
+    public final Configuration managementRESTService(ManagementRESTServiceConfiguration managementRESTServiceConfiguration)
+            throws ObjectExistsException {
         addManagementRESTService(managementRESTServiceConfiguration);
         return this;
     }

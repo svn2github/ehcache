@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2011 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,30 +23,49 @@ public class ManagementRESTServiceConfiguration {
     private volatile boolean enabled = false;
     private volatile String bind = "0.0.0.0:9889";
 
+    /**
+     * @return
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * @param enabled
+     */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
+    /**
+     * @param enabled
+     * @return
+     */
     public ManagementRESTServiceConfiguration enabled(boolean enabled) {
         setEnabled(enabled);
         return this;
     }
 
+    /**
+     * @return
+     */
     public String getBind() {
         return bind;
     }
-    
+
+    /**
+     * @return
+     */
     public String getHost() {
         if (bind == null) {
             return null;
         }
         return bind.split("\\:")[0];
     }
-    
+
+    /**
+     * @return
+     */
     public int getPort() {
         if (bind == null) {
             return -1;
@@ -58,10 +77,17 @@ public class ManagementRESTServiceConfiguration {
         return Integer.parseInt(split[1]);
     }
 
+    /**
+     * @param bind
+     */
     public void setBind(String bind) {
         this.bind = bind;
     }
 
+    /**
+     * @param bind
+     * @return
+     */
     public ManagementRESTServiceConfiguration bind(String bind) {
         setBind(bind);
         return this;
