@@ -1726,7 +1726,7 @@ public class CacheManager {
      * @return the SoftLockFactory or null if there was no soft lock factory created for the specified cache
      */
     public SoftLockFactory getSoftLockFactory(String cacheName) {
-        Ehcache cache = getCache(cacheName);
+        Ehcache cache = getEhcache(cacheName);
         if (cache == null) {
             throw new CacheException("cache '" + cacheName + "' is not registered");
         }
