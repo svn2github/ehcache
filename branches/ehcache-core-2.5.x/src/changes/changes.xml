@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+     <release version="2.5.1" date="2012-01" description="Bug Fix Release">
+        	<action dev="Alex Snaps" type="update" issue="EHC-882">
+            Make @IgnoreSizeOf inheritable by users
+             </action>
+             <action dev="Chris Dennis" type="update" issue="EHC-900">
+            SizeOfPolicy cannot be set/add if TransactionManagerLookup was previously set/add
+             </action>
+            <action dev="Chris Dennis" type="update" issue="EHC-903">
+           Not release lock in SelectableConcurrentHashMap
+             </action>
+            <action dev="Chris Dennis" type="update" issue="EHC-909">
+           Can probably add the java.lang.Class type to the built-in ignore list
+             </action>
+              <action dev="Alex Snaps" type="update" issue="EHC-910">
+           Agent shouldn't put in System props by default
+             </action>
+             </release>
      <release version="2.5.0" date="2011-11" description="New Release">
         	<action dev="Ludovic Orban" type="update" issue="EHC-849">
             transactionalMode setting via code has no effect
