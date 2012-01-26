@@ -8,6 +8,7 @@
                 <xs:element maxOccurs="1" minOccurs="0" ref="sizeOfPolicy"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="transactionManagerLookup"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="cacheManagerEventListenerFactory"/>
+                <xs:element maxOccurs="1" minOccurs="0" ref="managementRESTService"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerProviderFactory"/>
                 <xs:element maxOccurs="unbounded" minOccurs="0" ref="cacheManagerPeerListenerFactory"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="terracottaConfig"/>
@@ -41,6 +42,13 @@
             <xs:attribute name="class" use="required"/>
             <xs:attribute name="properties" use="optional"/>
             <xs:attribute name="propertySeparator" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="managementRESTService">
+        <xs:complexType>
+            <xs:attribute name="enabled" use="required"/>
+            <xs:attribute name="host" use="optional"/>
+            <xs:attribute name="bind" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="cacheManagerPeerProviderFactory">
