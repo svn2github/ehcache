@@ -867,8 +867,8 @@ public final class Configuration {
      * @throws ObjectExistsException
      *             if the REST management config has already been configured
      */
-    public final Configuration managementRESTService(ManagementRESTServiceConfiguration managementRESTServiceConfiguration) throws ObjectExistsException {
-        addManagementRESTService(managementRESTServiceConfiguration);
+    public final Configuration managementRESTService(ManagementRESTServiceConfiguration cfg) throws ObjectExistsException {
+        addManagementRESTService(cfg);
         return this;
     }
 
