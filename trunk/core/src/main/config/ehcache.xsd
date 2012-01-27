@@ -46,8 +46,7 @@
     </xs:element>
     <xs:element name="managementRESTService">
         <xs:complexType>
-            <xs:attribute name="enabled" use="required"/>
-            <xs:attribute name="host" use="optional"/>
+            <xs:attribute name="enabled" type="xs:boolean" use="required"/>
             <xs:attribute name="bind" use="optional"/>
         </xs:complexType>
     </xs:element>
