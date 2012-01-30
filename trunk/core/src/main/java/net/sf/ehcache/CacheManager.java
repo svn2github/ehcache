@@ -15,7 +15,6 @@
  */
 package net.sf.ehcache;
 
-import com.terracotta.management.embedded.StandaloneServer;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
@@ -41,6 +40,7 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.event.NonstopCacheEventListener;
+import net.sf.ehcache.management.ManagementServer;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
@@ -64,6 +64,7 @@ import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -153,6 +154,8 @@ public class CacheManager {
 
     private static final IdentityHashMap<CacheManager, String> CACHE_MANAGERS_REVERSE_MAP = new IdentityHashMap<CacheManager, String>();
 
+    private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
+
     /**
      * Status of the Cache Manager
      */
@@ -208,7 +211,7 @@ public class CacheManager {
 
     private volatile TransactionController transactionController;
 
-    private volatile StandaloneServer standaloneRestServer;
+    private volatile ManagementServer standaloneRestServer;
 
     private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
 
@@ -435,13 +438,12 @@ public class CacheManager {
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
         if (managementRESTService != null && managementRESTService.isEnabled()) {
             try {
-                standaloneRestServer = new StandaloneServer();
-                standaloneRestServer.setBasePackage("net.sf.ehcache.management");
-                standaloneRestServer.setHost(managementRESTService.getHost());
-                standaloneRestServer.setPort(managementRESTService.getPort());
+                Class<ManagementServer> managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
+                standaloneRestServer = managementServerClass.newInstance();
+                standaloneRestServer.setConfiguration(managementRESTService);
                 standaloneRestServer.start();
             } catch (Exception e) {
-                LOG.warn("Failed to initialize the ManagementRESTService", e);
+                LOG.warn("Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
             }
         }
     }
