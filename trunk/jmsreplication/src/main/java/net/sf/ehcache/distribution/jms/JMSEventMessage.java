@@ -17,7 +17,7 @@
 package net.sf.ehcache.distribution.jms;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.distribution.EventMessage;
+import net.sf.ehcache.distribution.LegacyEventMessage;
 
 import java.io.Serializable;
 
@@ -29,7 +29,7 @@ import java.io.Serializable;
  * @author benoit.perroud@elca.ch
  * @author Greg Luck
  */
-public class JMSEventMessage extends EventMessage {
+public class JMSEventMessage extends LegacyEventMessage {
 
     /**
      * A JMS message property which contains the name of the cache to operate on.

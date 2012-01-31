@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.distribution.jms;
 
-import net.sf.ehcache.distribution.EventMessage;
+import net.sf.ehcache.distribution.LegacyEventMessage;
 
 /**
  * Actions that tie in with EventMessage actions. EventMessage has not been updated to use enums.
@@ -28,17 +28,17 @@ public enum Action {
     /**
      *
      */
-    PUT(EventMessage.PUT),
+    PUT(LegacyEventMessage.PUT),
 
     /**
      *
      */
-    REMOVE(EventMessage.REMOVE),
+    REMOVE(LegacyEventMessage.REMOVE),
 
     /**
      *
      */
-    REMOVE_ALL(EventMessage.REMOVE_ALL),
+    REMOVE_ALL(LegacyEventMessage.REMOVE_ALL),
 
     /**
      *
