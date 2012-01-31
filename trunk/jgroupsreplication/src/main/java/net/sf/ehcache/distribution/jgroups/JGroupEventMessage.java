@@ -17,10 +17,11 @@
 
 package net.sf.ehcache.distribution.jgroups;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.distribution.EventMessage;
 
 import java.io.Serializable;
+
+import net.sf.ehcache.Element;
+import net.sf.ehcache.distribution.LegacyEventMessage;
 
 /**
  * An EventMessage used for JGroups
@@ -30,7 +31,7 @@ import java.io.Serializable;
  * @version $Id$
  *          EventMessage class for the JGroupsCacheReplicator.
  */
-public class JGroupEventMessage extends EventMessage {
+public class JGroupEventMessage extends LegacyEventMessage {
 
     /**
      * Request for bootstrap
@@ -128,15 +129,15 @@ public class JGroupEventMessage extends EventMessage {
     public static String getEventName(int event) {
         final String eventName;
         switch (event) {
-            case EventMessage.PUT: {
+            case LegacyEventMessage.PUT: {
                 eventName = "PUT";
                 break;
             }
-            case EventMessage.REMOVE: {
+            case LegacyEventMessage.REMOVE: {
                 eventName = "REMOVE";
                 break;
             }
-            case EventMessage.REMOVE_ALL: {
+            case LegacyEventMessage.REMOVE_ALL: {
                 eventName = "REMOVE_ALL";
                 break;
             }
