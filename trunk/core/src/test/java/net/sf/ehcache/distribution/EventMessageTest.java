@@ -33,7 +33,7 @@ import java.io.ObjectOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
-import net.sf.ehcache.distribution.EventMessage.EventType;
+import net.sf.ehcache.distribution.RmiEventMessage.RmiEventType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,23 +80,23 @@ public class EventMessageTest {
     @Test
     public void testSerialization() throws IOException, ClassNotFoundException {
 
-        EventMessage eventMessage = new EventMessage(null, EventType.PUT, "key", new Element("key", "element"));
+        RmiEventMessage eventMessage = new RmiEventMessage(null, RmiEventType.PUT, "key", new Element("key", "element"));
 
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bout);
         oos.writeObject(eventMessage);
         byte[] serializedValue = bout.toByteArray();
         oos.close();
-        EventMessage eventMessage2 = null;
+        RmiEventMessage eventMessage2 = null;
         ByteArrayInputStream bin = new ByteArrayInputStream(serializedValue);
         ObjectInputStream ois = new ObjectInputStream(bin);
-        eventMessage2 = (EventMessage) ois.readObject();
+        eventMessage2 = (RmiEventMessage) ois.readObject();
         ois.close();
 
         //Check after Serialization
         assertEquals("key", eventMessage2.getSerializableKey());
         assertEquals("element", eventMessage2.getElement().getObjectValue());
-        assertEquals(EventType.PUT, eventMessage2.getType());
+        assertEquals(RmiEventType.PUT, eventMessage2.getType());
     }
 
 
