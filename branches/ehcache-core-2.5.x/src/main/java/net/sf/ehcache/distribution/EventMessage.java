@@ -16,10 +16,9 @@
 
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-
 import java.io.Serializable;
+
+import net.sf.ehcache.Ehcache;
 
 /**
  * An Event Message, in respect of a particular cache.
@@ -36,39 +35,6 @@ public class EventMessage implements Serializable {
 
     private static final long serialVersionUID = -293616939110963630L;
 
-
-
-    /**
-     * Enumeration of event types.
-     */
-    public enum EventType {
-
-        /**
-         * A put or update event.
-         */
-        PUT,
-        
-        /**
-         * A remove or invalidate event.
-         */
-        REMOVE,
-        
-        /**
-         * A removeAll, which removes all elements from a cache
-         */
-        REMOVE_ALL;
-    }
-
-    /**
-     * The event component.
-     */
-    private final EventType type;
-
-    /**
-     * The element component.
-     */
-    private final Element element;
-
     /**
      * The key component.
      */
@@ -83,15 +49,11 @@ public class EventMessage implements Serializable {
      * Full constructor.
      *
      * @param cache
-     * @param type
      * @param key
-     * @param element
      */
-    public EventMessage(Ehcache cache, EventType type, Serializable key, Element element) {
+    public EventMessage(Ehcache cache, Serializable key) {
         this.cache = cache;
-        this.type = type;
         this.key = key;
-        this.element = element;
     }
 
     /**
@@ -101,22 +63,6 @@ public class EventMessage implements Serializable {
      */
     public final Ehcache getEhcache() {
         return cache;
-    }
-
-    /**
-     * Gets the event.
-     *
-     * @return either {@link #PUT} or {@link #REMOVE}
-     */
-    public final EventType getType() {
-        return type;
-    }
-
-    /**
-     * @return the element component of the message. null if a {@link #REMOVE} event
-     */
-    public final Element getElement() {
-        return element;
     }
 
     /**

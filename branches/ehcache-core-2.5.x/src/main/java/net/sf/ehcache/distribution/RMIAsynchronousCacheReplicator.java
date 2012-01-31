@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import net.sf.ehcache.distribution.EventMessage.EventType;
+import net.sf.ehcache.distribution.RmiEventMessage.RmiEventType;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -156,7 +156,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new EventMessage(cache, EventType.PUT, null, element));
+            addToReplicationQueue(new RmiEventMessage(cache, RmiEventType.PUT, null, element));
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
@@ -165,7 +165,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new EventMessage(cache, EventType.REMOVE, element.getKey(), null));
+            addToReplicationQueue(new RmiEventMessage(cache, RmiEventType.REMOVE, element.getKey(), null));
         }
 
     }
@@ -198,7 +198,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new EventMessage(cache, EventType.PUT, null, element));
+            addToReplicationQueue(new RmiEventMessage(cache, RmiEventType.PUT, null, element));
         } else {
             if (!element.isKeySerializable()) {
                 if (LOG.isWarnEnabled()) {
@@ -207,7 +207,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
                 }
                 return;
             }
-            addToReplicationQueue(new EventMessage(cache, EventType.REMOVE, element.getKey(), null));
+            addToReplicationQueue(new RmiEventMessage(cache, RmiEventType.REMOVE, element.getKey(), null));
         }
     }
 
@@ -239,7 +239,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             }
             return;
         }
-        addToReplicationQueue(new EventMessage(cache, EventType.REMOVE, element.getKey(), null));
+        addToReplicationQueue(new RmiEventMessage(cache, RmiEventType.REMOVE, element.getKey(), null));
     }
 
 
@@ -264,7 +264,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
             return;
         }
 
-        addToReplicationQueue(new EventMessage(cache, EventType.REMOVE_ALL, null, null));
+        addToReplicationQueue(new RmiEventMessage(cache, RmiEventType.REMOVE_ALL, null, null));
     }
 
 
@@ -276,7 +276,7 @@ public class RMIAsynchronousCacheReplicator extends RMISynchronousCacheReplicato
      *
      * @param cacheEventMessage
      */
-    protected void addToReplicationQueue(EventMessage eventMessage) {
+    protected void addToReplicationQueue(RmiEventMessage eventMessage) {
         if (!replicationThread.isAlive()) {
             LOG.error("CacheEventMessages cannot be added to the replication queue because the replication thread has died.");
         } else {
