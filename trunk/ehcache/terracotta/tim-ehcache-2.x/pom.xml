@@ -9,9 +9,10 @@
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.terracotta.modules</groupId>
+    <groupId>org.terracotta.forge</groupId>
     <artifactId>tim-parent</artifactId>
     <version>1.9.0-SNAPSHOT</version>
+    <relativePath></relativePath>
   </parent>
 
   <artifactId>tim-ehcache-2.x</artifactId>
@@ -68,4 +69,25 @@
     </resources>
   </build>
 
+  <repositories>
+    <repository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </repository>  
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>   
+    </repository>   
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </pluginRepository>    
+  </pluginRepositories>  
 </project>
