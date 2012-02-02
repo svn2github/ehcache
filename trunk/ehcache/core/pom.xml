@@ -35,37 +35,16 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.6.1</version>
+      <version>${slf4j.version}</version>
       <scope>compile</scope>
     </dependency>
-
-    <!-- With slf4j, users must choose a concrete logging implementation
-      at deploy time, which they provide The maven dependency declarations are
-      reproduced here for convenience.
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>1.6.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.6.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>1.6.1</version>
-      </dependency>
-    -->
 
     <!-- Provided scope. This one, or another concrete logging implementation
       must be provided. -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>1.6.1</version>
+      <version>${slf4j.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -94,7 +73,7 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>sizeof-agent</artifactId>
-      <version>1.0.2-SNAPSHOT</version>
+      <version>${sizeof-agent.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -281,7 +260,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
 
 
       <plugin>
