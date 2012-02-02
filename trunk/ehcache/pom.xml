@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>forge-parent</artifactId>
-    <groupId>org.terracotta.forge</groupId>
-    <version>3.0-SNAPSHOT</version>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-parent</artifactId>
+    <version>2.3</version>
   </parent>
 
   <name>ehcache-root</name>
@@ -23,7 +23,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>  
     <skipDeploy>false</skipDeploy>
   </properties>
 
@@ -139,6 +138,7 @@
       </dependency>
     </dependencies>   
   </dependencyManagement>
+  
   <build>
     <pluginManagement>                                                           
       <plugins>
