@@ -21,7 +21,6 @@
   <description>System tests for ehcache-terracotta</description>
   
   <properties>
-    <tc.tests.info.appserver.dso.enabled>false</tc.tests.info.appserver.dso.enabled>
   </properties>
   
   <dependencies>
@@ -122,15 +121,6 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.terracotta</groupId>
-          <artifactId>maven-forge-plugin</artifactId>
-          <version>1.0.5-SNAPSHOT</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
