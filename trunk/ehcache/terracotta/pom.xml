@@ -15,34 +15,14 @@
 
 
   <modules>
-    <module>tim-ehcache</module>
+    <module>tim-ehcache-2.x</module>
     <module>bootstrap</module>
   </modules>
 
   <properties>
     <terracotta-toolkit-1.0-api.version>1.0.0</terracotta-toolkit-1.0-api.version>
     <terracotta.core.version>3.7.0-SNAPSHOT</terracotta.core.version>
-    <tim-api.version>1.3.0</tim-api.version>
   </properties>
-
-  <profiles>
-    <profile>
-      <id>deploy-sourceforge</id>
-        <distributionManagement>
-          <snapshotRepository>
-            <id>sourceforge-snapshots</id>
-            <name>Sourceforge Snapshots</name>
-            <uniqueVersion>false</uniqueVersion>
-            <url>http://oss.sonatype.org/content/repositories/sourceforge-snapshots</url>
-          </snapshotRepository>        
-          <repository>
-            <id>sourceforge-releases</id>
-            <name>Sourceforge Releases</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-          </repository>
-        </distributionManagement>
-    </profile>
-  </profiles>  
 
   <repositories>
     <repository>
