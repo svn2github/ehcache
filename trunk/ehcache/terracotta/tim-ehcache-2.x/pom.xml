@@ -40,6 +40,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.terracotta</groupId>
+      <artifactId>terracotta</artifactId>
+      <version>${terracotta.core.version}</version>
+      <scope>provided</scope>
+    </dependency>    
+    <dependency>
       <groupId>org.terracotta.toolkit</groupId>
       <artifactId>terracotta-toolkit-1.5</artifactId>
       <scope>compile</scope>
