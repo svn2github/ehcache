@@ -70,6 +70,7 @@ public class HibernateShutdownClient1 extends ClientBase {
       assertThreadShutdown(afterShutdownThreads);
 
       pass();
+      System.exit(0);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -146,7 +147,7 @@ public class HibernateShutdownClient1 extends ClientBase {
 
   public void testClusteredCache() {
     try {
-      test(null, getClusteringToolkit());
+      runTest(null, getClusteringToolkit());
       getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // wait for client2 to assert clustered cache
       getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // line up for client2 to wait for client1
                                                                           // shutdown
@@ -165,7 +166,7 @@ public class HibernateShutdownClient1 extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     HibernateUtil.configure("/hibernate-config/shutdowntest/hibernate.cfg.xml");
     HibernateUtil.dropAndCreateDatabaseSchema();
 

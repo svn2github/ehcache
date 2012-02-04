@@ -22,7 +22,7 @@ public class ServerMapL2EvictionReachesL1TestClient extends ServerMapClientBase 
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
     System.out.println("Running test with concurrency=1");
     testWith(cache, 3000, 100);
 

@@ -25,7 +25,7 @@ public class CacheLocksClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     // put locks in cache
     ReadWriteLock rwlock = toolkit.getReadWriteLock("CacheLocksClient-lock");
     cache.put(new Element("CacheLocksClient-lock", rwlock));

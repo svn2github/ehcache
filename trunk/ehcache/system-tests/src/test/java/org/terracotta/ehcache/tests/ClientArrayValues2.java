@@ -16,7 +16,7 @@ public class ClientArrayValues2 extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
       Element elem = cache.get("key");
       if(elem == null) {
         throw new AssertionError("No element!");

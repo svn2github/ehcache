@@ -31,7 +31,7 @@ public class CacheSizeTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
       final int numElems = 5000;
       Assert.assertEquals(Consistency.STRONG, cache.getCacheConfiguration().getTerracottaConfiguration()
           .getConsistency());

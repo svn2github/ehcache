@@ -6,44 +6,37 @@ import net.sf.ehcache.Element;
 import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.cluster.ClusterInfo;
-import org.terracotta.coordination.Barrier;
 
 import java.util.concurrent.TimeUnit;
 
 public class ShutdownClient2 extends ClientBase {
 
-  private Barrier barrier;
-
   public ShutdownClient2(String[] args) {
     super("test", args);
   }
 
-  public static void main(String[] args) {
-    new ShutdownClient2(args).doTest();
-  }
-
-  public void doTest() {
+  @Override
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     try {
-      barrier = getClusteringToolkit().getBarrier("shutdownBarrier", 2);
-      barrier.await(TimeUnit.SECONDS.toMillis(3 * 60));
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
       System.out.println("Current connected clients: " + getConnectedClients());
 
-      test(setupCache(), getClusteringToolkit());
+      testCache(cache, toolkit);
 
-      barrier.await(TimeUnit.SECONDS.toMillis(3 * 60));
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
       System.out.println("Waiting for client1 to shutdown...");
       Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 
       Assert.assertEquals(1, getConnectedClients());
 
       pass();
+      System.exit(0);
     } catch (Throwable e) {
       e.printStackTrace();
     }
   }
 
-  @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void testCache(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     Element element = cache.get("key");
 
     if (element == null) { throw new AssertionError(); }

@@ -33,13 +33,8 @@ public class IncoherentNodesTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
       doTest(cache, toolkit, true);
-    }
-
-    @Override
-    public void pass() {
-      super.pass();
     }
 
     public void doTest(Cache cache, ClusteringToolkit toolkit, final boolean killInBetween) {
@@ -111,7 +106,7 @@ public class IncoherentNodesTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
       doTest(cache, toolkit, false);
     }
 

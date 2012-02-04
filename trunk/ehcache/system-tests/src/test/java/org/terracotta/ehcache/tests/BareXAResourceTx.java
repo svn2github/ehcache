@@ -35,7 +35,7 @@ public class BareXAResourceTx extends AbstractTxClient {
   private Cache              cache;
 
   @Override
-  protected void test(Cache theCache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache theCache, ClusteringToolkit toolkit) throws Throwable {
     tm = new DummyTransactionManagerLookup().getTransactionManager();
     this.cache = theCache;
 

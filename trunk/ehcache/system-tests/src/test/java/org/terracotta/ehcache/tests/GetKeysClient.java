@@ -26,7 +26,7 @@ public class GetKeysClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) {
     cache.put(new Element(new Date(), "now"));
 
     List keys = cache.getKeys();

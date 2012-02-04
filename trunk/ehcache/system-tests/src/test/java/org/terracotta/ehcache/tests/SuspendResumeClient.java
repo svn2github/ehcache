@@ -27,7 +27,7 @@ public class SuspendResumeClient extends AbstractTxClient {
 
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(); 
     final TransactionManager txnManager = lookup.getTransactionManager();
     int commitCount = 0;

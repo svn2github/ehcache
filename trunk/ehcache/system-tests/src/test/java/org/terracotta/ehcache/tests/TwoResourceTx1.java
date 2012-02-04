@@ -20,7 +20,7 @@ public class TwoResourceTx1 extends AbstractTxClient {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     Cache cache2 = getCacheManager().getCache("test2");
     final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
     final TransactionManager txnManager = lookup.getTransactionManager();

@@ -21,7 +21,7 @@ public class ServerMapCapacityEvictionExpressTestClient extends ServerMapClientB
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
     int size = cache.getSize();
     assertEquals(0, size);
     System.out.println("Client populating cache.");

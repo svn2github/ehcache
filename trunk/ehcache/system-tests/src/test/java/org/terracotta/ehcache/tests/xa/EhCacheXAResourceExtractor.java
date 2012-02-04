@@ -6,8 +6,9 @@ package org.terracotta.ehcache.tests.xa;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.transaction.xa.XATransactionStore;
 
-import javax.transaction.xa.XAResource;
 import java.lang.reflect.Field;
+
+import javax.transaction.xa.XAResource;
 
 public class EhCacheXAResourceExtractor {
 

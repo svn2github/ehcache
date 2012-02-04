@@ -30,15 +30,11 @@ public class ShutdownClient1 extends ClientBase {
     super("test", args);
   }
 
-  public static void main(String[] args) throws Exception {
-    ShutdownClient1 client = new ShutdownClient1(args);
-    client.doTest();
-  }
-
-  public void doTest() throws Exception {
+  @Override
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
 
-    testClusteredCache();
+    testClusteredCache(cache, toolkit);
 
     for (int i = 0; i < 10; i++) {
       System.out.println("***** Iteration " + (i + 1) + " *****");
@@ -48,9 +44,10 @@ public class ShutdownClient1 extends ClientBase {
       storeL1ClassLoaderWeakReferences(getCacheManager().getCache("test"));
 
       shutdownExpressClient();
-      Thread.sleep(TimeUnit.SECONDS.toMillis(30));
-
       clearTerracottaClient();
+      System.runFinalization();
+
+      Thread.sleep(TimeUnit.SECONDS.toMillis(30));
     }
 
     waitUntilLastChanceThreadsAreGone(6 * 60);
@@ -64,6 +61,7 @@ public class ShutdownClient1 extends ClientBase {
     assertThreadShutdown(afterShutdownThreads);
 
     pass();
+    System.exit(0);
   }
 
   private void waitUntilLastChanceThreadsAreGone(int seconds) throws InterruptedException {
@@ -113,11 +111,12 @@ public class ShutdownClient1 extends ClientBase {
     }
   }
 
-  public void testClusteredCache() {
+  public void testClusteredCache(Cache cache, ClusteringToolkit toolkit) {
     try {
-      test(setupCache(), getClusteringToolkit());
+      testCache(cache, toolkit);
       getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // wait for client2 to assert clustered cache
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // line up for client2 to wait for client1 shutdown
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // line up for client2 to wait for client1
+                                                                          // shutdown
     } catch (Throwable e) {
       e.printStackTrace();
     }
@@ -128,8 +127,7 @@ public class ShutdownClient1 extends ClientBase {
     getTerracottaClient().shutdown();
   }
 
-  @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void testCache(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     cache.put(new Element("key", "value"));
 
     Assert.assertEquals(StorageStrategy.DCV2, cache.getCacheConfiguration().getTerracottaConfiguration()

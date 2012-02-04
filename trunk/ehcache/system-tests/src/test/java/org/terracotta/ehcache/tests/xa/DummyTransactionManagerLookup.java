@@ -6,8 +6,9 @@ package org.terracotta.ehcache.tests.xa;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 
-import javax.transaction.TransactionManager;
 import java.util.Properties;
+
+import javax.transaction.TransactionManager;
 
 public class DummyTransactionManagerLookup implements TransactionManagerLookup {
 

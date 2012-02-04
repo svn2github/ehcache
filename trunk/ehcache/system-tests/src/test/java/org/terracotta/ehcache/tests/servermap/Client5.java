@@ -19,7 +19,7 @@ public class Client5 extends ServerMapClientBase {
   }
 
   @Override
-  protected void test(final Cache cache, final ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(final Cache cache, final ClusteringToolkit clusteringToolkit) throws Throwable {
     BasicServerMapExpressTestHelper.populateCache(cache);
     cache.put(new Element("client1-exited", "true"));
 

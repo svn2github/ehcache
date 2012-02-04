@@ -24,7 +24,7 @@ public class SerializationWriteBehindClient2 extends AbstractWriteBehindClient {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     Thread.sleep(60000);
   }

@@ -36,7 +36,7 @@ public class ClusterCacheEventsRejoinEnabledClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     final int nodeId = getBarrierForAllClients().await();
 
     final CacheCluster cluster = cache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);

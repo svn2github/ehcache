@@ -19,7 +19,7 @@ public class ServerMapClearExpressTestClient1 extends ServerMapClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
     ServerMapClearTestHelper.doTest(cache, clusteringToolkit, dsoMBean);
   }
 

@@ -19,7 +19,7 @@ public class SimpleTx2 extends AbstractTxClient {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
 
     final TransactionManager txnManager = lookup.getTransactionManager();

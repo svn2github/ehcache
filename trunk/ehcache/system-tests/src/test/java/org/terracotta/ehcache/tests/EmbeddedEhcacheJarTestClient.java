@@ -16,7 +16,7 @@ public class EmbeddedEhcacheJarTestClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     ClusteredMap<String, String> map = toolkit.getMap("testMap");
     Class ehcacheClass = map.getClass().getClassLoader().loadClass("net.sf.ehcache.Ehcache");
     // Verify that the Ehcache.class loaded from the ClusteredStateLoader is the same as that loaded from the app. Since

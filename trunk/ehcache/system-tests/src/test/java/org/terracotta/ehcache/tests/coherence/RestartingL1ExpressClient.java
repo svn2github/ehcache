@@ -38,7 +38,7 @@ public class RestartingL1ExpressClient extends ClientBase {
   // n-1 nodes assert coherent
   // 1 node restarts, asserts cache coherent
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     barrier = toolkit.getBarrier("CacheCoherenceExpressClient", RestartingL1ExpressTest.CLIENT_COUNT);
     Assert.assertEquals(true, cache.isClusterCoherent());
     Assert.assertEquals(true, cache.isNodeCoherent());

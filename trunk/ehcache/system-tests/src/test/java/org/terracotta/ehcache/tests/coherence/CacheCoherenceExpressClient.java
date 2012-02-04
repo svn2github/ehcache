@@ -25,7 +25,7 @@ public class CacheCoherenceExpressClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     barrier = toolkit.getBarrier("CacheCoherenceExpressClient", CacheCoherenceExpressTest.CLIENT_COUNT);
     int index = barrier.await();
     id = "" + index;

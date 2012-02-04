@@ -16,12 +16,17 @@ import java.util.concurrent.BrokenBarrierException;
 public abstract class ClientBase extends AbstractClientBase {
   private static final String MANAGER_UTIL_CLASS_NAME                                    = "com.tc.object.bytecode.ManagerUtil";
   private static final String MANAGER_UTIL_WAITFORALLCURRENTTRANSACTIONTOCOMPLETE_METHOD = "waitForAllCurrentTransactionsToComplete";
+  private static final String MANAGER_UTIL_GETCLIENTID_METHOD                            = "getClientID";
 
   private final String        name;
 
-  private CacheManager        cacheManager;
+  protected CacheManager      cacheManager;
   private TerracottaClient    terracottaClient;
   private Barrier             barrier;
+
+  public ClientBase(String[] args) {
+    this("test", args);
+  }
 
   public ClientBase(String cacheName, String args[]) {
     super(args);
@@ -30,7 +35,7 @@ public abstract class ClientBase extends AbstractClientBase {
 
   public void run() {
     try {
-      test(setupCache(), getClusteringToolkit());
+      runTest(setupCache(), getClusteringToolkit());
       pass();
       System.exit(0);
     } catch (Throwable t) {
@@ -46,8 +51,8 @@ public abstract class ClientBase extends AbstractClientBase {
     return barrier;
   }
 
-  protected final void waitForAllClients() throws InterruptedException, BrokenBarrierException {
-    getBarrierForAllClients().await();
+  protected final int waitForAllClients() throws InterruptedException, BrokenBarrierException {
+    return getBarrierForAllClients().await();
   }
 
   protected Cache setupCache() {
@@ -55,7 +60,7 @@ public abstract class ClientBase extends AbstractClientBase {
     return cacheManager.getCache(name);
   }
 
-  public CacheManager getCacheManager() {
+  protected CacheManager getCacheManager() {
     return cacheManager;
   }
 
@@ -73,9 +78,10 @@ public abstract class ClientBase extends AbstractClientBase {
   public synchronized void clearTerracottaClient() {
     terracottaClient = null;
     cacheManager = null;
+    barrier = null;
   }
 
-  protected abstract void test(Cache cache, ClusteringToolkit toolkit) throws Throwable;
+  protected abstract void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable;
 
   // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
   public void waitForAllCurrentTransactionsToComplete() {
@@ -83,6 +89,17 @@ public abstract class ClientBase extends AbstractClientBase {
       ClassLoader cl = getClusteringToolkit().getList("testList").getClass().getClassLoader();
       Class managerUtil = cl.loadClass(MANAGER_UTIL_CLASS_NAME);
       managerUtil.getMethod(MANAGER_UTIL_WAITFORALLCURRENTTRANSACTIONTOCOMPLETE_METHOD).invoke(null);
+    } catch (Exception e) {
+      throw new AssertionError(e);
+    }
+  }
+
+  // work around for ManagerUtil.getClientID
+  public String getClientID() {
+    try {
+      ClassLoader cl = getClusteringToolkit().getMap("testMap").getClass().getClassLoader();
+      Class managerUtil = cl.loadClass(MANAGER_UTIL_CLASS_NAME);
+      return (String) managerUtil.getMethod(MANAGER_UTIL_GETCLIENTID_METHOD).invoke(null);
     } catch (Exception e) {
       throw new AssertionError(e);
     }

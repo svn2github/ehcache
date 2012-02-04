@@ -31,6 +31,10 @@ import javax.transaction.TransactionManager;
 public class AbstractCacheTestBase extends AbstractTestBase {
   protected final String ehcacheConfigPath;
 
+  public AbstractCacheTestBase(TestConfig testConfig, Class<? extends ClientBase>... c) {
+    this("basic-cache-test.xml", testConfig, c);
+  }
+
   public AbstractCacheTestBase(final String ehcacheConfigPath, TestConfig testConfig) {
     this(ehcacheConfigPath, testConfig, Client1.class, Client2.class);
     testConfig.getClientConfig().setParallelClients(false);

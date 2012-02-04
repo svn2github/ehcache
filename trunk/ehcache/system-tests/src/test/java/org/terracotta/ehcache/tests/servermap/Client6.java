@@ -16,7 +16,7 @@ public class Client6 extends ServerMapClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
     assertClient1Exited(cache);
     BasicServerMapExpressTestHelper.assertValuesInCache(cache);
   }

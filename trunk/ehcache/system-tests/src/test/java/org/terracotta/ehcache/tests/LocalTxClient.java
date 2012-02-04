@@ -36,7 +36,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     cache1 = cache;
     transactionController = cache1.getCacheManager().getTransactionController();
     cache1.getCacheManager().getTransactionController().setDefaultTransactionTimeout(120);

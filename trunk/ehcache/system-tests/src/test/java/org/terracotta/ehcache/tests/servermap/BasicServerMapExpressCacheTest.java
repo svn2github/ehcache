@@ -34,7 +34,7 @@ public class BasicServerMapExpressCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
       int index = getBarrierForAllClients().await();
       if (index == 0) {
         System.out.println("Client-" + index + ": populating cache");

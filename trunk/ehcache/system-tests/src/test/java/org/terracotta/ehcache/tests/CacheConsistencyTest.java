@@ -29,7 +29,7 @@ public class CacheConsistencyTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
       Cache strongConsistencyCache = cache.getCacheManager().getCache("strongConsistencyCache");
       Cache eventualConsistencyCache = cache.getCacheManager().getCache("eventualConsistencyCache");
 

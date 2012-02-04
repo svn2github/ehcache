@@ -21,7 +21,7 @@ public class ServerMapL2EvictionReachesOneL1Verifier extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
     System.out.println("in the verifier");
 
     EvictionCountingEventListener countingListener = new EvictionCountingEventListener(

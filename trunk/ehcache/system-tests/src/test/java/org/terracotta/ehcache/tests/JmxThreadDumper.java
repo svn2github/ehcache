@@ -4,11 +4,12 @@
  */
 package org.terracotta.ehcache.tests;
 
-import javax.management.MBeanServerConnection;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+
+import javax.management.MBeanServerConnection;
 
 public class JmxThreadDumper {
   private ThreadMXBean threadMxBean;

@@ -20,7 +20,7 @@ public class ServerMapL2EvictionReachesOneL1TestClient extends ServerMapClientBa
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
     System.out.println("Running test with concurrency=1");
     testWith(cache, 3000, EXPECTED_EVICTION_COUNT, clusteringToolkit);
 

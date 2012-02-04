@@ -12,7 +12,7 @@ public class Client4 extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     Element element = cache.get("key");
 
     if (element == null) { throw new AssertionError(); }

@@ -41,7 +41,7 @@ public class OtherClassloaderClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache c, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache c, ClusteringToolkit toolkit) throws Throwable {
     // Construct Value instances from a foreign classloader
     ClassLoader otherClassLoader = createClassLoader();
     Ehcache cache = new ClassLoaderAwareCache(c, otherClassLoader);

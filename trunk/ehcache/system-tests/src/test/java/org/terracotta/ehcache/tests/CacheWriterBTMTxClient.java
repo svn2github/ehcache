@@ -36,7 +36,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
 
     PoolingDataSource pds1 = new PoolingDataSource();
     pds1.setClassName("org.apache.derby.jdbc.EmbeddedXADataSource");

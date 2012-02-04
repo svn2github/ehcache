@@ -25,7 +25,7 @@ public class OtherClassLoaderEventClient2 extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
 
     String config = cache.getCacheManager().getActiveConfigurationText();
 

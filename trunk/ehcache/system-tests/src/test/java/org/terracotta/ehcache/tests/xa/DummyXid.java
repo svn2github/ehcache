@@ -3,8 +3,9 @@
  */
 package org.terracotta.ehcache.tests.xa;
 
-import javax.transaction.xa.Xid;
 import java.util.Arrays;
+
+import javax.transaction.xa.Xid;
 
 public class DummyXid implements Xid {
 

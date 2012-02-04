@@ -26,7 +26,7 @@ public class CacheBlockingQueueClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
 
     BlockingQueue q = toolkit.getBlockingQueue("CacheBlockingQueueClient-queue");
 

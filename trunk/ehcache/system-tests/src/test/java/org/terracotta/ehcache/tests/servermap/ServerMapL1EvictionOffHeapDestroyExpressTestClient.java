@@ -19,7 +19,7 @@ public class ServerMapL1EvictionOffHeapDestroyExpressTestClient extends ServerMa
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
     System.out.println("Client populating cache.");
     for (int i = 0; i < 10000; i++) {
       cache.put(new Element("key", new byte[10 * 1024]));

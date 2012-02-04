@@ -23,7 +23,7 @@ public class ServerMapL1CapacityExpirationExpressTestClient extends ServerMapCli
   }
 
   @Override
-  protected void test(final Cache cache, final ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(final Cache cache, final ClusteringToolkit clusteringToolkit) throws Throwable {
     assertLocalCache(true);
     final int size = cache.getSize();
     assertEquals(0, size);

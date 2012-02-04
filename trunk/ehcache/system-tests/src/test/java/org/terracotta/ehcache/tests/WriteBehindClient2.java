@@ -25,7 +25,7 @@ public class WriteBehindClient2 extends AbstractWriteBehindClient {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     cache.putWithWriter(new Element("key", "value"));
     cache.removeWithWriter("key");

@@ -21,7 +21,7 @@ public class ExpiryListenerClient1 extends ClientBase implements CacheEventListe
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     cache.getCacheEventNotificationService().registerListener(this);
     cache.put(new Element("key", "value"));
     // assume the TTL of the cache is set to 3s

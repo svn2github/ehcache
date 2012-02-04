@@ -19,7 +19,7 @@ public class ClusterEventsRejoinEnabledWatcherClient extends ClientBase {
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     getBarrierForAllClients().await();
 
     CacheCluster cluster = cache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);

@@ -28,7 +28,7 @@ public class HibernateShutdownClient2 extends ClientBase {
 
       System.out.println("Current connected clients: " + getConnectedClients());
 
-      test(null, getClusteringToolkit());
+      runTest(null, getClusteringToolkit());
 
       getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
       System.out.println("Waiting for client1 to shutdown...");
@@ -37,13 +37,14 @@ public class HibernateShutdownClient2 extends ClientBase {
       Assert.assertEquals(1, getConnectedClients());
 
       pass();
+      System.exit(0);
     } catch (Throwable e) {
       e.printStackTrace();
     }
   }
 
   @Override
-  protected void test(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     HibernateUtil.configure("/hibernate-config/shutdowntest/hibernate.cfg.xml");
     EventManager mgr = new EventManager(HibernateUtil.getSessionFactory());
     Statistics stats = HibernateUtil.getSessionFactory().getStatistics();
