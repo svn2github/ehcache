@@ -15,11 +15,11 @@
     <relativePath></relativePath>
   </parent>
 
+  <groupId>org.terracotta.modules</groupId>
   <artifactId>tim-ehcache-2.x</artifactId>
   <version>2.6.0-SNAPSHOT</version>
   <name>tim-ehcache-2.x</name>
   <packaging>jar</packaging>
-  <description>Ehcache</description>
   
   <properties>
     <checkstyle-suppressions-file>${basedir}/../../checkstyle/suppressions.xml</checkstyle-suppressions-file>
@@ -31,7 +31,7 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
-      <version>${ehcache-core.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
