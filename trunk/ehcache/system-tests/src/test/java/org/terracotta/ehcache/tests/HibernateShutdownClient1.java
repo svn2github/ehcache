@@ -38,42 +38,35 @@ public class HibernateShutdownClient1 extends ClientBase {
   }
 
   @Override
-  public void run() {
-    try {
-      Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
+  public void doTest() throws Throwable {
+    Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
 
-      testClusteredCache();
+    testClusteredCache();
 
-      for (int i = 0; i < 5; i++) {
-        System.out.println("***** Iteration " + (i + 1) + " *****");
-        if (i > 0) {
-          HibernateUtil.configure("/hibernate-config/shutdowntest/hibernate.cfg.xml");
-          HibernateUtil.closeSessionFactory();
-        }
-
-        storeL1ClassLoaderWeakReferences();
-
-        shutdownExpressClient();
-        Thread.sleep(TimeUnit.SECONDS.toMillis(30));
-
-        clearTerracottaClient();
+    for (int i = 0; i < 5; i++) {
+      System.out.println("***** Iteration " + (i + 1) + " *****");
+      if (i > 0) {
+        HibernateUtil.configure("/hibernate-config/shutdowntest/hibernate.cfg.xml");
+        HibernateUtil.closeSessionFactory();
       }
 
-      waitUntilLastChanceThreadsAreGone();
-      new PermStress().stress(10000);
-      assertClassloadersGCed();
+      storeL1ClassLoaderWeakReferences();
 
-      Set<SimpleThreadInfo> afterShutdownThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
-      afterShutdownThreads.removeAll(baseLineThreads);
-      System.out.println("******** Threads Diff: ");
-      printThreads(afterShutdownThreads);
-      assertThreadShutdown(afterShutdownThreads);
+      shutdownExpressClient();
+      Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 
-      pass();
-      System.exit(0);
-    } catch (Exception e) {
-      e.printStackTrace();
+      clearTerracottaClient();
     }
+
+    waitUntilLastChanceThreadsAreGone();
+    new PermStress().stress(10000);
+    assertClassloadersGCed();
+
+    Set<SimpleThreadInfo> afterShutdownThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
+    afterShutdownThreads.removeAll(baseLineThreads);
+    System.out.println("******** Threads Diff: ");
+    printThreads(afterShutdownThreads);
+    assertThreadShutdown(afterShutdownThreads);
   }
 
   private void waitUntilLastChanceThreadsAreGone() throws InterruptedException {
@@ -93,8 +86,8 @@ public class HibernateShutdownClient1 extends ClientBase {
   }
 
   @Override
-  protected Cache setupCache() {
-    return null;
+  protected void setupCacheManager() {
+    // Avoid setting up a cache manager
   }
 
   // if only a single L1 loader got GC'ed, we can consider the test passed

@@ -39,7 +39,7 @@ public class ShutdownClient1 extends ClientBase {
     for (int i = 0; i < 10; i++) {
       System.out.println("***** Iteration " + (i + 1) + " *****");
       if (i > 0) {
-        setupCache();
+        setupCacheManager();
       }
       storeL1ClassLoaderWeakReferences(getCacheManager().getCache("test"));
 

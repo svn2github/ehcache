@@ -22,25 +22,18 @@ public class HibernateShutdownClient2 extends ClientBase {
   }
 
   @Override
-  public void run() {
-    try {
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
+  public void doTest() throws Throwable {
+    getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
 
-      System.out.println("Current connected clients: " + getConnectedClients());
+    System.out.println("Current connected clients: " + getConnectedClients());
 
-      runTest(null, getClusteringToolkit());
+    runTest(null, getClusteringToolkit());
 
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
-      System.out.println("Waiting for client1 to shutdown...");
-      Thread.sleep(TimeUnit.SECONDS.toMillis(30));
+    getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
+    System.out.println("Waiting for client1 to shutdown...");
+    Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 
-      Assert.assertEquals(1, getConnectedClients());
-
-      pass();
-      System.exit(0);
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
+    Assert.assertEquals(1, getConnectedClients());
   }
 
   @Override

@@ -33,15 +33,10 @@ public abstract class ClientBase extends AbstractClientBase {
     this.name = cacheName;
   }
 
-  public void run() {
-    try {
-      runTest(setupCache(), getClusteringToolkit());
-      pass();
-      System.exit(0);
-    } catch (Throwable t) {
-      t.printStackTrace();
-      System.exit(1);
-    }
+  @Override
+  public void doTest() throws Throwable {
+    setupCacheManager();
+    runTest(getCache(), getClusteringToolkit());
   }
 
   protected synchronized final Barrier getBarrierForAllClients() {
@@ -55,8 +50,11 @@ public abstract class ClientBase extends AbstractClientBase {
     return getBarrierForAllClients().await();
   }
 
-  protected Cache setupCache() {
+  protected void setupCacheManager() {
     cacheManager = new CacheManager(Client1.class.getResourceAsStream("/ehcache-config.xml"));
+  }
+
+  protected Cache getCache() {
     return cacheManager.getCache(name);
   }
 

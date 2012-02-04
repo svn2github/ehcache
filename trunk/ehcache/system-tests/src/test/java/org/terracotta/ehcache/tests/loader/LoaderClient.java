@@ -28,22 +28,12 @@ public class LoaderClient extends AbstractClientBase {
     this.specialClassPath = args[1];
   }
 
-  public void run() {
-    try {
-      test();
-      pass();
-      System.exit(0);
-    } catch (Throwable t) {
-      t.printStackTrace();
-      System.exit(1);
-    }
-  }
-
   public static void main(String[] args) throws Exception {
     new LoaderClient(args).run();
   }
 
-  protected void test() throws Throwable {
+  @Override
+  protected void doTest() throws Throwable {
     System.setProperty("terracottaUrl", getTerracottaUrl());
 
     Map<String, byte[]> extra = new HashMap<String, byte[]>();

@@ -52,67 +52,61 @@ public class BootstrapCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    public void run() {
-      try {
-        final int index = getBarrierForAllClients().await();
+    public void doTest() throws Exception {
+      final int index = getBarrierForAllClients().await();
 
-        Assert.assertEquals(0, KeySnapshotter.getKnownCacheManagers().size());
-        cacheManager = createCacheManager(index);
-        getBarrierForAllClients().await();
-        Cache cache = cacheManager.getCache("test");
+      Assert.assertEquals(0, KeySnapshotter.getKnownCacheManagers().size());
+      cacheManager = createCacheManager(index);
+      getBarrierForAllClients().await();
+      Cache cache = cacheManager.getCache("test");
 
-        getBarrierForAllClients().await();
-        Thread.sleep(TimeUnit.SECONDS.toMillis(8));
-        for (int i = 0; i < ELEMENTS_PER_NODE; i++) {
-          cache.put(new Element("key" + i + "_node" + index, "value for key"));
-        }
-        System.out.println(new Date() + " ==> node" + index + " put 10 elements in the cache");
-        getBarrierForAllClients().await();
-
-        if (index == 0) {
-          Assert.assertEquals(ELEMENTS_PER_NODE * NODE_COUNT, cache.getSize());
-        }
-        Assert.assertEquals(1, KeySnapshotter.getKnownCacheManagers().size());
-        Assert.assertEquals(true, KeySnapshotter.getKnownCacheManagers().contains(cacheManager));
-        Thread.sleep(TimeUnit.SECONDS.toMillis(10));
-        System.out.println(new Date() + " ==> node" + index + " CacheManager shutdown1...");
-        cacheManager.shutdown();
-        getBarrierForAllClients().await();
-        cacheManager = createCacheManager(index);
-        cache = cacheManager.getCache("test");
-
-        final KeySnapshotter keySnapshotter = ((TerracottaBootstrapCacheLoader) cache.getBootstrapCacheLoader())
-            .getKeySnapshotter();
-        keySnapshotter.doSnapshot();
-
-        final Store store = new CacheStoreHelper(cache).getStore();
-        final Set localKeys = ((TerracottaStore) store).getLocalKeys();
-        for (Object localKey : localKeys) {
-          final String key = (String) localKey;
-          Assert.assertEquals("_node" + index, key.substring(key.indexOf("_"), key.length()));
-        }
-        Assert.assertEquals("For node" + index, ELEMENTS_PER_NODE, localKeys.size());
-        getBarrierForAllClients().await();
-        gc();
-        getBarrierForAllClients().await();
-
-        WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
-
-          public Boolean call() throws Exception {
-            gc();
-            return KeySnapshotter.getKnownCacheManagers().size() == 1;
-          }
-        });
-        Assert.assertEquals("For node " + index, true, KeySnapshotter.getKnownCacheManagers().contains(cacheManager));
-        getBarrierForAllClients().await();
-        cacheManager.shutdown();
-        System.out.println(new Date() + " ==> node" + index + " CacheManager shutdown2...");
-        pass();
-        System.exit(0);
-      } catch (Throwable t) {
-        t.printStackTrace();
-        System.exit(1);
+      getBarrierForAllClients().await();
+      Thread.sleep(TimeUnit.SECONDS.toMillis(8));
+      for (int i = 0; i < ELEMENTS_PER_NODE; i++) {
+        cache.put(new Element("key" + i + "_node" + index, "value for key"));
       }
+      System.out.println(new Date() + " ==> node" + index + " put 10 elements in the cache");
+      getBarrierForAllClients().await();
+
+      if (index == 0) {
+        Assert.assertEquals(ELEMENTS_PER_NODE * NODE_COUNT, cache.getSize());
+      }
+      Assert.assertEquals(1, KeySnapshotter.getKnownCacheManagers().size());
+      Assert.assertEquals(true, KeySnapshotter.getKnownCacheManagers().contains(cacheManager));
+      Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+      System.out.println(new Date() + " ==> node" + index + " CacheManager shutdown1...");
+      cacheManager.shutdown();
+      getBarrierForAllClients().await();
+      cacheManager = createCacheManager(index);
+      cache = cacheManager.getCache("test");
+
+      final KeySnapshotter keySnapshotter = ((TerracottaBootstrapCacheLoader) cache.getBootstrapCacheLoader())
+          .getKeySnapshotter();
+      keySnapshotter.doSnapshot();
+
+      final Store store = new CacheStoreHelper(cache).getStore();
+      final Set localKeys = ((TerracottaStore) store).getLocalKeys();
+      for (Object localKey : localKeys) {
+        final String key = (String) localKey;
+        Assert.assertEquals("_node" + index, key.substring(key.indexOf("_"), key.length()));
+      }
+      Assert.assertEquals("For node" + index, ELEMENTS_PER_NODE, localKeys.size());
+      getBarrierForAllClients().await();
+      gc();
+      getBarrierForAllClients().await();
+
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+
+        public Boolean call() throws Exception {
+          gc();
+          return KeySnapshotter.getKnownCacheManagers().size() == 1;
+        }
+      });
+      Assert.assertEquals("For node " + index, true, KeySnapshotter.getKnownCacheManagers().contains(cacheManager));
+      getBarrierForAllClients().await();
+      cacheManager.shutdown();
+      System.out.println(new Date() + " ==> node" + index + " CacheManager shutdown2...");
+      pass();
     }
 
     private void gc() throws InterruptedException {
