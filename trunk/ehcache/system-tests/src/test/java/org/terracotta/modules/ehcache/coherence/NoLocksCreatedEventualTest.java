@@ -47,7 +47,7 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
   public static class App extends ClientBase {
 
     public App(String[] args) {
-      super("non-strict-Cache", args);
+      super("test", args);
     }
 
     @Override
