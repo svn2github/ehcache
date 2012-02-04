@@ -8,9 +8,10 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.IdentityModeElementData;
 import net.sf.ehcache.util.TimeUtil;
 
+import org.terracotta.bytecode.NotClearable;
 import org.terracotta.cache.TimestampedValue;
 
-public class ValueModeHandlerIdentity implements ValueModeHandler {
+public class ValueModeHandlerIdentity implements ValueModeHandler, NotClearable {
 
   private final transient ClusteredStore store;
 

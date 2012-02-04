@@ -9,13 +9,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.SerializationModeElementData;
 import net.sf.ehcache.util.TimeUtil;
 
+import org.terracotta.bytecode.NotClearable;
 import org.terracotta.cache.TimestampedValue;
 import org.terracotta.cache.serialization.CustomLifespanSerializedEntry;
 import org.terracotta.cache.serialization.SerializationStrategy3;
 import org.terracotta.cache.serialization.SerializedEntry;
 import org.terracotta.cache.serialization.SerializedEntryParameters;
 
-class ValueModeHandlerSerialization implements ValueModeHandler {
+class ValueModeHandlerSerialization implements ValueModeHandler, NotClearable {
 
   // clustered reference
   private final ClusteredStore                              store;

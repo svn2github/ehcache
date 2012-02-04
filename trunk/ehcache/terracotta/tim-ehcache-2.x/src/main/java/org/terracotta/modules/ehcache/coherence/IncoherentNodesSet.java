@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.coherence;
 
+import org.terracotta.bytecode.NotClearable;
 import org.terracotta.cluster.ClusterEvent;
 import org.terracotta.cluster.ClusterInfo;
 import org.terracotta.cluster.ClusterListener;
@@ -23,7 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class IncoherentNodesSet implements CacheCoherence, ClusterListener {
+public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotClearable {
 
   private static final ClusterLogger                LOGGER         = new TerracottaLogger(
                                                                                           IncoherentNodesSet.class

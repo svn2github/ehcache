@@ -6,6 +6,7 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
 
+import org.terracotta.bytecode.NotClearable;
 import org.terracotta.cache.CacheConfig;
 import org.terracotta.cache.LocallyCacheable;
 import org.terracotta.cache.TerracottaDistributedCache;
@@ -21,7 +22,13 @@ import org.terracotta.meta.MetaData;
 import java.util.Map;
 import java.util.Set;
 
-public class ClusteredStoreBackendImpl<K, V> implements ClusteredStoreBackend<K, V> {
+public class ClusteredStoreBackendImpl<K, V> implements ClusteredStoreBackend<K, V>, NotClearable {
+
+  static {
+    for (Class i : ClusteredStoreBackendImpl.class.getInterfaces()) {
+      System.err.println("XXX: " + i);
+    }
+  }
 
   private final TerracottaDistributedCache<K, V> tdc;
   private final ValueModeHandler                 valueModeHandler;
