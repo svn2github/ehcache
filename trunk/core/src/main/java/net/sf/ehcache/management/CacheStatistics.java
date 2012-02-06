@@ -25,6 +25,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -50,21 +51,33 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
 
     private static final long serialVersionUID = 8085302752781762030L;
 
-    private transient Ehcache ehcache;
-    private Statistics statistics;
-
+    private final transient Ehcache ehcache;
     private final ObjectName objectName;
+    private final long ttlInMillis;
+    
+    private Statistics statistics;
     private long lastUpdated;
 
     /**
      * Constructs an object from an ehcache statistics object
      *
      * @param ehcache the backing ehcache
+     * @param ttl statistics ttl value
+     * @param unit statistics ttl unit
+     */
+    public CacheStatistics(Ehcache ehcache, long ttl, TimeUnit unit) {
+        this.ttlInMillis = unit.toMillis(ttl);
+        this.ehcache = ehcache;
+        this.objectName = createObjectName(ehcache.getCacheManager().getName(), ehcache.getName());
+    }
+
+    /**
+     * Constructs an object from an ehcache statistics object using the default statistics ttl.
+     *
+     * @param ehcache the backing ehcache
      */
     public CacheStatistics(Ehcache ehcache) {
-        this.ehcache = ehcache;
-        objectName = createObjectName(ehcache.getCacheManager().getName(),
-                ehcache.getName());
+        this(ehcache, 0, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -93,7 +106,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     }
 
     private void updateIfNeeded() {
-        if (System.currentTimeMillis() != lastUpdated) {
+        long statsAge = System.currentTimeMillis() - lastUpdated;
+        if (statsAge < 0 || statsAge > ttlInMillis) {
             statistics = ehcache.getStatistics();
             lastUpdated = System.currentTimeMillis();
         }
