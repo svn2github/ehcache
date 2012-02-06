@@ -2247,11 +2247,12 @@ public class CacheTest extends AbstractCacheTest {
             executor.execute(new CacheTestRunnable(cache, String.valueOf(i)));
         }
         executor.shutdown();
-        executor.awaitTermination(10, TimeUnit.SECONDS);
-
-        assertEquals("Failures: ", 0, CacheTestRunnable.FAILURES.size());
-        assertEquals(5000, cache.getStatistics().getCacheHits());
-
+        if (executor.awaitTermination(10, TimeUnit.SECONDS)) {
+            assertEquals("Failures: ", 0, CacheTestRunnable.FAILURES.size());
+            assertEquals(5000, cache.getStatistics().getCacheHits());
+        } else {
+            fail("Writing took too long : " + executor.shutdownNow().size() + " tasks left");
+        }
     }
 
     /**
