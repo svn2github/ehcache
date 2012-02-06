@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"
+      overflowToDisk="false"/>
+
+  <cache name="test"
+         maxElementsInMemory="10000"
+         eternal="false"
+         overflowToDisk="false"
+         timeToLiveSeconds="3">
+
+         <terracotta clustered="true" storageStrategy="dcv2" consistency="strong"/>
+  </cache>
+   <cache name="test2"
+         maxElementsInMemory="500"
+         maxElementsOnDisk="500"
+         eternal="true"
+         overflowToDisk="false">
+
+         <terracotta clustered="true" storageStrategy="DCV2" consistency="strong"/>
+  </cache>
+
+  <terracottaConfig url="localhost:PORT"/>
+
+</ehcache>

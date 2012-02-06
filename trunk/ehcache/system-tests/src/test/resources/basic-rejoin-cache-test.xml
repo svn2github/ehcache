@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+	<defaultCache maxElementsInMemory="10000" eternal="true"
+		overflowToDisk="false" />
+
+	<cache name="test" maxElementsInMemory="10000" eternal="true"
+		overflowToDisk="false">
+
+		<terracotta clustered="true">
+			<nonstop enabled="true" />
+		</terracotta>
+	</cache>
+
+	<cache name="defaultConcurrencyCache" maxElementsInMemory="10000"
+		eternal="true" overflowToDisk="false">
+		<terracotta clustered="true">
+			<nonstop enabled="true" />
+		</terracotta>
+	</cache>
+
+	<cache name="configuredConcurrencyCache" maxElementsInMemory="10000"
+		eternal="true" overflowToDisk="false">
+		<terracotta clustered="true" concurrency="123">
+			<nonstop enabled="true" />
+		</terracotta>
+	</cache>
+
+	<terracottaConfig url="localhost:PORT" rejoin="true" />
+
+</ehcache>
