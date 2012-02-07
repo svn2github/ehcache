@@ -9,7 +9,6 @@
   </parent>
 
   <name>ehcache-terracotta-root</name>
-  <groupId>net.sf.ehcache</groupId>
   <artifactId>ehcache-terracotta-root</artifactId>
   <packaging>pom</packaging>
 

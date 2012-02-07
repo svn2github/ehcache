@@ -204,6 +204,7 @@
       <plugin>
         <groupId>org.terracotta</groupId>
         <artifactId>maven-forge-plugin</artifactId>
+        <version>${maven-forge-plugin.version}</version>
         <configuration>
           <rootPath>${basedir}/..</rootPath>
           <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
@@ -233,164 +234,171 @@
             <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
           </archive>
         </configuration>  
-      </plugin>
-      <plugin>
-        <groupId>com.goldin.plugins</groupId>
-        <artifactId>maven-copy-plugin</artifactId>
-        <version>0.2.3.6</version>
-        <configuration>
-          <verbose>false</verbose>
-          <resources>
-            <!-- clean up -->
-            <resource>
-              <runIf>{{ new File( project.build.directory, "${kit.name}" ).isDirectory() }}</runIf>
-              <directory>${root.dir}</directory>
-              <includes>
-                <include>**/**</include>
-              </includes>
-              <clean>true</clean>
-              <cleanEmptyDirectories>true</cleanEmptyDirectories>
-            </resource>
-            <!-- skeleton -->                
-            <resource>
-              <targetPath>${root.dir}</targetPath>
-              <directory>${basedir}/src/main/assembly/root</directory>
-              <preservePath>true</preservePath>
-            </resource>
-            <!-- lib -->                
-            <resource>
-              <targetPath>${root.dir}/lib</targetPath>
-              <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
-            </resource>
-            <resource>
-              <targetPath>${root.dir}/lib</targetPath>
-              <dependencies>
-                <dependency>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-jdk14</artifactId>
-                </dependency>
-                <dependency>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-api</artifactId>
-                </dependency>
-              </dependencies>
-            </resource>
-            <!-- src -->
-            <resource>
-              <targetPath>${root.dir}/src</targetPath>
-              <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
-              <unpack>true</unpack>
-            </resource>
-            <!-- javadoc -->
-            <resource>
-              <targetPath>${root.dir}/javadoc</targetPath>
-              <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
-              <unpack>true</unpack>
-            </resource> 
-            <!-- terracotta -->                
-            <resource>
-              <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
-              <targetPath>${root.dir}/terracotta</targetPath>
-              <directory>${terracotta.kit.path}</directory>
-              <excludes>
-                <exclude>**/ehcache/**</exclude>
-                <exclude>**/quartz/**</exclude>
-                <exclude>**/sessions/**</exclude>
-              </excludes>
-              <preservePath>true</preservePath>
-            </resource>
-            <resource>
-              <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
-              <targetPath>${root.dir}/samples</targetPath>
-              <directory>${terracotta.kit.path}/ehcache/samples</directory>
-              <preservePath>true</preservePath>
-            </resource>
-            <resource>
-              <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
-              <targetPath>${root.dir}/samples/colorcache/bin</targetPath>
-              <directory>${basedir}/src/main/assembly</directory>
-              <includes>
-                <include>relative-paths.*</include>
-              </includes>
-            </resource>
-            <resource>
-              <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
-              <targetPath>${root.dir}/samples/events/bin</targetPath>
-              <directory>${basedir}/src/main/assembly</directory>
-              <includes>
-                <include>relative-paths.*</include>
-              </includes>
-            </resource>             
-          </resources>
-        </configuration>
-        <executions>
-          <execution>
-            <id>package-with-no-tc</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-          </execution>
-        </executions>            
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <version>${gmaven-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>create-tarball</id>
-            <phase>package</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>         
-              <source>
-                def srcdir = new File(project.basedir, "target/${kit.name}") 
-                ant.tar(destfile: "${srcdir}.tar.gz", longfile: "gnu", compression: "gzip") {
-                  tarfileset(dir: "${srcdir}", prefix: "${kit.name}", excludes: "**/.placeholder,**/bin/**,**/lib/**,**/*.sh,**/*.bat")
-                  tarfileset(dir: "${srcdir}", prefix: "${kit.name}", includes: "**/bin/**,**/lib/**,**/*.sh,**/*.bat", filemode: "755")
-                } 
-              </source>
-            </configuration>
-          </execution>              
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <id>attach-javadoc-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <artifacts>
-                <!-- sources artifact attached by default -->
-                <artifact>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                </artifact>
-                <artifact>
-                  <file>${project.build.directory}/${kit.name}.tar.gz</file>
-                  <type>tar.gz</type>
-                  <classifier>distribution</classifier>
-                </artifact>                
-              </artifacts>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>      
     </plugins>
   </build>
 
   <profiles>
     <profile>
-      <id>package-tc</id>
+      <id>kit</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.goldin.plugins</groupId>
+            <artifactId>maven-copy-plugin</artifactId>
+            <version>0.2.3.6</version>
+            <configuration>
+              <verbose>false</verbose>
+              <resources>
+                <!-- clean up -->
+                <resource>
+                  <runIf>{{ new File( project.build.directory, "${kit.name}" ).isDirectory() }}</runIf>
+                  <directory>${root.dir}</directory>
+                  <includes>
+                    <include>**/**</include>
+                  </includes>
+                  <clean>true</clean>
+                  <cleanEmptyDirectories>true</cleanEmptyDirectories>
+                </resource>
+                <!-- skeleton -->                
+                <resource>
+                  <targetPath>${root.dir}</targetPath>
+                  <directory>${basedir}/src/main/assembly/root</directory>
+                  <preservePath>true</preservePath>
+                </resource>
+                <!-- lib -->                
+                <resource>
+                  <targetPath>${root.dir}/lib</targetPath>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
+                </resource>
+                <resource>
+                  <targetPath>${root.dir}/lib</targetPath>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-jdk14</artifactId>
+                    </dependency>
+                    <dependency>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-api</artifactId>
+                    </dependency>
+                  </dependencies>
+                </resource>
+                <!-- src -->
+                <resource>
+                  <targetPath>${root.dir}/src</targetPath>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
+                  <unpack>true</unpack>
+                </resource>
+                <!-- javadoc -->
+                <resource>
+                  <targetPath>${root.dir}/javadoc</targetPath>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
+                  <unpack>true</unpack>
+                </resource> 
+                <!-- terracotta -->                
+                <resource>
+                  <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
+                  <targetPath>${root.dir}/terracotta</targetPath>
+                  <directory>${terracotta.kit.path}</directory>
+                  <excludes>
+                    <exclude>**/ehcache/**</exclude>
+                    <exclude>**/quartz/**</exclude>
+                    <exclude>**/sessions/**</exclude>
+                  </excludes>
+                  <preservePath>true</preservePath>
+                </resource>
+                <resource>
+                  <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
+                  <targetPath>${root.dir}/samples</targetPath>
+                  <directory>${terracotta.kit.path}/ehcache/samples</directory>
+                  <preservePath>true</preservePath>
+                </resource>
+                <resource>
+                  <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
+                  <targetPath>${root.dir}/samples/colorcache/bin</targetPath>
+                  <directory>${basedir}/src/main/assembly</directory>
+                  <includes>
+                    <include>relative-paths.*</include>
+                  </includes>
+                </resource>
+                <resource>
+                  <runIf>{{ new File(project.properties['terracotta.kit.path']).isDirectory() }}</runIf>
+                  <targetPath>${root.dir}/samples/events/bin</targetPath>
+                  <directory>${basedir}/src/main/assembly</directory>
+                  <includes>
+                    <include>relative-paths.*</include>
+                  </includes>
+                </resource>             
+              </resources>
+            </configuration>
+            <executions>
+              <execution>
+                <id>package-with-no-tc</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+              </execution>
+            </executions>            
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <version>${gmaven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>create-tarball</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>         
+                  <source>
+                    def srcdir = new File(project.basedir, "target/${kit.name}") 
+                    ant.tar(destfile: "${srcdir}.tar.gz", longfile: "gnu", compression: "gzip") {
+                      tarfileset(dir: "${srcdir}", prefix: "${kit.name}", excludes: "**/.placeholder,**/bin/**,**/lib/**,**/*.sh,**/*.bat")
+                      tarfileset(dir: "${srcdir}", prefix: "${kit.name}", includes: "**/bin/**,**/lib/**,**/*.sh,**/*.bat", filemode: "755")
+                    } 
+                  </source>
+                </configuration>
+              </execution>              
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>attach-javadoc-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>attach-artifact</goal>
+                </goals>
+                <configuration>
+                  <artifacts>
+                    <!-- sources artifact attached by default -->
+                    <artifact>
+                      <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
+                      <type>jar</type>
+                      <classifier>javadoc</classifier>
+                    </artifact>
+                    <artifact>
+                      <file>${project.build.directory}/${kit.name}.tar.gz</file>
+                      <type>tar.gz</type>
+                      <classifier>distribution</classifier>
+                    </artifact>                
+                  </artifacts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>        
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>with-tc</id>
       <build>
         <plugins>
           <plugin>

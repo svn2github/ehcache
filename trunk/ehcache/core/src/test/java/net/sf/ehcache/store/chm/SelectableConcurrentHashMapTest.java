@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -68,7 +67,7 @@ public class SelectableConcurrentHashMapTest {
         }
         assertThat(expectedKeySet.isEmpty(), is(true));
     }
-    
+
     @Test
     public void testReturnsPresentPinnedKeySet() {
         SelectableConcurrentHashMap map = new SelectableConcurrentHashMap(
@@ -177,7 +176,7 @@ public class SelectableConcurrentHashMapTest {
         map.unpinAll();
         assertThat(map.size(), is(0));
     }
-    
+
     @Test
     public void testClockEvictionHonorsMaxSize() {
         final int maximumSize = 1000;
@@ -188,7 +187,7 @@ public class SelectableConcurrentHashMapTest {
             assertThat("At iteration #" + i + ", the size is " + map.quickSize(), map.quickSize() <= maximumSize, is(true));
         }
     }
-    
+
     private <T> Set<T> expectedSet(T... values) {
         final Set<T> set = new HashSet<T>();
         Collections.addAll(set, values);

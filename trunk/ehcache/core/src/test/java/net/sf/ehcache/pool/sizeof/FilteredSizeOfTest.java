@@ -2,7 +2,6 @@ package net.sf.ehcache.pool.sizeof;
 
 import net.sf.ehcache.pool.sizeof.annotationfiltered.AnnotationFilteredPackage;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThan;
@@ -35,13 +34,13 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
   @Test
   public void testAnnotationFiltering() throws Exception {
     SizeOf sizeOf = new CrossCheckingSizeOf(new AnnotationSizeOfFilter());
-    
+
     assertThat(deepSizeOf(sizeOf, new AnnotationFilteredField()), allOf(greaterThan(128L), lessThan(16 * 1024L)));
     assertThat(deepSizeOf(sizeOf, new AnnotationFilteredClass()), equalTo(0L));
     assertThat(deepSizeOf(sizeOf, new AnnotationFilteredPackage()), equalTo(0L));
-    
+
     assertThat(deepSizeOf(sizeOf, new AnnotationFilteredFieldSubclass()), allOf(greaterThan(128L), lessThan(16 * 1024L)));
-    
+
     long emptyReferrerSize = deepSizeOf(sizeOf, new Referrer(null));
     assertThat(deepSizeOf(sizeOf, new Referrer(new AnnotationFilteredClass())), equalTo(emptyReferrerSize));
     assertThat(deepSizeOf(sizeOf, new Referrer(new AnnotationFilteredPackage())), equalTo(emptyReferrerSize));
@@ -58,9 +57,9 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     assertThat(deepSizeOf(sizeOf, new ResourceFilteredField()), allOf(greaterThan(128L), lessThan(16 * 1024L)));
     assertThat(deepSizeOf(sizeOf, new ResourceFilteredClass()), equalTo(0L));
     assertThat(deepSizeOf(sizeOf, new ResourceFilteredPackage()), equalTo(0L));
-    
+
     assertThat(deepSizeOf(sizeOf, new ResourceFilteredFieldSubclass()), allOf(greaterThan(128L), lessThan(16 * 1024L)));
-    
+
     long emptyReferrerSize = deepSizeOf(sizeOf, new Referrer(null));
     assertThat(deepSizeOf(sizeOf, new Referrer(new ResourceFilteredClass())), equalTo(emptyReferrerSize));
     assertThat(deepSizeOf(sizeOf, new Referrer(new ResourceFilteredPackage())), equalTo(emptyReferrerSize));
@@ -75,7 +74,7 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
 
   public static class AnnotationFilteredFieldSubclass extends AnnotationFilteredField {
   }
-  
+
   @IgnoreSizeOf
   public static class AnnotationFilteredClass {
       private final byte[] bigArray = new byte[16 * 1024];
@@ -85,12 +84,12 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
   public static class Parent {}
 
   public static class Child extends Parent {}
-    
+
   @IgnoreSizeOf
   public static class ChildChild extends Child {}
-    
+
   public static class ChildChildChild extends ChildChild {}
-  
+
   public static class ResourceFilteredField {
     private final byte[] bigArray = new byte[16 * 1024];
 
@@ -99,15 +98,15 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
 
   public static class ResourceFilteredFieldSubclass extends ResourceFilteredField {
   }
-  
+
   public static class ResourceFilteredClass {
       private final byte[] bigArray = new byte[6 * 1024];
   }
-  
+
   public static class Referrer {
-    
+
     private final Object reference;
-    
+
       public Referrer(Object obj) {
           this.reference = obj;
       }
