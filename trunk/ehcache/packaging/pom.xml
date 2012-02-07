@@ -10,8 +10,10 @@
 
   <artifactId>ehcache</artifactId>
   <packaging>jar</packaging>
-  <name>Ehcache</name>
-  <description>Ehcache is an open source, standards-based cache used to boost performance, offload the database and simplify scalability. Ehcache is robust, proven and full-featured and this has made it the most widely-used Java-based cache.</description>
+  <name>ehcache</name>
+  <description>Ehcache is an open source, standards-based cache used to boost performance,
+  offload the database and simplify scalability. Ehcache is robust, proven and full-featured and
+  this has made it the most widely-used Java-based cache.</description>
 
   <licenses>
     <license>
@@ -184,7 +186,7 @@
         <version>1.5</version>
         <executions>
           <execution>
-            <id>attach-javadoc-sources</id>
+            <id>attach-javadoc</id>
             <phase>package</phase>
             <goals>
               <goal>attach-artifact</goal>
