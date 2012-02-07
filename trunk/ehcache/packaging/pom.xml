@@ -177,6 +177,35 @@
             </configuration>
           </execution>          
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>attach-javadoc-sources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <!-- sources artifact attached by default -->
+                <artifact>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
+                  <type>jar</type>
+                  <classifier>javadoc</classifier>
+                </artifact>
+                <artifact>
+                  <file>${project.build.directory}/${kit.name}.tar.gz</file>
+                  <type>tar.gz</type>
+                  <classifier>distribution</classifier>
+                </artifact>                
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -363,35 +392,6 @@
                   </source>
                 </configuration>
               </execution>              
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>1.5</version>
-            <executions>
-              <execution>
-                <id>attach-javadoc-sources</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>attach-artifact</goal>
-                </goals>
-                <configuration>
-                  <artifacts>
-                    <!-- sources artifact attached by default -->
-                    <artifact>
-                      <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
-                      <type>jar</type>
-                      <classifier>javadoc</classifier>
-                    </artifact>
-                    <artifact>
-                      <file>${project.build.directory}/${kit.name}.tar.gz</file>
-                      <type>tar.gz</type>
-                      <classifier>distribution</classifier>
-                    </artifact>                
-                  </artifacts>
-                </configuration>
-              </execution>
             </executions>
           </plugin>        
         </plugins>
