@@ -218,7 +218,7 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
      */
     public final void readLock(Object key) {
         try {
-            lockProvider.getSyncForKey(key).lock(LockType.WRITE);
+            lockProvider.getSyncForKey(key).lock(LockType.READ);
         } catch (net.sf.ehcache.CacheException e) {
             if (e instanceof NonStopCacheException) {
                 HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
@@ -233,7 +233,7 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
      */
     public final void readUnlock(Object key) {
         try {
-            lockProvider.getSyncForKey(key).unlock(LockType.WRITE);
+            lockProvider.getSyncForKey(key).unlock(LockType.READ);
         } catch (net.sf.ehcache.CacheException e) {
             if (e instanceof NonStopCacheException) {
                 HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) e);
