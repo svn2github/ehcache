@@ -52,7 +52,7 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
       Thread.sleep(15 * 1000);
 
       info("Killing the active so passive[1] can take over.");
-      getTestControlMbean().crashActiveServer(0);
+      getTestControlMbean().crashActiveAndWaitForPassiveToTakeOver(0);
 
       info("Waiting for passive[2] to fully sync up.");
       getTestControlMbean().waitUntilPassiveStandBy(0);
