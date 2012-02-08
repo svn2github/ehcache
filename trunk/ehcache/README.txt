@@ -6,7 +6,7 @@ Note: the final Ehcache jar is found under ehcache/target
 
 2. To build Ehcache distribution kit:
 
-  %> cd ehcache-kit
+  %> cd distribution
   
   %> mvn package (build without an embedded Terracotta kit, lean and mean Ehcache kit)
   

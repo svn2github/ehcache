@@ -29,9 +29,9 @@
 
   <profiles>
     <profile>
-      <id>include-kit</id>
+      <id>dist</id>
       <modules>
-        <module>ehcache-kit</module>
+        <module>distribution</module>
       </modules>
     </profile>
   </profiles>
