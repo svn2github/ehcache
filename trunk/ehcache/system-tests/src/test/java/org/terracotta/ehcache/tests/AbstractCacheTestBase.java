@@ -71,7 +71,7 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String classpath = "";
     if (withStandaloneJar) {
       classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
-                                writeXmlFileWithPort("log4j.xml", "lo4j.xml"), expressRuntime, ehcache, slf4jApi,
+                                writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, slf4jApi,
                                 slf4jBinder, cLogging, asm, jta, oswego, parseException, httpMethod, decoder,
                                 ehcacheTerracotta, jmxUtils, clientBase, mbeanSereverProxy);
     } else {
