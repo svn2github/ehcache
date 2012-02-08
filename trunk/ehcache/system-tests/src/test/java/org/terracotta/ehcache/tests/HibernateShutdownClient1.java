@@ -18,7 +18,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -265,23 +264,10 @@ public class HibernateShutdownClient1 extends ClientBase {
 
   public void storeL1ClassLoaderWeakReferences() throws Exception {
     ClassLoader clusteredStateLoader = getBarrierForAllClients().getClass().getClassLoader();
-    Class managerUtilClass = clusteredStateLoader.loadClass("com.tc.object.bytecode.ManagerUtil");
-    ClassLoader bootjarLoader = managerUtilClass.getClassLoader();
-    Method getManagerMethod = managerUtilClass.getDeclaredMethod("getManager", (Class[]) null);
-    ClassLoader l1Loader = getManagerMethod.invoke(null, (Object[]) null).getClass().getClassLoader();
 
     System.out.println("XXX: clusteredStateLoader: " + clusteredStateLoader);
-    System.out.println("XXX: bootjarLoader: " + bootjarLoader);
-    System.out.println("XXX: l1Loader: " + l1Loader);
     Assert.assertNotNull(clusteredStateLoader);
-    Assert.assertNotNull(bootjarLoader);
-    Assert.assertNotNull(l1Loader);
-    Assert.assertTrue(clusteredStateLoader != bootjarLoader);
-    Assert.assertTrue(clusteredStateLoader != l1Loader);
-    Assert.assertTrue(bootjarLoader != l1Loader);
 
     CLASS_LOADER_LIST.add(new WeakReference<ClassLoader>(clusteredStateLoader));
-    CLASS_LOADER_LIST.add(new WeakReference<ClassLoader>(bootjarLoader));
-    CLASS_LOADER_LIST.add(new WeakReference<ClassLoader>(l1Loader));
   }
 }
