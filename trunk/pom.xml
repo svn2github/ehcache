@@ -71,7 +71,6 @@
             <findbugsXmlOutput>true</findbugsXmlOutput>
             <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
             <xmlOutput>true</xmlOutput>
-            <excludeFilterFile>${basedir}/../findbugs/excludeFilter.xml</excludeFilterFile>
           </configuration>
         </plugin>
 
