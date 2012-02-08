@@ -15,9 +15,9 @@
   <version>2.6.0-SNAPSHOT</version>
 
   <modules>
-    <module>core</module>
+    <module>ehcache-core</module>
     <module>terracotta</module>
-    <module>packaging</module>
+    <module>ehcache</module>
     <module>system-tests</module>
   </modules>
 
