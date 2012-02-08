@@ -27,4 +27,12 @@
     <module>system-tests</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <id>include-kit</id>
+      <modules>
+        <module>ehcache-kit</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
