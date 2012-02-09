@@ -5,21 +5,20 @@ import net.sf.ehcache.constructs.CacheDecoratorFactory;
 
 import java.util.Properties;
 
-
 public class NonHibernateCacheDecoratorFactory extends CacheDecoratorFactory {
 
-	  private static final String DAO_NAME = "daoName";
+  // private static final String DAO_NAME = "daoName";
 
-	  @Override
-	  public Ehcache createDecoratedEhcache(Ehcache cache, Properties properties) {
-	    NonHibernateCacheDecorator cacheDecorator = new NonHibernateCacheDecorator(cache);
-	    return cacheDecorator;
-	  }
+  @Override
+  public Ehcache createDecoratedEhcache(Ehcache cache, Properties properties) {
+    NonHibernateCacheDecorator cacheDecorator = new NonHibernateCacheDecorator(cache);
+    return cacheDecorator;
+  }
 
-	  @Override
-	  public Ehcache createDefaultDecoratedEhcache(Ehcache cache, Properties properties) {
-		    NonHibernateCacheDecorator cacheDecorator = new NonHibernateCacheDecorator(cache);
-		    return cacheDecorator;
-	  }
+  @Override
+  public Ehcache createDefaultDecoratedEhcache(Ehcache cache, Properties properties) {
+    NonHibernateCacheDecorator cacheDecorator = new NonHibernateCacheDecorator(cache);
+    return cacheDecorator;
+  }
 
 }

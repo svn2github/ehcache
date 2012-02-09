@@ -20,7 +20,7 @@
   <version>2.6.0-SNAPSHOT</version>
   <name>tim-ehcache</name>
   <packaging>jar</packaging>
-  
+
   <properties>
     <checkstyle-suppressions-file>${basedir}/../checkstyle/suppressions.xml</checkstyle-suppressions-file>
     <hibernate-core.version>3.3.2.GA</hibernate-core.version>
@@ -42,9 +42,8 @@
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>terracotta</artifactId>
-      <version>${terracotta.core.version}</version>
       <scope>provided</scope>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.terracotta.toolkit</groupId>
       <artifactId>terracotta-toolkit-1.5</artifactId>
@@ -108,11 +107,11 @@
     <repository>
       <id>terracotta-snapshots</id>
       <url>http://www.terracotta.org/download/reflector/snapshots</url>
-    </repository>  
+    </repository>
     <repository>
       <id>terracotta-releases</id>
-      <url>http://www.terracotta.org/download/reflector/releases</url>   
-    </repository>   
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -123,6 +122,6 @@
     <pluginRepository>
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
-    </pluginRepository>    
-  </pluginRepositories>  
+    </pluginRepository>
+  </pluginRepositories>
 </project>
