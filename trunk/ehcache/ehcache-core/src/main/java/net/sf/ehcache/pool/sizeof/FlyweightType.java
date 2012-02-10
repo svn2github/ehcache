@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.pool.sizeof;
 
+import net.sf.ehcache.util.FindBugsSuppressWarnings;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -36,6 +38,7 @@ import java.util.logging.Logger;
  *
  * @author Alex Snaps
  */
+@FindBugsSuppressWarnings("RC_REF_COMPARISON")
 enum FlyweightType {
 
     /**
