@@ -61,7 +61,7 @@ public class LocalBufferedMap<K, V> {
   private static int getTerracottaProperty(String propName, int defaultValue) {
     try {
       return new TerracottaProperties().getInteger(propName, defaultValue);
-    } catch (NoClassDefFoundError e) {
+    } catch (Exception e) {
       // for unit-tests
       return defaultValue;
     }
