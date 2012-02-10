@@ -17,10 +17,13 @@
 
 package net.sf.ehcache.config;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -70,6 +73,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import net.sf.ehcache.writer.TestCacheWriter;
 
+import org.hamcrest.core.IsNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -293,9 +297,10 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     @Test
     public void testLoadUTF8ConfigurationFromFile() throws Exception {
 
-        File file = new File(TEST_CONFIG_DIR + "ehcacheUTF8.xml");
-        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
-        ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
+        CacheManager cacheManager =  new CacheManager(TEST_CONFIG_DIR + "ehcacheUTF8.xml");
+        assertThat(cacheManager.getName(), equalTo("バーチャル"));
+        assertThat(cacheManager.getCache("バーチャル　クリストファー さんは書きました:"), IsNull.notNullValue());
+        assertThat(cacheManager.getConfiguration().getCacheConfigurations().size(), is(1));
     }
 
 
