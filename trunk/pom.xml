@@ -139,6 +139,7 @@
                     <versionRange>[1.0.4,)</versionRange>
                     <goals>
                       <goal>manifest</goal>
+                      <goal>buildinfo</goal>
                     </goals>
                   </pluginExecutionFilter>
                   <action>
