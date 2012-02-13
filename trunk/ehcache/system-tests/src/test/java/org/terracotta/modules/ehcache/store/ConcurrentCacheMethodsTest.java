@@ -114,6 +114,7 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
     }
 
     private void setup() {
+      setupCacheManager();
       manager = getCacheManager();
       cache = manager.getEhcache("test");
     }
@@ -126,19 +127,19 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
 
     private void testPutIfAbsent() {
       Element e = new Element("testPutIfAbsent", "value");
-      assertNull(cache.putIfAbsent(e));
-      assertEquals(e, cache.putIfAbsent(new Element("testPutIfAbsent", "value2")));
+      Assert.assertNull(cache.putIfAbsent(e));
+      Assert.assertEquals(e, cache.putIfAbsent(new Element("testPutIfAbsent", "value2")));
 
       try {
         cache.putIfAbsent(null);
-        fail("putIfAbsent with null Element should throw NPE");
+        Assert.fail("putIfAbsent with null Element should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.putIfAbsent(new Element(null, "value"));
-        fail("putIfAbsent with null key should throw NPE");
+        Assert.fail("putIfAbsent with null key should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
@@ -148,103 +149,106 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
       Element e = new Element("testRemoveElement", "value");
       cache.put(e);
 
-      assertFalse(cache.removeElement(new Element("testRemoveElement", "value2")));
-      assertFalse(cache.removeElement(new Element("testRemoveElement2", "value")));
-      assertTrue(cache.removeElement(new Element("testRemoveElement", "value")));
+      Assert.assertFalse(cache.removeElement(new Element("testRemoveElement", "value2")));
+      Assert.assertFalse(cache.removeElement(new Element("testRemoveElement2", "value")));
+      Assert.assertTrue(cache.removeElement(new Element("testRemoveElement", "value")));
 
       try {
         cache.removeElement(null);
-        fail("removeElement with null Element should throw NPE");
+        Assert.fail("removeElement with null Element should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.removeElement(new Element(null, "value"));
-        fail("removeElement with null key should throw NPE");
+        Assert.fail("removeElement with null key should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
     }
 
     private void testTwoArgReplace() {
-      assertFalse(cache.replace(new Element("testTwoArgReplace", "value1"), new Element("testTwoArgReplace", "value2")));
+      Assert.assertFalse(cache.replace(new Element("testTwoArgReplace", "value1"), new Element("testTwoArgReplace",
+                                                                                               "value2")));
       cache.put(new Element("testTwoArgReplace", "value1"));
-      assertTrue(cache.replace(new Element("testTwoArgReplace", "value1"), new Element("testTwoArgReplace", "value2")));
-      assertFalse(cache.replace(new Element("testTwoArgReplace", "value1"), new Element("testTwoArgReplace", "value2")));
+      Assert.assertTrue(cache.replace(new Element("testTwoArgReplace", "value1"), new Element("testTwoArgReplace",
+                                                                                              "value2")));
+      Assert.assertFalse(cache.replace(new Element("testTwoArgReplace", "value1"), new Element("testTwoArgReplace",
+                                                                                               "value2")));
 
       try {
         cache.replace(null, new Element("testTwoArgReplace", "value2"));
-        fail("replace with null key should throw NPE");
+        Assert.fail("replace with null key should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.replace(new Element("testTwoArgReplace", "value1"), null);
-        fail("replace with null key should throw NPE");
+        Assert.fail("replace with null key should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.replace(null, null);
-        fail("replace with null key should throw NPE");
+        Assert.fail("replace with null key should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.replace(new Element(null, "value1"), new Element("testTwoArgReplace", "value2"));
-        fail("replace with null key should throw NPE");
+        Assert.fail("replace with null key should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.replace(new Element("testTwoArgReplace", "value1"), new Element(null, "value2"));
-        fail("replace with null key should throw NPE");
+        Assert.fail("replace with null key should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.replace(new Element(null, "value1"), new Element(null, "value2"));
-        fail("replace with null keys should throw NPE");
+        Assert.fail("replace with null keys should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.replace(new Element("testTwoArgReplace", "value1"), new Element("different-testTwoArgReplace", "value2"));
-        fail("replace with non-matching keys should throw IllegalArgumentException");
+        Assert.fail("replace with non-matching keys should throw IllegalArgumentException");
       } catch (IllegalArgumentException iae) {
         // expected
       }
     }
 
     private void testOneArgReplace() {
-      assertNull(cache.replace(new Element("testOneArgReplace", "value")));
-      assertNull(cache.replace(new Element("testOneArgReplace", "value2")));
+      Assert.assertNull(cache.replace(new Element("testOneArgReplace", "value")));
+      Assert.assertNull(cache.replace(new Element("testOneArgReplace", "value2")));
 
       Element e = new Element("testOneArgReplace", "value");
       cache.put(e);
 
       Element e2 = new Element("testOneArgReplace", "value2");
-      assertEquals(e, cache.replace(e2));
+      Assert.assertEquals(e, cache.replace(e2));
 
-      assertEquals(cache.get("testOneArgReplace").getObjectValue(), e2.getObjectValue());
+      Assert.assertEquals(cache.get("testOneArgReplace").getObjectValue(), e2.getObjectValue());
 
       try {
         cache.replace(null);
-        fail("replace with null Element should throw NPE");
+        Assert.fail("replace with null Element should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
 
       try {
         cache.replace(new Element(null, "value1"));
-        fail("replace with null keys should throw NPE");
+        Assert.fail("replace with null keys should throw NPE");
       } catch (NullPointerException npe) {
         // expected
       }
@@ -269,19 +273,19 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
         for (Future<Element> f : futures) {
           Element e = f.get();
           if (e == null) {
-            assertFalse(seenNull);
+            Assert.assertFalse(seenNull);
             seenNull = true;
           } else if (e.getValue() instanceof Long) {
             if (threadId == null) {
               threadId = (Long) e.getValue();
             } else {
-              assertEquals(threadId, e.getValue());
+              Assert.assertEquals(threadId, e.getValue());
             }
           } else {
-            fail("Unexpected value : " + e.getValue());
+            Assert.fail("Unexpected value : " + e.getValue());
           }
         }
-        assertTrue(seenNull);
+        Assert.assertTrue(seenNull);
       } finally {
         executor.shutdownNow();
         executor.awaitTermination(60, TimeUnit.SECONDS);
@@ -360,9 +364,9 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
         for (Future<Integer> f : futures) {
           values.add(f.get());
         }
-        assertEquals(futures.size(), values.size());
-        assertTrue(Integer.valueOf(futures.size()).equals(testCache.get("testMultiThreadedTwoArgReplace")
-                                                              .getObjectValue()));
+        Assert.assertEquals(futures.size(), values.size());
+        Assert.assertTrue(Integer.valueOf(futures.size()).equals(testCache.get("testMultiThreadedTwoArgReplace")
+                                                                     .getObjectValue()));
       } finally {
         executor.shutdownNow();
         executor.awaitTermination(60, TimeUnit.SECONDS);
@@ -392,15 +396,15 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
         for (Future<Element> f : futures) {
           Element e = f.get();
           if (e.getValue() == null) {
-            assertFalse(seenNull);
+            Assert.assertFalse(seenNull);
             seenNull = true;
           } else {
             indices.add((Integer) e.getObjectValue());
           }
         }
-        assertTrue(seenNull);
-        assertEquals(futures.size() - 1, indices.size());
-        assertFalse(indices.contains(testCache.get("testMultiThreadedOneArgReplace").getObjectValue()));
+        Assert.assertTrue(seenNull);
+        Assert.assertEquals(futures.size() - 1, indices.size());
+        Assert.assertFalse(indices.contains(testCache.get("testMultiThreadedOneArgReplace").getObjectValue()));
       } finally {
         executor.shutdownNow();
         executor.awaitTermination(60, TimeUnit.SECONDS);

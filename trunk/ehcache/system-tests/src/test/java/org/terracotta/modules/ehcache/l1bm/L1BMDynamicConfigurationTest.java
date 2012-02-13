@@ -12,6 +12,7 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
@@ -108,9 +109,10 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
         }
       });
       long cacheSize = cache.calculateInMemorySize();
-      assertTrue("Cache size is exceeding the size limit. Size in bytes: " + cacheSize,
-                 cacheSize <= sizeInBytes * (1 + SIZE_TEST_TOLERANCE));
-      assertTrue("Cache size below threshold. Size in bytes: " + cacheSize, cacheSize >= (1 - SIZE_TEST_TOLERANCE));
+      Assert.assertTrue("Cache size is exceeding the size limit. Size in bytes: " + cacheSize,
+                        cacheSize <= sizeInBytes * (1 + SIZE_TEST_TOLERANCE));
+      Assert.assertTrue("Cache size below threshold. Size in bytes: " + cacheSize,
+                        cacheSize >= (1 - SIZE_TEST_TOLERANCE));
     }
 
     private void testCountBasedCache(CacheManager cm) throws Throwable {
@@ -167,8 +169,8 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
         Thread.sleep(1000);
         memoryStoreSize = cache.getMemoryStoreSize();
       }
-      assertTrue("Cache size differs from expected range. Size: " + memoryStoreSize,
-                 (memoryStoreSize > 0 && memoryStoreSize <= max));
+      Assert.assertTrue("Cache size differs from expected range. Size: " + memoryStoreSize,
+                        (memoryStoreSize > 0 && memoryStoreSize <= max));
     }
 
     private Cache createCache(CacheManager cm, String cacheName, int maxEntriesOnHeap, long maxBytesOnHeap) {

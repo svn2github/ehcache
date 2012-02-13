@@ -7,6 +7,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -61,7 +62,7 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
       getTestControlMbean().crashActiveServer(0);
 
       for (int i = 0; i < 20000; i++) {
-        assertNotNull(cache.get("key-" + i));
+        Assert.assertNotNull(cache.get("key-" + i));
       }
     }
 

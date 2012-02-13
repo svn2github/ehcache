@@ -114,7 +114,7 @@ public class BlockingCacheTest extends AbstractCacheTestBase {
 
       switch (index) {
         case 0:
-          assertNull(cache.get(KEY_3));
+          Assert.assertNull(cache.get(KEY_3));
           break;
       }
 
@@ -126,8 +126,8 @@ public class BlockingCacheTest extends AbstractCacheTestBase {
           cache.put(new Element(KEY_3, VALUE_3));
           break;
         default:
-          assertNotNull(cache.get(KEY_3));
-          assertEquals(VALUE_3, cache.get(KEY_3).getValue());
+          Assert.assertNotNull(cache.get(KEY_3));
+          Assert.assertEquals(VALUE_3, cache.get(KEY_3).getValue());
       }
     }
 

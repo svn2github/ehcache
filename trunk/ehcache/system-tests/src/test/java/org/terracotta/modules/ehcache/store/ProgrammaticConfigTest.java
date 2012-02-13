@@ -54,7 +54,7 @@ public class ProgrammaticConfigTest extends AbstractCacheTestBase {
       final int index = barrier.await();
 
       Cache exampleCache = getCacheManager().getCache("example");
-      assertNotNull(exampleCache);
+      Assert.assertNotNull(exampleCache);
 
       if (index == 0) {
         exampleCache.put(new Element("abc", "def"));
@@ -63,8 +63,8 @@ public class ProgrammaticConfigTest extends AbstractCacheTestBase {
       barrier.await();
 
       Element got = exampleCache.get("abc");
-      assertNotNull(got);
-      assertEquals("def", got.getValue());
+      Assert.assertNotNull(got);
+      Assert.assertEquals("def", got.getValue());
       Assert.assertEquals(1, exampleCache.getSize());
     }
 

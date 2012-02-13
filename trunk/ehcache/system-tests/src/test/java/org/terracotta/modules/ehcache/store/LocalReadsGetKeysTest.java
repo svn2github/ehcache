@@ -88,7 +88,7 @@ public class LocalReadsGetKeysTest extends AbstractTerracottaActivePassiveTestBa
         // iterating the keys will force them to be deserialized (a get() does not currently do that)
 
         List keys = c.getKeys();
-        assertEquals(1, keys.size());
+        Assert.assertEquals(1, keys.size());
 
         for (Object key : keys) {
           // also call get() to fault the value (ie. make it local)
@@ -128,7 +128,7 @@ public class LocalReadsGetKeysTest extends AbstractTerracottaActivePassiveTestBa
     private void attemptNonLocalRead(Cache[] caches) {
       // should return null since server is down and no local data is present
       for (Cache c : caches) {
-        assertEquals(null, c.get(new KeyType1(1)));
+        Assert.assertEquals(null, c.get(new KeyType1(1)));
       }
     }
 

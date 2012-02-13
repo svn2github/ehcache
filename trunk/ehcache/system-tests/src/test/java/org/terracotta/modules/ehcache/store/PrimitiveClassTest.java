@@ -61,8 +61,8 @@ public class PrimitiveClassTest extends AbstractCacheTestBase {
       barrier.await();
 
       for (Class<?> c : types) {
-        assertEquals(c, cache.get(c).getObjectValue());
-        assertEquals(c, cache.get(c).getObjectKey());
+        Assert.assertEquals(c, cache.get(c).getObjectValue());
+        Assert.assertEquals(c, cache.get(c).getObjectKey());
       }
 
       Set<Class<?>> copy = new HashSet<Class<?>>(types);

@@ -41,7 +41,7 @@ public class CachePinningTest extends AbstractCacheTestBase {
       Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
 
       for (int i = 0; i < ELEMENT_COUNT; i++) {
-        assertNotNull(cache.get(i));
+        Assert.assertNotNull(cache.get(i));
       }
 
       Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());

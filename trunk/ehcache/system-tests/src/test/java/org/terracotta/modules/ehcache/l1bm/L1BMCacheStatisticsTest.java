@@ -11,6 +11,7 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -118,7 +119,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
     }
 
     protected void assertCacheSize(Cache cache, int cacheSize, int inMemoryCacheSize) throws Exception {
-      assertEquals(cacheSize, cache.getSize());
+      Assert.assertEquals(cacheSize, cache.getSize());
       assertNearEqualsWithinTimeout(inMemoryCacheSize, memoryStoreCount(cache), 0.175);
     }
 
@@ -128,15 +129,15 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       assertNearEquals(cacheMisses, cache.getLiveCacheStatistics().getCacheMissCount(), 0.05);
       assertNearEquals(inMemoryHits, cache.getLiveCacheStatistics().getInMemoryHitCount(), 0.2);
       assertNearEquals(inMemoryMisses, cache.getLiveCacheStatistics().getInMemoryMissCount(), 0.2);
-      assertEquals(0, cache.getLiveCacheStatistics().getOffHeapHitCount());
-      assertEquals(0, cache.getLiveCacheStatistics().getOffHeapMissCount());
+      Assert.assertEquals(0, cache.getLiveCacheStatistics().getOffHeapHitCount());
+      Assert.assertEquals(0, cache.getLiveCacheStatistics().getOffHeapMissCount());
     }
 
     private void assertNearEquals(final long expected, final long actual, final double tolerance) {
       final long lowerBound = (long) ((1.0 - tolerance) * expected);
       final long upperBound = (long) ((1.0 + tolerance) * expected);
-      assertTrue("Number out of expected range [" + lowerBound + ", " + upperBound + "] actual=" + actual,
-                 lowerBound <= actual && upperBound >= actual);
+      Assert.assertTrue("Number out of expected range [" + lowerBound + ", " + upperBound + "] actual=" + actual,
+                        lowerBound <= actual && upperBound >= actual);
     }
 
     private void assertNearEqualsWithinTimeout(final long expected, final Callable<Long> getActual,
@@ -187,8 +188,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       info("Cache expirations: " + cache.getLiveCacheStatistics().getExpiredCount());
     }
 
-    private Cache createCache(CacheManager cm, String cacheName, Consistency consistency,
-                              ValueMode valueMode, int maxEntriesOnHeap, long maxBytesOnHeap) {
+    private Cache createCache(CacheManager cm, String cacheName, Consistency consistency, ValueMode valueMode,
+                              int maxEntriesOnHeap, long maxBytesOnHeap) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setEternal(true);
       cacheConfiguration.setName(cacheName);

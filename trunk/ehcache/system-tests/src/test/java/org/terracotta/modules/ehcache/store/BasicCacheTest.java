@@ -157,7 +157,7 @@ public class BasicCacheTest extends AbstractCacheTestBase {
         // expected
       }
 
-      assertTrue(cache.getKeys().contains("key"));
+      Assert.assertTrue(cache.getKeys().contains("key"));
       try {
         cache.getKeys().remove("key");
         Assert.fail();
@@ -172,7 +172,7 @@ public class BasicCacheTest extends AbstractCacheTestBase {
         // expected
       }
 
-      assertFalse(cache.getKeys().contains("not in the cache!"));
+      Assert.assertFalse(cache.getKeys().contains("not in the cache!"));
       try {
         cache.getKeys().retainAll(Collections.singletonList("not in the cache!"));
         Assert.fail();

@@ -51,21 +51,25 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
         CacheManager cm = cacheManager;
         cacheManager.shutdown();
         try {
+          setupCacheManager();
           cm = testTTIChange();
         } finally {
           cm.shutdown();
         }
         try {
+          setupCacheManager();
           cm = testTTLChange();
         } finally {
           cm.shutdown();
         }
         try {
+          setupCacheManager();
           cm = testDiskCapacityChange();
         } finally {
           cm.shutdown();
         }
         try {
+          setupCacheManager();
           cm = testMemoryCapacityChange();
         } finally {
           cm.shutdown();
@@ -195,6 +199,5 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
 
       return cacheManager;
     }
-
   }
 }

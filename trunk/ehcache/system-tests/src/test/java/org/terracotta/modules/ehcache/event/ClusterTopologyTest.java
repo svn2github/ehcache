@@ -8,6 +8,7 @@ import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterScheme;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -33,11 +34,11 @@ public class ClusterTopologyTest extends AbstractCacheTestBase {
       getBarrierForAllClients().await();
 
       CacheCluster cluster = cacheManager.getCluster(ClusterScheme.TERRACOTTA);
-      assertTrue(cluster != null);
-      assertTrue(cluster.getScheme().equals(ClusterScheme.TERRACOTTA));
+      Assert.assertTrue(cluster != null);
+      Assert.assertTrue(cluster.getScheme().equals(ClusterScheme.TERRACOTTA));
       getBarrierForAllClients().await();
       Collection<ClusterNode> nodes = cluster.getNodes();
-      assertEquals(getParticipantCount(), nodes.size());
+      Assert.assertEquals(getParticipantCount(), nodes.size());
       getBarrierForAllClients().await();
     }
 

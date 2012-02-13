@@ -102,13 +102,13 @@ public class L1BMOnHeapWithTTISanityTest extends AbstractCacheTestBase {
           Thread.sleep(1000);
         }
       }
-      assertEquals(numOfElements, cache.getSize());
+      Assert.assertEquals(numOfElements, cache.getSize());
       System.out.println("XXXXXX client " + index + " cache size: " + cache.getSize() + " local: "
                          + cache.getMemoryStoreSize());
       if (index == 0) {
-        assertTrue(cache.getMemoryStoreSize() > 0);
+        Assert.assertTrue(cache.getMemoryStoreSize() > 0);
       } else {
-        assertEquals(0, cache.getMemoryStoreSize());
+        Assert.assertEquals(0, cache.getMemoryStoreSize());
       }
 
       barrier.await();
@@ -117,7 +117,7 @@ public class L1BMOnHeapWithTTISanityTest extends AbstractCacheTestBase {
       for (int i = 0; i < numOfElements; i++) {
         Assert.assertNotNull("value for key" + i + " is null", cache.get("key" + i));
       }
-      assertTrue(cache.getMemoryStoreSize() > 0);
+      Assert.assertTrue(cache.getMemoryStoreSize() > 0);
 
       barrier.await();
       System.out.println("XXXX done with basic get, now removing random entries...");

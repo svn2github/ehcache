@@ -10,6 +10,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
@@ -63,7 +64,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
         pinnedInCache.getSize(); // Force transactions to complete first.
       }
       barrier.await();
-      assertEquals(pinnedInCache.getSize(), 200);
+      Assert.assertEquals(pinnedInCache.getSize(), 200);
 
       if (nodeId == 1) {
         pinnedInCache.getCacheConfiguration().setMaxElementsOnDisk(100);
@@ -73,14 +74,14 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
         pinnedInCache.getSize(); // Force transactions to complete first.
       }
       barrier.await();
-      assertEquals(pinnedInCache.getSize(), 400);
+      Assert.assertEquals(pinnedInCache.getSize(), 400);
 
       Cache pinnedInCacheWithMaxOnDisk = new Cache(new CacheConfiguration().name("pinnedInCacheWithMaxOnDisk")
           .terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(100).maxElementsOnDisk(123)
           .pinning(new PinningConfiguration().store("inCache")));
       try {
         cacheManager.addCache(pinnedInCacheWithMaxOnDisk);
-        fail("Expected cache configuration to fail.");
+        Assert.fail("Expected cache configuration to fail.");
       } catch (InvalidConfigurationException e) {
         // expected
       }

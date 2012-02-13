@@ -12,6 +12,7 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -79,8 +80,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(6);
 
-      assertNull(cache.get("key1"));
-      assertNotNull(cache.get("key2"));
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(20);
 
@@ -88,13 +89,13 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(15);
 
-      assertNotNull(cache.get("key1"));
-      assertNotNull(cache.get("key2"));
+      Assert.assertNotNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       SECONDS.sleep(25);
 
-      assertNull(cache.get("key1"));
-      assertNull(cache.get("key2"));
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(4);
 
@@ -103,8 +104,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(8);
 
-      assertNull(cache.get("key1"));
-      assertNull(cache.get("key2"));
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
     }
 
     private void testTTLChange(CacheManager cm) throws InterruptedException {
@@ -115,13 +116,13 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(6);
 
-      assertNotNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key1"));
       cache.put(new Element("key2", new byte[0]));
 
       SECONDS.sleep(6);
 
-      assertNull(cache.get("key1"));
-      assertNotNull(cache.get("key2"));
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(20);
 
@@ -129,17 +130,17 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(8);
 
-      assertNotNull(cache.get("key1"));
-      assertNotNull(cache.get("key2"));
+      Assert.assertNotNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       SECONDS.sleep(8);
 
-      assertNotNull(cache.get("key1"));
-      assertNull(cache.get("key2"));
+      Assert.assertNotNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
 
       SECONDS.sleep(10);
 
-      assertNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key1"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(4);
 
@@ -148,8 +149,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(8);
 
-      assertNull(cache.get("key1"));
-      assertNull(cache.get("key2"));
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
     }
 
     public void testTTIChangeWithCustomElements(CacheManager cm) throws InterruptedException {
@@ -163,14 +164,14 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(6);
 
-      assertNull(cache.get("short"));
+      Assert.assertNull(cache.get("short"));
 
       SECONDS.sleep(6);
 
-      assertNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(20);
 
@@ -179,17 +180,17 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(15);
 
-      assertNotNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(25);
 
-      assertNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(4);
 
@@ -198,10 +199,10 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(8);
 
-      assertNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
     }
 
     public void testTTLChangeWithCustomElements(CacheManager cm) throws InterruptedException {
@@ -215,17 +216,17 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(6);
 
-      assertNotNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(6);
 
-      assertNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(20);
 
@@ -234,24 +235,24 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(6);
 
-      assertNotNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(6);
 
-      assertNotNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(10);
 
-      assertNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(4);
 
@@ -260,10 +261,10 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(8);
 
-      assertNull(cache.get("default"));
-      assertNotNull(cache.get("eternal"));
-      assertNull(cache.get("short"));
-      assertNotNull(cache.get("long"));
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
     }
 
     private void testMemoryCapacityChange(CacheManager cm) throws Exception {

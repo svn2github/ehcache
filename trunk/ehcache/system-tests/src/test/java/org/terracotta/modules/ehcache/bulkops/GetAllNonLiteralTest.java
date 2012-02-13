@@ -72,7 +72,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
           Thread.sleep(1000);
         }
       }
-      assertEquals(numOfElements, cache.getSize());
+      Assert.assertEquals(numOfElements, cache.getSize());
 
       barrier.await();
       Set getKeySet = new HashSet<DummyObject>();
@@ -82,11 +82,11 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
 
       System.out.println("XXXXXX starting getAll");
       Map<Object, Element> rv = cache.getAll(getKeySet);
-      assertEquals(numOfElements, rv.size());
+      Assert.assertEquals(numOfElements, rv.size());
 
       for (Entry<Object, Element> entry : rv.entrySet()) {
         Assert.assertNotNull("val for key " + entry.getKey() + " is null", entry.getValue());
-        assertTrue(vals.contains(entry.getValue().getObjectValue()));
+        Assert.assertTrue(vals.contains(entry.getValue().getObjectValue()));
       }
 
       barrier.await();
@@ -109,7 +109,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
       }
 
       rv = cache.getAll(getKeySet);
-      assertEquals(numOfElements, rv.size());
+      Assert.assertEquals(numOfElements, rv.size());
 
       for (Entry<Object, Element> entry : rv.entrySet()) {
         DummyObject key = (DummyObject) entry.getKey();
@@ -117,15 +117,15 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
           Assert.assertNull("val for " + entry.getKey() + " is not null", entry.getValue());
         } else {
           Assert.assertNotNull("val for " + entry.getKey() + " is null", entry.getValue());
-          assertTrue(vals.contains(entry.getValue().getObjectValue()));
+          Assert.assertTrue(vals.contains(entry.getValue().getObjectValue()));
         }
       }
 
       System.out.println("XXXXX done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy,
-                               Consistency consistency, String valueMode) {
+    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+                               String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsOnDisk(1000000);
