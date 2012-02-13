@@ -10,6 +10,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
@@ -66,26 +67,26 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
       while (cache.getSize() != numOfElements) {
         Thread.sleep(1000);
       }
-      assertEquals(numOfElements, cache.getSize());
+      Assert.assertEquals(numOfElements, cache.getSize());
 
       Map<Object, Element> rv = cache.getAll(Arrays.asList("key0", "key1", "key2", "key3", "key4", "key5", "key6",
                                                            "key7", "key8", "key9"));
-      assertEquals(numOfElements, rv.size());
+      Assert.assertEquals(numOfElements, rv.size());
 
       for (Element element : rv.values()) {
-        assertTrue(elements.contains(element));
+        Assert.assertTrue(elements.contains(element));
       }
 
       Collection<Element> values = rv.values();
       for (Element element : elements) {
-        assertTrue(values.contains(element));
+        Assert.assertTrue(values.contains(element));
       }
 
       rv = cache.getAll(Arrays.asList("key0", "key2", "key4", "key6", "key8"));
-      assertEquals(5, rv.size());
+      Assert.assertEquals(5, rv.size());
 
       for (Element element : rv.values()) {
-        assertTrue(elements.contains(element));
+        Assert.assertTrue(elements.contains(element));
       }
 
       System.out.println("verified <key,value> by client now waiting for others...");
@@ -100,21 +101,21 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
         Thread.sleep(1000);
       }
 
-      assertEquals(numOfElements - 5, cache.getSize());
+      Assert.assertEquals(numOfElements - 5, cache.getSize());
       System.out.println("now checking removed <key,value> in " + cache.getName() + " by client");
 
       for (int i = 0; i < numOfElements; i++) {
         if (i % 2 == 0) {
-          assertNull(cache.get("key" + i));
+          Assert.assertNull(cache.get("key" + i));
         } else {
-          assertNotNull("key" + i);
+          Assert.assertNotNull("key" + i);
         }
       }
       System.out.println("client, I am done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy,
-                               Consistency consistency, String valueMode) {
+    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+                               String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsInMemory(100000);

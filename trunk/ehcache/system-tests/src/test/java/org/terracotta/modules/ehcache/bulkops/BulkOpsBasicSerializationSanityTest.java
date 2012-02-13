@@ -10,6 +10,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
+import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
@@ -76,7 +77,7 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       while (cache.getSize() != numOfElements) {
         Thread.sleep(1000);
       }
-      assertEquals(numOfElements, cache.getSize());
+      Assert.assertEquals(numOfElements, cache.getSize());
 
       Set keySet1 = new HashSet<Key>();
       for (int i = 0; i < numOfElements; i++) {
@@ -84,16 +85,16 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       }
 
       Map<Object, Element> rv = cache.getAll(keySet1);
-      assertEquals(numOfElements, rv.size());
+      Assert.assertEquals(numOfElements, rv.size());
 
       Collection<Element> values = new HashSet<Element>();
       for (Entry<Object, Element> entry : rv.entrySet()) {
-        assertTrue(elements.contains(entry.getValue()));
+        Assert.assertTrue(elements.contains(entry.getValue()));
         values.add(entry.getValue());
       }
 
       for (Element element : elements) {
-        assertTrue(values.contains(element));
+        Assert.assertTrue(values.contains(element));
       }
 
       Set keySet2 = new HashSet<Key>();
@@ -104,13 +105,13 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       }
 
       rv = cache.getAll(keySet2);
-      assertEquals(keySet2.size(), rv.size());
+      Assert.assertEquals(keySet2.size(), rv.size());
 
       for (Entry<Object, Element> entry : rv.entrySet()) {
-        assertTrue(elements.contains(entry.getValue()));
+        Assert.assertTrue(elements.contains(entry.getValue()));
       }
 
-      assertEquals(keySet2, rv.keySet());
+      Assert.assertEquals(keySet2, rv.keySet());
       System.out.println("verified <key,value> by client now waiting for others...");
       barrier.await();
 
@@ -128,16 +129,16 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
         Thread.sleep(1000);
       }
 
-      assertEquals(numOfElements - keySet2.size(), cache.getSize());
+      Assert.assertEquals(numOfElements - keySet2.size(), cache.getSize());
       System.out.println("client " + index + "now checking removed <key,value> in " + cache.getName() + " by client");
       for (Object key : keySet2) {
-        assertNull(cache.get(key));
+        Assert.assertNull(cache.get(key));
       }
       System.out.println("client " + index + " done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy,
-                               Consistency consistency, String valueMode) {
+    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+                               String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsInMemory(100000);
