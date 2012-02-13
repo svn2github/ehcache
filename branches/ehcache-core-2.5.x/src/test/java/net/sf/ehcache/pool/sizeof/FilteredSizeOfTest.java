@@ -2,7 +2,6 @@ package net.sf.ehcache.pool.sizeof;
 
 import net.sf.ehcache.pool.sizeof.annotationfiltered.AnnotationFilteredPackage;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThan;
