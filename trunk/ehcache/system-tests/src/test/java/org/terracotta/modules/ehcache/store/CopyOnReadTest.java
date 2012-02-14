@@ -4,13 +4,7 @@
 package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.apache.commons.io.IOUtils;
 import org.terracotta.api.ClusteringToolkit;
@@ -31,7 +25,7 @@ import junit.framework.Assert;
 public class CopyOnReadTest extends AbstractCacheTestBase {
 
   public CopyOnReadTest(TestConfig testConfig) {
-    super(testConfig, App.class);
+    super("basic-copy-on-read-cache-test.xml", testConfig, App.class);
   }
 
   @Override
@@ -48,28 +42,6 @@ public class CopyOnReadTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
-
-      Configuration cacheManagerConfig = new Configuration();
-      CacheConfiguration config = new CacheConfiguration();
-      config.setName("test");
-      config.setEternal(true);
-      config.setOverflowToDisk(false);
-      config.setOverflowToOffHeap(false);
-      config.setMaxEntriesLocalHeap(0);
-      config.setCopyOnRead(true);
-
-      TerracottaConfiguration tcConfig = new TerracottaConfiguration();
-      tcConfig.valueMode(ValueMode.SERIALIZATION);
-      config.terracotta(tcConfig);
-
-      TerracottaClientConfiguration tcClientConfiguration = new TerracottaClientConfiguration();
-      tcClientConfiguration.setUrl(getTerracottaUrl());
-      cacheManagerConfig.addTerracottaConfig(tcClientConfiguration);
-
-      cacheManagerConfig.addCache(config);
-
-      cacheManager = new CacheManager(cacheManagerConfig);
-
       Loader loader1 = new Loader("1");
       Loader loader2 = new Loader("2");
 

@@ -15,6 +15,14 @@
       <terracotta clustered="true"/>
   </cache>
   
+  <cache name="strong"
+         maxElementsInMemory="10000"
+         eternal="true"
+         overflowToDisk="false">
+
+      <terracotta clustered="true" consistency="strong"/>
+  </cache>
+  
   <cache name="defaultConcurrencyCache"
          maxElementsInMemory="10000"
          eternal="true"

@@ -83,7 +83,7 @@ public class BulkOpsExplictLockingTest extends AbstractCacheTestBase {
       while (cache.getSize() != numOfElements) {
         Thread.sleep(1000);
       }
-      assertEquals(numOfElements, cache.getSize());
+      Assert.assertEquals(numOfElements, cache.getSize());
 
       Set keySet1 = new HashSet<Key>();
       for (int i = 0; i < numOfElements; i++) {
@@ -93,15 +93,15 @@ public class BulkOpsExplictLockingTest extends AbstractCacheTestBase {
       cache.acquireReadLockOnKey(key);
       Map<Object, Element> rv = cache.getAll(keySet1);
       cache.releaseReadLockOnKey(key);
-      assertEquals(numOfElements, rv.size());
+      Assert.assertEquals(numOfElements, rv.size());
 
       for (Element element : rv.values()) {
-        assertTrue(elements.contains(element));
+        Assert.assertTrue(elements.contains(element));
       }
 
       Collection<Element> values = rv.values();
       for (Element element : elements) {
-        assertTrue(values.contains(element));
+        Assert.assertTrue(values.contains(element));
       }
 
       Set keySet2 = new HashSet<Key>();
@@ -112,13 +112,13 @@ public class BulkOpsExplictLockingTest extends AbstractCacheTestBase {
       }
 
       rv = cache.getAll(keySet2);
-      assertEquals(keySet2.size(), rv.size());
+      Assert.assertEquals(keySet2.size(), rv.size());
 
       for (Element element : rv.values()) {
-        assertTrue(elements.contains(element));
+        Assert.assertTrue(elements.contains(element));
       }
 
-      assertEquals(keySet2, rv.keySet());
+      Assert.assertEquals(keySet2, rv.keySet());
       System.out.println("verified <key,value> by client now waiting for others...");
       barrier.await();
 
@@ -134,16 +134,15 @@ public class BulkOpsExplictLockingTest extends AbstractCacheTestBase {
         Thread.sleep(1000);
       }
 
-      assertEquals(numOfElements - keySet2.size(), cache.getSize());
+      Assert.assertEquals(numOfElements - keySet2.size(), cache.getSize());
       System.out.println("now checking removed <key,value> in " + cache.getName() + " by client");
       for (Object k : keySet2) {
-        assertNull(cache.get(k));
+        Assert.assertNull(cache.get(k));
       }
       System.out.println("client, I am done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy,
-                               Consistency consistency) {
+    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsInMemory(100000);

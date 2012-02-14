@@ -16,6 +16,7 @@ import org.terracotta.ehcache.tests.ClientBase;
 
 import com.tc.test.config.model.TestConfig;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -116,7 +117,7 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
     private void setup() {
       setupCacheManager();
       manager = getCacheManager();
-      cache = manager.getEhcache("test");
+      cache = manager.getEhcache("strong");
     }
 
     private void clearup() {
@@ -360,11 +361,11 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
       try {
         List<Future<Integer>> futures = executor.invokeAll(Collections.nCopies(100, twoArgReplace));
 
-        Set<Integer> values = new HashSet<Integer>();
+        List<Integer> values = new ArrayList<Integer>();
         for (Future<Integer> f : futures) {
           values.add(f.get());
         }
-        Assert.assertEquals(futures.size(), values.size());
+        Assert.assertEquals("Got values: " + values, futures.size(), new HashSet<Integer>(values).size());
         Assert.assertTrue(Integer.valueOf(futures.size()).equals(testCache.get("testMultiThreadedTwoArgReplace")
                                                                      .getObjectValue()));
       } finally {

@@ -35,7 +35,7 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
     private final ClusteredAtomicLong evictedCount;
 
     public App(String[] args) {
-      super(args);
+      super("test2", args);
       this.evictedCount = getClusteringToolkit().getAtomicLong("testLong");
       this.barrier = getClusteringToolkit().getBarrier("testBarrier", NODE_COUNT);
     }
