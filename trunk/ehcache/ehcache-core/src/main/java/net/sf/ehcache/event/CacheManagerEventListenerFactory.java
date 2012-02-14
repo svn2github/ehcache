@@ -27,7 +27,7 @@ import java.util.Properties;
  *
  * @author Greg Luck
  * @version $Id$
- * @see "http://ehcache.sourceforge.net/documentation/cachemanager_event_listeners.html"
+ * @see "http://ehcache.org/documentation/apis/cachemanager-event-listeners"
  */
 public abstract class CacheManagerEventListenerFactory {
 
