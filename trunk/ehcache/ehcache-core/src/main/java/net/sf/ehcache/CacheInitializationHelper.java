@@ -43,4 +43,14 @@ public class CacheInitializationHelper {
     public void initializeEhcache(final Ehcache cache) {
         this.cacheManager.initializeEhcache(cache, false);
     }
+
+    /**
+     * Initialize the given {@link Ehcache} using the given {@link CacheManager}
+     *
+     * @param cacheManager
+     * @param cache
+     */
+    public static void initializeEhcache(final CacheManager cacheManager, final Ehcache cache) {
+        cacheManager.initializeEhcache(cache, false);
+    }
 }

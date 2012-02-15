@@ -58,7 +58,6 @@ import org.terracotta.modules.ehcache.store.backend.BackendStore;
 import org.terracotta.modules.ehcache.store.backend.BulkLoadBackend;
 import org.terracotta.modules.ehcache.store.backend.NonStrictBackend;
 import org.terracotta.modules.ehcache.store.backend.StrictBackend;
-import org.terracotta.modules.ehcache.store.servermap.ServerMapLocalStoreFactoryImpl;
 
 import java.util.Collection;
 import java.util.List;
@@ -202,7 +201,25 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
         : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localStoreManager(cmName);
     builder.localStoreName(ehcache.getName());
-    builder.serverMapLocalStoreFactory(ServerMapLocalStoreFactoryImpl.class.getName());
+    builder.localStoreUUID(ehcache.getGuid());
+
+    if (ehcacheConfig.getPinningConfiguration() != null) {
+      builder.pinningStore(ehcacheConfig.getPinningConfiguration().getStore());
+    }
+
+    if (ehcacheConfig.getMaxEntriesLocalHeap() > 0) {
+      builder.maxEntriesLocalHeap((int) ehcacheConfig.getMaxEntriesLocalHeap());
+    }
+
+    if (ehcacheConfig.getMaxBytesLocalHeap() > 0) {
+      builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
+    }
+
+    if (ehcacheConfig.getMaxBytesLocalOffHeap() > 0) {
+      builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
+    }
+
+    builder.overflowToOffheap(ehcacheConfig.isOverflowToOffHeap());
 
     return builder.build();
   }
@@ -294,7 +311,7 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
                    + ehcache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy().name());
 
     // fault in references
-    backend.loadReferences();
+    backend.initializeLocalCache(createClusteredMapConfig(ehcache));
     valueModeHandler.loadReferences();
     cacheCoherence.loadReferences();
   }

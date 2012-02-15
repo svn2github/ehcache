@@ -8,6 +8,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import org.terracotta.cache.CacheConfig;
 import org.terracotta.cache.TimeSource;
 import org.terracotta.cache.TimestampedValue;
+import org.terracotta.config.Configuration;
 import org.terracotta.locking.ClusteredLock;
 import org.terracotta.meta.MetaData;
 
@@ -22,7 +23,7 @@ import java.util.Set;
  */
 public interface ClusteredStoreBackend<K, V> {
 
-  void loadReferences();
+  void initializeLocalCache(Configuration config);
 
   /********************************
    * mutators -- require search meta data

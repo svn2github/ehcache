@@ -12,6 +12,7 @@ import org.terracotta.cache.MutableConfig;
 import org.terracotta.cache.TerracottaDistributedCache;
 import org.terracotta.cache.TimeSource;
 import org.terracotta.cache.TimestampedValue;
+import org.terracotta.config.Configuration;
 import org.terracotta.locking.ClusteredLock;
 import org.terracotta.meta.MetaData;
 import org.terracotta.modules.ehcache.coherence.CacheCoherence;
@@ -304,7 +305,7 @@ public class LocalBufferedMapTest extends TestCase {
       this.config = new MutableConfig();
     }
 
-    public void loadReferences() {
+    public void initializeLocalCache(Configuration c) {
       //
     }
 

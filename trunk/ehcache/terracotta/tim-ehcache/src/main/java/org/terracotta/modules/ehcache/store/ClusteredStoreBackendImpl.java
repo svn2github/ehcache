@@ -47,8 +47,8 @@ public class ClusteredStoreBackendImpl<K, V> implements ClusteredStoreBackend<K,
     initializeTransients(listeners, clusteredStore);
   }
 
-  public void loadReferences() {
-    tdc.initializeLocalCache();
+  public void initializeLocalCache(Configuration config) {
+    tdc.initializeLocalCache(config);
     valueModeHandler.getClass();
   }
 

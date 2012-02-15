@@ -3,13 +3,16 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import net.sf.ehcache.config.PinningConfiguration.Store;
+
 import org.terracotta.collections.ClusteredMapConfigFields;
 import org.terracotta.config.BaseConfiguration;
 import org.terracotta.config.Configuration;
 import org.terracotta.locking.LockType;
 
 public class ClusteredMapConfigurationBuilder implements ClusteredMapConfigFields {
-  private final BaseConfiguration config = new BaseConfiguration();
+  private final BaseConfiguration config = new BaseConfiguration()
+                                             .setBoolean(INITIALIZE_LOCAL_CACHE_ON_LOAD_FIELD_NAME, false);
 
   public ClusteredMapConfigurationBuilder concurrency(int concurrency) {
     config.setInt(CONCURRENCY_FIELD_NAME, concurrency);
@@ -101,13 +104,34 @@ public class ClusteredMapConfigurationBuilder implements ClusteredMapConfigField
     return config.getString(LOCAL_STORE_NAME_FIELD_NAME);
   }
 
-  public ClusteredMapConfigurationBuilder serverMapLocalStoreFactory(String serverMapLocalStoreFactory) {
-    config.setString(SERVERMAP_LOCAL_STORE_FACTORY_FIELD_NAME, serverMapLocalStoreFactory);
+  public ClusteredMapConfigurationBuilder localStoreUUID(String uuid) {
+    config.setString(LOCAL_STORE_UUID_FIELD_NAME, uuid);
     return this;
   }
 
-  public String getServerMapLocalStoreFactory() {
-    return config.getString(SERVERMAP_LOCAL_STORE_FACTORY_FIELD_NAME);
+  public ClusteredMapConfigurationBuilder pinningStore(Store store) {
+    config.setString(PINNING_STORE, store.toString());
+    return this;
+  }
+
+  public ClusteredMapConfigurationBuilder maxEntriesLocalHeap(int maxEntriesLocalHeap) {
+    config.setInt(MAX_COUNT_LOCAL_HEAP_FIELD_NAME, maxEntriesLocalHeap);
+    return this;
+  }
+
+  public ClusteredMapConfigurationBuilder maxBytesLocalHeap(long maxBytesLocalHeap) {
+    config.setLong(MAX_BYTES_LOCAL_HEAP_FIELD_NAME, maxBytesLocalHeap);
+    return this;
+  }
+
+  public ClusteredMapConfigurationBuilder maxBytesLocalOffheap(long maxBytesLocalOffheap) {
+    config.setLong(MAX_BYTES_LOCAL_OFFHEAP_FIELD_NAME, maxBytesLocalOffheap);
+    return this;
+  }
+
+  public ClusteredMapConfigurationBuilder overflowToOffheap(boolean overflowToOffheap) {
+    config.setBoolean(OVERFLOW_TO_OFFHEAP_FIELD_NAME, overflowToOffheap);
+    return this;
   }
 
   public Configuration build() {
