@@ -5,6 +5,4 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-  <!-- currently suppress this rule until they're fixed -->
-  <suppress id="forbidden-toolkit-classes" files=".java" />
 </suppressions>
