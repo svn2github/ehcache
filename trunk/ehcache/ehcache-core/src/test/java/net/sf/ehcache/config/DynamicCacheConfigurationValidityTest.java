@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +19,12 @@ public class DynamicCacheConfigurationValidityTest {
     @Before
     public void setup() {
         this.cacheManager = CacheManager.getInstance();
+        cacheManager.addCache(new Cache(new CacheConfiguration(TEST_NAME, 0)));
+    }
+
+    @After
+    public void cleanup() {
+      this.cacheManager.removalAll();
     }
 
     @Test
@@ -32,8 +39,6 @@ public class DynamicCacheConfigurationValidityTest {
             Assert.assertEquals("Illegal value -1 for maxEntriesLocalHeap: has to be larger than or equal to 0", e.getMessage());
         }
 
-        cacheConfiguration = new CacheConfiguration(TEST_NAME, 0);
-        cacheManager.addCache(new Cache(cacheConfiguration));
         Cache cache = cacheManager.getCache(TEST_NAME);
         Assert.assertEquals(0, cache.getCacheConfiguration().getMaxEntriesLocalHeap());
         try {
