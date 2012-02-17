@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
+import junit.framework.Assert;
 
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -45,7 +46,8 @@ public class SizeOfTest extends AbstractSizeOfTest {
     Assume.assumeThat(CURRENT_JVM_INFORMATION.getMinimumObjectSize(), is(CURRENT_JVM_INFORMATION.getObjectAlignment()));
 
     SizeOf sizeOf = new CrossCheckingSizeOf();
-    if (System.getProperty("java.version").startsWith("1.5")) {
+    String version = System.getProperty("java.version");
+    if (version.startsWith("1.5")) {
       if (IS_64_BIT) {
         verify64bitSizes(sizeOf);
         assertThat(deepSizeOf(sizeOf, new ReentrantReadWriteLock()), is(136L));
@@ -53,7 +55,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
         verify32bitSizes(sizeOf);
         assertThat(deepSizeOf(sizeOf, new ReentrantReadWriteLock()), is(80L));
       }
-    } else {
+    } else if (version.startsWith("1.6")) {
       if (IS_64_BIT) {
         if (IS_JROCKIT) {
           verify64bitJRockit4GBCompressedRefsSizes(sizeOf);
@@ -78,6 +80,21 @@ public class SizeOfTest extends AbstractSizeOfTest {
         verify32bitSizes(sizeOf);
         assertThat(deepSizeOf(sizeOf, new ReentrantReadWriteLock()), is(104L));
       }
+    } else if (version.startsWith("1.7")) {
+      if (IS_64_BIT) {
+        if (COMPRESSED_OOPS) {
+          verify64bitCompressedOopsSizes(sizeOf);
+          assertThat(deepSizeOf(sizeOf, new ReentrantReadWriteLock()), is(120L));
+        } else {
+          verify64bitSizes(sizeOf);
+          assertThat(deepSizeOf(sizeOf, new ReentrantReadWriteLock()), is(192L));
+        }
+      } else {
+        verify32bitSizes(sizeOf);
+        assertThat(deepSizeOf(sizeOf, new ReentrantReadWriteLock()), is(112L));
+      }        
+    } else {
+        Assert.fail();
     }
 
     List<Object> list1 = new ArrayList<Object>();
