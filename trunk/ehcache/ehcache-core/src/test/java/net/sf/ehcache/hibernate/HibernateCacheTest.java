@@ -242,8 +242,6 @@ public class HibernateCacheTest {
             mgr.listEmailsOfEvent(event.getId());
         }
 
-        getSessionFactory().close();
-
         QueryStatistics queryStats = stats.getQueryStatistics("from Event");
         assertEquals("Cache Miss Count", 1L, queryStats.getCacheMissCount());
         assertEquals("Cache Hit Count", 0L, queryStats.getCacheHitCount());
