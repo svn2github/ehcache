@@ -56,10 +56,16 @@ import static org.junit.Assert.fail;
  */
 public final class BlockingCacheTest {
 
+    private static final String DISK_STORE_PATH = "target/BlockingCacheTest";
+    
     @BeforeClass
     public static void cleanupDisk() {
-        for (File f : new File("target/BlockingCacheTest").listFiles()) {
-            f.delete();
+        File diskStorePath = new File(DISK_STORE_PATH);
+        File[] files = diskStorePath.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                f.delete();
+            }
         }
     }
     
@@ -86,7 +92,7 @@ public final class BlockingCacheTest {
     private CacheManager createCacheManager(CacheConfiguration config) {
         CacheManager manager = new CacheManager(new Configuration()
                 .name("BlockingCacheTest")
-                .diskStore(new DiskStoreConfiguration().path("target/BlockingCacheTest")));
+                .diskStore(new DiskStoreConfiguration().path(DISK_STORE_PATH)));
         manager.addCache(new Cache(config));
         return manager;
     }
