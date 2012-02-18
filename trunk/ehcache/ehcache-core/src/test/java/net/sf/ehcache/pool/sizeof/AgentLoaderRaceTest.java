@@ -6,11 +6,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.AnyOf.anyOf;
 
 /**
  *
@@ -18,26 +22,11 @@ import static org.hamcrest.core.IsNull.nullValue;
  */
 public class AgentLoaderRaceTest {
 
-    private static final String JAVA_IO_TMPDIR;
-    static {
-        String tmpdir = System.getenv("TMPDIR");
-        if (tmpdir == null) {
-            tmpdir = System.getenv("TEMP");
-        }
-        if (tmpdir == null) {
-            JAVA_IO_TMPDIR = System.getProperty("java.io.tmpdir");
-        } else {
-            JAVA_IO_TMPDIR = System.setProperty("java.io.tmpdir", tmpdir);
-        }
-     }
-    
-    @AfterClass
-    public static void resetJavaIoTmpDir() {
-        if (JAVA_IO_TMPDIR == null) {
-            System.clearProperty("java.io.tmpdir");
-        } else {
-            System.setProperty("java.io.tmpdir", JAVA_IO_TMPDIR);
-        }
+    @BeforeClass
+    public static void checkForAgentLoading() {
+        Assume.assumeThat(System.getProperty("java.version"), anyOf(startsWith("1.6"), startsWith("1.7")));
+        Assume.assumeThat(System.getProperty("java.version"), not(startsWith("1.7.0_02")));
+        Assume.assumeThat(System.getProperty("java.vm.vendor"), not(startsWith("Apple")));
     }
     
     /*
