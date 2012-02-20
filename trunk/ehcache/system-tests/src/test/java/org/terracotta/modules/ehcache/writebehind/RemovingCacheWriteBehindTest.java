@@ -76,8 +76,14 @@ public class RemovingCacheWriteBehindTest extends AbstractCacheTestBase {
         try {
           cache.putWithWriter(new Element(key, "value" + i));
         } catch (CacheException e) {
+            // Thrown when we only got to shutdown the AsyncWriteBehind
           e.printStackTrace();
           cause = e.getCause();
+          break;
+        } catch (IllegalStateException e) {
+            // Thrown when the 'entire' Cache is shutdown already
+          e.printStackTrace();
+          cause = e;
           break;
         }
       }
