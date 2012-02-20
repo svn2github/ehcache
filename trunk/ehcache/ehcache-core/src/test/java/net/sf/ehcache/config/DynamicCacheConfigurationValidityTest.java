@@ -121,7 +121,10 @@ public class DynamicCacheConfigurationValidityTest {
     @Test
     public void testTTL() {
         Cache cache = cacheManager.getCache(TEST_NAME);
-        Assert.assertEquals(false, cache.getCacheConfiguration().isEternal());
+        Assert.assertNotNull(cache);
+        final CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+        Assert.assertNotNull(cacheConfiguration);
+        Assert.assertEquals(false, cacheConfiguration.isEternal());
         Assert.assertEquals(0, cache.getCacheConfiguration().getTimeToLiveSeconds());
         try {
             cache.getCacheConfiguration().setTimeToLiveSeconds(-1234L);
