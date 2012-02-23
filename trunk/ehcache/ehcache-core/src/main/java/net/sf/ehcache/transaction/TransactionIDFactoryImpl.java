@@ -44,8 +44,22 @@ public class TransactionIDFactoryImpl implements TransactionIDFactory {
     /**
      * {@inheritDoc}
      */
+    public TransactionID restoreTransactionID(TransactionIDSerializedForm serializedForm) {
+        throw new UnsupportedOperationException("unclustered transaction IDs are directly deserializable!");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public XidTransactionID createXidTransactionID(Xid xid) {
         return new XidTransactionIDImpl(xid);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public XidTransactionID restoreXidTransactionID(XidTransactionIDSerializedForm serializedForm) {
+        throw new UnsupportedOperationException("unclustered transaction IDs are directly deserializable!");
     }
 
 }

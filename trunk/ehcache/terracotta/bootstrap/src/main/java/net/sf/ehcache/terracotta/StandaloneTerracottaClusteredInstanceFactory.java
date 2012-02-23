@@ -79,8 +79,8 @@ public class StandaloneTerracottaClusteredInstanceFactory implements ClusteredIn
     }
   }
 
-  public TransactionIDFactory createTransactionIDFactory(String uuid) {
-    return realFactory.createTransactionIDFactory(uuid);
+  public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
+    return realFactory.createTransactionIDFactory(uuid, cacheManagerName);
   }
 
   public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {

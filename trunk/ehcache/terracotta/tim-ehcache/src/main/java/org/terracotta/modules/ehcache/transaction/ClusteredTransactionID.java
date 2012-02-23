@@ -4,6 +4,7 @@
 package org.terracotta.modules.ehcache.transaction;
 
 import net.sf.ehcache.transaction.TransactionID;
+import net.sf.ehcache.transaction.TransactionIDSerializedForm;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,14 +16,24 @@ public class ClusteredTransactionID implements TransactionID {
   private static final AtomicInteger idGenerator = new AtomicInteger();
 
   private final String clusterUUID;
+  private final String cacheManagerName;
   private final long creationTime;
   private final int id;
   private volatile boolean commit;
 
-  ClusteredTransactionID(String clusterUUID) {
+  ClusteredTransactionID(String clusterUUID, String cacheManagerName) {
     this.clusterUUID = clusterUUID;
+    this.cacheManagerName = cacheManagerName;
     this.creationTime = System.currentTimeMillis();
     this.id = idGenerator.getAndIncrement();
+  }
+
+  ClusteredTransactionID(TransactionIDSerializedForm serializedForm) {
+    this.clusterUUID = serializedForm.getClusterUUID();
+    this.cacheManagerName = serializedForm.getCacheManagerName();
+    this.creationTime = serializedForm.getCreationTime();
+    this.id = serializedForm.getId();
+    this.commit = serializedForm.isCommit();
   }
 
   // autolocked in config
@@ -54,6 +65,10 @@ public class ClusteredTransactionID implements TransactionID {
   @Override
   public String toString() {
     return id + ":" + creationTime + "@" + clusterUUID + (commit ? " (marked for commit)" : "");
+  }
+
+  private Object writeReplace() {
+    return new TransactionIDSerializedForm(cacheManagerName, clusterUUID, creationTime, id, commit);
   }
 
 }

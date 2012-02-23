@@ -75,13 +75,16 @@ public interface ClusteredInstanceFactory {
 
     /**
      * Create a TransactionIDFactory
+     *
      * @param uuid a UUID unique to the cluster
+     * @param cacheManagerName the name of the cache manager creating a TransactionIDFactory
      * @return a TransactionIDFactory
      */
-    TransactionIDFactory createTransactionIDFactory(String uuid);
+    TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName);
 
     /**
      * Create a SoftLockFactory for a cache
+     *
      * @param cache the cache for which to create a SoftLockFactory
      * @return a SoftLockFactory
      */

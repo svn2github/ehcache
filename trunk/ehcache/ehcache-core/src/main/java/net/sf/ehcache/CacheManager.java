@@ -223,6 +223,7 @@ public class CacheManager {
     private volatile Configuration.RuntimeCfg runtimeCfg;
 
     private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
+    private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -408,8 +409,8 @@ public class CacheManager {
             }
         }
 
-        TransactionIDFactory transactionIDFactory = createTransactionIDFactory();
-        this.transactionController = new TransactionController(transactionIDFactory, configuration.getDefaultTransactionTimeoutInSeconds());
+        this.transactionController = new TransactionController(getOrCreateTransactionIDFactory(),
+                configuration.getDefaultTransactionTimeoutInSeconds());
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, configuration);
         configure(configurationHelper);
@@ -1849,12 +1850,15 @@ public class CacheManager {
     }
 
     /**
-     * Create a TransactionIDFactory
+     * Get or create a TransactionIDFactory
      *
      * @return a TransactionIDFactory
      */
-    TransactionIDFactory createTransactionIDFactory() {
-        return new DelegatingTransactionIDFactory(terracottaClient);
+    public TransactionIDFactory getOrCreateTransactionIDFactory() {
+        if (transactionIDFactory == null) {
+            transactionIDFactory = new DelegatingTransactionIDFactory(terracottaClient, getName());
+        }
+        return transactionIDFactory;
     }
 
     /**
@@ -1934,7 +1938,7 @@ public class CacheManager {
             }
         }
         // recreate TransactionController with fresh TransactionIDFactory
-        transactionController = new TransactionController(createTransactionIDFactory(), runtimeCfg.getConfiguration()
+        transactionController = new TransactionController(getOrCreateTransactionIDFactory(), runtimeCfg.getConfiguration()
                 .getDefaultTransactionTimeoutInSeconds());
     }
 
@@ -2056,8 +2060,9 @@ public class CacheManager {
                             + mbeanRegistrationProvider.getClass().getName(), e);
                 }
             }
-            // recreate TransactionController with fresh TransactionIDFactory
-            transactionController = new TransactionController(createTransactionIDFactory(), runtimeCfg.getConfiguration()
+            // recreate TransactionController with a fresh TransactionIDFactory
+            transactionIDFactory = null;
+            transactionController = new TransactionController(getOrCreateTransactionIDFactory(), runtimeCfg.getConfiguration()
                     .getDefaultTransactionTimeoutInSeconds());
         }
 

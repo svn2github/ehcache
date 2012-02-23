@@ -1248,7 +1248,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 configuration.getTerracottaConfiguration().setCacheXA(true);
             }
             SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
-            TransactionIDFactory transactionIDFactory = cacheManager.createTransactionIDFactory();
+            TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
 
             // this xaresource is for initial registration and recovery
             xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,

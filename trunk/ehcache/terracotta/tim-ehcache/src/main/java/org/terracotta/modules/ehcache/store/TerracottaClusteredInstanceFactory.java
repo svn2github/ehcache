@@ -374,8 +374,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     }
   }
 
-  public TransactionIDFactory createTransactionIDFactory(String uuid) {
-    return new ClusteredTransactionIDFactory(uuid);
+  public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
+    return new ClusteredTransactionIDFactory(uuid, cacheManagerName);
   }
 
   public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {

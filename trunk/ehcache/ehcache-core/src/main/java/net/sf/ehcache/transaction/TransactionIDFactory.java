@@ -29,15 +29,32 @@ public interface TransactionIDFactory {
 
     /**
      * Create a unique transaction ID
+     *
      * @return a transaction ID
      */
     TransactionID createTransactionID();
 
     /**
+     * Restore a transaction ID from its serialized form
+     *
+     * @param serializedForm the TransactionID serialized form
+     * @return the restored TransactionID
+     */
+    TransactionID restoreTransactionID(TransactionIDSerializedForm serializedForm);
+
+    /**
      * Create a transaction ID based on a XID for uniqueness
+     *
      * @param xid the XID
      * @return a transaction ID
      */
     XidTransactionID createXidTransactionID(Xid xid);
 
+    /**
+     * Restore a XID transaction ID from its serialized form
+     *
+     * @param serializedForm the XidTransactionID serialized form
+     * @return the restored XidTransactionID
+     */
+    XidTransactionID restoreXidTransactionID(XidTransactionIDSerializedForm serializedForm);
 }

@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.transaction.xa;
 
+import net.sf.ehcache.transaction.XidTransactionIDSerializedForm;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
 import javax.transaction.xa.Xid;
@@ -20,8 +21,16 @@ public class ClusteredXidTransactionID implements XidTransactionID {
 
     private final Xid xid;
     private volatile Decision decision = Decision.IN_DOUBT;
+    private final String cacheManagerName;
 
-    public ClusteredXidTransactionID(Xid xid) {
+    public ClusteredXidTransactionID(XidTransactionIDSerializedForm serializedForm) {
+        this.xid = new XidClustered(serializedForm.getXid());
+        this.decision = Decision.valueOf(serializedForm.getDecision());
+        this.cacheManagerName = serializedForm.getCacheManagerName();
+    }
+
+    public ClusteredXidTransactionID(Xid xid, String cacheManagerName) {
+        this.cacheManagerName = cacheManagerName;
         this.xid = new XidClustered(xid);
     }
 
@@ -82,4 +91,9 @@ public class ClusteredXidTransactionID implements XidTransactionID {
     public String toString() {
         return "Clustered [" + xid + "] (decision: " + decision + ")";
     }
+
+    private Object writeReplace() {
+        return new XidTransactionIDSerializedForm(cacheManagerName, xid, decision.toString());
+    }
+
 }
