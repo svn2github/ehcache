@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.config.generator;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -46,14 +46,17 @@ public abstract class ConfigurationUtil {
      * @return text representing the cacheManager {@link Configuration}
      */
     public static String generateCacheManagerConfigurationText(CacheManager cacheManager) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintWriter out = new PrintWriter(baos);
-        XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
-        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
-        visitConfiguration(cacheManager, configGenerator);
-        out.flush();
-        out.close();
-        return baos.toString();
+        StringWriter output = new StringWriter();
+        PrintWriter writer = new PrintWriter(output);
+        try {
+            XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(writer);
+            configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
+            visitConfiguration(cacheManager, configGenerator);
+            writer.flush();
+        } finally {
+            writer.close();
+        }
+        return output.toString();
     }
 
     /**
@@ -75,14 +78,17 @@ public abstract class ConfigurationUtil {
      * @return text representing the {@link Configuration}
      */
     public static String generateCacheManagerConfigurationText(Configuration configuration) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintWriter out = new PrintWriter(baos);
-        XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
-        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
-        visitConfiguration(configuration, configGenerator);
-        out.flush();
-        out.close();
-        return baos.toString();
+        StringWriter output = new StringWriter();
+        PrintWriter writer = new PrintWriter(output);
+        try {
+            XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(writer);
+            configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
+            visitConfiguration(configuration, configGenerator);
+            writer.flush();
+        } finally {
+            writer.close();
+        }
+        return output.toString();
     }
 
     /**
@@ -104,14 +110,17 @@ public abstract class ConfigurationUtil {
      * @return text representing the {@link CacheConfiguration}
      */
     public static String generateCacheConfigurationText(Configuration configuration, CacheConfiguration cacheConfiguration) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintWriter out = new PrintWriter(baos);
-        XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(out);
-        configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
-        visitCacheConfiguration(configuration, cacheConfiguration, configGenerator);
-        out.flush();
-        out.close();
-        return baos.toString();
+        StringWriter output = new StringWriter();
+        PrintWriter writer = new PrintWriter(output);
+        try {
+            XMLGeneratorVisitor configGenerator = new XMLGeneratorVisitor(writer);
+            configGenerator.disableOutputBehavior(OutputBehavior.OUTPUT_OPTIONAL_ATTRIBUTES_WITH_DEFAULT_VALUES);
+            visitCacheConfiguration(configuration, cacheConfiguration, configGenerator);
+            writer.flush();
+        } finally {
+            writer.close();
+        }
+        return output.toString();
     }
 
     /**

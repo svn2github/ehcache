@@ -24,7 +24,7 @@ import net.sf.ehcache.CacheManager;
 
 import org.junit.Test;
 
-public class ConfigurationGeneratedParses {
+public class ConfigurationGeneratedParsesTest {
 
     private static final String[] TEST_CONFIGS = new String[] {
         "ehcache.xml",
@@ -43,13 +43,14 @@ public class ConfigurationGeneratedParses {
     @Test
     public void testGeneratedConfigIsValid() throws CacheException, UnsupportedEncodingException {
         for (String config : TEST_CONFIGS) {
-            CacheManager manager = new CacheManager(ConfigurationGeneratedParses.class.getResource(config));
+            String generatedConfig;
+            CacheManager manager = new CacheManager(ConfigurationGeneratedParsesTest.class.getResource(config));
             try {
-                String generatedConfig = manager.getActiveConfigurationText();
-                new CacheManager(new ByteArrayInputStream(generatedConfig.getBytes("UTF-8"))).shutdown();
+                generatedConfig = manager.getActiveConfigurationText();
             } finally {
                 manager.shutdown();
             }
+            new CacheManager(new ByteArrayInputStream(generatedConfig.getBytes("UTF-8"))).shutdown();
         }
     }
 }
