@@ -30,14 +30,7 @@
       <artifactId>ehcache</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>ehcache-core</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-      <optional>true</optional>
-    </dependency>    
+    </dependency>   
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -50,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>org.terracotta</groupId>
-      <artifactId>terracotta-toolkit-1.1-runtime</artifactId>
+      <artifactId>terracotta-toolkit-1.5-runtime</artifactId>
       <version>[1.0.0-SNAPSHOT,]</version>
       <scope>test</scope>
     </dependency>
