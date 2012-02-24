@@ -120,6 +120,17 @@ public class CacheConfigurationTest {
     }
 
     @Test
+    public void testMaxMemoryOffHeap() {
+        CacheConfiguration configuration = new CacheConfiguration();
+
+        configuration.setMaxMemoryOffHeap("100m");
+        assertEquals("100m", configuration.getMaxMemoryOffHeap());
+
+        configuration.setMaxBytesLocalOffHeap("1G");
+        assertEquals("1G", configuration.getMaxMemoryOffHeap());
+    }
+
+    @Test
     public void testMaxEntriesLocalDiskAndMaxElementsOnDiskAlias() {
         CacheConfiguration configuration = new CacheConfiguration().maxElementsOnDisk(10);
         assertThat(configuration.getMaxEntriesLocalDisk(), is(10L));
