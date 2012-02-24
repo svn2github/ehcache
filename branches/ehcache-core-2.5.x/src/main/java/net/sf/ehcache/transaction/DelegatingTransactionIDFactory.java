@@ -32,6 +32,7 @@ import javax.transaction.xa.Xid;
 public class DelegatingTransactionIDFactory implements TransactionIDFactory {
 
     private final TerracottaClient terracottaClient;
+    private final String cacheManagerName;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
     private volatile TransactionIDFactory transactionIDFactory;
 
@@ -39,15 +40,17 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
      * Create a new DelegatingTransactionIDFactory
      *
      * @param terracottaClient a terracotta client
+     * @param cacheManagerName the name of the cache manager which creates this.
      */
-    public DelegatingTransactionIDFactory(final TerracottaClient terracottaClient) {
+    public DelegatingTransactionIDFactory(TerracottaClient terracottaClient, String cacheManagerName) {
         this.terracottaClient = terracottaClient;
+        this.cacheManagerName = cacheManagerName;
     }
 
     private TransactionIDFactory get() {
         ClusteredInstanceFactory cif = terracottaClient.getClusteredInstanceFactory();
         if (cif != null && cif != this.clusteredInstanceFactory) {
-            this.transactionIDFactory = cif.createTransactionIDFactory(UUID.randomUUID().toString());
+            this.transactionIDFactory = cif.createTransactionIDFactory(UUID.randomUUID().toString(), cacheManagerName);
             this.clusteredInstanceFactory = cif;
         }
 
@@ -67,8 +70,22 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
     /**
      * {@inheritDoc}
      */
+    public TransactionID restoreTransactionID(TransactionIDSerializedForm serializedForm) {
+        return get().restoreTransactionID(serializedForm);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public XidTransactionID createXidTransactionID(Xid xid) {
         return get().createXidTransactionID(xid);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public XidTransactionID restoreXidTransactionID(XidTransactionIDSerializedForm serializedForm) {
+        return get().restoreXidTransactionID(serializedForm);
     }
 
 }

@@ -96,9 +96,9 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     /**
      * {@inheritDoc}
      */
-    public TransactionIDFactory createTransactionIDFactory(String uuid) {
+    public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
         client.waitUntilRejoinComplete();
-        return delegate.createTransactionIDFactory(uuid);
+        return delegate.createTransactionIDFactory(uuid, cacheManagerName);
     }
 
     /**
