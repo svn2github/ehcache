@@ -44,7 +44,6 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.MemoryUnit;
-import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
@@ -695,17 +694,22 @@ public class CacheManagerTest {
      * ehcache-1.7 has 1 additional thread per cache for
      * SampledCacheUsageStatistics. 70 Caches means 140 threads plus 1 for
      * shutdown totalling to 141. Plus Junit thread totals 142.
+     * ehcache-2.5 afaict one thread per Cache, made the test really test for exactly that, and make no other assumptions
      */
     @Test
     public void testCacheManagerThreads() throws CacheException,
             InterruptedException {
+        int initialThreadCount = JVMUtil.enumerateThreads().size();
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
         try {
             int threads = JVMUtil.enumerateThreads().size();
-            assertTrue("More than 145 threads: " + threads, threads <= 145);
+            assertTrue("Not a single thread spawned ?!", threads > initialThreadCount);
+            assertTrue("More threads than expected: " + threads + " (initially " + initialThreadCount +")",
+                threads - initialThreadCount <= manager.getCacheNames().length);
         } finally {
             manager.shutdown();
         }
+        assertTrue(JVMUtil.enumerateThreads().size() <= initialThreadCount + 1); // In case shutdown hook still running...
     }
 
     /**
