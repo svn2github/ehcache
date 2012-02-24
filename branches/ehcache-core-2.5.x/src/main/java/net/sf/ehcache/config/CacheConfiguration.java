@@ -2417,7 +2417,7 @@ public class CacheConfiguration implements Cloneable {
      * @return the max memory of the offheap store for this cache.
      */
     public String getMaxMemoryOffHeap() {
-        return Long.toString(getMaxMemoryOffHeapInBytes());
+        return maxBytesLocalOffHeapInput;
     }
 
     /**
