@@ -14,13 +14,9 @@
             />
 
     <!-- Sample cache named sampleCache1
-        This cache contains a maximum in memory of 10000 elements, and will expire
+        This cache contains a maximum in memory of 4 elements, and will expire
         an element if it is idle for more than 5 minutes and lives for more than
         10 minutes.
-
-        If there are more than 10000 elements it will overflow to the
-        disk cache, which in this configuration will go to wherever java.io.tmp is
-        defined on your system. On a standard Linux system this will be /tmp"
         -->
     <cache name="sampleLFUCache1"
            maxElementsInMemory="4"
@@ -29,8 +25,6 @@
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
-           maxElementsOnDisk="10000"
-           diskPersistent="true"
             />
 
     <!-- Sample cache named sampleCache2

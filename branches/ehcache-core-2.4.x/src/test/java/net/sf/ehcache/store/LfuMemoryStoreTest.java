@@ -179,8 +179,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         element = new Element("key5", "value5");
         cache.put(element);
 
-        Thread.sleep(200);
-
         assertEquals(4, store.getInMemorySize());
         //The element with key "key2" is the LFU element so should be removed
         // directly access the memory store here since the LFU evicted elements have been flushed to the disk store
@@ -193,8 +191,6 @@ public class LfuMemoryStoreTest extends MemoryStoreTester {
         // Insert another element to force the policy
         element = new Element("key6", "value6");
         cache.put(element);
-
-        Thread.sleep(200);
 
         assertEquals(4, store.getInMemorySize());
         assertFalse(((CompoundStore) store).unretrievedGet("key2") instanceof Element);
