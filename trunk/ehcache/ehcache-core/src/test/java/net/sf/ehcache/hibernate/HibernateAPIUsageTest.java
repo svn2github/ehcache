@@ -34,6 +34,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -62,6 +63,15 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
     @After
     public void tearDown() throws Exception {
         super.tearDown();
+        for (CacheManager cacheManager : CacheManager.ALL_CACHE_MANAGERS) {
+            cacheManager.shutdown();
+        }
+    }
+
+    @Override
+    @Before
+    public void setUp() {
+        // Do not setup a cachemanager here!
     }
 
 
@@ -69,7 +79,8 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * Make sure ehcache works with one of the main projects using it: Hibernate-2.1.8
      */
     @Test
-    public void testAPIAsUsedByHibernate2() throws net.sf.hibernate.cache.CacheException {
+    public void testAPIAsUsedByHibernate2() throws Exception {
+        super.setUp();
         net.sf.hibernate.cache.EhCacheProvider provider = new net.sf.hibernate.cache.EhCacheProvider();
         provider.start(null);
         net.sf.hibernate.cache.Cache cache = provider.buildCache("sampleCache1", null);
@@ -94,10 +105,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     @Test
     public void testAPIAsUsedByHibernate3() throws InterruptedException {
-
-        /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
-          because it does not use the singleton CacheManager any more */
-        manager.shutdown();
 
         org.hibernate.cache.EhCacheProvider provider = new org.hibernate.cache.EhCacheProvider();
         provider.start(null);
@@ -184,10 +191,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     @Test
     public void testNewHibernate32CacheAndProviderNewFeatures() {
-
-        /*Shutdown cache manager so that hibernate can start one using the same cache.xml disk path
-          because it does not use the singleton CacheManager any more */
-        manager.shutdown();
 
         org.hibernate.cache.EhCacheProvider provider = new org.hibernate.cache.EhCacheProvider();
         provider.start(null);
@@ -287,10 +290,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
     @Test
     public void testNewHibernateEhcacheAndProviderBackwardCompatible() {
 
-        /*Shutdown cache manager so that hibernate can start one using the same cache.xml disk path
-          because it does not use the singleton CacheManager any more */
-        manager.shutdown();
-
         net.sf.ehcache.hibernate.EhCacheProvider provider = new net.sf.ehcache.hibernate.EhCacheProvider();
 
         //Fire up a second provider, CacheManager and cache concurrently
@@ -362,9 +361,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             //expected
         }
 
-        ((net.sf.ehcache.hibernate.EhCache) cache).getBackingCache().getCacheManager().shutdown();
-
-
     }
 
 
@@ -373,8 +369,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     @Test
     public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
-
-        manager.shutdown();
 
         //initialise
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
@@ -405,8 +399,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     @Test
     public void testPersistentStoreFromCacheManagerUsingHibernate321Provider() throws Exception {
-
-        manager.shutdown();
 
         //initialise
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
@@ -445,10 +437,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     @Test
     public void testNewHibernateEhcacheAndProviderNewFeatures() {
-
-        /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
-          because it does not use the singleton CacheManager any more */
-        manager.shutdown();
 
         net.sf.ehcache.hibernate.EhCacheProvider provider = new net.sf.ehcache.hibernate.EhCacheProvider();
         provider.start(null);
@@ -537,7 +525,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             //expected
         }
 
-        ((net.sf.ehcache.hibernate.EhCache) cache).getBackingCache().getCacheManager().shutdown();
     }
 
     /**
@@ -551,10 +538,6 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      */
     @Test
     public void testNewHibernateSingletonEhcacheAndProviderNewFeatures() {
-
-        /*Shutdown cache manager so that hibernate can start one using the same ehcache.xml disk path
-          because it does not use the singleton CacheManager any more */
-        manager.shutdown();
 
         net.sf.ehcache.hibernate.SingletonEhCacheProvider provider = new net.sf.ehcache.hibernate.SingletonEhCacheProvider();
         provider.start(null);
