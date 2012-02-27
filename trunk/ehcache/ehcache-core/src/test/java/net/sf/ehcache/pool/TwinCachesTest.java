@@ -9,17 +9,21 @@ import junit.framework.Assert;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
 
+import org.junit.After;
 import org.junit.Test;
 
 public class TwinCachesTest {
 
+    private CacheManager manager;
+
     @Test
     public void testParallelLoadTwinCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -51,13 +55,12 @@ public class TwinCachesTest {
         System.err.println("[2] Measured : " + (((float) two.getSize()) / total) + " [" + two.getSize() + "]");
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
-        Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
-        manager.shutdown();
+        Assert.assertEquals(1f - ratio, ((float)two.getSize()) / total, 0.1f);
     }
 
     @Test
     public void testSerialLoadTwinCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -91,13 +94,12 @@ public class TwinCachesTest {
         System.err.println("[2] Measured : " + (((float) two.getSize()) / total) + " [" + two.getSize() + "]");
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
-        Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
-        manager.shutdown();
+        Assert.assertEquals(1f - ratio, ((float)two.getSize()) / total, 0.1f);
     }
 
     @Test
     public void testRandomAccessTwinCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -126,13 +128,12 @@ public class TwinCachesTest {
         System.err.println("[2] Measured : " + (((float) two.getSize()) / total) + " [" + two.getSize() + "]");
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
-        Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
-        manager.shutdown();
+        Assert.assertEquals(1f - ratio, ((float)two.getSize()) / total, 0.1f);
     }
 
     @Test
     public void testRandomAccessTripletCaches() {
-        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
         Ehcache two = manager.addCacheIfAbsent("two");
@@ -173,13 +174,12 @@ public class TwinCachesTest {
 
         Assert.assertEquals(ratioOne, ((float) one.getSize()) / total, 0.1f);
         Assert.assertEquals(ratioTwo - ratioOne, ((float) two.getSize()) / total, 0.1f);
-        Assert.assertEquals(1 - ratioTwo, ((float) three.getSize()) / total, 0.1f);
-        manager.shutdown();
+        Assert.assertEquals(1 - ratioTwo, ((float)three.getSize()) / total, 0.1f);
     }
 
     @Test
     public void testIntroducedRandomAccessTwinCache() throws IOException {
-        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
 
@@ -218,13 +218,12 @@ public class TwinCachesTest {
         System.err.println("[2] Measured : " + (((float) two.getSize()) / total) + " [" + two.getSize() + "]");
 
         Assert.assertEquals(ratio, ((float) one.getSize()) / total, 0.1f);
-        Assert.assertEquals(1f - ratio, ((float) two.getSize()) / total, 0.1f);
-        manager.shutdown();
+        Assert.assertEquals(1f - ratio, ((float)two.getSize()) / total, 0.1f);
     }
 
     @Test
     public void testIntroducedRandomAccessTripletCache() throws IOException {
-        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
 
@@ -299,13 +298,12 @@ public class TwinCachesTest {
 
         Assert.assertEquals(ratioOne, ((float) one.getSize()) / totalThree, 0.1f);
         Assert.assertEquals(ratioTwo - ratioOne, ((float) two.getSize()) / totalThree, 0.1f);
-        Assert.assertEquals(1 - ratioTwo, ((float) three.getSize()) / totalThree, 0.1f);
-        manager.shutdown();
+        Assert.assertEquals(1 - ratioTwo, ((float)three.getSize()) / totalThree, 0.1f);
     }
 
     @Test
     public void testIntroducedRandomAccessDoubledCache() throws IOException {
-        CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
+        manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
 
@@ -363,8 +361,7 @@ public class TwinCachesTest {
                 + two.calculateInMemorySize() + "]");
 
         Assert.assertEquals(bytesRatio, ((float) one.calculateInMemorySize()) / totalBytes, 0.1f);
-        Assert.assertEquals(1f - bytesRatio, ((float) two.calculateInMemorySize()) / totalBytes, 0.1f);
-        manager.shutdown();
+        Assert.assertEquals(1f - bytesRatio, ((float)two.calculateInMemorySize()) / totalBytes, 0.1f);
     }
 
     private static int getRandomKey(Random rndm, int max) {
@@ -373,5 +370,12 @@ public class TwinCachesTest {
             key = (int) (((rndm.nextGaussian() + 10.0f) / 20.0f) * max);
         } while (key < 0 || key >= max);
         return key;
+    }
+
+    @After
+    public void tearDown() {
+        if(manager != null && manager.getStatus() == Status.STATUS_ALIVE) {
+            manager.shutdown();
+        }
     }
 }

@@ -1892,17 +1892,19 @@ public class CacheTest extends AbstractCacheTest {
 
 
         CacheManager cacheManager = new CacheManager(new ByteArrayInputStream(config));
-        Cache cache = new Cache("test3cache", 20000, false, false, 50, 30);
-        //assertTrue(cache.getCacheConfiguration().isOverflowToDisk());
-        cacheManager.addCache(cache);
 
-        //todo size is slow
-        for (int i = 0; i < 25000; i++) {
-            cache.put(new Element(i + "", "value"));
-//            assertEquals(i + 1, cache.getSize());
+        try {
+            Cache cache = new Cache("test3cache", 20000, false, false, 50, 30);
+            cacheManager.addCache(cache);
+
+            //todo size is slow
+            for (int i = 0; i < 25000; i++) {
+                cache.put(new Element(i + "", "value"));
+            }
+            assertEquals(20000, cache.getSize());
+        } finally {
+            cacheManager.shutdown();
         }
-        assertEquals(20000, cache.getSize());
-//        assertEquals(5000, cache.getDiskStoreSize());
     }
 
 
