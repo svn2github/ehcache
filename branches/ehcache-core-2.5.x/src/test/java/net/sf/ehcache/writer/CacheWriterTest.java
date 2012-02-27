@@ -20,6 +20,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.collection.IsMapContainingKey.hasKey;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
@@ -29,10 +31,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static net.sf.ehcache.util.RetryAssert.assertBy;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -326,35 +330,28 @@ public class CacheWriterTest extends AbstractCacheTest {
         CacheManager.getInstance().addCache(cache);
         TestCacheWriter writer = (TestCacheWriter) cache.getRegisteredCacheWriter();
         assertTrue(writer.isInitialized());
-        assertEquals(0, writer.getWrittenElements().size());
+        assertThat(writer.getWrittenElements().keySet(), empty());
+        assertThat(writer.getDeletedElements().keySet(), empty());
 
         Element el1 = new Element("key1", "value1");
         Element el2 = new Element("key2", "value2");
         Element el3 = new Element("key3", "value3");
+
         cache.putWithWriter(el1);
         cache.putWithWriter(el2);
         cache.putWithWriter(el3);
-
-        Thread.sleep(3000);
-
-        assertEquals(3, writer.getWrittenElements().size());
-        assertNotNull(writer.getWrittenElements().get("key1"));
-        assertNotNull(writer.getWrittenElements().get("key2"));
-        assertNotNull(writer.getWrittenElements().get("key3"));
-        assertEquals(0, writer.getDeletedElements().size());
+        assertBy(3, TimeUnit.SECONDS, writtenElements(writer), hasSize(3));
+        assertThat(writer.getDeletedElements().keySet(), empty());
+        assertThat(writer.getWrittenElements(), hasKey("key1"));
+        assertThat(writer.getWrittenElements(), hasKey("key2"));
+        assertThat(writer.getWrittenElements(), hasKey("key3"));
 
         cache.removeWithWriter(el2.getKey());
         cache.removeWithWriter(el3.getKey());
-
-        assertEquals(3, writer.getWrittenElements().size());
-        assertEquals(0, writer.getDeletedElements().size());
-
-        Thread.sleep(3000);
-
-        assertEquals(3, writer.getWrittenElements().size());
-        assertEquals(2, writer.getDeletedElements().size());
-        assertTrue(writer.getDeletedElements().containsKey("key2"));
-        assertTrue(writer.getDeletedElements().containsKey("key3"));
+        assertBy(3, TimeUnit.SECONDS, deletedElements(writer), hasSize(2));
+        assertThat(writer.getWrittenElements().keySet(), hasSize(3));
+        assertThat(writer.getDeletedElements(), hasKey("key2"));
+        assertThat(writer.getDeletedElements(), hasKey("key3"));
     }
 
     @Test
@@ -983,5 +980,23 @@ public class CacheWriterTest extends AbstractCacheTest {
         Thread.sleep(1000);
 
         assertEquals(30, writer.getWrittenElements().size());
+    }
+
+    private static Callable<Set<Object>> writtenElements(final TestCacheWriter writer) {
+        return new Callable<Set<Object>>() {
+            @Override
+            public Set<Object> call() throws Exception {
+                return writer.getWrittenElements().keySet();
+            }
+        };
+    }
+
+    private static Callable<Set<Object>> deletedElements(final TestCacheWriter writer) {
+        return new Callable<Set<Object>>() {
+            @Override
+            public Set<Object> call() throws Exception {
+                return writer.getDeletedElements().keySet();
+            }
+        };
     }
 }
