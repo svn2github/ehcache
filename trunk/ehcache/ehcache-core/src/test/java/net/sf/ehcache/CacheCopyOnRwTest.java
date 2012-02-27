@@ -25,6 +25,7 @@ import net.sf.ehcache.config.MemoryUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class CacheCopyOnRwTest {
@@ -43,6 +44,16 @@ public class CacheCopyOnRwTest {
     public void tearDown() {
         cacheManager.shutdown();
         cacheManager = null;
+    }
+
+    @Test
+    @Ignore("DEV-6967")
+    public void testCopyOnReadWriteCache() throws Exception {
+        cacheManager.addCache(new Cache(new CacheConfiguration().statistics(true).name("copyOnReadWriteCache").copyOnRead(true)
+            .copyOnWrite(true)));
+        Ehcache cache = cacheManager.getCache("copyOnReadWriteCache");
+        testReplaceElement(cache);
+        testRemoveElement(cache);
     }
 
     @Test
@@ -69,15 +80,6 @@ public class CacheCopyOnRwTest {
         cacheManager.addCache(new Cache(new CacheConfiguration().statistics(true).name("copyOnWriteOnlyCache").copyOnRead(false)
                 .copyOnWrite(true)));
         Ehcache cache = cacheManager.getCache("copyOnWriteOnlyCache");
-        testReplaceElement(cache);
-        testRemoveElement(cache);
-    }
-
-    @Test
-    public void testCopyOnReadWriteCache() throws Exception {
-        cacheManager.addCache(new Cache(new CacheConfiguration().statistics(true).name("copyOnReadWriteCache").copyOnRead(true)
-                .copyOnWrite(true)));
-        Ehcache cache = cacheManager.getCache("copyOnReadWriteCache");
         testReplaceElement(cache);
         testRemoveElement(cache);
     }
