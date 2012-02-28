@@ -1133,7 +1133,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Getter to the CopyStrategy set in the config (really? how?).
+     * Getter to the configured ReadWriteCopyStrategy.
      * This will always return the same unique instance per cache
      *
      * @return the {@link ReadWriteCopyStrategy} for instance for this cache
