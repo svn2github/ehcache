@@ -1037,7 +1037,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
-            elementValueComparator = configuration.getElementValueComparatorConfiguration().getElementComparatorInstance(configuration);
+            elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
 
             if (configuration.getTransactionalMode().isTransactional()
                 && configuration.isTerracottaClustered()
@@ -2838,7 +2838,7 @@ public class Cache implements InternalEhcache, StoreListener {
         copy.cacheStatus.changeState(Status.STATUS_UNINITIALISED);
         copy.configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration()
-            .getElementComparatorInstance(copy.configuration);
+            .createElementComparatorInstance(copy.configuration);
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
         copy.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(copy);
         copy.cacheWriterManagerInitFlag = new AtomicBoolean(false);

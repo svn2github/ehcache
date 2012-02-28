@@ -77,7 +77,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         this.softLockFactory = softLockFactory;
         this.cache = cache;
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
-            .getElementComparatorInstance(cache.getCacheConfiguration());
+            .createElementComparatorInstance(cache.getCacheConfiguration());
         this.cacheName = cache.getName();
     }
 

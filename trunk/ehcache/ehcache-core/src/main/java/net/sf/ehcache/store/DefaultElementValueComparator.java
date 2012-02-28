@@ -26,8 +26,7 @@ import java.util.Arrays;
  */
 public class DefaultElementValueComparator implements ElementValueComparator {
 
-    private final ReadWriteCopyStrategy<Element> readWriteCopyStrategy;
-    private final boolean doNoCopyForRead;
+    private final CacheConfiguration cacheConfiguration;
 
     /**
      * Constructor
@@ -35,9 +34,7 @@ public class DefaultElementValueComparator implements ElementValueComparator {
      * @param cacheConfiguration the cache configuration
      */
     public DefaultElementValueComparator(CacheConfiguration cacheConfiguration) {
-        this.readWriteCopyStrategy = cacheConfiguration.getCopyStrategy();
-        // only do a copy for read before comparing if both copy on read and copy on write are enabled
-        this.doNoCopyForRead = !(cacheConfiguration.isCopyOnRead() && cacheConfiguration.isCopyOnWrite());
+        this.cacheConfiguration = cacheConfiguration;
     }
 
     /**
@@ -70,10 +67,16 @@ public class DefaultElementValueComparator implements ElementValueComparator {
     }
 
     private Element copyForReadIfNeeded(Element element) {
-        if (readWriteCopyStrategy == null || doNoCopyForRead) {
+        ReadWriteCopyStrategy<Element> readWriteCopyStrategy = cacheConfiguration.getCopyStrategy();
+        if (readWriteCopyStrategy == null || skipCopyForRead()) {
             return element;
         }
         return readWriteCopyStrategy.copyForRead(element);
+    }
+
+    private boolean skipCopyForRead() {
+        // only do a copy for read before comparing if both copy on read and copy on write are enabled
+        return !(cacheConfiguration.isCopyOnRead() && cacheConfiguration.isCopyOnWrite());
     }
 
 }

@@ -91,7 +91,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.processor = new XARequestProcessor(this);
         this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
-            .getElementComparatorInstance(cache.getCacheConfiguration());
+            .createElementComparatorInstance(cache.getCacheConfiguration());
     }
 
     /**

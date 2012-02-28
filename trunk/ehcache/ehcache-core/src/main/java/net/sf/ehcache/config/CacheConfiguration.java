@@ -169,12 +169,6 @@ public class CacheConfiguration implements Cloneable {
     public static final CopyStrategyConfiguration DEFAULT_COPY_STRATEGY_CONFIGURATION = new CopyStrategyConfiguration();
 
     /**
-     * Default elementComparatorConfiguration
-     */
-    public static final ElementValueComparatorConfiguration DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION =
-           new ElementValueComparatorConfiguration();
-
-    /**
      * Default maxBytesOnHeap value
      */
     public static final long DEFAULT_MAX_BYTES_ON_HEAP  = 0;
@@ -368,7 +362,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION.copy();
     private volatile SizeOfPolicyConfiguration sizeOfPolicyConfiguration;
     private volatile ElementValueComparatorConfiguration elementValueComparatorConfiguration =
-            DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION;
+        new ElementValueComparatorConfiguration();
     private volatile Boolean copyOnRead;
     private volatile Boolean copyOnWrite;
     private volatile boolean conflictingEternalValuesWarningLogged;
