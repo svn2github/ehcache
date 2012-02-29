@@ -582,6 +582,17 @@
         <skipJavadoc>true</skipJavadoc>
       </properties>
     </profile>
+    <profile>
+      <id>skipJavadoc</id>
+      <properties>
+        <skipJavadoc>true</skipJavadoc>
+      </properties>
+      <activation>
+        <file>
+          <exists>${user.home}/.skipJavadoc</exists>
+        </file>
+      </activation>
+    </profile>
   </profiles>
 
   <!-- The JBoss repository is only here to satisfy the 'provided' dependency
