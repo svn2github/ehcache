@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -35,6 +40,7 @@ import net.sf.ehcache.util.ClassLoaderUtil;
  * @author Abhishek Sanoujam
  */
 class TerracottaClusteredInstanceHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClusteredInstanceHelper.class);
 
     /**
      * Singleton instance
@@ -119,10 +125,8 @@ class TerracottaClusteredInstanceHelper {
      */
     private static final boolean TC_DSO_MODE = Boolean.getBoolean("tc.active");
 
-    private static final String ENTERPRISE_EXPRESS_FACTORY =
-        "net.sf.ehcache.terracotta.ExpressEnterpriseTerracottaClusteredInstanceFactory";
-    private static final String ENTERPRISE_CUSTOM_FACTORY =
-        "org.terracotta.modules.ehcache.store.EnterpriseTerracottaClusteredInstanceFactory";
+    private static final String ENTERPRISE_EXPRESS_FACTORY = "net.sf.ehcache.terracotta.ExpressEnterpriseTerracottaClusteredInstanceFactory";
+    private static final String ENTERPRISE_CUSTOM_FACTORY = "org.terracotta.modules.ehcache.store.EnterpriseTerracottaClusteredInstanceFactory";
     private static final String EXPRESS_FACTORY = "net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory";
     private static final String CUSTOM_FACTORY = "org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory";
 
@@ -136,7 +140,7 @@ class TerracottaClusteredInstanceHelper {
     private TerracottaRuntimeType lookupTerracottaRuntime() {
         if (terracottaRuntimeType == null) {
             final TerracottaRuntimeType[] lookupSequence = {TerracottaRuntimeType.EnterpriseExpress,
-                    TerracottaRuntimeType.EnterpriseCustom, TerracottaRuntimeType.Express, TerracottaRuntimeType.Custom, };
+                    TerracottaRuntimeType.EnterpriseCustom, TerracottaRuntimeType.Express, TerracottaRuntimeType.Custom};
             for (TerracottaRuntimeType type : lookupSequence) {
                 if (type.getFactoryClassOrNull() != null) {
                     terracottaRuntimeType = type;
@@ -149,7 +153,7 @@ class TerracottaClusteredInstanceHelper {
 
     /**
      * Locate and decide which terracotta ClusteredInstanceFactory should be used. If the standalone factory class is available
-     * it is preferred (ie. if ehcache-terracotta-xxx.jar is present)
+     * it is preferred
      *
      * @param cacheConfigs
      * @return the selected terracotta store factory
@@ -163,11 +167,19 @@ class TerracottaClusteredInstanceHelper {
 
         if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseExpress || terracottaRuntimeType == TerracottaRuntimeType.Express) {
             assertExpress(cacheConfigs, terracottaConfig);
-        } else if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseCustom
-                || terracottaRuntimeType == TerracottaRuntimeType.Custom) {
+        } else if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseCustom || terracottaRuntimeType == TerracottaRuntimeType.Custom) {
             assertCustom(terracottaConfig);
         } else {
             throw new CacheException("Unknown Terracotta runtime type - " + terracottaRuntimeType);
+        }
+
+        // assert the old ehcache-terracotta-xxx.jar no longer needed on the classpath since Vincente
+        String classpath = System.getProperty("java.class.path");
+        Pattern oldEhcacheTerracottaPattern = Pattern.compile(".*(ehcache-terracotta\\S*?\\.jar).*");
+        Matcher matcher = oldEhcacheTerracottaPattern.matcher(classpath);
+        if (matcher.matches()) {
+            LOGGER.warn("{} is detected in the current classpath. The use of ehcache-terracotta jar "
+                    + "is no longer needed in this version of Ehcache.", matcher.group(1));
         }
 
         Class factoryClass = terracottaRuntimeType.getFactoryClassOrNull();
@@ -176,11 +188,11 @@ class TerracottaClusteredInstanceHelper {
         }
         try {
             return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
-                    new Class[] {TerracottaClientConfiguration.class }, new Object[] {terracottaConfig });
+                    new Class[] {TerracottaClientConfiguration.class}, new Object[] {terracottaConfig});
         } catch (CacheException ce) {
             if (ce.getCause() instanceof NoClassDefFoundError) {
-                throw new CacheException("Could not create ClusteredInstanceFactory due to missing class." +
-                        " Please verify that terracotta-toolkit is in your classpath.", ce.getCause().getCause());
+                throw new CacheException("Could not create ClusteredInstanceFactory due to missing class."
+                        + " Please verify that terracotta-toolkit is in your classpath.", ce.getCause().getCause());
             } else {
                 throw ce;
             }
@@ -229,6 +241,7 @@ class TerracottaClusteredInstanceHelper {
 
     /**
      * Returns the default {@link StorageStrategy} type for the current Terracotta runtime.
+     *
      * @param cacheConfiguration the cache configuration
      *
      * @return the default {@link StorageStrategy} type for the current Terracotta runtime.
