@@ -39,8 +39,8 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
   }
 
   @Override
-  protected String createClassPath(Class client, boolean withStandaloneJar) throws IOException {
-    String classPath = super.createClassPath(client, withStandaloneJar);
+  protected String createClassPath(Class client) throws IOException {
+    String classPath = super.createClassPath(client);
     return addToClasspath(classPath, TestBaseUtil.jarFor(TerracottaMBean.class));
   }
 

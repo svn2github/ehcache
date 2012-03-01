@@ -47,7 +47,7 @@ public class AbstractCacheTestBase extends AbstractTestBase {
   }
 
   @Override
-  protected String createClassPath(Class client, boolean withStandaloneJar) throws IOException {
+  protected String createClassPath(Class client) throws IOException {
     String ehcache = TestBaseUtil.jarFor(CacheManager.class);
     String slf4jApi = TestBaseUtil.jarFor(org.slf4j.LoggerFactory.class);
     String slf4jBinder = TestBaseUtil.jarFor(org.slf4j.impl.StaticLoggerBinder.class);

@@ -111,7 +111,7 @@ public class RestartingL1ExpressTest extends AbstractCacheTestBase {
     @Override
     public void run() {
       try {
-        runClient(clientClass, true, clientName, extraClientArgs);
+        runClient(clientClass, clientName, extraClientArgs);
       } catch (Throwable t) {
         error.set(t);
       }

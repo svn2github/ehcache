@@ -22,7 +22,7 @@ public class LoaderTest extends AbstractCacheTestBase {
   }
 
   @Override
-  protected String createClassPath(Class client, boolean withStandaloneJar) {
+  protected String createClassPath(Class client) {
     return "";
   }
 
@@ -46,6 +46,6 @@ public class LoaderTest extends AbstractCacheTestBase {
     sb.append(getEhcacheTerracotta()).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(ClientFactory.class));
 
-    runClient(LoaderClient.class, false, LoaderClient.class.getSimpleName(), Arrays.asList(sb.toString()));
+    runClient(LoaderClient.class, LoaderClient.class.getSimpleName(), Arrays.asList(sb.toString()));
   }
 }

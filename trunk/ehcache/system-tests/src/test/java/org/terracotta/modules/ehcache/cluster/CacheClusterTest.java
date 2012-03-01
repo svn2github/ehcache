@@ -29,8 +29,8 @@ public class CacheClusterTest extends AbstractCacheTestBase {
   }
 
   @Override
-  protected String createClassPath(Class client, boolean withStandaloneJar) throws IOException {
-    String classPath = super.createClassPath(client, withStandaloneJar);
+  protected String createClassPath(Class client) throws IOException {
+    String classPath = super.createClassPath(client);
     classPath = addToClasspath(classPath, TestBaseUtil.jarFor(ClusterNode.class));
     return classPath;
   }
