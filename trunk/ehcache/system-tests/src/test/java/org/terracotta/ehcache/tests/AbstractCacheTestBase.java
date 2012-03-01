@@ -4,7 +4,6 @@
 package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.DecoderException;
@@ -61,7 +60,6 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String parseException = TestBaseUtil.jarFor(ParseException.class); // apache commons
     String httpMethod = TestBaseUtil.jarFor(HttpMethod.class);
     String decoder = TestBaseUtil.jarFor(DecoderException.class);
-    String ehcacheTerracotta = getEhcacheTerracotta();
     String jmxUtils = TestBaseUtil.jarFor(JMXUtils.class);
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
 
@@ -69,24 +67,12 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String mbeanSereverProxy = TestBaseUtil.jarFor(MBeanServerInvocationProxy.class);
 
     String classpath = "";
-    if (withStandaloneJar) {
-      classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
-                                writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, slf4jApi,
-                                slf4jBinder, cLogging, asm, jta, oswego, parseException, httpMethod, decoder,
-                                ehcacheTerracotta, jmxUtils, clientBase, mbeanSereverProxy);
-    } else {
-      classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
-                                writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, slf4jApi,
-                                slf4jBinder, jta, cLogging, oswego, parseException, httpMethod, decoder, jmxUtils,
-                                clientBase, mbeanSereverProxy);
-    }
+    classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
+                              writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, slf4jApi,
+                              slf4jBinder, cLogging, asm, jta, oswego, parseException, httpMethod, decoder, jmxUtils,
+                              clientBase, mbeanSereverProxy);
 
     return classpath;
-  }
-
-  @Override
-  protected String getEhcacheTerracotta() {
-    return TestBaseUtil.jarFor(StandaloneTerracottaClusteredInstanceFactory.class);
   }
 
   /**
