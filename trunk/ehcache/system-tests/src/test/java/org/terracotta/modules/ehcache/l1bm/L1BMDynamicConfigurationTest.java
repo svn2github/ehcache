@@ -32,7 +32,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
     private static final int    SIZE_TEST_ELEMENTS  = 10000;
-    private static final double SIZE_TEST_TOLERANCE = 0.10;
+    private static final double SIZE_TEST_TOLERANCE = 0.15;
     private final Barrier       barrier;
 
     public App(String[] args) {
@@ -89,20 +89,11 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
 
         public Boolean call() throws Exception {
           long cacheSize = cache.calculateInMemorySize();
-          if (cacheSize < sizeInBytes * (1 - SIZE_TEST_TOLERANCE)) {
-            System.out.println("Cache size below threshold. Size in bytes: " + cacheSize);
-            return false;
-          }
-          return true;
-        }
-      });
-
-      CallableWaiter.waitOnCallable(new Callable<Boolean>() {
-
-        public Boolean call() throws Exception {
-          long cacheSize = cache.calculateInMemorySize();
-          if (cacheSize > sizeInBytes * (1 + SIZE_TEST_TOLERANCE)) {
-            System.out.println("Cache size is exceeding the size limit. Size in bytes: " + cacheSize);
+          double minSize = sizeInBytes * (1.0 - SIZE_TEST_TOLERANCE);
+          double maxSize = sizeInBytes * (1.0 + SIZE_TEST_TOLERANCE);
+          if (cacheSize < minSize || cacheSize > maxSize) {
+            System.out.println("Cache size outside of allowable range. Actual=" + cacheSize + " expected range=["
+                               + minSize + ", " + maxSize + "]");
             return false;
           }
           return true;
