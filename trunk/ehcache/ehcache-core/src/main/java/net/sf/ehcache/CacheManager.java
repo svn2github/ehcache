@@ -1043,7 +1043,8 @@ public class CacheManager {
      */
     public Cache getCache(String name) throws IllegalStateException, ClassCastException {
         checkStatus();
-        return ehcaches.get(name) instanceof Cache ? (Cache) ehcaches.get(name) : null;
+        Ehcache ehcache = ehcaches.get(name);
+        return ehcache instanceof Cache ? (Cache) ehcache : null;
     }
 
     /**
@@ -1449,8 +1450,7 @@ public class CacheManager {
      */
     public String[] getCacheNames() throws IllegalStateException {
         checkStatus();
-        String[] list = new String[ehcaches.size()];
-        return ehcaches.keySet().toArray(list);
+        return ehcaches.keySet().toArray(new String[0]);
     }
 
     /**
