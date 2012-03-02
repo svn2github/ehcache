@@ -23,6 +23,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsMapContainingKey.hasKey;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -59,6 +60,7 @@ import net.sf.ehcache.writer.TestCacheWriterRetries.WriterEvent;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.IsEqual;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -423,16 +425,13 @@ public class CacheWriterTest {
             cache.removeWithWriter(el3.getKey());
             cache.dispose();
 
-            Thread.sleep(3000);
-
-            assertEquals(3, writer.getWrittenElements().size());
-            assertNotNull(writer.getWrittenElements().get("key1"));
-            assertNotNull(writer.getWrittenElements().get("key2"));
-            assertNotNull(writer.getWrittenElements().get("key3"));
-            assertEquals(3, writer.getWrittenElements().size());
-            assertEquals(2, writer.getDeletedElements().size());
-            assertTrue(writer.getDeletedElements().containsKey("key2"));
-            assertTrue(writer.getDeletedElements().containsKey("key3"));
+            assertBy(3, TimeUnit.SECONDS, deletedElements(writer), hasSize(2));
+            assertThat(writer.getWrittenElements().keySet(), hasSize(3));
+            assertThat(writer.getWrittenElements(), hasKey("key1"));
+            assertThat(writer.getWrittenElements(), hasKey("key2"));
+            assertThat(writer.getWrittenElements(), hasKey("key3"));
+            assertThat(writer.getDeletedElements(), hasKey("key2"));
+            assertThat(writer.getDeletedElements(), hasKey("key3"));
         } finally {
             manager.shutdown();
         }
@@ -503,16 +502,13 @@ public class CacheWriterTest {
 
             cache.dispose();
 
-            Thread.sleep(500);
-
-            assertEquals(3, writer.getWrittenElements().size());
-            assertNotNull(writer.getWrittenElements().get("key1"));
-            assertNotNull(writer.getWrittenElements().get("key2"));
-            assertNotNull(writer.getWrittenElements().get("key3"));
-            assertEquals(3, writer.getWrittenElements().size());
-            assertEquals(2, writer.getDeletedElements().size());
-            assertTrue(writer.getDeletedElements().containsKey("key2"));
-            assertTrue(writer.getDeletedElements().containsKey("key3"));
+            assertBy(500, TimeUnit.MILLISECONDS, deletedElements(writer), hasSize(2));
+            assertThat(writer.getWrittenElements().keySet(), hasSize(3));
+            assertThat(writer.getWrittenElements(), hasKey("key1"));
+            assertThat(writer.getWrittenElements(), hasKey("key2"));
+            assertThat(writer.getWrittenElements(), hasKey("key3"));
+            assertThat(writer.getDeletedElements(), hasKey("key2"));
+            assertThat(writer.getDeletedElements(), hasKey("key3"));
         } finally {
             manager.shutdown();
         }
@@ -550,37 +546,35 @@ public class CacheWriterTest {
 
             Thread.sleep(3000);
 
-            assertEquals(0, writer.getWrittenElements().size());
+            assertThat(writer.getWrittenElements().keySet(), empty());
 
-            Thread.sleep(2000);
+            assertBy(2, TimeUnit.SECONDS, writtenElements(writer), hasSize(3));
+            assertThat(writer.getWrittenElements(), not(hasKey("key1")));
+            assertThat(writer.getWrittenElements(), not(hasKey("key2")));
+            assertThat(writer.getWrittenElements(), not(hasKey("key3")));
+            
+            assertThat(writer.getWrittenElements(), not(hasKey("pre2key1suff2")));
+            assertThat(writer.getWrittenElements(), not(hasKey("pre2key2suff2")));
+            assertThat(writer.getWrittenElements(), not(hasKey("pre2key3suff2")));
+            
+            assertThat(writer.getWrittenElements(), hasKey("pre2key1suff2-batched"));
+            assertThat(writer.getWrittenElements(), hasKey("pre2key2suff2-batched"));
+            assertThat(writer.getWrittenElements(), hasKey("pre2key3suff2-batched"));
 
-            assertEquals(3, writer.getWrittenElements().size());
-            assertFalse(writer.getWrittenElements().containsKey("key1"));
-            assertFalse(writer.getWrittenElements().containsKey("key2"));
-            assertFalse(writer.getWrittenElements().containsKey("key3"));
-            assertFalse(writer.getWrittenElements().containsKey("pre2key1suff2"));
-            assertFalse(writer.getWrittenElements().containsKey("pre2key2suff2"));
-            assertFalse(writer.getWrittenElements().containsKey("pre2key3suff2"));
-            assertTrue(writer.getWrittenElements().containsKey("pre2key1suff2-batched"));
-            assertTrue(writer.getWrittenElements().containsKey("pre2key2suff2-batched"));
-            assertTrue(writer.getWrittenElements().containsKey("pre2key3suff2-batched"));
-
-            assertEquals(0, writer.getDeletedElements().size());
+            assertThat(writer.getDeletedElements().keySet(), empty());
 
             cache.removeWithWriter(el2.getKey());
             cache.removeWithWriter(el3.getKey());
 
             Thread.sleep(2000);
 
-            assertEquals(3, writer.getWrittenElements().size());
-            assertEquals(0, writer.getDeletedElements().size());
+            assertThat(writer.getWrittenElements().keySet(), hasSize(3));
+            assertThat(writer.getDeletedElements().keySet(), empty());
 
-            Thread.sleep(3000);
-
-            assertEquals(3, writer.getWrittenElements().size());
-            assertEquals(2, writer.getDeletedElements().size());
-            assertTrue(writer.getDeletedElements().containsKey("pre2key2suff2-batched"));
-            assertTrue(writer.getDeletedElements().containsKey("pre2key3suff2-batched"));
+            assertBy(3, TimeUnit.SECONDS, deletedElements(writer), hasSize(2));
+            assertThat(writer.getWrittenElements().keySet(), hasSize(3));
+            assertThat(writer.getDeletedElements(), hasKey("pre2key2suff2-batched"));
+            assertThat(writer.getDeletedElements(), hasKey("pre2key3suff2-batched"));
         } finally {
             manager.shutdown();
         }
@@ -620,17 +614,15 @@ public class CacheWriterTest {
 
             Thread.sleep(2000);
 
-            assertEquals(2, writer.getWrittenElements().size());
+            assertBy(2, TimeUnit.SECONDS, writtenElements(writer), hasSize(2));
+            assertThat(writer.getWrittenElements(), not(hasKey("key1-batched")));
+            assertThat(writer.getWrittenElements(), hasKey("key2-batched"));
+            assertThat(writer.getWrittenElements(), hasKey("key3-batched"));
+            assertThat(writer.getWrittenElements().get("key2-batched").getObjectValue(), IsEqual.<Object>equalTo("value2b"));
+            assertThat(writer.getWrittenElements().get("key3-batched").getObjectValue(), IsEqual.<Object>equalTo("value3"));
 
-            assertFalse(writer.getWrittenElements().containsKey("key1-batched"));
-            assertTrue(writer.getWrittenElements().containsKey("key2-batched"));
-            assertTrue(writer.getWrittenElements().containsKey("key3-batched"));
-            assertEquals("value2b", writer.getWrittenElements().get("key2-batched").getObjectValue());
-            assertEquals("value3", writer.getWrittenElements().get("key3-batched").getObjectValue());
-
-            assertEquals(1, writer.getDeletedElements().size());
-
-            assertTrue(writer.getDeletedElements().containsKey("key1-batched"));
+            assertThat(writer.getDeletedElements().keySet(), hasSize(1));
+            assertThat(writer.getDeletedElements(), hasKey("key1-batched"));
         } finally {
             manager.shutdown();
         }
