@@ -10,8 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
@@ -54,7 +57,8 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
         }
         long time = stopWatch.getElapsedTime();
         LOG.info("time: " + time);
-        assertTrue(4 < time);
+        //XXX this assertion is nonsensical - what is it here for?
+        assertThat(time, greaterThan(4L));
     }
 
 
@@ -93,11 +97,12 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
         long elapsed = stopWatch.getElapsedTime();
         LOG.info("Elapsed time: " + elapsed / 1000);
         Thread.sleep(500);
-        assertEquals(100000, cache.getSize());
-        assertTrue(23 < elapsed);
+        assertThat(cache.getSize(), equalTo(100000));
+        //XXX this assertion is nonsensical - what is it here for?
+        assertThat(elapsed, greaterThan(23L));
         //Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the
         //disk store size directly does not.
-        assertTrue(99000 <= cache.getDiskStoreSize());
+        assertThat(cache.getDiskStoreSize(), greaterThanOrEqualTo(99000));
     }
 
     /**
@@ -126,14 +131,12 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 1, null);
         manager.addCache(cache);
         StopWatch stopWatch = new StopWatch();
-        int i = 0;
-        int j = 0;
-        Integer index = null;
+        int index = 0;
         try {
-            for (; i < 100; i++) {
-                for (j = 0; j < 100000; j++) {
-                    index = Integer.valueOf(((1000000 * i) + j));
-                    cache.put(new Element(index,
+            for (int i = 0; i < 100; i++) {
+                for (int j = 0; j < 100000; j++) {
+                    index = (1000000 * i) + j;
+                    cache.put(new Element(Integer.valueOf(index),
                             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -149,9 +152,7 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
             fail();
         } catch (OutOfMemoryError e) {
             LOG.info("All heap consumed after " + index + " entries created.");
-            int expectedMax = 3090000;
-            assertTrue("Achieved " + index.intValue() + " which was less than the expected value of " + expectedMax,
-                    index.intValue() >= expectedMax);
+            assertThat(index, greaterThanOrEqualTo(3090000));
         }
     }
 
@@ -193,7 +194,7 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
         long elapsed = stopWatch.getElapsedTime();
         long putTime = ((elapsed / 1000) - 10);
         LOG.info("Put Elapsed time: " + putTime);
-        assertTrue(putTime < 20);
+        assertThat(putTime, lessThan(20L));
 
         //wait for Disk Store to finish spooling
         while (cache.getStore().bufferFull()) {
@@ -212,9 +213,7 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
         int time = (int) ((getElapsedTime - getStart) / 1000);
         LOG.info("Get Elapsed time: " + time);
 
-        assertTrue(time < 180);
-
-
+        assertThat(time, lessThan(180));
     }
 
     /**
