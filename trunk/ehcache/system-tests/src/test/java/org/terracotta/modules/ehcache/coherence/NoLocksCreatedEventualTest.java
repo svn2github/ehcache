@@ -36,6 +36,8 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
 
   public NoLocksCreatedEventualTest(TestConfig testConfig) {
     super("cache-coherence-test.xml", testConfig, App.class);
+    testConfig.addTcProperty("l1.lockmanager.timeout.interval", "9000000");
+
   }
 
   @Override
@@ -48,6 +50,7 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
 
     public App(String[] args) {
       super("non-strict-Cache", args);
+
     }
 
     @Override
