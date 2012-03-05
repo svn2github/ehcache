@@ -225,6 +225,7 @@ public class HibernateCacheTest {
             final Element e = entityCache.get(o);
             assertFalse(e + " shouldn't be pinned anymore!", entityCache.isPinned(o));
         }
+        assertThat(entityCache.getSize(), equalTo((int)maxEntriesLocalHeap));
     }
 
     @Test
