@@ -258,12 +258,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
         if (delta > -1) {
             Element old = map.put(element.getObjectKey(), element, delta);
-            if (old == null) {
-                checkCapacity(element);
-                return true;
-            } else {
-                return false;
-            }
+            checkCapacity(element);
+            return old == null;
         } else {
             notifyDirectEviction(element);
             return true;
@@ -284,12 +280,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                     throw new StoreUpdateException(e, old != null);
                 }
             }
-            if (old == null) {
-                checkCapacity(element);
-                return true;
-            } else {
-                return false;
-            }
+            checkCapacity(element);
+            return old == null;
         } else {
             notifyDirectEviction(element);
             return true;
