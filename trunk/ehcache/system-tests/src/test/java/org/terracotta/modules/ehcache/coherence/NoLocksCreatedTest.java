@@ -34,6 +34,7 @@ public class NoLocksCreatedTest extends AbstractCacheTestBase {
 
   public NoLocksCreatedTest(TestConfig testConfig) {
     super("cache-coherence-test.xml", testConfig, App.class);
+    testConfig.addTcProperty("l1.lockmanager.timeout.interval", "9000000");
   }
 
   public static class App extends ClientBase {
@@ -105,6 +106,7 @@ public class NoLocksCreatedTest extends AbstractCacheTestBase {
       }
       long coherentGetTime = System.currentTimeMillis() - now;
       System.out.println("Time taken for 5000 COHERENT gets: " + coherentGetTime + " msecs");
+
       locksAfterGets = coordinator.getLocks();
       System.out.println("Number of locks:- Before: " + initial + " After COHERENT gets: " + locksAfterGets.size());
       // no locks should be created still
@@ -124,6 +126,7 @@ public class NoLocksCreatedTest extends AbstractCacheTestBase {
       System.out.println("Time taken for 1000 puts(): " + coherentPutTime + " msecs");
       Assert.assertTrue(cache.isNodeCoherent());
       Assert.assertTrue(cache.isClusterCoherent());
+
       locksAfterPuts = coordinator.getLocks();
       System.out.println("Number of locks:- initialCount: " + initial + " after COHERENT puts: "
                          + locksAfterPuts.size());
