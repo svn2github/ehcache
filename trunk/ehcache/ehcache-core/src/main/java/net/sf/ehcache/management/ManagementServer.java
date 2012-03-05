@@ -19,27 +19,36 @@ package net.sf.ehcache.management;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 
 /**
- * Interface implemented by management servers
+ * Interface implemented by management servers.
+ *
+ * @param <MANAGED> the type to be managed by this {@code ManagementServer}
  *
  * @author Ludovic Orban
  */
-public interface ManagementServer {
+public interface ManagementServer<MANAGED> {
 
-  /**
-   * Start the management server
-   */
-  public void start();
+    /**
+     * Start the management server
+     */
+    public void start();
 
-  /**
-   * Stop the management server
-   */
-  public void stop();
+    /**
+     * Stop the management server
+     */
+    public void stop();
 
-  /**
-   * Configure the management server
-   *
-   * @param configuration the configuration
-   */
-  public void setConfiguration(ManagementRESTServiceConfiguration configuration);
+    /**
+     * Configure the management server
+     *
+     * @param configuration the configuration
+     */
+    public void setConfiguration(ManagementRESTServiceConfiguration configuration);
+
+    /**
+     * Puts the submitted entity under the jurisdiction of this {@code ManagementServer}.
+     *
+     * @param managedEntity an entity to be managed
+     */
+    public void register(MANAGED managedEntity);
 
 }

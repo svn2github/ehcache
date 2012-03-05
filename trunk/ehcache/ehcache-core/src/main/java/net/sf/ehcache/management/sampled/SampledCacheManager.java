@@ -16,6 +16,10 @@
 
 package net.sf.ehcache.management.sampled;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,51 +27,36 @@ import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.config.CacheWriterConfiguration;
-import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.writer.writebehind.WriteBehindManager;
-
 /**
  * An implementation of {@link SampledCacheManagerMBean}
  *
- * <p />
- *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
- * @since 1.7
+ * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
  */
 public class SampledCacheManager extends BaseEmitterBean implements SampledCacheManagerMBean {
     private static final MBeanNotificationInfo[] NOTIFICATION_INFO;
 
-    private final CacheManager cacheManager;
+    private final CacheManagerSampler sampledCacheManagerDelegate;
     private String mbeanRegisteredName;
     private volatile boolean mbeanRegisteredNameSet;
-    private final EventListener cacheManagerEventListener;
 
     static {
-        final String[] notifTypes = new String[] {CACHES_ENABLED, CACHES_CLEARED, STATISTICS_ENABLED, STATISTICS_RESET, };
+        final String[] notifTypes = new String[] {CACHES_ENABLED, CACHES_CLEARED, STATISTICS_ENABLED, STATISTICS_RESET};
         final String name = Notification.class.getName();
         final String description = "Ehcache SampledCacheManager Event";
-        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description), };
+        NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description)};
     }
 
     /**
      * Constructor taking the backing {@link CacheManager}
      *
-     * @param cacheManager
+     * @param cacheManager the cacheManager to wrap
+     * @throws javax.management.NotCompliantMBeanException
+     *          if invalid object is registered
      */
     public SampledCacheManager(CacheManager cacheManager) throws NotCompliantMBeanException {
         super(SampledCacheManagerMBean.class);
-        this.cacheManager = cacheManager;
-        cacheManagerEventListener = new EventListener();
-        cacheManager.setCacheManagerEventListener(cacheManagerEventListener);
+        sampledCacheManagerDelegate = new CacheManagerSamplerImpl(cacheManager);
     }
 
     /**
@@ -75,39 +64,14 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      */
     @Override
     protected void doDispose() {
-        cacheManager.getCacheManagerEventListenerRegistry().unregisterListener(cacheManagerEventListener);
-    }
 
-    /**
-     * Listen for caches coming and going so that we can add a PropertyChangeListener.
-     */
-    private static class EventListener implements CacheManagerEventListener {
-        private Status status = Status.STATUS_UNINITIALISED;
-
-        public void dispose() throws CacheException {
-            status = Status.STATUS_SHUTDOWN;
-        }
-
-        public Status getStatus() {
-            return status;
-        }
-
-        public void init() throws CacheException {
-            status = Status.STATUS_ALIVE;
-        }
-
-        public void notifyCacheAdded(String cacheName) {
-            /**/
-        }
-
-        public void notifyCacheRemoved(String cacheName) {
-            /**/
-        }
     }
 
     /**
      * Set the name used to register this mbean. Can be called only once.
      * Package protected method
+     *
+     * @param name the MBean name to be registered.
      */
     void setMBeanRegisteredName(String name) {
         if (mbeanRegisteredNameSet) {
@@ -121,7 +85,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public void clearAll() {
-        cacheManager.clearAll();
+        sampledCacheManagerDelegate.clearAll();
         sendNotification(CACHES_CLEARED);
     }
 
@@ -129,14 +93,14 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public String[] getCacheNames() throws IllegalStateException {
-        return cacheManager.getCacheNames();
+        return sampledCacheManagerDelegate.getCacheNames();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getStatus() {
-        return cacheManager.getStatus().toString();
+        return sampledCacheManagerDelegate.getStatus();
     }
 
     /**
@@ -150,405 +114,230 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * @return map of cache metrics (hits, misses)
      */
     public Map<String, long[]> getCacheMetrics() {
-        Map<String, long[]> result = new HashMap<String, long[]>();
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result.put(cacheName, new long[] {stats.getCacheHitMostRecentSample(),
-                        stats.getCacheMissNotFoundMostRecentSample()
-                        + stats.getCacheMissExpiredMostRecentSample(),
-                        stats.getCacheElementPutMostRecentSample(), });
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheMetrics();
     }
 
     /**
      * @return aggregate hit rate
      */
     public long getCacheHitRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheHitRate();
     }
 
     /**
      * @return aggregate in-memory hit rate
      */
     public long getCacheInMemoryHitRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitInMemoryMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheInMemoryHitRate();
     }
 
     /**
      * @return aggregate off-heap hit rate
      */
     public long getCacheOffHeapHitRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitOffHeapMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheOffHeapHitRate();
     }
 
     /**
      * @return aggregate on-disk hit rate
      */
     public long getCacheOnDiskHitRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitOnDiskMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheOnDiskHitRate();
     }
 
     /**
      * @return aggregate miss rate
      */
     public long getCacheMissRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += (stats.getCacheMissNotFoundMostRecentSample()
-                    + stats.getCacheMissExpiredMostRecentSample());
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheMissRate();
     }
 
     /**
      * @return aggregate in-memory miss rate
      */
     public long getCacheInMemoryMissRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheMissInMemoryMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheInMemoryMissRate();
     }
 
     /**
      * @return aggregate off-heap miss rate
      */
     public long getCacheOffHeapMissRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheMissOffHeapMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheOffHeapMissRate();
     }
 
     /**
      * @return aggregate on-disk miss rate
      */
     public long getCacheOnDiskMissRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheMissOnDiskMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheOnDiskMissRate();
     }
 
     /**
      * @return aggregate put rate
      */
     public long getCachePutRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheElementPutMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCachePutRate();
     }
 
     /**
      * @return aggregate update rate
      */
     public long getCacheUpdateRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheElementUpdatedMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheUpdateRate();
     }
 
     /**
      * @return aggregate remove rate
      */
     public long getCacheRemoveRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheElementRemovedMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheRemoveRate();
     }
 
     /**
      * @return aggregate eviction rate
      */
     public long getCacheEvictionRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheElementEvictedMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheEvictionRate();
     }
 
     /**
      * @return aggregate expiration rate
      */
     public long getCacheExpirationRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheElementExpiredMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheExpirationRate();
     }
 
     /**
      * @return aggregate average get time (ms.)
      */
     public float getCacheAverageGetTime() {
-        float result = 0;
-        int instances = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                result += cache.getAverageGetTime();
-                instances++;
-            }
-        }
-        return instances > 0 ? result / instances : 0;
+        return sampledCacheManagerDelegate.getCacheAverageGetTime();
     }
 
     /**
      * @return aggregate search rate
      */
     public long getCacheSearchRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getSearchesPerSecond();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheSearchRate();
     }
 
     /**
      * @return aggregate search time
      */
     public long getCacheAverageSearchTime() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getAverageSearchTime();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getCacheAverageSearchTime();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean getHasWriteBehindWriter() {
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                if (cache.getWriterManager() instanceof WriteBehindManager &&
-                        cache.getRegisteredCacheWriter() != null) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return sampledCacheManagerDelegate.getHasWriteBehindWriter();
     }
 
     /**
      * @return aggregate writer queue length
      */
     public long getWriterQueueLength() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                LiveCacheStatistics stats = cache.getLiveCacheStatistics();
-                result += Math.max(stats.getWriterQueueLength(), 0);
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getWriterQueueLength();
     }
 
     /**
      * {@inheritDoc}
      */
     public int getWriterMaxQueueSize() {
-        int result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                CacheWriterConfiguration writerConfig = cache.getCacheConfiguration().getCacheWriterConfiguration();
-                result += (writerConfig.getWriteBehindMaxQueueSize() * writerConfig.getWriteBehindConcurrency());
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getWriterMaxQueueSize();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getMaxBytesLocalDisk() {
-        return cacheManager.getConfiguration().getMaxBytesLocalDisk();
+        return sampledCacheManagerDelegate.getMaxBytesLocalDisk();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getMaxBytesLocalDiskAsString() {
-        return cacheManager.getConfiguration().getMaxBytesLocalDiskAsString();
+        return sampledCacheManagerDelegate.getMaxBytesLocalDiskAsString();
     }
 
     /**
      * {@inheritDoc}
      */
     public void setMaxBytesLocalDisk(long maxBytes) {
-        try {
-            cacheManager.getConfiguration().setMaxBytesLocalDisk(maxBytes);
-            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
-        } catch (RuntimeException e) {
-            throw SampledCache.newPlainException(e);
-        }
+        sampledCacheManagerDelegate.setMaxBytesLocalDisk(maxBytes);
+        sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
     }
 
     /**
      * {@inheritDoc}
      */
     public void setMaxBytesLocalDiskAsString(String maxBytes) {
-        try {
-            cacheManager.getConfiguration().setMaxBytesLocalDisk(maxBytes);
-            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
-        } catch (RuntimeException e) {
-            throw SampledCache.newPlainException(e);
-        }
+        sampledCacheManagerDelegate.setMaxBytesLocalDiskAsString(maxBytes);
+        sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
     }
 
     /**
      * {@inheritDoc}
      */
     public long getMaxBytesLocalHeap() {
-        return cacheManager.getConfiguration().getMaxBytesLocalHeap();
+        return sampledCacheManagerDelegate.getMaxBytesLocalHeap();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getMaxBytesLocalHeapAsString() {
-        return cacheManager.getConfiguration().getMaxBytesLocalHeapAsString();
+        return sampledCacheManagerDelegate.getMaxBytesLocalHeapAsString();
     }
 
     /**
      * {@inheritDoc}
      */
     public void setMaxBytesLocalHeap(long maxBytes) {
-        try {
-            cacheManager.getConfiguration().setMaxBytesLocalHeap(maxBytes);
-            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
-        } catch (RuntimeException e) {
-            throw SampledCache.newPlainException(e);
-        }
+        sampledCacheManagerDelegate.setMaxBytesLocalHeap(maxBytes);
+        sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
     }
 
     /**
      * {@inheritDoc}
      */
     public void setMaxBytesLocalHeapAsString(String maxBytes) {
-        try {
-            cacheManager.getConfiguration().setMaxBytesLocalHeap(maxBytes);
-            sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
-        } catch (RuntimeException e) {
-            throw SampledCache.newPlainException(e);
-        }
+        sampledCacheManagerDelegate.setMaxBytesLocalHeapAsString(maxBytes);
+        sendNotification(CACHE_MANAGER_CHANGED, getCacheManagerAttributes(), getName());
     }
 
     /**
      * {@inheritDoc}
      */
     public long getMaxBytesLocalOffHeap() {
-        return cacheManager.getConfiguration().getMaxBytesLocalOffHeap();
+        return sampledCacheManagerDelegate.getMaxBytesLocalOffHeap();
     }
 
     /**
      * {@inheritDoc}
      */
     public String getMaxBytesLocalOffHeapAsString() {
-        return cacheManager.getConfiguration().getMaxBytesLocalOffHeapAsString();
+        return sampledCacheManagerDelegate.getMaxBytesLocalOffHeapAsString();
     }
 
     /**
      * {@inheritDoc}
      *
-     * @see net.sf.ehcache.management.sampled.SampledCacheManagerMBean#getName()
+     * @see net.sf.ehcache.management.sampled.SampledCacheManager#getName()
      */
     public String getName() {
-        return cacheManager.getName();
+        return sampledCacheManagerDelegate.getName();
+    }
+
+    /**
+     * @see net.sf.ehcache.management.sampled.SampledCacheManager#getClusterUUID()
+     */
+    public String getClusterUUID() {
+        return sampledCacheManagerDelegate.getClusterUUID();
     }
 
     /**
@@ -564,12 +353,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public void clearStatistics() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.clearStatistics();
-            }
-        }
+        sampledCacheManagerDelegate.clearStatistics();
         sendNotification(STATISTICS_RESET);
     }
 
@@ -577,13 +361,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public void enableStatistics() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                // enables regular statistics also
-                cache.setSampledStatisticsEnabled(true);
-            }
-        }
+        sampledCacheManagerDelegate.enableStatistics();
         sendNotification(STATISTICS_ENABLED, Boolean.TRUE);
     }
 
@@ -591,13 +369,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public void disableStatistics() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                // disables regular statistics also
-                cache.setStatisticsEnabled(false);
-            }
-        }
+        sampledCacheManagerDelegate.disableStatistics();
         sendNotification(STATISTICS_ENABLED, Boolean.FALSE);
     }
 
@@ -616,30 +388,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * {@inheritDoc}
      */
     public boolean isStatisticsEnabled() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                if (!cache.isSampledStatisticsEnabled()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @return is each cache's statistics enabled
-     */
-    private boolean determineStatisticsEnabled() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                if (!cache.isStatisticsEnabled()) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return sampledCacheManagerDelegate.isStatisticsEnabled();
     }
 
     /**
@@ -648,7 +397,7 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * @return CacheManager configuration as String
      */
     public String generateActiveConfigDeclaration() {
-        return this.cacheManager.getActiveConfigurationText();
+        return sampledCacheManagerDelegate.generateActiveConfigDeclaration();
     }
 
     /**
@@ -657,141 +406,71 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
      * @return Cache configuration as String
      */
     public String generateActiveConfigDeclaration(String cacheName) {
-        return this.cacheManager.getActiveConfigurationText(cacheName);
+        return sampledCacheManagerDelegate.generateActiveConfigDeclaration(cacheName);
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean getTransactional() {
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null && cache.getCacheConfiguration().getTransactionalMode().isTransactional()) {
-                return true;
-            }
-        }
-        return false;
+        return sampledCacheManagerDelegate.getTransactional();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean getSearchable() {
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null && cache.getCacheConfiguration().getSearchable() != null) {
-                return true;
-            }
-        }
-        return false;
+        return sampledCacheManagerDelegate.getSearchable();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getTransactionCommittedCount() {
-        return this.cacheManager.getTransactionController().getTransactionCommittedCount();
+        return sampledCacheManagerDelegate.getTransactionCommittedCount();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getTransactionCommitRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheXaCommitsMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getTransactionCommitRate();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getTransactionRolledBackCount() {
-        return this.cacheManager.getTransactionController().getTransactionRolledBackCount();
+        return sampledCacheManagerDelegate.getTransactionRolledBackCount();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getTransactionRollbackRate() {
-        long result = 0;
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheXaRollbacksMostRecentSample();
-            }
-        }
-        return result;
+        return sampledCacheManagerDelegate.getTransactionRollbackRate();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getTransactionTimedOutCount() {
-        return this.cacheManager.getTransactionController().getTransactionTimedOutCount();
+        return sampledCacheManagerDelegate.getTransactionTimedOutCount();
     }
 
     /**
      * Returns if each contained cache is enabled.
      */
     public boolean isEnabled() throws CacheException {
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null && cache.isDisabled()) {
-                return false;
-            }
-        }
-        return true;
+        return sampledCacheManagerDelegate.isEnabled();
     }
 
     /**
      * Enables/disables each of the contained caches.
      */
     public void setEnabled(boolean enabled) {
-        for (String cacheName : getCacheNames()) {
-            Ehcache cache = cacheManager.getEhcache(cacheName);
-            if (cache != null) {
-                cache.setDisabled(!enabled);
-            }
-        }
-        sendNotification(CACHES_ENABLED, Boolean.valueOf(enabled));
-    }
-
-    /**
-     * @return is each cache enabled
-     */
-    private boolean determineEnabled() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                if (cache.isDisabled()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * getCacheManagerAttributes
-     *
-     * @return map of attribute name -> value
-     */
-    public Map<String, Object> getCacheManagerAttributes() {
-        Map<String, Object> result = new HashMap<String, Object>();
-        result.put("MaxBytesLocalHeapAsString", getMaxBytesLocalHeapAsString());
-        result.put("MaxBytesLocalOffHeapAsString", getMaxBytesLocalOffHeapAsString());
-        result.put("MaxBytesLocalDiskAsString", getMaxBytesLocalDiskAsString());
-        result.put("MaxBytesLocalHeap", getMaxBytesLocalHeap());
-        result.put("MaxBytesLocalOffHeap", getMaxBytesLocalOffHeap());
-        result.put("MaxBytesLocalDisk", getMaxBytesLocalDisk());
-        return result;
+        sampledCacheManagerDelegate.setEnabled(enabled);
+        sendNotification(CACHES_ENABLED, enabled);
     }
 
     /**
@@ -800,5 +479,16 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
         return NOTIFICATION_INFO;
+    }
+
+    private Map<String, Object> getCacheManagerAttributes() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("MaxBytesLocalHeapAsString", getMaxBytesLocalHeapAsString());
+        result.put("MaxBytesLocalOffHeapAsString", getMaxBytesLocalOffHeapAsString());
+        result.put("MaxBytesLocalDiskAsString", getMaxBytesLocalDiskAsString());
+        result.put("MaxBytesLocalHeap", getMaxBytesLocalHeap());
+        result.put("MaxBytesLocalOffHeap", getMaxBytesLocalOffHeap());
+        result.put("MaxBytesLocalDisk", getMaxBytesLocalDisk());
+        return result;
     }
 }

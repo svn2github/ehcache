@@ -145,7 +145,7 @@ public class CacheManager {
     /**
      * The factory to use for creating MBeanRegistrationProvider's
      */
-    private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl();
+    private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl(); 
 
     private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
             + " in the config. Please add a default cache config in the configuration.";
@@ -155,6 +155,8 @@ public class CacheManager {
     private static final IdentityHashMap<CacheManager, String> CACHE_MANAGERS_REVERSE_MAP = new IdentityHashMap<CacheManager, String>();
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
+
+    private static final ConcurrentMap<Integer, ManagementServer> MGMT_SVR_BY_PORT = new ConcurrentHashMap<Integer, ManagementServer>();
 
     /**
      * Status of the Cache Manager
@@ -439,13 +441,32 @@ public class CacheManager {
 
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
         if (managementRESTService != null && managementRESTService.isEnabled()) {
-            try {
-                Class<ManagementServer> managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
-                standaloneRestServer = managementServerClass.newInstance();
-                standaloneRestServer.setConfiguration(managementRESTService);
-                standaloneRestServer.start();
-            } catch (Exception e) {
-                LOG.warn("Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+            /**
+             * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
+             */
+            synchronized (MGMT_SVR_BY_PORT) {
+                if (MGMT_SVR_BY_PORT.isEmpty() || !MGMT_SVR_BY_PORT.containsKey(managementRESTService.getPort())) {
+                    Class<ManagementServer> managementServerClass = null;
+                    try {
+                        managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
+                    } catch (ClassNotFoundException e) {
+                        LOG.warn("Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+                    }
+
+                    if (managementServerClass != null) {
+                        try {
+                            standaloneRestServer = managementServerClass.newInstance();
+                        } catch (InstantiationException e) {
+                            LOG.warn("Failed to instantiate ManagementServer.", e);
+                        } catch (IllegalAccessException e) {
+                            LOG.warn("Failed to instantiate ManagementServer due to access restriction.", e);
+                        }
+                        standaloneRestServer.setConfiguration(managementRESTService);
+                        standaloneRestServer.start();
+                        MGMT_SVR_BY_PORT.put(managementRESTService.getPort(), standaloneRestServer);
+                    }
+                }
+                MGMT_SVR_BY_PORT.get(managementRESTService.getPort()).register(this);
             }
         }
     }
