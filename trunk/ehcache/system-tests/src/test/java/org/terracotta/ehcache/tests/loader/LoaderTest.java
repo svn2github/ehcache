@@ -1,7 +1,6 @@
 package org.terracotta.ehcache.tests.loader;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.express.ClientFactory;
@@ -34,7 +33,6 @@ public class LoaderTest extends AbstractCacheTestBase {
     sb.append(writeEhcacheConfigWithPort(EHCACHE_XML)).append(File.pathSeparator);
     sb.append(writeXmlFileWithPort("log4j.xml", "log4j.xml")).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(LoaderClient.class)).append(File.pathSeparator);
-    sb.append(TestBaseUtil.jarFor(StandaloneTerracottaClusteredInstanceFactory.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(CacheManager.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(org.slf4j.LoggerFactory.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(org.slf4j.impl.StaticLoggerBinder.class)).append(File.pathSeparator);
@@ -43,7 +41,6 @@ public class LoaderTest extends AbstractCacheTestBase {
     sb.append(TestBaseUtil.jarFor(ClassWriter.class)).append(File.pathSeparator); // needed for OtherClassloaderClient
     sb.append(TestBaseUtil.jarFor(EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(org.junit.Assert.class)).append(File.pathSeparator);
-    sb.append(getEhcacheTerracotta()).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(ClientFactory.class));
 
     runClient(LoaderClient.class, LoaderClient.class.getSimpleName(), Arrays.asList(sb.toString()));
