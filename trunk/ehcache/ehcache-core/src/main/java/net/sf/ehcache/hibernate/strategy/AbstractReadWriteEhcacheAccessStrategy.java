@@ -112,7 +112,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
             Lockable item = (Lockable) region.get(key);
             long timeout = region.nextTimestamp() + region.getTimeout();
             final Lock lock = (item == null) ? new Lock(timeout, uuid, nextLockId(), version) : item.lock(timeout, uuid, nextLockId());
-            region.put(key, lock);
+            putLock(key, lock);
             return lock;
         } finally {
             region.writeUnlock(key);
@@ -133,7 +133,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
             if ((item != null) && item.isUnlockable(lock)) {
                 decrementLock(key, (Lock) item);
             } else {
-                handleLockExpiry(key, item);
+                handleMissingLock(key, item);
             }
         } finally {
             region.writeUnlock(key);
@@ -149,21 +149,29 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
      */
     protected void decrementLock(Object key, Lock lock) {
         lock.unlock(region.nextTimestamp());
-        region.put(key, lock);
+        putLock(key, lock);
     }
 
     /**
      * Handle the timeout of a previous lock mapped to this key
      */
-    protected void handleLockExpiry(Object key, Lockable lock) {
-        LOG.warn("Cache " + region.getName() + " Key " + key + " Lockable : " + lock + "\n"
-                + "A soft-locked cache entry was expired by the underlying Ehcache. " 
-                + "If this happens regularly you should consider increasing the cache timeouts and/or capacity limits");
+    protected void handleMissingLock(Object key, Lockable lock) {
+        LOG.error("Cache " + region.getName() + " Key " + key + " Lockable : " + lock + "\n"
+                + "A soft-locked cache entry was removed already. Out of balance lock/unlock sequences ?");
         long ts = region.nextTimestamp() + region.getTimeout();
         // create new lock that times out immediately
         Lock newLock = new Lock(ts, uuid, nextLockId.getAndIncrement(), null);
         newLock.unlock(ts);
-        region.put(key, newLock);
+        // This isn't really necessary, could be a simple put, but for completeness, though given pinning, this also should never happen
+        putLock(key, newLock);
+    }
+
+    private void putLock(final Object key, final Lock newLock) {
+        if (newLock.isLocked()) {
+            region.putPinned(key, newLock);
+        } else {
+            region.put(key, newLock);
+        }
     }
 
     /**
@@ -394,6 +402,14 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
         public String toString() {
             StringBuilder sb = new StringBuilder("Lock Source-UUID:" + sourceUuid + " Lock-ID:" + lockId);
             return sb.toString();
+        }
+
+        /**
+         * Tells whether the Lock is currently held
+         * @return true if locked, false otherwise
+         */
+        public boolean isLocked() {
+            return multiplicity != 0;
         }
     }
 }
