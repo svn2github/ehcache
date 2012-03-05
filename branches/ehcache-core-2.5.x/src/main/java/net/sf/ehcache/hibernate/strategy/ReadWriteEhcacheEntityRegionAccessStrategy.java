@@ -103,7 +103,7 @@ public class ReadWriteEhcacheEntityRegionAccessStrategy extends AbstractReadWrit
                     return true;
                 }
             } else {
-                handleLockExpiry(key, item);
+                handleMissingLock(key, item);
                 return false;
             }
         } finally {

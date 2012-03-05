@@ -8,7 +8,11 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.hibernate.domain.Event;
 import net.sf.ehcache.hibernate.domain.EventManager;
 
@@ -17,6 +21,7 @@ import net.sf.ehcache.hibernate.domain.Person;
 import net.sf.ehcache.hibernate.domain.PhoneNumber;
 import net.sf.ehcache.hibernate.domain.VersionedItem;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -31,7 +36,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -191,6 +200,31 @@ public class HibernateCacheTest {
         txn.commit();
         s.close();
 
+    }
+    
+    @Test
+    public void testUnpinsOnRemoval() {
+        getSessionFactory();
+        Session session = sessionFactory.getCurrentSession();
+        Cache entityCache = CacheManager.getCacheManager("tc").getCache(Item.class.getName());
+        long maxEntriesLocalHeap = 100;
+        entityCache.getCacheConfiguration().setMaxEntriesLocalHeap(maxEntriesLocalHeap);
+
+        session.getTransaction().begin();
+        for (int j = 0; j < 500; j++) {
+            Item entity = new Item();
+            entity.setName(UUID.randomUUID().toString());
+            entity.setDescription(UUID.randomUUID().toString());
+            session.save(entity);
+            session.delete(entity); // This leaves the SoftLock in the cache...
+        }
+        session.getTransaction().commit(); // ... but they all should be writeable & unpinned after this!
+
+        assertThat(entityCache.getCacheConfiguration().getMaxEntriesLocalHeap(), equalTo(maxEntriesLocalHeap));
+        for (Object o : entityCache.getKeys()) {
+            final Element e = entityCache.get(o);
+            assertFalse(e + " shouldn't be pinned anymore!", entityCache.isPinned(o));
+        }
     }
 
     @Test

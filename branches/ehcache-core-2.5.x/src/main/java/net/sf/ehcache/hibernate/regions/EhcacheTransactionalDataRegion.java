@@ -29,7 +29,6 @@ import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.TransactionalDataRegion;
-import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 /**
@@ -121,16 +120,25 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
 
     /**
      * Map the given value to the given key, replacing any existing mapping for this key
+     * this unpins the key in the cache should it be currently pinned
      */
     public final void put(Object key, Object value) throws CacheException {
+        put(key, value, false);
+    }
+
+    /**
+     * Map the given value to the given key, replacing any existing mapping for this key,
+     * pinning the key in the cache
+     */
+    public final void putPinned(Object key, Object value) throws CacheException {
+        put(key, value, true);
+    }
+
+    private void put(Object key, Object value, boolean pinned) throws CacheException {
         try {
             Element element = new Element(key, value);
-            if (value instanceof SoftLock) {
-                cache.setPinned(key, true);
-                element.setEternal(true);
-            } else {
-              cache.setPinned(key, false);
-            }
+            element.setEternal(pinned);
+            cache.setPinned(key, pinned);
             cache.put(element);
         } catch (IllegalArgumentException e) {
             throw new CacheException(e);
