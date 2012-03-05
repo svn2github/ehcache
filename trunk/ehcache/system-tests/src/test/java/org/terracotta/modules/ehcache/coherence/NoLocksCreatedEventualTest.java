@@ -16,6 +16,7 @@ import com.tc.management.TerracottaMBean;
 import com.tc.management.beans.L2MBeanNames;
 import com.tc.object.locks.LockID;
 import com.tc.objectserver.locks.LockMBean;
+import com.tc.properties.TCPropertiesConsts;
 import com.tc.stats.api.DSOMBean;
 import com.tc.test.config.model.TestConfig;
 
@@ -36,7 +37,7 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
 
   public NoLocksCreatedEventualTest(TestConfig testConfig) {
     super("cache-coherence-test.xml", testConfig, App.class);
-    testConfig.addTcProperty("l1.lockmanager.timeout.interval", "9000000");
+    testConfig.addTcProperty(TCPropertiesConsts.L1_LOCKMANAGER_TIMEOUT_INTERVAL, "9000000");
 
   }
 
