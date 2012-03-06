@@ -2,6 +2,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.util.RetryAssert;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
@@ -23,7 +26,6 @@ import static org.junit.Assert.fail;
 public class DiskStorePerfTest extends AbstractCachePerfTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorePerfTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1270;
     private CacheManager manager2;
 
     /**
@@ -69,40 +71,37 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
      */
     @Test
     public void testOverflowToDiskWithLargeNumberofCacheEntriesAndGets() throws Exception {
-
-        //Set size so the second element overflows to disk.
-        //Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 60, null);
-        Cache cache = new Cache(new CacheConfiguration("test", 1000)
+        final int ELEMENTS = 100000;
+        final Cache cache = new Cache(new CacheConfiguration("test", 1000)
             .memoryStoreEvictionPolicy("LRU")
             .eternal(true)
             .overflowToDisk(true)
-            .timeToLiveSeconds(1)
             .diskAccessStripes(5)
             .diskExpiryThreadIntervalSeconds(60));
         manager.addCache(cache);
         Random random = new Random();
         StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 100000; i++) {
-            cache.put(new Element("" + i,
+        for (int i = 0; i < ELEMENTS; i++) {
+            cache.put(new Element(Integer.toString(i),
                 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
 
-            cache.get("" + random.nextInt(100000));
+            cache.get(Integer.toString(random.nextInt(i + 1)));
         }
 
-
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return cache.getDiskStoreSize();
+            }
+        }, equalTo(ELEMENTS));
+        assertThat(cache.getSize(), equalTo(ELEMENTS));
+        
         long elapsed = stopWatch.getElapsedTime();
-        LOG.info("Elapsed time: " + elapsed / 1000);
-        Thread.sleep(500);
-        assertThat(cache.getSize(), equalTo(100000));
-        //XXX this assertion is nonsensical - what is it here for?
-        assertThat(elapsed, greaterThan(23L));
-        //Some entries may be in the Memory Store and Disk Store. cache.getSize removes dupes. a look at the
-        //disk store size directly does not.
-        assertThat(cache.getDiskStoreSize(), greaterThanOrEqualTo(99000));
+        LOG.info("Elapsed time: " + elapsed);
     }
 
     /**
@@ -171,7 +170,8 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
      * put 13, get 19
      *
      */
-    //@Test
+    @Test
+    @Ignore
     public void testLargePutGetPerformanceWithOverflowToDisk() throws Exception {
 
         Cache cache = new Cache("test", 1000, MemoryStoreEvictionPolicy.LRU, true, null, true, 500, 500, false, 10000, null);
