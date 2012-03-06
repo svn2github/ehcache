@@ -26,8 +26,11 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.rmi.server.RMISocketFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +52,7 @@ public abstract class AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRMITest.class);
 
-    protected Configuration getConfiguration(String fileName) {
+    protected static Configuration getConfiguration(String fileName) {
         return ConfigurationFactory.parseConfiguration(new File(fileName));
     }
 
@@ -145,6 +148,10 @@ public abstract class AbstractRMITest {
     }
 
     protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final CacheManager ... managers) {
+        waitForClusterMembership(time, unit, cacheNames, Arrays.asList(managers));
+    }
+    
+    protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final List<CacheManager> managers) {
         assertBy(time, unit, new Callable<Integer>() {
 
             public Integer call() throws Exception {
@@ -164,6 +171,6 @@ public abstract class AbstractRMITest {
                     return minimumPeers + 1;
                 }
             }
-        }, is(managers.length));
+        }, is(managers.size()));
     }
 }
