@@ -23,7 +23,6 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.collection.IsMapContainingKey.hasKey;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -89,17 +88,17 @@ public class CacheWriterTest {
         }
         Assert.assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     @Before
     public void noCacheManagersBefore() {
         Assert.assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     @After
     public void noCacheManagersAfter() {
         Assert.assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     private CacheManager createCacheManager() {
         return new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-writer.xml");
     }
@@ -552,11 +551,11 @@ public class CacheWriterTest {
             assertThat(writer.getWrittenElements(), not(hasKey("key1")));
             assertThat(writer.getWrittenElements(), not(hasKey("key2")));
             assertThat(writer.getWrittenElements(), not(hasKey("key3")));
-            
+
             assertThat(writer.getWrittenElements(), not(hasKey("pre2key1suff2")));
             assertThat(writer.getWrittenElements(), not(hasKey("pre2key2suff2")));
             assertThat(writer.getWrittenElements(), not(hasKey("pre2key3suff2")));
-            
+
             assertThat(writer.getWrittenElements(), hasKey("pre2key1suff2-batched"));
             assertThat(writer.getWrittenElements(), hasKey("pre2key2suff2-batched"));
             assertThat(writer.getWrittenElements(), hasKey("pre2key3suff2-batched"));
@@ -1079,7 +1078,7 @@ public class CacheWriterTest {
             manager.shutdown();
         }
     }
-    
+
     private static Callable<Set<Object>> writtenElements(final TestCacheWriter writer) {
         return new Callable<Set<Object>>() {
             @Override

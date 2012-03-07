@@ -28,7 +28,6 @@ import java.rmi.server.RMISocketFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -150,7 +149,7 @@ public abstract class AbstractRMITest {
     protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final CacheManager ... managers) {
         waitForClusterMembership(time, unit, cacheNames, Arrays.asList(managers));
     }
-    
+
     protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final List<CacheManager> managers) {
         assertBy(time, unit, new Callable<Integer>() {
 

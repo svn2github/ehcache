@@ -21,7 +21,6 @@ import net.sf.ehcache.hibernate.domain.Person;
 import net.sf.ehcache.hibernate.domain.PhoneNumber;
 import net.sf.ehcache.hibernate.domain.VersionedItem;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -37,7 +36,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -201,7 +199,7 @@ public class HibernateCacheTest {
         s.close();
 
     }
-    
+
     @Test
     public void testUnpinsOnRemoval() {
         getSessionFactory();
