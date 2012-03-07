@@ -95,6 +95,8 @@ public class BulkLoadInternalKeyRepresentationExposedTest extends AbstractCacheT
         }
       }
 
+      this.barrier.await();
+      waitForAllCurrentTransactionsToComplete();
       Assert.assertEquals(0, cache.getSize());
     }
 
