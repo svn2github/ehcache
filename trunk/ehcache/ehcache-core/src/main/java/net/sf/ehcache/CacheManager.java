@@ -446,29 +446,26 @@ public class CacheManager {
              */
             synchronized (CacheManager.class) {
                 if (!MGMT_SVR_BY_PORT.containsKey(managementRESTService.getPort())) {
-                    Class<ManagementServer> managementServerClass = null;
+                    Class<ManagementServer> managementServerClass;
                     try {
                         managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
                     } catch (ClassNotFoundException e) {
-                        LOG.warn("Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+                        throw new RuntimeException(
+                            "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
                     }
 
-                    ManagementServer<CacheManager> standaloneRestServer = null;
-                    if (managementServerClass != null) {
-                        try {
-                            standaloneRestServer = managementServerClass.newInstance();
-                        } catch (InstantiationException e) {
-                            LOG.warn("Failed to instantiate ManagementServer.", e);
-                        } catch (IllegalAccessException e) {
-                            LOG.warn("Failed to instantiate ManagementServer due to access restriction.", e);
-                        }
+                    ManagementServer<CacheManager> standaloneRestServer;
+                    try {
+                        standaloneRestServer = managementServerClass.newInstance();
+                    } catch (InstantiationException e) {
+                        throw new RuntimeException("Failed to instantiate ManagementServer.", e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Failed to instantiate ManagementServer due to access restriction.", e);
                     }
 
-                    if (standaloneRestServer != null) {
-                        standaloneRestServer.setConfiguration(managementRESTService);
-                        standaloneRestServer.start();
-                        MGMT_SVR_BY_PORT.put(managementRESTService.getPort(), standaloneRestServer);
-                    }
+                    standaloneRestServer.setConfiguration(managementRESTService);
+                    standaloneRestServer.start();
+                    MGMT_SVR_BY_PORT.put(managementRESTService.getPort(), standaloneRestServer);
                 }
                 MGMT_SVR_BY_PORT.get(managementRESTService.getPort()).register(this);
                 registeredMgmtSvrPort = managementRESTService.getPort();
@@ -1416,19 +1413,25 @@ public class CacheManager {
                 return;
             }
 
+            boolean removeMgmtSvr = false;
             if (registeredMgmtSvrPort != null) {
                 ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
 
                 try {
                     standaloneRestServer.unregister(this);
-                    registeredMgmtSvrPort = null;
 
                     if (!standaloneRestServer.hasRegistered()) {
-                        MGMT_SVR_BY_PORT.remove(registeredMgmtSvrPort);
+                        removeMgmtSvr = true;
                         standaloneRestServer.stop();
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to shutdown the ManagementRESTService", e);
+                } finally {
+                    if (removeMgmtSvr) {
+                      MGMT_SVR_BY_PORT.remove(registeredMgmtSvrPort);
+                    }
+
+                    registeredMgmtSvrPort = null;
                 }
             }
 
