@@ -156,7 +156,7 @@ public class CacheManager {
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
-    private static final Map<Integer, ManagementServer> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer>();
+    private static final Map<Integer, ManagementServer<CacheManager>> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer<CacheManager>>();
 
     /**
      * Status of the Cache Manager
@@ -1421,6 +1421,7 @@ public class CacheManager {
 
                 try {
                     standaloneRestServer.unregister(this);
+                    registeredMgmtSvrPort = null;
 
                     if (!standaloneRestServer.hasRegistered()) {
                         MGMT_SVR_BY_PORT.remove(registeredMgmtSvrPort);
@@ -1429,7 +1430,6 @@ public class CacheManager {
                 } catch (Exception e) {
                     LOG.warn("Failed to shutdown the ManagementRESTService", e);
                 }
-                registeredMgmtSvrPort = null;
             }
 
             for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
