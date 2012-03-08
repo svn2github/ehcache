@@ -224,6 +224,8 @@ public class CacheManager {
 
     private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
+    
+    private Integer registeredMgmtSvrPort;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -469,6 +471,7 @@ public class CacheManager {
                     }
                 }
                 MGMT_SVR_BY_PORT.get(managementRESTService.getPort()).register(this);
+                registeredMgmtSvrPort = managementRESTService.getPort();
             }
         }
     }
@@ -1413,21 +1416,20 @@ public class CacheManager {
                 return;
             }
 
-            ManagementRESTServiceConfiguration restConfig = this.getConfiguration().getManagementRESTService();
-            if (restConfig != null && restConfig.isEnabled()) {
-                ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(restConfig.getPort());
+            if (registeredMgmtSvrPort != null) {
+                ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
 
-                standaloneRestServer.unregister(this);
+                try {
+                    standaloneRestServer.unregister(this);
 
-                if (!standaloneRestServer.hasRegistered()) {
-                    MGMT_SVR_BY_PORT.remove(restConfig.getPort());
-
-                    try {
+                    if (!standaloneRestServer.hasRegistered()) {
+                        MGMT_SVR_BY_PORT.remove(registeredMgmtSvrPort);
                         standaloneRestServer.stop();
-                    } catch (Exception e) {
-                        LOG.warn("Failed to shutdown the ManagementRESTService", e);
                     }
+                } catch (Exception e) {
+                    LOG.warn("Failed to shutdown the ManagementRESTService", e);
                 }
+                registeredMgmtSvrPort = null;
             }
 
             for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
