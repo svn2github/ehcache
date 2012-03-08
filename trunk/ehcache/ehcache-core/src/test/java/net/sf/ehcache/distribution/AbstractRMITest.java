@@ -17,6 +17,7 @@
 package net.sf.ehcache.distribution;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.sizeOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -36,8 +37,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import net.sf.ehcache.Cache;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 
@@ -146,10 +149,29 @@ public abstract class AbstractRMITest {
         return errors;
     }
 
+    /**
+     * Wait for all caches to have a full set of peers in each manager.
+     * <p>
+     * This method will hang if all managers don't share a common set of replicated caches.
+     */
+    protected static void waitForClusterMembership(int time, TimeUnit unit, final List<CacheManager> managers) {
+        waitForClusterMembership(time, unit, getAllReplicatedCacheNames(managers.get(0)), managers);
+    }
+
+    /**
+     * Wait for the given caches to have a full set of peers in each manager.
+     * <p>
+     * Any other caches in these managers may or may not be fully announced throughout the cluster.
+     */
     protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final CacheManager ... managers) {
         waitForClusterMembership(time, unit, cacheNames, Arrays.asList(managers));
     }
 
+    /**
+     * Wait for the given caches to have a full set of peers in each manager.
+     * <p>
+     * Any other caches in these managers may or may not be fully announced throughout the cluster.
+     */
     protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final List<CacheManager> managers) {
         assertBy(time, unit, new Callable<Integer>() {
 
@@ -171,5 +193,33 @@ public abstract class AbstractRMITest {
                 }
             }
         }, is(managers.size()));
+    }
+
+    protected static void emptyCaches(int time, TimeUnit unit, List<CacheManager> members) {
+        emptyCaches(time, unit, getAllReplicatedCacheNames(members.get(0)), members);
+    }
+    
+    protected static void emptyCaches(int time, TimeUnit unit, Collection<String> required, List<CacheManager> members) {
+        for (String cache : required) {
+            for (CacheManager manager : members) {
+                manager.getCache(cache).put(new Element("setup", "setup"), true);
+            }
+
+            members.get(0).getCache(cache).removeAll();
+            for (CacheManager manager : members.subList(1, members.size())) {
+                assertBy(time, unit, sizeOf(manager.getCache(cache)), is(0));
+            }
+        }
+    }
+
+    private static Collection<String> getAllReplicatedCacheNames(CacheManager manager) {
+        Collection<String> replicatedCaches = new ArrayList<String>();
+        for (String name : manager.getCacheNames()) {
+            Cache cache = manager.getCache(name);
+            if (cache.getCacheEventNotificationService().hasCacheReplicators()) {
+                replicatedCaches.add(name);
+            }
+        }
+        return replicatedCaches;
     }
 }

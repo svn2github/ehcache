@@ -18,7 +18,6 @@ package net.sf.ehcache.distribution;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
 import static net.sf.ehcache.util.RetryAssert.elementAt;
-import static net.sf.ehcache.util.RetryAssert.sizeOf;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -135,11 +134,11 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     }
 
     private static List<CacheManager> createCluster(int size, String ... caches){
-        List<String> required = Arrays.asList(caches);
+        Collection<String> required = Arrays.asList(caches);
         List<CacheManager> members = new ArrayList<CacheManager>(size);
         for (int i = 1; i <= size; i++) {
             Configuration config = getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed" + i + ".xml").name("cm" + i);
-            if (caches.length > 0) {
+            if (!required.isEmpty()) {
                 for (Iterator<Entry<String, CacheConfiguration>> it = config.getCacheConfigurations().entrySet().iterator(); it.hasNext(); ) {
                     if (!required.contains(it.next().getKey())) {
                         it.remove();
@@ -148,22 +147,15 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             }
             members.add(new CacheManager(config));
         }
+
         if (required.isEmpty()) {
-            waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(DEFAULT_TEST_CACHE), members);
+            waitForClusterMembership(10, TimeUnit.SECONDS, members);
+            emptyCaches(10, TimeUnit.SECONDS, members);
         } else {
             waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
+            emptyCaches(10, TimeUnit.SECONDS, required, members);
         }
         
-        for (String cache : required) {
-            for (CacheManager manager : members) {
-                manager.getCache(cache).put(new Element("setup", "setup"), true);
-            }
-
-            members.get(0).getCache(cache).removeAll();
-            for (CacheManager manager : members.subList(1, members.size())) {
-                assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cache)), is(0));
-            }
-        }
         return members;
     }
 
@@ -301,7 +293,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
                 manager0.getCache(name).put(new Element("nonSerializable" + i, new Object()));
             }
 
-            assertBy(30, TimeUnit.SECONDS, new Callable<Boolean>() {
+            assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
 
                 public Boolean call() throws Exception {
                     for (int i = 0; i < cacheNames.length; i++) {
@@ -339,10 +331,10 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         final List<CacheManager> cluster = createCluster(5);
         try {
             cluster.remove(2).shutdown();
-            waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
+            waitForClusterMembership(10, TimeUnit.SECONDS, cluster);
 
             cluster.add(2, new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml"));
-            waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
+            waitForClusterMembership(10, TimeUnit.SECONDS, cluster);
 
             //Put
             final CacheManager manager = cluster.get(0);
@@ -355,7 +347,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
                 manager.getCache(name).put(new Element("nonSerializable" + i, new Object()));
             }
 
-            assertBy(30, TimeUnit.SECONDS, new Callable<Boolean>() {
+            assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
 
                 public Boolean call() throws Exception {
                     for (int i = 0; i < cacheNames.length; i++) {
