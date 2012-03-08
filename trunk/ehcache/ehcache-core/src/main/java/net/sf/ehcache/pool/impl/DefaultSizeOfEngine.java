@@ -76,7 +76,7 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
         }
         SizeOfFilter userFilter = getUserFilter();
         if (userFilter != null) {
-            filters.add(getUserFilter());
+            filters.add(userFilter);
         }
         DEFAULT_FILTER = new CombinationSizeOfFilter(filters.toArray(new SizeOfFilter[filters.size()]));
 
@@ -144,7 +144,7 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
             } catch (MalformedURLException e) {
                 LOG.debug("MalformedURLException using {} as a file URL", userFilterProperty);
             }
-            filterUrls.add(ClassLoaderUtil.getStandardClassLoader().getResource(USER_FILTER_RESOURCE));
+            filterUrls.add(ClassLoaderUtil.getStandardClassLoader().getResource(userFilterProperty));
             for (URL filterUrl : filterUrls) {
                 SizeOfFilter filter;
                 try {
