@@ -156,7 +156,7 @@ public class CacheManager {
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
-    private static final ConcurrentMap<Integer, ManagementServer> MGMT_SVR_BY_PORT = new ConcurrentHashMap<Integer, ManagementServer>();
+    private static final Map<Integer, ManagementServer> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer>();
 
     /**
      * Status of the Cache Manager
@@ -212,8 +212,6 @@ public class CacheManager {
     private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile TransactionController transactionController;
-
-    private volatile ManagementServer standaloneRestServer;
 
     private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
 
@@ -444,8 +442,8 @@ public class CacheManager {
             /**
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
              */
-            synchronized (MGMT_SVR_BY_PORT) {
-                if (MGMT_SVR_BY_PORT.isEmpty() || !MGMT_SVR_BY_PORT.containsKey(managementRESTService.getPort())) {
+            synchronized (CacheManager.class) {
+                if (!MGMT_SVR_BY_PORT.containsKey(managementRESTService.getPort())) {
                     Class<ManagementServer> managementServerClass = null;
                     try {
                         managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
@@ -453,6 +451,7 @@ public class CacheManager {
                         LOG.warn("Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
                     }
 
+                    ManagementServer<CacheManager> standaloneRestServer = null;
                     if (managementServerClass != null) {
                         try {
                             standaloneRestServer = managementServerClass.newInstance();
@@ -461,6 +460,9 @@ public class CacheManager {
                         } catch (IllegalAccessException e) {
                             LOG.warn("Failed to instantiate ManagementServer due to access restriction.", e);
                         }
+                    }
+
+                    if (standaloneRestServer != null) {
                         standaloneRestServer.setConfiguration(managementRESTService);
                         standaloneRestServer.start();
                         MGMT_SVR_BY_PORT.put(managementRESTService.getPort(), standaloneRestServer);
@@ -1411,13 +1413,21 @@ public class CacheManager {
                 return;
             }
 
-            if (this.standaloneRestServer != null) {
-                try {
-                    standaloneRestServer.stop();
-                } catch (Exception e) {
-                    LOG.warn("Failed to shutdown the ManagementRESTService", e);
+            ManagementRESTServiceConfiguration restConfig = this.getConfiguration().getManagementRESTService();
+            if (restConfig != null && restConfig.isEnabled()) {
+                ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(restConfig.getPort());
+
+                standaloneRestServer.unregister(this);
+
+                if (!standaloneRestServer.hasRegistered()) {
+                    MGMT_SVR_BY_PORT.remove(restConfig.getPort());
+
+                    try {
+                        standaloneRestServer.stop();
+                    } catch (Exception e) {
+                        LOG.warn("Failed to shutdown the ManagementRESTService", e);
+                    }
                 }
-                standaloneRestServer = null;
             }
 
             for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
@@ -1456,6 +1466,8 @@ public class CacheManager {
             removeShutdownHook();
             nonstopExecutorServiceFactory.shutdown(this);
             getCacheRejoinAction().unregisterAll();
+            
+            
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);

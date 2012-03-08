@@ -45,10 +45,24 @@ public interface ManagementServer<MANAGED> {
     public void setConfiguration(ManagementRESTServiceConfiguration configuration);
 
     /**
-     * Puts the submitted entity under the jurisdiction of this {@code ManagementServer}.
+     * Puts the submitted resource under the purview of this {@code ManagementServer}.
      *
-     * @param managedEntity an entity to be managed
+     * @param managedResource the resource to be managed
      */
-    public void register(MANAGED managedEntity);
+    public void register(MANAGED managedResource);
+
+    /**
+     * Removes the submitted resource under the purview of this {@code ManagementServer}.
+     *
+     * @param managedResource the resource to be managed
+     */
+    public void unregister(MANAGED managedResource);
+
+    /**
+     * Returns true if this {@code ManagementServer} has any resources registered.
+     *
+     * @return true if actively managing resources, false if not.
+     */
+    public boolean hasRegistered();
 
 }
