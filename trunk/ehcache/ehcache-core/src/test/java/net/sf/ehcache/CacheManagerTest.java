@@ -18,11 +18,10 @@ package net.sf.ehcache;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.both;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -65,8 +64,8 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.util.MemorySizeParser;
 import net.sf.ehcache.util.RetryAssert;
-import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.CombinableMatcher;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -710,7 +709,7 @@ public class CacheManagerTest {
         try {
             Collection<Thread> spawnedThreads = JVMUtil.enumerateThreads();
             spawnedThreads.removeAll(initialThreads);
-            assertThat("Spawned Threads", spawnedThreads, hasSize(both(greaterThan(0)).and(lessThanOrEqualTo(manager.getCacheNames().length))));
+            assertThat("Spawned Threads", spawnedThreads, hasSize(CombinableMatcher.<Integer>both(greaterThan(0)).and(lessThanOrEqualTo(manager.getCacheNames().length))));
         } finally {
             manager.shutdown();
         }
