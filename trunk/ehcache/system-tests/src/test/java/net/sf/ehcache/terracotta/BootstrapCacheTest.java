@@ -24,6 +24,7 @@ import com.tc.test.config.model.TestConfig;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
@@ -59,9 +60,20 @@ public class BootstrapCacheTest extends AbstractCacheTestBase {
       cacheManager = createCacheManager(index);
       getBarrierForAllClients().await();
       Cache cache = cacheManager.getCache("test");
+      final KeySnapshotter snapshotter = ((TerracottaBootstrapCacheLoader)cache.getBootstrapCacheLoader()).getKeySnapshotter();
+      final CyclicBarrier waitSnapshot = new CyclicBarrier(2);
+      snapshotter.setOnSnapshot(new Runnable() {
+        public void run() {
+          try {
+            waitSnapshot.await();
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
+      });
 
       getBarrierForAllClients().await();
-      Thread.sleep(TimeUnit.SECONDS.toMillis(8));
+      waitSnapshot.await(); // WRITING NOTHING TO DISK
       for (int i = 0; i < ELEMENTS_PER_NODE; i++) {
         cache.put(new Element("key" + i + "_node" + index, "value for key"));
       }
@@ -73,9 +85,9 @@ public class BootstrapCacheTest extends AbstractCacheTestBase {
       }
       Assert.assertEquals(1, KeySnapshotter.getKnownCacheManagers().size());
       Assert.assertEquals(true, KeySnapshotter.getKnownCacheManagers().contains(cacheManager));
-      Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+      waitSnapshot.await(); // WRITING THE LOCAL KEY SET TO DISK
       System.out.println(new Date() + " ==> node" + index + " CacheManager shutdown1...");
-      cacheManager.shutdown();
+      cacheManager.shutdown(); // IMMEDIATE SHUTDOWN
       getBarrierForAllClients().await();
       cacheManager = createCacheManager(index);
       cache = cacheManager.getCache("test");
