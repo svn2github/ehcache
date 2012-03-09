@@ -145,10 +145,6 @@
 
         <!-- Blocks -->
         <module name="EmptyBlock">
-            <property name="severity" value="warning"/>
-            <property name="tokens" value="LITERAL_CATCH"/>
-        </module>
-        <module name="EmptyBlock">
             <property name="tokens" value="LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_IF, LITERAL_FOR, LITERAL_TRY, LITERAL_WHILE, STATIC_INIT"/>
         </module>
         <module name="RightCurly">
