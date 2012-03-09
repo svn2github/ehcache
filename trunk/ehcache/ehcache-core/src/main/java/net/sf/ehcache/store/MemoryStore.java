@@ -89,7 +89,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     private final RateStatistic hitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
 
-    private final boolean cachePinned;
+    private final boolean storePinned;
     private final boolean elementPinningEnabled;
 
     /**
@@ -112,7 +112,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
 
     private volatile CacheLockProvider lockProvider;
-    private final boolean tierPinned;
 
     /**
      * Constructs things that all MemoryStores have in common.
@@ -132,11 +131,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
             SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
 
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
-        this.cachePinned = determineCachePinned(cache.getCacheConfiguration());
-        this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null
-                     && cache.getCacheConfiguration()
-                            .getPinningConfiguration()
-                            .getStore() == PinningConfiguration.Store.LOCALHEAP;
+        this.storePinned = determineStorePinned(cache.getCacheConfiguration());
 
         this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
 
@@ -144,7 +139,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, loadFactor);
         map = new SelectableConcurrentHashMap(poolAccessor, elementPinningEnabled, initialCapacity,
-            loadFactor, CONCURRENCY_LEVEL, isClockEviction() && !cachePinned ? maximumSize : 0,
+            loadFactor, CONCURRENCY_LEVEL, isClockEviction() && !storePinned ? maximumSize : 0,
                 doNotifications ? cache.getCacheEventNotificationService() : null);
 
         status = Status.STATUS_ALIVE;
@@ -154,7 +149,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         }
     }
 
-    private boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
+    private boolean determineStorePinned(CacheConfiguration cacheConfiguration) {
         PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
         if (pinningConfiguration == null) {
             return false;
@@ -226,7 +221,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     }
 
     private boolean isPinningEnabled(Element element) {
-        return cachePinned || isPinned(element.getObjectKey());
+        return storePinned || isPinned(element.getObjectKey());
     }
 
     /**
@@ -241,8 +236,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * {@inheritDoc}
      */
-    public boolean removeIfTierNotPinned(final Object key) {
-        return !tierPinned && remove(key) != null;
+    public boolean removeIfNotPinned(final Object key) {
+        return !storePinned && !isPinned(key) && remove(key) != null;
     }
 
     /**
@@ -345,7 +340,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * {@inheritDoc}
      */
     public boolean isTierPinned() {
-        return tierPinned;
+        return storePinned;
     }
 
     /**
@@ -673,7 +668,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
         maximumSize = newCapacity;
-        if (isClockEviction() && !cachePinned) {
+        if (isClockEviction() && !storePinned) {
             map.setMaxSize(maximumSize);
         }
     }
@@ -949,7 +944,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * {@inheritDoc}
      */
     public boolean evictFromOnHeap(int count, long size) {
-        if (cachePinned) {
+        if (storePinned) {
             return false;
         }
 

@@ -28,6 +28,7 @@ import org.hibernate.cfg.Environment;
 import org.junit.After;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -138,7 +139,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         }
         Thread.sleep(100);
         //this is now fixed
-        assertEquals(10000, cache.getElementCountInMemory());
+        assertThat(cache.getElementCountInMemory(), lessThanOrEqualTo(10000L));
         RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
             public Long call() throws Exception {
                 return cache.getElementCountOnDisk();

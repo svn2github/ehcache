@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
@@ -99,6 +100,7 @@ public class Segment extends ReentrantReadWriteLock {
     private final RateStatistic diskMissRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
+    private final RegisteredEventListeners cacheEventNotificationService;
     private volatile boolean cachePinned;
 
     /**
@@ -117,12 +119,15 @@ public class Segment extends ReentrantReadWriteLock {
      * @param cacheConfiguration the cache configuration
      * @param onHeapPoolAccessor the pool tracking on-heap usage
      * @param onDiskPoolAccessor the pool tracking on-disk usage
+     * @param cacheEventNotificationService
      */
     public Segment(int initialCapacity, float loadFactor, DiskStorageFactory primary,
                    CacheConfiguration cacheConfiguration,
-                   PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor) {
+                   PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor, 
+                   RegisteredEventListeners cacheEventNotificationService) {
         this.onHeapPoolAccessor = onHeapPoolAccessor;
         this.onDiskPoolAccessor = onDiskPoolAccessor;
+        this.cacheEventNotificationService = cacheEventNotificationService;
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
@@ -780,9 +785,13 @@ public class Segment extends ReentrantReadWriteLock {
                     long deleteSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
                     LOG.debug("fault failed to add on disk, deleted {} from heap", deleteSize);
                     expect.onHeapSize = fault.onHeapSize + deleteSize;
-                    Element evicted = remove(key, hash, null, null);
-                    disk.notifyEvictionIfNotNull(evicted);
-                    return false;
+                    final Element element = get(key, hash);
+                    if (cacheEventNotificationService.getFrontEndCacheTier() == null
+                        || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(element)) {
+                        notifyEviction(remove(key, hash, null, null));
+                        return false;
+                    }
+                    return true;
                 } else {
                     LOG.debug("fault added {} on disk", incomingDiskSize);
                 }
@@ -809,6 +818,12 @@ public class Segment extends ReentrantReadWriteLock {
             return false;
         } finally {
             writeLock().unlock();
+        }
+    }
+
+    private void notifyEviction(final Element evicted) {
+        if (evicted != null) {
+            cacheEventNotificationService.notifyElementEvicted(evicted, false);
         }
     }
 
@@ -848,7 +863,22 @@ public class Segment extends ReentrantReadWriteLock {
      * @return <code>true</code> on a successful remove
      */
     Element evict(Object key, int hash, DiskSubstitute value) {
+        return evict(key, hash, value, true);
+    }
+
+    /**
+     * Remove the matching mapping.  Unlike the {@link net.sf.ehcache.store.disk.Segment#remove(Object, int, net.sf.ehcache.Element, net.sf.ehcache.store.ElementValueComparator)} method
+     * evict does referential comparison of the unretrieved substitute against the argument value.
+     *
+     * @param key key to match against
+     * @param hash spread-hash for the key
+     * @param value optional value to match against
+     * @param notify whether to notify if we evict something
+     * @return <code>true</code> on a successful remove
+     */
+    Element evict(Object key, int hash, DiskSubstitute value, boolean notify) {
         if (writeLock().tryLock()) {
+            Element evictedElement = null;
             try {
                 HashEntry[] tab = table;
                 int index = hash & (tab.length - 1);
@@ -858,7 +888,13 @@ public class Segment extends ReentrantReadWriteLock {
                     e = e.next;
                 }
 
-                if (e != null && (value == null || value == e.element)) {
+                if (e != null) {
+                    evictedElement = decode(e.element);
+                }
+
+                if (e != null && (value == null || value == e.element)
+                    && (cacheEventNotificationService.getFrontEndCacheTier() == null
+                        || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(evictedElement))) {
                     // All entries following removed node can stay
                     // in list, but all preceding ones need to be
                     // cloned.
@@ -874,12 +910,11 @@ public class Segment extends ReentrantReadWriteLock {
                      * to do the free on.
                      */
                     DiskSubstitute v = e.element;
-                    Element toReturn = decode(v);
 
                     free(v);
 
-                    if (v instanceof DiskStorageFactory.DiskMarker) {
-                        final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) v).getSize());
+                    if (v instanceof DiskMarker) {
+                        final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskMarker) v).getSize());
                         LOG.debug("evicted {} from disk", outgoingDiskSize);
                     }
                     final long outgoingHeapSize = onHeapPoolAccessor.delete(v.onHeapSize);
@@ -887,12 +922,15 @@ public class Segment extends ReentrantReadWriteLock {
 
                     // write-volatile
                     count = count - 1;
-                    return toReturn;
+                } else {
+                    evictedElement = null;
                 }
-
-                return null;
+                return evictedElement;
             } finally {
                 writeLock().unlock();
+                if (notify && evictedElement != null) {
+                    cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
+                }
             }
         } else {
             return null;
@@ -977,7 +1015,7 @@ public class Segment extends ReentrantReadWriteLock {
             }
         }
         if (failedMarker) {
-            evict(key, hash, substitute);
+            evict(key, hash, substitute, false);
         }
         return failedMarker;
     }

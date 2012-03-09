@@ -112,7 +112,6 @@ public class DiskStorageFactory {
 
     private volatile boolean pinningEnabled;
 
-    private final RegisteredEventListeners cacheEventNotificationService;
     private final boolean diskPersistent;
 
     /**
@@ -120,9 +119,8 @@ public class DiskStorageFactory {
      *
      * @param cache cache that fronts this factory
      * @param diskPath path to store data in
-     * @param cacheEventNotificationService the notification service
      */
-    public DiskStorageFactory(Ehcache cache, String diskPath, RegisteredEventListeners cacheEventNotificationService) {
+    public DiskStorageFactory(Ehcache cache, String diskPath) {
         this.file = getDataFile(diskPath, cache);
         this.indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
         this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
@@ -156,8 +154,6 @@ public class DiskStorageFactory {
         diskWriter.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         long expiryInterval = cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds();
         diskWriter.scheduleWithFixedDelay(new DiskExpiryTask(), expiryInterval, expiryInterval, TimeUnit.SECONDS);
-
-        this.cacheEventNotificationService = cacheEventNotificationService;
 
         flushTask = new IndexWriteTask(indexFile, cache.getCacheConfiguration().isClearOnFlush());
 
@@ -508,9 +504,7 @@ public class DiskStorageFactory {
                     try {
                         placeholder.setFailedToFlush(true);
                         if (!frontEndCacheTier.isCached(placeholder.getKey())) {
-                            if (store.evict(placeholder.getKey(), placeholder)) {
-                                eventService.notifyElementEvicted(placeholder.getElement(), false);
-                            }
+                            store.evict(placeholder.getKey(), placeholder);
                         }
                     } finally {
                         l.unlock();
@@ -848,7 +842,7 @@ public class DiskStorageFactory {
                 if (eventService.hasCacheEventListeners()) {
                     try {
                         Element element = read(marker);
-                        if (store.evict(marker.getKey(), marker)) {
+                        if (store.remove(marker.getKey()) != null) {
                             eventService.notifyElementExpiry(element, false);
                         }
                     } catch (Exception e) {
@@ -1045,9 +1039,6 @@ public class DiskStorageFactory {
                 Element evictedElement = store.evictElement(target.getKey(), null);
                 if (evictedElement != null) {
                     evicted++;
-                    if (cacheEventNotificationService != null) {
-                        cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
-                    }
                 }
             }
         }
@@ -1096,23 +1087,11 @@ public class DiskStorageFactory {
                 DiskSubstitute target = getDiskEvictionTarget(keyHint, size);
                 if (target != null) {
                     final Element element = store.evictElement(target.getKey(), target);
-                    notifyEvictionIfNotNull(element);
                     if (element != null && onDisk.get() <= diskCapacity) {
                         break;
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Fires an eviction notification if the specified element is not null
-     *
-     * @param element the element to notify about its eviction
-     */
-    void notifyEvictionIfNotNull(final Element element) {
-        if (element != null) {
-            eventService.notifyElementEvicted(element, false);
         }
     }
 

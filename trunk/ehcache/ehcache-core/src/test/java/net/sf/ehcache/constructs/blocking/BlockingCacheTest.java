@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -439,28 +440,30 @@ public final class BlockingCacheTest {
 
             Thread.sleep(1000);
 
-            assertEquals(10000, blockingCache.getSize());
-            assertEquals(10000, blockingCache.getMemoryStoreSize());
-            assertTrue(1010 > blockingCache.getDiskStoreSize());
+            assertThat(cache.getSize(), lessThanOrEqualTo(10000));
+            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
 
             //NonSerializable
             Thread.sleep(15);
             blockingCache.put(new Element(new Object(), Object.class));
 
+            int size = cache.getSize();
+            assertThat(size, lessThanOrEqualTo(10000));
+            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+
+            if(cache.remove("key4")) {
+                size--;
+            }
+            if(cache.remove("key3")) {
+                size--;
+            }
+
             Thread.sleep(1000);
 
-            assertEquals(10000, blockingCache.getSize());
-            assertTrue(1010 > blockingCache.getDiskStoreSize());
-            assertEquals(10000, blockingCache.getMemoryStoreSize());
-            assertEquals(10000, blockingCache.getMemoryStoreSize());
-            assertEquals(10000, blockingCache.getMemoryStoreSize());
-            assertEquals(10000, blockingCache.getMemoryStoreSize());
+            assertEquals(size, cache.getSize());
 
-
-            blockingCache.remove("key4");
-            blockingCache.remove("key3");
-
-            assertEquals(9998, blockingCache.getSize());
             //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
             //assertEquals(10000, cache.getMemoryStoreSize());
             //assertEquals(9, cache.getDiskStoreSize());

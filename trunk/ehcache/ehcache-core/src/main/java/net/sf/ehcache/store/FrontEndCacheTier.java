@@ -710,7 +710,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
         Lock lockForKey = masterLocks.getLockForKey(key).writeLock();
         if (lockForKey.tryLock()) {
             try {
-                cache.removeIfTierNotPinned(key);
+                cache.removeIfNotPinned(key);
                 return true;
             } finally {
                 lockForKey.unlock();
