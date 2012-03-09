@@ -16,10 +16,17 @@
 
 package net.sf.ehcache;
 
+import static net.sf.ehcache.util.RetryAssert.assertBy;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.both;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -60,7 +67,6 @@ import net.sf.ehcache.util.MemorySizeParser;
 import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.number.OrderingComparison;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -678,7 +684,7 @@ public class CacheManagerTest {
                 return JVMUtil.enumerateThreads();
             }
         // Allow a bit of variation - one extra thread.
-        }, IsCollectionWithSize.hasSize(OrderingComparison.lessThanOrEqualTo(startingThreadCount + 1)));
+        }, hasSize(lessThanOrEqualTo(startingThreadCount + 1)));
     }
 
     /**
@@ -699,17 +705,34 @@ public class CacheManagerTest {
     @Test
     public void testCacheManagerThreads() throws CacheException,
             InterruptedException {
-        int initialThreadCount = JVMUtil.enumerateThreads().size();
+        final Collection<Thread> initialThreads = Collections.unmodifiableCollection(JVMUtil.enumerateThreads());
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-big.xml");
         try {
-            int threads = JVMUtil.enumerateThreads().size();
-            assertTrue("Not a single thread spawned ?!", threads > initialThreadCount);
-            assertTrue("More threads than expected: " + threads + " (initially " + initialThreadCount +")",
-                threads - initialThreadCount <= manager.getCacheNames().length);
+            Collection<Thread> spawnedThreads = JVMUtil.enumerateThreads();
+            spawnedThreads.removeAll(initialThreads);
+            assertThat("Spawned Threads", spawnedThreads, hasSize(both(greaterThan(0)).and(lessThanOrEqualTo(manager.getCacheNames().length))));
         } finally {
             manager.shutdown();
         }
-        assertTrue(JVMUtil.enumerateThreads().size() <= initialThreadCount + 1); // In case shutdown hook still running...
+        
+        Collection<Thread> deadThreads = new ArrayList<Thread>(initialThreads);
+        deadThreads.removeAll(JVMUtil.enumerateThreads());
+        assertThat("Stopped Threads", deadThreads, IsEmptyCollection.<Thread>empty());
+
+        /*
+         * The 'termination' of a ThreadPoolExecutor does not guarantee that all
+         * if it's worker threads have terminated.  There is a race between
+         * the worker threads terminating and evaluation this assertion.  We
+         * give the worker threads 10 seconds to terminate.
+         */
+        assertBy(10, TimeUnit.SECONDS, new Callable<Collection<Thread>>() {
+            @Override
+            public Collection<Thread> call() throws Exception {
+                Collection<Thread> newThreads = new ArrayList<Thread>(JVMUtil.enumerateThreads());
+                newThreads.removeAll(initialThreads);
+                return newThreads;
+            }
+        }, IsEmptyCollection.<Thread>empty());
     }
 
     /**
@@ -1369,27 +1392,6 @@ public class CacheManagerTest {
             manager.shutdown();
         }
         assertEquals(null, manager.getDiskStorePath());
-    }
-
-    /**
-     * I have suggested that people can rely on the thread names to change
-     * priorities etc. The names should stay fixed.
-     */
-    @Test
-    public void testThreadNamingAndManipulation() {
-
-        CacheManager manager = CacheManager.create();
-        try {
-            List threads = JVMUtil.enumerateThreads();
-
-            for (int i = 0; i < threads.size(); i++) {
-                Thread thread = (Thread) threads.get(i);
-                String name = thread.getName();
-                LOG.info(name);
-            }
-        } finally {
-            manager.shutdown();
-        }
     }
 
     @Test

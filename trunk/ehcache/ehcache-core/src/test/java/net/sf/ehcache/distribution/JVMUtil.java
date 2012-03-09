@@ -17,7 +17,8 @@
 package net.sf.ehcache.distribution;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * A utility class for distributed tests
@@ -26,8 +27,6 @@ import java.util.List;
  * @version $Id$
  */
 public final class JVMUtil {
-    private static final float JDK_1_5 = 1.5f;
-    private static final int FIRST_THREE_CHARS = 3;
 
     /**
      * Utility class. No constructor
@@ -42,51 +41,20 @@ public final class JVMUtil {
      *
      * @return a List of type Thread
      */
-    public static List<Thread> enumerateThreads() {
-
-        /**
-         * A class for visiting threads
-         */
-        class ThreadVisitor {
-
-            private final List<Thread> threadList = new ArrayList<Thread>();
-
-            // This method recursively visits all thread groups under `group'.
-            private void visit(ThreadGroup group, int level) {
-                // Get threads in `group'
-                int numThreads = group.activeCount();
-                Thread[] threads = new Thread[numThreads * 2];
-                numThreads = group.enumerate(threads, false);
-
-                // Enumerate each thread in `group'
-                for (int i = 0; i < numThreads; i++) {
-                    // Get thread
-                    Thread thread = threads[i];
-                    threadList.add(thread);
-                }
-
-                // Get thread subgroups of `group'
-                int numGroups = group.activeGroupCount();
-                ThreadGroup[] groups = new ThreadGroup[numGroups * 2];
-                numGroups = group.enumerate(groups, false);
-
-                // Recursively visit each subgroup
-                for (int i = 0; i < numGroups; i++) {
-                    visit(groups[i], level + 1);
-                }
-            }
-        }
-
+    public static Collection<Thread> enumerateThreads() {
         // Find the root thread group
-        ThreadGroup root = Thread.currentThread().getThreadGroup().getParent();
+        ThreadGroup root = Thread.currentThread().getThreadGroup();
         while (root.getParent() != null) {
             root = root.getParent();
         }
 
-        // Visit each thread group
-        ThreadVisitor visitor = new ThreadVisitor();
-        visitor.visit(root, 0);
-        return visitor.threadList;
+        Thread[] threads;
+        do {
+            int activeEstimate = root.activeCount();
+            threads = new Thread[activeEstimate + 1];
+        } while (root.enumerate(threads) >= threads.length);
+        
+        return new ArrayList<Thread>(Arrays.asList(threads));
     }
 
 }
