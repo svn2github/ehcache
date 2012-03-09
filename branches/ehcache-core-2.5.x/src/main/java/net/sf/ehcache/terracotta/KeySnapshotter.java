@@ -55,6 +55,8 @@ class KeySnapshotter implements Runnable {
     private final RotatingSnapshotFile rotatingWriter;
     private final Thread thread;
 
+    private volatile Runnable onSnapshot;
+
     /**
      * Default Constructor
      *
@@ -128,8 +130,19 @@ class KeySnapshotter implements Runnable {
         try {
             INSTANCES.cleanUp();
             rotatingWriter.writeAll(tcStore.getLocalKeys());
+            onSnapshot();
         } catch (Throwable e) {
             LOG.error("Couldn't snapshot local keySet for Cache {}", cacheName, e);
+        }
+    }
+
+    private void onSnapshot() {
+        if (onSnapshot != null) {
+            try {
+                onSnapshot.run();
+            } catch (Exception e) {
+                LOG.warn("Error occurred in onSnapshot callback", e);
+            }
         }
     }
 
@@ -149,6 +162,15 @@ class KeySnapshotter implements Runnable {
      */
     void doSnapshot() throws IOException {
         rotatingWriter.snapshotNowOrWaitForCurrentToFinish(tcStore.getLocalKeys());
+        onSnapshot();
+    }
+
+    /**
+     * Let register a Runnable that will be called on every snapshot happening
+     * @param onSnapshot the runnable
+     */
+    void setOnSnapshot(final Runnable onSnapshot) {
+        this.onSnapshot = onSnapshot;
     }
 
     /**
