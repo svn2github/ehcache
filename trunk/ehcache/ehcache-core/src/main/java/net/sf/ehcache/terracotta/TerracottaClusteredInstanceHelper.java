@@ -174,12 +174,9 @@ class TerracottaClusteredInstanceHelper {
         }
 
         // assert the old ehcache-terracotta-xxx.jar no longer needed on the classpath since Vincente
-        String classpath = System.getProperty("java.class.path");
-        Pattern oldEhcacheTerracottaPattern = Pattern.compile(".*(ehcache-terracotta\\S*?\\.jar).*");
-        Matcher matcher = oldEhcacheTerracottaPattern.matcher(classpath);
-        if (matcher.matches()) {
-            LOGGER.warn("{} is detected in the current classpath. The use of ehcache-terracotta jar "
-                    + "is no longer needed in this version of Ehcache.", matcher.group(1));
+        if (TerracottaClusteredInstanceHelper.class.getResource("/terracotta-ehcache-version.properties") != null) {
+            LOGGER.warn("ehcache-terracotta jar is detected in the current classpath. The use of ehcache-terracotta jar "
+                    + "is no longer needed in this version of Ehcache.");
         }
 
         Class factoryClass = terracottaRuntimeType.getFactoryClassOrNull();
