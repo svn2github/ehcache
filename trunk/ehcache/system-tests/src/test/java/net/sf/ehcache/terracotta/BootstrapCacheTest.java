@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
@@ -60,7 +59,8 @@ public class BootstrapCacheTest extends AbstractCacheTestBase {
       cacheManager = createCacheManager(index);
       getBarrierForAllClients().await();
       Cache cache = cacheManager.getCache("test");
-      final KeySnapshotter snapshotter = ((TerracottaBootstrapCacheLoader)cache.getBootstrapCacheLoader()).getKeySnapshotter();
+      final KeySnapshotter snapshotter = ((TerracottaBootstrapCacheLoader) cache.getBootstrapCacheLoader())
+          .getKeySnapshotter();
       final CyclicBarrier waitSnapshot = new CyclicBarrier(2);
       snapshotter.setOnSnapshot(new Runnable() {
         public void run() {
