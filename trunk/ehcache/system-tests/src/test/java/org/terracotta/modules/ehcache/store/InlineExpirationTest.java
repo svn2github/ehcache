@@ -19,6 +19,8 @@ public class InlineExpirationTest extends AbstractCacheTestBase {
 
   public InlineExpirationTest(TestConfig testConfig) {
     super("inline-expiration-test.xml", testConfig, InlineExpirationTestApp.class);
+    testConfig.getClientConfig().setMaxHeap(256);
+    testConfig.getClientConfig().setMinHeap(256);
   }
 
   public static class InlineExpirationTestApp extends ClientBase {
