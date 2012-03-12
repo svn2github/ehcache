@@ -13,6 +13,7 @@ import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.hibernate.domain.Event;
 import net.sf.ehcache.hibernate.domain.EventManager;
 
@@ -32,6 +33,7 @@ import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.stat.Statistics;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -73,6 +75,18 @@ public class HibernateCacheTest {
     @AfterClass
     public static void tearDown() {
         getSessionFactory().close();
+    }
+    
+    @Before
+    public void clearCaches() {
+        for (CacheManager manager : CacheManager.ALL_CACHE_MANAGERS) {
+            for (String s : manager.getCacheNames()) {
+                final Cache cache = manager.getCache(s);
+                if(cache.getStatus() == Status.STATUS_ALIVE) {
+                    cache.removeAll();
+                }
+            }
+        }
     }
 
     @Test
