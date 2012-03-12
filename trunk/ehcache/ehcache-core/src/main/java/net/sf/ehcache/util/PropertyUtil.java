@@ -17,8 +17,8 @@
 package net.sf.ehcache.util;
 
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
 
@@ -83,19 +83,18 @@ public final class PropertyUtil {
      * @return a newly constructed properties object
      */
     public static Properties parseProperties(String propertiesString, String propertySeparator) {
-        String propertySeparatorLocal = propertySeparator;
         if (propertiesString == null) {
             LOG.debug("propertiesString is null.");
             return null;
         }
         if (propertySeparator == null) {
-            propertySeparatorLocal = DEFAULT_PROPERTY_SEPARATOR;
+            propertySeparator = DEFAULT_PROPERTY_SEPARATOR;
         }
         Properties properties = new Properties();
         String propertyLines = propertiesString.trim();
-        propertyLines = propertyLines.replaceAll(propertySeparatorLocal, "\n");
+        propertyLines = propertyLines.replaceAll(propertySeparator, "\n");
         try {
-            properties.load(new ByteArrayInputStream(propertyLines.getBytes()));
+            properties.load(new StringReader(propertyLines));
         } catch (IOException e) {
             LOG.error("Cannot load properties from " + propertiesString);
         }
