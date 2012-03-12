@@ -23,12 +23,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.transaction.TransactionManager;
 
 public class AbstractCacheTestBase extends AbstractTestBase {
-  protected final String ehcacheConfigPath;
+  protected final String    ehcacheConfigPath;
+  private final Set<String> writtenXmls = new HashSet<String>();
 
   public AbstractCacheTestBase(TestConfig testConfig, Class<? extends ClientBase>... c) {
     this("basic-cache-test.xml", testConfig, c);
@@ -96,6 +99,10 @@ public class AbstractCacheTestBase extends AbstractTestBase {
   protected String writeXmlFileWithPort(String resourcePath, String outputName, String nameSuffix) throws IOException {
     if (nameSuffix != null && outputName.indexOf(".xml") > 0) {
       outputName = outputName.substring(0, outputName.indexOf(".xml")) + "-" + nameSuffix + ".xml";
+    }
+    if (!writtenXmls.add(outputName)) {
+      System.out.println("OUTPUT FILE: " + outputName + " already written. Skipping...");
+      return tempDir.getAbsolutePath();
     }
     resourcePath = resourcePath.startsWith("/") ? resourcePath : "/" + resourcePath;
     // Slurp resourcePath file
