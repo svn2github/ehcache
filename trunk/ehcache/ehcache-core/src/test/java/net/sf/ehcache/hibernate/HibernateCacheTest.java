@@ -102,23 +102,23 @@ public class HibernateCacheTest {
 
         SecondLevelCacheStatistics slcs = s.getSessionFactory().getStatistics().getSecondLevelCacheStatistics(Item.class.getName());
 
-        assertEquals(slcs.getPutCount(), 1);
-        assertEquals(slcs.getElementCountInMemory(), 1);
-        assertEquals(slcs.getEntries().size(), 1);
+        assertEquals(1, slcs.getPutCount());
+        assertEquals(1, slcs.getElementCountInMemory());
+        assertEquals(1, slcs.getEntries().size());
 
         s = getSessionFactory().openSession();
         t = s.beginTransaction();
         i = (Item) s.get(Item.class, i.getId());
 
-        assertEquals(slcs.getHitCount(), 1);
-        assertEquals(slcs.getMissCount(), 0);
+        assertEquals(1, slcs.getHitCount());
+        assertEquals(0, slcs.getMissCount());
 
         i.setDescription("A bog standard item");
 
         t.commit();
         s.close();
 
-        assertEquals(slcs.getPutCount(), 2);
+        assertEquals(2, slcs.getPutCount());
 
         Object entry = slcs.getEntries().get(i.getId());
         Map map;
