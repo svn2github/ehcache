@@ -1748,7 +1748,7 @@ public class CacheTest extends AbstractCacheTest {
      * @throws InterruptedException
      */
     @Test
-    public void testEquals() throws CacheException, InterruptedException {
+    public void testEquals() throws CacheException, InterruptedException, ExecutionException {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
 
@@ -1763,7 +1763,7 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue(element2 == elementFromStore);
 
         //Give the spool a chance to make sure it really got serialized to Disk
-        Thread.sleep(300);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
         //Test equals and == from an Element retrieved from the MemoryStore
         Element elementFromDiskStore = cache.get("1");
