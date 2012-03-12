@@ -25,6 +25,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Before;
@@ -438,14 +439,13 @@ public final class BlockingCacheTest {
                 blockingCache.put(new Element("key" + i, "value1"));
             }
 
-            Thread.sleep(1000);
-
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             assertThat(cache.getSize(), lessThanOrEqualTo(10000));
             assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
             assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
 
             //NonSerializable
-            Thread.sleep(15);
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             blockingCache.put(new Element(new Object(), Object.class));
 
             int size = cache.getSize();
@@ -460,7 +460,7 @@ public final class BlockingCacheTest {
                 size--;
             }
 
-            Thread.sleep(1000);
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
             assertEquals(size, cache.getSize());
 
@@ -469,7 +469,7 @@ public final class BlockingCacheTest {
             //assertEquals(9, cache.getDiskStoreSize());
 
 
-            Thread.sleep(1000);
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
             blockingCache.removeAll();
             assertEquals(0, blockingCache.getSize());
