@@ -40,7 +40,7 @@ public class BulkLoadInternalKeyRepresentationExposedTest extends AbstractCacheT
     public App(String[] args) {
       super(args);
       this.barrier = getClusteringToolkit().getBarrier("barrier1", NODE_COUNT);
-      this.tBarrier = getClusteringToolkit().getBarrier("barrier2", NODE_COUNT - 1);
+      this.tBarrier = getClusteringToolkit().getBarrier("barrier2", NODE_COUNT * (NUM_OF_READERS + NUM_OF_WRITERS));
     }
 
     public static void main(String[] args) {
