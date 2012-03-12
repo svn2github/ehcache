@@ -47,7 +47,6 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
   }
 
   public EARContainerTest() {
-    //timebombTest("2012-03-20");
 
     switch (appServerInfo().getId()) {
       case AppServerInfo.JETTY:
