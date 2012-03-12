@@ -1289,17 +1289,17 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("key" + i, "value1"));
         }
 
-        Thread.sleep(1000);
+        flushDiskStore(cache);
 
         assertThat(cache.getSize(), lessThanOrEqualTo(10000));
         assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
         assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
 
         //NonSerializable
-        Thread.sleep(15);
+        flushDiskStore(cache);
         cache.put(new Element(new Object(), Object.class));
 
-        Thread.sleep(1000);
+        flushDiskStore(cache);
 
         int size = cache.getSize();
         assertThat(size, lessThanOrEqualTo(10000));
@@ -1313,7 +1313,7 @@ public class CacheTest extends AbstractCacheTest {
             size--;
         }
 
-        Thread.sleep(1000);
+        flushDiskStore(cache);
 
         assertEquals(size, cache.getSize());
         //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
@@ -1321,13 +1321,21 @@ public class CacheTest extends AbstractCacheTest {
         //assertEquals(9, cache.getDiskStoreSize());
 
 
-        Thread.sleep(1000);
+        flushDiskStore(cache);
 
         cache.removeAll();
         assertEquals(0, cache.getSize());
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(0, cache.getDiskStoreSize());
 
+    }
+
+    private void flushDiskStore(final Ehcache cache) throws InterruptedException, ExecutionException {Future<Void> voidFuture;
+        if (cache instanceof Cache && (voidFuture = DiskStoreHelper.flushAllEntriesToDisk(((Cache)cache))) != null) {
+            voidFuture.get();
+        } else {
+            LOG.error("Can't flush to disk for cache " + cache.getName() + " in test " + this.getClass().getName());
+        }
     }
 
 
