@@ -1755,6 +1755,7 @@ public class CacheTest extends AbstractCacheTest {
         Element element1 = new Element("1", new Date());
         Element element2 = new Element("2", new Date());
         cache.put(element1);
+        flushDisk(cache);
         cache.put(element2);
 
         //Test equals and == from an Element retrieved from the MemoryStore
@@ -1763,12 +1764,21 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue(element2 == elementFromStore);
 
         //Give the spool a chance to make sure it really got serialized to Disk
-        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+        flushDisk(cache);
 
         //Test equals and == from an Element retrieved from the MemoryStore
         Element elementFromDiskStore = cache.get("1");
         assertEquals(element1, elementFromDiskStore);
         assertTrue(element1 != elementFromDiskStore);
+    }
+
+    private void flushDisk(final Cache cache) throws InterruptedException, ExecutionException {
+        final Future<Void> voidFuture = DiskStoreHelper.flushAllEntriesToDisk(cache);
+        if(voidFuture != null) {
+            voidFuture.get();
+        } else {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+        }
     }
 
     /**
