@@ -62,6 +62,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.loader.CacheLoader;
@@ -1330,11 +1331,21 @@ public class CacheTest extends AbstractCacheTest {
 
     }
 
-    private void flushDiskStore(final Ehcache cache) throws InterruptedException, ExecutionException {Future<Void> voidFuture;
+    private void flushDiskStore(Ehcache cache)
+        throws InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+
+        while(cache instanceof EhcacheDecoratorAdapter) {
+            final Field underlyingCacheField = EhcacheDecoratorAdapter.class.getDeclaredField("underlyingCache");
+            underlyingCacheField.setAccessible(true);
+            cache = (Ehcache)underlyingCacheField.get(cache);
+        }
+
+        Future<Void> voidFuture;
         if (cache instanceof Cache && (voidFuture = DiskStoreHelper.flushAllEntriesToDisk(((Cache)cache))) != null) {
             voidFuture.get();
         } else {
             LOG.error("Can't flush to disk for cache " + cache.getName() + " in test " + this.getClass().getName());
+            Thread.sleep(1000);
         }
     }
 
@@ -1748,14 +1759,14 @@ public class CacheTest extends AbstractCacheTest {
      * @throws InterruptedException
      */
     @Test
-    public void testEquals() throws CacheException, InterruptedException, ExecutionException {
+    public void testEquals() throws CacheException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
 
         Element element1 = new Element("1", new Date());
         Element element2 = new Element("2", new Date());
         cache.put(element1);
-        flushDisk(cache);
+        flushDiskStore(cache);
         cache.put(element2);
 
         //Test equals and == from an Element retrieved from the MemoryStore
@@ -1764,21 +1775,12 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue(element2 == elementFromStore);
 
         //Give the spool a chance to make sure it really got serialized to Disk
-        flushDisk(cache);
+        flushDiskStore(cache);
 
         //Test equals and == from an Element retrieved from the MemoryStore
         Element elementFromDiskStore = cache.get("1");
         assertEquals(element1, elementFromDiskStore);
         assertTrue(element1 != elementFromDiskStore);
-    }
-
-    private void flushDisk(final Cache cache) throws InterruptedException, ExecutionException {
-        final Future<Void> voidFuture = DiskStoreHelper.flushAllEntriesToDisk(cache);
-        if(voidFuture != null) {
-            voidFuture.get();
-        } else {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-        }
     }
 
     /**
