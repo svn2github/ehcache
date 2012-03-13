@@ -67,7 +67,7 @@ public class TimestamperTest {
                         long start = System.nanoTime();
                         Timestamper.next();
                         long duration = System.nanoTime() - start;
-                        if (runs > 10500) { // If this ain't jit'ed we don't care
+                        if (runs > 10500 / THREADS) { // If this ain't jit'ed we don't care
                             max = Math.max(max, duration);
                         }
                     }
