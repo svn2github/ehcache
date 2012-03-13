@@ -8,7 +8,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
 import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -20,42 +19,34 @@ import junit.framework.Assert;
 
 public class ClusteredEventsLocalTest extends AbstractCacheTestBase {
 
-  private static final int NODE_COUNT = 5;
-
   public ClusteredEventsLocalTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
     testConfig.addTcProperty("ehcache.clusteredStore.checkContainsKeyOnPut", "true");
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
 
     public App(String[] args) {
       super("testLocal", args);
-      this.barrier = getClusteringToolkit().getBarrier("test-barrier", NODE_COUNT);
-    }
-
-    public static void main(String[] args) {
-      new App(args).run();
     }
 
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
-      final int index = barrier.await();
+      final int index = waitForAllClients();
 
       Assert.assertEquals(0, cache.getSize());
 
-      barrier.await();
+      waitForAllClients();
 
       cache.put(new Element("key" + index, "value" + index));
       cache.put(new Element("key" + index, "valueUpdated" + index));
       cache.remove("key" + index);
 
-      barrier.await();
+      waitForAllClients();
 
       cache.removeAll();
 
-      barrier.await();
+      waitForAllClients();
 
       Thread.sleep(10000);
 
