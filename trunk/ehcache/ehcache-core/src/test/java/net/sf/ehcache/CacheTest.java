@@ -1763,12 +1763,21 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue(element2 == elementFromStore);
 
         //Give the spool a chance to make sure it really got serialized to Disk
-        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+        flushDisk(cache);
 
         //Test equals and == from an Element retrieved from the MemoryStore
         Element elementFromDiskStore = cache.get("1");
         assertEquals(element1, elementFromDiskStore);
         assertTrue(element1 != elementFromDiskStore);
+    }
+
+    private void flushDisk(final Cache cache) throws InterruptedException, ExecutionException {
+        final Future<Void> voidFuture = DiskStoreHelper.flushAllEntriesToDisk(cache);
+        if(voidFuture != null) {
+            voidFuture.get();
+        } else {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+        }
     }
 
     /**
