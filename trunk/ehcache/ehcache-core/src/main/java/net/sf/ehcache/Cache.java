@@ -3749,14 +3749,14 @@ public class Cache implements InternalEhcache, StoreListener {
         boolean oldValue = isSampledStatisticsEnabled();
         if (oldValue != enableStatistics) {
             if (enableStatistics) {
-                setStatisticsEnabled(true);
-                if (cacheManager.getConfiguration().getManagementRESTService().isEnabled()) {
-                    ManagementRESTServiceConfiguration mgmtRESTConfigSvc = cacheManager.getConfiguration().getManagementRESTService();
+                ManagementRESTServiceConfiguration mgmtRESTConfigSvc = cacheManager.getConfiguration().getManagementRESTService();
+                if (mgmtRESTConfigSvc != null && mgmtRESTConfigSvc.isEnabled()) {
                     sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer(), mgmtRESTConfigSvc.makeSampledCounterConfig(),
                         mgmtRESTConfigSvc.makeSampledGetRateCounterConfig(), mgmtRESTConfigSvc.makeSampledSearchRateCounterConfig());
                 } else {
                     sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
                 }
+                setStatisticsEnabled(true);
             } else {
                 sampledCacheStatistics.disableSampledStatistics();
             }
