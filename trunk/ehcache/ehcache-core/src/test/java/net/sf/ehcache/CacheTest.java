@@ -1755,6 +1755,7 @@ public class CacheTest extends AbstractCacheTest {
         Element element1 = new Element("1", new Date());
         Element element2 = new Element("2", new Date());
         cache.put(element1);
+        flushDisk(cache);
         cache.put(element2);
 
         //Test equals and == from an Element retrieved from the MemoryStore
