@@ -18,6 +18,10 @@ package net.sf.ehcache.statistics.sampled;
 
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.util.FailSafeTimer;
+import net.sf.ehcache.util.counter.sampled.SampledCounter;
+import net.sf.ehcache.util.counter.sampled.SampledCounterConfig;
+import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
+import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 
 /**
  * An implementation of {@link SampledCacheStatistics} and also implements {@link CacheUsageListener} and depends on the notification
@@ -30,11 +34,13 @@ import net.sf.ehcache.util.FailSafeTimer;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheStatisticsWrapper implements CacheUsageListener, SampledCacheStatistics {
+public class SampledCacheStatisticsWrapper implements CacheUsageListener, CacheStatisticsSampler {
 
     private static final NullSampledCacheStatistics NULL_SAMPLED_CACHE_STATISTICS = new NullSampledCacheStatistics();
 
     private volatile SampledCacheStatistics delegate;
+
+    private volatile CacheStatisticsSampler samplerDelegate;
 
     /**
      * Default constructor.
@@ -44,13 +50,38 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
     }
 
     /**
+     * Enabled sampled statistics with submitted {@link FailSafeTimer} and {@link SampledCounter} default configurations
+     *
+     * @param timer the {@code FailSafeTimer} for sampling
+     */
+    public void enableSampledStatistics(FailSafeTimer timer) {
+        enableSampledStatistics(new SampledCacheStatisticsImpl(timer));
+    }
+
+    /**
+     * Enabled sampled statistics with submitted {@link FailSafeTimer} and {@link SampledCounter} the specified configurations
+     *
+     * @param timer the {@code FailSafeTimer} for sampling
+     * @param config the {@code SampledCounterConfig} for sampling
+     * @param rateGetConfig the {@code SampledRateCounterConfig} for sampling average time of cache gets
+     * @param rateSearchConfig the {@code SampledCounterConfig} for sampling average time of cache searches
+     */
+    public void enableSampledStatistics(FailSafeTimer timer,
+                                        SampledCounterConfig config,
+                                        SampledRateCounterConfig rateGetConfig,
+                                        SampledRateCounterConfig rateSearchConfig) {
+        enableSampledStatistics(new SampledCacheStatisticsImpl(timer, config, rateGetConfig, rateSearchConfig));
+    }
+
+    /**
      * Enable sampled statistics collection
      *
      * @param timer
      */
-    public void enableSampledStatistics(FailSafeTimer timer) {
+    private void enableSampledStatistics(SampledCacheStatisticsImpl sampledCacheStats) {
         delegate.dispose();
-        delegate = new SampledCacheStatisticsImpl(timer);
+        samplerDelegate = sampledCacheStats;
+        delegate = sampledCacheStats;
     }
 
     /**
@@ -59,6 +90,7 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
     public void disableSampledStatistics() {
         delegate.dispose();
         delegate = NULL_SAMPLED_CACHE_STATISTICS;
+        samplerDelegate = null;
     }
 
     /**
@@ -423,5 +455,105 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, Sample
      */
     public long getCacheXaRollbacksMostRecentSample() {
         return delegate.getCacheXaRollbacksMostRecentSample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheHitSample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitInMemorySample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheHitInMemorySample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitOffHeapSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheHitOffHeapSample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitOnDiskSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheHitOnDiskSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheMissSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissInMemorySample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheHitInMemorySample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissOffHeapSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheMissOffHeapSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissOnDiskSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheMissOnDiskSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissExpiredSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheMissExpiredSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissNotFoundSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheMissNotFoundSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementEvictedSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheElementEvictedSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementRemovedSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheElementRemovedSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementExpiredSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheElementExpiredSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementPutSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheElementPutSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementUpdatedSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheElementUpdatedSample();
+    }
+
+    @Override
+    public SampledRateCounter getAverageGetTimeSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getAverageGetTimeSample();
+    }
+
+    @Override
+    public SampledRateCounter getAverageSearchTimeSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getAverageSearchTimeSample();
+    }
+
+    @Override
+    public SampledCounter getSearchesPerSecondSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getSearchesPerSecondSample();
+    }
+
+    @Override
+    public SampledCounter getCacheXaCommitsSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheXaCommitsSample();
+    }
+
+    @Override
+    public SampledCounter getCacheXaRollbacksSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheXaRollbacksSample();
     }
 }

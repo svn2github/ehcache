@@ -15,6 +15,10 @@
  */
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
+import net.sf.ehcache.util.counter.sampled.SampledCounterConfig;
+import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
+
 /**
  *  Configuration class of management REST services.
  *
@@ -29,6 +33,10 @@ public class ManagementRESTServiceConfiguration {
 
     private volatile boolean enabled = false;
     private volatile String bind = DEFAULT_BIND;
+
+    private volatile int sampleHistorySize = CacheStatisticsSampler.DEFAULT_HISTORY_SIZE;
+    private volatile int sampleIntervalSeconds = CacheStatisticsSampler.DEFAULT_INTERVAL_SECS;
+    private volatile int sampleSearchInterval = CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC;
 
     /**
      * Check if the REST services should be enabled or not.
@@ -87,5 +95,95 @@ public class ManagementRESTServiceConfiguration {
      */
     public void setBind(String bind) {
         this.bind = bind;
+    }
+
+    /**
+     * Returns the sample history size to be applied to the {@link SampledCounterConfig} for sampled statistics
+     *
+     * @return the sample history size
+     */
+    public int getSampleHistorySize() {
+        return sampleHistorySize;
+    }
+
+    /**
+     * Sets the sample history size to be applied to the {@link SampledCounterConfig} for sampled statistics
+     *
+     * @param sampleHistorySize to set
+     */
+    public void setSampleHistorySize(final int sampleHistorySize) {
+        this.sampleHistorySize = sampleHistorySize;
+    }
+
+    /**
+     * Returns the sample interval in seconds to be applied to the {@link SampledCounterConfig} for sampled statistics
+     *
+     * @return the sample interval in seconds
+     */
+    public int getSampleIntervalSeconds() {
+        return sampleIntervalSeconds;
+    }
+
+    /**
+     * Sets the sample interval in seconds to be applied to the {@link SampledCounterConfig} for sampled statistics
+     *
+     * @param sampleIntervalSeconds to set
+     */
+    public void setSampleIntervalSeconds(final int sampleIntervalSeconds) {
+        this.sampleIntervalSeconds = sampleIntervalSeconds;
+    }
+
+    /**
+     * Returns the sample search interval in seconds to be applied to the {@link SampledRateCounterConfig} for sampled statistics
+     *
+     * @return the sample search interval in seconds
+     */
+    public int getSampleSearchIntervalSeconds() {
+        return sampleSearchInterval;
+    }
+
+    /**
+     * Sets the sample search interval in seconds to be applied to the {@link SampledCounterConfig} for sampled statistics
+     *
+     * @param sampleSearchInterval to set
+     */
+    public void setSampleSearchIntervalSeconds(final int sampleSearchInterval) {
+        this.sampleSearchInterval = sampleSearchInterval;
+    }
+
+    /**
+     * A factory method for {@link SampledCounterConfig} based on the global settings defined on this object
+     *
+     * @see #getSampleIntervalSeconds()
+     * @see #getSampleHistorySize()
+     *
+     * @return a {@code SampledCounterConfig}
+     */
+    public SampledCounterConfig makeSampledCounterConfig() {
+        return new SampledCounterConfig(getSampleIntervalSeconds(), getSampleHistorySize(), true, 0L);
+    }
+
+    /**
+     * A factory method for {@link SampledCounterConfig} based on the global settings defined on this object
+     *
+     * @see #getSampleIntervalSeconds()
+     * @see #getSampleHistorySize()
+     *
+     * @return a {@code SampledCounterConfig}
+     */
+    public SampledRateCounterConfig makeSampledGetRateCounterConfig() {
+        return new SampledRateCounterConfig(getSampleIntervalSeconds(), getSampleHistorySize(), true);
+    }
+
+    /**
+     * A factory method for {@link SampledCounterConfig} based on the global settings defined on this object
+     *
+     * @see #getSampleSearchIntervalSeconds()
+     * @see #getSampleHistorySize()
+     *
+     * @return a {@code SampledCounterConfig}
+     */
+    public SampledRateCounterConfig makeSampledSearchRateCounterConfig() {
+        return new SampledRateCounterConfig(getSampleSearchIntervalSeconds(), getSampleHistorySize(), true);
     }
 }
