@@ -67,9 +67,11 @@ public class TimestamperTest {
                         long start = System.nanoTime();
                         Timestamper.next();
                         long duration = System.nanoTime() - start;
-                        if (runs > 10500 / THREADS) { // If this ain't jit'ed we don't care
-                            max = Math.max(max, duration);
-                        }
+                        max = Math.max(max, duration);
+                        /*
+                         * Schedulers are dumb - make sure everyone gets a fair share of cpu.
+                         */
+                        Thread.yield();
                     }
                     stopped.set(true);
                     maxima[index] = max;
