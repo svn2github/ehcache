@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -59,6 +62,8 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
             return new LocalReadsOnTimeoutStore(nonstopActiveDelegateHolder);
         }
     };
+
+    private static final Logger LOG = LoggerFactory.getLogger(LocalReadsOnTimeoutStore.class);
 
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
 
@@ -119,6 +124,9 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
      * Uses the underlying store to get the local value present in the VM
      */
     public Element getQuiet(Object key) throws IllegalStateException, CacheException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Doing getQuiet() for key: " + key);
+        }
         return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
     }
 

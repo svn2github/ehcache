@@ -154,6 +154,9 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
 
     private <V> V executeWithExecutor(final Callable<V> callable, final long timeOutMills, final boolean force) throws CacheException,
             TimeoutException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Going to execute - callable: " + callable + ", timeoutMillis: " + timeOutMills + ", force: " + force);
+        }
         Callable<V> effectiveCallable = callable;
         final long start = System.nanoTime();
         if (!force) {
@@ -193,12 +196,16 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
 
     private void checkForClusterOffline(final long start, final long timeoutMills) throws TimeoutException {
         while (clusterOffline.get()) {
-            if (nonstopConfiguration.isImmediateTimeout()) {
-                throw new TimeoutException("Cluster is currently offline");
-            }
             final long remaining = timeoutMills - TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
             if (remaining <= 0) {
                 break;
+            }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("isClusterOffline: " + clusterOffline.get() + ", timeoutMillis: " + timeoutMills + ", immediateTimeout: "
+                        + nonstopConfiguration.isImmediateTimeout() + ", remaining: " + remaining);
+            }
+            if (nonstopConfiguration.isImmediateTimeout()) {
+                throw new TimeoutException("Cluster is currently offline");
             }
             synchronized (clusterOffline) {
                 try {
@@ -210,6 +217,9 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
             }
         }
         if (clusterOffline.get()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Cluster still offline after timeoutMillis" + timeoutMills + " , throwing timeout exception");
+            }
             // still cluster offline
             throw new TimeoutException("Cluster is currently offline");
         }
