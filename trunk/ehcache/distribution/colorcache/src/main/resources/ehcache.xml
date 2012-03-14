@@ -10,15 +10,13 @@
       diskSpoolBufferSizeMB="30"
       maxElementsOnDisk="10000000"
       diskPersistent="false"
-      diskExpiryThreadIntervalSeconds="120"
-      memoryStoreEvictionPolicy="LRU"/>
+      diskExpiryThreadIntervalSeconds="120"/>
   <cache name="colors"
          maxElementsInMemory="100"
          maxElementsOnDisk="0"
          eternal="false"
          timeToIdleSeconds="120"
-         timeToLiveSeconds="0"
-         memoryStoreEvictionPolicy="LFU">
+         timeToLiveSeconds="0">
     <terracotta/>
   </cache>
   <terracottaConfig url="localhost:9510"/>
