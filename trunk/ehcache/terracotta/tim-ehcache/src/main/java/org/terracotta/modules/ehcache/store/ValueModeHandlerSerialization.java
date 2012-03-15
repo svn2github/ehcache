@@ -87,7 +87,7 @@ class ValueModeHandlerSerialization implements ValueModeHandler, NotClearable {
       SerializedEntry serializedEntry = (SerializedEntry) value;
       try {
         // serializedEntry.getDeserializedValue(serializationStrategy, threadContextAwareClassLoader);
-        serializedEntry.nullByteArray();
+        serializedEntry.addedToLocalCache();
       } catch (Exception e) {
         throw new CacheException(e);
       }
