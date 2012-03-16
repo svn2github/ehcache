@@ -1763,24 +1763,23 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
 
+        Assume.assumeThat(cache.getStore(), IsInstanceOf.instanceOf(FrontEndCacheTier.class));
+
         Element element1 = new Element("1", new Date());
         Element element2 = new Element("2", new Date());
         cache.put(element1);
-        flushDiskStore(cache);
         cache.put(element2);
-
-        //Test equals and == from an Element retrieved from the MemoryStore
-        Element elementFromStore = cache.get("2");
-        assertEquals(element2, elementFromStore);
-        assertTrue(element2 == elementFromStore);
-
-        //Give the spool a chance to make sure it really got serialized to Disk
         flushDiskStore(cache);
 
         //Test equals and == from an Element retrieved from the MemoryStore
-        Element elementFromDiskStore = cache.get("1");
-        assertEquals(element1, elementFromDiskStore);
-        assertTrue(element1 != elementFromDiskStore);
+        Element elementFromHeapStore = cache.get("1");
+        assertEquals(element1, elementFromHeapStore);
+        assertTrue(element1 == elementFromHeapStore);
+
+        //Test equals and == from an Element retrieved from the MemoryStore
+        Element elementFromDiskStore = cache.get("2");
+        assertEquals(element2, elementFromDiskStore);
+        assertTrue(element2 != elementFromDiskStore);
     }
 
     /**
