@@ -899,7 +899,7 @@ public class CacheWriterTest extends AbstractCacheTest {
               return writer.getWriterEvents();
             }
         }, hasSize(4));
-        
+
         assertTrue(writer.getWriteCount().containsKey("key1"));
         assertTrue(writer.getWriteCount().containsKey("key2"));
         assertFalse(writer.getWriteCount().containsKey("key3"));
@@ -984,7 +984,6 @@ public class CacheWriterTest extends AbstractCacheTest {
 
     private static Callable<Set<Object>> writtenElements(final TestCacheWriter writer) {
         return new Callable<Set<Object>>() {
-            @Override
             public Set<Object> call() throws Exception {
                 return writer.getWrittenElements().keySet();
             }
@@ -993,7 +992,6 @@ public class CacheWriterTest extends AbstractCacheTest {
 
     private static Callable<Set<Object>> deletedElements(final TestCacheWriter writer) {
         return new Callable<Set<Object>>() {
-            @Override
             public Set<Object> call() throws Exception {
                 return writer.getDeletedElements().keySet();
             }
