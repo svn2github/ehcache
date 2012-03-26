@@ -185,6 +185,18 @@ public interface Ehcache extends Cloneable {
     Element putIfAbsent(Element element) throws NullPointerException;
 
     /**
+     * Put an element in the cache if no element is currently mapped to the elements key.
+     *
+     * @param element element to be added
+     * @param doNotNotifyCacheReplicators whether the put is coming from a doNotNotifyCacheReplicators cache peer, in which case this put should not initiate a
+     *                                    further notification to doNotNotifyCacheReplicators cache peers
+     * @return the element previously cached for this key, or null if none.
+     *
+     * @throws NullPointerException if the element is null, or has a null key
+     */
+    Element putIfAbsent(Element element, boolean doNotNotifyCacheReplicators) throws NullPointerException;
+
+    /**
      * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
      * is equal to the value of the cached Element.
      *

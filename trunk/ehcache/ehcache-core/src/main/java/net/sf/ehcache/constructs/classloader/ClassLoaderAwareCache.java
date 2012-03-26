@@ -1897,6 +1897,21 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
+    public Element putIfAbsent(Element arg0, boolean arg1) throws NullPointerException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.putIfAbsent(arg0, arg1);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public void addPropertyChangeListener(PropertyChangeListener arg0) {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
