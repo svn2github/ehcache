@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.Security;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -90,6 +91,11 @@ public class CacheManagerTest {
     @BeforeClass
     public static void installRMISocketFactory() {
         AbstractRMITest.installRMISocketFactory();
+        
+        /*
+         * Work-around for: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7130750
+         */
+        Security.getProviders();
     }
 
     @BeforeClass
@@ -669,21 +675,27 @@ public class CacheManagerTest {
     @Test
     public void testForCacheManagerThreadLeak() throws CacheException,
             InterruptedException {
-        // Check can start second one with a different disk path
-        int startingThreadCount = JVMUtil.enumerateThreads().size();
+        final Collection<Thread> initialThreads = Collections.unmodifiableCollection(JVMUtil.enumerateThreads());
 
         URL configuration = this.getClass().getResource("/ehcache-2.xml");
         for (int i = 0; i < 100; i++) {
             new CacheManager(configuration).shutdown();
         }
-        
-        // Give the spools a chance to exit
-        RetryAssert.assertBy(3, TimeUnit.SECONDS, new Callable<Collection<Thread>>() {
-            public Collection<Thread> call() {
-                return JVMUtil.enumerateThreads();
+
+        /*
+        * The 'termination' of a ThreadPoolExecutor does not guarantee that all
+        * if it's worker threads have terminated.  There is a race between
+        * the worker threads terminating and evaluation this assertion.  We
+        * give the worker threads 10 seconds to terminate.
+        */
+        assertBy(10, TimeUnit.SECONDS, new Callable<Collection<Thread>>() {
+            @Override
+            public Collection<Thread> call() throws Exception {
+                Collection<Thread> newThreads = new ArrayList<Thread>(JVMUtil.enumerateThreads());
+                newThreads.removeAll(initialThreads);
+                return newThreads;
             }
-        // Allow a bit of variation - one extra thread.
-        }, hasSize(lessThanOrEqualTo(startingThreadCount + 1)));
+        }, IsEmptyCollection.<Thread>empty());
     }
 
     /**
@@ -713,10 +725,6 @@ public class CacheManagerTest {
         } finally {
             manager.shutdown();
         }
-        
-        Collection<Thread> deadThreads = new ArrayList<Thread>(initialThreads);
-        deadThreads.removeAll(JVMUtil.enumerateThreads());
-        assertThat("Stopped Threads", deadThreads, IsEmptyCollection.<Thread>empty());
 
         /*
          * The 'termination' of a ThreadPoolExecutor does not guarantee that all
