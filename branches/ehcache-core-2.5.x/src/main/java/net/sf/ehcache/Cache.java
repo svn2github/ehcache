@@ -3849,6 +3849,13 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
+        return putIfAbsent(element, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element putIfAbsent(Element element, boolean doNotNotifyCacheReplicators) throws NullPointerException {
         checkStatus();
 
         checkCASOperationSupported();
@@ -3870,7 +3877,7 @@ public class Cache implements InternalEhcache, StoreListener {
         element.updateUpdateStatistics();
         Element result = compoundStore.putIfAbsent(element);
         if (result == null) {
-            notifyPutInternalListeners(element, false, false);
+            notifyPutInternalListeners(element, doNotNotifyCacheReplicators, false);
         }
         return result;
     }
