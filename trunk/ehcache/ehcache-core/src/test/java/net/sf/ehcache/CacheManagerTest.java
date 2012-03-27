@@ -64,7 +64,6 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.util.MemorySizeParser;
-import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.CombinableMatcher;
 
@@ -91,7 +90,7 @@ public class CacheManagerTest {
     @BeforeClass
     public static void installRMISocketFactory() {
         AbstractRMITest.installRMISocketFactory();
-        
+
         /*
          * Work-around for: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7130750
          */
@@ -108,17 +107,17 @@ public class CacheManagerTest {
         }
         Assert.assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     @Before
     public void noCacheManagersBefore() {
         Assert.assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     @After
     public void noCacheManagersAfter() {
         Assert.assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     @Test(expected = InvalidConfigurationException.class)
     public void testCantMixCountAndSizeBasedTunings() {
         Configuration configuration = new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES);
