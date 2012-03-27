@@ -6,7 +6,6 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 
-import org.terracotta.cache.TimestampedValue;
 import org.terracotta.cluster.TerracottaProperties;
 import org.terracotta.locking.LockType;
 import org.terracotta.locking.TerracottaLock;
@@ -71,7 +70,6 @@ public class LocalBufferedMap<K, V> {
   private final FlushToServerThread                   flushToServerThread;
   private final ClusteredStoreBackend<Object, Object> clusteredStoreBackend;
   private final CacheCoherence                        incoherentNodesSet;
-  private final ValueModeHandler                      valueModeHandler;
 
   private volatile Map<K, ValueWithMetaData<V>>       collectBuffer;
   private volatile Map<K, ValueWithMetaData<V>>       flushBuffer;
@@ -80,10 +78,8 @@ public class LocalBufferedMap<K, V> {
   private final SizeOfEngine                          sizeOfEngine;
   private volatile MetaData                           clearMetaData;
 
-  public LocalBufferedMap(ClusteredStoreBackend<Object, Object> clusteredStoreBackend,
-                          CacheCoherence incoherentNodesSet, ValueModeHandler valueModeHandler) {
+  public LocalBufferedMap(ClusteredStoreBackend<Object, Object> clusteredStoreBackend, CacheCoherence incoherentNodesSet) {
     this.clusteredStoreBackend = clusteredStoreBackend;
-    this.valueModeHandler = valueModeHandler;
     this.collectBuffer = newMap();
     this.flushBuffer = EMPTY_MAP;
     this.incoherentNodesSet = incoherentNodesSet;
@@ -312,13 +308,6 @@ public class LocalBufferedMap<K, V> {
       }
     } finally {
       lock.unlock();
-      for (ValueWithMetaData<V> value : buffer.values()) {
-        V v = value.getValue();
-        // probably refactor this in an AfterFlushTask interface ?
-        if (v instanceof TimestampedValue) {
-          valueModeHandler.processStoredValue((TimestampedValue) v);
-        }
-      }
     }
   }
 

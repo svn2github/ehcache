@@ -19,8 +19,6 @@ public interface ValueModeHandler {
 
   public TimestampedValue createTimestampedValue(Element element);
 
-  public void processStoredValue(TimestampedValue value);
-
   /**
    * Returns null for null values otherwise creates an {@link Element} with the specified key-value and returns it
    */

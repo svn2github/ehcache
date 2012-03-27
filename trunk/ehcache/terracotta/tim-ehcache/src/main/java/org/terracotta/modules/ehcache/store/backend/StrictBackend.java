@@ -43,7 +43,6 @@ public class StrictBackend implements BackendStore {
 
   public void putNoReturn(Object portableKey, TimestampedValue value, MetaData searchMetaData) {
     actualBackend.putNoReturn(portableKey, value, searchMetaData);
-    valueModeHandler.processStoredValue(value);
   }
 
   public void putAllNoReturn(Collection<Element> elements) {
@@ -151,7 +150,6 @@ public class StrictBackend implements BackendStore {
       if (oldValue == null) {
         TimestampedValue value = valueModeHandler.createTimestampedValue(element);
         actualBackend.putNoReturn(portableKey, value, searchMetaData);
-        valueModeHandler.processStoredValue(value);
         element.setElementEvictionData(new ClusteredElementEvictionData(clusteredStore, value));
         return null;
       }
@@ -183,12 +181,11 @@ public class StrictBackend implements BackendStore {
     ClusteredLock lock = actualBackend.createFinegrainedLock(portableKey);
     lock.lock();
     try {
-      Element currentElement = valueModeHandler.createElement(element.getObjectKey(), actualBackend
-          .getTimestampedValueQuiet(portableKey));
+      Element currentElement = valueModeHandler.createElement(element.getObjectKey(),
+                                                              actualBackend.getTimestampedValueQuiet(portableKey));
       if (comparator.equals(old, currentElement)) {
         TimestampedValue value = valueModeHandler.createTimestampedValue(element);
         actualBackend.putNoReturn(portableKey, value, searchMetaData);
-        valueModeHandler.processStoredValue(value);
         element.setElementEvictionData(new ClusteredElementEvictionData(clusteredStore, value));
         return true;
       } else {
@@ -208,7 +205,6 @@ public class StrictBackend implements BackendStore {
       if (currentElement != null) {
         TimestampedValue value = valueModeHandler.createTimestampedValue(element);
         actualBackend.putNoReturn(portableKey, value, searchMetaData);
-        valueModeHandler.processStoredValue(value);
         element.setElementEvictionData(new ClusteredElementEvictionData(clusteredStore, value));
       }
       return currentElement;

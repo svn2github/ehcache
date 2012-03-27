@@ -82,18 +82,6 @@ class ValueModeHandlerSerialization implements ValueModeHandler, NotClearable {
     }
   }
 
-  public void processStoredValue(final TimestampedValue value) {
-    if (!copyOnRead) {
-      SerializedEntry serializedEntry = (SerializedEntry) value;
-      try {
-        // serializedEntry.getDeserializedValue(serializationStrategy, threadContextAwareClassLoader);
-        serializedEntry.addedToLocalCache();
-      } catch (Exception e) {
-        throw new CacheException(e);
-      }
-    }
-  }
-
   public Element createElement(final Object key, final TimestampedValue value) {
     if (null == value) { return null; }
 

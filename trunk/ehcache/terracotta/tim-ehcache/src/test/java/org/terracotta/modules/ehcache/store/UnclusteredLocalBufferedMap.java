@@ -12,8 +12,8 @@ import java.util.concurrent.locks.Lock;
 public class UnclusteredLocalBufferedMap<K, V> extends LocalBufferedMap<K, V> {
 
   public UnclusteredLocalBufferedMap(ClusteredStoreBackend<Object, Object> clusteredStoreBackend,
-                                     CacheCoherence incoherentNodesSet, ValueModeHandler valueModeHandler) {
-    super(clusteredStoreBackend, incoherentNodesSet, valueModeHandler);
+                                     CacheCoherence incoherentNodesSet) {
+    super(clusteredStoreBackend, incoherentNodesSet);
   }
 
   @Override

@@ -72,8 +72,7 @@ public class LocalBufferedMapTest extends TestCase {
     if (map != null) {
       map.dispose();
     }
-    map = new UnclusteredLocalBufferedMap<String, String>(collectingBackend, Mockito.mock(CacheCoherence.class),
-                                                          Mockito.mock(ValueModeHandler.class));
+    map = new UnclusteredLocalBufferedMap<String, String>(collectingBackend, Mockito.mock(CacheCoherence.class));
     map.startThreadIfNecessary();
     collectingBackend.reset();
   }

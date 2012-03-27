@@ -19,10 +19,10 @@ import org.terracotta.meta.MetaData;
 import org.terracotta.modules.ehcache.coherence.CacheCoherence;
 import org.terracotta.modules.ehcache.store.ClusteredElementEvictionData;
 import org.terracotta.modules.ehcache.store.ClusteredStore;
+import org.terracotta.modules.ehcache.store.ClusteredStore.SyncLockState;
 import org.terracotta.modules.ehcache.store.ClusteredStoreBackend;
 import org.terracotta.modules.ehcache.store.UnmodifiableCollectionWrapper;
 import org.terracotta.modules.ehcache.store.ValueModeHandler;
-import org.terracotta.modules.ehcache.store.ClusteredStore.SyncLockState;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,8 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author Abhishek Sanoujam
@@ -118,7 +118,6 @@ public class NonStrictBackend implements BackendStore {
         concurrentLock.unlock();
       }
     }
-    valueModeHandler.processStoredValue(value);
   }
 
   public void putAllNoReturn(Collection<Element> elements) {
@@ -164,14 +163,11 @@ public class NonStrictBackend implements BackendStore {
       }
     }
 
-    for (ClusteredElement element : elements) {
-      valueModeHandler.processStoredValue(element.getTimeStampedValue());
-    }
-
   }
 
   private long getElementSize(ClusteredElement clusteredElement, boolean computeMetaDataSize) {
-    return sizeOfEngine.sizeOf(clusteredElement.getPortableKey(), clusteredElement.getTimeStampedValue(), null).getCalculated();
+    return sizeOfEngine.sizeOf(clusteredElement.getPortableKey(), clusteredElement.getTimeStampedValue(), null)
+        .getCalculated();
   }
 
   public Element get(Object actualKey, Object portableKey, boolean quiet) {
@@ -334,9 +330,6 @@ public class NonStrictBackend implements BackendStore {
       return valueModeHandler.createElement(element.getObjectKey(), oldValue);
     } finally {
       lock.unlock();
-      if (value != null) {
-        valueModeHandler.processStoredValue(value);
-      }
     }
   }
 
@@ -387,9 +380,6 @@ public class NonStrictBackend implements BackendStore {
       if (!externalLock) {
         concurrentLock.unlock();
       }
-      if (newValue != null) {
-        valueModeHandler.processStoredValue(newValue);
-      }
     }
   }
 
@@ -418,9 +408,6 @@ public class NonStrictBackend implements BackendStore {
     } finally {
       if (!externalLock) {
         concurrentLock.unlock();
-      }
-      if (newValue != null) {
-        valueModeHandler.processStoredValue(newValue);
       }
     }
   }
