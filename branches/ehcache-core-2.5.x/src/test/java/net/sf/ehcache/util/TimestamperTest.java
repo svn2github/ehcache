@@ -19,10 +19,10 @@ import static org.junit.Assert.assertThat;
 public class TimestamperTest {
 
     public static final int TOTAL_RUNS = 750000;
-    public static final int THREADS  = 8;
 
     @Test
     public void testCorrectness() throws Exception {
+        final int THREADS = 8;
         final ConcurrentMap<Long, Integer> values = new ConcurrentHashMap<Long, Integer>();
         final AtomicLong errors = new AtomicLong();
         
@@ -51,6 +51,7 @@ public class TimestamperTest {
     
     @Test
     public void testLatency() throws Exception {
+        final int THREADS = Runtime.getRuntime().availableProcessors();
         final AtomicBoolean stopped = new AtomicBoolean(false);
         final long[] maxima = new long[THREADS];
         final int[] loops = new int[THREADS];
