@@ -10,7 +10,7 @@
   <cache name="tti"
          maxElementsInMemory="500"
          overflowToDisk="false"
-         timeToIdleSeconds="10">
+         timeToIdleSeconds="20">
          <terracotta clustered="true" storageStrategy="DCV2" consistency="strong"/>
   </cache>
   
@@ -24,15 +24,15 @@
   <cache name="ttl"
          maxElementsInMemory="500"
          overflowToDisk="false"
-         timeToLiveSeconds="10">
+         timeToLiveSeconds="20">
          <terracotta clustered="true" storageStrategy="DCV2" consistency="strong"/>
   </cache>
   
   <cache name="ttittl"
          maxElementsInMemory="500"
          overflowToDisk="false"
-         timeToIdleSeconds="10"
-         timeToLiveSeconds="20">
+         timeToIdleSeconds="20"
+         timeToLiveSeconds="40">
          <terracotta clustered="true" storageStrategy="DCV2" consistency="strong"/>
   </cache>
 
