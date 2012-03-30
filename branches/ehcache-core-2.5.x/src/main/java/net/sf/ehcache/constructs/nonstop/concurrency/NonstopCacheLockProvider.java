@@ -18,6 +18,7 @@ package net.sf.ehcache.constructs.nonstop.concurrency;
 
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 
@@ -33,6 +34,7 @@ public class NonstopCacheLockProvider implements CacheLockProvider {
     private final NonstopStore nonstopStore;
     private final NonstopActiveDelegateHolder nonstopActiveDelegateHolder;
     private final ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal;
+    private final NonstopConfiguration nonstopConfiguration;
 
     /**
      * Public constructor
@@ -42,16 +44,17 @@ public class NonstopCacheLockProvider implements CacheLockProvider {
      * @param explicitLockingContextThreadLocal
      */
     public NonstopCacheLockProvider(NonstopStore nonstopStore, NonstopActiveDelegateHolder nonstopActiveDelegateHolder,
-            ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal) {
+            ExplicitLockingContextThreadLocal explicitLockingContextThreadLocal, NonstopConfiguration nonstopConfiguration) {
         this.nonstopStore = nonstopStore;
         this.nonstopActiveDelegateHolder = nonstopActiveDelegateHolder;
         this.explicitLockingContextThreadLocal = explicitLockingContextThreadLocal;
+        this.nonstopConfiguration = nonstopConfiguration;
     }
 
     /**
      * {@inheritDoc}
      */
     public Sync getSyncForKey(Object key) {
-        return new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal, key);
+        return new NonstopSync(nonstopStore, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal, key, nonstopConfiguration);
     }
 }

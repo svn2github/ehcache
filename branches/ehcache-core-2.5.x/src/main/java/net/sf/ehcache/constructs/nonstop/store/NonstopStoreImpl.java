@@ -80,7 +80,8 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
             executorServiceStore = new ExecutorServiceStore(nonstopActiveDelegateHolder, nonstopConfig, this, cacheCluster,
                     explicitLockingContextThreadLocal);
         }
-        this.nonstopCacheLockProvider = new NonstopCacheLockProvider(this, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal);
+        this.nonstopCacheLockProvider = new NonstopCacheLockProvider(this, nonstopActiveDelegateHolder, explicitLockingContextThreadLocal,
+                nonstopConfig);
     }
 
     /**
@@ -489,7 +490,7 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
      * {@inheritDoc}
      */
     public CacheConfiguration.TransactionalMode getTransactionalMode() {
-      return executorServiceStore.getTransactionalMode();
+        return executorServiceStore.getTransactionalMode();
     }
 
     /**
