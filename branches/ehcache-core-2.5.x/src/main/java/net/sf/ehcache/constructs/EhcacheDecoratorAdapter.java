@@ -755,7 +755,9 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
         return underlyingCache.putIfAbsent(element);
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public Element putIfAbsent(final Element element, final boolean doNotNotifyCacheReplicators) throws NullPointerException {
         return underlyingCache.putIfAbsent(element, doNotNotifyCacheReplicators);
     }
