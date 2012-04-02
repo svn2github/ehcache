@@ -791,10 +791,14 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.removeAll();
 
         // Check the entry is not there
-        assertEquals(0, diskStore.getSize());
-        assertEquals(0, diskStore.getOnDiskSize());
         assertNull(diskStore.get("key1"));
         assertNull(diskStore.get("key2"));
+        assertEquals(0, diskStore.getSize());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return diskStore.getOnDiskSize();
+            }
+        }, Is.is(0));
     }
 
     /**
