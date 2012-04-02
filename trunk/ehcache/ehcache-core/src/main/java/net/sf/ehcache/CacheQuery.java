@@ -75,6 +75,7 @@ class CacheQuery implements Query, StoreQuery {
      */
     public Query includeValues() {
         checkFrozen();
+        includeKeys();
         this.includeValues = true;
         return this;
     }
