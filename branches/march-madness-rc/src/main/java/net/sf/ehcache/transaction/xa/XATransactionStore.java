@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import java.util.concurrent.TimeUnit;
 import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
@@ -172,6 +173,25 @@ public class XATransactionStore extends AbstractTransactionStore {
     }
 
     /**
+     * This class is used to clean up the transactionToTimeoutMap after a transaction
+     * committed or rolled back.
+     */
+    private final class CleanupTimeout implements Synchronization {
+        private final Transaction transaction;
+
+        private CleanupTimeout(final Transaction transaction) {
+            this.transaction = transaction;
+        }
+
+        public void beforeCompletion() {
+        }
+
+        public void afterCompletion(final int status) {
+            transactionToTimeoutMap.remove(transaction);
+        }
+    }
+
+    /**
      * This class is used to clean up the transactionToXAResourceMap after a transaction
      * committed or rolled back.
      */
@@ -187,7 +207,6 @@ public class XATransactionStore extends AbstractTransactionStore {
 
         public void afterCommitOrRollback(EhcacheXAResource xaResource) {
             transactionToXAResourceMap.remove(transaction);
-            transactionToTimeoutMap.remove(transaction);
         }
     }
 
@@ -230,6 +249,11 @@ public class XATransactionStore extends AbstractTransactionStore {
                 }
                 timeoutTimestamp = now + timeout;
                 transactionToTimeoutMap.put(transaction, timeoutTimestamp);
+                try {
+                    transaction.registerSynchronization(new CleanupTimeout(transaction));
+                } catch (RollbackException e) {
+                    throw new TransactionException("transaction has been marked as rollback only", e);
+                }
                 return timeout;
             } else {
                 long timeToExpiry = timeoutTimestamp - now;

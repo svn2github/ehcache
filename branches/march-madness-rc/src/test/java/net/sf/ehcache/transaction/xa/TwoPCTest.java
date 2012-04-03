@@ -9,11 +9,19 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.transaction.TransactionTimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
+import java.util.Map;
+
+import javax.transaction.RollbackException;
 import javax.transaction.Status;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author lorban
@@ -39,10 +47,13 @@ public class TwoPCTest {
                 .maxEntriesLocalHeap(10)
                 .transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT)));
 
-        transactionManager.begin();
         xaCache1 = cacheManager.getEhcache("xaCache1");
-        xaCache1.removeAll();
         xaCache2 = cacheManager.getEhcache("xaCache2");
+    }
+
+    private void clearAll() throws Exception {
+        transactionManager.begin();
+        xaCache1.removeAll();
         xaCache2.removeAll();
         transactionManager.commit();
     }
@@ -58,6 +69,7 @@ public class TwoPCTest {
 
     @Test
     public void testRemoveCachesAfterPhase1() throws Exception {
+        clearAll();
         transactionManager.begin();
 
         for (int i = 0; i < 100; i++) {
@@ -85,6 +97,51 @@ public class TwoPCTest {
 
         // the TM should be able to commit without problem, the test should just pass.
         transactionManager.commit();
+    }
+
+    @Test
+    public void testTimeout() throws Exception {
+        xaCache1.getCacheManager().getTransactionController().setDefaultTransactionTimeout(5);
+
+        transactionManager.setTransactionTimeout(2);
+        transactionManager.begin();
+
+        // get doesn't enlist -> XATransactionStore will set this cache's XA timeout for this TX to be the default local TX timeout
+        xaCache1.get(1);
+
+        Thread.sleep(3000);
+        // XA tx timed out but the resource doesn't know about it -> call succeeds
+        xaCache1.get(1);
+
+        Thread.sleep(3000);
+        // cache's XA timeout for this TX reached -> fail
+        try {
+            xaCache1.get(1);
+            fail("expected TransactionTimeoutException");
+        } catch (TransactionTimeoutException e) {
+            // expected
+        }
+
+        try {
+            // this XA tx timed out
+            transactionManager.commit();
+            fail("expected RollbackException");
+        } catch (RollbackException e) {
+            // expected
+        }
+
+        // check that there is no internal leak (EHC-937)
+        assertEquals(0, ((Map)getStoreField(xaCache1, "transactionToTimeoutMap")).size());
+    }
+
+    private static Object getStoreField(Ehcache cache, String storeFieldName) throws IllegalAccessException, NoSuchFieldException {
+        Field storeField = cache.getClass().getDeclaredField("compoundStore");
+        storeField.setAccessible(true);
+        XATransactionStore store = (XATransactionStore)storeField.get(cache);
+
+        Field field = store.getClass().getDeclaredField(storeFieldName);
+        field.setAccessible(true);
+        return field.get(store);
     }
 
 }
