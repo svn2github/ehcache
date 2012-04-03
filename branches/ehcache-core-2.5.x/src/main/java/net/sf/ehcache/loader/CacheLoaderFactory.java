@@ -33,7 +33,7 @@ public abstract class CacheLoaderFactory {
     /**
      * Creates a CacheLoader using the Ehcache configuration mechanism at the time the associated cache
      *  is created.
-     * @param cache a reference to the owning cache
+     * @param cache a reference to the owning cache, this cache isn't yet initialized nor wired to a particular CacheManager
      * @param properties implementation specific properties configured as delimiter
      *  separated name value pairs in ehcache.xml
      * @return a constructed CacheLoader
