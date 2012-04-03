@@ -12,13 +12,14 @@ import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
+import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
+
 public class StandaloneTerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
   private final ClusteredInstanceFactory realFactory;
 
   public StandaloneTerracottaClusteredInstanceFactory(final TerracottaClientConfiguration terracottaConfig) {
-    // TODO: create realFactory
-    realFactory = null;
+    realFactory = new TerracottaClusteredInstanceFactory(terracottaConfig);
   }
 
   public Store createStore(final Ehcache cache) {
@@ -41,17 +42,8 @@ public class StandaloneTerracottaClusteredInstanceFactory implements ClusteredIn
     return realFactory.getTopology();
   }
 
-  /**
-   * Shutdown the associated express client.
-   * <p>
-   * We leave the handling of the shared L1 messiness to the Client object.
-   */
   public void shutdown() {
-    try {
-      realFactory.shutdown();
-    } finally {
-      // TODO: client.shutdown();
-    }
+    realFactory.shutdown();
   }
 
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {

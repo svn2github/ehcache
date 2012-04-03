@@ -10,11 +10,11 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.objectweb.asm.ClassWriter;
-import org.terracotta.api.TerracottaClient;
 import org.terracotta.test.util.JMXUtils;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.tests.base.AbstractTestBase;
+import org.terracotta.toolkit.client.TerracottaClient;
 
 import com.tc.admin.common.MBeanServerInvocationProxy;
 import com.tc.test.config.model.TestConfig;

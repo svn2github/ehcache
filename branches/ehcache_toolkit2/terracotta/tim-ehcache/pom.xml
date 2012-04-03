@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    All content copyright (c) 2003-2010 Terracotta, Inc., except as may
-    otherwise be noted in a separate copyright notice. All rights
-    reserved.
-  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!-- All content copyright (c) 2003-2010 Terracotta, Inc., except as may 
+  otherwise be noted in a separate copyright notice. All rights reserved. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -39,7 +36,7 @@
       <version>${hibernate-core.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>terracotta</artifactId>
       <scope>provided</scope>
@@ -49,6 +46,12 @@
       <artifactId>terracotta-toolkit-1.5</artifactId>
       <scope>compile</scope>
       <version>[1.0.0-SNAPSHOT,]</version>
+    </dependency> -->
+    <dependency>
+      <groupId>org.terracotta.toolkit</groupId>
+      <artifactId>terracotta-toolkit-1.5-api</artifactId>
+      <version>5.0.0-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -74,7 +77,8 @@
     </resources>
     <pluginManagement>
       <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>

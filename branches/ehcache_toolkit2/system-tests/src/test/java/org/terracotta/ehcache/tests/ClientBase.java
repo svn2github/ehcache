@@ -7,7 +7,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.api.TerracottaClient;
+import org.terracotta.toolkit.client.TerracottaClient;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.tests.base.AbstractClientBase;
 
