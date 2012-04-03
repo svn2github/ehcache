@@ -6,8 +6,8 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -29,8 +29,8 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
 
   public static class App extends ClientBase {
 
-    private final Barrier barrier1;
-    private final Barrier barrier2;
+    private final ToolkitBarrier barrier1;
+    private final ToolkitBarrier barrier2;
     private int           clientId;
 
     public App(String[] args) {
@@ -44,7 +44,7 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       clientId = barrier1.await();
 
       if (clientId != 2) {

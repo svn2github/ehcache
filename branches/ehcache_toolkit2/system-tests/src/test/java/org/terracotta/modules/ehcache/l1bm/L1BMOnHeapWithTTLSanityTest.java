@@ -11,8 +11,8 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -32,7 +32,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
@@ -44,7 +44,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
 
       Cache dcv2EventualSerializationWithStats = crerateCache("dcv2EventualSerializationWithStats", cacheManager,
                                                               "DCV2", Consistency.EVENTUAL, ValueMode.SERIALIZATION);

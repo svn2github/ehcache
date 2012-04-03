@@ -13,8 +13,8 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -33,7 +33,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
   public static class App extends ClientBase {
     private static final int    SIZE_TEST_ELEMENTS  = 10000;
     private static final double SIZE_TEST_TOLERANCE = 0.15;
-    private final Barrier       barrier;
+    private final ToolkitBarrier       barrier;
 
     public App(String[] args) {
       super(args);
@@ -46,7 +46,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       testSizeBasedCache(cacheManager);
       testCountBasedCache(cacheManager);
     }

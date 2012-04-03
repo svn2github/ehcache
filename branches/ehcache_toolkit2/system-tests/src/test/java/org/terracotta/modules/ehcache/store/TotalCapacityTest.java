@@ -6,7 +6,7 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.WaitUtil;
@@ -40,7 +40,7 @@ public class TotalCapacityTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = getBarrierForAllClients().await();
 
       final Cache cache1 = cacheManager.getCache("test1");

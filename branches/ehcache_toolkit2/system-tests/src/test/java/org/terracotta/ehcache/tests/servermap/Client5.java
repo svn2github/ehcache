@@ -4,7 +4,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import junit.framework.Assert;
 
@@ -19,7 +19,7 @@ public class Client5 extends ServerMapClientBase {
   }
 
   @Override
-  protected void runTest(final Cache cache, final ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(final Cache cache, final Toolkit clusteringToolkit) throws Throwable {
     BasicServerMapExpressTestHelper.populateCache(cache);
     cache.put(new Element("client1-exited", "true"));
 

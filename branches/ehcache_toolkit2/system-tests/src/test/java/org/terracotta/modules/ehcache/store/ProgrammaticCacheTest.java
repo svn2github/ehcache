@@ -9,8 +9,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -29,7 +29,7 @@ public class ProgrammaticCacheTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
@@ -41,7 +41,7 @@ public class ProgrammaticCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache testcache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache testcache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       String cacheName = "regionName";

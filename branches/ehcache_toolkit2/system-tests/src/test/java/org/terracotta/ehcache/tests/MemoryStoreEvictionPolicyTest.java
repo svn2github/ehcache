@@ -8,7 +8,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -27,7 +27,7 @@ public class MemoryStoreEvictionPolicyTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       Cache fifo = new Cache(new CacheConfiguration("fifo", 1000)
           .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.FIFO).terracotta(new TerracottaConfiguration()));
       try {

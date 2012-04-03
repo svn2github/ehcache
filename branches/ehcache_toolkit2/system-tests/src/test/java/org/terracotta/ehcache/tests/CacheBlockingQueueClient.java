@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +26,7 @@ public class CacheBlockingQueueClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
 
     BlockingQueue q = toolkit.getBlockingQueue("CacheBlockingQueueClient-queue");
 

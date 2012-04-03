@@ -4,8 +4,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.cluster.ClusterInfo;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.cluster.ClusterInfo;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,14 +16,14 @@ public class ShutdownClient2 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     try {
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS);
       System.out.println("Current connected clients: " + getConnectedClients());
 
       testCache(cache, toolkit);
 
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS);
       System.out.println("Waiting for client1 to shutdown...");
       Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 
@@ -36,7 +36,7 @@ public class ShutdownClient2 extends ClientBase {
     }
   }
 
-  protected void testCache(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void testCache(Cache cache, Toolkit toolkit) throws Throwable {
     Element element = cache.get("key");
 
     if (element == null) { throw new AssertionError(); }
@@ -46,7 +46,7 @@ public class ShutdownClient2 extends ClientBase {
   }
 
   private int getConnectedClients() {
-    ClusteringToolkit clustering = getTerracottaClient().getToolkit();
+    Toolkit clustering = getTerracottaClient().getToolkit();
     ClusterInfo clusterInfo = clustering.getClusterInfo();
     return clusterInfo.getClusterTopology().getNodes().size();
   }

@@ -6,11 +6,11 @@ package org.terracotta.modules.ehcache.writebehind;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
-import org.terracotta.util.ClusteredAtomicLong;
+import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -24,9 +24,9 @@ public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
 
-    private final Barrier     barrier;
-    final ClusteredAtomicLong totalWriteCount;
-    final ClusteredAtomicLong totalDeleteCount;
+    private final ToolkitBarrier     barrier;
+    final ToolkitAtomicLong totalWriteCount;
+    final ToolkitAtomicLong totalDeleteCount;
 
     public App(String[] args) {
       super(args);
@@ -40,7 +40,7 @@ public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       WriteBehindCacheWriter writer;

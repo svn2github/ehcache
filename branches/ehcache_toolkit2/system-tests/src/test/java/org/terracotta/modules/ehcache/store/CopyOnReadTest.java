@@ -7,7 +7,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.apache.commons.io.IOUtils;
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.TestBaseUtil;
@@ -41,7 +41,7 @@ public class CopyOnReadTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Loader loader1 = new Loader("1");
       Loader loader2 = new Loader("2");
 

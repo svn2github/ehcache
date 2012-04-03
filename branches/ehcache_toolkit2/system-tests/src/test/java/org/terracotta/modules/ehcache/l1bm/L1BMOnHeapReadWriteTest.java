@@ -9,8 +9,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -32,7 +32,7 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
   }
 
   public static class L1BMOnHeapReadWriteTestApp extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public L1BMOnHeapReadWriteTestApp(String[] args) {
       super(args);
@@ -44,7 +44,7 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       boolean shouldWait = true;
       Cache eventualWithStatsCache = crerateCache("eventualWithStatsCache", cacheManager, "EVENTUAL", true);
       testL1BigMemorySanity(eventualWithStatsCache, shouldWait);

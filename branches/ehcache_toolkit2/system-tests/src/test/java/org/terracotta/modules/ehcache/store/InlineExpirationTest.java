@@ -7,7 +7,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -29,7 +29,7 @@ public class InlineExpirationTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache ttiCache = cacheManager.getCache("tti");
       testSimpleTTI(ttiCache);
       testTouchBeforeHalfTTI(ttiCache);

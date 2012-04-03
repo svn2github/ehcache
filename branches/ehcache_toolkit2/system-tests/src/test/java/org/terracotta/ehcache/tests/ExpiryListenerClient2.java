@@ -2,7 +2,7 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.Cache;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import junit.framework.Assert;
 
@@ -18,7 +18,7 @@ public class ExpiryListenerClient2 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     Assert.assertEquals(0, cache.getSize());
   }
 }

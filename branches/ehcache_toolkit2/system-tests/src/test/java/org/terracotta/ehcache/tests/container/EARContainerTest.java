@@ -14,7 +14,7 @@ import org.codehaus.cargo.util.AntUtils;
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
-import org.terracotta.express.ClientFactory;
+import org.terracotta.toolkit.Toolkit;
 
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
@@ -127,7 +127,7 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
                               "WEB-INF/classes/");
 
     Set<File> earLibs = new HashSet<File>();
-    earLibs.add(WARBuilder.calculatePathToClass(ClientFactory.class).getFile()); // toolkit-runtime
+    earLibs.add(WARBuilder.calculatePathToClass(Toolkit.class).getFile()); // toolkit-runtime
     earLibs.add(WARBuilder.calculatePathToClass(Ehcache.class).getFile()); // ehcache-core
     earLibs.add(WARBuilder.calculatePathToClass(StandaloneTerracottaClusteredInstanceFactory.class).getFile()); // ehcache-terracotta
     earLibs.add(WARBuilder.calculatePathToClass(LoggerFactory.class).getFile()); // slf4j-api

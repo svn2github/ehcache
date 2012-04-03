@@ -8,7 +8,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import javax.transaction.TransactionManager;
 
@@ -20,7 +20,7 @@ public class TwoResourceTx1 extends AbstractTxClient {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     Cache cache2 = getCacheManager().getCache("test2");
     final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
     final TransactionManager txnManager = lookup.getTransactionManager();

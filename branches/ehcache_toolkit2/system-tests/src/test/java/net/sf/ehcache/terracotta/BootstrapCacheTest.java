@@ -14,7 +14,7 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.WaitUtil;
@@ -158,7 +158,7 @@ public class BootstrapCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) {
       // Added to fix compilation error. This will never get called for this test as it overrides the run method of
       // ClientBase.
     }

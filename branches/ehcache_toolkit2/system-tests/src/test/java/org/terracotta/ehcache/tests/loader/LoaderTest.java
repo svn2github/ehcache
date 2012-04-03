@@ -3,8 +3,8 @@ package org.terracotta.ehcache.tests.loader;
 import net.sf.ehcache.CacheManager;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
-import org.terracotta.express.ClientFactory;
 import org.terracotta.test.util.TestBaseUtil;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.asm.ClassWriter;
 import com.tc.test.config.model.TestConfig;
@@ -41,7 +41,7 @@ public class LoaderTest extends AbstractCacheTestBase {
     sb.append(TestBaseUtil.jarFor(ClassWriter.class)).append(File.pathSeparator); // needed for OtherClassloaderClient
     sb.append(TestBaseUtil.jarFor(EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(org.junit.Assert.class)).append(File.pathSeparator);
-    sb.append(TestBaseUtil.jarFor(ClientFactory.class));
+    sb.append(TestBaseUtil.jarFor(Toolkit.class));
 
     runClient(LoaderClient.class, LoaderClient.class.getSimpleName(), Arrays.asList(sb.toString()));
   }

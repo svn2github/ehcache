@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
 import org.terracotta.ehcache.tests.container.AbstractStandaloneContainerTestSetup;
-import org.terracotta.express.ClientFactory;
+import org.terracotta.toolkit.Toolkit;
 
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
@@ -37,17 +37,17 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
   }
 
   private WebResponse hibernateRequest(WebApplicationServer server, String params, WebConversation con)
-          throws Exception {
+      throws Exception {
     return server.ping("/test/HibernateCacheTestServlet?" + params, con);
   }
 
   public static abstract class BaseClusteredCacheProviderTestSetup extends AbstractStandaloneContainerTestSetup {
 
     private NetworkServerControl derbyServer;
-    private Class testClass;
+    private final Class          testClass;
 
     protected BaseClusteredCacheProviderTestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
-            String ehcacheConfigFile) {
+                                                  String ehcacheConfigFile) {
       super(testClass, ehcacheConfigFile, "test");
       this.testClass = testClass;
     }
@@ -63,7 +63,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       builder.addDirectoryOrJARContainingClass(antlr.Tool.class); // antlr*.jar
       builder.addDirectoryOrJARContainingClass(javassist.util.proxy.ProxyFactory.class); // java-assist
 
-      builder.addDirectoryOrJARContainingClass(ClientFactory.class); // toolkit-runtime
+      builder.addDirectoryOrJARContainingClass(Toolkit.class); // toolkit-runtime
 
       if (appServerInfo().getId() != AppServerInfo.JBOSS) {
         builder.addDirectoryOrJARContainingClass(Logger.class); // log4j
@@ -72,8 +72,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
 
       builder.addResource("/hibernate-config/appserver/", "jboss-web.xml", "WEB-INF");
       builder.addResource("/hibernate-config/appserver/", "weblogic.xml", "WEB-INF");
-      
-      
+
       customizeWar(builder);
 
       builder.addServlet("HibernateCacheTestServlet", "/HibernateCacheTestServlet/*", getServletClass(), null, false);
@@ -94,9 +93,10 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       // To debug servlets:
       // System.setProperty("com.tc.test.server.appserver.deployment.GenericServer.ENABLE_DEBUGGER", "true");
       File derbyWorkDir = new File("derbydb", testClass.getSimpleName() + "-" + System.currentTimeMillis());
-      if (!derbyWorkDir.exists() && !derbyWorkDir.mkdirs()) {
-        throw new RuntimeException("Can't create derby work dir " + derbyWorkDir.getAbsolutePath());
-      }
+      if (!derbyWorkDir.exists() && !derbyWorkDir.mkdirs()) { throw new RuntimeException(
+                                                                                         "Can't create derby work dir "
+                                                                                             + derbyWorkDir
+                                                                                                 .getAbsolutePath()); }
       System.setProperty("derby.system.home", derbyWorkDir.getAbsolutePath());
       derbyServer = new NetworkServerControl();
       derbyServer.start(new PrintWriter(System.out));
@@ -110,9 +110,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
           tries++;
         }
       }
-      if (tries == 5) {
-        throw new Exception("Failed to start Derby!");
-      }
+      if (tries == 5) { throw new Exception("Failed to start Derby!"); }
 
       super.setUp();
     }

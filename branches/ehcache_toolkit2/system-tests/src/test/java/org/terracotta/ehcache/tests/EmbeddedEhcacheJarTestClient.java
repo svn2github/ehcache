@@ -6,8 +6,8 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.collections.ClusteredMap;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.collections.ToolkitMap;
 
 public class EmbeddedEhcacheJarTestClient extends ClientBase {
 
@@ -16,8 +16,8 @@ public class EmbeddedEhcacheJarTestClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
-    ClusteredMap<String, String> map = toolkit.getMap("testMap");
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
+    ToolkitMap<String, String> map = toolkit.getMap("testMap");
     Class ehcacheClass = map.getClass().getClassLoader().loadClass("net.sf.ehcache.Ehcache");
     // Verify that the Ehcache.class loaded from the ClusteredStateLoader is the same as that loaded from the app. Since
     // Ehcache will be on the classpath for this test, we want to verify that the app class loader version is used

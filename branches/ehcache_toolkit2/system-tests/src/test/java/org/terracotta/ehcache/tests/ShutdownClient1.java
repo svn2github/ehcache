@@ -5,7 +5,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -31,7 +31,7 @@ public class ShutdownClient1 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
 
     testClusteredCache(cache, toolkit);
@@ -111,12 +111,15 @@ public class ShutdownClient1 extends ClientBase {
     }
   }
 
-  public void testClusteredCache(Cache cache, ClusteringToolkit toolkit) {
+  public void testClusteredCache(Cache cache, Toolkit toolkit) {
     try {
       testCache(cache, toolkit);
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // wait for client2 to assert clustered cache
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // line up for client2 to wait for client1
-                                                                          // shutdown
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS); // wait for client2 to
+                                                                                                 // assert clustered
+                                                                                                 // cache
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS); // line up for client2
+                                                                                                 // to wait for client1
+      // shutdown
     } catch (Throwable e) {
       e.printStackTrace();
     }
@@ -127,7 +130,7 @@ public class ShutdownClient1 extends ClientBase {
     getTerracottaClient().shutdown();
   }
 
-  protected void testCache(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void testCache(Cache cache, Toolkit toolkit) throws Throwable {
     cache.put(new Element("key", "value"));
 
     Assert.assertEquals(StorageStrategy.DCV2, cache.getCacheConfiguration().getTerracottaConfiguration()

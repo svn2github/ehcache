@@ -2,7 +2,7 @@ package org.terracotta.ehcache.tests.servermap;
 
 import net.sf.ehcache.Cache;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.mbean.DSOMBeanController;
 
 public class ServerMapClearExpressTestClient1 extends ServerMapClientBase {
@@ -19,7 +19,7 @@ public class ServerMapClearExpressTestClient1 extends ServerMapClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     ServerMapClearTestHelper.doTest(cache, clusteringToolkit, dsoMBean);
   }
 

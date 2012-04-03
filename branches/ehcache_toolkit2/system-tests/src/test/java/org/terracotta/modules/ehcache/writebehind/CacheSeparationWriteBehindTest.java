@@ -6,11 +6,11 @@ package org.terracotta.modules.ehcache.writebehind;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
-import org.terracotta.util.ClusteredAtomicLong;
+import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -26,12 +26,12 @@ public class CacheSeparationWriteBehindTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
 
-    private final Barrier     barrier;
+    private final ToolkitBarrier     barrier;
 
-    final ClusteredAtomicLong totalWriteCount1;
-    final ClusteredAtomicLong totalDeleteCount1;
-    final ClusteredAtomicLong totalWriteCount2;
-    final ClusteredAtomicLong totalDeleteCount2;
+    final ToolkitAtomicLong totalWriteCount1;
+    final ToolkitAtomicLong totalDeleteCount1;
+    final ToolkitAtomicLong totalWriteCount2;
+    final ToolkitAtomicLong totalDeleteCount2;
 
     public App(String[] args) {
       super(args);
@@ -47,7 +47,7 @@ public class CacheSeparationWriteBehindTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       Cache cache1 = cacheManager.getCache("test1");

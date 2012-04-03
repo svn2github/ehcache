@@ -6,8 +6,8 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -27,7 +27,7 @@ public class TTICacheTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
 
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
@@ -39,7 +39,7 @@ public class TTICacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       Cache cache1 = cacheManager.getCache("test1"); // TTI = 10s

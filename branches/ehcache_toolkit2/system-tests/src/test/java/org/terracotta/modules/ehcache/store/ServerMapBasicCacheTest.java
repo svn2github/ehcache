@@ -7,8 +7,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -24,7 +24,7 @@ public class ServerMapBasicCacheTest extends AbstractCacheTestBase {
 
   public static class ServerMapBasicCacheApp extends ClientBase {
     private static final int NODE_COUNT = 2;
-    private final Barrier    barrier;
+    private final ToolkitBarrier    barrier;
 
     public ServerMapBasicCacheApp(String[] args) {
       super("defaultStorageStrategyCache", args);
@@ -36,7 +36,7 @@ public class ServerMapBasicCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = this.barrier.await();
 
       Assert.assertEquals(StorageStrategy.DCV2, cache.getCacheConfiguration().getTerracottaConfiguration()

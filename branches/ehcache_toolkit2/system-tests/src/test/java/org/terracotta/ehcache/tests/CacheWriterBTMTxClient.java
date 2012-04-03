@@ -11,7 +11,7 @@ import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.AbstractCacheWriter;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import bitronix.tm.Configuration;
 import bitronix.tm.TransactionManagerServices;
@@ -36,7 +36,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
 
     PoolingDataSource pds1 = new PoolingDataSource();
     pds1.setClassName("org.apache.derby.jdbc.EmbeddedXADataSource");

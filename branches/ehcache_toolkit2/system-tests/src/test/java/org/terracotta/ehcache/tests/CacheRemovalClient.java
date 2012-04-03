@@ -7,8 +7,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.cluster.ClusterInfo;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.cluster.ClusterInfo;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -27,7 +27,7 @@ public class CacheRemovalClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(final Cache cache, final ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(final Cache cache, final Toolkit toolkit) throws Throwable {
     cacheManager.removeCache(cache.getName());
     for (int i = 0; i < 10; i++) {
       addAndRemove("test-" + i);

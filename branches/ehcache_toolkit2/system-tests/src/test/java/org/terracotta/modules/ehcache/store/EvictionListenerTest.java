@@ -9,11 +9,11 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
-import org.terracotta.util.ClusteredAtomicLong;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
+import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -31,8 +31,8 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase implements CacheEventListener {
 
-    private final Barrier             barrier;
-    private final ClusteredAtomicLong evictedCount;
+    private final ToolkitBarrier    barrier;
+    private final ToolkitAtomicLong evictedCount;
 
     public App(String[] args) {
       super("test2", args);
@@ -45,7 +45,7 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       cache.getCacheEventNotificationService().registerListener(this);

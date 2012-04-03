@@ -11,8 +11,8 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -27,7 +27,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
   }
 
   public static class PinnedCacheTestApp extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public PinnedCacheTestApp(String[] args) {
       super(args);
@@ -39,7 +39,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       int nodeId = barrier.await();
       Thread.currentThread().setName("Node[" + nodeId + "]");
       Cache pinnedInCache = new Cache(new CacheConfiguration().name("pinnedInCache")

@@ -23,7 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -41,7 +41,7 @@ public class OtherClassloaderClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache c, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache c, Toolkit toolkit) throws Throwable {
     // Construct Value instances from a foreign classloader
     ClassLoader otherClassLoader = createClassLoader();
     Ehcache cache = new ClassLoaderAwareCache(c, otherClassLoader);

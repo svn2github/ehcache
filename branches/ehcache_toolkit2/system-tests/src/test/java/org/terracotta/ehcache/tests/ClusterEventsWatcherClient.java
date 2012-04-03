@@ -4,7 +4,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import junit.framework.Assert;
 
@@ -19,7 +19,7 @@ public class ClusterEventsWatcherClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     getBarrierForAllClients().await();
 
     CacheCluster cluster = cache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);

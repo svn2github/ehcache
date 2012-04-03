@@ -6,11 +6,11 @@ import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.stat.Statistics;
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.cluster.ClusterInfo;
 import org.terracotta.ehcache.tests.container.hibernate.domain.Event;
 import org.terracotta.ehcache.tests.container.hibernate.domain.EventManager;
 import org.terracotta.ehcache.tests.container.hibernate.nontransactional.HibernateUtil;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.cluster.ClusterInfo;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -23,13 +23,13 @@ public class HibernateShutdownClient2 extends ClientBase {
 
   @Override
   public void doTest() throws Throwable {
-    getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
+    getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS);
 
     System.out.println("Current connected clients: " + getConnectedClients());
 
     runTest(null, getClusteringToolkit());
 
-    getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60));
+    getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS);
     System.out.println("Waiting for client1 to shutdown...");
     Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 
@@ -37,7 +37,7 @@ public class HibernateShutdownClient2 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     HibernateUtil.configure("/hibernate-config/shutdowntest/hibernate.cfg.xml");
     EventManager mgr = new EventManager(HibernateUtil.getSessionFactory());
     Statistics stats = HibernateUtil.getSessionFactory().getStatistics();
@@ -67,7 +67,7 @@ public class HibernateShutdownClient2 extends ClientBase {
   }
 
   private int getConnectedClients() {
-    ClusteringToolkit clustering = getTerracottaClient().getToolkit();
+    Toolkit clustering = getTerracottaClient().getToolkit();
     ClusterInfo clusterInfo = clustering.getClusterInfo();
     return clusterInfo.getClusterTopology().getNodes().size();
   }

@@ -6,7 +6,7 @@ package org.terracotta.modules.ehcache.coherence;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.JMXUtils;
@@ -55,7 +55,7 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       DSOClientMBeanCoordinator coordinator = new DSOClientMBeanCoordinator();
       coordinator.startDSOClientMBeanCoordinator();
 

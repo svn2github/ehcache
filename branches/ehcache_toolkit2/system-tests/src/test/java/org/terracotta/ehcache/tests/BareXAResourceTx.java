@@ -9,7 +9,7 @@ import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.xa.DummyTransactionManagerLookup;
 import org.terracotta.ehcache.tests.xa.DummyXid;
 import org.terracotta.ehcache.tests.xa.EhCacheXAResourceExtractor;
@@ -35,7 +35,7 @@ public class BareXAResourceTx extends AbstractTxClient {
   private Cache              cache;
 
   @Override
-  protected void runTest(Cache theCache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache theCache, Toolkit toolkit) throws Throwable {
     tm = new DummyTransactionManagerLookup().getTransactionManager();
     this.cache = theCache;
 

@@ -6,7 +6,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import junit.framework.Assert;
 
@@ -21,7 +21,7 @@ public class ExpiryListenerClient1 extends ClientBase implements CacheEventListe
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     cache.getCacheEventNotificationService().registerListener(this);
     cache.put(new Element("key", "value"));
     // assume the TTL of the cache is set to 3s

@@ -9,8 +9,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -41,7 +41,7 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier         barrier;
+    private final ToolkitBarrier         barrier;
 
     private volatile CacheManager manager;
     private volatile Ehcache      cache;
@@ -56,7 +56,7 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache testcache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache testcache, Toolkit clusteringToolkit) throws Throwable {
       cacheManager.shutdown();
       int index = barrier.await();
 

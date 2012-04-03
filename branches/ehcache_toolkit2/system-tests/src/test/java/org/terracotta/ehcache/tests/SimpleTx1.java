@@ -8,7 +8,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.io.Serializable;
 
@@ -24,7 +24,7 @@ public class SimpleTx1 extends AbstractTxClient {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
     final TransactionManager txnManager = lookup.getTransactionManager();
     int commitCount = 0;

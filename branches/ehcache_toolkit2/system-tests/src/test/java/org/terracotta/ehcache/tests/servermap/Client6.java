@@ -3,7 +3,7 @@ package org.terracotta.ehcache.tests.servermap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 public class Client6 extends ServerMapClientBase {
 
@@ -16,7 +16,7 @@ public class Client6 extends ServerMapClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     assertClient1Exited(cache);
     BasicServerMapExpressTestHelper.assertValuesInCache(cache);
   }

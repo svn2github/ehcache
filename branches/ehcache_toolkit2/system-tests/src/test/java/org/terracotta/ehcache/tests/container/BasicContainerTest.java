@@ -5,7 +5,7 @@ package org.terracotta.ehcache.tests.container;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
-import org.terracotta.express.ClientFactory;
+import org.terracotta.toolkit.Toolkit;
 
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
@@ -51,14 +51,14 @@ public class BasicContainerTest extends AbstractStandaloneTwoServerDeploymentTes
     @Override
     protected void configureWar(DeploymentBuilder builder) {
       super.configureWar(builder);
-      
-      builder.addDirectoryOrJARContainingClass(ClientFactory.class); // toolkit-runtime
+
+      builder.addDirectoryOrJARContainingClass(Toolkit.class); // toolkit-runtime
 
       if (appServerInfo().getId() != AppServerInfo.JBOSS) {
         builder.addDirectoryOrJARContainingClass(Logger.class); // log4j
         builder.addDirectoryOrJARContainingClass(LogFactory.class); // common-loggings
       }
-      
+
       builder.addServlet("BasicTestServlet", "/BasicTestServlet/*", BasicTestServlet.class, null, false);
     }
 

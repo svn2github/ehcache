@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests.servermap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.Date;
 
@@ -23,7 +23,7 @@ public class ServerMapL1CapacityExpirationExpressTestClient extends ServerMapCli
   }
 
   @Override
-  protected void runTest(final Cache cache, final ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(final Cache cache, final Toolkit clusteringToolkit) throws Throwable {
     assertLocalCache(true);
     final int size = cache.getSize();
     assertEquals(0, size);

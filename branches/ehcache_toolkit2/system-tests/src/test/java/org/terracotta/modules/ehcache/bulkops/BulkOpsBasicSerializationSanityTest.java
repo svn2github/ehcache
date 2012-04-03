@@ -11,8 +11,8 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -35,7 +35,7 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
@@ -47,7 +47,7 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache dcv2StrongSerialization = crerateCache("dcv2StrongSerialization", cacheManager, "DCV2", Consistency.STRONG,
                                                    "SERIALIZATION");
       testBulkOpsSanity(dcv2StrongSerialization);

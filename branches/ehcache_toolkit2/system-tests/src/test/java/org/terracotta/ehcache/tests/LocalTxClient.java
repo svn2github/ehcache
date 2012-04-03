@@ -11,7 +11,7 @@ import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +36,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     cache1 = cache;
     transactionController = cache1.getCacheManager().getTransactionController();
     cache1.getCacheManager().getTransactionController().setDefaultTransactionTimeout(120);

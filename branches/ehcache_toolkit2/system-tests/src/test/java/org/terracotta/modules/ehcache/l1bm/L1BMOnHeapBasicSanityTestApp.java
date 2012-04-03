@@ -11,8 +11,8 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.ClientBase;
 
 import java.util.HashSet;
@@ -22,7 +22,7 @@ import java.util.concurrent.BrokenBarrierException;
 import junit.framework.Assert;
 
 public class L1BMOnHeapBasicSanityTestApp extends ClientBase {
-  private final Barrier barrier;
+  private final ToolkitBarrier barrier;
 
   public L1BMOnHeapBasicSanityTestApp(String[] args) {
     super(args);
@@ -34,7 +34,7 @@ public class L1BMOnHeapBasicSanityTestApp extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
 
     Cache dcv2EventualSerializationWithStats = crerateCache("dcv2EventualSerializationWithStats", cacheManager, "DCV2",
                                                             Consistency.EVENTUAL, ValueMode.SERIALIZATION);

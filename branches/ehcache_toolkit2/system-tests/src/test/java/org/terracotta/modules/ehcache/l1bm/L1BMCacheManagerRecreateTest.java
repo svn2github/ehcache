@@ -7,7 +7,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -27,7 +27,7 @@ public class L1BMCacheManagerRecreateTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache testcache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache testcache, Toolkit clusteringToolkit) throws Throwable {
       cache = testcache;
       for (int i = 0; i < 100; i++) {
         cache.put(new Element("key" + i, "value" + i));

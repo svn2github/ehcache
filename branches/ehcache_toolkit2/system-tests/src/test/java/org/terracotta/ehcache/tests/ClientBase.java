@@ -6,9 +6,9 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.api.TerracottaClient;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.tests.base.AbstractClientBase;
 
 import java.util.concurrent.BrokenBarrierException;
@@ -22,7 +22,7 @@ public abstract class ClientBase extends AbstractClientBase {
 
   protected CacheManager      cacheManager;
   private TerracottaClient    terracottaClient;
-  private Barrier             barrier;
+  private ToolkitBarrier             barrier;
 
   public ClientBase(String[] args) {
     this("test", args);
@@ -39,7 +39,7 @@ public abstract class ClientBase extends AbstractClientBase {
     runTest(getCache(), getClusteringToolkit());
   }
 
-  protected synchronized final Barrier getBarrierForAllClients() {
+  protected synchronized final ToolkitBarrier getBarrierForAllClients() {
     if (barrier == null) {
       barrier = getClusteringToolkit().getBarrier("barrier with all clients", getParticipantCount());
     }
@@ -62,7 +62,7 @@ public abstract class ClientBase extends AbstractClientBase {
     return cacheManager;
   }
 
-  protected ClusteringToolkit getClusteringToolkit() {
+  protected Toolkit getClusteringToolkit() {
     return getTerracottaClient().getToolkit();
   }
 
@@ -79,7 +79,7 @@ public abstract class ClientBase extends AbstractClientBase {
     barrier = null;
   }
 
-  protected abstract void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable;
+  protected abstract void runTest(Cache cache, Toolkit toolkit) throws Throwable;
 
   // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
   public void waitForAllCurrentTransactionsToComplete() {
