@@ -35,11 +35,19 @@ public class AbstractCacheTestBase extends AbstractTestBase {
 
   public AbstractCacheTestBase(TestConfig testConfig, Class<? extends ClientBase>... c) {
     this("basic-cache-test.xml", testConfig, c);
+    // This will disable all Cache Tests until ehcache becomes compatible with toolkit2.0
+    if (isDisabled()) {
+      disableTest();
+    }
   }
 
   public AbstractCacheTestBase(final String ehcacheConfigPath, TestConfig testConfig) {
     this(ehcacheConfigPath, testConfig, Client1.class, Client2.class);
     testConfig.getClientConfig().setParallelClients(false);
+    // This will disable all Cache Tests until ehcache becomes compatible with toolkit2.0
+    if (isDisabled()) {
+      disableTest();
+    }
   }
 
   public AbstractCacheTestBase(final String ehcacheConfigPath, TestConfig testConfig,
@@ -47,6 +55,10 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     super(testConfig);
     this.ehcacheConfigPath = ehcacheConfigPath;
     testConfig.getClientConfig().setClientClasses(c);
+    // This will disable all Cache Tests until ehcache becomes compatible with toolkit2.0
+    if (isDisabled()) {
+      disableTest();
+    }
   }
 
   @Override
@@ -59,7 +71,6 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String jta = TestBaseUtil.jarFor(TransactionManager.class);
     String oswego = TestBaseUtil.jarFor(EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap.class);
     String expressRuntime = TestBaseUtil.jarFor(TerracottaClient.class);
-
     String parseException = TestBaseUtil.jarFor(ParseException.class); // apache commons
     String httpMethod = TestBaseUtil.jarFor(HttpMethod.class);
     String decoder = TestBaseUtil.jarFor(DecoderException.class);
@@ -122,7 +133,6 @@ public class AbstractCacheTestBase extends AbstractTestBase {
 
       String nameSuffixReplaceValue = nameSuffix == null ? "" : "-" + nameSuffix;
       line = line.replace("__NAME_SUFFIX__", nameSuffixReplaceValue);
-
       lines.set(i, line);
     }
 
@@ -135,6 +145,10 @@ public class AbstractCacheTestBase extends AbstractTestBase {
 
   public String getEhcacheConfigPath() {
     return ehcacheConfigPath;
+  }
+
+  protected boolean isDisabled() {
+    return true;
   }
 
 }
