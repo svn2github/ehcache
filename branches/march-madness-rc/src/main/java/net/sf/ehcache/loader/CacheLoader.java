@@ -114,6 +114,7 @@ public interface CacheLoader {
      * status to alive. Cache operations are legal in this method.
      *
      * @throws net.sf.ehcache.CacheException
+     * @see net.sf.ehcache.Ehcache#registerCacheLoader(net.sf.ehcache.loader.CacheLoader)
      */
     void init();
 
@@ -123,6 +124,9 @@ public interface CacheLoader {
      * <p/>
      * Cache operations are illegal when this method is called. The cache itself is partly
      * disposed when this method is called.
+     * <p/>
+     * This method will be invoked when {@link net.sf.ehcache.Cache#dispose() Cache.dispose()} is invoked
+     * if this CacheLoader is registered with the cache at disposal time.
      *
      * @throws net.sf.ehcache.CacheException
      */

@@ -945,9 +945,13 @@ public interface Ehcache extends Cloneable {
     /**
      * Register a {@link CacheLoader} with the cache. It will then be tied into the cache lifecycle.
      * <p/>
-     * If the CacheLoader is not initialised, initialise it.
+     * The CacheLoader instance will be initialized when the cache itself is being initialized.
+     * Should the cache already be initialized, {@link net.sf.ehcache.loader.CacheLoader#init CacheLoader.init()} will not be invoked.
+     * If the loader requires initialization, the user will have to call it manually before registering it with a Cache instance
+     * that's already alive
      *
      * @param cacheLoader A Cache Loader to register
+     * @since While the javadoc has changed in 2.5.2, the behavior has not.
      */
     public void registerCacheLoader(CacheLoader cacheLoader);
 
