@@ -1,0 +1,13 @@
+<ehcache>
+    <defaultCache
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="0"
+            maxElementsOnDisk="10000000"
+            statistics="false">
+        <terracotta concurrency="32" />
+    </defaultCache>
+
+  <terracottaConfig url="localhost:PORT"/>    
+</ehcache>

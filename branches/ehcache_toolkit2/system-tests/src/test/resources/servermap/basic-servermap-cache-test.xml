@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache
+      maxElementsInMemory="0"
+      eternal="true"/>
+
+  <cache name="test"
+         maxElementsInMemory="10"
+         eternal="true">
+
+      <terracotta clustered="true" storageStrategy="DCV2"/>
+  </cache>
+  
+  <cache name="testWithEvictionTTI"
+         maxElementsInMemory="4000"
+         eternal="false"
+         timeToIdleSeconds="30"
+         maxElementsOnDisk="5000">
+
+      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+  </cache>
+  
+   <cache name="testWithEvictionTTL"
+         maxElementsInMemory="4000"
+         eternal="false"
+         timeToLiveSeconds="30"
+         maxElementsOnDisk="5000">
+
+      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+  </cache>
+  
+  <cache name="testWithEvictionMaxElements"
+         maxElementsInMemory="4000"
+         eternal="true"
+         maxElementsOnDisk="5000">
+
+      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+  </cache>
+  
+  <cache name="testWithElementEvictionTTI"
+         maxElementsInMemory="400"
+         eternal="false"
+         timeToIdleSeconds="15"
+         maxElementsOnDisk="500">
+
+      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+  </cache>
+  
+  <cache name="testWithElementEvictionTTL"
+         maxElementsInMemory="400"
+         eternal="false"
+         timeToLiveSeconds="15"
+         maxElementsOnDisk="500">
+
+      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+  </cache>
+  
+  <cache name="testMaxInDiskWithTTL"
+         maxElementsInMemory="100"
+         eternal="false"
+         timeToLiveSeconds="900"
+         maxElementsOnDisk="500">
+
+      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+  </cache>
+  
+  <cache name="defaultStorageStrategyCache"
+       maxElementsInMemory="0"
+       eternal="true"
+       overflowToDisk="false">
+
+       <terracotta clustered="true"/>
+  </cache>
+  <terracottaConfig url="localhost:PORT"/>
+
+</ehcache>
