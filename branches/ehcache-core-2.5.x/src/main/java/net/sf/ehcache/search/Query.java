@@ -71,7 +71,7 @@ public interface Query {
     public Query includeKeys();
 
     /**
-     * Request that the value object be present in the results.
+     * Request that the value object be present in the results. This also forces the keys to be included as well in he search results
      *
      * @return this
      */
