@@ -37,7 +37,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
   }
 
   private WebResponse hibernateRequest(WebApplicationServer server, String params, WebConversation con)
-          throws Exception {
+      throws Exception {
     return server.ping("/test/HibernateCacheTestServlet?" + params, con);
   }
 
@@ -47,7 +47,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
     private Class testClass;
 
     protected BaseClusteredCacheProviderTestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
-            String ehcacheConfigFile) {
+                                                  String ehcacheConfigFile) {
       super(testClass, ehcacheConfigFile, "test");
       this.testClass = testClass;
     }
@@ -57,7 +57,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       super.configureWar(builder);
       builder.addDirectoryOrJARContainingClass(com.tc.test.TCTestCase.class); // hibernate*.jar
       builder.addDirectoryOrJARContainingClass(org.hibernate.SessionFactory.class); // hibernate*.jar
-      builder.addDirectoryOrJARContainingClass(org.apache.commons.collections.Buffer.class); //
+      builder.addDirectoryOrJARContainingClass(org.apache.commons.collections.LRUMap.class);
       builder.addDirectoryOrJARContainingClass(org.apache.derby.jdbc.ClientDriver.class); // derby*.jar
       builder.addDirectoryOrJARContainingClass(org.dom4j.Node.class); // domj4*.jar
       builder.addDirectoryOrJARContainingClass(antlr.Tool.class); // antlr*.jar
@@ -72,8 +72,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
 
       builder.addResource("/hibernate-config/appserver/", "jboss-web.xml", "WEB-INF");
       builder.addResource("/hibernate-config/appserver/", "weblogic.xml", "WEB-INF");
-      
-      
+
       customizeWar(builder);
 
       builder.addServlet("HibernateCacheTestServlet", "/HibernateCacheTestServlet/*", getServletClass(), null, false);
