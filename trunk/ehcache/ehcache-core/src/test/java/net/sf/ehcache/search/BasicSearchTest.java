@@ -946,8 +946,9 @@ public class BasicSearchTest {
                 ageSum += p.getAge();
                 try {
                     result.getKey();
+                    fail();
                 } catch (SearchException se) {
-                    fail("getKey() should work when includeValues()");
+                    // expected since keys not included
                 }
             }
 
