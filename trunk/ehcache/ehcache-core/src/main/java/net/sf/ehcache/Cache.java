@@ -1636,7 +1636,9 @@ public class Cache implements InternalEhcache, StoreListener {
             return null;
         }
 
-        if(keys.isEmpty()) return Collections.EMPTY_MAP;
+        if (keys.isEmpty()) {
+            return Collections.EMPTY_MAP;
+        }
 
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
