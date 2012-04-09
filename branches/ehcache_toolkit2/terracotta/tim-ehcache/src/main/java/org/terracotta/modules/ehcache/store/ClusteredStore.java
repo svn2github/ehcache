@@ -154,27 +154,15 @@ public class ClusteredStore implements Store {
       builder.concurrency(terracottaConfiguration.getConcurrency());
     }
 
-    if (ehcache.getCacheManager().isNamed()) {
-      builder.localCacheEnabled(true);
-      builder.localStoreManagerName(ehcache.getCacheManager().getName());
-    }
-    // builder.localStoreName(ehcache.getName());
-    // builder.localStoreUUID(ehcache.getGuid());
+    final String cmName = ehcache.getCacheManager().isNamed() ? ehcache.getCacheManager().getName()
+        : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
+    builder.localCacheEnabled(localCacheEnabled);
+    builder.localStoreManagerName(cmName);
 
     builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
-
-    if (ehcacheConfig.getMaxEntriesLocalHeap() > 0) {
-      builder.maxCountLocalHeap((int) ehcacheConfig.getMaxEntriesLocalHeap());
-    }
-
-    if (ehcacheConfig.getMaxBytesLocalHeap() > 0) {
-      builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
-    }
-
-    if (ehcacheConfig.getMaxBytesLocalOffHeap() > 0) {
-      builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
-    }
-
+    builder.maxCountLocalHeap(ehcacheConfig.getMaxEntriesLocalHeap());
+    builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
+    builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
     builder.offheapEnabled(ehcacheConfig.isOverflowToOffHeap());
 
     return builder.build();
@@ -439,7 +427,7 @@ public class ClusteredStore implements Store {
 
   @Override
   public int getSize() {
-    return backend.localSize();
+    return getTerracottaClusteredSize();
   }
 
   @Override
@@ -454,7 +442,6 @@ public class ClusteredStore implements Store {
 
   @Override
   public int getOnDiskSize() {
-
     return 0;
   }
 
@@ -480,14 +467,12 @@ public class ClusteredStore implements Store {
 
   @Override
   public boolean hasAbortedSizeOf() {
-
     return false;
   }
 
   @Override
   public Status getStatus() {
-
-    return null;
+    return Status.STATUS_ALIVE;
   }
 
   @Override
@@ -513,27 +498,34 @@ public class ClusteredStore implements Store {
     return backend.containsKeyLocalOnHeap(pKey);
   }
 
+  /**
+   * Expire all elements.
+   * <p/>
+   * This is a default implementation which does nothing. Expiration on demand is only implemented for disk stores.
+   */
   @Override
   public void expireElements() {
-    //
-
+    // empty implementation
   }
 
   @Override
   public void flush() throws IOException {
-    //
-
+    // should be emptied if clearOnFlush is true
+    if (cache.getCacheConfiguration().isClearOnFlush()) {
+      backend.clear();
+      if (keyLookupCache != null) {
+        keyLookupCache.clear();
+      }
+    }
   }
 
   @Override
   public boolean bufferFull() {
-
     return false;
   }
 
   @Override
   public Policy getInMemoryEvictionPolicy() {
-
     return null;
   }
 
@@ -551,33 +543,28 @@ public class ClusteredStore implements Store {
 
   @Override
   public boolean isCacheCoherent() {
-
-    return false;
+    return isClusterCoherent();
   }
 
   @Override
   public boolean isClusterCoherent() throws TerracottaNotRunningException {
-
-    return false;
+    return !backend.isBulkLoadEnabledInCluster();
   }
 
   @Override
   public boolean isNodeCoherent() throws TerracottaNotRunningException {
-    //
-    return false;
+    return !backend.isBulkLoadEnabledInCurrentNode();
   }
 
   @Override
   public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException {
-    //
-
+    backend.setBulkLoadEnabledInCurrentNode(!coherent);
   }
 
   @Override
   public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException,
       InterruptedException {
-    //
-
+    backend.waitUntilBulkLoadCompleteInCluster();
   }
 
   @Override

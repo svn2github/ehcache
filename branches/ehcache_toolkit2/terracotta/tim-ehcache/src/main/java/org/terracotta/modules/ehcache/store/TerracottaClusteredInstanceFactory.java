@@ -23,6 +23,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private static final String       PREFIX                       = "org.terracotta.modules.ehcache.";
   private static final String       EHCACHE_IDS_ATOMIC_LONG_NAME = PREFIX + "ehcache-ids";
 
+  public static final String        DEFAULT_CACHE_MANAGER_NAME   = "__DEFAULT__";
+
   protected final ToolkitClient     toolkitClient;
   protected final ToolkitAtomicLong ehcacheIds;
 
