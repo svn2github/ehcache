@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -11,6 +12,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -24,38 +26,68 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.collections.ToolkitCache;
+import org.terracotta.toolkit.ToolkitLogger;
+import org.terracotta.toolkit.ToolkitProperties;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitCacheConfigFields;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields.PinningStore;
+import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.meta.MetaData;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import javax.swing.event.EventListenerList;
 
 public class ClusteredStore implements Store {
-  private static final Logger                        LOG = LoggerFactory.getLogger(ClusteredStore.class.getName());
-  private final String                               qualifiedCacheName;
-  private final Consistency                          initialCoherenceMode;
-  private final CacheConfiguration.TransactionalMode transactionalMode;
-  private final boolean                              localCacheEnabled;
-  private final boolean                              cachePinned;
+
+  private static final Logger                        LOG                       = LoggerFactory
+                                                                                   .getLogger(ClusteredStore.class
+                                                                                       .getName());
+  private final ToolkitLogger                        toolkitLogger;
+  private final ToolkitProperties                    toolkitProperties;
+  private static final String                        CHECK_CONTAINS_KEY_ON_PUT = "ehcache.clusteredStore.checkContainsKeyOnPut";
+  private volatile boolean                           checkContainsKeyOnPut;
+
+  private final ToolkitCacheWithMetadata             backend;
+  protected final ValueModeHandler                   valueModeHandler;
   private final int                                  localKeyCacheMaxsize;
-  private final Map<Object, Object>                  keyLookupCache;
-  private final ClusteredStoreBackendImpl            backend;
-  protected transient Ehcache                        cache;
+  protected final String                             qualifiedCacheName;
+  private final CacheConfiguration.TransactionalMode transactionalMode;
+
+  /**
+   * The cache this store is associated with.
+   */
+  private final Ehcache                              cache;
+  private final Map                                  keyLookupCache;
+  private final Set<CacheConfiguration>              linkedConfigurations      = new CopyOnWriteArraySet<CacheConfiguration>();
+  private EventListenerList                          listenerList;
+  private transient boolean                          cachePinned;
+  private final boolean                              localCacheEnabled;
 
   public ClusteredStore(Toolkit toolkit, Ehcache cache, long uniqueId) {
     // appending a unique identifier to the cache name is necessary to avoid collisions when the cache name starts with
     // "_" or if the name contains characters not legal for use as a filesystem path (ie. L2 lucene index path)
     this.qualifiedCacheName = cache.getCacheManager().getName() + "_" + cache.getName() + "_" + uniqueId;
+    this.cache = cache;
 
+    toolkitLogger = toolkit.getLogger(ClusteredStore.class.getName());
+    toolkitProperties = toolkit.getProperties();
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     checkMemoryStoreEvictionPolicy(ehcacheConfig);
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
@@ -63,7 +95,6 @@ public class ClusteredStore implements Store {
     if (terracottaConfiguration == null || !terracottaConfiguration.isClustered()) { throw new IllegalArgumentException(
                                                                                                                         "Cannot create clustered store for non-terracotta clustered caches"); }
     localCacheEnabled = terracottaConfiguration.isLocalCacheEnabled();
-    initialCoherenceMode = terracottaConfiguration.getConsistency();
     transactionalMode = ehcacheConfig.getTransactionalMode();
 
     if (ehcacheConfig.isOverflowToDisk()) {
@@ -71,6 +102,7 @@ public class ClusteredStore implements Store {
         LOG.warn("Persistence on disk on the local node is not supported with a Terracotta clustered ehcache store. Configure the Terracotta server array to be persistent instead.");
       }
     }
+    valueModeHandler = ValueModeHandlerFactory.createValueModeHandler(this, ehcacheConfig);
 
     cachePinned = cache.getCacheConfiguration().getPinningConfiguration() != null
                   && cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
@@ -82,12 +114,17 @@ public class ClusteredStore implements Store {
       localKeyCacheMaxsize = -1;
       keyLookupCache = null;
     }
+    if (StorageStrategy.DCV2.equals(cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy())) {
+      // use false by default
+      checkContainsKeyOnPut = toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT, false);
+    } else {
+      // use true by default
+      checkContainsKeyOnPut = toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT, true);
+    }
+
     final Configuration clusteredCacheConfig = createClusteredMapConfig(toolkit.getConfigBuilderFactory()
         .newToolkitCacheConfigBuilder(), cache);
-    ToolkitCache clusteredCache = toolkit.getCache(qualifiedCacheName, clusteredCacheConfig);
-    this.backend = new ClusteredStoreBackendImpl(clusteredCache);
-    // this.backend = new ClusteredStoreBackendImpl(clusteredMapConfig, map, valueModeHandler,
-    // cache.getCacheEventNotificationService(), qualifiedCacheName, this);
+    backend = (ToolkitCacheWithMetadata) toolkit.getCache(qualifiedCacheName, clusteredCacheConfig);
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
@@ -100,7 +137,6 @@ public class ClusteredStore implements Store {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
     builder.maxTTLSeconds((int) ehcacheConfig.getTimeToLiveSeconds());
-    // builder.name(qualifiedCacheName);
     builder.maxTotalCount(cachePinned ? 0 : ehcacheConfig.getMaxElementsOnDisk());
     builder.localCacheEnabled(localCacheEnabled);
 
@@ -144,7 +180,7 @@ public class ClusteredStore implements Store {
     return builder.build();
   }
 
-  private PinningStore getPinningStoreForConfiguration(CacheConfiguration ehcacheConfig) {
+  private static PinningStore getPinningStoreForConfiguration(CacheConfiguration ehcacheConfig) {
     switch (ehcacheConfig.getPinningConfiguration().getStore()) {
       case INCACHE:
         return PinningStore.INCACHE;
@@ -178,117 +214,221 @@ public class ClusteredStore implements Store {
 
   @Override
   public void unpinAll() {
-    //
-
+    if (!localCacheEnabled) { throw new UnsupportedOperationException(
+                                                                      "unpinAll is not supported when local cache is disabled"); }
+    backend.unpinAll();
   }
 
   @Override
   public boolean isPinned(Object key) {
-
-    return false;
+    if (!localCacheEnabled) { throw new UnsupportedOperationException(
+                                                                      "Pinning is not supported when local cache is disabled"); }
+    return backend.isPinned(key);
   }
 
   @Override
   public void setPinned(Object key, boolean pinned) {
-    //
-
+    if (!localCacheEnabled) { throw new UnsupportedOperationException(
+                                                                      "Pinning is not supported when local cache is disabled"); }
+    backend.setPinned(key, pinned);
   }
 
   @Override
-  public void addStoreListener(StoreListener listener) {
-
-    //
+  public void recalculateSize(Object key) {
+    throw new UnsupportedOperationException("Recalculate size is not supported for Terracotta clustered caches.");
   }
 
-  @Override
-  public void removeStoreListener(StoreListener listener) {
+  public synchronized void addStoreListener(StoreListener listener) {
+    removeStoreListener(listener);
+    getEventListenerList().add(StoreListener.class, listener);
+  }
 
-    //
+  public synchronized void removeStoreListener(StoreListener listener) {
+    getEventListenerList().remove(StoreListener.class, listener);
+  }
+
+  private synchronized EventListenerList getEventListenerList() {
+    if (listenerList == null) {
+      listenerList = new EventListenerList();
+      // TODO: register for event listener
+    }
+    return listenerList;
   }
 
   @Override
   public boolean put(Element element) throws CacheException {
-
-    return false;
-  }
-
-  @Override
-  public void putAll(Collection<Element> elements) throws CacheException {
-
-    //
+    return putInternal(element, null);
   }
 
   @Override
   public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
 
-    return false;
+    return putInternal(element, writerManager);
+  }
+
+  private boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
+    if (element == null) { return true; }
+
+    Object pKey = generatePortableKeyFor(element.getObjectKey());
+
+    MetaData searchMetaData = createPutSearchMetaData(pKey, element);
+
+    boolean newPut = checkContainsKeyOnPut ? !containsKey(pKey) : true;
+    // Keep this before the backend put to ensure that a write behind operation can never be lost.
+    // This will be handled in the Terracotta L2 as an atomic operation right after the backend put since at that
+    // time a lock commit is issued that splits up the transaction. It will not be visible before either since
+    // there are no other lock boundaries in the code path.
+    if (writerManager != null) {
+      writerManager.put(element);
+    }
+    Object value = valueModeHandler.createElementData(element);
+
+    doPut(pKey, value, searchMetaData);
+
+    return newPut;
+  }
+
+  @Override
+  public void putAll(Collection<Element> elements) throws CacheException {
+    Map data = new HashedMap();
+    for (Element element : elements) {
+      Object pKey = generatePortableKeyFor(element.getObjectKey());
+      data.put(pKey, valueModeHandler.createElementData(element));
+    }
+    // TODO: Create search data and put that also. for that add a putAllWithMetaData API also
+    backend.putAll(data);
+
   }
 
   @Override
   public Element get(Object key) {
-
-    return null;
+    Object pKey = generatePortableKeyFor(key);
+    Object value = backend.get(pKey);
+    if (value == null) { return null; }
+    Element element = this.valueModeHandler.createElement(key, value);
+    return element;
   }
 
   @Override
   public Element getQuiet(Object key) {
-
-    return null;
+    Object pKey = generatePortableKeyFor(key);
+    Object value = backend.getQuiet(pKey);
+    if (value == null) { return null; }
+    Element element = this.valueModeHandler.createElement(key, value);
+    return element;
   }
 
   @Override
   public List getKeys() {
-
-    return null;
+    return Collections.unmodifiableList(Arrays.asList(new RealObjectKeySet(this.valueModeHandler, backend.keySet())));
   }
 
   @Override
   public Element remove(Object key) {
-
-    return null;
+    return removeWithWriter(key, null);
   }
 
   @Override
   public void removeAll(Collection<?> keys) {
 
-    //
+    // TODO: Add removeAllWithMeta data to toolkit cache.
   }
 
   @Override
   public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
 
-    return null;
+    if (key == null) { return null; }
+
+    // Keep this before the backend remove to ensure that a write behind operation can never be lost.
+    // This will be handled in the Terracotta L2 as an atomic operation right after the backend remove since at that
+    // time a lock commit is issued that splits up the transaction. It will not be visible before either since there
+    // are no other lock boundaries in the code path.
+    if (writerManager != null) {
+      writerManager.remove(new CacheEntry(key, get(key)));
+    }
+
+    Object pKey = generatePortableKeyFor(key);
+    Object value = backend.removeWithMetaData(pKey, createRemoveSearchMetaData(pKey));
+    Element element = this.valueModeHandler.createElement(key, value);
+    if (keyLookupCache != null) {
+      keyLookupCache.remove(key);
+    }
+
+    if (element != null) {
+      return element;
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(cache.getName() + " Cache: Cannot remove entry as key " + key + " was not found");
+      }
+      return null;
+    }
+
   }
 
   @Override
   public void removeAll() throws CacheException {
-    //
-
+    // TODO: Lock
+    backend.clearWithMetaData(createClearSearchMetaData());
+    keyLookupCache.clear();
   }
 
   @Override
   public Element putIfAbsent(Element element) throws NullPointerException {
 
-    return null;
+    Object pKey = generatePortableKeyFor(element.getObjectKey());
+
+    MetaData searchMetaData = createPutSearchMetaData(pKey, element);
+
+    Object value = valueModeHandler.createElementData(element);
+
+    Object data = backend.putIfAbsentWithMetaData(pKey, (Serializable) value, searchMetaData);
+
+    return data == null ? null : this.valueModeHandler.createElement(element.getKey(), data);
   }
 
   @Override
   public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
-
+    Object pKey = generatePortableKeyFor(element.getKey());
+    ToolkitLock lock = backend.createFinegrainedLock(pKey);
+    lock.lock();
+    try {
+      Element oldElement = getQuiet(element.getKey());
+      if (comparator.equals(oldElement, element)) { return remove(element.getKey()); }
+    } finally {
+      lock.unlock();
+    }
     return null;
   }
 
   @Override
   public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
       IllegalArgumentException {
-
+    Object pKey = generatePortableKeyFor(element.getKey());
+    ToolkitLock lock = backend.createFinegrainedLock(pKey);
+    lock.lock();
+    try {
+      Element oldElement = getQuiet(element.getKey());
+      if (comparator.equals(oldElement, element)) { return putInternal(oldElement, null); }
+    } finally {
+      lock.unlock();
+    }
     return false;
   }
 
   @Override
   public Element replace(Element element) throws NullPointerException {
-
-    return null;
+    Object pKey = generatePortableKeyFor(element.getKey());
+    ToolkitLock lock = backend.createFinegrainedLock(pKey);
+    lock.lock();
+    try {
+      Element oldElement = getQuiet(element.getKey());
+      if (oldElement != null) {
+        putInternal(element, null);
+      }
+      return oldElement;
+    } finally {
+      lock.unlock();
+    }
   }
 
   @Override
@@ -299,20 +439,17 @@ public class ClusteredStore implements Store {
 
   @Override
   public int getSize() {
-
-    return 0;
+    return backend.localSize();
   }
 
   @Override
   public int getInMemorySize() {
-
-    return 0;
+    return (int) backend.localOnHeapSizeInBytes();
   }
 
   @Override
   public int getOffHeapSize() {
-
-    return 0;
+    return backend.localOffHeapSize();
   }
 
   @Override
@@ -323,25 +460,21 @@ public class ClusteredStore implements Store {
 
   @Override
   public int getTerracottaClusteredSize() {
-
-    return 0;
+    return backend.size();
   }
 
   @Override
   public long getInMemorySizeInBytes() {
-
-    return 0;
+    return backend.localOnHeapSizeInBytes();
   }
 
   @Override
   public long getOffHeapSizeInBytes() {
-
-    return 0;
+    return backend.localOffHeapSizeInBytes();
   }
 
   @Override
   public long getOnDiskSizeInBytes() {
-
     return 0;
   }
 
@@ -359,26 +492,25 @@ public class ClusteredStore implements Store {
 
   @Override
   public boolean containsKey(Object key) {
-
-    return false;
+    Object pKey = generatePortableKeyFor(key);
+    return backend.containsKey(pKey);
   }
 
   @Override
   public boolean containsKeyOnDisk(Object key) {
-
     return false;
   }
 
   @Override
   public boolean containsKeyOffHeap(Object key) {
-
-    return false;
+    Object pKey = generatePortableKeyFor(key);
+    return backend.containsKeyLocalOffHeap(pKey);
   }
 
   @Override
   public boolean containsKeyInMemory(Object key) {
-
-    return false;
+    Object pKey = generatePortableKeyFor(key);
+    return backend.containsKeyLocalOnHeap(pKey);
   }
 
   @Override
@@ -450,20 +582,17 @@ public class ClusteredStore implements Store {
 
   @Override
   public Object getMBean() {
-
     return null;
   }
 
   @Override
   public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-
-    //
+    if (!extractors.isEmpty()) { throw new CacheException("Search attributes only supported in enterprise edition"); }
   }
 
   @Override
   public Results executeQuery(StoreQuery query) throws SearchException {
-
-    return null;
+    throw new UnsupportedOperationException("Search execution unsupported in non-enterprise edition");
   }
 
   @Override
@@ -480,14 +609,67 @@ public class ClusteredStore implements Store {
 
   @Override
   public Map<Object, Element> getAll(Collection<?> keys) {
+    List pKeys = new ArrayList(keys.size());
+    for (Object key : keys) {
+      pKeys.add(generatePortableKeyFor(key));
+    }
+    Map values = backend.getAll(pKeys);
+    Map<Object, Element> elements = new HashedMap();
+    Set<Map.Entry> entrySet = values.entrySet();
+    for (Map.Entry object : entrySet) {
+      Object key = this.valueModeHandler.getRealKeyObject(object.getKey());
+      elements.put(key, this.valueModeHandler.createElement(key, object.getValue()));
+    }
+    return elements;
+  }
 
+  /**
+   * Generates a portable key for the supplied object.
+   */
+  public Object generatePortableKeyFor(final Object obj) {
+    boolean useCache = shouldUseCache(obj);
+
+    if (useCache) {
+      Object value = keyLookupCache.get(obj);
+      if (value != null) { return value; }
+    }
+
+    Object key;
+    try {
+      key = this.valueModeHandler.createPortableKey(obj);
+    } catch (Exception e) {
+      throw new CacheException(e);
+    }
+
+    if (useCache && keyLookupCache.size() < localKeyCacheMaxsize) {
+      keyLookupCache.put(obj, key);
+    }
+
+    return key;
+  }
+
+  private boolean shouldUseCache(final Object obj) {
+    // no sense putting existing String keys into the soft cache
+    return keyLookupCache != null && !(obj instanceof String);
+  }
+
+  protected MetaData createPutSearchMetaData(Object portableKey, Element element) {
+    // implemented in EE subclass only
     return null;
   }
 
-  @Override
-  public void recalculateSize(Object key) {
+  public MetaData createRemoveSearchMetaData(Object key) {
+    // implemented in EE subclass only
+    return null;
+  }
 
-    //
+  protected MetaData createClearSearchMetaData() {
+    // implemented in EE subclass only
+    return null;
+  }
+
+  private void doPut(Object portableKey, Object value, MetaData searchMetaData) {
+    backend.putNoReturnWithMetaData(portableKey, (Serializable) value, searchMetaData);
   }
 
 }

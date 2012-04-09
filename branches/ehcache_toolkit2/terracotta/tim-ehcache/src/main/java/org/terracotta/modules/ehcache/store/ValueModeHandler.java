@@ -5,23 +5,19 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Element;
 
-import org.terracotta.cache.TimestampedValue;
+import java.io.IOException;
 
 public interface ValueModeHandler {
 
-  public void loadReferences();
-
   public Object getRealKeyObject(Object portableKey);
 
-  public Object localGetRealKeyObject(Object portableKey);
+  public Object createPortableKey(Object key) throws IOException;
 
-  public Object createPortableKey(Object key);
-
-  public TimestampedValue createTimestampedValue(Element element);
+  public Object createElementData(Element element);
 
   /**
    * Returns null for null values otherwise creates an {@link Element} with the specified key-value and returns it
    */
-  public Element createElement(Object key, TimestampedValue value);
+  public Element createElement(Object key, Object value);
 
 }
