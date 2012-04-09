@@ -141,8 +141,8 @@ public class HibernateShutdownClient1 extends ClientBase {
   public void testClusteredCache() {
     try {
       runTest(null, getClusteringToolkit());
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // wait for client2 to assert clustered cache
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // line up for client2 to wait for client1
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(5 * 60)); // wait for client2 to assert clustered cache
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(5 * 60)); // line up for client2 to wait for client1
                                                                           // shutdown
     } catch (Throwable e) {
       e.printStackTrace();
