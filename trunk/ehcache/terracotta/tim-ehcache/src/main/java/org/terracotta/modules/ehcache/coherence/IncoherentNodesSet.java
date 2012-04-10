@@ -26,15 +26,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotClearable {
 
-  private static final ClusterLogger                LOGGER         = new TerracottaLogger(
-                                                                                          IncoherentNodesSet.class
-                                                                                              .getName());
+  private static final int                          CLUSTER_COHERENT_WAIT_SLEEP_MILLIS = 10000;
 
-  private static final boolean                      DEBUG          = new TerracottaProperties()
-                                                                       .getBoolean(CacheCoherence.LOGGING_ENABLED_PROPERTY,
-                                                                                   false);
+  private static final ClusterLogger                LOGGER                             = new TerracottaLogger(
+                                                                                                              IncoherentNodesSet.class
+                                                                                                                  .getName());
 
-  private static final Object                       SENTINEL_VALUE = new Object();
+  private static final boolean                      DEBUG                              = new TerracottaProperties()
+                                                                                           .getBoolean(CacheCoherence.LOGGING_ENABLED_PROPERTY,
+                                                                                                       false);
+
+  private static final Object                       SENTINEL_VALUE                     = new Object();
 
   private final ConcurrentMap<String, Object>       incoherentNodes;
   private final String                              cacheName;
@@ -163,9 +165,10 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
         if (DEBUG) {
           debug("waitUntilClusterCoherent(): Going to wait until coherent cluster-wide");
         }
-        this.wait();
+        this.wait(CLUSTER_COHERENT_WAIT_SLEEP_MILLIS);
+        cleanIncoherentNodes(clusterInfo.getClusterTopology().getNodes());
         if (DEBUG) {
-          debug("waitUntilClusterCoherent(): Got notified after removing incoherent node");
+          debug("waitUntilClusterCoherent(): After wait and cleanIncoherentNodes()");
         }
       } catch (InterruptedException e) {
         return;
