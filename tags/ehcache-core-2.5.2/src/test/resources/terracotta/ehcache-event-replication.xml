@@ -1,0 +1,9 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+    <diskStore path="java.io.tmpdir"/>
+
+    <cache name="replication" eternal="true" overflowToDisk="false" maxElementsInMemory="100">
+        <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory"/>
+        <terracotta clustered="false" valueMode="serialization"/>
+    </cache>
+</ehcache>
