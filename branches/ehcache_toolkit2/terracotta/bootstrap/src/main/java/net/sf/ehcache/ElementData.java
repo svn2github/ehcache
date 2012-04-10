@@ -1,7 +1,8 @@
+package net.sf.ehcache;
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package net.sf.ehcache;
+
 
 import net.sf.ehcache.util.TimeUtil;
 
