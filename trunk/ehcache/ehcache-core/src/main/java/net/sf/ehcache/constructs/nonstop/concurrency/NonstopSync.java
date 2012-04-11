@@ -25,6 +25,9 @@ import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class implementing {@link Sync} and that can be executed without getting stuck.
  *
@@ -32,6 +35,8 @@ import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
  *
  */
 class NonstopSync implements Sync {
+    private static final boolean DEBUG = Boolean.getBoolean("org.terracotta.ehcache.tests.DEV7083Test");
+    private static final Logger LOG = LoggerFactory.getLogger(NonstopSync.class.getName());
 
     private final NonstopStore nonstopStore;
     // private final Sync delegateSync;
@@ -88,13 +93,25 @@ class NonstopSync implements Sync {
     public void lock(final LockType type) {
         boolean acquired = false;
         try {
+            debug("Lock " + getIdentityHashCode());
             acquired = tryLock(type, nonstopConfiguration.getTimeoutMillis());
         } catch (InterruptedException e) {
             // NonStop exception would be thrown automatically as acquired would be false
         }
 
         if (!acquired) {
+            debug("Lock Failed method(lock):" + getIdentityHashCode());
             throw new LockOperationTimedOutNonstopException("Lock timed out");
+        }
+    }
+
+    private String getIdentityHashCode() {
+        return "Lock@" + System.identityHashCode(this);
+    }
+
+    private void debug(String string) {
+        if (DEBUG) {
+            LOG.warn(string);
         }
     }
 
@@ -102,6 +119,8 @@ class NonstopSync implements Sync {
      * {@inheritDoc}
      */
     public boolean tryLock(final LockType type, final long msec) throws InterruptedException {
+        debug("TRYLock " + getIdentityHashCode());
+
         final ExplicitLockingContext appThreadLockContext = explicitLockingContextThreadLocal.getCurrentThreadLockContext();
         return nonstopStore.executeClusterOperation(new ExplicitLockingClusterOperationImpl(type, msec, appThreadLockContext,
                 LockOperationType.TRY_LOCK));
@@ -142,7 +161,10 @@ class NonstopSync implements Sync {
                     type, nonstopConfiguration);
             executionComplete();
 
+            debug("performClusterOperation:" + getIdentityHashCode() + " success=" + success + " type=" + type);
+
             if (!isExecutionComplete()) {
+                debug("performClusterOperation execution failed:" + getIdentityHashCode() + " success=" + success + " type=" + type);
                 lockOperationType.rollback(appThreadLockContext, nonstopActiveDelegateHolder, key, type, success);
             }
 
@@ -154,6 +176,7 @@ class NonstopSync implements Sync {
 
             if (isOperationTimedOut()) {
                 // throw exception for all behaviors
+                debug("performClusterOperationTimedOut:" + getIdentityHashCode());
                 throw new LockOperationTimedOutNonstopException("tryLock() timed out");
             }
             return true;
