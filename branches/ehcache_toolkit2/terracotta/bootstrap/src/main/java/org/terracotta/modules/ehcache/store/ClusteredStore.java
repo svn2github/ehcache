@@ -578,17 +578,25 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public Map<Object, Element> getAllQuiet(Collection<?> keys) {
-
-    return null;
+    return doGetAll(keys, true);
   }
 
   @Override
   public Map<Object, Element> getAll(Collection<?> keys) {
+    return doGetAll(keys, false);
+  }
+
+  private Map<Object, Element> doGetAll(Collection<?> keys, boolean quiet) {
     List pKeys = new ArrayList(keys.size());
     for (Object key : keys) {
       pKeys.add(generatePortableKeyFor(key));
     }
-    Map values = backend.getAll(pKeys);
+    final Map values;
+    if (quiet) {
+      values = backend.getAllQuiet(pKeys);
+    } else {
+      values = backend.getAll(pKeys);
+    }
     Map<Object, Element> elements = new HashMap();
     Set<Map.Entry> entrySet = values.entrySet();
     for (Map.Entry object : entrySet) {
