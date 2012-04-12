@@ -41,7 +41,6 @@ import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +50,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -59,28 +59,28 @@ import javax.swing.event.EventListenerList;
 
 public class ClusteredStore implements TerracottaStore {
 
-  private static final Logger                        LOG                       = LoggerFactory
-                                                                                   .getLogger(ClusteredStore.class
-                                                                                       .getName());
-  private static final String                        DELIM                     = "|";
-  private static final String                        ROOT_NAME_STORE           = "ehcache-store";
+  private static final Logger                                  LOG                       = LoggerFactory
+                                                                                             .getLogger(ClusteredStore.class
+                                                                                                 .getName());
+  private static final String                                  DELIM                     = "|";
+  private static final String                                  ROOT_NAME_STORE           = "ehcache-store";
 
-  private final ToolkitProperties                    toolkitProperties;
-  private static final String                        CHECK_CONTAINS_KEY_ON_PUT = "ehcache.clusteredStore.checkContainsKeyOnPut";
-  private volatile boolean                           checkContainsKeyOnPut;
+  private final ToolkitProperties                              toolkitProperties;
+  private static final String                                  CHECK_CONTAINS_KEY_ON_PUT = "ehcache.clusteredStore.checkContainsKeyOnPut";
+  private volatile boolean                                     checkContainsKeyOnPut;
 
-  private final ToolkitCacheWithMetadata             backend;
-  protected final ValueModeHandler                   valueModeHandler;
-  private final int                                  localKeyCacheMaxsize;
-  private final CacheConfiguration.TransactionalMode transactionalMode;
+  private final ToolkitCacheWithMetadata<Object, Serializable> backend;
+  protected final ValueModeHandler                             valueModeHandler;
+  private final int                                            localKeyCacheMaxsize;
+  private final CacheConfiguration.TransactionalMode           transactionalMode;
 
   /**
    * The cache this store is associated with.
    */
-  private final Ehcache                              cache;
-  private final Map                                  keyLookupCache;
-  private final Set<CacheConfiguration>              linkedConfigurations      = new CopyOnWriteArraySet<CacheConfiguration>();
-  private EventListenerList                          listenerList;
+  private final Ehcache                                        cache;
+  private final Map                                            keyLookupCache;
+  private final Set<CacheConfiguration>                        linkedConfigurations      = new CopyOnWriteArraySet<CacheConfiguration>();
+  private EventListenerList                                    listenerList;
 
   public ClusteredStore(Toolkit toolkit, Ehcache cache) {
     this.cache = cache;
@@ -263,15 +263,18 @@ public class ClusteredStore implements TerracottaStore {
     if (writerManager != null) {
       writerManager.put(element);
     }
-    Object value = valueModeHandler.createElementData(element);
 
-    return doPut(pKey, value, searchMetaData);
+    return doPut(pKey, element, searchMetaData);
   }
 
   @Override
   public void putAll(Collection<Element> elements) throws CacheException {
-    Set<EntryWithMetaData<Object, ElementData>> entries = new HashSet<EntryWithMetaData<Object, ElementData>>();
+    Set<EntryWithMetaData<Object, Serializable>> entries = new HashSet<EntryWithMetaData<Object, Serializable>>();
     for (Element element : elements) {
+      if (!element.usesCacheDefaultLifespan()) {
+        // TODO: support custom lifespan with putAll
+        throw new UnsupportedOperationException("putAll() doesn't support custom lifespan");
+      }
       Object pKey = generatePortableKeyFor(element.getObjectKey());
       ElementData elementData = valueModeHandler.createElementData(element);
       MetaData metaData = createPutSearchMetaData(pKey, element);
@@ -283,7 +286,7 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public Element get(Object key) {
     Object pKey = generatePortableKeyFor(key);
-    Object value = backend.get(pKey);
+    Serializable value = backend.get(pKey);
     if (value == null) { return null; }
     Element element = this.valueModeHandler.createElement(key, value);
     return element;
@@ -292,7 +295,7 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public Element getQuiet(Object key) {
     Object pKey = generatePortableKeyFor(key);
-    Object value = backend.getQuiet(pKey);
+    Serializable value = backend.getQuiet(pKey);
     if (value == null) { return null; }
     Element element = this.valueModeHandler.createElement(key, value);
     return element;
@@ -328,7 +331,7 @@ public class ClusteredStore implements TerracottaStore {
     }
 
     Object pKey = generatePortableKeyFor(key);
-    Object value = backend.removeWithMetaData(pKey, createRemoveSearchMetaData(pKey));
+    Serializable value = backend.removeWithMetaData(pKey, createRemoveSearchMetaData(pKey));
     Element element = this.valueModeHandler.createElement(key, value);
     if (keyLookupCache != null) {
       keyLookupCache.remove(key);
@@ -353,15 +356,10 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public Element putIfAbsent(Element element) throws NullPointerException {
-
     Object pKey = generatePortableKeyFor(element.getObjectKey());
-
     MetaData searchMetaData = createPutSearchMetaData(pKey, element);
-
-    Object value = valueModeHandler.createElementData(element);
-
-    Object data = backend.putIfAbsentWithMetaData(pKey, (Serializable) value, searchMetaData);
-
+    ElementData value = valueModeHandler.createElementData(element);
+    Serializable data = backend.putIfAbsentWithMetaData(pKey, value, searchMetaData);
     return data == null ? null : this.valueModeHandler.createElement(element.getKey(), data);
   }
 
@@ -500,7 +498,7 @@ public class ClusteredStore implements TerracottaStore {
   }
 
   @Override
-  public void flush() throws IOException {
+  public void flush() {
     // should be emptied if clearOnFlush is true
     if (cache.getCacheConfiguration().isClearOnFlush()) {
       backend.clear();
@@ -594,17 +592,17 @@ public class ClusteredStore implements TerracottaStore {
     for (Object key : keys) {
       pKeys.add(generatePortableKeyFor(key));
     }
-    final Map values;
+    final Map<Object, Serializable> values;
     if (quiet) {
       values = backend.getAllQuiet(pKeys);
     } else {
       values = backend.getAll(pKeys);
     }
     Map<Object, Element> elements = new HashMap();
-    Set<Map.Entry> entrySet = values.entrySet();
-    for (Map.Entry object : entrySet) {
-      Object key = this.valueModeHandler.getRealKeyObject(object.getKey());
-      elements.put(key, this.valueModeHandler.createElement(key, object.getValue()));
+    Set<Entry<Object, Serializable>> entrySet = values.entrySet();
+    for (Map.Entry<Object, Serializable> entry : entrySet) {
+      Object key = this.valueModeHandler.getRealKeyObject(entry.getKey());
+      elements.put(key, this.valueModeHandler.createElement(key, entry.getValue()));
     }
     return elements;
   }
@@ -654,11 +652,19 @@ public class ClusteredStore implements TerracottaStore {
     return null;
   }
 
-  private boolean doPut(Object portableKey, Object value, MetaData searchMetaData) {
+  private boolean doPut(Object portableKey, Element element, MetaData searchMetaData) {
+
+    ElementData value = valueModeHandler.createElementData(element);
+    // TODO: make sure creation time is in secs
+    int creationTimeInSecs = (int) element.getCreationTime();
+    int customTTI = element.getTimeToIdle();
+    int customTTL = element.getTimeToLive();
+
     if (checkContainsKeyOnPut) {
-      return backend.putWithMetaData(portableKey, (Serializable) value, searchMetaData) == null ? true : false;
+      return backend.putWithMetaData(portableKey, value, creationTimeInSecs, customTTI, customTTL, searchMetaData) == null ? true
+          : false;
     } else {
-      backend.putNoReturnWithMetaData(portableKey, (Serializable) value, searchMetaData);
+      backend.putNoReturnWithMetaData(portableKey, value, creationTimeInSecs, customTTI, customTTL, searchMetaData);
       return true;
     }
   }
@@ -666,7 +672,7 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public Element unsafeGet(Object key) {
     Object pKey = generatePortableKeyFor(key);
-    Object value = backend.unsafeGet(pKey);
+    Serializable value = backend.unsafeGet(pKey);
     if (value == null) { return null; }
     Element element = this.valueModeHandler.createElement(key, value);
     return element;

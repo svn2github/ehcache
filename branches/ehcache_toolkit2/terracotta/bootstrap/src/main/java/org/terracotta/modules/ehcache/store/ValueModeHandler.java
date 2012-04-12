@@ -7,6 +7,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 public interface ValueModeHandler {
 
@@ -19,6 +20,6 @@ public interface ValueModeHandler {
   /**
    * Returns null for null values otherwise creates an {@link Element} with the specified key-value and returns it
    */
-  public Element createElement(Object key, Object value);
+  public Element createElement(Object key, Serializable value);
 
 }

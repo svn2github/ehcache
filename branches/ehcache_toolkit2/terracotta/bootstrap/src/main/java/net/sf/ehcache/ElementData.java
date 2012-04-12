@@ -1,29 +1,33 @@
 package net.sf.ehcache;
+
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
 
-
 import net.sf.ehcache.util.TimeUtil;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * @author Nishant
  */
-public class ElementData implements Serializable {
-  private final Object  value;
-  private final long    version;
-  private final long    creationTime;
-  private long          lastAccessTime;
-  private final long    hitCount;
-  private final boolean cacheDefaultLifespan;
-  private final int     timeToLive;
-  private final int     timeToIdle;
-  private final long    lastUpdateTime;
+public class ElementData implements Externalizable {
+  private volatile Object  value;
+  private volatile long    version;
+  private volatile long    creationTime;
+  private volatile long    lastAccessTime;
+  private volatile long    hitCount;
+  private volatile boolean cacheDefaultLifespan;
+  private volatile int     timeToLive;
+  private volatile int     timeToIdle;
+  private volatile long    lastUpdateTime;
+
+  public ElementData() {
+    // for serialization
+  }
 
   public ElementData(final Object value, final long version, final long creationTime, final long lastAccessTime,
                      final long hitCount, final boolean cacheDefaultLifespan, final int timeToLive,
@@ -66,14 +70,8 @@ public class ElementData implements Serializable {
     return TimeUtil.toSecs(creationTime);
   }
 
-  public static ElementData create(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-    ElementData element = new ElementData(ois.readObject(), ois.readLong(), ois.readLong(), ois.readLong(),
-                                          ois.readLong(), ois.readBoolean(), ois.readInt(), ois.readInt(),
-                                          ois.readLong());
-    return element;
-  }
-
-  public void write(final ObjectOutputStream oos) throws IOException {
+  @Override
+  public void writeExternal(ObjectOutput oos) throws IOException {
     oos.writeObject(value);
     oos.writeLong(version);
     oos.writeLong(creationTime);
@@ -83,6 +81,19 @@ public class ElementData implements Serializable {
     oos.writeInt(timeToLive);
     oos.writeInt(timeToIdle);
     oos.writeLong(lastUpdateTime);
+  }
+
+  @Override
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    value = in.readObject();
+    version = in.readLong();
+    creationTime = in.readLong();
+    lastAccessTime = in.readLong();
+    hitCount = in.readLong();
+    cacheDefaultLifespan = in.readBoolean();
+    timeToLive = in.readInt();
+    timeToIdle = in.readInt();
+    lastUpdateTime = in.readLong();
   }
 
 }

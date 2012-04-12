@@ -7,6 +7,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 public class ValueModeHandlerSerialization implements ValueModeHandler {
 
@@ -32,7 +33,7 @@ public class ValueModeHandlerSerialization implements ValueModeHandler {
   }
 
   @Override
-  public Element createElement(Object key, Object value) {
+  public Element createElement(Object key, Serializable value) {
     return ((ElementData) value).createElement(key);
   }
 
