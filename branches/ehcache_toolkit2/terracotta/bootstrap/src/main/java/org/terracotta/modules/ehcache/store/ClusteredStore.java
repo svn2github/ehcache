@@ -7,6 +7,7 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.ElementData;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
@@ -37,6 +38,7 @@ import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields.PinningStore;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
 
 import java.io.IOException;
@@ -46,6 +48,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -267,14 +270,14 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public void putAll(Collection<Element> elements) throws CacheException {
-    Map data = new HashMap();
+    Set<EntryWithMetaData<Object, ElementData>> entries = new HashSet<EntryWithMetaData<Object, ElementData>>();
     for (Element element : elements) {
       Object pKey = generatePortableKeyFor(element.getObjectKey());
-      data.put(pKey, valueModeHandler.createElementData(element));
+      ElementData elementData = valueModeHandler.createElementData(element);
+      MetaData metaData = createPutSearchMetaData(pKey, element);
+      entries.add(backend.createEntryWithMetaData(pKey, elementData, metaData));
     }
-    // TODO: Create search data and put that also. for that add a putAllWithMetaData API also
-    backend.putAll(data);
-
+    backend.putAllWithMetaData(entries);
   }
 
   @Override

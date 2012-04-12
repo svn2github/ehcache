@@ -27,7 +27,7 @@ public class ValueModeHandlerSerialization implements ValueModeHandler {
   }
 
   @Override
-  public Object createElementData(Element element) {
+  public ElementData createElementData(Element element) {
     return new ElementData(element);
   }
 
