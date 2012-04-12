@@ -14,7 +14,7 @@
 
 
   <modules>
-    <module>tim-ehcache</module>
+    <!--module>tim-ehcache</module-->
     <module>bootstrap</module>
   </modules>
 
