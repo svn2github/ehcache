@@ -54,7 +54,7 @@ public class TerracottaTopologyImpl implements CacheCluster {
 
   @Override
   public boolean isClusterOnline() {
-    return cluster.isClusterInitialized();
+    return cluster.areOperationsEnabled();
   }
 
   public boolean addTopologyListener(ClusterTopologyListener listener) {
