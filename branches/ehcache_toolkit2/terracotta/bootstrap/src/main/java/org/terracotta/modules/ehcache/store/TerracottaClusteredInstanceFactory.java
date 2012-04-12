@@ -13,20 +13,18 @@ import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
+import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.client.TerracottaClientStaticFactory;
 import org.terracotta.toolkit.client.ToolkitClient;
-import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
-  private static final String       PREFIX                       = "org.terracotta.modules.ehcache.";
-  private static final String       EHCACHE_IDS_ATOMIC_LONG_NAME = PREFIX + "ehcache-ids";
+  private static final String          PREFIX                     = "org.terracotta.modules.ehcache.";
+  public static final String           DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
-  public static final String        DEFAULT_CACHE_MANAGER_NAME   = "__DEFAULT__";
-
-  protected final ToolkitClient     toolkitClient;
-  protected final ToolkitAtomicLong ehcacheIds;
+  protected final ToolkitClient        toolkitClient;
+  private final TerracottaTopologyImpl topology;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration tcClientConfig) {
     if (!tcClientConfig.isUrlConfig()) {
@@ -38,21 +36,20 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     } else {
       toolkitClient = TerracottaClientStaticFactory.getFactory().getOrCreateClient(tcClientConfig.getUrl());
     }
-    ehcacheIds = toolkitClient.getToolkit().getAtomicLong(EHCACHE_IDS_ATOMIC_LONG_NAME);
+    topology = new TerracottaTopologyImpl(toolkitClient.getToolkit().getClusterInfo());
   }
 
   @Override
   public Store createStore(Ehcache cache) {
-    return newStore(toolkitClient.getToolkit(), cache, ehcacheIds.incrementAndGet());
+    return newStore(toolkitClient.getToolkit(), cache);
   }
 
-  protected ClusteredStore newStore(Toolkit toolkit, Ehcache cache, long uniqueId) {
-    return new ClusteredStore(toolkit, cache, uniqueId);
+  protected ClusteredStore newStore(Toolkit toolkit, Ehcache cache) {
+    return new ClusteredStore(toolkit, cache);
   }
 
-  @Override
   public CacheCluster getTopology() {
-    return null;
+    return topology;
   }
 
   @Override

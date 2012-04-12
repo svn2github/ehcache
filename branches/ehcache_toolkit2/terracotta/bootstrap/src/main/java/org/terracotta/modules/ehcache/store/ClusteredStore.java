@@ -9,6 +9,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
@@ -20,9 +21,9 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -53,11 +54,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.event.EventListenerList;
 
-public class ClusteredStore implements Store {
+public class ClusteredStore implements TerracottaStore {
 
   private static final Logger                        LOG                       = LoggerFactory
                                                                                    .getLogger(ClusteredStore.class
                                                                                        .getName());
+  private static final String                        DELIM                     = "|";
+  private static final String                        ROOT_NAME_STORE           = "ehcache-store";
+
   private final ToolkitProperties                    toolkitProperties;
   private static final String                        CHECK_CONTAINS_KEY_ON_PUT = "ehcache.clusteredStore.checkContainsKeyOnPut";
   private volatile boolean                           checkContainsKeyOnPut;
@@ -65,7 +69,6 @@ public class ClusteredStore implements Store {
   private final ToolkitCacheWithMetadata             backend;
   protected final ValueModeHandler                   valueModeHandler;
   private final int                                  localKeyCacheMaxsize;
-  protected final String                             qualifiedCacheName;
   private final CacheConfiguration.TransactionalMode transactionalMode;
 
   /**
@@ -76,10 +79,7 @@ public class ClusteredStore implements Store {
   private final Set<CacheConfiguration>              linkedConfigurations      = new CopyOnWriteArraySet<CacheConfiguration>();
   private EventListenerList                          listenerList;
 
-  public ClusteredStore(Toolkit toolkit, Ehcache cache, long uniqueId) {
-    // appending a unique identifier to the cache name is necessary to avoid collisions when the cache name starts with
-    // "_" or if the name contains characters not legal for use as a filesystem path (ie. L2 lucene index path)
-    this.qualifiedCacheName = cache.getCacheManager().getName() + "_" + cache.getName() + "_" + uniqueId;
+  public ClusteredStore(Toolkit toolkit, Ehcache cache) {
     this.cache = cache;
 
     toolkitProperties = toolkit.getProperties();
@@ -116,11 +116,16 @@ public class ClusteredStore implements Store {
 
     final Configuration clusteredCacheConfig = createClusteredMapConfig(toolkit.getConfigBuilderFactory()
         .newToolkitCacheConfigBuilder(), cache);
-    backend = (ToolkitCacheWithMetadata) toolkit.getCache(qualifiedCacheName, clusteredCacheConfig);
+    backend = (ToolkitCacheWithMetadata) toolkit.getCache(storeRootName(cache.getCacheManager().getName(),
+                                                                        cache.getName()), clusteredCacheConfig);
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
     }
+  }
+
+  private static String storeRootName(final String cacheMgrName, final String cacheName) {
+    return ROOT_NAME_STORE + DELIM + cacheMgrName + DELIM + cacheName;
   }
 
   private Configuration createClusteredMapConfig(ToolkitCacheConfigBuilder builder, Ehcache ehcache) {
@@ -151,8 +156,9 @@ public class ClusteredStore implements Store {
         : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
     builder.localStoreManagerName(cmName);
-
-    builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
+    if (ehcacheConfig.getPinningConfiguration() != null) {
+      builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
+    }
     builder.maxCountLocalHeap(ehcacheConfig.getMaxEntriesLocalHeap());
     builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
     builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
@@ -644,6 +650,45 @@ public class ClusteredStore implements Store {
       backend.putNoReturnWithMetaData(portableKey, (Serializable) value, searchMetaData);
       return true;
     }
+  }
+
+  @Override
+  public Element unsafeGet(Object key) {
+    Object pKey = generatePortableKeyFor(key);
+    Object value = backend.unsafeGet(pKey);
+    if (value == null) { return null; }
+    Element element = this.valueModeHandler.createElement(key, value);
+    return element;
+  }
+
+  @Override
+  public Element unsafeGetQuiet(Object key) {
+    Object pKey = generatePortableKeyFor(key);
+    // TODO: Add unsafeGetQuiet to toolkit
+    Object value = backend.unsafeGet(pKey);
+    if (value == null) { return null; }
+    Element element = this.valueModeHandler.createElement(key, value);
+    return element;
+  }
+
+  @Override
+  public Element unlockedGet(Object key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Element unlockedGetQuiet(Object key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Set getLocalKeys() {
+    return new RealObjectKeySet(valueModeHandler, backend.localKeySet());
+  }
+
+  @Override
+  public TransactionalMode getTransactionalMode() {
+    return transactionalMode;
   }
 
 }
