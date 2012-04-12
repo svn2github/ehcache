@@ -670,26 +670,6 @@ public class ClusteredStore implements TerracottaStore {
   }
 
   @Override
-  public Element unsafeGetQuiet(Object key) {
-    Object pKey = generatePortableKeyFor(key);
-    // TODO: Add unsafeGetQuiet to toolkit
-    Object value = backend.unsafeGet(pKey);
-    if (value == null) { return null; }
-    Element element = this.valueModeHandler.createElement(key, value);
-    return element;
-  }
-
-  @Override
-  public Element unlockedGet(Object key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Element unlockedGetQuiet(Object key) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Set getLocalKeys() {
     return new RealObjectKeySet(valueModeHandler, backend.localKeySet());
   }

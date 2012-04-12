@@ -23,9 +23,9 @@ import net.sf.ehcache.config.CacheConfiguration;
 
 /**
  * Use for internal purpose only. Teaser: Stores of Terracotta clustered caches implements this interface.
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public interface TerracottaStore extends Store {
 
@@ -34,39 +34,14 @@ public interface TerracottaStore extends Store {
      * case its not, will return null. Note that even when returning null, the value may be present in the Terracotta server array.
      * <p/>
      * This operation does not acquire any locks when doing the operation and may return stale values.
-     * 
+     * This Operation does not update last usage statistics
+     *
      * @param key
      *            the key
      * @return the element associated with key or null
      */
     public Element unsafeGet(Object key);
 
-    /**
-     * Same as {@link #unsafeGet(Object)} but does not update last usage statistics
-     * 
-     * @param key
-     *            the key
-     * @return the element associated with key or null
-     */
-    public Element unsafeGetQuiet(Object key);
-
-    /**
-     * Gets the value associated with the key without acquiring any locks. This may return stale values as locks are not acquired.
-     * 
-     * @param key
-     * @return the element associated with the key or null
-     */
-    public Element unlockedGet(Object key);
-
-    /**
-     * Same as {@link #unlockedGet(Object)} but does not update statistics
-     * 
-     * @param key
-     * @return the element associated with the key or null
-     */
-    public Element unlockedGetQuiet(Object key);
-    
-    
     /**
      * Returns set of keys from the cache which are present in the node locally.
      *

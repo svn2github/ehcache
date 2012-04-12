@@ -496,29 +496,8 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
-    public Element unlockedGet(Object key) {
-        return executorServiceStore.unlockedGet(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(Object key) {
-        return executorServiceStore.unlockedGetQuiet(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Element unsafeGet(Object key) {
         return executorServiceStore.unsafeGet(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGetQuiet(Object key) {
-        return executorServiceStore.unsafeGetQuiet(key);
     }
 
     /**
