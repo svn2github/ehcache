@@ -39,7 +39,7 @@ public class TerracottaTopologyImpl implements CacheCluster {
 
   @Override
   public ClusterNode waitUntilNodeJoinsCluster() {
-    return new TerracottaNodeImpl(cluster.getCurrentNode());
+    return new TerracottaNodeImpl(cluster.waitUntilNodeJoinsCluster());
   }
 
   @Override
