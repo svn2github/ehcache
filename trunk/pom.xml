@@ -251,11 +251,10 @@
       </build>
     </profile>
     <profile>
-      <id>deploy-sourceforge</id>
+      <id>deploy-sonatype</id>
       <distributionManagement>
         <repository>
           <id>sourceforge-releases</id>
-          <name>Sourceforge Releases</name>
           <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
       </distributionManagement>
