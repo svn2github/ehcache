@@ -20,8 +20,9 @@ import org.terracotta.toolkit.client.ToolkitClient;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
-  private static final String          PREFIX                     = "org.terracotta.modules.ehcache.";
   public static final String           DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
+  private static final String          EHCACHE_NAME_PREFIX        = "__tc_clustered-ehcache";
+  protected static final String        DELIMITER                  = "|";
 
   protected final ToolkitClient        toolkitClient;
   private final TerracottaTopologyImpl topology;
@@ -37,6 +38,16 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
       toolkitClient = TerracottaClientStaticFactory.getFactory().getOrCreateClient(tcClientConfig.getUrl());
     }
     topology = new TerracottaTopologyImpl(toolkitClient.getToolkit().getClusterInfo());
+  }
+
+  protected static String getFullyQualifiedName(Ehcache cache) {
+    final String cacheMgrName;
+    if (cache.getCacheManager().isNamed()) {
+      cacheMgrName = cache.getCacheManager().getName();
+    } else {
+      cacheMgrName = TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
+    }
+    return EHCACHE_NAME_PREFIX + DELIMITER + cacheMgrName + DELIMITER + cache.getName();
   }
 
   @Override

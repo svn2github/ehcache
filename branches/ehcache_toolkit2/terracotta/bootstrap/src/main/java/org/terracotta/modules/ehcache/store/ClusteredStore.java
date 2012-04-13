@@ -11,6 +11,7 @@ import net.sf.ehcache.ElementData;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
@@ -37,6 +38,7 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields.PinningStore;
+import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
@@ -53,21 +55,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.event.EventListenerList;
 
 public class ClusteredStore implements TerracottaStore {
 
-  private static final Logger                                  LOG                       = LoggerFactory
-                                                                                             .getLogger(ClusteredStore.class
-                                                                                                 .getName());
-  private static final String                                  DELIM                     = "|";
-  private static final String                                  ROOT_NAME_STORE           = "ehcache-store";
+  private static final Logger                                  LOG                                     = LoggerFactory
+                                                                                                           .getLogger(ClusteredStore.class
+                                                                                                               .getName());
+
+  private static final String                                  CONFIG_NOTIFIER_SUFFIX                  = "config-notifier";
+  private static final String                                  CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
 
   private final ToolkitProperties                              toolkitProperties;
-  private static final String                                  CHECK_CONTAINS_KEY_ON_PUT = "ehcache.clusteredStore.checkContainsKeyOnPut";
-  private volatile boolean                                     checkContainsKeyOnPut;
+  private final boolean                                        checkContainsKeyOnPut;
 
   private final ToolkitCacheWithMetadata<Object, Serializable> backend;
   protected final ValueModeHandler                             valueModeHandler;
@@ -79,11 +80,14 @@ public class ClusteredStore implements TerracottaStore {
    */
   private final Ehcache                                        cache;
   private final Map                                            keyLookupCache;
-  private final Set<CacheConfiguration>                        linkedConfigurations      = new CopyOnWriteArraySet<CacheConfiguration>();
   private EventListenerList                                    listenerList;
+  private final String                                         fullyQualifiedName;
+
+  private final CacheConfigChangeBridge                        cacheConfigChangeBridge;
 
   public ClusteredStore(Toolkit toolkit, Ehcache cache) {
     this.cache = cache;
+    this.fullyQualifiedName = TerracottaClusteredInstanceFactory.getFullyQualifiedName(cache);
 
     toolkitProperties = toolkit.getProperties();
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
@@ -111,24 +115,25 @@ public class ClusteredStore implements TerracottaStore {
     // TODO: CleanUp StorageStrategy will always be DCV2
     if (StorageStrategy.DCV2.equals(cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy())) {
       // use false by default
-      checkContainsKeyOnPut = toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT, false);
+      checkContainsKeyOnPut = toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME, false);
     } else {
       // use true by default
-      checkContainsKeyOnPut = toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT, true);
+      checkContainsKeyOnPut = toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME, true);
     }
 
     final Configuration clusteredCacheConfig = createClusteredMapConfig(toolkit.getConfigBuilderFactory()
         .newToolkitCacheConfigBuilder(), cache);
-    backend = (ToolkitCacheWithMetadata) toolkit.getCache(storeRootName(cache.getCacheManager().getName(),
-                                                                        cache.getName()), clusteredCacheConfig);
+    backend = (ToolkitCacheWithMetadata) toolkit.getCache(fullyQualifiedName, clusteredCacheConfig);
+
+    // connect configurations
+    ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier = toolkit
+        .getNotifier(fullyQualifiedName + TerracottaClusteredInstanceFactory.DELIMITER + CONFIG_NOTIFIER_SUFFIX);
+    cacheConfigChangeBridge = new CacheConfigChangeBridge(cache, backend, notifier);
+    cacheConfigChangeBridge.connectConfigs();
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
     }
-  }
-
-  private static String storeRootName(final String cacheMgrName, final String cacheName) {
-    return ROOT_NAME_STORE + DELIM + cacheMgrName + DELIM + cacheName;
   }
 
   private Configuration createClusteredMapConfig(ToolkitCacheConfigBuilder builder, Ehcache ehcache) {
@@ -138,7 +143,11 @@ public class ClusteredStore implements TerracottaStore {
     builder.maxTTLSeconds((int) ehcacheConfig.getTimeToLiveSeconds());
     boolean cachePinned = cache.getCacheConfiguration().getPinningConfiguration() != null
                           && cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
-    builder.maxTotalCount(cachePinned ? 0 : ehcacheConfig.getMaxElementsOnDisk());
+    if (cachePinned && ehcacheConfig.getMaxElementsOnDisk() != CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK) {
+      // TODO: move this validation in ehcache-core?
+      throw new InvalidConfigurationException("Cache pinning is not supported with maxElementsOnDisk");
+    }
+    builder.maxTotalCount(ehcacheConfig.getMaxElementsOnDisk());
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
 
     if (terracottaConfiguration.isSynchronousWrites()) {
@@ -410,8 +419,8 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public void dispose() {
-    //
-
+    // TODO: backend.destroyLocally()
+    cacheConfigChangeBridge.disconnectConfigs();
   }
 
   @Override
@@ -687,5 +696,4 @@ public class ClusteredStore implements TerracottaStore {
   public TransactionalMode getTransactionalMode() {
     return transactionalMode;
   }
-
 }
