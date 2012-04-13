@@ -27,12 +27,12 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   private final Ehcache                  cache;
   private final String                   fullyQualifiedEhcacheName;
 
-  public CacheConfigChangeBridge(Ehcache cache, ToolkitCacheWithMetadata backend,
+  public CacheConfigChangeBridge(Ehcache cache, String fullyQualifiedEhcacheName, ToolkitCacheWithMetadata backend,
                                  ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier) {
     this.cache = cache;
+    this.fullyQualifiedEhcacheName = fullyQualifiedEhcacheName;
     this.backend = backend;
     this.notifier = notifier;
-    this.fullyQualifiedEhcacheName = TerracottaClusteredInstanceFactory.getFullyQualifiedName(cache);
   }
 
   public void connectConfigs() {

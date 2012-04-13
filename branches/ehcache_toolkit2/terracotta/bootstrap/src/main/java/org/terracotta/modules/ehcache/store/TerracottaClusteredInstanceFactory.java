@@ -13,50 +13,49 @@ import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
+import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
+import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.client.TerracottaClientStaticFactory;
 import org.terracotta.toolkit.client.ToolkitClient;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
-  public static final String           DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
-  private static final String          EHCACHE_NAME_PREFIX        = "__tc_clustered-ehcache";
-  protected static final String        DELIMITER                  = "|";
+  public static final String               DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
-  protected final ToolkitClient        toolkitClient;
-  private final TerracottaTopologyImpl topology;
+  protected final ToolkitClient            toolkitClient;
+  private final TerracottaTopologyImpl     topology;
+  private final ToolkitInstanceFactoryImpl toolkitInstanceFactory;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration tcClientConfig) {
+    toolkitClient = createTerracottaClient(tcClientConfig);
+    toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkitClient.getToolkit());
+    topology = new TerracottaTopologyImpl(toolkitClient.getToolkit().getClusterInfo());
+  }
+
+  private static ToolkitClient createTerracottaClient(TerracottaClientConfiguration tcClientConfig) {
     if (!tcClientConfig.isUrlConfig()) {
       // TODO: is this to be supported?
       throw new IllegalArgumentException("Embedded tc-config no longer supported");
     }
     if (tcClientConfig.isRejoin()) {
-      toolkitClient = TerracottaClientStaticFactory.getFactory().createDedicatedClient(tcClientConfig.getUrl());
+      return TerracottaClientStaticFactory.getFactory().createDedicatedClient(tcClientConfig.getUrl());
     } else {
-      toolkitClient = TerracottaClientStaticFactory.getFactory().getOrCreateClient(tcClientConfig.getUrl());
+      return TerracottaClientStaticFactory.getFactory().getOrCreateClient(tcClientConfig.getUrl());
     }
-    topology = new TerracottaTopologyImpl(toolkitClient.getToolkit().getClusterInfo());
   }
 
-  protected static String getFullyQualifiedName(Ehcache cache) {
-    final String cacheMgrName;
-    if (cache.getCacheManager().isNamed()) {
-      cacheMgrName = cache.getCacheManager().getName();
-    } else {
-      cacheMgrName = TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
-    }
-    return EHCACHE_NAME_PREFIX + DELIMITER + cacheMgrName + DELIMITER + cache.getName();
+  protected ToolkitInstanceFactory getToolkitInstanceFactory() {
+    return toolkitInstanceFactory;
   }
 
   @Override
   public Store createStore(Ehcache cache) {
-    return newStore(toolkitClient.getToolkit(), cache);
+    return newStore(cache);
   }
 
-  protected ClusteredStore newStore(Toolkit toolkit, Ehcache cache) {
-    return new ClusteredStore(toolkit, cache);
+  protected ClusteredStore newStore(Ehcache cache) {
+    return new ClusteredStore(toolkitInstanceFactory, cache);
   }
 
   public CacheCluster getTopology() {

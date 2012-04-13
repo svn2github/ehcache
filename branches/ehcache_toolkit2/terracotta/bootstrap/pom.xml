@@ -23,12 +23,12 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
+    <!-- dependency>
       <groupId>org.terracotta.modules</groupId>
       <artifactId>tim-ehcache</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>org.terracotta.toolkit</groupId>
       <artifactId>terracotta-toolkit-1.5-api</artifactId>
