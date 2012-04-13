@@ -8,8 +8,9 @@
     <version>2.6.0-SNAPSHOT</version>
   </parent>
   
-  <name>ehcache-terracotta-bootstrap</name>
+  <groupId>net.sf.ehcache.internal</groupId>
   <artifactId>ehcache-terracotta-bootstrap</artifactId>
+  <name>ehcache-terracotta-bootstrap</name>  
   <packaging>jar</packaging>
   
   <properties>
@@ -18,7 +19,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
+      <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>

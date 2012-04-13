@@ -8,20 +8,15 @@
     <version>2.6.0-SNAPSHOT</version>
   </parent>
 
-  <name>ehcache-terracotta-root</name>
+  <groupId>net.sf.ehcache.internal</groupId>
   <artifactId>ehcache-terracotta-root</artifactId>
+  <name>ehcache-terracotta-root</name>
   <packaging>pom</packaging>
-
 
   <modules>
     <module>tim-ehcache</module>
     <module>bootstrap</module>
   </modules>
-
-  <properties>
-    <terracotta-toolkit-1.0-api.version>1.0.0</terracotta-toolkit-1.0-api.version>
-    <terracotta.core.version>3.7.0-SNAPSHOT</terracotta.core.version>
-  </properties>
 
   <repositories>
     <repository>
