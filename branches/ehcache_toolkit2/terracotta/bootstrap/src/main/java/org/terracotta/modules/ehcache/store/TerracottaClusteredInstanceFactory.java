@@ -15,38 +15,23 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
+import org.terracotta.modules.ehcache.event.ClusteredEventReplicator;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
-import org.terracotta.toolkit.client.TerracottaClientStaticFactory;
-import org.terracotta.toolkit.client.ToolkitClient;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
-  public static final String               DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
+  public static final String             DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
-  protected final ToolkitClient            toolkitClient;
-  private final TerracottaTopologyImpl     topology;
-  private final ToolkitInstanceFactoryImpl toolkitInstanceFactory;
+  private final TerracottaTopologyImpl   topology;
+  protected final ToolkitInstanceFactory toolkitInstanceFactory;
 
-  public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration tcClientConfig) {
-    toolkitClient = createTerracottaClient(tcClientConfig);
-    toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkitClient.getToolkit());
-    topology = new TerracottaTopologyImpl(toolkitClient.getToolkit().getClusterInfo());
+  public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
+    toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
+    topology = new TerracottaTopologyImpl(toolkitInstanceFactory.getToolkit().getClusterInfo());
   }
 
-  private static ToolkitClient createTerracottaClient(TerracottaClientConfiguration tcClientConfig) {
-    if (!tcClientConfig.isUrlConfig()) {
-      // TODO: is this to be supported?
-      throw new IllegalArgumentException("Embedded tc-config no longer supported");
-    }
-    if (tcClientConfig.isRejoin()) {
-      return TerracottaClientStaticFactory.getFactory().createDedicatedClient(tcClientConfig.getUrl());
-    } else {
-      return TerracottaClientStaticFactory.getFactory().getOrCreateClient(tcClientConfig.getUrl());
-    }
-  }
-
-  protected ToolkitInstanceFactory getToolkitInstanceFactory() {
-    return toolkitInstanceFactory;
+  protected ToolkitInstanceFactory createToolkitInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
+    return new ToolkitInstanceFactoryImpl(terracottaClientConfiguration);
   }
 
   @Override
@@ -69,7 +54,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public CacheEventListener createEventReplicator(Ehcache cache) {
-    return toolkitInstanceFactory.createEventReplicator(cache);
+    return new ClusteredEventReplicator(cache, toolkitInstanceFactory.getFullyQualifiedCacheName(cache),
+                                        toolkitInstanceFactory.getOrCreateCacheEventNotifier(cache));
   }
 
   @Override

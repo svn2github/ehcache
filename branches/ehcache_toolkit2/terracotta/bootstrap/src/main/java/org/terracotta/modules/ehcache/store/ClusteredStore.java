@@ -11,10 +11,12 @@ import net.sf.ehcache.ElementData;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
+import net.sf.ehcache.config.ConfigError;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
+import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -56,31 +58,29 @@ import javax.swing.event.EventListenerList;
 
 public class ClusteredStore implements TerracottaStore {
 
-  private static final Logger                                  LOG                                     = LoggerFactory
-                                                                                                           .getLogger(ClusteredStore.class
-                                                                                                               .getName());
+  private static final Logger                                    LOG                                     = LoggerFactory
+                                                                                                             .getLogger(ClusteredStore.class
+                                                                                                                 .getName());
 
-  private static final String                                  CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
+  private static final String                                    CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
 
-  private final boolean                                        checkContainsKeyOnPut;
+  protected final ToolkitCacheWithMetadata<Object, Serializable> backend;
+  protected final ValueModeHandler                               valueModeHandler;
+  protected final ToolkitInstanceFactory                         toolkitInstanceFactory;
+  protected final Ehcache                                        cache;
 
-  private final ToolkitCacheWithMetadata<Object, Serializable> backend;
-  protected final ValueModeHandler                             valueModeHandler;
-  private final int                                            localKeyCacheMaxsize;
-  private final CacheConfiguration.TransactionalMode           transactionalMode;
+  private final boolean                                          checkContainsKeyOnPut;
+  private final int                                              localKeyCacheMaxsize;
+  private final CacheConfiguration.TransactionalMode             transactionalMode;
+  private final Map                                              keyLookupCache;
+  private final CacheConfigChangeBridge                          cacheConfigChangeBridge;
+  private EventListenerList                                      listenerList;
 
-  /**
-   * The cache this store is associated with.
-   */
-  private final Ehcache                                        cache;
-  private final Map                                            keyLookupCache;
-  private EventListenerList                                    listenerList;
-  private final RegisteredEventListeners                       registeredEventListeners;
-
-  private final CacheConfigChangeBridge                        cacheConfigChangeBridge;
+  private final RegisteredEventListeners                         registeredEventListeners;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     validateConfig(cache);
+    this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.cache = cache;
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
@@ -122,16 +122,18 @@ public class ClusteredStore implements TerracottaStore {
     CacheConfiguration cacheConfiguration = ehcache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
 
+    List<ConfigError> errors = new ArrayList<ConfigError>();
     if (terracottaConfiguration == null || !terracottaConfiguration.isClustered()) {
-      //
-      throw new IllegalArgumentException("Cannot create clustered store for non-terracotta clustered caches");
+      errors.add(new ConfigError("Cannot create clustered store for non-terracotta clustered caches"));
     }
 
-    // TODO: move these validation in ehcache-core?
+    // TODO: move all below validation in ehcache-core?
+    if (terracottaConfiguration.getValueMode() == ValueMode.IDENTITY) {
+      errors.add(new ConfigError("Identity value mode is no longer supported"));
+    }
     MemoryStoreEvictionPolicy policy = cacheConfiguration.getMemoryStoreEvictionPolicy();
     if (policy == MemoryStoreEvictionPolicy.FIFO || policy == MemoryStoreEvictionPolicy.LFU) {
-      //
-      throw new IllegalArgumentException("Policy '" + policy + "' is not a supported memory store eviction policy.");
+      errors.add(new ConfigError("Policy '" + policy + "' is not a supported memory store eviction policy."));
     }
 
     if (cacheConfiguration.isOverflowToDisk()) {
@@ -142,9 +144,10 @@ public class ClusteredStore implements TerracottaStore {
     boolean cachePinned = cacheConfiguration.getPinningConfiguration() != null
                           && cacheConfiguration.getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
     if (cachePinned && cacheConfiguration.getMaxElementsOnDisk() != CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK) {
-      //
-      throw new InvalidConfigurationException("Cache pinning is not supported with maxElementsOnDisk");
+      errors.add(new ConfigError("Cache pinning is not supported with maxElementsOnDisk"));
     }
+
+    if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
 
   private static boolean isCheckContainsKeyOnPut(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
@@ -639,7 +642,11 @@ public class ClusteredStore implements TerracottaStore {
     return transactionalMode;
   }
 
-  private class CacheEventListener implements ToolkitCacheListener<Object> {
+  public boolean isSearchable() {
+    return false;
+  }
+
+  private class CacheEventListener implements ToolkitCacheListener {
 
     @Override
     public void onEviction(Object key) {
