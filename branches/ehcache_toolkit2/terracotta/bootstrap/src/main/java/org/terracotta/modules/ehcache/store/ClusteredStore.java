@@ -15,6 +15,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
+import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.toolkit.ToolkitProperties;
+import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
@@ -73,6 +75,7 @@ public class ClusteredStore implements TerracottaStore {
   private final Ehcache                                        cache;
   private final Map                                            keyLookupCache;
   private EventListenerList                                    listenerList;
+  private final RegisteredEventListeners                       registeredEventListeners;
 
   private final CacheConfigChangeBridge                        cacheConfigChangeBridge;
 
@@ -102,6 +105,9 @@ public class ClusteredStore implements TerracottaStore {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
     }
+    registeredEventListeners = cache.getCacheEventNotificationService();
+    backend.addListener(new CacheEventListener());
+
   }
 
   private static CacheConfigChangeBridge createConfigChangeBridge(ToolkitInstanceFactory toolkitInstanceFactory,
@@ -632,4 +638,21 @@ public class ClusteredStore implements TerracottaStore {
   public TransactionalMode getTransactionalMode() {
     return transactionalMode;
   }
+
+  private class CacheEventListener implements ToolkitCacheListener<Object> {
+
+    @Override
+    public void onEviction(Object key) {
+      Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
+      registeredEventListeners.notifyElementEvicted(element, false);
+    }
+
+    @Override
+    public void onExpiration(Object key) {
+      Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
+      registeredEventListeners.notifyElementExpiry(element, false);
+    }
+
+  }
+
 }

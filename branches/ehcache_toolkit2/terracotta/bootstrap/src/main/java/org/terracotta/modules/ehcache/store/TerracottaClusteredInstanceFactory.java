@@ -69,7 +69,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public CacheEventListener createEventReplicator(Ehcache cache) {
-    return null;
+    return toolkitInstanceFactory.createEventReplicator(cache);
   }
 
   @Override

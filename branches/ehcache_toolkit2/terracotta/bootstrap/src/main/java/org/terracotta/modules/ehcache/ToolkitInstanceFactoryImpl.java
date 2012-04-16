@@ -7,7 +7,10 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.event.CacheEventListener;
 
+import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
+import org.terracotta.modules.ehcache.event.ClusteredEventReplicator;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.toolkit.Toolkit;
@@ -25,6 +28,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private static final String EHCACHE_NAME_PREFIX    = "__tc_clustered-ehcache";
   private static final String DELIMITER              = "|";
   private static final String CONFIG_NOTIFIER_SUFFIX = "config-notifier";
+  private static final String EVENT_NOTIFIER_SUFFIX  = "event-notifier";
 
   private final Toolkit       toolkit;
 
@@ -46,6 +50,15 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(Ehcache cache) {
     return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + CONFIG_NOTIFIER_SUFFIX);
+  }
+
+  @Override
+  public CacheEventListener createEventReplicator(Ehcache cache) {
+    return new ClusteredEventReplicator(cache, getFullyQualifiedCacheName(cache), getOrCreateCacheEventNotifier(cache));
+  }
+
+  private ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache) {
+    return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + EVENT_NOTIFIER_SUFFIX);
   }
 
   private static Configuration createClusteredMapConfig(ToolkitCacheConfigBuilder builder, Ehcache cache) {

@@ -4,6 +4,7 @@
 package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.event.CacheEventListener;
 
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.toolkit.Toolkit;
@@ -24,5 +25,7 @@ public interface ToolkitInstanceFactory {
   ToolkitCacheWithMetadata<Object, Serializable> getOrCreateToolkitCache(Ehcache cache);
 
   ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(Ehcache cache);
+
+  CacheEventListener createEventReplicator(Ehcache cache);
 
 }
