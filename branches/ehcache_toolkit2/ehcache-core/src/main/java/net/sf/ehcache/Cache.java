@@ -1636,6 +1636,10 @@ public class Cache implements InternalEhcache, StoreListener {
             return null;
         }
 
+        if (keys.isEmpty()) {
+            return Collections.EMPTY_MAP;
+        }
+
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
             Map<Object, Element> elements = searchAllInStoreWithStats(keys);
@@ -3319,11 +3323,7 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
-     * Register a {@link CacheLoader} with the cache. It will then be tied into the cache lifecycle.
-     * <p/>
-     * If the CacheLoader is not initialised, initialise it.
-     *
-     * @param cacheLoader A Cache Loader to register
+     * {@inheritDoc}
      */
     public void registerCacheLoader(CacheLoader cacheLoader) {
         registeredCacheLoaders.add(cacheLoader);

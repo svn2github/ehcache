@@ -70,7 +70,7 @@
       <scope>provided</scope>
     </dependency>    
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
+      <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-terracotta-bootstrap</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -82,7 +82,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
+      <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -159,7 +159,7 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>net.sf.ehcache</groupId>
+                  <groupId>net.sf.ehcache.internal</groupId>
                   <artifactId>ehcache-core</artifactId>
                   <version>${project.version}</version>
                   <classifier>sources</classifier>
@@ -167,7 +167,7 @@
                   <destFileName>${project.artifactId}-${project.version}-sources.jar</destFileName>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>net.sf.ehcache</groupId>
+                  <groupId>net.sf.ehcache.internal</groupId>
                   <artifactId>ehcache-core</artifactId>
                   <version>${project.version}</version>
                   <classifier>javadoc</classifier>
@@ -256,7 +256,7 @@
             </goals>
             <phase>verify</phase>
             <configuration>
-              <enforceGroupId>${project.groupId}</enforceGroupId>
+              <enforceGroupId>net.sf.ehcache.internal</enforceGroupId>
               <enforceArtifactId>ehcache-core</enforceArtifactId>
               <enforceVersion>${project.version}</enforceVersion>
             </configuration>

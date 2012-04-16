@@ -26,7 +26,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
+      <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -134,4 +134,13 @@
       <url>http://www.terracotta.org/download/reflector/releases</url>
     </pluginRepository>
   </pluginRepositories>
+  
+  <profiles>
+    <profile>
+      <id>deploy-sonatype</id>
+      <properties>
+        <skipDeploy>true</skipDeploy>
+      </properties>
+    </profile>
+  </profiles>   
 </project>

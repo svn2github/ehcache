@@ -57,7 +57,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       super.configureWar(builder);
       builder.addDirectoryOrJARContainingClass(com.tc.test.TCTestCase.class); // hibernate*.jar
       builder.addDirectoryOrJARContainingClass(org.hibernate.SessionFactory.class); // hibernate*.jar
-      builder.addDirectoryOrJARContainingClass(org.apache.commons.collections.Buffer.class); //
+      builder.addDirectoryOrJARContainingClass(org.apache.commons.collections.LRUMap.class);
       builder.addDirectoryOrJARContainingClass(org.apache.derby.jdbc.ClientDriver.class); // derby*.jar
       builder.addDirectoryOrJARContainingClass(org.dom4j.Node.class); // domj4*.jar
       builder.addDirectoryOrJARContainingClass(antlr.Tool.class); // antlr*.jar

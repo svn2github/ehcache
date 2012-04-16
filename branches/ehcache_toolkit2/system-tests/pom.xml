@@ -15,18 +15,15 @@
     <relativePath></relativePath>
   </parent>
 
-  <groupId>net.sf.ehcache</groupId>
+  <groupId>net.sf.ehcache.internal</groupId>
   <artifactId>ehcache-terracotta-system-tests</artifactId>
   <version>2.6.0-SNAPSHOT</version>
   <name>ehcache-terracotta-system-tests</name>
   <description>System tests for ehcache-terracotta</description>
   
-  <properties>
-  </properties>
-  
   <dependencies>  
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -171,33 +168,21 @@
     <repository>
       <id>terracotta-snapshots</id>
       <url>http://www.terracotta.org/download/reflector/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
     </repository>  
     <repository>
       <id>terracotta-releases</id>
-      <url>http://www.terracotta.org/download/reflector/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>      
+      <url>http://www.terracotta.org/download/reflector/releases</url>     
     </repository>
     <repository>
+      <id>jboss</id>
+      <name>JBoss Repository</name>
+      <url>https://repository.jboss.org/nexus/content/repositories/public/</url>    
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>jboss</id>
-      <name>JBoss Repository</name>
-      <url>https://repository.jboss.org/nexus/content/repositories/public/</url>
     </repository>
     <repository>
       <id>atomikos</id>
@@ -211,22 +196,19 @@
     <pluginRepository>
       <id>terracotta-snapshots</id>
       <url>http://www.terracotta.org/download/reflector/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
     </pluginRepository>
     <pluginRepository>
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </pluginRepository>    
   </pluginRepositories>
+  
+  <profiles>
+    <profile>
+      <id>deploy-sonatype</id>
+      <properties>
+        <skipDeploy>true</skipDeploy>
+      </properties>
+    </profile>
+  </profiles>  
 </project>
