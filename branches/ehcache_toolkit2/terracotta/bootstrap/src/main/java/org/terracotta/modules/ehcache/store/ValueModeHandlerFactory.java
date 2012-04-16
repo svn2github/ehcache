@@ -5,16 +5,14 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.config.CacheConfiguration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public abstract class ValueModeHandlerFactory {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ValueModeHandlerFactory.class.getName());
+  // private static final Logger LOG = LoggerFactory.getLogger(ValueModeHandlerFactory.class.getName());
 
   public static ValueModeHandler createValueModeHandler(final ClusteredStore store,
                                                         final CacheConfiguration cacheConfiguration) {
 
+    // TODO: fix this
     // final TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
     // if (hibernateTypesPresent()) {
     // LOG.info("Hibernate types found on the classpath : Enabling Hibernate value mode optimizations");
@@ -27,12 +25,12 @@ public abstract class ValueModeHandlerFactory {
     return new ValueModeHandlerSerialization();
   }
 
-  private static boolean hibernateTypesPresent() {
-    try {
-      Class.forName("org.hibernate.cache.CacheKey");
-      return true;
-    } catch (ClassNotFoundException ex) {
-      return false;
-    }
-  }
+  // private static boolean hibernateTypesPresent() {
+  // try {
+  // Class.forName("org.hibernate.cache.CacheKey");
+  // return true;
+  // } catch (ClassNotFoundException ex) {
+  // return false;
+  // }
+  // }
 }
