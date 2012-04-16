@@ -147,6 +147,10 @@ public class ClusteredStore implements TerracottaStore {
       errors.add(new ConfigError("Cache pinning is not supported with maxElementsOnDisk"));
     }
 
+    if (terracottaConfiguration.getStorageStrategy() == StorageStrategy.CLASSIC) {
+      errors.add(new ConfigError("Classic storage strategy is no longer supported"));
+    }
+
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
 
