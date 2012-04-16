@@ -61,27 +61,31 @@ public class ClusteredStore implements TerracottaStore {
   private static final Logger                                    LOG                                     = LoggerFactory
                                                                                                              .getLogger(ClusteredStore.class
                                                                                                                  .getName());
-
   private static final String                                    CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
 
+  // final protected fields
   protected final ToolkitCacheWithMetadata<Object, Serializable> backend;
   protected final ValueModeHandler                               valueModeHandler;
   protected final ToolkitInstanceFactory                         toolkitInstanceFactory;
   protected final Ehcache                                        cache;
+  protected final String                                         fullyQualifiedCacheName;
 
+  // final private fields
   private final boolean                                          checkContainsKeyOnPut;
   private final int                                              localKeyCacheMaxsize;
   private final CacheConfiguration.TransactionalMode             transactionalMode;
   private final Map                                              keyLookupCache;
   private final CacheConfigChangeBridge                          cacheConfigChangeBridge;
-  private EventListenerList                                      listenerList;
-
   private final RegisteredEventListeners                         registeredEventListeners;
+
+  // non-final private fields
+  private EventListenerList                                      listenerList;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     validateConfig(cache);
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.cache = cache;
+    this.fullyQualifiedCacheName = toolkitInstanceFactory.getFullyQualifiedCacheName(cache);
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
 

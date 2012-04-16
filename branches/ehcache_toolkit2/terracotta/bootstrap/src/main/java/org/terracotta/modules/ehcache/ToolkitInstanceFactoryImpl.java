@@ -150,18 +150,24 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public String getFullyQualifiedCacheName(Ehcache cache) {
-    lock.readLock().lock();
     String fullyQualifiedNameWithoutId = getFullyQualifiedNameWithoutId(cache);
+    // try with unsafeGet
+    String cacheFQN = fullyQualifiedNames.unsafeGet(fullyQualifiedNameWithoutId);
+    if (cacheFQN != null) { return cacheFQN; }
+
+    // try with read locks
+    lock.readLock().lock();
     try {
-      String cacheFQN = fullyQualifiedNames.get(fullyQualifiedNameWithoutId);
+      cacheFQN = fullyQualifiedNames.get(fullyQualifiedNameWithoutId);
       if (cacheFQN != null) { return cacheFQN; }
     } finally {
       lock.readLock().unlock();
     }
 
+    // finally try with write locks
     lock.writeLock().lock();
     try {
-      String cacheFQN = fullyQualifiedNames.get(fullyQualifiedNameWithoutId);
+      cacheFQN = fullyQualifiedNames.get(fullyQualifiedNameWithoutId);
       if (cacheFQN != null) { return cacheFQN; }
 
       cacheFQN = fullyQualifiedNameWithoutId + clusteredStoreId.incrementAndGet();
@@ -170,6 +176,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     } finally {
       lock.writeLock().unlock();
     }
+
   }
 
   private String getFullyQualifiedNameWithoutId(Ehcache cache) {
