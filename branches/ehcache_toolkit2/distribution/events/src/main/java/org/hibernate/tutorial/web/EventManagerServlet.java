@@ -95,6 +95,7 @@ public class EventManagerServlet extends HttpServlet {
     out.println("</form>");
   }
 
+  @SuppressWarnings("rawtypes")
   private void listEvents(PrintWriter out, SimpleDateFormat dateFormatter) {
     Criteria crit = HibernateUtil.getSessionFactory().getCurrentSession().createCriteria(Event.class);
     crit.setCacheable(true);
