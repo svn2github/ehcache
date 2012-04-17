@@ -947,7 +947,7 @@ public class BasicSearchTest {
                 try {
                     result.getKey();
                 } catch (SearchException se) {
-                    fail("getKey() should work when includeValues()");
+                  // expected since keys not included
                 }
             }
 
