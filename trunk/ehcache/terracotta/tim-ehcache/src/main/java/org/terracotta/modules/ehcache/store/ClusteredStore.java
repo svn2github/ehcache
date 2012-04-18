@@ -935,7 +935,7 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
     }
   }
 
-  public void waitUntilClusterCoherent() {
+  public void waitUntilClusterCoherent() throws InterruptedException {
     cacheCoherence.waitUntilClusterCoherent();
   }
 

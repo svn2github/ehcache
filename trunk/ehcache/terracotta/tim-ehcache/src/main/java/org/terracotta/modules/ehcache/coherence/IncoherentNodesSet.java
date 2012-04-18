@@ -159,19 +159,15 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
   }
 
   // write autolocked in config
-  public synchronized void waitUntilClusterCoherent() {
+  public synchronized void waitUntilClusterCoherent() throws InterruptedException {
     while (incoherentNodes.size() > 0) {
-      try {
-        if (DEBUG) {
-          debug("waitUntilClusterCoherent(): Going to wait until coherent cluster-wide");
-        }
-        this.wait(CLUSTER_COHERENT_WAIT_SLEEP_MILLIS);
-        cleanIncoherentNodes(clusterInfo.getClusterTopology().getNodes());
-        if (DEBUG) {
-          debug("waitUntilClusterCoherent(): After wait and cleanIncoherentNodes()");
-        }
-      } catch (InterruptedException e) {
-        return;
+      if (DEBUG) {
+        debug("waitUntilClusterCoherent(): Going to wait until coherent cluster-wide");
+      }
+      this.wait(CLUSTER_COHERENT_WAIT_SLEEP_MILLIS);
+      cleanIncoherentNodes(clusterInfo.getClusterTopology().getNodes());
+      if (DEBUG) {
+        debug("waitUntilClusterCoherent(): After wait and cleanIncoherentNodes()");
       }
     }
     debug("waitUntilClusterCoherent() done");

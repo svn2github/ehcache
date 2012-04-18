@@ -22,7 +22,7 @@ public interface CacheCoherence {
 
   public void releaseWriteLock();
 
-  public void waitUntilClusterCoherent();
+  public void waitUntilClusterCoherent() throws InterruptedException;
 
   public boolean isClusterCoherent();
 
