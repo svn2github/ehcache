@@ -120,6 +120,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
     builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
     builder.offheapEnabled(ehcacheConfig.isOverflowToOffHeap());
+    builder.compressionEnabled(terracottaConfiguration.isCompressionEnabled());
+    builder.copyOnReadEnabled(terracottaConfiguration.isCopyOnRead());
 
     return builder.build();
   }
