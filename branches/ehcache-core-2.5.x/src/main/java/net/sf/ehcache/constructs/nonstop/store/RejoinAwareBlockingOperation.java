@@ -17,6 +17,7 @@
 package net.sf.ehcache.constructs.nonstop.store;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class RejoinAwareBlockingOperation<V> implements Callable<V> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RejoinAwareBlockingOperation.class);
+    private static final long   REJOIN_RETRY_INTERVAL = 10 * 1000;
 
     private final Callable<V> delegateCallable;
     private final ExecutorServiceStore executorServiceStore;
@@ -67,18 +69,26 @@ public class RejoinAwareBlockingOperation<V> implements Callable<V> {
         while (true) {
             try {
                 rejoinHappened = false;
-                executorServiceStore.executeClusterOperationNoTimeout(new ClusterOperation<V>() {
+                try {
+                    executorServiceStore.executeClusterOperationNoTimeout(new ClusterOperation<V>() {
 
-                    public V performClusterOperation() throws Exception {
-                        return delegateCallable.call();
+                        public V performClusterOperation() throws Exception {
+                            return delegateCallable.call();
+                        }
+
+                        public V performClusterOperationTimedOut(TimeoutBehaviorType configuredTimeoutBehavior) {
+                            throw new AssertionError("This should never happen as executed with no-timeout");
+                        }
+
+                    });
+
+                    return delegateCallable.call();
+                } catch (TimeoutException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Timed out. Assuming the cluster is down and trying again later.");
                     }
-
-                    public V performClusterOperationTimedOut(TimeoutBehaviorType configuredTimeoutBehavior) {
-                        throw new AssertionError("This should never happen as executed with no-timeout");
-                    }
-
-                });
-                return delegateCallable.call();
+                    Thread.sleep(REJOIN_RETRY_INTERVAL);
+                }
             } catch (InterruptedException e) {
                 if (rejoinHappened) {
                     LOGGER.debug("Caught InterruptedException caused by rejoin. Executing callable again.");
@@ -86,7 +96,6 @@ public class RejoinAwareBlockingOperation<V> implements Callable<V> {
                 } else {
                     throw e;
                 }
-
             }
         }
     }
