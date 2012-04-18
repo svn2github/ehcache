@@ -8,11 +8,6 @@ import com.tc.test.config.model.TestConfig;
 
 public class BasicStandaloneCacheTest extends AbstractCacheTestBase {
 
-  @Override
-  protected boolean isDisabled() {
-    return false;
-  }
-
   public BasicStandaloneCacheTest(TestConfig testConfig) {
     super("basic-cache-test.xml", testConfig);
   }
