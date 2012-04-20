@@ -34,6 +34,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
+import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.toolkit.ToolkitProperties;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
@@ -77,6 +78,7 @@ public class ClusteredStore implements TerracottaStore {
   private final Map                                              keyLookupCache;
   private final CacheConfigChangeBridge                          cacheConfigChangeBridge;
   private final RegisteredEventListeners                         registeredEventListeners;
+  private final TCCacheLockProvider                              cacheLockProvider;
 
   // non-final private fields
   private EventListenerList                                      listenerList;
@@ -111,7 +113,7 @@ public class ClusteredStore implements TerracottaStore {
     }
     registeredEventListeners = cache.getCacheEventNotificationService();
     backend.addListener(new CacheEventListener());
-
+    cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
   }
 
   private static CacheConfigChangeBridge createConfigChangeBridge(ToolkitInstanceFactory toolkitInstanceFactory,
@@ -496,7 +498,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public Object getInternalContext() {
-    return null;
+    return cacheLockProvider;
   }
 
   @Override
