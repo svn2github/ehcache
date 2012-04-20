@@ -80,8 +80,8 @@ public class ClusteredEventReplicator implements CacheEventListener,
   }
 
   @Override
-  public Object clone() {
-    return null;
+  public ClusteredEventReplicator clone() throws CloneNotSupportedException {
+    return (ClusteredEventReplicator) super.clone();
   }
 
   @Override

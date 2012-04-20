@@ -129,9 +129,8 @@ public class ClusteredStore implements TerracottaStore {
     final TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
 
     List<ConfigError> errors = new ArrayList<ConfigError>();
-    if (terracottaConfiguration == null || !terracottaConfiguration.isClustered()) {
-      errors.add(new ConfigError("Cannot create clustered store for non-terracotta clustered caches"));
-    }
+    if (terracottaConfiguration == null || !terracottaConfiguration.isClustered()) { throw new InvalidConfigurationException(
+                                                                                                                             "Cannot create clustered store for non-terracotta clustered caches"); }
 
     // TODO: move all below validation in ehcache-core?
     if (terracottaConfiguration.getValueMode() == ValueMode.IDENTITY) {
