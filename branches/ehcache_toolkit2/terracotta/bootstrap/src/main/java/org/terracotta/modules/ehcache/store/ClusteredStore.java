@@ -323,7 +323,9 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public void removeAll() throws CacheException {
     backend.clearWithMetaData(createClearSearchMetaData());
-    keyLookupCache.clear();
+    if (keyLookupCache != null) {
+      keyLookupCache.clear();
+    }
   }
 
   @Override
