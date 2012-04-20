@@ -131,7 +131,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     private void initCacheManager(CacheUT cut) {
         switch (cut) {
             case elementBased:
-                manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("caches/DiskPersistent")));
+                manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistent")));
                 cacheElementCountBoundBootstrapCacheLoader = new DiskStoreBootstrapCacheLoader(LOADER_DELAY);
                 cacheElementCountBound = new Cache(new CacheConfiguration("maxElementsInMemory", 100)
                     .eternal(true)
@@ -141,7 +141,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
                 manager.addCache(cacheElementCountBound);
                 break;
             case sizeBased:
-                manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("caches/DiskPersistentSize")));
+                manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistentSize")));
                 cacheSizeBoundBootstrapCacheLoader = new DiskStoreBootstrapCacheLoader(LOADER_DELAY);
                 cacheSizeBound = new Cache(new CacheConfiguration("maxOnHeap", 0)
                     .eternal(true)
