@@ -29,21 +29,6 @@ public class CacheConfigurationTest {
     }
 
     @Test
-    public void testDiskStorePath() {
-
-        String name = "testTemp";
-        String path = "c:\\something\\temp";
-
-        CacheConfiguration cacheConfiguration = new CacheConfiguration(name, 0)
-            .diskStorePath(path)
-            .diskPersistent(true);
-        cacheManager.addCache(new Cache(cacheConfiguration));
-        Cache cache = cacheManager.getCache(name);
-        assertThat(getDiskStorePath(cache), equalTo(path));
-        cache.put(new Element("KEY", "VALUE"));
-    }
-
-    @Test
     public void testTransactionalMode() {
         CacheConfiguration configuration = new CacheConfiguration();
         assertEquals(CacheConfiguration.TransactionalMode.OFF, configuration.getTransactionalMode());

@@ -140,7 +140,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
 
     private void doLoad(final Ehcache cache) {
         final RotatingSnapshotFile snapshotFile = new RotatingSnapshotFile(directory == null ? cache.getCacheManager()
-            .getDiskStorePath() : directory, cache.getName());
+            .getDiskStorePathMangager().getDiskStorePath() : directory, cache.getName());
         try {
             final Set<Object> keys = snapshotFile.readAll();
             int loaded = 0;
@@ -236,6 +236,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
         /**
          * RemoteDebugger thread method.
          */
+        @Override
         public final void run() {
             try {
                 doLoad(cache);

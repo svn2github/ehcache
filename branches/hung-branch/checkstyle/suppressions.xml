@@ -64,6 +64,7 @@
     <suppress checks="MagicNumber" files="JvmInformation.java" />
     <suppress checks="IllegalImport" files="UnsafeSizeOf.java" />
     <suppress checks="MutableExceptionCheck" files="MaxDepthExceededException.java"/>
+    <suppress checks="BooleanExpressionComplexity" files="DiskStorePathManager.java"/>
 
     <!-- Candidates for refactoring -->
     <suppress checks="CyclomaticComplexity" files="ObjectGraphWalker.java"/>

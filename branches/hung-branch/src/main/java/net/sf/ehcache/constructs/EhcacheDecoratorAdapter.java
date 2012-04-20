@@ -667,13 +667,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public void setDiskStorePath(String diskStorePath) throws CacheException {
-        underlyingCache.setDiskStorePath(diskStorePath);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void setName(String name) {
         underlyingCache.setName(name);
     }

@@ -38,14 +38,13 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
     /**
      * Create a DiskBackedMemoryStore instance
      * @param cache the cache
-     * @param diskStorePath the path to the folder in which files will be created
      * @param onHeapPool the pool tracking on-heap usage
      * @param onDiskPool the pool tracking on-disk usage
      * @return a DiskBackedMemoryStore instance
      */
-    public static Store create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
+    public static Store create(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         final MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
-        DiskStore diskStore = createDiskStore(cache, diskStorePath, onHeapPool, onDiskPool);
+        DiskStore diskStore = createDiskStore(cache, onHeapPool, onDiskPool);
 
         return new DiskBackedMemoryStore(cache.getCacheConfiguration(), memoryStore, diskStore);
     }
@@ -54,10 +53,10 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
         return MemoryStore.create(cache, onHeapPool);
     }
 
-    private static DiskStore createDiskStore(Ehcache cache, String diskPath, Pool onHeapPool, Pool onDiskPool) {
+    private static DiskStore createDiskStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         CacheConfiguration config = cache.getCacheConfiguration();
         if (config.isDiskPersistent() || config.isOverflowToDisk()) {
-            return DiskStore.create(cache, diskPath, onHeapPool, onDiskPool);
+            return DiskStore.create(cache, onHeapPool, onDiskPool);
         } else {
             throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");
         }

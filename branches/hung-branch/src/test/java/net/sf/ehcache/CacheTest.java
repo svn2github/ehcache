@@ -682,7 +682,7 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(new Cache(new CacheConfiguration("overflow1", 10).maxBytesLocalDisk(10, MemoryUnit.MEGABYTES)));
         assertThat(manager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));
 
-        CacheManager cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("./temp-tests"))
+        CacheManager cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/temp-tests"))
                 .maxBytesLocalDisk(10, MemoryUnit.MEGABYTES).name("new-cacheManager"));
         cacheManager.addCache(new Cache(new CacheConfiguration("overflow1", 10)));
         assertThat(cacheManager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));
@@ -2641,22 +2641,23 @@ public class CacheTest extends AbstractCacheTest {
         final Cache cache = new Cache("testRedundantDiskReads", 1, true, true, 0, 0);
         manager.addCache(cache);
         Assume.assumeThat(cache.getStore(), IsInstanceOf.instanceOf(FrontEndCacheTier.class));
-        
+
         for (int i = 0; i < 10; i++) {
             cache.put(new Element(i, new SlowDeserializer(Integer.toString(i))));
         }
-        
+
         DiskStoreHelper.flushAllEntriesToDisk(cache);
 
         int parties = 8;
         final Object[] values = new Object[parties];
         final CyclicBarrier barrier = new CyclicBarrier(parties + 1);
         final Thread[] readers = new Thread[parties];
-        
+
         for (int i = 0; i < readers.length; i++) {
             final int index = i;
             readers[index] = new Thread() {
-                
+
+                @Override
                 public void run() {
                     try {
                         for (int i = 0; i < 10; i++) {
@@ -2670,16 +2671,16 @@ public class CacheTest extends AbstractCacheTest {
                 }
             };
         }
-        
+
         for (Thread t : readers) {
             t.start();
         }
-        
+
         for (int i = 0; i < 10; i++) {
             barrier.await();
             barrier.await();
             Object first = values[0];
-            
+
             for (Object o : values) {
                 assertSame(first, o);
             }
@@ -2692,7 +2693,7 @@ public class CacheTest extends AbstractCacheTest {
         public SlowDeserializer(String data) {
             this.data = data;
         }
-        
+
         private Object readResolve() {
             try {
                 Thread.sleep(1000);
@@ -2716,13 +2717,13 @@ public class CacheTest extends AbstractCacheTest {
         public int hashCode() {
             return data == null ? 0 : data.hashCode();
         }
-        
+
         @Override
         public String toString() {
             return "SlowDeserializer(" + data + ") @" + Integer.toHexString(System.identityHashCode(this));
         }
     }
-    
+
     static class GetCacheMemorySize implements Callable<Long> {
 
         private final Ehcache cache;

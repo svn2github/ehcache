@@ -6,6 +6,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <version>2.3</version>
+    <relativePath></relativePath>
   </parent>
 
   <artifactId>ehcache-core</artifactId>
@@ -88,12 +89,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.btm</groupId>
-      <artifactId>btm</artifactId>
-      <version>2.0.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
       <version>1.1</version>
@@ -108,16 +103,16 @@
 
     <!-- Test scope -->
     <dependency>
+      <groupId>org.codehaus.btm</groupId>
+      <artifactId>btm</artifactId>
+      <version>2.0.1</version>
+      <scope>test</scope>
+    </dependency>    
+    <dependency>
       <groupId>net.sf.hibernate</groupId>
       <artifactId>hibernate</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit-dep</artifactId>
-      <version>4.5</version>
-      <scope>test</scope>
-    </dependency>
+    </dependency>   
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
@@ -129,7 +124,19 @@
       <artifactId>hamcrest-library</artifactId>
       <version>1.2</version>
       <scope>test</scope>
-    </dependency>
+    </dependency>      
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit-dep</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>   
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
@@ -343,24 +350,7 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pdf-plugin</artifactId>
-        <version>1.1</version>
-        <executions>
-          <execution>
-            <id>pdf</id>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>pdf</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>target/site/documentation</outputDirectory>
-              <includeReports>false</includeReports>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -431,7 +421,7 @@
         <version>2.7</version>
         <executions>
           <execution>
-            <phase>install</phase>
+            <phase>verify</phase>
             <goals>
               <goal>checkstyle</goal>
             </goals>
@@ -443,7 +433,7 @@
           <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
           <skip>${skipCheckstyle}</skip>
           <enableRSS>false</enableRSS>
-          <linkXRef>true</linkXRef>
+          <linkXRef>false</linkXRef>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
           <failOnViolation>true</failOnViolation>
