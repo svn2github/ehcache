@@ -35,10 +35,13 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   @Override
-  public Store createStore(Ehcache cache) {
-    return newStore(cache);
+  public final Store createStore(Ehcache cache) {
+    return new ClusteredSafeStore(newStore(cache));
   }
 
+  /**
+   * Override to use different implementations
+   */
   protected ClusteredStore newStore(Ehcache cache) {
     return new ClusteredStore(toolkitInstanceFactory, cache);
   }
@@ -49,6 +52,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public WriteBehind createWriteBehind(Ehcache cache) {
+    // TODO:
     return null;
   }
 
@@ -58,23 +62,29 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
                                         toolkitInstanceFactory.getOrCreateCacheEventNotifier(cache));
   }
 
+  /**
+   * This is used by SampledMBeanRegistrationProvider to generate a JMX MBean ObjectName containing the client's uuid so
+   * that it can be associated with the correct connection when tunneled to the L2.
+   */
   @Override
   public String getUUID() {
-    return null;
+    return toolkitInstanceFactory.getToolkit().getClusterInfo().getUniversallyUniqueClientID();
   }
 
   @Override
   public void shutdown() {
-    //
+    // TODO:
   }
 
   @Override
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
+    // TODO:
     return null;
   }
 
   @Override
   public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {
+    // TODO:
     return null;
   }
 
