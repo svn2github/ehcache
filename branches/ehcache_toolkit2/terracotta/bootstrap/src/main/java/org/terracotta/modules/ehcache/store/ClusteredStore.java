@@ -280,7 +280,13 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public void removeAll(Collection<?> keys) {
-    // TODO: Add removeAllWithMeta data to toolkit cache.
+    Set<EntryWithMetaData<Object, Serializable>> entries = new HashSet<EntryWithMetaData<Object, Serializable>>();
+    for (Object key : keys) {
+      Object pKey = generatePortableKeyFor(key);
+      MetaData metaData = createRemoveSearchMetaData(pKey);
+      entries.add(backend.createEntryWithMetaData(pKey, null, metaData));
+    }
+    backend.removeAllWithMetaData(entries);
   }
 
   @Override
