@@ -1167,7 +1167,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
             try {
                 return makeXaStrictTransactionalIfNeeded((Store) offHeapStoreClass.getMethod("create",
-                        Ehcache.class, String.class, Pool.class, Pool.class)
+                        Ehcache.class, Pool.class, Pool.class)
                         .invoke(null, this, onHeapPool, onDiskPool), copyStrategy);
             } catch (NoSuchMethodException e) {
                 throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
