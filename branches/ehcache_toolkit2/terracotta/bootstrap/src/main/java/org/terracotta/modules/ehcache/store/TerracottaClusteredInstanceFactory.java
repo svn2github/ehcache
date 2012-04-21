@@ -11,12 +11,14 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.util.ProductInfo;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicator;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
+import org.terracotta.toolkit.ToolkitLogger;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
@@ -28,6 +30,14 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
     topology = new TerracottaTopologyImpl(toolkitInstanceFactory.getToolkit().getClusterInfo());
+    logEhcacheBuildInfo();
+  }
+
+  private void logEhcacheBuildInfo() {
+    final ProductInfo ehcacheCoreProductInfo = new ProductInfo();
+    ToolkitLogger logger = toolkitInstanceFactory.getToolkit().getLogger(TerracottaClusteredInstanceFactory.class
+                                                                             .getName());
+    logger.info(ehcacheCoreProductInfo.toString());
   }
 
   protected ToolkitInstanceFactory createToolkitInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
