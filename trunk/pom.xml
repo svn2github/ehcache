@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>net.sf.ehcache</groupId>
@@ -323,7 +324,7 @@
     <developer>
       <id>ssuravarapu</id>
       <name>Surya Suravarapu</name>
-      <url/>
+      <url />
       <roles>
         <role>Developer</role>
       </roles>
@@ -339,24 +340,24 @@
     </developer>
     <developer>
       <name>Mauro Talevi</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
       <roles>
         <role>Maven Guru</role>
       </roles>
-      <timezone/>
+      <timezone />
     </developer>
   </developers>
 
   <contributors>
     <contributor>
       <name>Adam Murdoch</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
       <roles>
         <role>Former Developer</role>
       </roles>
@@ -364,34 +365,34 @@
     </contributor>
     <contributor>
       <name>Ben Houston</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
-      <roles/>
-      <timezone/>
-      <properties/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles />
+      <timezone />
+      <properties />
     </contributor>
     <contributor>
       <name>Claus Ibsen</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
-      <roles/>
-      <timezone/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles />
+      <timezone />
       <properties>
         <contribution>Patches</contribution>
       </properties>
     </contributor>
     <contributor>
       <name>Jody Brownell</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
-      <roles/>
-      <timezone/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles />
+      <timezone />
       <properties>
         <contribution>Patches</contribution>
       </properties>
@@ -434,7 +435,7 @@
   <scm>
     <connection>scm:svn:http://svn.terracotta.org/svn/ehcache</connection>
     <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache</developerConnection>
-    <tag/>
+    <tag />
     <url>http://svn.terracotta.org/svn/ehcache</url>
   </scm>
 

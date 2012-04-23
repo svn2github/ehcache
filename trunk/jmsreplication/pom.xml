@@ -3,20 +3,20 @@
   <parent>
     <artifactId>ehcache-parent</artifactId>
     <groupId>net.sf.ehcache</groupId>
-    <version>2.4-SNAPSHOT</version>
+    <version>2.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.sf.ehcache</groupId>
   <artifactId>ehcache-jmsreplication</artifactId>
   <name>JMS Replication</name>
-  <version>2.7.0-SNAPSHOT</version>
+  <version>0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>This module provides replication via JMS 1.1</description>
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
-      <version>2.7.0-SNAPSHOT</version>
+      <version>2.5.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <!--This must be manually installed as it is not available in any repo-->
@@ -234,10 +234,14 @@
                       <arg line="imqusermgr add -javahome ${java.home} -u test -p test -f"/>
                     </exec>
                     <exec dir="${openmq.bin.dir}" executable="sh" os="Mac OS X, Linux, AIX, Solaris, Windows" spawn="false">
-                      <arg line="imqobjmgr -javahome ${java.home} add -t tf -l 'MyConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'                                             -o imqDefaultUsername='test' -o imqDefaultPassword='test'                                             -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                      <arg line="imqobjmgr -javahome ${java.home} add -t tf -l 'MyConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
+                                            -o imqDefaultUsername='test' -o imqDefaultPassword='test'
+                                            -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                     </exec>
                     <exec dir="${openmq.bin.dir}" executable="sh" os="Mac OS X, Linux, AIX, Solaris, Windows" spawn="false">
-                      <arg line="imqobjmgr -javahome ${java.home} add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'                                             -o imqDefaultUsername='test' -o imqDefaultPassword='test'                                             -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
+                      <arg line="imqobjmgr -javahome ${java.home} add -t qf -l 'queueConnectionFactory' -o imqReconnect='true' -o imqPingInterval='5'
+                                            -o imqDefaultUsername='test' -o imqDefaultPassword='test'
+                                            -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>
                     </exec>
                     <exec dir="${openmq.bin.dir}" executable="sh" os="Mac OS X, Linux, AIX, Solaris, Windows" spawn="false">
                       <arg line="imqobjmgr -javahome ${java.home} add -t t -l 'ehcache' -o 'imqDestinationName=EhcacheTopicDest' -j java.naming.provider.url=file:///tmp -j java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory -f "/>

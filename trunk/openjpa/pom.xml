@@ -3,13 +3,13 @@
     <parent>
         <artifactId>ehcache-parent</artifactId>
         <groupId>net.sf.ehcache</groupId>
-        <version>2.4-SNAPSHOT</version>
+        <version>2.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-openjpa</artifactId>
     <name>OpenJPA Caching Plugin</name>
-    <version>2.7.0-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>This module provides replication via JGroups</description>
     <url>http://ehcache.sf.net/documentation/openjpa.html</url>
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>2.7.0-SNAPSHOT</version>
+            <version>2.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.openjpa</groupId>
