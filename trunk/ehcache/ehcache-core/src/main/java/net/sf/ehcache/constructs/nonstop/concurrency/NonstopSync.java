@@ -147,6 +147,7 @@ class NonstopSync implements Sync {
         private final LockOperationType lockOperationType;
         private final ExplicitLockingContext appThreadLockContext;
         private volatile OperationState state = OperationState.EXECUTING;
+        private volatile boolean success = true;
 
         public ExplicitLockingClusterOperationImpl(LockType type, long timeout, ExplicitLockingContext appThreadLockContext,
                 LockOperationType lockOperationType) {
@@ -157,8 +158,8 @@ class NonstopSync implements Sync {
         }
 
         public Boolean performClusterOperation() throws Exception {
-            final boolean success = lockOperationType.performOperation(appThreadLockContext, nonstopActiveDelegateHolder, key, timeout,
-                    type, nonstopConfiguration);
+            success = lockOperationType.performOperation(appThreadLockContext, nonstopActiveDelegateHolder, key, timeout, type,
+                    nonstopConfiguration);
             executionComplete();
 
             debug("performClusterOperation:" + getIdentityHashCode() + " success=" + success + " type=" + type);
@@ -179,7 +180,7 @@ class NonstopSync implements Sync {
                 debug("performClusterOperationTimedOut:" + getIdentityHashCode());
                 throw new LockOperationTimedOutNonstopException("tryLock() timed out");
             }
-            return true;
+            return success;
         }
 
         private synchronized void executionComplete() {
