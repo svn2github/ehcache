@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+     <release version="2.5.2" date="2012-04" description="Bug Fix Release">
+        	<action dev="" type="update" issue="EHC-898">
+            net.sf.ehcache.configurationResourceName is ignored
+             </action>
+             <action dev="" type="update" issue="EHC-905">
+            Eviction count always comes as zero
+             </action>
+            <action dev="" type="update" issue="EHC-909">
+           Can probably add the java.lang.Class type to the built-in ignore list
+             </action>
+            <action dev="" type="update" issue="EHC-918">
+           Transient attributes are not ignored in ObjectGraphWalker, causing Ehcache to not work with Groovy
+             </action>
+              <action dev="" type="update" issue="EHC-937">
+           Possible memory leak in xa_strict mode
+             </action>
+             </release>
      <release version="2.5.1" date="2012-01" description="Bug Fix Release">
         	<action dev="Alex Snaps" type="update" issue="EHC-882">
             Make @IgnoreSizeOf inheritable by users
