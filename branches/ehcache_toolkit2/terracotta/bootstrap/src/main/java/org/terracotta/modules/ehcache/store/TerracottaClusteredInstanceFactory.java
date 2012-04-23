@@ -16,20 +16,22 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
-import org.terracotta.modules.ehcache.event.ClusteredEventReplicator;
+import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
 import org.terracotta.toolkit.ToolkitLogger;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
-  public static final String             DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
+  public static final String                    DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
-  private final TerracottaTopologyImpl   topology;
-  protected final ToolkitInstanceFactory toolkitInstanceFactory;
+  private final TerracottaTopologyImpl          topology;
+  protected final ToolkitInstanceFactory        toolkitInstanceFactory;
+  private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
     topology = new TerracottaTopologyImpl(toolkitInstanceFactory.getToolkit().getClusterInfo());
+    clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory();
     logEhcacheBuildInfo();
   }
 
@@ -67,9 +69,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   @Override
-  public CacheEventListener createEventReplicator(Ehcache cache) {
-    return new ClusteredEventReplicator(cache, toolkitInstanceFactory.getFullyQualifiedCacheName(cache),
-                                        toolkitInstanceFactory.getOrCreateCacheEventNotifier(cache));
+  public synchronized CacheEventListener createEventReplicator(Ehcache cache) {
+    return clusteredEventReplicatorFactory.getOrCreateClusteredEventReplicator(toolkitInstanceFactory, cache);
   }
 
   /**
