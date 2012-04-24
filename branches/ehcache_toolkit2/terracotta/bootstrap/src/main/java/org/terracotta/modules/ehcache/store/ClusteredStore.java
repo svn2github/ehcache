@@ -384,7 +384,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public void dispose() {
-    // TODO: backend.destroyLocally()
+    backend.disposeLocally();
     cacheConfigChangeBridge.disconnectConfigs();
   }
 

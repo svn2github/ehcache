@@ -90,4 +90,9 @@ public class NoopCacheCluster implements CacheCluster {
     public List<ClusterTopologyListener> getTopologyListeners() {
         return Collections.emptyList();
     }
+
+    @Override
+    public void removeAllListeners() {
+        //
+    }
 }

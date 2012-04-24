@@ -181,7 +181,7 @@ public class TerracottaClient {
     }
 
     private void shutdownClusteredInstanceFactoryWrapper(ClusteredInstanceFactoryWrapper clusteredInstanceFactory) {
-        clusteredInstanceFactory.getActualFactory().getTopology().getTopologyListeners().clear();
+        clusteredInstanceFactory.getActualFactory().getTopology().removeAllListeners();
         clusteredInstanceFactory.shutdown();
     }
 

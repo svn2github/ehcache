@@ -102,4 +102,17 @@ public class TerracottaTopologyImpl implements CacheCluster {
     }
   }
 
+  @Override
+  public void removeAllListeners() {
+    writeLock.lock();
+    try {
+      for (ClusterTopologyListener listener : listeners) {
+        removeInternal(listener);
+      }
+      listeners.clear();
+    } finally {
+      writeLock.unlock();
+    }
+  }
+
 }
