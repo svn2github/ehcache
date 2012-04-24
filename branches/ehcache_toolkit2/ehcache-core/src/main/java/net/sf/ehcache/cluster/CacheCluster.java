@@ -80,10 +80,7 @@ public interface CacheCluster {
     boolean removeTopologyListener(ClusterTopologyListener listener);
 
     /**
-     * Remove a listener for cluster events
-     *
-     * @param listener Listener
-     * @return True if not listening
+     * Removes all listeners for cluster events
      */
     void removeAllListeners();
 
