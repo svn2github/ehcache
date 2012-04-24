@@ -43,14 +43,15 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private final ToolkitAtomicLong          clusteredStoreId;
   private final ToolkitMap<String, String> fullyQualifiedNames;
   private final ToolkitReadWriteLock       lock;
+  private final ToolkitClient              client;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
-    ToolkitClient client = createTerracottaClient(terracottaClientConfiguration);
+    this.client = createTerracottaClient(terracottaClientConfiguration);
     // TODO: support namespacing the toolkit
     this.toolkit = client.getToolkit();
-    clusteredStoreId = toolkit.getAtomicLong(EHCACHE_CLUSTERED_STORE_ID);
-    fullyQualifiedNames = toolkit.getMap(EHCACHE_NAME_PREFIX + DELIMITER + FULLY_QUALIFIED_NAME_MAP);
-    lock = toolkit.getReadWriteLock(EHCACHE_NAME_PREFIX + DELIMITER + "factoryLock");
+    this.clusteredStoreId = toolkit.getAtomicLong(EHCACHE_CLUSTERED_STORE_ID);
+    this.fullyQualifiedNames = toolkit.getMap(EHCACHE_NAME_PREFIX + DELIMITER + FULLY_QUALIFIED_NAME_MAP);
+    this.lock = toolkit.getReadWriteLock(EHCACHE_NAME_PREFIX + DELIMITER + "factoryLock");
   }
 
   private static ToolkitClient createTerracottaClient(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -206,6 +207,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache) {
     // implemented in ee version
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void shutdown() {
+    client.shutdown();
   }
 
 }

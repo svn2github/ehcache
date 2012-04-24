@@ -62,4 +62,6 @@ public interface ToolkitInstanceFactory {
    */
   ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache);
 
+  void shutdown();
+
 }

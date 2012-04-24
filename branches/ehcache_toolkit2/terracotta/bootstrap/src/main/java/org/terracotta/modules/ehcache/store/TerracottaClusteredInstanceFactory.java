@@ -84,7 +84,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public void shutdown() {
-    // TODO:
+    toolkitInstanceFactory.shutdown();
   }
 
   @Override
