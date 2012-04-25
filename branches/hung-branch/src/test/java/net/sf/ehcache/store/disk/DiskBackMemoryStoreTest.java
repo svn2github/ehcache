@@ -24,7 +24,6 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.impl.UnboundedPool;
-import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.MemoryOnlyStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.RetryAssert;
@@ -42,7 +41,6 @@ public class DiskBackMemoryStoreTest {
 
     private static final String KEY = "KEY";
 
-    private Store store;
     private Store xaStore;
 
     private CacheManager cacheManager;
@@ -54,7 +52,6 @@ public class DiskBackMemoryStoreTest {
         cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskBackMemoryStoreTest")));
         cache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true));
         cacheManager.addCache(cache);
-        store = DiskBackedMemoryStore.create(cache, new UnboundedPool(), new UnboundedPool());
         xaCache = new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("xa_strict"));
         xaStore = MemoryOnlyStore.create(xaCache, new UnboundedPool());
     }
@@ -90,21 +87,20 @@ public class DiskBackMemoryStoreTest {
             }
         });
 
-        store.put(new Element(1, "one"));
+        cache.put(new Element(1, "one"));
         Element element2 = new Element(2, new Object());
-        store.setPinned(element2.getObjectKey(), true);
-        store.put(element2);
-        store.dispose();
+        cache.setPinned(element2.getObjectKey(), true);
+        cache.put(element2);
+        cacheManager.shutdown();
 
         assertNull("element should not have been evicted: " + lastEvicted[0], lastEvicted[0]);
 
-        Cache newCache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true)
-                .diskPersistent(true));
-        cacheManager.addCache(newCache);
+        cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskBackMemoryStoreTest")));
+        cache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true));
+        cacheManager.addCache(cache);
 
-        store = DiskStore.create(newCache, new UnboundedPool(), new UnboundedPool());
-        assertEquals("one", store.get(1).getObjectValue());
-        assertNull(store.get(2));
+        assertEquals("one", cache.get(1).getObjectValue());
+        assertNull(cache.get(2));
     }
 
     @Test
