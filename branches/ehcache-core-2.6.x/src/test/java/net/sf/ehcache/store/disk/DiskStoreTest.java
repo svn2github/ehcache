@@ -21,14 +21,15 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.impl.UnboundedPool;
-import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.MemoryOnlyStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.core.Is;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,15 +44,23 @@ public class DiskStoreTest {
     private Store store;
     private Store xaStore;
 
+    private CacheManager cacheManager;
     private Cache cache;
     private Cache xaCache;
 
     @Before
     public void init() {
+        cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration()
+                .path("java.io.tmpdir/DiskBackMemoryStoreTest")));
         cache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true));
-        store = DiskBackedMemoryStore.create(cache, System.getProperty("java.io.tmpdir"), new UnboundedPool(), new UnboundedPool());
+        cacheManager.addCache(cache);
         xaCache = new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("xa_strict"));
         xaStore = MemoryOnlyStore.create(xaCache, new UnboundedPool());
+    }
+
+    @After
+    public void tearDown() {
+        cacheManager.shutdown();
     }
 
     @Test
@@ -63,50 +72,54 @@ public class DiskStoreTest {
             public Object clone() throws CloneNotSupportedException {
                 return super.clone();
             }
+
             public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
             }
+
             public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
             }
+
             public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
             }
+
             public void notifyElementExpired(Ehcache cache, Element element) {
             }
+
             public void notifyElementEvicted(Ehcache cache, Element element) {
                 lastEvicted[0] = element;
             }
+
             public void notifyRemoveAll(Ehcache cache) {
             }
+
             public void dispose() {
             }
         });
 
-        store.put(new Element(1, "one"));
+        cache.put(new Element(1, "one"));
         Element element2 = new Element(2, new Object());
-        store.setPinned(element2.getObjectKey(), true);
-        store.put(element2);
-        store.dispose();
+        cache.setPinned(element2.getObjectKey(), true);
+        cache.put(element2);
+        cacheManager.shutdown();
 
         assertNull("element should not have been evicted: " + lastEvicted[0], lastEvicted[0]);
 
-        store = DiskStore.create(new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true)
-            .diskPersistent(true)), System.getProperty("java.io.tmpdir"), new UnboundedPool(), new UnboundedPool());
-        assertEquals("one", store.get(1).getObjectValue());
-        assertNull(store.get(2));
+        cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration()
+                .path("java.io.tmpdir/DiskBackMemoryStoreTest")));
+        cache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true));
+        cacheManager.addCache(cache);
+
+        assertEquals("one", cache.get(1).getObjectValue());
+        assertNull(cache.get(2));
     }
 
     @Test
     public void testDiskStoreSize() throws Exception {
-        CacheManager cm = new CacheManager(
-            new Configuration()
-                .cache(new CacheConfiguration("aCache", 10000)
-                    .overflowToDisk(true)
-                    .eternal(false)
-                    .timeToLiveSeconds(1000)
-                    .timeToLiveSeconds(360)
-                )
-        );
+        CacheManager cm = new CacheManager(new Configuration()
+                .cache(new CacheConfiguration("aCache", 10000).overflowToDisk(true).eternal(false).timeToLiveSeconds(1000)
+                        .timeToLiveSeconds(360)).name("testDiskStoreSize")
+                .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/testDiskStoreSize")));
         final Cache cache = cm.getCache("aCache");
-
 
         cache.put(new Element(-1, -1));
         assertEquals(-1, cache.get(-1).getValue());
@@ -127,10 +140,10 @@ public class DiskStoreTest {
         Thread.sleep(3000);
 
         RetryAssert.assertBy(1, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cache.getDiskStoreSize();
-                }
-            }, Is.is(10010));
+            public Integer call() throws Exception {
+                return cache.getDiskStoreSize();
+            }
+        }, Is.is(10010));
 
         cm.shutdown();
     }
@@ -159,14 +172,14 @@ public class DiskStoreTest {
         atomicLong.getAndIncrement();
         element.setVersion(2);
 
-        Assert.assertEquals(1, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+        Assert.assertEquals(1, ((AtomicLong) xaStore.get(KEY).getValue()).get());
         Assert.assertEquals(1, xaStore.get(KEY).getVersion());
 
         xaStore.put(new Element(KEY, atomicLong, 1));
-        Assert.assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+        Assert.assertEquals(2, ((AtomicLong) xaStore.get(KEY).getValue()).get());
         atomicLong.getAndIncrement();
 
-        Assert.assertEquals(2, ((AtomicLong)xaStore.get(KEY).getValue()).get());
+        Assert.assertEquals(2, ((AtomicLong) xaStore.get(KEY).getValue()).get());
         Assert.assertEquals(1, xaStore.get(KEY).getVersion());
     }
 
@@ -185,7 +198,7 @@ public class DiskStoreTest {
     @Test
     public void testGetKeys() throws InterruptedException {
         int unpinCount = 500;
-        int pinCount = 500; //please make sure that pinCount is even
+        int pinCount = 500; // please make sure that pinCount is even
         Set<Object> pinnedKeys = new HashSet<Object>();
         Set<Object> removedPinnedKeys = new HashSet<Object>();
         Set<Object> unpinnedKeys = new HashSet<Object>();
@@ -208,8 +221,8 @@ public class DiskStoreTest {
             xaStore.setPinned(element.getObjectKey(), true);
             xaStore.put(element);
         }
-        Assert.assertEquals(pinCount+unpinCount, xaStore.getSize());
-        int halfPinned = pinCount/2;
+        Assert.assertEquals(pinCount + unpinCount, xaStore.getSize());
+        int halfPinned = pinCount / 2;
         for (int i = 0; i < halfPinned; i++) {
             key = "Kp-" + i;
             removedPinnedKeys.add(key);
@@ -218,14 +231,14 @@ public class DiskStoreTest {
 
         Thread.sleep(1000);
         pinnedKeys.removeAll(removedPinnedKeys);
-        Assert.assertEquals(pinCount-halfPinned, pinnedKeys.size());
-        Assert.assertEquals(unpinCount+halfPinned, xaStore.getSize());
+        Assert.assertEquals(pinCount - halfPinned, pinnedKeys.size());
+        Assert.assertEquals(unpinCount + halfPinned, xaStore.getSize());
 
         List keys = xaStore.getKeys();
-        Assert.assertEquals(unpinCount+halfPinned, xaStore.getSize());
-        Assert.assertEquals(unpinCount+halfPinned, keys.size());
+        Assert.assertEquals(unpinCount + halfPinned, xaStore.getSize());
+        Assert.assertEquals(unpinCount + halfPinned, keys.size());
 
-        for(Object okey : keys) {
+        for (Object okey : keys) {
             System.out.println(okey);
             Assert.assertFalse(removedPinnedKeys.contains(okey));
             Assert.assertTrue(pinnedKeys.contains(okey) || unpinnedKeys.contains(okey));
