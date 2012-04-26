@@ -8,9 +8,9 @@ import com.tc.test.config.model.TestConfig;
 /**
  * @author Chris Dennis
  */
-public class GetKeysSerializedCacheTest extends AbstractCacheTestBase {
+public class GetKeysCacheTest extends AbstractCacheTestBase {
 
-  public GetKeysSerializedCacheTest(TestConfig testConfig) {
+  public GetKeysCacheTest(TestConfig testConfig) {
     super("basic-cache-test.xml", testConfig, GetKeysClient.class, GetKeysClient.class);
     testConfig.getClientConfig().setParallelClients(false);
   }

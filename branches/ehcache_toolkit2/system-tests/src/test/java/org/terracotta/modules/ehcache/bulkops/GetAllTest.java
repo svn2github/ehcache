@@ -11,10 +11,10 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -62,20 +62,11 @@ public class GetAllTest extends AbstractCacheTestBase {
       dcv2StrongWithStats.setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2StrongWithStats, false);
 
-      Cache dcv2StrongIdentityWithStats = crerateCache("dcv2StrongIdentityWithStats", cacheManager, "DCV2",
-                                                       Consistency.STRONG, ValueMode.IDENTITY);
-      dcv2StrongIdentityWithStats.setStatisticsEnabled(true);
-      testBulkOpsSanity(dcv2StrongIdentityWithStats, false);
-
       Cache dcv2StrongWithoutStats = crerateCache("dcv2StrongWithoutStats", cacheManager, "DCV2", Consistency.STRONG,
                                                   ValueMode.SERIALIZATION);
       dcv2StrongWithoutStats.setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2StrongWithoutStats, false);
 
-      Cache dcv2StrongIdentityWithoutStats = crerateCache("dcv2StrongIdentityWithoutStats", cacheManager, "DCV2",
-                                                          Consistency.STRONG, ValueMode.IDENTITY);
-      dcv2StrongIdentityWithoutStats.setStatisticsEnabled(false);
-      testBulkOpsSanity(dcv2StrongIdentityWithoutStats, false);
     }
 
     private void testBulkOpsSanity(Cache cache, boolean shouldWait) throws InterruptedException, BrokenBarrierException {

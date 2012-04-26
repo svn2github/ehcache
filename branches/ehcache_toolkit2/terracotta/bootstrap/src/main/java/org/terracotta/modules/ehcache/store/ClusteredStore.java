@@ -29,6 +29,7 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
+import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
@@ -44,7 +45,6 @@ import org.terracotta.toolkit.internal.meta.MetaData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -271,7 +271,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public List getKeys() {
-    return Collections.unmodifiableList(Arrays.asList(new RealObjectKeySet(this.valueModeHandler, backend.keySet())));
+    return Collections.unmodifiableList(new SetAsList(new RealObjectKeySet(this.valueModeHandler, backend.keySet())));
   }
 
   @Override
@@ -573,7 +573,11 @@ public class ClusteredStore implements TerracottaStore {
     Set<Entry<Object, Serializable>> entrySet = values.entrySet();
     for (Map.Entry<Object, Serializable> entry : entrySet) {
       Object key = this.valueModeHandler.getRealKeyObject(entry.getKey());
-      elements.put(key, this.valueModeHandler.createElement(key, entry.getValue()));
+      if (entry.getValue() == null) {
+        elements.put(key, null);
+      } else {
+        elements.put(key, this.valueModeHandler.createElement(key, entry.getValue()));
+      }
     }
     return elements;
   }
@@ -651,7 +655,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public Set getLocalKeys() {
-    return new RealObjectKeySet(valueModeHandler, backend.localKeySet());
+    return Collections.unmodifiableSet(new RealObjectKeySet(valueModeHandler, backend.localKeySet()));
   }
 
   @Override
