@@ -1,5 +1,7 @@
 package net.sf.ehcache.terracotta;
 
+import net.sf.ehcache.DiskStorePathManager;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
@@ -22,13 +24,13 @@ import static org.junit.Assert.assertThat;
  */
 public class RotatingSnapshotFileTest {
 
-    private static final String DIRECTORY = "./dumps";
+    private static final String DIRECTORY = "java.io.tmpdir/RotatingSnapshotFileTest/dumps";
     private RotatingSnapshotFile snapshotFile;
     private File cleanMeUp;
 
     @Before
     public void setup() {
-        snapshotFile = new RotatingSnapshotFile(DIRECTORY, "test");
+        snapshotFile = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), "test");
     }
 
     @Test
@@ -51,7 +53,7 @@ public class RotatingSnapshotFileTest {
     @Test
     public void testStopsOnThreadInterrupted() throws IOException, InterruptedException {
 
-        final RotatingSnapshotFile file = new RotatingSnapshotFile(DIRECTORY, "killMe");
+        final RotatingSnapshotFile file = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), "killMe");
         final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
         Set<String> keys = populateWithValues(file, 10000);
         assertThat(file.currentSnapshotFile().exists(), is(true));
@@ -120,7 +122,7 @@ public class RotatingSnapshotFileTest {
     @Test
     public void testFinishesOnThreadInterrupted() throws IOException, InterruptedException {
 
-        final RotatingSnapshotFile file = new RotatingSnapshotFile(DIRECTORY, "killMe");
+        final RotatingSnapshotFile file = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), "killMe");
         final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
         Set<String> keys = populateWithValues(file, 10000);
         assertThat(file.currentSnapshotFile().exists(), is(true));

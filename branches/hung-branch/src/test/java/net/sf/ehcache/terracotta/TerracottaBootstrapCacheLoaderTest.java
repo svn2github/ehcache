@@ -3,6 +3,7 @@ package net.sf.ehcache.terracotta;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.DiskStorePathManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.when;
  */
 public class TerracottaBootstrapCacheLoaderTest {
 
-    private static final String DIRECTORY = "dumps";
+    private static final String DIRECTORY = "java.io.tmpdir/TerracottaBootstrapCacheLoaderTest/dumps";
     private static final String MOCKED_CACHE_NAME = "MockedCache";
 
     private final TerracottaBootstrapCacheLoader cacheLoader = new TerracottaBootstrapCacheLoader(false, DIRECTORY, false);
@@ -58,7 +59,7 @@ public class TerracottaBootstrapCacheLoaderTest {
 
     @Test
     public void testBootstrapsWhenSnapshotPresent() throws IOException {
-        RotatingSnapshotFile file = new RotatingSnapshotFile(DIRECTORY, MOCKED_CACHE_NAME);
+        RotatingSnapshotFile file = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), MOCKED_CACHE_NAME);
 
         // Duplicated keys should be filtered out!
         final List<Integer> localKeys = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9);

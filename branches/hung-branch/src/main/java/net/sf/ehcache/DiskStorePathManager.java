@@ -45,15 +45,13 @@ public class DiskStorePathManager {
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorePathManager.class);
     private static final String LOCK_FILE_NAME = ".ehcache-diskstore.lock";
 
-    private static final int CHARSIZE = 4;
     private static final int DEL = 0x7F;
     private static final char ESCAPE = '%';
     private static final Set<Character> ILLEGALS = new HashSet<Character>();
 
-    private final String diskStorePath;
-    private FileLock thisDirectoryLock;
-    private File lockFile;
-    private FileChannel lockFileChannel;
+    private final File diskStorePath;
+    private final FileLock thisDirectoryLock;
+    private final File lockFile;
 
     static {
         ILLEGALS.add('/');
@@ -69,142 +67,178 @@ public class DiskStorePathManager {
     }
 
     /**
-     * Called by CacheManager
+     * private constructor
      *
      * @param diskStorePath
+     * @throws IOException
+     * @throws DiskstoreNotExclusiveException
      */
-    public DiskStorePathManager(String diskStorePath) {
-        this.diskStorePath = validateAndLock(diskStorePath);
-    }
+    private DiskStorePathManager(File path) throws DiskstoreNotExclusiveException {
+        FileLock directoryLock;
 
-    private String validateAndLock(String rawDiskStorePath) {
         // ensure disk store path exists
-        File pathDir = new File(rawDiskStorePath);
-        if (!pathDir.isDirectory() && !pathDir.mkdirs()) {
-            throw new CacheException("Disk store path can't be created: " + rawDiskStorePath);
+        if (!path.isDirectory() && !path.mkdirs()) {
+            throw new CacheException("Disk store path can't be created: " + path);
         }
 
-        lockFile = new File(pathDir.getAbsoluteFile(), LOCK_FILE_NAME);
+        lockFile = new File(path.getAbsoluteFile(), LOCK_FILE_NAME);
         lockFile.deleteOnExit();
         try {
             lockFile.createNewFile();
             if (!lockFile.exists()) {
                 throw new AssertionError("Failed to create lock file " + lockFile);
             }
-            lockFileChannel = new RandomAccessFile(lockFile, "rw").getChannel();
-            thisDirectoryLock = lockFileChannel.tryLock();
-
-            // other process already holds the lock
-            if (thisDirectoryLock == null) {
-                String newDiskStorePath = rawDiskStorePath + File.separator + generateUniqueDirectory();
-                warnAboutCollision(rawDiskStorePath, newDiskStorePath);
-                return validateAndLock(newDiskStorePath);
-            }
-
-            return rawDiskStorePath;
+            FileChannel lockFileChannel = new RandomAccessFile(lockFile, "rw").getChannel();
+            directoryLock = lockFileChannel.tryLock();
         } catch (OverlappingFileLockException ofle) {
-            // other thread has the lock
-            String newDiskStorePath = rawDiskStorePath + File.separator + generateUniqueDirectory();
-            warnAboutCollision(rawDiskStorePath, newDiskStorePath);
-            return validateAndLock(newDiskStorePath);
+            directoryLock = null;
         } catch (IOException ioe) {
             throw new CacheException(ioe);
         }
+
+        if (directoryLock == null) {
+            throw new DiskstoreNotExclusiveException(path.getAbsolutePath() + " is not exclusive.");
+        }
+
+        thisDirectoryLock = directoryLock;
+        diskStorePath = path;
+        LOG.debug("Using diskstore path {}", diskStorePath);
+        LOG.debug("Holding exclusive lock on {}", lockFile);
     }
 
-    private void warnAboutCollision(String oldDiskStorePath, String newDiskStorePath) {
-        LOG.warn("diskStorePath '" + oldDiskStorePath + "' is already used by an existing CacheManager.\n"
-                + "The diskStore path for this CacheManager will be set to " + newDiskStorePath + ".\nTo avoid this"
-                + " warning consider using the CacheManager factory methods to create a singleton CacheManager "
-                + "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
-
+    /**
+     * Create a diskstore path manager with provided path with exclusive access
+     *
+     * @param path
+     * @return diskstore manager instance
+     */
+    public static final DiskStorePathManager createInstance(String path) {
+        DiskStorePathManager manager = null;
+        File candidate = new File(path);
+        do {
+            try {
+                manager = new DiskStorePathManager(candidate);
+            } catch (DiskstoreNotExclusiveException e) {
+                try {
+                    candidate = File.createTempFile(AUTO_DISK_PATH_DIRECTORY_PREFIX, "diskstore", new File(path));
+                    // we want to create a directory with this temp name so deleting the file first
+                    candidate.delete();
+                } catch (IOException ioe) {
+                    throw new RuntimeException(ioe);
+                }
+            }
+        } while (manager == null);
+        if (candidate.getName().startsWith(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            LOG.warn("diskStorePath '" + path
+                    + "' is already used by an existing CacheManager either in the same VM or in a different process.\n"
+                    + "The diskStore path for this CacheManager will be set to " + candidate + ".\nTo avoid this"
+                    + " warning consider using the CacheManager factory methods to create a singleton CacheManager "
+                    + "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
+        }
+        return manager;
     }
 
-    private static String sanitize(String name) {
-        // reserve old way of doing things for backward compatibility
-        String noForwardSlash = name.replace('/', '_');
-
-        int len = noForwardSlash.length();
+    /**
+     * sanitize a name for valid file or directory name
+     *
+     * @param name
+     * @return sanitized version of name
+     */
+    public static String safeName(String name) {
+        int len = name.length();
         StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++) {
-            char c = noForwardSlash.charAt(i);
-            if (c <= ' ' || c >= DEL || ILLEGALS.contains(c) || c == ESCAPE) {
+            char c = name.charAt(i);
+            if (c <= ' ' || c >= DEL || (c >= 'A' && c <= 'Z') || ILLEGALS.contains(c) || c == ESCAPE) {
                 sb.append(ESCAPE);
-
-                String toHex = Integer.toHexString(c);
-                if (toHex.length() > CHARSIZE) {
-                    throw new AssertionError(toHex);
-                }
-
-                // zero pad
-                for (int pad = 0, n = CHARSIZE - toHex.length(); pad < n; pad++) {
-                    sb.append('0');
-                }
-
-                sb.append(toHex);
+                sb.append(String.format("%04x", (int) c));
             } else {
                 sb.append(c);
             }
         }
-
         return sb.toString();
-    }
-
-    private static String safeName(String name, String suffix) {
-        return sanitize(name) + suffix;
     }
 
     private static void deleteFile(File f) {
         if (!f.delete()) {
-            LOG.debug("Failed to delete file {}", f.getName());
+            LOG.debug("Failed to delete file {}", f.getAbsolutePath());
         }
-    }
-
-    private static String generateUniqueDirectory() {
-        return AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
     }
 
     /**
      * release the lock file used for collision detection
      * should be called when cache manager shutdowns
      */
-    public void releaseLock() {
+    public synchronized void releaseLock() {
         if (thisDirectoryLock != null && thisDirectoryLock.isValid()) {
             try {
                 thisDirectoryLock.release();
-                lockFileChannel.close();
+                thisDirectoryLock.channel().close();
                 deleteFile(lockFile);
             } catch (IOException e) {
-                throw new CacheException("Failed to release disk store path lock file:" + lockFile, e);
-            } finally {
-                thisDirectoryLock = null;
+                throw new CacheException("Failed to release disk store path's lock file:" + lockFile, e);
             }
         }
     }
 
     /**
+     * Legacy way of creating an index file
      *
-     * @return diskstore path
+     * @param cacheName
+     * @return
      */
-    public String getDiskStorePath() {
-        return diskStorePath;
+    public File getIndexFile(String cacheName) {
+        return new File(diskStorePath, safeName(cacheName) + ".index");
     }
 
     /**
-     * Returns the data file for the cache
-     * @param cache
-     * @return data file
+     * Legacy way of creating a data file
+     *
+     * @param cacheName
+     * @return
      */
-    public File getDataFile(Ehcache cache) {
-        return new File(diskStorePath, safeName(cache.getName(), ".data"));
+    public File getDataFile(String cacheName) {
+        return new File(diskStorePath, safeName(cacheName) + ".data");
     }
 
     /**
-     * Returns the index file for the cache
-     * @param cache
-     * @return index file
+     * Create snapshots file. Used by RotatingSnapshotFile
+     *
+     * @param cacheName
+     * @param suffix
+     * @return
      */
-    public File getIndexFile(Ehcache cache) {
-        return new File(diskStorePath, safeName(cache.getName(), ".index"));
+    public File getSnapshotFile(String cacheName, String suffix) {
+        return new File(diskStorePath, safeName(cacheName) + suffix);
+    }
+    /**
+     * Returns directory to hold snapshots for the cache.
+     * If userDefinedDir is not null, it will be used instead of the default one.
+     *
+     * @param cache
+     * @param userDefinedDir
+     * @return snapshots directory
+     */
+    public File getSnapshotsDirectory(String userDefinedDir) {
+        return userDefinedDir != null ? new File(userDefinedDir) : diskStorePath;
+    }
+
+    private static class DiskstoreNotExclusiveException extends Exception {
+
+        /**
+         * Constructor for the DiskstoreNotExclusiveException object.
+         */
+        public DiskstoreNotExclusiveException() {
+            super();
+        }
+
+        /**
+         * Constructor for the DiskstoreNotExclusiveException object.
+         *
+         * @param message the exception detail message
+         */
+        public DiskstoreNotExclusiveException(String message) {
+            super(message);
+        }
     }
 }

@@ -621,7 +621,7 @@ public class CacheManager {
         String diskStorePath = configurationHelper.getDiskStorePath();
 
         if (diskStorePath == null) {
-            diskStorePathManager = new DiskStorePathManager(DiskStoreConfiguration.getDefaultPath());
+            diskStorePathManager = DiskStorePathManager.createInstance(DiskStoreConfiguration.getDefaultPath());
             int cachesRequiringDiskStores = configurationHelper.numberOfCachesThatOverflowToDisk().intValue()
                     + configurationHelper.numberOfCachesThatAreDiskPersistent().intValue();
             if (cachesRequiringDiskStores > 0) {
@@ -630,7 +630,7 @@ public class CacheManager {
                     + ". Please explicitly configure the diskStore element in ehcache.xml.");
             }
         } else {
-            diskStorePathManager = new DiskStorePathManager(diskStorePath);
+            diskStorePathManager = DiskStorePathManager.createInstance(diskStorePath);
         }
 
         this.transactionManagerLookup = runtimeCfg.getTransactionManagerLookup();
@@ -1631,7 +1631,7 @@ public class CacheManager {
      *
      * @return the disk store path manager.
      */
-    public DiskStorePathManager getDiskStorePathMangager() {
+    public DiskStorePathManager getDiskStorePathManager() {
         return diskStorePathManager;
     }
 
