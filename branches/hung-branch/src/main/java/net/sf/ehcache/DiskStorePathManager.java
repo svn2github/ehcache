@@ -70,7 +70,6 @@ public class DiskStorePathManager {
      * private constructor
      *
      * @param diskStorePath
-     * @throws IOException
      * @throws DiskstoreNotExclusiveException
      */
     private DiskStorePathManager(File path) throws DiskstoreNotExclusiveException {
@@ -210,17 +209,6 @@ public class DiskStorePathManager {
      */
     public File getSnapshotFile(String cacheName, String suffix) {
         return new File(diskStorePath, safeName(cacheName) + suffix);
-    }
-    /**
-     * Returns directory to hold snapshots for the cache.
-     * If userDefinedDir is not null, it will be used instead of the default one.
-     *
-     * @param cache
-     * @param userDefinedDir
-     * @return snapshots directory
-     */
-    public File getSnapshotsDirectory(String userDefinedDir) {
-        return userDefinedDir != null ? new File(userDefinedDir) : diskStorePath;
     }
 
     private static class DiskstoreNotExclusiveException extends Exception {
