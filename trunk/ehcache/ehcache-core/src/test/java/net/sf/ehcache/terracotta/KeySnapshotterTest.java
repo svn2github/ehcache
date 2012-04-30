@@ -2,6 +2,7 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.DiskStorePathManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.TerracottaStore;
 
@@ -103,7 +104,7 @@ public class KeySnapshotterTest {
     @Test
     public void testDisposesProperlyImmediately() throws BrokenBarrierException, InterruptedException, IOException {
         deleteFolder(new File(DUMPS_DIRECTORY));
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DUMPS_DIRECTORY, "testingInterruptImmediate");
+        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DUMPS_DIRECTORY), "testingInterruptImmediate");
         final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
         KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(mockedTcStore), 1, true, rotatingSnapshotFile);
         final CyclicBarrier barrier = new CyclicBarrier(2);
@@ -146,7 +147,7 @@ public class KeySnapshotterTest {
     @Test
     public void testDisposesProperlyButFinishes() throws BrokenBarrierException, InterruptedException, IOException {
         deleteFolder(new File(DUMPS_DIRECTORY));
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DUMPS_DIRECTORY, "testingInterruptFinishes");
+        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DUMPS_DIRECTORY), "testingInterruptFinishes");
         final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
         final CyclicBarrier barrier = new CyclicBarrier(2);
         final Set mockedSet = mock(Set.class);

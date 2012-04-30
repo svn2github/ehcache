@@ -933,36 +933,6 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
-     * Sets the path that will be used for the disk store.
-     * If you use this feature, beware of collisions with CacheManagers
-     * potentially have a Cache with the same name!
-     *
-     * @param diskStorePath if <code>null</code>, CacheManager sets it using setter injection.
-     */
-    public final void setDiskStorePath(String diskStorePath) {
-        checkDynamicChange();
-        if (null == diskStorePath) {
-            this.diskStorePath = DiskStoreConfiguration.getDefaultPath();
-        }
-        this.diskStorePath = diskStorePath;
-        validateConfiguration();
-    }
-
-    /**
-     * Builder which sets the path that will be used for the disk store.
-     * If you use this feature, beware of collisions with CacheManagers
-     * potentially have a Cache with the same name!
-     *
-     * @param diskStorePath if <code>null</code>, CacheManager sets it using setter injection.
-     * @return this configuration instance
-     * @see #setDiskStorePath(String)
-     */
-    public final CacheConfiguration diskStorePath(String diskStorePath) {
-        setDiskStorePath(diskStorePath);
-        return this;
-    }
-
-    /**
      * Sets the disk spool size, which is used to buffer writes to the DiskStore.
      * If not set it defaults to {@link #DEFAULT_SPOOL_BUFFER_SIZE}
      *
@@ -2354,13 +2324,6 @@ public class CacheConfiguration implements Cloneable {
      */
     public boolean isSearchable() {
         return searchable != null;
-    }
-
-    /**
-     * Accessor
-     */
-    public String getDiskStorePath() {
-        return diskStorePath;
     }
 
     /**

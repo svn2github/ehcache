@@ -6,6 +6,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.core.Is;
@@ -128,27 +129,26 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     }
 
     private void initCacheManager(CacheUT cut) {
-        manager = new CacheManager(new Configuration());
         switch (cut) {
             case elementBased:
+                manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistent")));
                 cacheElementCountBoundBootstrapCacheLoader = new DiskStoreBootstrapCacheLoader(LOADER_DELAY);
                 cacheElementCountBound = new Cache(new CacheConfiguration("maxElementsInMemory", 100)
                     .eternal(true)
                     .diskPersistent(true)
                     .overflowToDisk(true)
-                    .diskStorePath("caches/DiskPersistent")
                     .maxEntriesLocalDisk(ELEMENTS_ON_DISK), null, cacheElementCountBoundBootstrapCacheLoader);
                 manager.addCache(cacheElementCountBound);
                 break;
             case sizeBased:
+                manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistentSize")));
                 cacheSizeBoundBootstrapCacheLoader = new DiskStoreBootstrapCacheLoader(LOADER_DELAY);
                 cacheSizeBound = new Cache(new CacheConfiguration("maxOnHeap", 0)
                     .eternal(true)
                     .diskPersistent(true)
                     .overflowToDisk(true)
                     .maxBytesLocalHeap(220, MemoryUnit.KILOBYTES)
-                    .maxBytesLocalDisk(300, MemoryUnit.MEGABYTES)
-                    .diskStorePath("caches/DiskPersistentSize"), null, cacheSizeBoundBootstrapCacheLoader);
+                    .maxBytesLocalDisk(300, MemoryUnit.MEGABYTES), null, cacheSizeBoundBootstrapCacheLoader);
                 manager.addCache(cacheSizeBound);
                 cacheSizeBound.setSampledStatisticsEnabled(true);
                 break;

@@ -53,7 +53,7 @@ public class CachePinningTest {
     public void setUp() throws Exception {
         cacheManager = new CacheManager(
                 new Configuration()
-                        .diskStore(new DiskStoreConfiguration().path(System.getProperty("java.io.tmpdir")))
+                        .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/CachePinningTest"))
         );
     }
 
@@ -309,11 +309,11 @@ public class CachePinningTest {
             assertThat(i + " should be in the keySet", allKeys.contains(i), is(true));
         }
     }
-    
+
     @Test
     public void testGetKeysAlsoIncludesPersistedKeys() throws ExecutionException, InterruptedException {
         CacheManager cm = new CacheManager(new Configuration().name("persisted")
-            .diskStore(new DiskStoreConfiguration().path("./")));
+            .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/testGetKeysAlsoIncludesPersistedKeys")));
         Cache cache = new Cache(new CacheConfiguration().name("getPinnedKeys")
             .diskPersistent(true)
             .maxEntriesLocalDisk(50)

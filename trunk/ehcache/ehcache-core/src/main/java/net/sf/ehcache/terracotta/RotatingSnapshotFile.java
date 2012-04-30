@@ -16,11 +16,6 @@
 
 package net.sf.ehcache.terracotta;
 
-import net.sf.ehcache.util.PreferTCCLObjectInputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +29,12 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import net.sf.ehcache.DiskStorePathManager;
+import net.sf.ehcache.util.PreferTCCLObjectInputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A file will rotate on every write, so to never loose older values in case of a JVM crash
@@ -49,11 +50,11 @@ class RotatingSnapshotFile {
     private static final String SUFFIX_MOVE = SUFFIX_OK + ".old";
 
     private volatile boolean shutdownOnThreadInterrupted;
-    private final File targetDirectory;
-    private final String baseName;
+    private final String cacheName;
 
     private final Lock readLock;
     private final Lock writeLock;
+    private final DiskStorePathManager diskStorePathManager;
 
     {
         ReadWriteLock rwl = new ReentrantReadWriteLock();
@@ -64,18 +65,11 @@ class RotatingSnapshotFile {
     /**
      * Constructor
      *
-     * @param directory the directory to write to
-     * @param baseName  the base name of the files
+     * @param cacheName  use as base name of the files
      */
-    RotatingSnapshotFile(final String directory, final String baseName) {
-        this.baseName = baseName;
-        targetDirectory = new File(directory);
-        if (targetDirectory.exists() && !targetDirectory.isDirectory()) {
-            throw new IllegalArgumentException("The specified target directory is not a directory: " + directory);
-        }
-        if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
-            throw new RuntimeException("Couldn't create the target directory: " + directory);
-        }
+    RotatingSnapshotFile(final DiskStorePathManager diskStorePathManager, final String cacheName) {
+        this.diskStorePathManager = diskStorePathManager;
+        this.cacheName = cacheName;
     }
 
     /**
@@ -219,7 +213,7 @@ class RotatingSnapshotFile {
      * @return the file to read from
      */
     File currentSnapshotFile() {
-        return new File(targetDirectory, baseName + SUFFIX_OK);
+        return diskStorePathManager.getSnapshotFile(cacheName, SUFFIX_OK);
     }
 
     /**
@@ -228,7 +222,7 @@ class RotatingSnapshotFile {
      * @return the File to write to
      */
     File newSnapshotFile() {
-        return new File(targetDirectory, baseName + SUFFIX_PROGRESS);
+        return diskStorePathManager.getSnapshotFile(cacheName, SUFFIX_PROGRESS);
     }
 
     /**
@@ -237,7 +231,7 @@ class RotatingSnapshotFile {
      * @return the File representing the previous successful snapshot (temp file to be deleted)
      */
     File tempSnapshotFile() {
-        return new File(targetDirectory, baseName + SUFFIX_MOVE);
+        return diskStorePathManager.getSnapshotFile(cacheName, SUFFIX_MOVE);
     }
 
     /**
