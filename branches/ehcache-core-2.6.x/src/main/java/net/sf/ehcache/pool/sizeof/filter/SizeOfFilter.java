@@ -38,7 +38,7 @@ public interface SizeOfFilter {
     /**
      * Checks whether the type needs to be filtered
      * @param klazz the type
-     * @return true, if to be filtered out
+     * @return {@code false}, if to be filtered out
      */
     boolean filterClass(Class<?> klazz);
 }
