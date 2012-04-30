@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -44,6 +45,7 @@ public class DiskStorePoolingTest {
     private volatile Pool onDiskPool;
     private volatile DiskStore diskStore;
     private volatile Element lastEvicted;
+    private volatile CacheManager cacheManager;
 
     private void dump() {
         System.out.println("# # # # # #");
@@ -54,8 +56,9 @@ public class DiskStorePoolingTest {
 
     @Before
     public void setUp() {
+        cacheManager = CacheManager.create();
         cache = new Cache(new CacheConfiguration("myCache1", 0).eternal(true).diskPersistent(true));
-
+        cacheManager.addCache(cache);
         lastEvicted = null;
         cache.getCacheEventNotificationService().registerListener(new CacheEventListener() {
             public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException { }
@@ -96,7 +99,7 @@ public class DiskStorePoolingTest {
                 null
         );
 
-        diskStore = DiskStore.create(cache, System.getProperty("java.io.tmpdir"), onHeapPool, onDiskPool);
+        diskStore = DiskStore.create(cache, onHeapPool, onDiskPool);
         diskStore.removeAll();
     }
 
@@ -104,6 +107,7 @@ public class DiskStorePoolingTest {
     public void tearDown() {
         cache.dispose();
         diskStore.dispose();
+        cacheManager.shutdown();
     }
 
     @Test
@@ -131,7 +135,7 @@ public class DiskStorePoolingTest {
         diskStore.dispose();
 
         for (int i = 1000; i < 1030; i++) {
-            diskStore = DiskStore.create(cache, System.getProperty("java.io.tmpdir"), onHeapPool, onDiskPool);
+            diskStore = DiskStore.create(cache, onHeapPool, onDiskPool);
             assertEquals(2, diskStore.getSize());
             assertEquals(2 * 16384, onHeapPool.getSize());
             assertEquals(2 * ELEMENT_SIZE_ON_DISK, onDiskPool.getSize());

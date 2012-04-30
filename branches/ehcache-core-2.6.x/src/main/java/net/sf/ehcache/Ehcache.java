@@ -872,14 +872,6 @@ public interface Ehcache extends Cloneable {
 
 
     /**
-     * DiskStore paths can conflict between CacheManager instances. This method allows the path to be changed.
-     *
-     * @param diskStorePath the new path to be used.
-     * @throws CacheException if this method is called after the cache is initialized
-     */
-    void setDiskStorePath(String diskStorePath) throws CacheException;
-
-    /**
      * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.disk.DiskStore}.
      * <p/>
      * This method creates those and makes the cache ready to accept elements

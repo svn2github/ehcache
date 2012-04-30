@@ -377,7 +377,7 @@ public class CacheManagerTest {
     @Test
     public void testPoolSize() throws Exception {
         Configuration configuration = new Configuration()
-            .diskStore(new DiskStoreConfiguration().path("./tmp"))
+            .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/tmp"))
             .maxBytesLocalHeap(50, MemoryUnit.MEGABYTES)
             .maxBytesLocalDisk(500, MemoryUnit.MEGABYTES)
             .cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(10, MemoryUnit.MEGABYTES))
@@ -512,7 +512,7 @@ public class CacheManagerTest {
         for (File file : files) {
             if (file.isDirectory()) {
                 if (file.getName().indexOf(
-                        DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
+                        DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
                     newDiskStorePathFound = true;
                     newDiskStorePath = file;
                     break;
@@ -1203,37 +1203,6 @@ public class CacheManagerTest {
         System.setProperty("java.io.tmpdir", tmp);
         assertEquals(tmp, System.getProperty("java.io.tmpdir"));
 
-    }
-
-    /**
-     * Ehcache 1.5 allows the diskStore element to be optional. Check that is is null
-     * Add different cache constructors to make sure none inadvertently create a disk store
-     */
-    @Test
-    public void testCacheManagerWithNoDiskCachesFromConfiguration() throws CacheException, InterruptedException {
-        LOG.info(System.getProperty("java.io.tmpdir"));
-        singletonManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-nodisk.xml");
-        singletonManager.addCache("jsecurity-activeSessionCache");
-        Cache cacheA = singletonManager.getCache("jsecurity-activeSessionCache");
-        Cache cacheB = new Cache("1", 10, false, false, 2, 2);
-        singletonManager.addCache(cacheB);
-        Cache cacheC = new Cache("2", 10, false, false, 2, 2, false, 100);
-        singletonManager.addCache(cacheC);
-        for (int i = 0; i < 100; i++) {
-            cacheA.put(new Element(i + "", "dog"));
-            cacheB.put(new Element(i + "", "dog"));
-            cacheC.put(new Element(i + "", "dog"));
-        }
-        Cache diskCache = new Cache("disk", 10, true, false, 2, 2);
-        try {
-            singletonManager.addCache(diskCache);
-            throw new AssertionError("Expected that adding a disk cache to a cache manager" +
-                    " with no configured disk store path would throw CacheException");
-        } catch (CacheException e) {
-            LOG.info("Caught expected exception", e);
-        }
-        singletonManager.shutdown();
-        assertEquals(null, singletonManager.getDiskStorePath());
     }
 
     /**

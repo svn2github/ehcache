@@ -6,6 +6,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
     <version>2.3</version>
+    <relativePath></relativePath>
   </parent>
 
   <artifactId>ehcache-core</artifactId>
@@ -88,12 +89,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.btm</groupId>
-      <artifactId>btm</artifactId>
-      <version>2.0.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
       <version>1.1</version>
@@ -108,28 +103,34 @@
 
     <!-- Test scope -->
     <dependency>
+      <groupId>org.codehaus.btm</groupId>
+      <artifactId>btm</artifactId>
+      <version>2.0.1</version>
+      <scope>test</scope>
+    </dependency>    
+    <dependency>
       <groupId>net.sf.hibernate</groupId>
       <artifactId>hibernate</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit-dep</artifactId>
-      <version>4.5</version>
-      <scope>test</scope>
-    </dependency>
+    </dependency>   
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
-      <version>1.2</version>
+      <version>1.2.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
-      <version>1.2</version>
+      <version>1.2.1</version>
       <scope>test</scope>
-    </dependency>
+    </dependency>       
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit-dep</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>   
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
@@ -343,6 +344,8 @@
         </executions>
       </plugin>
 
+
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -424,13 +427,35 @@
           <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
           <skip>${skipCheckstyle}</skip>
           <enableRSS>false</enableRSS>
-          <linkXRef>true</linkXRef>
+          <linkXRef>false</linkXRef>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
           <failOnViolation>true</failOnViolation>
           <includeTestSourceDirectory>false</includeTestSourceDirectory>
           <enableRulesSummary>true</enableRulesSummary>
         </configuration>
+      </plugin>
+
+
+      <!-- Use this to specify a different template. It also needs a local
+        copy of maven-base.css -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>2.1</version>
+        <configuration>
+          <templateFile>${basedir}/src/site/default-site-ehcache.vm
+          </templateFile>
+          <inputEncoding>UTF-8</inputEncoding>
+          <outputEncoding>UTF-8</outputEncoding>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.doxia</groupId>
+            <artifactId>doxia-module-confluence</artifactId>
+            <version>1.1.3</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
       <plugin>
