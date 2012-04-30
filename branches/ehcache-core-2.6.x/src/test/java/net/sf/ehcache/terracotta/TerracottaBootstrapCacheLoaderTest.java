@@ -1,5 +1,17 @@
 package net.sf.ehcache.terracotta;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -8,26 +20,16 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+
 import org.junit.Test;
 import org.mockito.Matchers;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Alex Snaps
  */
 public class TerracottaBootstrapCacheLoaderTest {
 
-    private static final String DIRECTORY = "java.io.tmpdir/TerracottaBootstrapCacheLoaderTest/dumps";
+    private static final String DIRECTORY = System.getProperty("java.io.tmpdir") + "/TerracottaBootstrapCacheLoaderTest/dumps";
     private static final String MOCKED_CACHE_NAME = "MockedCache";
 
     private final TerracottaBootstrapCacheLoader cacheLoader = new TerracottaBootstrapCacheLoader(false, DIRECTORY, false);
@@ -58,8 +60,10 @@ public class TerracottaBootstrapCacheLoaderTest {
     }
 
     @Test
-    public void testBootstrapsWhenSnapshotPresent() throws IOException {
-        RotatingSnapshotFile file = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), MOCKED_CACHE_NAME);
+    public void testBootstrapsWhenSnapshotPresent() throws Exception {
+
+        DiskStorePathManager pathManager = getDiskStorePathManager(cacheLoader);
+        RotatingSnapshotFile file = new RotatingSnapshotFile(pathManager, MOCKED_CACHE_NAME);
 
         // Duplicated keys should be filtered out!
         final List<Integer> localKeys = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9);
@@ -84,6 +88,12 @@ public class TerracottaBootstrapCacheLoaderTest {
         when(cache.getCacheManager()).thenReturn(cacheManager);
         when(cache.get(Matchers.<Object>anyObject())).thenReturn(null);
         return cache;
+    }
+
+    private DiskStorePathManager getDiskStorePathManager(TerracottaBootstrapCacheLoader loader) throws Exception {
+        Field field = TerracottaBootstrapCacheLoader.class.getDeclaredField("diskStorePathManager");
+        field.setAccessible(true);
+        return (DiskStorePathManager)field.get(loader);
     }
 
 }
