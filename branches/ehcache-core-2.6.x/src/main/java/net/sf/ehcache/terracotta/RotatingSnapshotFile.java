@@ -65,7 +65,6 @@ class RotatingSnapshotFile {
     /**
      * Constructor
      *
-     * @param directory the directory to write to
      * @param cacheName  use as base name of the files
      */
     RotatingSnapshotFile(final DiskStorePathManager diskStorePathManager, final String cacheName) {

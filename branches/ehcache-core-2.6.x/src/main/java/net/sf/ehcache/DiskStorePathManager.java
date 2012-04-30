@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author hhuynh
  *
  */
-public class DiskStorePathManager {
+public final class DiskStorePathManager {
     /**
      * If the CacheManager needs to resolve a conflict with the disk path, it will create a
      * subdirectory in the given disk path with this prefix followed by a number. The presence of this
@@ -211,6 +211,10 @@ public class DiskStorePathManager {
         return new File(diskStorePath, safeName(cacheName) + suffix);
     }
 
+    /**
+     * Exception class thrown when a diskstore path collides with an existing one
+     *
+     */
     private static class DiskstoreNotExclusiveException extends Exception {
 
         /**
