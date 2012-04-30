@@ -4,9 +4,12 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
+import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
-import org.terracotta.ehcache.tests.ClientBase;
+
+import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
@@ -14,14 +17,10 @@ public class CacheCoherenceExpressClient extends ClientBase {
 
   public static final String PASS_OUTPUT = "CacheCoherenceExpressClient PASS output";
   private String             id;
-  private ToolkitBarrier            barrier;
+  private ToolkitBarrier     barrier;
 
   public CacheCoherenceExpressClient(String[] args) {
     super("test", args);
-  }
-
-  public static void main(String[] args) {
-    new CacheCoherenceExpressClient(args).run();
   }
 
   @Override
@@ -130,25 +129,33 @@ public class CacheCoherenceExpressClient extends ClientBase {
     Assert.assertEquals(0, cache.getSize());
   }
 
-  private void cacheCoherenceTest(int index, Cache cache, boolean coherentAtEnd) throws Exception {
+  private void cacheCoherenceTest(int index, final Cache cache, boolean coherentAtEnd) throws Exception {
     barrier.await();
     Assert.assertEquals(false, cache.isNodeCoherent());
     Assert.assertEquals(false, cache.isClusterCoherent());
     if (index == 0) {
       cache.setNodeCoherent(true);
       Assert.assertEquals(true, cache.isNodeCoherent());
+      Assert.assertEquals(false, cache.isClusterCoherent());
       log("Going to wait until coherent");
       barrier.await();
       cache.waitUntilClusterCoherent();
       Assert.assertEquals(true, cache.isClusterCoherent());
       log("Cache is now coherent");
-      int otherNodes = CacheCoherenceExpressTest.CLIENT_COUNT - 1;
+      final int otherNodes = CacheCoherenceExpressTest.CLIENT_COUNT - 1;
       if (coherentAtEnd) {
         Assert.assertEquals(otherNodes, cache.getSize());
       } else {
         log("Asserting other exiting nodes committed");
         // make sure the shutdown hook was executed and 5000 elements were inserted by each node
-        Assert.assertEquals((5000 * otherNodes) + otherNodes, cache.getSize());
+        WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+
+          @Override
+          public Boolean call() throws Exception {
+            System.out.println("Cache Size" + cache.getSize());
+            return (5000 * otherNodes) + otherNodes == cache.getSize();
+          }
+        });
         log("Done");
       }
     } else {

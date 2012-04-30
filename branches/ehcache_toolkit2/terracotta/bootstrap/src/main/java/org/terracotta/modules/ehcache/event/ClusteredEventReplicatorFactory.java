@@ -19,10 +19,14 @@ public class ClusteredEventReplicatorFactory {
     ClusteredEventReplicator replicator = eventReplicators.get(fullyQualifiedCacheName);
     if (replicator == null) {
       replicator = new ClusteredEventReplicator(cache, fullyQualifiedCacheName,
-                                                toolkitInstanceFactory.getOrCreateCacheEventNotifier(cache));
+                                                toolkitInstanceFactory.getOrCreateCacheEventNotifier(cache), this);
       eventReplicators.put(fullyQualifiedCacheName, replicator);
     }
     return replicator;
+  }
+
+  public synchronized void disposeClusteredEventReplicator(String fullyQualifiedCacheName) {
+    eventReplicators.remove(fullyQualifiedCacheName);
   }
 
 }

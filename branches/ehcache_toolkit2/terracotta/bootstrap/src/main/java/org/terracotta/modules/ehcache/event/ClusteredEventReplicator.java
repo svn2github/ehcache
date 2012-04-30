@@ -18,20 +18,24 @@ import org.terracotta.toolkit.events.ToolkitNotifier;
 
 import java.io.Serializable;
 
-public class ClusteredEventReplicator implements CacheEventListener,
-    ToolkitNotificationListener<CacheEventNotificationMsg> {
+public class ClusteredEventReplicator implements CacheEventListener {
   private static final Logger                              LOG = LoggerFactory
                                                                    .getLogger(ClusteredEventReplicator.class);
   private final ToolkitNotifier<CacheEventNotificationMsg> toolkitNotifier;
   private final String                                     fullyQualifiedEhcacheName;
   private final Ehcache                                    cache2;
+  private final ClusteredEventReplicatorFactory            factory;
+  private final ToolkitListener                            toolkitListener;
 
   public ClusteredEventReplicator(Ehcache cache, String fullyQualifiedEhcacheName,
-                                  ToolkitNotifier<CacheEventNotificationMsg> toolkitNotifier) {
+                                  ToolkitNotifier<CacheEventNotificationMsg> toolkitNotifier,
+                                  ClusteredEventReplicatorFactory factory) {
     this.fullyQualifiedEhcacheName = fullyQualifiedEhcacheName;
     this.cache2 = cache;
     this.toolkitNotifier = toolkitNotifier;
-    this.toolkitNotifier.addNotificationListener(this);
+    toolkitListener = new ToolkitListener();
+    this.toolkitNotifier.addNotificationListener(toolkitListener);
+    this.factory = factory;
   }
 
   @Override
@@ -66,7 +70,11 @@ public class ClusteredEventReplicator implements CacheEventListener,
 
   @Override
   public void dispose() {
-    sendEvent(CacheEventNotificationMsg.EventType.DISPOSE, null);
+    // dispose means dispose the listener for this node locally.
+    // No need to propagate this event in cluster.
+    toolkitNotifier.removeNotificationListener(toolkitListener);
+    factory.disposeClusteredEventReplicator(fullyQualifiedEhcacheName);
+
   }
 
   @Override
@@ -78,48 +86,50 @@ public class ClusteredEventReplicator implements CacheEventListener,
     toolkitNotifier.notifyListeners(new CacheEventNotificationMsg(fullyQualifiedEhcacheName, eventType, element));
   }
 
-  @Override
-  public void onNotification(ToolkitNotifier<CacheEventNotificationMsg> notifierParam, ClusterNode remoteNode,
-                             CacheEventNotificationMsg msg) {
-    if (shouldProcessNotification(notifierParam, remoteNode, msg)) {
-      processEventNotification(msg);
-    } else {
-      LOG.warn("Ignoring uninterested notification - notifier: " + notifierParam + ", remoteNode: " + remoteNode
-               + ", msg: " + msg);
+  private class ToolkitListener implements ToolkitNotificationListener<CacheEventNotificationMsg> {
+    @Override
+    public void onNotification(ToolkitNotifier<CacheEventNotificationMsg> notifierParam, ClusterNode remoteNode,
+                               CacheEventNotificationMsg msg) {
+      if (shouldProcessNotification(notifierParam, remoteNode, msg)) {
+        processEventNotification(msg);
+      } else {
+        LOG.warn("Ignoring uninterested notification - notifier: " + notifierParam + ", remoteNode: " + remoteNode
+                 + ", msg: " + msg);
+      }
     }
 
-  }
-
-  private void processEventNotification(CacheEventNotificationMsg msg) {
-    RegisteredEventListeners notificationService = cache2.getCacheEventNotificationService();
-    switch (msg.getToolkitEventType()) {
-      case ELEMENT_REMOVED:
-        notificationService.notifyElementRemoved(msg.getElement(), true);
-        break;
-      case ELEMENT_PUT:
-        notificationService.notifyElementPut(msg.getElement(), true);
-        break;
-      case ELEMENT_UPDATED:
-        notificationService.notifyElementUpdated(msg.getElement(), true);
-        break;
-      case ELEMENT_EXPIRED:
-        notificationService.notifyElementExpiry(msg.getElement(), true);
-        break;
-      case ELEMENT_EVICTED:
-        notificationService.notifyElementEvicted(msg.getElement(), true);
-        break;
-      case REMOVEALL:
-        notificationService.notifyRemoveAll(true);
-        break;
-      case DISPOSE:
-        notificationService.dispose();
-        break;
+    private void processEventNotification(CacheEventNotificationMsg msg) {
+      RegisteredEventListeners notificationService = cache2.getCacheEventNotificationService();
+      switch (msg.getToolkitEventType()) {
+        case ELEMENT_REMOVED:
+          notificationService.notifyElementRemoved(msg.getElement(), true);
+          break;
+        case ELEMENT_PUT:
+          notificationService.notifyElementPut(msg.getElement(), true);
+          break;
+        case ELEMENT_UPDATED:
+          notificationService.notifyElementUpdated(msg.getElement(), true);
+          break;
+        case ELEMENT_EXPIRED:
+          notificationService.notifyElementExpiry(msg.getElement(), true);
+          break;
+        case ELEMENT_EVICTED:
+          notificationService.notifyElementEvicted(msg.getElement(), true);
+          break;
+        case REMOVEALL:
+          notificationService.notifyRemoveAll(true);
+          break;
+        case DISPOSE:
+          notificationService.dispose();
+          break;
+      }
     }
-  }
 
-  private boolean shouldProcessNotification(ToolkitNotifier notifierParam, ClusterNode remoteNode, Serializable msg) {
-    return toolkitNotifier == notifierParam && msg instanceof CacheEventNotificationMsg
-           && ((CacheEventNotificationMsg) msg).getFullyQualifiedEhcacheName().equals(fullyQualifiedEhcacheName);
+    private boolean shouldProcessNotification(ToolkitNotifier notifierParam, ClusterNode remoteNode, Serializable msg) {
+      return toolkitNotifier == notifierParam && msg instanceof CacheEventNotificationMsg
+             && ((CacheEventNotificationMsg) msg).getFullyQualifiedEhcacheName().equals(fullyQualifiedEhcacheName);
+    }
+
   }
 
 }

@@ -1,8 +1,5 @@
 package org.terracotta.ehcache.tests;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
@@ -12,6 +9,8 @@ import org.terracotta.toolkit.cluster.ClusterInfo;
 
 import java.lang.reflect.Field;
 import java.util.List;
+
+import junit.framework.Assert;
 
 /**
  * @author Alex Snaps
@@ -28,14 +27,15 @@ public class CacheRemovalClient extends ClientBase {
 
   @Override
   protected void runTest(final Cache cache, final Toolkit toolkit) throws Throwable {
-    cacheManager.removeCache(cache.getName());
+    ClusterInfo clusterInfo = toolkit.getClusterInfo();
+    List listeners = getValueOfDeclaredField("listeners", getValueOfDeclaredField("dsoCluster", clusterInfo));
+    final int initialListenersSize = listeners.size();
     for (int i = 0; i < 10; i++) {
       addAndRemove("test-" + i);
     }
 
     // CacheManager has seen 11 caches (including the 'test' one), ...
-    final ClusterInfo clusterInfo = toolkit.getClusterInfo();
-    List listeners = getValueOfDeclaredField("listeners", getValueOfDeclaredField("dsoCluster", clusterInfo));
+    listeners = getValueOfDeclaredField("listeners", getValueOfDeclaredField("dsoCluster", clusterInfo));
     final int size = listeners.size();
     System.err.println("Found " + size + " listeners :");
     for (Object listener : listeners) {
@@ -44,9 +44,7 @@ public class CacheRemovalClient extends ClientBase {
 
     // .. but there shouldn't be any listeners associated with these, but the "main" listener from the CacheManager
     cacheManager.shutdown();
-    assertThat(size - 1, is(0));
-    assertThat(getValueOfDeclaredField("listener", listeners.get(0)).getClass().getName(),
-               equalTo("org.terracotta.modules.ehcache.event.ClusterListenerAdapter"));
+    Assert.assertEquals(size, initialListenersSize);
   }
 
   private void addAndRemove(final String name) {

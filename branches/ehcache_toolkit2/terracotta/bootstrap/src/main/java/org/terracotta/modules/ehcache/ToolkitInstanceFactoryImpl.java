@@ -55,14 +55,18 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private static ToolkitClient createTerracottaClient(TerracottaClientConfiguration terracottaClientConfiguration) {
+    String config = null;
     if (!terracottaClientConfiguration.isUrlConfig()) {
-      // TODO: is this to be supported?
-      throw new IllegalArgumentException("Embedded tc-config no longer supported");
+      config = terracottaClientConfiguration.getEmbeddedConfig();
+    } else {
+      config = terracottaClientConfiguration.getUrl();
     }
     if (terracottaClientConfiguration.isRejoin()) {
-      return TerracottaClientStaticFactory.getFactory().createDedicatedClient(terracottaClientConfiguration.getUrl());
+      return TerracottaClientStaticFactory.getFactory()
+          .createDedicatedClient(terracottaClientConfiguration.isUrlConfig(), config);
     } else {
-      return TerracottaClientStaticFactory.getFactory().getOrCreateClient(terracottaClientConfiguration.getUrl());
+      return TerracottaClientStaticFactory.getFactory().getOrCreateClient(terracottaClientConfiguration.isUrlConfig(),
+                                                                          config);
     }
   }
 
