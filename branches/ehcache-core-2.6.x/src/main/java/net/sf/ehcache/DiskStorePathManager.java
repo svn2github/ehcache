@@ -143,7 +143,7 @@ public final class DiskStorePathManager {
      * @param name
      * @return sanitized version of name
      */
-    public static String safeName(String name) {
+    private static String safeName(String name) {
         int len = name.length();
         StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++) {
