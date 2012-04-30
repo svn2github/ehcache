@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class DiskStorePathManagerTest {
@@ -64,7 +65,8 @@ public class DiskStorePathManagerTest {
 
     @Test(expected=CacheException.class)
     public void testIllegalPath() {
-        String diskStorePath = getTempDir("testCollisionDifferentThread") + "/?";
+        Assume.assumeTrue(System.getProperty("os.name").contains("Windows"));
+        String diskStorePath = getTempDir("testIllegalPath") + "/com1";
         dspm1 = DiskStorePathManager.createInstance(diskStorePath);
     }
 
