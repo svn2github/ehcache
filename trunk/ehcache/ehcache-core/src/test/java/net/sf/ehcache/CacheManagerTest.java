@@ -62,7 +62,6 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.util.MemorySizeParser;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.CombinableMatcher;
