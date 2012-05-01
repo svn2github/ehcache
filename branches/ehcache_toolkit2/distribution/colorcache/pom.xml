@@ -29,7 +29,7 @@
   <properties>
     <tc-maven-plugin.version>1.9.0-SNAPSHOT</tc-maven-plugin.version>
     <toolkit.api>1.5</toolkit.api>
-    <toolkit.version>5.0.0-SNAPSHOT</toolkit.version>
+    <toolkit.version>6.0.0-SNAPSHOT</toolkit.version>
     <skipDeploy>true</skipDeploy>
   </properties>
   

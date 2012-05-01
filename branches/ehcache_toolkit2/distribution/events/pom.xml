@@ -21,7 +21,7 @@
   <properties>
     <tc-maven-plugin.version>1.9.0-SNAPSHOT</tc-maven-plugin.version>
     <toolkit.api>1.5</toolkit.api>
-    <toolkit.version>5.0.0-SNAPSHOT</toolkit.version>
+    <toolkit.version>6.0.0-SNAPSHOT</toolkit.version>
     <h2.version>1.1.116</h2.version>
     <jetty.version>6.1.15</jetty.version>
     <exec-maven-plugin.version>1.1</exec-maven-plugin.version>
