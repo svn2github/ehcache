@@ -41,26 +41,25 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
 
     //default is *ehcache.*IgnoreSizeOf
     private static final String IGNORE_SIZE_OF_DEFAULT_REGEXP = ".*ehcache\\..*IgnoreSizeOf$";
-    private static Pattern IGNORE_SIZE_OF_PATTERN;
+    private static Pattern ignoreSizeOfPattern;
 
-    static{
+    static {
         String ignoreSizeOfRegexpVMArg = System.getProperty(IGNORE_SIZE_OF_VM_ARGUMENT);
         String ignoreSizeOfRegexp = ignoreSizeOfRegexpVMArg != null ? ignoreSizeOfRegexpVMArg :  IGNORE_SIZE_OF_DEFAULT_REGEXP;
         try {
-            IGNORE_SIZE_OF_PATTERN = Pattern.compile(ignoreSizeOfRegexp);
+            ignoreSizeOfPattern = Pattern.compile(ignoreSizeOfRegexp);
             LOG.info("Using regular expression provided through VM argument "
                       + IGNORE_SIZE_OF_VM_ARGUMENT
                       + " for IgnoreSizeOf annotation : "
                       + ignoreSizeOfRegexp);
-        }
-        catch (PatternSyntaxException e){
+        } catch (PatternSyntaxException e) {
             LOG.warn("Invalid regular expression provided through VM argument"
                       + IGNORE_SIZE_OF_VM_ARGUMENT
                       + " : \n"
-            		  + e.getMessage()
-            		  + "\n using default regular expression for IgnoreSizeOf annotation : "
-            		  + IGNORE_SIZE_OF_DEFAULT_REGEXP);
-            IGNORE_SIZE_OF_PATTERN = Pattern.compile(IGNORE_SIZE_OF_DEFAULT_REGEXP);
+                      + e.getMessage()
+                      + "\n using default regular expression for IgnoreSizeOf annotation : "
+                      + IGNORE_SIZE_OF_DEFAULT_REGEXP);
+            ignoreSizeOfPattern = Pattern.compile(IGNORE_SIZE_OF_DEFAULT_REGEXP);
         }
     }
 
@@ -75,7 +74,7 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
             Annotation[] annotations = field.getAnnotations();
             for (Annotation customAnnotation : annotations) {
                 String customAnnotationName = customAnnotation.annotationType().getName();
-                if(validateCustomAnnotationPattern(customAnnotationName)){
+                if (validateCustomAnnotationPattern(customAnnotationName)) {
                     it.remove();
                 }
             }
@@ -100,7 +99,7 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
             Annotation[] classAnnotations = klazz.getAnnotations();
             for (Annotation customAnnotationCandidate : classAnnotations) {
                 String customAnnotationName = customAnnotationCandidate.annotationType().getName();
-                if(validateCustomAnnotationPattern(customAnnotationName)){
+                if (validateCustomAnnotationPattern(customAnnotationName)) {
                     final IgnoreSizeOf annotation = AnnotationProxyFactory.getAnnotationProxy(customAnnotationCandidate, IgnoreSizeOf.class);
                         if (klazz == instanceKlazz || annotation.inherited()) {
                             return true;
@@ -113,11 +112,11 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
     }
 
     private boolean validateCustomAnnotationPattern(String canonicalName) {
-        Matcher matcher = IGNORE_SIZE_OF_PATTERN.matcher(canonicalName);
+        Matcher matcher = ignoreSizeOfPattern.matcher(canonicalName);
 
         boolean found = matcher.find();
-        if(found){
-            LOG.debug(canonicalName + " matched IgnoreSizeOf annotation pattern "+IGNORE_SIZE_OF_PATTERN);
+        if (found) {
+            LOG.debug(canonicalName + " matched IgnoreSizeOf annotation pattern " + ignoreSizeOfPattern);
         }
         return found;
     }

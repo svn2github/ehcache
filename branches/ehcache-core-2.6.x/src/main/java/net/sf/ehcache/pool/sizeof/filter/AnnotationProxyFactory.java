@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2012 Terracotta, Inc.
+ *  Copyright 2003-2010 Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,36 +45,48 @@ import java.lang.reflect.Proxy;
  * @author Anthony Dahanne
  *
  */
-public class AnnotationProxyFactory {
+public final class AnnotationProxyFactory {
 
 
-    private AnnotationProxyFactory(){
+    private AnnotationProxyFactory() {
         //not to instantiate
     }
 
-    public static <T extends Annotation> T getAnnotationProxy(Annotation customAnnotationCandidate, Class<T> referenceAnnotation){
-        InvocationHandler handler = new AnnotationInvocationHandler(customAnnotationCandidate);
-        return (T) Proxy.newProxyInstance(referenceAnnotation.getClassLoader(), new Class[] { referenceAnnotation }, handler );
+    /**
+     * Returns a proxy on the customAnnotation, having the same type than the referenceAnnotation
+     *
+     * @param customAnnotation
+     * @param referenceAnnotation
+     * @return proxied customAnnotation with the type of referenceAnnotation
+     */
+    public static <T extends Annotation> T getAnnotationProxy(Annotation customAnnotation, Class<T> referenceAnnotation) {
+        InvocationHandler handler = new AnnotationInvocationHandler(customAnnotation);
+        return (T) Proxy.newProxyInstance(referenceAnnotation.getClassLoader(), new Class[] {referenceAnnotation}, handler);
     }
 
+    /**
+     *
+     * Invocation handler implementing an invoke method that redirects every method call to the custom annotation method
+     * when possible; if not returns the reference annotation method default value
+     *
+     */
     private static class AnnotationInvocationHandler implements InvocationHandler {
 
         private final Annotation customAnnotation;
 
-        public AnnotationInvocationHandler(Annotation customAnnotation ){
+        public AnnotationInvocationHandler(Annotation customAnnotation) {
             this.customAnnotation = customAnnotation;
         }
 
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             //trying to call the method on the custom annotation, if it exists
             Method methodOnCustom = getMatchingMethodOnGivenAnnotation(method);
-            if (methodOnCustom!=null) {
+            if (methodOnCustom != null) {
                 return  methodOnCustom.invoke(customAnnotation, args);
-            }
-            //otherwise getting the default value of the reference annotation method
-            else {
+            } else {
+                    //otherwise getting the default value of the reference annotation method
                     Object defaultValue = method.getDefaultValue();
-                    if(defaultValue != null){
+                    if (defaultValue != null) {
                         return defaultValue;
                 }
                 throw new UnsupportedOperationException(
