@@ -228,8 +228,6 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private final boolean useClassicLru = Boolean.getBoolean(NET_SF_EHCACHE_USE_CLASSIC_LRU);
 
-    private volatile String diskStorePath;
-
     private volatile CacheStatus cacheStatus = new CacheStatus();
 
     private volatile CacheConfiguration configuration;
@@ -334,8 +332,6 @@ public class Cache implements InternalEhcache, StoreListener {
         configuration.validateCompleteConfiguration();
 
         guid = createGuid();
-
-        this.diskStorePath = cacheConfiguration.getDiskStorePath();
 
         if (registeredEventListeners == null) {
             this.registeredEventListeners = new RegisteredEventListeners(this);
@@ -492,7 +488,6 @@ public class Cache implements InternalEhcache, StoreListener {
         this(new CacheConfiguration(name, maxElementsInMemory)
                     .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
                     .overflowToDisk(overflowToDisk)
-                    .diskStorePath(diskStorePath)
                     .eternal(eternal)
                     .timeToLiveSeconds(timeToLiveSeconds)
                     .timeToIdleSeconds(timeToIdleSeconds)
@@ -546,7 +541,6 @@ public class Cache implements InternalEhcache, StoreListener {
         this(new CacheConfiguration(name, maxElementsInMemory)
                     .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
                     .overflowToDisk(overflowToDisk)
-                    .diskStorePath(diskStorePath)
                     .eternal(eternal)
                     .timeToLiveSeconds(timeToLiveSeconds)
                     .timeToIdleSeconds(timeToIdleSeconds)
@@ -601,7 +595,6 @@ public class Cache implements InternalEhcache, StoreListener {
         this(new CacheConfiguration(name, maxElementsInMemory)
                     .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
                     .overflowToDisk(overflowToDisk)
-                    .diskStorePath(diskStorePath)
                     .eternal(eternal)
                     .timeToLiveSeconds(timeToLiveSeconds)
                     .timeToIdleSeconds(timeToIdleSeconds)
@@ -659,7 +652,6 @@ public class Cache implements InternalEhcache, StoreListener {
         this(new CacheConfiguration(name, maxElementsInMemory)
                     .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
                     .overflowToDisk(overflowToDisk)
-                    .diskStorePath(diskStorePath)
                     .eternal(eternal)
                     .timeToLiveSeconds(timeToLiveSeconds)
                     .timeToIdleSeconds(timeToIdleSeconds)
@@ -720,7 +712,6 @@ public class Cache implements InternalEhcache, StoreListener {
         this(new CacheConfiguration(name, maxElementsInMemory)
                     .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
                     .overflowToDisk(overflowToDisk)
-                    .diskStorePath(diskStorePath)
                     .eternal(eternal)
                     .timeToLiveSeconds(timeToLiveSeconds)
                     .timeToIdleSeconds(timeToIdleSeconds)
@@ -775,7 +766,6 @@ public class Cache implements InternalEhcache, StoreListener {
         this(new CacheConfiguration(name, maxElementsInMemory)
                     .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
                     .overflowToDisk(overflowToDisk)
-                    .diskStorePath(diskStorePath)
                     .eternal(eternal)
                     .timeToLiveSeconds(timeToLiveSeconds)
                     .timeToIdleSeconds(timeToIdleSeconds)
@@ -1100,7 +1090,7 @@ public class Cache implements InternalEhcache, StoreListener {
                             new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration), copyStrategy);
                 } else {
                     if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
-                        store = makeXaStrictTransactionalIfNeeded(DiskBackedMemoryStore.create(this, diskStorePath,
+                        store = makeXaStrictTransactionalIfNeeded(DiskBackedMemoryStore.create(this,
                                 onHeapPool, onDiskPool), copyStrategy);
                     } else {
                         store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, onHeapPool), copyStrategy);
@@ -1178,8 +1168,8 @@ public class Cache implements InternalEhcache, StoreListener {
 
             try {
                 return makeXaStrictTransactionalIfNeeded((Store) offHeapStoreClass.getMethod("create",
-                        Ehcache.class, String.class, Pool.class, Pool.class)
-                        .invoke(null, this, diskStorePath, onHeapPool, onDiskPool), copyStrategy);
+                        Ehcache.class, Pool.class, Pool.class)
+                        .invoke(null, this, onHeapPool, onDiskPool), copyStrategy);
             } catch (NoSuchMethodException e) {
                 throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
                         + " method create(Ehcache, String)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
@@ -1321,7 +1311,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     protected DiskStore createDiskStore() {
         if (isDiskStore()) {
-            return DiskStore.create(this, diskStorePath);
+            return DiskStore.create(this);
         } else {
             return null;
         }
@@ -3169,24 +3159,6 @@ public class Cache implements InternalEhcache, StoreListener {
         BootstrapCacheLoader oldValue = getBootstrapCacheLoader();
         this.bootstrapCacheLoader = bootstrapCacheLoader;
         firePropertyChange("BootstrapCacheLoader", oldValue, bootstrapCacheLoader);
-    }
-
-    /**
-     * DiskStore paths can conflict between CacheManager instances. This method allows the path to be changed.
-     *
-     * @param diskStorePath the new path to be used.
-     * @throws CacheException if this method is called after the cache is initialized
-     */
-    public void setDiskStorePath(String diskStorePath) throws CacheException {
-        if (!cacheStatus.isUninitialized()) {
-            throw new CacheException("A DiskStore path can only be set before the cache is initialized. "
-                    + configuration.getName());
-        }
-        String oldValue = this.diskStorePath;
-        synchronized (this) {
-            this.diskStorePath = diskStorePath;
-        }
-        firePropertyChange("DiskStorePath", oldValue, diskStorePath);
     }
 
     /**

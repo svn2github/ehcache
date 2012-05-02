@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.DiskStorePathManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.ConcurrencyUtil;
@@ -69,7 +70,6 @@ public class DiskStorageFactory {
     /**
      * Path stub used to create unique ehcache directories.
      */
-    protected static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final int SERIALIZATION_CONCURRENCY_DELAY = 250;
     private static final int SHUTDOWN_GRACE_PERIOD = 60;
     private static final int MEGABYTE = 1024 * 1024;
@@ -114,15 +114,24 @@ public class DiskStorageFactory {
 
     private final boolean diskPersistent;
 
+    private final DiskStorePathManager diskStorePathManager;
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
      *
      * @param cache cache that fronts this factory
-     * @param diskPath path to store data in
      */
-    public DiskStorageFactory(Ehcache cache, String diskPath) {
-        this.file = getDataFile(diskPath, cache);
-        this.indexFile = new File(getDataFile().getParentFile(), getIndexFileName(cache));
+    public DiskStorageFactory(Ehcache cache, RegisteredEventListeners cacheEventNotificationService) {
+        this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
+        this.file = diskStorePathManager.getDataFile(cache.getName());
+        // if diskpath contains auto generated string
+        if (file.toString().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories" + " (they start with "
+                    + DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
+                    + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n" + "Deleting data file "
+                    + file.getAbsolutePath());
+            deleteFile(file);
+        }
+        this.indexFile = diskStorePathManager.getIndexFile(cache.getName());
         this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
 
         diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
@@ -327,7 +336,7 @@ public class DiskStorageFactory {
     protected void delete() {
         deleteFile(file);
         allocator.clear();
-        if (file.getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+        if (file.getAbsolutePath().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
             //try to delete the auto_createtimestamp directory. Will work when the last Disk Store deletes
             //the last files and the directory becomes empty.
             File dataDirectory = file.getParentFile();
@@ -866,47 +875,6 @@ public class DiskStorageFactory {
     }
 
 
-    private static File getDataFile(String diskPath, Ehcache cache) {
-        if (diskPath == null) {
-            throw new CacheException(cache.getName() + " Cache: Could not create disk store. "
-                    + "This CacheManager configuration does not allow creation of DiskStores. "
-                    + "If you wish to create DiskStores, please configure a diskStore path.");
-        }
-
-        final File diskDir = new File(diskPath);
-        // Make sure the cache directory exists
-        if (!diskDir.mkdirs() && !diskDir.isDirectory()) {
-            if (diskDir.exists()) {
-                throw new CacheException("Store directory \"" + diskDir.getAbsolutePath() + "\" exists and is not a directory.");
-            } else {
-                throw new CacheException("Could not create cache directory \"" + diskDir.getAbsolutePath() + "\".");
-            }
-        }
-
-        File data = new File(diskDir, getDataFileName(cache));
-
-        //if diskpath contains auto generated string
-        if (diskPath.contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-            LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories"
-                    + " (they start with " + AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
-                    + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
-                    + "Deleting data file " + data.getAbsolutePath());
-            deleteFile(data);
-        }
-
-        return data;
-    }
-
-    private static String getDataFileName(Ehcache cache) {
-        String safeName = cache.getName().replace('/', '_');
-        return safeName + ".data";
-    }
-
-    private static String getIndexFileName(Ehcache cache) {
-        String safeName = cache.getName().replace('/', '_');
-        return safeName + ".index";
-    }
-
     /**
      * Create a disk substitute for an element
      *
@@ -995,7 +963,7 @@ public class DiskStorageFactory {
 
         try {
             shutdown();
-            if (getDataFile().getAbsolutePath().contains(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            if (getDataFile().getAbsolutePath().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
                 deleteFile(indexFile);
                 delete();
             }

@@ -16,21 +16,25 @@
 
 package net.sf.ehcache.terracotta;
 
+import java.io.IOException;
+import java.util.Set;
+
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.DiskStorePathManager;
 import net.sf.ehcache.Disposable;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.RemoteCacheException;
 import net.sf.ehcache.store.MemoryLimitedCacheLoader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Set;
 
 /**
  * A {@link net.sf.ehcache.bootstrap.BootstrapCacheLoader} that will load Elements into a Terracotta clustered cache, based on a previously
  * snapshotted key set. It is also responsible to create snapshot files to disk
+ *
  * @author Alex Snaps
  */
 public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader implements Disposable {
@@ -51,23 +55,24 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
     private final boolean doKeySnapshot;
     private final boolean doKeySnapshotOnDedicatedThread;
     private final long interval;
-    private final String directory;
+    private final DiskStorePathManager diskStorePathManager;
 
     private volatile KeySnapshotter keySnapshotter;
     private volatile boolean immediateShutdown;
     private volatile boolean doKeySnapshotOnDispose;
 
-    private TerracottaBootstrapCacheLoader(final boolean doKeySnapshot, final boolean aSynchronous,
-                                           final String directory, final long interval, final boolean doKeySnapshotOnDedicatedThread) {
+    private TerracottaBootstrapCacheLoader(final boolean doKeySnapshot, final boolean aSynchronous, final String directory,
+            final long interval, final boolean doKeySnapshotOnDedicatedThread) {
         this.aSynchronous = aSynchronous;
         this.doKeySnapshot = doKeySnapshot;
         this.doKeySnapshotOnDedicatedThread = doKeySnapshotOnDedicatedThread;
         this.interval = interval;
-        this.directory = directory;
+        this.diskStorePathManager = directory != null ? DiskStorePathManager.createInstance(directory) : null;
     }
 
     /**
      * Constructor
+     *
      * @param asynchronous do the loading asynchronously, or synchronously
      * @param directory the directory to read snapshot files from, and write them to
      * @param doKeySnapshots Whether to do keysnapshotting
@@ -78,6 +83,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
 
     /**
      * Constructor
+     *
      * @param asynchronous do the loading asynchronously, or synchronously
      * @param directory the directory to read snapshot files from, and write them to
      * @param interval the interval in seconds at which the snapshots of the local key set has to occur
@@ -88,11 +94,12 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
 
     /**
      * Constructor
+     *
      * @param asynchronous do the loading asynchronously, or synchronously
      * @param directory the directory to read snapshot files from, and write them to
      * @param interval the interval in seconds at which the snapshots of the local key set has to occur
      * @param onDedicatedThread whether to do the snapshot on a dedicated thread or using the CacheManager's
-     * {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService}
+     *            {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService}
      */
     public TerracottaBootstrapCacheLoader(final boolean asynchronous, String directory, long interval, boolean onDedicatedThread) {
         this(true, asynchronous, directory, interval, onDedicatedThread);
@@ -100,6 +107,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
 
     /**
      * Whether the on going keysnapshot will finish before the instance is disposed
+     *
      * @return true if disposable is immediate
      * @see Disposable
      */
@@ -110,6 +118,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
     /**
      * Sets whether the disposal of the instance will let the potential current key set being written to disk finish, or whether the
      * shutdown will be immediate
+     *
      * @param immediateShutdown true if immediate, false to let the snapshot finish
      */
     public void setImmediateShutdown(final boolean immediateShutdown) {
@@ -121,8 +130,8 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
      */
     public void load(final Ehcache cache) throws CacheException {
         if (!cache.getCacheConfiguration().isTerracottaClustered()) {
-            LOG.error("You're trying to bootstrap a non Terracotta clustered cache with a TerracottaBootstrapCacheLoader! Cache " +
-                      "'{}' will not be bootstrapped and no keySet snapshot will be recorded...", cache.getName());
+            LOG.error("You're trying to bootstrap a non Terracotta clustered cache with a TerracottaBootstrapCacheLoader! Cache "
+                    + "'{}' will not be bootstrapped and no keySet snapshot will be recorded...", cache.getName());
             return;
         }
 
@@ -139,8 +148,15 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
     }
 
     private void doLoad(final Ehcache cache) {
-        final RotatingSnapshotFile snapshotFile = new RotatingSnapshotFile(directory == null ? cache.getCacheManager()
-            .getDiskStorePath() : directory, cache.getName());
+        CacheManager manager = cache.getCacheManager();
+        if (manager == null) {
+            throw new CacheException("Cache must belong to a cache manager to bootstrap");
+        }
+
+        DiskStorePathManager pathManager = diskStorePathManager != null ? diskStorePathManager : cache.getCacheManager()
+                .getDiskStorePathManager();
+
+        final RotatingSnapshotFile snapshotFile = new RotatingSnapshotFile(pathManager, cache.getName());
         try {
             final Set<Object> keys = snapshotFile.readAll();
             int loaded = 0;
@@ -152,7 +168,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
                 loaded++;
             }
             LOG.info("Finished loading {} keys (of {} on disk) from previous snapshot for Cache '{}'",
-                new Object[] {Integer.valueOf(loaded), keys.size(), cache.getName()});
+                    new Object[] {Integer.valueOf(loaded), keys.size(), cache.getName()});
         } catch (IOException e) {
             LOG.error("Couldn't load keySet for Cache '{}'", cache.getName(), e);
         }
@@ -186,10 +202,14 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
                 keySnapshotter.dispose(immediateShutdown);
             }
         }
+        if (diskStorePathManager != null) {
+            diskStorePathManager.releaseLock();
+        }
     }
 
     /**
      * Calling this method will result in a snapshot being taken or wait for the one in progress to finish
+     *
      * @throws IOException On exception being thrown while doing the snapshot
      */
     public void doLocalKeySnapshot() throws IOException {
@@ -206,6 +226,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
 
     /**
      * Accessor to the associated {@link KeySnapshotter}
+     *
      * @return the {@link KeySnapshotter} used by this loader instance
      */
     KeySnapshotter getKeySnapshotter() {
@@ -214,6 +235,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
 
     /**
      * Configures the Loader to take a snapshot when it is being disposed
+     *
      * @param doKeySnapshotOnDispose whether to snapshot on loader disposal
      */
     public void setSnapshotOnDispose(final boolean doKeySnapshotOnDispose) {
@@ -236,6 +258,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
         /**
          * RemoteDebugger thread method.
          */
+        @Override
         public final void run() {
             try {
                 doLoad(cache);

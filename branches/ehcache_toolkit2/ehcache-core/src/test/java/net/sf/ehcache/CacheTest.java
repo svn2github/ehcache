@@ -684,7 +684,7 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(new Cache(new CacheConfiguration("overflow1", 10).maxBytesLocalDisk(10, MemoryUnit.MEGABYTES)));
         assertThat(manager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));
 
-        CacheManager cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("./temp-tests"))
+        CacheManager cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/temp-tests"))
                 .maxBytesLocalDisk(10, MemoryUnit.MEGABYTES).name("new-cacheManager"));
         cacheManager.addCache(new Cache(new CacheConfiguration("overflow1", 10)));
         assertThat(cacheManager.getCache("overflow1").getCacheConfiguration().isOverflowToDisk(), is(true));

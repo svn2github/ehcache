@@ -116,10 +116,10 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
 
       barrier.await();
       if (shouldWait) {
-        while (cache.getSize() != numOfElements - removedKeySet.size()) {
-          Thread.sleep(1000);
-        }
+        waitForAllCurrentTransactionsToComplete();
       }
+      barrier.await();
+
       System.out.println("XXXXX removed " + removedKeySet.size() + " elemets. Cache size: " + cache.getSize());
 
       System.out.println("XXXX testing get after remove.");

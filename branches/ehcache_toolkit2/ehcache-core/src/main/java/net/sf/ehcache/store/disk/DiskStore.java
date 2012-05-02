@@ -70,14 +70,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public final class DiskStore extends AbstractStore implements TierableStore, PoolableStore, StripedReadWriteLockProvider {
 
-    /**
-     * If the CacheManager needs to resolve a conflict with the disk path, it will create a
-     * subdirectory in the given disk path with this prefix followed by a number. The presence of this
-     * name is used to determined whether it makes sense for a persistent DiskStore to be loaded. Loading
-     * persistent DiskStores will only have useful semantics where the diskStore path has not changed.
-     */
-    public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
-
     private static final int FFFFCD7D = 0xffffcd7d;
     private static final int FIFTEEN = 15;
     private static final int TEN = 10;
@@ -153,13 +145,15 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * Creates a persitent-to-disk store for the given cache, using the given disk path.
      *
      * @param cache cache that fronts this store
-     * @param diskStorePath disk path to store data in
      * @param onHeapPool pool to track heap usage
      * @param onDiskPool pool to track disk usage
      * @return a fully initialized store
      */
-    public static DiskStore create(Ehcache cache, String diskStorePath, Pool onHeapPool, Pool onDiskPool) {
-        DiskStorageFactory disk = new DiskStorageFactory(cache, diskStorePath);
+    public static DiskStore create(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
+        if (cache.getCacheManager() == null) {
+            throw new CacheException("Can't create diskstore without a cache manager");
+        }
+        DiskStorageFactory disk = new DiskStorageFactory(cache, cache.getCacheEventNotificationService());
         DiskStore store = new DiskStore(disk, cache, onHeapPool, onDiskPool);
         cache.getCacheConfiguration().addConfigurationListener(new CacheConfigurationListenerAdapter(disk, onDiskPool));
         return store;
@@ -170,11 +164,10 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * Heap and disk usage are not tracked by the returned store.
      *
      * @param cache cache that fronts this store
-     * @param diskStorePath disk path to store data in
      * @return a fully initialized store
      */
-    public static DiskStore create(Cache cache, String diskStorePath) {
-        return create(cache, diskStorePath, new UnboundedPool(), new UnboundedPool());
+    public static DiskStore create(Cache cache) {
+        return create(cache, new UnboundedPool(), new UnboundedPool());
     }
 
     /**
@@ -198,16 +191,6 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         // no-op
     }
 
-
-    /**
-     * Generates a unique directory name for use in automatically creating a diskStorePath where there is a conflict.
-     *
-     * @return a path consisting of {@link #AUTO_DISK_PATH_DIRECTORY_PREFIX} followed by "_" followed by the current
-     *         time as a long e.g. ehcache_auto_created_1149389837006
-     */
-    public static String generateUniqueDirectory() {
-        return DiskStore.AUTO_DISK_PATH_DIRECTORY_PREFIX + "_" + System.currentTimeMillis();
-    }
 
     /**
      * Will check whether a Placeholder that failed to flush to disk is lying around

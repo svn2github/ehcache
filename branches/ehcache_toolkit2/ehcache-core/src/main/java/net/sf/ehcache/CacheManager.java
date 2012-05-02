@@ -54,7 +54,6 @@ import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaClientRejoinListener;
@@ -201,7 +200,7 @@ public class CacheManager {
     /**
      * The path for the directory in which disk caches are created.
      */
-    private String diskStorePath;
+    private DiskStorePathManager diskStorePathManager;
 
     private MBeanRegistrationProvider mbeanRegistrationProvider;
 
@@ -662,20 +661,22 @@ public class CacheManager {
 
     private void configure(ConfigurationHelper configurationHelper) {
 
-        diskStorePath = configurationHelper.getDiskStorePath();
-        int cachesRequiringDiskStores = configurationHelper.numberOfCachesThatOverflowToDisk().intValue()
-                + configurationHelper.numberOfCachesThatAreDiskPersistent().intValue();
+        String diskStorePath = configurationHelper.getDiskStorePath();
 
-        if (diskStorePath == null && cachesRequiringDiskStores > 0) {
-            diskStorePath = DiskStoreConfiguration.getDefaultPath();
+        if (diskStorePath == null) {
+            diskStorePathManager = DiskStorePathManager.createInstance(DiskStoreConfiguration.getDefaultPath());
+            int cachesRequiringDiskStores = configurationHelper.numberOfCachesThatOverflowToDisk().intValue()
+                    + configurationHelper.numberOfCachesThatAreDiskPersistent().intValue();
+            if (cachesRequiringDiskStores > 0) {
             LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured."
                     + " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath()
                     + ". Please explicitly configure the diskStore element in ehcache.xml.");
+            }
+        } else {
+            diskStorePathManager = DiskStorePathManager.createInstance(diskStorePath);
         }
 
         this.transactionManagerLookup = runtimeCfg.getTransactionManagerLookup();
-
-        detectAndFixDiskStorePathConflict(configurationHelper);
 
         cacheManagerEventListenerRegistry.registerListener(configurationHelper.createCacheManagerEventListener(this));
 
@@ -690,27 +691,6 @@ public class CacheManager {
 
         cacheManagerPeerProviders.putAll(configurationHelper.createCachePeerProviders());
         defaultCache = configurationHelper.createDefaultCache();
-    }
-
-    private void detectAndFixDiskStorePathConflict(ConfigurationHelper configurationHelper) {
-        if (diskStorePath == null) {
-            LOG.debug("No disk store path defined. Skipping disk store path conflict test.");
-            return;
-        }
-
-        for (CacheManager cacheManager : ALL_CACHE_MANAGERS) {
-            if (diskStorePath.equals(cacheManager.diskStorePath)) {
-                String newDiskStorePath = diskStorePath + File.separator + DiskStore.generateUniqueDirectory();
-                LOG.warn("Creating a new instance of CacheManager using the diskStorePath \"" + diskStorePath + "\" which is already used"
-                        + " by an existing CacheManager.\nThe source of the configuration was "
-                        + configurationHelper.getConfigurationBean().getConfigurationSource() + ".\n"
-                        + "The diskStore path for this CacheManager will be set to " + newDiskStorePath + ".\nTo avoid this"
-                        + " warning consider using the CacheManager factory methods to create a singleton CacheManager "
-                        + "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
-                diskStorePath = newDiskStorePath;
-                break;
-            }
-        }
     }
 
     private void detectAndFixCacheManagerPeerListenerConflict(ConfigurationHelper configurationHelper) {
@@ -765,7 +745,7 @@ public class CacheManager {
     }
 
     private void reinitialisationCheck() throws IllegalStateException {
-        if (diskStorePath != null || ehcaches.size() != 0 || status.equals(Status.STATUS_SHUTDOWN)) {
+        if (diskStorePathManager != null || ehcaches.size() != 0 || status.equals(Status.STATUS_SHUTDOWN)) {
             throw new IllegalStateException("Attempt to reinitialise the CacheManager");
         }
     }
@@ -800,7 +780,7 @@ public class CacheManager {
      * <p/>
      * The configuration will be read, {@link Ehcache}s created and required stores initialized. When the {@link CacheManager} is no longer
      * required, call shutdown to free resources.
-     * 
+     *
      * @return the singleton CacheManager
      * @throws CacheException
      *             if the CacheManager cannot be created
@@ -808,7 +788,7 @@ public class CacheManager {
     public static CacheManager newInstance() throws CacheException {
         return newInstance(ConfigurationFactory.parseConfiguration(), "Creating new CacheManager with default config");
     }
-    
+
     /**
      * A factory method to create a singleton CacheManager with default config, or return it if it exists.
      * <p/>
@@ -863,7 +843,7 @@ public class CacheManager {
         return newInstance(ConfigurationFactory.parseConfiguration(new File(configurationFileName)),
                 "Creating new CacheManager with config file: " + configurationFileName);
     }
-    
+
     /**
      * A factory method to create a singleton CacheManager from an URL.
      * <p/>
@@ -927,7 +907,7 @@ public class CacheManager {
         return newInstance(ConfigurationFactory.parseConfiguration(configurationFileURL),
                 "Creating new CacheManager with config URL: " + configurationFileURL);
     }
-    
+
     /**
      * A factory method to create a singleton CacheManager from a java.io.InputStream.
      * <p/>
@@ -973,7 +953,7 @@ public class CacheManager {
     public static CacheManager newInstance(InputStream inputStream) throws CacheException {
         return newInstance(ConfigurationFactory.parseConfiguration(inputStream), "Creating new CacheManager with InputStream");
     }
-    
+
     /**
      * A factory method to create a singleton CacheManager from a net.sf.ehcache.config.Configuration.
      *
@@ -1276,9 +1256,6 @@ public class CacheManager {
     void initializeEhcache(final Ehcache cache, final boolean registerCacheConfig) {
         cache.getCacheConfiguration().setupFor(this, registerCacheConfig);
         cache.setCacheManager(this);
-        if (cache.getCacheConfiguration().getDiskStorePath() == null) {
-            cache.setDiskStorePath(diskStorePath);
-        }
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
         if (runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
@@ -1411,6 +1388,11 @@ public class CacheManager {
             if (status.equals(Status.STATUS_SHUTDOWN)) {
                 LOG.debug("CacheManager already shutdown");
                 return;
+            }
+
+            // release file lock on diskstore path
+            if (diskStorePathManager != null) {
+              diskStorePathManager.releaseLock();
             }
 
             boolean removeMgmtSvr = false;
@@ -1710,14 +1692,14 @@ public class CacheManager {
     }
 
     /**
-     * Returns the disk store path. This may be null if no caches need a DiskStore and none was configured.
+     * Returns the disk store path manager. This may be null if no caches need a DiskStore and none was configured.
      * The path cannot be changed after creation of the CacheManager. All caches take the disk store path
-     * from this value.
+     * from this manager.
      *
-     * @return the disk store path.
+     * @return the disk store path manager.
      */
-    public String getDiskStorePath() {
-        return diskStorePath;
+    public DiskStorePathManager getDiskStorePathManager() {
+        return diskStorePathManager;
     }
 
     /**

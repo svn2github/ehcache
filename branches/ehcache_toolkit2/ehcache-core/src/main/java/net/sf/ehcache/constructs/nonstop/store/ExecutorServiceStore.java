@@ -1170,11 +1170,9 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
      *
      * @throws InterruptedException if the executing thread is interrupted before the {@link ClusterOperation} can complete
      */
-    protected <V> V executeClusterOperationNoTimeout(final ClusterOperation<V> operation) throws InterruptedException {
+    protected <V> V executeClusterOperationNoTimeout(final ClusterOperation<V> operation) throws InterruptedException, TimeoutException {
         try {
-            return executeWithExecutor(new ClusterOperationCallableImpl<V>(operation), Integer.MAX_VALUE, true);
-        } catch (TimeoutException e) {
-            throw new AssertionError("This should never happen as executed with no-timeout");
+            return executeWithExecutor(new ClusterOperationCallableImpl<V>(operation), Long.MAX_VALUE, true);
         } catch (CacheException e) {
             Throwable rootCause = getRootCause(e);
             if (rootCause instanceof InterruptedException) {
