@@ -41,27 +41,29 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationSizeOfFilter.class.getName());
 
     //default is *ehcache.*IgnoreSizeOf
-    private static final String IGNORE_SIZE_OF_DEFAULT_REGEXP = ".*ehcache\\..*IgnoreSizeOf$";
-    private static Pattern ignoreSizeOfPattern;
+    private static final String IGNORE_SIZE_OF_DEFAULT_REGEXP = "^.*ehcache\\..*IgnoreSizeOf$";
+    private static final Pattern IGNORE_SIZE_OF_PATTERN;
 
     static {
         String ignoreSizeOfRegexpVMArg = System.getProperty(IGNORE_SIZE_OF_VM_ARGUMENT);
         String ignoreSizeOfRegexp = ignoreSizeOfRegexpVMArg != null ? ignoreSizeOfRegexpVMArg :  IGNORE_SIZE_OF_DEFAULT_REGEXP;
+        Pattern localPattern;
         try {
-            ignoreSizeOfPattern = Pattern.compile(ignoreSizeOfRegexp);
+            localPattern = Pattern.compile(ignoreSizeOfRegexp);
             LOG.info("Using regular expression provided through VM argument "
                       + IGNORE_SIZE_OF_VM_ARGUMENT
                       + " for IgnoreSizeOf annotation : "
                       + ignoreSizeOfRegexp);
         } catch (PatternSyntaxException e) {
-            LOG.warn("Invalid regular expression provided through VM argument"
+            LOG.warn("Invalid regular expression provided through VM argument "
                       + IGNORE_SIZE_OF_VM_ARGUMENT
                       + " : \n"
                       + e.getMessage()
                       + "\n using default regular expression for IgnoreSizeOf annotation : "
                       + IGNORE_SIZE_OF_DEFAULT_REGEXP);
-            ignoreSizeOfPattern = Pattern.compile(IGNORE_SIZE_OF_DEFAULT_REGEXP);
+            localPattern = Pattern.compile(IGNORE_SIZE_OF_DEFAULT_REGEXP);
         }
+        IGNORE_SIZE_OF_PATTERN = localPattern;
     }
 
     /**
@@ -71,7 +73,7 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
         for (Iterator<Field> it = fields.iterator(); it.hasNext();) {
 
             Field field = it.next();
-            IgnoreSizeOf annotationOnField = getAnnotationOn(field, IgnoreSizeOf.class);
+            IgnoreSizeOf annotationOnField = getAnnotationOn(field, IgnoreSizeOf.class, IGNORE_SIZE_OF_PATTERN);
             if (annotationOnField != null) {
                 it.remove();
             }
@@ -85,7 +87,7 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
     public boolean filterClass(Class<?> klazz) {
         boolean classAnnotated = isAnnotationPresentOrInherited(klazz);
         Package pack = klazz.getPackage();
-        IgnoreSizeOf annotationOnPackage = pack == null ? null : getAnnotationOn(pack, IgnoreSizeOf.class);
+        IgnoreSizeOf annotationOnPackage = pack == null ? null : getAnnotationOn(pack, IgnoreSizeOf.class, IGNORE_SIZE_OF_PATTERN);
         boolean packageAnnotated = annotationOnPackage == null ? false : true;
         return !classAnnotated && !packageAnnotated;
     }
@@ -93,7 +95,7 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
     private boolean isAnnotationPresentOrInherited(final Class<?> instanceKlazz) {
         Class<?> klazz = instanceKlazz;
         while (klazz != null) {
-            IgnoreSizeOf annotationOnClass = getAnnotationOn(klazz, IgnoreSizeOf.class);
+            IgnoreSizeOf annotationOnClass = getAnnotationOn(klazz, IgnoreSizeOf.class, IGNORE_SIZE_OF_PATTERN);
             if (annotationOnClass != null && (klazz == instanceKlazz || annotationOnClass.inherited())) {
                 return true;
             }
@@ -102,25 +104,26 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
         return false;
     }
 
-    private boolean validateCustomAnnotationPattern(String canonicalName) {
-        Matcher matcher = ignoreSizeOfPattern.matcher(canonicalName);
+    private boolean validateCustomAnnotationPattern(String canonicalName, Pattern matchingAnnotationPattern) {
+        Matcher matcher = matchingAnnotationPattern.matcher(canonicalName);
 
-        boolean found = matcher.find();
+        boolean found = matcher.matches();
         if (found) {
-            LOG.debug(canonicalName + " matched IgnoreSizeOf annotation pattern " + ignoreSizeOfPattern);
+            LOG.debug(canonicalName + " matched IgnoreSizeOf annotation pattern " + IGNORE_SIZE_OF_PATTERN);
         }
         return found;
     }
-  
+
     //EHC-938 : looking for all types of IgnoreSizeOf annotations
-    private  <T extends Annotation> T getAnnotationOn(AnnotatedElement element, Class<T> referenceAnnotation) {
+    private  <T extends Annotation> T getAnnotationOn(AnnotatedElement element, Class<T> referenceAnnotation, Pattern matchingAnnotationPattern) {
         T matchingAnnotation = null;
         Annotation[] annotations = element.getAnnotations();
         boolean foundMatchingAnnotationOnce = false;
         for (Annotation annotation : annotations) {
-            if (validateCustomAnnotationPattern(annotation.annotationType().getName())) {
+            if (validateCustomAnnotationPattern(annotation.annotationType().getName(), matchingAnnotationPattern)) {
                 if (matchingAnnotation != null) {
-                    throw new IllegalStateException("You are not allowed to use more than one @IgnoreSizeOf annotations for the same element : "
+                    throw new IllegalStateException("You are not allowed to use more than one @" + referenceAnnotation.getName()
+                                                    + " annotations for the same element : "
                                                     + element.toString());
                 }
                 matchingAnnotation = AnnotationProxyFactory.getAnnotationProxy(annotation, referenceAnnotation);
