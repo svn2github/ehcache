@@ -8,6 +8,7 @@ import java.net.URLClassLoader;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.pool.sizeof.annotationfiltered.AnnotationFilteredPackage;
+import net.sf.ehcache.pool.sizeof.annotationfiltered.custom.CustomAnnotationFilteredPackage;
 import net.sf.ehcache.pool.sizeof.filter.AnnotationSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
@@ -68,7 +69,13 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
         assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationNoInheritedChild()), allOf(greaterThan(4L)));
         assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation1()), allOf(greaterThan(4L)));
         assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation2()), allOf(greaterThan(4L)));
-
+        assertThat(deepSizeOf(sizeOf, new CustomAnnotationFilteredPackage()), equalTo(0L));
+    }
+        
+    @Test(expected=IllegalStateException.class)
+    public void testNotPossibleToHaveTwoIgnoreSizeOfAnnotations() throws Exception {
+        SizeOf sizeOf = new CrossCheckingSizeOf(new AnnotationSizeOfFilter());
+        deepSizeOf(sizeOf, new AnnotatedTwice());
     }
 
     @Test
@@ -223,6 +230,11 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
 
     @com.terracotta.special.annotation.IgnoreSizeOf
     public static class NonMatchingPatternAnnotation2 {
+    }
+
+    @com.terracotta.ehcache.special.annotation.IgnoreSizeOf
+    @IgnoreSizeOf
+    public static class AnnotatedTwice {
     }
 
     public static class MatchingPatternOrNotAnnotationFilteredField {

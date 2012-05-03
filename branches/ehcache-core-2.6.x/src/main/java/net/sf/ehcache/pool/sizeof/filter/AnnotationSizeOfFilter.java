@@ -17,6 +17,7 @@
 package net.sf.ehcache.pool.sizeof.filter;
 
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
@@ -70,13 +71,9 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
         for (Iterator<Field> it = fields.iterator(); it.hasNext();) {
 
             Field field = it.next();
-            //EHC-938 : looking for all types of IgnoreSizeOf annotations
-            Annotation[] annotations = field.getAnnotations();
-            for (Annotation customAnnotation : annotations) {
-                String customAnnotationName = customAnnotation.annotationType().getName();
-                if (validateCustomAnnotationPattern(customAnnotationName)) {
-                    it.remove();
-                }
+            IgnoreSizeOf annotationOnField = getAnnotationOn(field, IgnoreSizeOf.class);
+            if (annotationOnField != null) {
+                it.remove();
             }
         }
         return fields;
@@ -88,23 +85,17 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
     public boolean filterClass(Class<?> klazz) {
         boolean classAnnotated = isAnnotationPresentOrInherited(klazz);
         Package pack = klazz.getPackage();
-        boolean packageAnnotated = pack == null ? false : pack.isAnnotationPresent(IgnoreSizeOf.class);
+        IgnoreSizeOf annotationOnPackage = pack == null ? null : getAnnotationOn(pack, IgnoreSizeOf.class);
+        boolean packageAnnotated = annotationOnPackage == null ? false : true;
         return !classAnnotated && !packageAnnotated;
     }
 
     private boolean isAnnotationPresentOrInherited(final Class<?> instanceKlazz) {
         Class<?> klazz = instanceKlazz;
         while (klazz != null) {
-            //EHC-938 : looking for all types of IgnoreSizeOf annotations
-            Annotation[] classAnnotations = klazz.getAnnotations();
-            for (Annotation customAnnotationCandidate : classAnnotations) {
-                String customAnnotationName = customAnnotationCandidate.annotationType().getName();
-                if (validateCustomAnnotationPattern(customAnnotationName)) {
-                    final IgnoreSizeOf annotation = AnnotationProxyFactory.getAnnotationProxy(customAnnotationCandidate, IgnoreSizeOf.class);
-                        if (klazz == instanceKlazz || annotation.inherited()) {
-                            return true;
-                        }
-                }
+            IgnoreSizeOf annotationOnClass = getAnnotationOn(klazz, IgnoreSizeOf.class);
+            if (annotationOnClass != null && (klazz == instanceKlazz || annotationOnClass.inherited())) {
+                return true;
             }
             klazz = klazz.getSuperclass();
         }
@@ -119,5 +110,22 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
             LOG.debug(canonicalName + " matched IgnoreSizeOf annotation pattern " + ignoreSizeOfPattern);
         }
         return found;
+    }
+  
+    //EHC-938 : looking for all types of IgnoreSizeOf annotations
+    private  <T extends Annotation> T getAnnotationOn(AnnotatedElement element, Class<T> referenceAnnotation) {
+        T matchingAnnotation = null;
+        Annotation[] annotations = element.getAnnotations();
+        boolean foundMatchingAnnotationOnce = false;
+        for (Annotation annotation : annotations) {
+            if (validateCustomAnnotationPattern(annotation.annotationType().getName())) {
+                if (matchingAnnotation != null) {
+                    throw new IllegalStateException("You are not allowed to use more than one @IgnoreSizeOf annotations for the same element : "
+                                                    + element.toString());
+                }
+                matchingAnnotation = AnnotationProxyFactory.getAnnotationProxy(annotation, referenceAnnotation);
+            }
+        }
+        return matchingAnnotation;
     }
 }
