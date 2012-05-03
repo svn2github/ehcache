@@ -65,9 +65,10 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
         assertThat(deepSizeOf(sizeOf, new MatchingPatternOrNotAnnotationFilteredField()), allOf(greaterThan(128L), lessThan(16 * 1024L)));
         assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotation()), equalTo(0L));
         assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationChild()), equalTo(0L));
-        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationNoInheritedChild()), allOf(greaterThan(8L)));
-        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation1()), allOf(greaterThan(8L)));
-        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation2()), allOf(greaterThan(8L)));
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationNoInheritedChild()), allOf(greaterThan(4L)));
+        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation1()), allOf(greaterThan(4L)));
+        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation2()), allOf(greaterThan(4L)));
+
     }
 
     @Test
