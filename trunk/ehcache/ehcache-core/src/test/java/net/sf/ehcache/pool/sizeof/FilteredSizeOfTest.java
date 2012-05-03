@@ -60,6 +60,18 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     }
 
     @Test
+    public void testCustomAnnotationFiltering() throws Exception {
+        SizeOf sizeOf = new CrossCheckingSizeOf(new AnnotationSizeOfFilter());
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternOrNotAnnotationFilteredField()), allOf(greaterThan(128L), lessThan(16 * 1024L)));
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotation()), equalTo(0L));
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationChild()), equalTo(0L));
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationNoInheritedChild()), allOf(greaterThan(4L)));
+        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation1()), allOf(greaterThan(4L)));
+        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation2()), allOf(greaterThan(4L)));
+
+    }
+
+    @Test
     public void testResourceFiltering() throws Exception {
         SizeOf sizeOf = new CrossCheckingSizeOf(new ResourceSizeOfFilter(FilteredSizeOfTest.class.getClassLoader().getResource("sizeof.filter.fields")));
 
@@ -189,6 +201,35 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     }
 
     public static class ChildChildChild extends ChildChild {
+    }
+
+    @com.terracotta.ehcache.special.annotation.IgnoreSizeOf(inherited=true)
+    public static class MatchingPatternAnnotation {
+    }
+
+    public static class MatchingPatternAnnotationChild extends MatchingPatternAnnotation{
+    }
+
+    @com.terracotta.ehcache.special.annotation.no.inherited.IgnoreSizeOf
+    public static class MatchingPatternAnnotationNoInherited {
+    }
+
+    public static class MatchingPatternAnnotationNoInheritedChild extends MatchingPatternAnnotationNoInherited{
+    }
+
+    @com.terracotta.ehcache.special.annotation.IgnoreSizeOffff
+    public static class NonMatchingPatternAnnotation1 {
+    }
+
+    @com.terracotta.special.annotation.IgnoreSizeOf
+    public static class NonMatchingPatternAnnotation2 {
+    }
+
+    public static class MatchingPatternOrNotAnnotationFilteredField {
+        @com.terracotta.ehcache.special.annotation.IgnoreSizeOf
+        private final byte[] matchingBigArray = new byte[16 * 1024];
+        @com.terracotta.special.annotation.IgnoreSizeOf
+        private final byte[] nonMatchingSmallArray = new byte[128];
     }
 
     public static class ResourceFilteredField {
