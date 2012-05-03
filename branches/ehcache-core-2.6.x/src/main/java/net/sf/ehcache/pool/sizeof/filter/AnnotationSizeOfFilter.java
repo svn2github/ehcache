@@ -55,13 +55,12 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
                       + " for IgnoreSizeOf annotation : "
                       + ignoreSizeOfRegexp);
         } catch (PatternSyntaxException e) {
-            LOG.warn("Invalid regular expression provided through VM argument "
+            throw new IllegalArgumentException("Invalid regular expression provided through VM argument "
                       + IGNORE_SIZE_OF_VM_ARGUMENT
                       + " : \n"
                       + e.getMessage()
                       + "\n using default regular expression for IgnoreSizeOf annotation : "
                       + IGNORE_SIZE_OF_DEFAULT_REGEXP);
-            localPattern = Pattern.compile(IGNORE_SIZE_OF_DEFAULT_REGEXP);
         }
         IGNORE_SIZE_OF_PATTERN = localPattern;
     }
