@@ -11,9 +11,9 @@ import java.io.Serializable;
 
 public interface ValueModeHandler {
 
-  public Object getRealKeyObject(Object portableKey);
+  public Object getRealKeyObject(String portableKey);
 
-  public Object createPortableKey(Object key) throws IOException;
+  public String createPortableKey(Object key) throws IOException;
 
   public ElementData createElementData(Element element);
 

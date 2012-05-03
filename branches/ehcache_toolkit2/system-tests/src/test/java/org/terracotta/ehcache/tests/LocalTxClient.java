@@ -78,12 +78,14 @@ public class LocalTxClient extends ClientBase {
   }
 
   private void clearCache() {
+    System.out.println("clearCache()");
     transactionController.begin();
     cache1.removeAll();
     transactionController.commit();
   }
 
   public void testInterruption() throws Exception {
+    System.out.println("testInterruption()");
     transactionController.begin();
     Thread.currentThread().interrupt();
     try {
@@ -127,6 +129,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testCopyOnRead() throws Exception {
+    System.out.println("testCopyOnRead()");
     transactionController.begin();
     Object putValue = new Object[] { "one#1" };
     cache1.put(new Element(1, putValue));
@@ -139,6 +142,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testCopyOnWrite() throws Exception {
+    System.out.println("testCopyOnWrite()");
     transactionController.begin();
     Object[] putValue = new Object[] { "one#1" };
     cache1.put(new Element(1, putValue));
@@ -152,6 +156,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testTwoPuts() throws Exception {
+    System.out.println("testTwoPuts()");
     transactionController.begin();
     cache1.put(new Element(1, new Object[] { "one#1" }));
     transactionController.commit();
@@ -162,6 +167,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testPut() throws Exception {
+    System.out.println("testPut()");
     transactionController.begin();
 
     cache1.put(new Element(1, "one"));
@@ -185,6 +191,7 @@ public class LocalTxClient extends ClientBase {
     transactionController.commit();
 
     transactionController.begin();
+    System.out.println("cache1.get(1): " + cache1.get(1));
     Assert.assertTrue(elementValueComparator.equals(new Element(1, "one"), cache1.get(1)));
     transactionController.commit();
 
@@ -204,6 +211,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testRemove() throws Exception {
+    System.out.println("testRemove()");
     transactionController.begin();
     cache1.put(new Element(1, "one"));
     transactionController.commit();
@@ -246,6 +254,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testRollback() throws Exception {
+    System.out.println("testRollback()");
     transactionController.begin();
     cache1.put(new Element(1, "one"));
     transactionController.rollback();
@@ -256,6 +265,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testTwoConcurrentUpdates() throws Exception {
+    System.out.println("testTwoConcurrentUpdates()");
     final CyclicBarrier localBarrier = new CyclicBarrier(2);
     final long WAIT_TIME = 1500;
     final long ERROR_MARGIN = 200;
@@ -314,6 +324,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testDeadlock() throws Exception {
+    System.out.println("testDeadlock()");
     final String[] losingTx = new String[1];
 
     transactionController.begin(2);
@@ -387,6 +398,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testGetKeys() throws Exception {
+    System.out.println("testGetKeys()");
     transactionController.begin(600000);
 
     cache1.put(new Element(1, "one"));
@@ -429,6 +441,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testRemoveAll() throws Exception {
+    System.out.println("testRemoveAll()");
     transactionController.begin();
 
     cache1.put(new Element(1, "one"));
@@ -474,6 +487,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testGetSize() throws Exception {
+    System.out.println("testGetSize()");
     transactionController.begin();
     Assert.assertEquals(0, cache1.getSize());
     cache1.put(new Element(1, "one"));
@@ -502,6 +516,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testPutIfAbsent() throws Exception {
+    System.out.println("testPutIfAbsent()");
     transactionController.begin();
     Assert.assertNull(cache1.putIfAbsent(new Element(0, "zero")));
     transactionController.commit();
@@ -555,6 +570,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testRemoveElement() throws Exception {
+    System.out.println("testRemoveElement()");
     transactionController.begin();
     Assert.assertEquals(0, cache1.getSize());
 
@@ -598,6 +614,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testReplace() throws Exception {
+    System.out.println("testReplace()");
     transactionController.begin();
 
     Assert.assertNull(cache1.replace(new Element(1, "one")));
@@ -611,6 +628,7 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testReplace2Args() throws Exception {
+    System.out.println("testReplace2Args()");
     transactionController.begin();
 
     Assert.assertFalse(cache1.replace(new Element(1, "one"), new Element(1, "one#2")));
@@ -625,10 +643,11 @@ public class LocalTxClient extends ClientBase {
   }
 
   public void testDecoratedCache() throws Exception {
+    System.out.println("testDecoratedCache()");
     transactionController.begin();
 
     Ehcache decoratedCache = getCacheManager().getEhcache("testDecorated");
-    decoratedCache.put(new Element(1,2));
+    decoratedCache.put(new Element(1, 2));
 
     transactionController.commit();
   }

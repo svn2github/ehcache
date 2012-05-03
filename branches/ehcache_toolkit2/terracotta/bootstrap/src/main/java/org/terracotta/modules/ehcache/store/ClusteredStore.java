@@ -91,6 +91,7 @@ public class ClusteredStore implements TerracottaStore {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
 
+    // TODO: fix transactionalMode to be in cluster
     transactionalMode = ehcacheConfig.getTransactionalMode();
     valueModeHandler = ValueModeHandlerFactory.createValueModeHandler(this, ehcacheConfig);
 
@@ -359,7 +360,7 @@ public class ClusteredStore implements TerracottaStore {
     lock.lock();
     try {
       Element oldElement = getQuiet(element.getKey());
-      if (comparator.equals(oldElement, element)) { return putInternal(oldElement, null); }
+      if (comparator.equals(oldElement, old)) { return putInternal(element, null); }
     } finally {
       lock.unlock();
     }
@@ -572,7 +573,7 @@ public class ClusteredStore implements TerracottaStore {
     Map<Object, Element> elements = new HashMap();
     Set<Entry<Object, Serializable>> entrySet = values.entrySet();
     for (Map.Entry<Object, Serializable> entry : entrySet) {
-      Object key = this.valueModeHandler.getRealKeyObject(entry.getKey());
+      Object key = this.valueModeHandler.getRealKeyObject((String) entry.getKey());
       if (entry.getValue() == null) {
         elements.put(key, null);
       } else {
@@ -630,8 +631,7 @@ public class ClusteredStore implements TerracottaStore {
   private boolean doPut(Object portableKey, Element element, MetaData searchMetaData) {
 
     ElementData value = valueModeHandler.createElementData(element);
-    // TODO: make sure creation time is in secs
-    int creationTimeInSecs = (int) element.getCreationTime();
+    int creationTimeInSecs = (int) (element.getCreationTime() / 1000);
     int customTTI = element.getTimeToIdle();
     int customTTL = element.getTimeToLive();
 
@@ -671,13 +671,13 @@ public class ClusteredStore implements TerracottaStore {
 
     @Override
     public void onEviction(Object key) {
-      Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
+      Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
       registeredEventListeners.notifyElementEvicted(element, false);
     }
 
     @Override
     public void onExpiration(Object key) {
-      Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
+      Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
       registeredEventListeners.notifyElementExpiry(element, false);
     }
 

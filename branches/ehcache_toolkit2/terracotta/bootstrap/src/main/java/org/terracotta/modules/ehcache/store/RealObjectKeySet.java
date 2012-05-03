@@ -61,7 +61,7 @@ class RealObjectKeySet extends AbstractSet {
 
       while (keysIterator.hasNext()) {
         final Object real;
-        real = mode.getRealKeyObject(keysIterator.next());
+        real = mode.getRealKeyObject((String) keysIterator.next());
         next = real;
         return;
       }

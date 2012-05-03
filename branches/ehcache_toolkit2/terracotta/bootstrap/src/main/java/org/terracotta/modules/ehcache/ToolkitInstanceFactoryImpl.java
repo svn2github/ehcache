@@ -12,9 +12,14 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
+import org.terracotta.modules.ehcache.transaction.SoftLockId;
+import org.terracotta.modules.ehcache.transaction.SoftLockState;
+import org.terracotta.modules.ehcache.transaction.state.TransactionCommitState;
+import org.terracotta.modules.ehcache.transaction.state.XATransactionDecision;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.client.TerracottaClientStaticFactory;
 import org.terracotta.toolkit.client.ToolkitClient;
+import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -29,14 +34,20 @@ import java.io.Serializable;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
-  protected static final String            DELIMITER                  = "|";
+  public static final String               DELIMITER                          = "|";
 
-  private static final String              FULLY_QUALIFIED_NAME_MAP   = "fullyQualifiedNameMap";
-  private static final String              EVENT_NOTIFIER_SUFFIX      = "event-notifier";
-  private static final String              EHCACHE_NAME_PREFIX        = "__tc_clustered-ehcache";
-  private static final String              CONFIG_NOTIFIER_SUFFIX     = "config-notifier";
-  private static final String              EHCACHE_CLUSTERED_STORE_ID = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                        + "clusteredStoreId";
+  private static final String              FULLY_QUALIFIED_NAME_MAP           = "fullyQualifiedNameMap";
+  private static final String              EVENT_NOTIFIER_SUFFIX              = "event-notifier";
+  private static final String              EHCACHE_NAME_PREFIX                = "__tc_clustered-ehcache";
+  private static final String              CONFIG_NOTIFIER_SUFFIX             = "config-notifier";
+  private static final String              EHCACHE_CLUSTERED_STORE_ID         = EHCACHE_NAME_PREFIX + DELIMITER
+                                                                                + "clusteredStoreId";
+  private static final String              EHCACHE_TXNS_COMMIT_STATE_MAP_NAME = EHCACHE_NAME_PREFIX + DELIMITER
+                                                                                + "txnsCommitState";
+  private static final String              EHCACHE_XA_TXNS_DECISION_MAP_NAME  = EHCACHE_NAME_PREFIX + DELIMITER
+                                                                                + "xaTxnsDecision";
+  private static final String              ALL_SOFT_LOCKS_MAP_SUFFIX          = "softLocks";
+  private static final String              NEW_SOFT_LOCKS_LIST_SUFFIX         = "newSoftLocks";
 
   protected final Toolkit                  toolkit;
 
@@ -157,7 +168,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public String getFullyQualifiedCacheName(Ehcache cache) {
-    String fullyQualifiedNameWithoutId = getFullyQualifiedNameWithoutId(cache);
+    return getFullyQualifiedCacheName(getCacheManagerName(cache), cache.getName());
+  }
+
+  public String getFullyQualifiedCacheName(String cacheMgrName, String cacheName) {
+    String fullyQualifiedNameWithoutId = getFullyQualifiedNameWithoutId(cacheMgrName, cacheName);
     // try with unsafeGet
     String cacheFQN = fullyQualifiedNames.unsafeGet(fullyQualifiedNameWithoutId);
     if (cacheFQN != null) { return cacheFQN; }
@@ -183,17 +198,20 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     } finally {
       lock.writeLock().unlock();
     }
-
   }
 
-  private String getFullyQualifiedNameWithoutId(Ehcache cache) {
+  private static String getFullyQualifiedNameWithoutId(String cacheMgrName, String cacheName) {
+    return EHCACHE_NAME_PREFIX + DELIMITER + cacheMgrName + DELIMITER + cacheName;
+  }
+
+  private static String getCacheManagerName(Ehcache cache) {
     final String cacheMgrName;
     if (cache.getCacheManager().isNamed()) {
       cacheMgrName = cache.getCacheManager().getName();
     } else {
       cacheMgrName = TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     }
-    return EHCACHE_NAME_PREFIX + DELIMITER + cacheMgrName + DELIMITER + cache.getName();
+    return cacheMgrName;
   }
 
   @Override
@@ -216,6 +234,37 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public void shutdown() {
     client.shutdown();
+  }
+
+  @Override
+  public ToolkitMap<String, TransactionCommitState> getOrCreateTransactionCommitStateMap() {
+    // TODO: what should be the local cache config for the map?
+    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    return toolkit.getMap(EHCACHE_TXNS_COMMIT_STATE_MAP_NAME, config);
+  }
+
+  @Override
+  public ToolkitMap<String, XATransactionDecision> getOrCreateXATransactionDecisionMap() {
+    // TODO: what should be the local cache config for the map?
+    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    return toolkit.getMap(EHCACHE_XA_TXNS_DECISION_MAP_NAME, config);
+  }
+
+  @Override
+  public ToolkitMap<String, SoftLockState> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName) {
+    // TODO: what should be the local cache config for the map?
+    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                          + ALL_SOFT_LOCKS_MAP_SUFFIX, config);
+  }
+
+  @Override
+  public ToolkitList<SoftLockId> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName) {
+    return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                           + NEW_SOFT_LOCKS_LIST_SUFFIX);
   }
 
 }

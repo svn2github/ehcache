@@ -3,13 +3,16 @@
  */
 package org.terracotta.ehcache.tests;
 
+import com.tc.test.config.model.ClientConfig;
 import com.tc.test.config.model.TestConfig;
 
 public class LocalTxTest extends AbstractCacheTestBase {
 
   public LocalTxTest(TestConfig testConfig) {
     super("local-tx-test.xml", testConfig, LocalTxClient.class);
-    testConfig.getClientConfig().setParallelClients(true);
+    ClientConfig clientConfig = testConfig.getClientConfig();
+    clientConfig.setParallelClients(true);
+    clientConfig.getBytemanConfig().setScript("/byteman/LocalTxTestDebug.btm");
   }
 
 }

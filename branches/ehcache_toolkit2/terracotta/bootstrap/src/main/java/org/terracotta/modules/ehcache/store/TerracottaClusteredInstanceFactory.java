@@ -18,20 +18,33 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
+import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
+import org.terracotta.modules.ehcache.transaction.ReadCommittedClusteredSoftLockFactory;
+import org.terracotta.modules.ehcache.transaction.state.EhcacheTxnsClusteredStateFacade;
+import org.terracotta.modules.ehcache.transaction.state.EhcacheTxnsClusteredStateFacadeImpl;
 import org.terracotta.toolkit.ToolkitLogger;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
-  public static final String                    DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
+  public static final String                           DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
-  private final TerracottaTopologyImpl          topology;
-  protected final ToolkitInstanceFactory        toolkitInstanceFactory;
-  private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
+  protected final ToolkitInstanceFactory               toolkitInstanceFactory;
+
+  // private final fields
+  private final TerracottaTopologyImpl                 topology;
+  private final ClusteredEventReplicatorFactory        clusteredEventReplicatorFactory;
+  private final EhcacheTxnsClusteredStateFacade        ehcacheTxnsClusteredFacade;
+  private final ConcurrentMap<String, SoftLockFactory> softLockFactories;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
     topology = new TerracottaTopologyImpl(toolkitInstanceFactory.getToolkit().getClusterInfo());
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory();
+    ehcacheTxnsClusteredFacade = new EhcacheTxnsClusteredStateFacadeImpl(toolkitInstanceFactory);
+    softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
     logEhcacheBuildInfo();
   }
 
@@ -89,14 +102,22 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
-    // TODO:
-    return null;
+    return new ClusteredTransactionIDFactory(ehcacheTxnsClusteredFacade, uuid, cacheManagerName);
   }
 
   @Override
   public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {
-    // TODO:
-    return null;
+    String name = toolkitInstanceFactory.getFullyQualifiedCacheName(cache);
+    SoftLockFactory softLockFactory = softLockFactories.get(name);
+    if (softLockFactory == null) {
+      softLockFactory = new ReadCommittedClusteredSoftLockFactory(ehcacheTxnsClusteredFacade, cache.getCacheManager()
+          .getName(), cache.getName());
+      SoftLockFactory old = softLockFactories.putIfAbsent(name, softLockFactory);
+      if (old != null) {
+        softLockFactory = old;
+      }
+    }
+    return softLockFactory;
   }
 
 }

@@ -7,7 +7,12 @@ import net.sf.ehcache.Ehcache;
 
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
+import org.terracotta.modules.ehcache.transaction.SoftLockId;
+import org.terracotta.modules.ehcache.transaction.SoftLockState;
+import org.terracotta.modules.ehcache.transaction.state.TransactionCommitState;
+import org.terracotta.modules.ehcache.transaction.state.XATransactionDecision;
 import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
@@ -26,6 +31,8 @@ public interface ToolkitInstanceFactory {
    * Returns a fully qualified name for the cache
    */
   String getFullyQualifiedCacheName(Ehcache cache);
+
+  String getFullyQualifiedCacheName(String cacheManagerName, String cacheName);
 
   /**
    * Returns the backend {@link ToolkitCacheWithMetadata} to be used for the cache
@@ -62,6 +69,20 @@ public interface ToolkitInstanceFactory {
    */
   ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache);
 
+  /**
+   * Shutdown
+   */
   void shutdown();
+
+  /**
+   * Return the map used for storing commit state of ehcache transactions
+   */
+  ToolkitMap<String, TransactionCommitState> getOrCreateTransactionCommitStateMap();
+
+  ToolkitMap<String, XATransactionDecision> getOrCreateXATransactionDecisionMap();
+
+  ToolkitMap<String, SoftLockState> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName);
+
+  ToolkitList<SoftLockId> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
 
 }

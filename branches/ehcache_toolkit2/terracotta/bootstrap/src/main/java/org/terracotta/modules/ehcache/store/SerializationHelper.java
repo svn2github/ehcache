@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -16,43 +18,40 @@ public class SerializationHelper {
    */
   private static final char MARKER = 0xFFFE;
 
-  public static Object deserializeStringKey(String key) throws IOException, ClassNotFoundException {
+  public static byte[] serialize(Object obj) {
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      oos.writeObject(obj);
+      oos.close();
+      return baos.toByteArray();
+    } catch (IOException e) {
+      throw new RuntimeException("error serializing " + obj);
+    }
+  }
+
+  public static Object deserialize(byte[] bytes) {
+    try {
+      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      ObjectInputStream ois = new ObjectInputStream(bais);
+      Object obj = ois.readObject();
+      ois.close();
+      return obj;
+    } catch (Exception e) {
+      throw new RuntimeException("error deserializing " + bytes);
+    }
+  }
+
+  public static Object deserializeString(String key) throws IOException, ClassNotFoundException {
     if (key.length() >= 1 && key.charAt(0) == MARKER) {
-      //
-      return readStringKey(new ObjectInputStream(new StringSerializedObjectInputStream(key)));
+      ObjectInputStream ois = new ObjectInputStream(new StringSerializedObjectInputStream(key));
+      return ois.readObject();
     }
 
     return key;
   }
 
-  private static Object readStringKey(final ObjectInputStream ois) throws IOException, ClassNotFoundException {
-    return ois.readObject();
-  }
-
-  private static class StringSerializedObjectInputStream extends InputStream {
-    private final String source;
-    private final int    length;
-    private int          index;
-
-    StringSerializedObjectInputStream(String source) {
-      this.source = source;
-      this.length = source.length();
-
-      read(); // skip marker char
-    }
-
-    @Override
-    public int read() {
-      if (index == length) {
-        // EOF
-        return -1;
-      }
-
-      return source.charAt(index++) & 0xFF;
-    }
-  }
-
-  public static Object serializeToString(Object key) throws IOException {
+  public static String serializeToString(Object key) throws IOException {
     if (key instanceof String) {
       String stringKey = (String) key;
 
@@ -132,6 +131,29 @@ public class SerializationHelper {
     @Override
     public String toString() {
       return new String(buf, 0, count);
+    }
+  }
+
+  private static class StringSerializedObjectInputStream extends InputStream {
+    private final String source;
+    private final int    length;
+    private int          index;
+
+    StringSerializedObjectInputStream(String source) {
+      this.source = source;
+      this.length = source.length();
+
+      read(); // skip marker char
+    }
+
+    @Override
+    public int read() {
+      if (index == length) {
+        // EOF
+        return -1;
+      }
+
+      return source.charAt(index++) & 0xFF;
     }
   }
 }

@@ -12,9 +12,9 @@ import java.io.Serializable;
 public class ValueModeHandlerSerialization implements ValueModeHandler {
 
   @Override
-  public Object getRealKeyObject(Object portableKey) {
+  public Object getRealKeyObject(String portableKey) {
     try {
-      return SerializationHelper.deserializeStringKey((String) portableKey);
+      return SerializationHelper.deserializeString(portableKey);
     } catch (IOException e) {
       return null;
     } catch (ClassNotFoundException e) {
@@ -23,7 +23,7 @@ public class ValueModeHandlerSerialization implements ValueModeHandler {
   }
 
   @Override
-  public Object createPortableKey(Object key) throws IOException {
+  public String createPortableKey(Object key) throws IOException {
     return SerializationHelper.serializeToString(key);
   }
 
