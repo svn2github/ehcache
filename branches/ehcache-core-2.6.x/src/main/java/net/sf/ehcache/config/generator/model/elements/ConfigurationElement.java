@@ -16,18 +16,19 @@
 
 package net.sf.ehcache.config.generator.model.elements;
 
-import java.util.List;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.FactoryConfiguration;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
+
+import java.util.List;
 
 /**
  * Element representing the {@link Configuration}. This element does not have a parent and is always null.
@@ -86,6 +87,7 @@ public class ConfigurationElement extends SimpleNodeElement {
         testAddDiskStoreElement();
         testAddSizeOfPolicyElement();
         testAddTransactionManagerLookupElement();
+        testAddManagementRESTService();
         testAddCacheManagerEventListenerFactoryElement();
         testAddCacheManagerPeerProviderFactoryElement();
         testAddCacheManagerPeerListenerFactoryElement();
@@ -149,6 +151,13 @@ public class ConfigurationElement extends SimpleNodeElement {
         if (transactionManagerLookupConfiguration != null
                 && !transactionManagerLookupConfiguration.equals(Configuration.DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG)) {
             addChildElement(new FactoryConfigurationElement(this, "transactionManagerLookup", transactionManagerLookupConfiguration));
+        }
+    }
+
+    private void testAddManagementRESTService() {
+        ManagementRESTServiceConfiguration managementRESTServiceConfiguration = configuration.getManagementRESTService();
+        if (managementRESTServiceConfiguration != null) {
+            addChildElement(new ManagementRESTServiceConfigurationElement(this, managementRESTServiceConfiguration));
         }
     }
 

@@ -15,9 +15,6 @@
  */
 package net.sf.ehcache.statistics.sampled;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.statistics.CacheUsageListener;
@@ -30,24 +27,25 @@ import net.sf.ehcache.util.counter.sampled.SampledCounterConfig;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * An implementation of {@link SampledCacheStatistics} This also implements {@link CacheUsageListener} and depends on the notification
  * received from
  * these to update the stats
- * <p />
+ * <p/>
  *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCacheStatistics {
-
-    private static final int AVERAGE_SEARCH_SAMPLE_INTERVAL = 10;
-    private static final int DEFAULT_HISTORY_SIZE = 30;
-    private static final int DEFAULT_INTERVAL_SECS = 1;
+public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStatisticsSampler {
     private static final SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(DEFAULT_INTERVAL_SECS,
-            DEFAULT_HISTORY_SIZE, true, 0L);
-    private static final SampledRateCounterConfig DEFAULT_SAMPLED_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(DEFAULT_INTERVAL_SECS,
-            DEFAULT_HISTORY_SIZE, true);
+        DEFAULT_HISTORY_SIZE, true, 0L);
+    private static final SampledRateCounterConfig DEFAULT_AVG_GET_COUNTER_CONFIG = new SampledRateCounterConfig(
+        DEFAULT_INTERVAL_SECS, DEFAULT_HISTORY_SIZE, true);
+    private static final SampledRateCounterConfig DEFAULT_AVG_SEARCH_COUNTER_CONFIG = new SampledRateCounterConfig(
+        DEFAULT_SEARCH_INTERVAL_SEC, DEFAULT_HISTORY_SIZE, true);
 
     private volatile CounterManager counterManager;
     private final SampledCounter cacheHitCount;
@@ -75,40 +73,59 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     private final AtomicInteger statisticsAccuracy;
 
     /**
+     * The default constructor
+     *
+     * @param timer
+     */
+    public SampledCacheStatisticsImpl(FailSafeTimer timer) {
+        this(timer, DEFAULT_SAMPLED_COUNTER_CONFIG, DEFAULT_AVG_GET_COUNTER_CONFIG, DEFAULT_AVG_SEARCH_COUNTER_CONFIG);
+    }
+
+    /**
+     * @param timer
+     * @param config
+     */
+    public SampledCacheStatisticsImpl(FailSafeTimer timer, SampledCounterConfig config) {
+        this(timer, config, DEFAULT_AVG_GET_COUNTER_CONFIG, DEFAULT_AVG_SEARCH_COUNTER_CONFIG);
+    }
+
+    /**
      * Constructor that accepts a timer which will be used to schedule the
      * sampled counters
      */
-    public SampledCacheStatisticsImpl(FailSafeTimer timer) {
+    public SampledCacheStatisticsImpl(FailSafeTimer timer,
+                                      SampledCounterConfig config,
+                                      SampledRateCounterConfig rateGetConfig,
+                                      SampledRateCounterConfig rateSearchConfig) {
         counterManager = new CounterManagerImpl(timer);
-        cacheHitCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheHitInMemoryCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheHitOffHeapCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheHitOnDiskCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheMissCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheMissInMemoryCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheMissOffHeapCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheMissOnDiskCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheMissExpiredCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheMissNotFoundCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheElementEvictedCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheElementRemoved = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheElementExpired = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheElementPut = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheElementUpdated = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheSearchCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheXaCommitCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
-        cacheXaRollbackCount = createSampledCounter(DEFAULT_SAMPLED_COUNTER_CONFIG);
+        cacheHitCount = createSampledCounter(config);
+        cacheHitInMemoryCount = createSampledCounter(config);
+        cacheHitOffHeapCount = createSampledCounter(config);
+        cacheHitOnDiskCount = createSampledCounter(config);
+        cacheMissCount = createSampledCounter(config);
+        cacheMissInMemoryCount = createSampledCounter(config);
+        cacheMissOffHeapCount = createSampledCounter(config);
+        cacheMissOnDiskCount = createSampledCounter(config);
+        cacheMissExpiredCount = createSampledCounter(config);
+        cacheMissNotFoundCount = createSampledCounter(config);
+        cacheElementEvictedCount = createSampledCounter(config);
+        cacheElementRemoved = createSampledCounter(config);
+        cacheElementExpired = createSampledCounter(config);
+        cacheElementPut = createSampledCounter(config);
+        cacheElementUpdated = createSampledCounter(config);
+        cacheSearchCount = createSampledCounter(config);
+        cacheXaCommitCount = createSampledCounter(config);
+        cacheXaRollbackCount = createSampledCounter(config);
 
-        averageGetTime = (SampledRateCounter) createSampledCounter(DEFAULT_SAMPLED_RATE_COUNTER_CONFIG);
-        averageSearchTime = (SampledRateCounter) createSampledCounter(
-                new SampledRateCounterConfig(AVERAGE_SEARCH_SAMPLE_INTERVAL, DEFAULT_HISTORY_SIZE, true));
+        averageGetTime = (SampledRateCounter)createSampledCounter(rateGetConfig);
+        averageSearchTime = (SampledRateCounter)createSampledCounter(rateSearchConfig);
 
         this.sampledStatisticsEnabled = new AtomicBoolean(true);
         this.statisticsAccuracy = new AtomicInteger(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
     }
 
     private SampledCounter createSampledCounter(CounterConfig defaultCounterConfig) {
-        return (SampledCounter) counterManager.createCounter(defaultCounterConfig);
+        return (SampledCounter)counterManager.createCounter(defaultCounterConfig);
     }
 
     private void incrementIfStatsEnabled(SampledCounter... counters) {
@@ -436,6 +453,150 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    @Override
+    public SampledCounter getCacheHitSample() {
+        return cacheHitCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitInMemorySample() {
+        return cacheHitInMemoryCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitOffHeapSample() {
+        return cacheHitOffHeapCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitOnDiskSample() {
+        return cacheHitOnDiskCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissSample() {
+        return cacheMissCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissInMemorySample() {
+        return cacheMissInMemoryCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissOffHeapSample() {
+        return cacheMissOffHeapCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissOnDiskSample() {
+        return cacheMissOnDiskCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissExpiredSample() {
+        return cacheMissExpiredCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissNotFoundSample() {
+        return cacheMissNotFoundCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementEvictedSample() {
+        return cacheElementEvictedCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementRemovedSample() {
+        return cacheElementRemoved;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementExpiredSample() {
+        return cacheElementExpired;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementPutSample() {
+        return cacheElementPut;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementUpdatedSample() {
+        return cacheElementUpdated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageGetTimeSample() {
+        return averageGetTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageSearchTimeSample() {
+        return averageSearchTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getSearchesPerSecondSample() {
+        return cacheSearchCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public String getStatisticsAccuracyDescription() {
         int value = statisticsAccuracy.get();
         if (value == 0) {
@@ -466,6 +627,22 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, SampledCa
      */
     public long getSearchesPerSecond() {
         return cacheSearchCount.getMostRecentSample().getCounterValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheXaCommitsSample() {
+        return cacheXaCommitCount;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheXaRollbacksSample() {
+        return cacheXaRollbackCount;
     }
 
     /**

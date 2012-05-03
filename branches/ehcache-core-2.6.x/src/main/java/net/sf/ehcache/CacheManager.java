@@ -24,6 +24,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationSource;
@@ -39,6 +40,7 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.event.NonstopCacheEventListener;
+import net.sf.ehcache.management.ManagementServer;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
@@ -61,6 +63,7 @@ import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
+import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -150,7 +153,12 @@ public class CacheManager {
 
     private static final IdentityHashMap<CacheManager, String> CACHE_MANAGERS_REVERSE_MAP = new IdentityHashMap<CacheManager, String>();
 
-    /**
+    private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
+
+    private static final Map<Integer, ManagementServer<CacheManager>> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer<CacheManager>>();
+
+
+  /**
      * Status of the Cache Manager
      */
     protected volatile Status status;
@@ -216,6 +224,8 @@ public class CacheManager {
 
     private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
+
+    private Integer registeredMgmtSvrPort;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -426,6 +436,39 @@ public class CacheManager {
             mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
         } catch (MBeanRegistrationProviderException e) {
             LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
+        }
+
+        ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
+        if (managementRESTService != null && managementRESTService.isEnabled()) {
+            /**
+             * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
+             */
+            synchronized (CacheManager.class) {
+                if (!MGMT_SVR_BY_PORT.containsKey(managementRESTService.getPort())) {
+                    Class<ManagementServer> managementServerClass;
+                    try {
+                        managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(
+                            "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+                    }
+
+                    ManagementServer<CacheManager> standaloneRestServer;
+                    try {
+                        standaloneRestServer = managementServerClass.newInstance();
+                    } catch (InstantiationException e) {
+                        throw new RuntimeException("Failed to instantiate ManagementServer.", e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Failed to instantiate ManagementServer due to access restriction.", e);
+                    }
+
+                    standaloneRestServer.setConfiguration(managementRESTService);
+                    standaloneRestServer.start();
+                    MGMT_SVR_BY_PORT.put(managementRESTService.getPort(), standaloneRestServer);
+                }
+                MGMT_SVR_BY_PORT.get(managementRESTService.getPort()).register(this);
+                registeredMgmtSvrPort = managementRESTService.getPort();
+            }
         }
     }
 
@@ -1350,6 +1393,28 @@ public class CacheManager {
             // release file lock on diskstore path
             if (diskStorePathManager != null) {
               diskStorePathManager.releaseLock();
+            }
+
+            boolean removeMgmtSvr = false;
+            if (registeredMgmtSvrPort != null) {
+                ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
+
+                try {
+                    standaloneRestServer.unregister(this);
+
+                    if (!standaloneRestServer.hasRegistered()) {
+                        removeMgmtSvr = true;
+                        standaloneRestServer.stop();
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to shutdown the ManagementRESTService", e);
+                } finally {
+                    if (removeMgmtSvr) {
+                        MGMT_SVR_BY_PORT.remove(registeredMgmtSvrPort);
+                    }
+
+                    registeredMgmtSvrPort = null;
+                }
             }
 
             for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
