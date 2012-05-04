@@ -87,7 +87,7 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
         boolean classAnnotated = isAnnotationPresentOrInherited(klazz);
         Package pack = klazz.getPackage();
         IgnoreSizeOf annotationOnPackage = pack == null ? null : getAnnotationOn(pack, IgnoreSizeOf.class, IGNORE_SIZE_OF_PATTERN);
-        boolean packageAnnotated = annotationOnPackage == null ? false : true;
+        boolean packageAnnotated = annotationOnPackage != null;
         return !classAnnotated && !packageAnnotated;
     }
 
@@ -117,7 +117,6 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
     private  <T extends Annotation> T getAnnotationOn(AnnotatedElement element, Class<T> referenceAnnotation, Pattern matchingAnnotationPattern) {
         T matchingAnnotation = null;
         Annotation[] annotations = element.getAnnotations();
-        boolean foundMatchingAnnotationOnce = false;
         for (Annotation annotation : annotations) {
             if (validateCustomAnnotationPattern(annotation.annotationType().getName(), matchingAnnotationPattern)) {
                 if (matchingAnnotation != null) {
