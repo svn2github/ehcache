@@ -163,5 +163,12 @@ public abstract class BaseResult implements Result {
         return sb.toString();
     }
 
+    /**
+     * Get attribute value for use in sorting
+     *
+     * @param pos
+     * @return
+     */
+    abstract Object getSortAttribute(int pos);
 
 }

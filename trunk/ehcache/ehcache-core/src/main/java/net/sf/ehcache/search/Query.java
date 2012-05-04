@@ -114,6 +114,14 @@ public interface Query {
     public Query addOrderBy(Attribute<?> attribute, Direction direction);
 
     /**
+     * Group result set by unique value(s) of specified attribute(s).
+     * Rows with duplicate values for these attributes will be removed. This method may also be chained to achieve the same effect.
+     * @param attribute
+     * @return
+     */
+    public Query addGroupBy(Attribute<?>... attribute);
+
+    /**
      * Restrict the number of results returned from the search.
      * <p/>
      * By default an unlimited number of results can be returned. This could cause an OutOfMemoryError to be thrown. It is therefore

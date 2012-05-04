@@ -50,4 +50,9 @@ public class AggregateOnlyResult extends BaseResult {
         throw new AssertionError();
     }
 
+    @Override
+    Object getSortAttribute(int pos) {
+        throw new AssertionError();
+    }
+
 }
