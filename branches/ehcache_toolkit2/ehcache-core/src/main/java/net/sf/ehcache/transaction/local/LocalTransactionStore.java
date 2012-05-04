@@ -133,21 +133,25 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     private boolean cleanupExpiredSoftLock(Element oldElement, SoftLock softLock) {
         if (softLock.isExpired()) {
             softLock.lock();
-            softLock.freeze();
             try {
-                Element frozenElement = softLock.getFrozenElement();
-                if (frozenElement != null) {
-                    underlyingStore.replace(oldElement, frozenElement, comparator);
-                } else {
-                    underlyingStore.removeElement(oldElement, comparator);
-                }
+                softLock.freeze();
+                try {
+                    Element frozenElement = softLock.getFrozenElement();
+                    if (frozenElement != null) {
+                        underlyingStore.replace(oldElement, frozenElement, comparator);
+                    } else {
+                        underlyingStore.removeElement(oldElement, comparator);
+                    }
 
-                if (!softLock.wasPinned()) {
-                    underlyingStore.setPinned(softLock.getKey(), false);
+                    if (!softLock.wasPinned()) {
+                        underlyingStore.setPinned(softLock.getKey(), false);
+                    }
+                } finally {
+                    softLock.unfreeze();
                 }
             } finally {
-                softLock.unfreeze();
                 softLock.unlock();
+
             }
             return true;
         }
@@ -334,7 +338,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         if (key == null) {
             return null;
         }
-        
+
         while (true) {
             final boolean isPinned = underlyingStore.isPinned(key);
             assertNotTimedOut(key, isPinned);
@@ -976,7 +980,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
-            
+
             if (!softLock.wasPinned()) {
                 underlyingStore.setPinned(softLock.getKey(), false);
             }
@@ -996,7 +1000,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
-            
+
             if (!softLock.wasPinned()) {
                 underlyingStore.setPinned(softLock.getKey(), false);
             }

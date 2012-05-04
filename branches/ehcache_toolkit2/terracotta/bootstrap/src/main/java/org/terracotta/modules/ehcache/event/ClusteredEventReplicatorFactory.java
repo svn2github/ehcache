@@ -12,9 +12,13 @@ import java.util.Map;
 
 public class ClusteredEventReplicatorFactory {
   private final Map<String, ClusteredEventReplicator> eventReplicators = new HashMap<String, ClusteredEventReplicator>();
+  private final ToolkitInstanceFactory                toolkitInstanceFactory;
 
-  public synchronized ClusteredEventReplicator getOrCreateClusteredEventReplicator(ToolkitInstanceFactory toolkitInstanceFactory,
-                                                                                   Ehcache cache) {
+  public ClusteredEventReplicatorFactory(ToolkitInstanceFactory toolkitInstanceFactory) {
+    this.toolkitInstanceFactory = toolkitInstanceFactory;
+  }
+
+  public synchronized ClusteredEventReplicator getOrCreateClusteredEventReplicator(Ehcache cache) {
     String fullyQualifiedCacheName = toolkitInstanceFactory.getFullyQualifiedCacheName(cache);
     ClusteredEventReplicator replicator = eventReplicators.get(fullyQualifiedCacheName);
     if (replicator == null) {
