@@ -201,6 +201,15 @@ public final class DiskStorePathManager {
     }
 
     /**
+     * Get the root directory for search indices
+     *
+     * @return search index root directory
+     */
+    public File getSearchIndexDir() {
+        return new File(diskStorePath, "search-index");
+    }
+
+    /**
      * Create snapshots file. Used by RotatingSnapshotFile
      *
      * @param cacheName
@@ -233,4 +242,5 @@ public final class DiskStorePathManager {
             super(message);
         }
     }
+
 }

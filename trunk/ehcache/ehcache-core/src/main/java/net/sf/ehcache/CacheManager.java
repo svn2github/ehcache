@@ -53,6 +53,7 @@ import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
@@ -68,6 +69,7 @@ import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +146,7 @@ public class CacheManager {
     /**
      * The factory to use for creating MBeanRegistrationProvider's
      */
-    private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl(); 
+    private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl();
 
     private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
             + " in the config. Please add a default cache config in the configuration.";
@@ -223,8 +225,10 @@ public class CacheManager {
 
     private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
-    
+
     private Integer registeredMgmtSvrPort;
+
+    private volatile SearchManager searchManager;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -1390,6 +1394,10 @@ public class CacheManager {
                 return;
             }
 
+            if (searchManager != null) {
+                searchManager.shutdown();
+            }
+
             // release file lock on diskstore path
             if (diskStorePathManager != null) {
               diskStorePathManager.releaseLock();
@@ -1453,8 +1461,8 @@ public class CacheManager {
             removeShutdownHook();
             nonstopExecutorServiceFactory.shutdown(this);
             getCacheRejoinAction().unregisterAll();
-            
-            
+
+
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);
@@ -1882,6 +1890,24 @@ public class CacheManager {
     }
 
     /**
+     * Get the indexed search manager
+     *
+     * @return an IndexedSearchManager
+     */
+    public SearchManager getIndexedSearchManager() {
+        synchronized (this) {
+            if (searchManager == null) {
+                SearchManager rv = (SearchManager) ClassLoaderUtil.createNewInstance(
+                        "net.sf.ehcache.store.offheap.search.LuceneIndexedSearchManager", new Class[] {DiskStorePathManager.class},
+                        new Object[] {diskStorePathManager});
+                rv.init();
+                searchManager = rv;
+            }
+            return searchManager;
+        }
+    }
+
+    /**
      * Create a soft lock factory for a specific cache
      *
      * @param cache the cache to create the soft lock factory for
@@ -2124,5 +2150,4 @@ public class CacheManager {
             caches.clear();
         }
     }
-
 }

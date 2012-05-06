@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -28,18 +29,47 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 
 /**
  * @author gkeim
- *
  */
 public abstract class AbstractStore implements Store {
+
+    /**
+     * search attribute extractors
+     */
+    protected final Map<String, AttributeExtractor> attributeExtractors = new ConcurrentHashMap<String, AttributeExtractor>();
+
+    /**
+     * search attribute names
+     */
+    private final Map<String, Attribute> searchAttributes = new ConcurrentHashMap<String, Attribute>();
+
+    private final SearchManager searchManager;
 
     /**
      * listener list
      */
     private transient List<StoreListener> listenerList;
+
+    /**
+     * Constructor for stores that do not support search
+     */
+    protected AbstractStore() {
+        this(null);
+    }
+
+    /**
+     * Constructor for stores that do support search
+     *
+     * @param searchManager the search manager to use
+     */
+    protected AbstractStore(SearchManager searchManager) {
+        this.searchManager = searchManager;
+    }
+
 
     /**
      * onLoad initializer
@@ -89,6 +119,7 @@ public abstract class AbstractStore implements Store {
 
     /**
      * {@inheritDoc}
+     *
      * @throws InterruptedException
      * @throws TerracottaNotRunningException
      *
@@ -121,8 +152,14 @@ public abstract class AbstractStore implements Store {
      * {@inheritDoc}
      */
     public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        if (!extractors.isEmpty()) {
+        if (searchManager == null && !extractors.isEmpty()) {
             throw new InvalidConfigurationException("Search attributes not supported by this store type: " + getClass().getName());
+        }
+
+        this.attributeExtractors.putAll(extractors);
+
+        for (String name : extractors.keySet()) {
+            searchAttributes.put(name, new Attribute(name));
         }
     }
 
@@ -130,15 +167,18 @@ public abstract class AbstractStore implements Store {
      * {@inheritDoc}
      */
     public Results executeQuery(StoreQuery query) {
-        throw new UnsupportedOperationException("Query execution not supported by this store type: " + getClass().getName());
-    }
+        if (searchManager == null) {
+            throw new UnsupportedOperationException("Query execution not supported by this store type: " + getClass().getName());
+        }
 
+        return searchManager.executeQuery(query.getCache().getName(), query, attributeExtractors);
+    }
 
     /**
      * {@inheritDoc}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
-        return null;
+        return searchAttributes.get(attributeName);
     }
 
     /**
