@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
 public class DiskStoreTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1270;
+    private static final int ELEMENT_ON_DISK_SIZE = 1283;
     private CacheManager manager2;
 
     @BeforeClass
