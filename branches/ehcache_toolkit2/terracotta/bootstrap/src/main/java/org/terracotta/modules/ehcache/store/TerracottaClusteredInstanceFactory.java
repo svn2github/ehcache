@@ -14,9 +14,12 @@ import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.util.ProductInfo;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
+import org.terracotta.modules.ehcache.event.FireRejoinOperatorEventClusterListener;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
 import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.SoftLockFactoryProvider;
@@ -26,23 +29,35 @@ import org.terracotta.toolkit.ToolkitLogger;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
+  public static final Logger                    LOGGER                     = LoggerFactory
+                                                                               .getLogger(TerracottaClusteredInstanceFactory.class);
   public static final String                    DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
   protected final ToolkitInstanceFactory        toolkitInstanceFactory;
 
   // private final fields
-  private final TerracottaTopologyImpl          topology;
+  private final CacheCluster                    topology;
   private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
   private final EhcacheTxnsClusteredStateFacade ehcacheTxnsClusteredFacade;
   private final SoftLockFactoryProvider         softLockFactoryProvider;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
-    topology = new TerracottaTopologyImpl(toolkitInstanceFactory.getToolkit().getClusterInfo());
+    topology = createTopology(toolkitInstanceFactory);
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
     ehcacheTxnsClusteredFacade = new EhcacheTxnsClusteredStateFacadeImpl(toolkitInstanceFactory);
     softLockFactoryProvider = new SoftLockFactoryProvider(ehcacheTxnsClusteredFacade, toolkitInstanceFactory);
     logEhcacheBuildInfo();
+  }
+
+  private static CacheCluster createTopology(ToolkitInstanceFactory factory) {
+    TerracottaTopologyImpl cacheCluster = new TerracottaTopologyImpl(factory.getToolkit().getClusterInfo());
+    try {
+      cacheCluster.addTopologyListener(new FireRejoinOperatorEventClusterListener(factory));
+    } catch (Exception e) {
+      LOGGER.warn("Unable to register: " + FireRejoinOperatorEventClusterListener.class.getName(), e);
+    }
+    return cacheCluster;
   }
 
   private void logEhcacheBuildInfo() {
