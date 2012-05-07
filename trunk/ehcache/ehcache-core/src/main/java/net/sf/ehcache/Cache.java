@@ -111,7 +111,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -193,11 +192,6 @@ public class Cache implements InternalEhcache, StoreListener {
      * @see CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS for a preferred way of setting
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
-
-    /**
-     * The FQCN for offheap stores
-     */
-    public static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
 
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
@@ -1036,7 +1030,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
                 throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
             }
-            final Store store;
+
+            Store store;
             if (isTerracottaClustered()) {
                 checkClusteredConfig();
                 int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP,
@@ -1082,22 +1077,25 @@ public class Cache implements InternalEhcache, StoreListener {
                 } else {
                     store = terracottaStore;
                 }
-            } else if (getCacheConfiguration().isOverflowToOffHeap()) {
-                store = createOffHeapStore(onHeapPool, onDiskPool, copyStrategy);
             } else {
-                if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                    Store disk = createDiskStore();
-                    store = makeXaStrictTransactionalIfNeeded(new LegacyStoreWrapper(
-                            new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration), copyStrategy);
-                } else {
-                    if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
-                        store = makeXaStrictTransactionalIfNeeded(DiskBackedMemoryStore.create(this,
-                                onHeapPool, onDiskPool), copyStrategy);
+                FeaturesManager featuresManager = cacheManager.getFeaturesManager();
+                if (featuresManager == null) {
+                    if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                        Store disk = createDiskStore();
+                        store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                     } else {
-                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, onHeapPool), copyStrategy);
+                        if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
+                            store = DiskBackedMemoryStore.create(this, onHeapPool, onDiskPool);
+                        } else {
+                            store = MemoryOnlyStore.create(this, onHeapPool);
+                        }
                     }
+                } else {
+                    store = featuresManager.createStore(this, onHeapPool, onDiskPool);
                 }
+                store = makeXaStrictTransactionalIfNeeded(store, copyStrategy);
             }
+
             /* note: this isn't part of makeXaStrictTransactionalIfNeeded() as only xa_strict supports NonStop, meaning that only
              * that transactional store can be wrapped by NonStopStore. Other TX modes have to wrap the NonStop store due to their
              * lack of NonStop support (ie: lack of transaction context suspension/resuming).
@@ -1160,36 +1158,6 @@ public class Cache implements InternalEhcache, StoreListener {
         if (disabled) {
             LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                     + " property was set to true. No elements will be added to the cache.");
-        }
-    }
-
-    private Store createOffHeapStore(Pool onHeapPool, Pool onDiskPool, ReadWriteCopyStrategy<Element> copyStrategy) {
-        try {
-            Class<Store> offHeapStoreClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
-
-            try {
-                return makeXaStrictTransactionalIfNeeded((Store) offHeapStoreClass.getMethod("create",
-                        Ehcache.class, Pool.class, Pool.class)
-                        .invoke(null, this, onHeapPool, onDiskPool), copyStrategy);
-            } catch (NoSuchMethodException e) {
-                throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
-                        + " method create(Ehcache, Pool, Pool)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
-            } catch (InvocationTargetException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof CacheException) {
-                    throw (CacheException) cause;
-                } else {
-                    throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
-                            + OFF_HEAP_STORE_CLASSNAME, cause);
-                }
-            } catch (IllegalAccessException e) {
-                throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
-                        + OFF_HEAP_STORE_CLASSNAME, e);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new CacheException("Cache " + configuration.getName()
-                    + " cannot be configured because the off-heap store class could not be found. "
-                    + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
         }
     }
 

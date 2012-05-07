@@ -213,7 +213,7 @@ class RotatingSnapshotFile {
      * @return the file to read from
      */
     File currentSnapshotFile() {
-        return diskStorePathManager.getSnapshotFile(cacheName, SUFFIX_OK);
+        return diskStorePathManager.getFile(cacheName, SUFFIX_OK);
     }
 
     /**
@@ -222,7 +222,7 @@ class RotatingSnapshotFile {
      * @return the File to write to
      */
     File newSnapshotFile() {
-        return diskStorePathManager.getSnapshotFile(cacheName, SUFFIX_PROGRESS);
+        return diskStorePathManager.getFile(cacheName, SUFFIX_PROGRESS);
     }
 
     /**
@@ -231,7 +231,7 @@ class RotatingSnapshotFile {
      * @return the File representing the previous successful snapshot (temp file to be deleted)
      */
     File tempSnapshotFile() {
-        return diskStorePathManager.getSnapshotFile(cacheName, SUFFIX_MOVE);
+        return diskStorePathManager.getFile(cacheName, SUFFIX_MOVE);
     }
 
     /**

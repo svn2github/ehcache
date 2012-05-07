@@ -122,7 +122,7 @@ public class DiskStorageFactory {
      */
     public DiskStorageFactory(Ehcache cache, RegisteredEventListeners cacheEventNotificationService) {
         this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
-        this.file = diskStorePathManager.getDataFile(cache.getName());
+        this.file = diskStorePathManager.getFile(cache.getName(), ".data");
         // if diskpath contains auto generated string
         if (file.toString().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
             LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories" + " (they start with "
@@ -131,7 +131,7 @@ public class DiskStorageFactory {
                     + file.getAbsolutePath());
             deleteFile(file);
         }
-        this.indexFile = diskStorePathManager.getIndexFile(cache.getName());
+        this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
         this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
 
         diskPersistent = cache.getCacheConfiguration().isDiskPersistent();

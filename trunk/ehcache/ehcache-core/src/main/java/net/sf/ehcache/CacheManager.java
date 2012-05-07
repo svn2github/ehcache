@@ -76,6 +76,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -203,6 +204,8 @@ public class CacheManager {
      * The path for the directory in which disk caches are created.
      */
     private DiskStorePathManager diskStorePathManager;
+
+    private volatile FeaturesManager featuresManager;
 
     private MBeanRegistrationProvider mbeanRegistrationProvider;
 
@@ -474,6 +477,10 @@ public class CacheManager {
                 registeredMgmtSvrPort = managementRESTService.getPort();
             }
         }
+
+        if (featuresManager != null) {
+            featuresManager.startup();
+        }
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
@@ -679,6 +686,8 @@ public class CacheManager {
         } else {
             diskStorePathManager = DiskStorePathManager.createInstance(diskStorePath);
         }
+
+        this.featuresManager = retrieveFeaturesManager();
 
         this.transactionManagerLookup = runtimeCfg.getTransactionManagerLookup();
 
@@ -1398,11 +1407,6 @@ public class CacheManager {
                 searchManager.shutdown();
             }
 
-            // release file lock on diskstore path
-            if (diskStorePathManager != null) {
-              diskStorePathManager.releaseLock();
-            }
-
             boolean removeMgmtSvr = false;
             if (registeredMgmtSvrPort != null) {
                 ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
@@ -1462,7 +1466,14 @@ public class CacheManager {
             nonstopExecutorServiceFactory.shutdown(this);
             getCacheRejoinAction().unregisterAll();
 
+            if (featuresManager != null) {
+                featuresManager.shutdown();
+            }
 
+            // release file lock on diskstore path
+            if (diskStorePathManager != null) {
+              diskStorePathManager.releaseLock();
+            }
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);
@@ -2148,6 +2159,40 @@ public class CacheManager {
          */
         public void unregisterAll() {
             caches.clear();
+        }
+    }
+
+    /**
+     * Get the features manager.
+     *
+     * @return the features manager
+     */
+    public FeaturesManager getFeaturesManager() {
+        return featuresManager;
+    }
+
+    private FeaturesManager retrieveFeaturesManager() {
+        try {
+            Class<? extends FeaturesManager> featuresManagerClass = ClassLoaderUtil.loadClass(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
+
+            try {
+                return featuresManagerClass.getConstructor(CacheManager.class).newInstance(this);
+            } catch (NoSuchMethodException e) {
+                throw new CacheException("Cannot find Enterprise features manager");
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof CacheException) {
+                    throw (CacheException) cause;
+                } else {
+                    throw new CacheException("Cannot instantiate enterprise features manager", cause);
+                }
+            } catch (IllegalAccessException e) {
+                throw new CacheException("Cannot instantiate enterprise features manager", e);
+            } catch (InstantiationException e) {
+                throw new CacheException("Cannot instantiate enterprise features manager", e);
+            }
+        } catch (ClassNotFoundException e) {
+            return null;
         }
     }
 }
