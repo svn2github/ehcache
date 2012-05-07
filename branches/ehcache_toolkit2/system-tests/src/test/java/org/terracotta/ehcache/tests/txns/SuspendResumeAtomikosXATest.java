@@ -1,8 +1,9 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.ehcache.tests.txns;
 
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.test.util.TestBaseUtil;
 
 import com.atomikos.icatch.config.UserTransactionService;
@@ -13,10 +14,10 @@ import com.tc.test.config.model.TestConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TwoResourceSuspendResumeAtomikosXATest extends AbstractCacheTestBase {
+public class SuspendResumeAtomikosXATest extends AbstractCacheTestBase {
 
-  public TwoResourceSuspendResumeAtomikosXATest(TestConfig testConfig) {
-    super("two-resource-xa-test.xml", testConfig, TwoResourceSuspendResumeClient.class);
+  public SuspendResumeAtomikosXATest(TestConfig testConfig) {
+    super("basic-xa-test.xml", testConfig, SuspendResumeClient.class);
     testConfig.getClientConfig().setParallelClients(false);
   }
 

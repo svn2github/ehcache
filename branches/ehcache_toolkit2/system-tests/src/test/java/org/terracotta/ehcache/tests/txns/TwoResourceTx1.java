@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.ehcache.tests.txns;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -10,40 +10,33 @@ import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
 import org.terracotta.toolkit.Toolkit;
 
-import java.io.Serializable;
-
 import javax.transaction.TransactionManager;
 
-import junit.framework.Assert;
+public class TwoResourceTx1 extends AbstractTxClient {
 
-public class SimpleTx1 extends AbstractTxClient {
-
-  public SimpleTx1(String[] args) {
+  public TwoResourceTx1(String[] args) {
     super(args);
 
   }
 
   @Override
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
+    Cache cache2 = getCacheManager().getCache("test2");
     final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
     final TransactionManager txnManager = lookup.getTransactionManager();
     int commitCount = 0;
     int rollbackCount = 0;
     System.out.println(txnManager);
 
-    SomeClass instance = new SomeClass(1);
-    instance.someOtherInstance = new SomeClass(2);
-
     try {
       txnManager.begin();
       cache.put(new Element("key1", "value1"));
 
-      cache.put(new Element("someInstance", instance));
+      cache2.put(new Element("key1", "value1"));
 
       Element element = cache.get("key1");
       System.out.println("key1:" + element.getValue());
       System.out.println("size1: " + cache.getSize());
-      Assert.assertTrue("Should NOT be the same instance", instance != cache.get("someInstance").getValue());
       txnManager.commit();
       commitCount++;
     } catch (Exception e) {
@@ -56,7 +49,7 @@ public class SimpleTx1 extends AbstractTxClient {
       txnManager.begin();
       cache.put(new Element("key1", "value2"));
 
-      Assert.assertTrue("Should NOT be the same instance", instance != cache.get("someInstance").getValue());
+      cache2.put(new Element("key1", "value1"));
 
       Element element = cache.get("key1");
       System.out.println("key1:" + element.getValue());
@@ -72,6 +65,8 @@ public class SimpleTx1 extends AbstractTxClient {
 
     try {
       txnManager.begin();
+
+      cache2.put(new Element("key1", "value1"));
 
       Element element = cache.get("key1");
       System.out.println("key1:" + element.getValue());
@@ -97,6 +92,7 @@ public class SimpleTx1 extends AbstractTxClient {
 
       cache.put(new Element("remove1", "removeValue"));
       System.out.println("size1: " + cache.getSize());
+      cache2.put(new Element("key1", "value1"));
 
       txnManager.commit();
       commitCount++;
@@ -117,6 +113,7 @@ public class SimpleTx1 extends AbstractTxClient {
       int sizeBefore = cache.getSize();
       cache.remove("remove1");
       System.out.println("size1: " + cache.getSize());
+      cache2.put(new Element("key1", "value1"));
 
       int sizeAfter = cache.getSize();
       if (sizeAfter >= sizeBefore) { throw new AssertionError("remove should reduce the size, expected: "
@@ -141,16 +138,6 @@ public class SimpleTx1 extends AbstractTxClient {
   }
 
   public static void main(String[] args) {
-    new SimpleTx1(args).run();
-  }
-
-  public static final class SomeClass implements Serializable {
-
-    public int       someValue;
-    public SomeClass someOtherInstance;
-
-    public SomeClass(final int someValue) {
-      this.someValue = someValue;
-    }
+    new TwoResourceTx1(args).run();
   }
 }

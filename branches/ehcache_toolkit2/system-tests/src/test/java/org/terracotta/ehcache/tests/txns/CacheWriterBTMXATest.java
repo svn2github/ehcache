@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.ehcache.tests.txns;
 
 import org.apache.derby.jdbc.EmbeddedXADataSource;
 import org.hibernate.dialect.DerbyDialect;

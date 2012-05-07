@@ -1,8 +1,12 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.ehcache.tests.txns;
 
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
+import org.terracotta.ehcache.tests.Client1;
+import org.terracotta.ehcache.tests.Client2;
+import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.TestBaseUtil;
 
 import bitronix.tm.TransactionManagerServices;

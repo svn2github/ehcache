@@ -1,4 +1,6 @@
-package org.terracotta.ehcache.tests;
+package org.terracotta.ehcache.tests.txns;
+
+import org.terracotta.ehcache.tests.ClientBase;
 
 
 

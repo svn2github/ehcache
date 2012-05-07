@@ -1,4 +1,4 @@
-package org.terracotta.ehcache.tests;
+package org.terracotta.ehcache.tests.txns;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
@@ -11,6 +11,7 @@ import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
 
+import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 
 import java.util.Arrays;
