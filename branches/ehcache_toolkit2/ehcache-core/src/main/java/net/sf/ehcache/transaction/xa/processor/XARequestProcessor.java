@@ -29,12 +29,12 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Default implementation for XARequestProcessor.
- * 
+ *
  * This class ties an Xid to an Executor service. This is necessary so that
  * locking for 2pc by the same thread.
- * 
+ *
  * {@link XARequestProcessor xaRequestProcessor}.
- *  
+ *
  * @author Nabib El-Rahman
  */
 public class XARequestProcessor {
@@ -43,11 +43,11 @@ public class XARequestProcessor {
 
     private final ConcurrentMap<Xid, XAThreadPool.MultiRunner> executorMap =
             new ConcurrentHashMap<Xid, XAThreadPool.MultiRunner>();
-    private EhcacheXAResourceImpl resourceImpl;
+    private final EhcacheXAResourceImpl resourceImpl;
 
     /**
      * Constructor
-     * 
+     *
      * @param resourceImpl The EhcacheXAResourceImpl instance this processor will perform against
      */
     public XARequestProcessor(EhcacheXAResourceImpl resourceImpl) {
@@ -92,7 +92,7 @@ public class XARequestProcessor {
                     " request failed on [" + request.getXid() + "]", xaResponse.getXaException().errorCode,
                     xaResponse.getXaException());
         }
-        
+
         if (request.getRequestType().equals(XARequest.RequestType.COMMIT) ||
             request.getRequestType().equals(XARequest.RequestType.ROLLBACK) ||
             request.getRequestType().equals(XARequest.RequestType.FORGET) ||
@@ -102,7 +102,7 @@ public class XARequestProcessor {
 
         return xaResponse.getFlags();
     }
-    
+
     /**
      * Gets the executor service for a Transaction, either by creating a new one if none exists, or returning the
      * existing one
@@ -135,7 +135,7 @@ public class XARequestProcessor {
     private static class XARequestCallable implements Callable<XAResponse> {
         private final EhcacheXAResourceImpl resourceImpl;
         private final XARequest request;
-        private Xid xid;
+        private final Xid xid;
 
         /**
          * Constructor
@@ -148,9 +148,9 @@ public class XARequestProcessor {
             this.request = request;
             this.xid = xid;
         }
-             
+
         /**
-         * 
+         *
          */
         public XAResponse call() throws Exception {
             Thread.currentThread().setName("XA-Request processor Thread Xid [ " + xid + " ]");
@@ -159,45 +159,48 @@ public class XARequestProcessor {
             XAException xaException = null;
             try {
             switch(request.getRequestType()) {
-                
+
                 case FORGET:
                     resourceImpl.forgetInternal(request.getXid());
                     break;
-                    
+
                 case PREPARE:
                     returnFlag = resourceImpl.prepareInternal(request.getXid());
                     break;
-                    
+
                 case ROLLBACK:
                     resourceImpl.rollbackInternal(request.getXid());
                     break;
-                    
+
                 case COMMIT:
                     resourceImpl.commitInternal(request.getXid(), request.isOnePhase());
                     break;
-                
+
                 default:
                     throw new EhcacheXAException("Unknown enum type: " + request.getRequestType(), XAException.XAER_RMERR);
             }
             } catch (XAException xaE) {
                 xaException = xaE;
+            } catch (Throwable t) {
+                xaException = new EhcacheXAException("Some problem happened while processing xa request: " + request.getRequestType(),
+                        XAException.XAER_RMERR, t);
             }
-            
+
             return new XAResponse(returnFlag, xaException);
         }
-        
+
     }
-    
+
     /**
-     * 
+     *
      * @author nelrahma
      *
      */
     private static class XAResponse {
-        
+
         private final int flags;
         private final XAException xaException;
-        
+
         /**
          * Constructor
          * @param flags flags returned by the actual call against the XAResource
@@ -222,8 +225,8 @@ public class XARequestProcessor {
          */
         public XAException getXaException() {
             return xaException;
-        }   
-        
+        }
+
     }
 
 }
