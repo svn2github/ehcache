@@ -25,6 +25,9 @@ import java.io.Serializable;
  */
 public interface ToolkitInstanceFactory {
 
+  /**
+   * Returns the toolkit associated with this factory
+   */
   Toolkit getToolkit();
 
   /**
@@ -32,6 +35,9 @@ public interface ToolkitInstanceFactory {
    */
   String getFullyQualifiedCacheName(Ehcache cache);
 
+  /**
+   * Returns the fully qualified name given the cacheManager and the cache names
+   */
   String getFullyQualifiedCacheName(String cacheManagerName, String cacheName);
 
   /**
