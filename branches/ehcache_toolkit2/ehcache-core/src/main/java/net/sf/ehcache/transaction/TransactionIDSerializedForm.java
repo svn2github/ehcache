@@ -29,7 +29,7 @@ import java.io.Serializable;
  *
  * @author Ludovic Orban
  */
-public final class TransactionIDSerializedForm implements Serializable {
+public class TransactionIDSerializedForm implements Serializable {
     private final String cacheManagerName;
     private final String clusterUUID;
     private final long creationTime;

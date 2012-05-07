@@ -9,10 +9,10 @@ import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.xa.DummyTransactionManagerLookup;
 import org.terracotta.ehcache.tests.xa.DummyXid;
 import org.terracotta.ehcache.tests.xa.EhCacheXAResourceExtractor;
+import org.terracotta.toolkit.Toolkit;
 
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
@@ -357,7 +357,7 @@ public class BareXAResourceTx extends AbstractTxClient {
 
     tm.begin();
     getXAResource().start(xid21, XAResource.TMNOFLAGS);
-    Assert.assertTrue(cache.get(ELEMENT.getKey()) == null); // "TX XID21 should see no data"
+    Assert.assertNull(cache.get(ELEMENT.getKey())); // "TX XID21 should see no data"
     getXAResource().end(xid21, XAResource.TMSUCCESS);
     getXAResource().rollback(xid21);
 

@@ -11,5 +11,6 @@ public class XAResourceTest extends AbstractCacheTestBase {
 
   public XAResourceTest(TestConfig testConfig) {
     super("xaresource-test.xml", testConfig, BareXAResourceTx.class);
+    // getTestConfig().getClientConfig().getBytemanConfig().setScript("/byteman/debugEhcacheTxnsState.btm");
   }
 }

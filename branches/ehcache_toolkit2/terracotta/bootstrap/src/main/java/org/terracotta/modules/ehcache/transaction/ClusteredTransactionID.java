@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.transaction;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDSerializedForm;
 
@@ -93,8 +95,27 @@ public class ClusteredTransactionID implements TransactionID {
   }
 
   private Object writeReplace() {
-    // always store constant value for transaction commit state (using false)
-    return new TransactionIDSerializedForm(cacheManagerName, clusterUUID, creationTime, id, false);
+    return new TransactionIdSerializedFormWithoutCommitState(cacheManagerName, clusterUUID, creationTime, id);
+  }
+
+  /**
+   * Serialized form of transaction id - doesn't store the commit state and can be used as a cluster wide constant id
+   */
+  private static class TransactionIdSerializedFormWithoutCommitState extends TransactionIDSerializedForm {
+
+    public TransactionIdSerializedFormWithoutCommitState(String cacheManagerName, String clusterUUID,
+                                                         long creationTime, int id) {
+      // always store constant value for transaction commit state (using false)
+      super(cacheManagerName, clusterUUID, creationTime, id, false);
+    }
+
+    private Object readResolve() {
+      CacheManager cacheManager = CacheManager.getCacheManager(getCacheManagerName());
+      if (cacheManager == null) { throw new TransactionException("unable to restore transaction ID from "
+                                                                 + getCacheManagerName()); }
+      return cacheManager.getOrCreateTransactionIDFactory().restoreTransactionID(this);
+    }
+
   }
 
 }

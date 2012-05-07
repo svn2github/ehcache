@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.transaction.xa;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.XidTransactionIDSerializedForm;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
@@ -47,7 +49,7 @@ public class ClusteredXidTransactionID implements XidTransactionID {
   }
 
   public void markForRollback() {
-    facade.updateXATransactionDecision(this, XATransactionDecision.COMMIT);
+    facade.updateXATransactionDecision(this, XATransactionDecision.ROLLBACK);
   }
 
   public Xid getXid() {
@@ -83,7 +85,26 @@ public class ClusteredXidTransactionID implements XidTransactionID {
   }
 
   private Object writeReplace() {
-    return new XidTransactionIDSerializedForm(cacheManagerName, xid, facade.getXATransactionDecision(this).toString());
+    return new XidTransactionIdSerializedFormWithoutDecision(cacheManagerName, xid);
+  }
+
+  /**
+   * Serialized form of xid - doesn't store the decision state and can be used as a cluster wide constant id
+   */
+  private static class XidTransactionIdSerializedFormWithoutDecision extends XidTransactionIDSerializedForm {
+
+    private static final String UNUSED_DECISION = "unused";
+
+    public XidTransactionIdSerializedFormWithoutDecision(String cacheManagerName, Xid xid) {
+      super(cacheManagerName, xid, UNUSED_DECISION);
+    }
+
+    private Object readResolve() {
+      CacheManager cacheManager = CacheManager.getCacheManager(getCacheManagerName());
+      if (cacheManager == null) { throw new TransactionException("unable to restore XID transaction ID from "
+                                                                 + getCacheManagerName()); }
+      return cacheManager.getOrCreateTransactionIDFactory().restoreXidTransactionID(this);
+    }
   }
 
 }
