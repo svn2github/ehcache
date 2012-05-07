@@ -274,11 +274,6 @@ public class CacheConfiguration implements Cloneable {
     protected volatile boolean diskPersistent = DEFAULT_DISK_PERSISTENT;
 
     /**
-     * The path where the disk store is located
-     */
-    protected volatile String diskStorePath;
-
-    /**
      * The size of the disk spool used to buffer writes
      */
     protected volatile int diskSpoolBufferSizeMB = DEFAULT_SPOOL_BUFFER_SIZE;
