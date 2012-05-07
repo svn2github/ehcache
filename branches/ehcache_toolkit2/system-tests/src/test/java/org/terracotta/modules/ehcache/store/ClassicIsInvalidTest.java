@@ -9,9 +9,9 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.Assert;
@@ -62,9 +62,7 @@ public class ClassicIsInvalidTest extends AbstractCacheTestBase {
         // expected exception
       }
 
-      crerateCache("eventualDCV2Identity", cacheManager, "DCV2", Consistency.EVENTUAL, "IDENTITY");
       crerateCache("eventualDCV2Serialization", cacheManager, "DCV2", Consistency.EVENTUAL, "SERIALIZATION");
-      crerateCache("strongDCV2Identity", cacheManager, "DCV2", Consistency.STRONG, "IDENTITY");
       crerateCache("strongDCV2Serialization", cacheManager, "DCV2", Consistency.STRONG, "SERIALIZATION");
 
     }

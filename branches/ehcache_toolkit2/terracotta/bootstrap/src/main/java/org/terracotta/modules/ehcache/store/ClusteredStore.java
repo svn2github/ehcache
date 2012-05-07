@@ -399,7 +399,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public int getInMemorySize() {
-    return (int) backend.localOnHeapSizeInBytes();
+    return backend.localOnHeapSize();
   }
 
   @Override
