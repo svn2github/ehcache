@@ -182,12 +182,14 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public boolean isPinned(Object key) {
-    return backend.isPinned(key);
+    Object pKey = generatePortableKeyFor(key);
+    return backend.isPinned(pKey);
   }
 
   @Override
   public void setPinned(Object key, boolean pinned) {
-    backend.setPinned(key, pinned);
+    Object pKey = generatePortableKeyFor(key);
+    backend.setPinned(pKey, pinned);
   }
 
   @Override
