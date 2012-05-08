@@ -124,7 +124,7 @@ public class DiskStorageFactory {
         this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
         this.file = diskStorePathManager.getFile(cache.getName(), ".data");
         // if diskpath contains auto generated string
-        if (file.toString().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+        if (file.getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
             LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories" + " (they start with "
                     + DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n" + "Deleting data file "
@@ -336,17 +336,6 @@ public class DiskStorageFactory {
     protected void delete() {
         deleteFile(file);
         allocator.clear();
-        if (file.getAbsolutePath().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-            //try to delete the auto_createtimestamp directory. Will work when the last Disk Store deletes
-            //the last files and the directory becomes empty.
-            File dataDirectory = file.getParentFile();
-            if (dataDirectory != null && dataDirectory.exists()) {
-                if (dataDirectory.delete()) {
-                    LOG.debug("Deleted directory " + dataDirectory.getName());
-                }
-            }
-
-        }
     }
 
     /**
@@ -963,7 +952,7 @@ public class DiskStorageFactory {
 
         try {
             shutdown();
-            if (getDataFile().getAbsolutePath().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            if (getDataFile().getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
                 deleteFile(indexFile);
                 delete();
             }

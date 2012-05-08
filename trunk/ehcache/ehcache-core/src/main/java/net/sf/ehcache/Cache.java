@@ -1080,7 +1080,11 @@ public class Cache implements InternalEhcache, StoreListener {
             } else {
                 FeaturesManager featuresManager = cacheManager.getFeaturesManager();
                 if (featuresManager == null) {
-                    if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                    if (configuration.isOverflowToOffHeap()) {
+                        throw new CacheException("Cache " + configuration.getName()
+                                + " cannot be configured because the enterprise features manager could not be found. "
+                                + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
+                    } else if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                         Store disk = createDiskStore();
                         store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                     } else {
