@@ -1240,7 +1240,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testInitialiseFailures() {
         final String name = "testInitialiseFailures2";
         Cache cache = new Cache(name, 1, false, false, 5, 1);
-        cache.initialise();
+        manager.addCache(cache);
 
         try {
             cache.initialise();
