@@ -1241,7 +1241,6 @@ public class CacheTest extends AbstractCacheTest {
         final String name = "testInitialiseFailures2";
         Cache cache = new Cache(name, 1, false, false, 5, 1);
         manager.addCache(cache);
-
         try {
             cache.initialise();
             fail("Calling cache.initialise() multiple times should fail with IllegalStateException");
@@ -1251,6 +1250,8 @@ public class CacheTest extends AbstractCacheTest {
             } else {
                 throw e;
             }
+        } finally {
+            manager.removeCache(name);
         }
     }
 
