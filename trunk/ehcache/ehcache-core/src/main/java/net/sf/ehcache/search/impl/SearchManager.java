@@ -80,4 +80,14 @@ public interface SearchManager {
      */
     void clear(String cacheName, int segmentId);
 
+    /**
+     * Update the unqiue key for an existing entry
+     *
+     * @param cacheName cache name to update
+     * @param segmentId segment of cache
+     * @param existingKey the existing unique key
+     * @param newKey the new unique key
+     */
+    void move(String cacheName, int segmentId, String existingKey, String newKey);
+
 }

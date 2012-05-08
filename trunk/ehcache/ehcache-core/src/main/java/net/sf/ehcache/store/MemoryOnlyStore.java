@@ -232,6 +232,11 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
             throw new UnsupportedOperationException();
         }
 
+        @Override
+        public void move(String cacheName, int segmentId, String existingKey, String newKey) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
 }
