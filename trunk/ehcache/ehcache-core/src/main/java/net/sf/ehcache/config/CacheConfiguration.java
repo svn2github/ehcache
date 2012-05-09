@@ -31,6 +31,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.event.NotificationScope;
@@ -160,7 +161,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Default value for diskPersistent
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public static final boolean DEFAULT_DISK_PERSISTENT = false;
 
     /**
@@ -264,7 +268,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * For caches that overflow to disk, whether the disk cache persists between CacheManager instances.
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     protected volatile boolean diskPersistent = DEFAULT_DISK_PERSISTENT;
 
     /**
@@ -930,7 +937,9 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether the disk store persists between CacheManager instances. Note that this operates independently of {@link #overflowToDisk}.
      *
      * @param diskPersistent whether to persist the cache to disk between JVM restarts
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public final void setDiskPersistent(boolean diskPersistent) {
         checkDynamicChange();
         this.diskPersistent = diskPersistent;
@@ -943,7 +952,9 @@ public class CacheConfiguration implements Cloneable {
      * @param diskPersistent whether to persist the cache to disk between JVM restarts.
      * @return this configuration instance
      * @see #setDiskPersistent(boolean)
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public final CacheConfiguration diskPersistent(boolean diskPersistent) {
         setDiskPersistent(diskPersistent);
         return this;
@@ -2205,6 +2216,10 @@ public class CacheConfiguration implements Cloneable {
             if (diskPersistent) {
                 throw new InvalidConfigurationException("diskPersistent isn't supported for a clustered Terracotta cache");
             }
+            if (persistenceConfiguration != null && !Strategy.DISTRIBUTED.equals(persistenceConfiguration.getStrategy())) {
+                throw new InvalidConfigurationException(persistenceConfiguration.getStrategy() +
+                        " persistence strategy isn't supported for a clustered Terracotta cache");
+            }
             if (cacheEventListenerConfigurations != null) {
                 for (CacheEventListenerFactoryConfiguration listenerConfig : cacheEventListenerConfigurations) {
                     if (null == listenerConfig.getFullyQualifiedClassPath()) {
@@ -2331,7 +2346,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public boolean isDiskPersistent() {
         return diskPersistent;
     }
