@@ -68,6 +68,12 @@ public interface StoreQuery {
     Set<Attribute<?>> requestedAttributes();
 
     /**
+     * Get the set of attributes to group result set by
+     * @return attributes to group by (if any)
+     */
+    Set<Attribute<?>> groupByAttributes();
+
+    /**
      * Get the requested search orderings
      *
      * @return the request sort orders (if any)
