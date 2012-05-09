@@ -45,7 +45,7 @@ public class ElementData implements Externalizable {
 
   public ElementData(final Element element) {
     this(element.getValue(), element.getVersion(), element.getCreationTime(), element.getLastAccessTime(), element
-        .getHitCount(), element.isLifespanSet(), element.getTimeToLive(), element.getTimeToIdle(), element
+        .getHitCount(), element.usesCacheDefaultLifespan(), element.getTimeToLive(), element.getTimeToIdle(), element
         .getLastUpdateTime());
   }
 

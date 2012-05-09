@@ -447,28 +447,7 @@ public final class NoOpOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Element unlockedGet(Object key) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(Object key) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Element unsafeGet(Object key) {
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGetQuiet(Object key) {
         return null;
     }
 

@@ -83,6 +83,7 @@ public class ClusteredStore implements TerracottaStore {
 
   // non-final private fields
   private EventListenerList                                      listenerList;
+  private final CacheEventListener                               evictionListener;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     validateConfig(cache);
@@ -116,7 +117,8 @@ public class ClusteredStore implements TerracottaStore {
       LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
     }
     registeredEventListeners = cache.getCacheEventNotificationService();
-    backend.addListener(new CacheEventListener());
+    evictionListener = new CacheEventListener();
+    backend.addListener(evictionListener);
     cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
   }
 
@@ -390,6 +392,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public void dispose() {
+    backend.removeListener(evictionListener);
     backend.disposeLocally();
     cacheConfigChangeBridge.disconnectConfigs();
   }

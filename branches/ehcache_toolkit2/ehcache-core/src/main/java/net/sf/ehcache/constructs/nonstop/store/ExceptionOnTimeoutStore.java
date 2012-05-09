@@ -551,29 +551,8 @@ public final class ExceptionOnTimeoutStore implements NonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Element unlockedGet(Object key) {
-        throw new NonStopCacheException("unlockedGet() timed out");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(Object key) {
-        throw new NonStopCacheException("unlockedGetQuiet() timed out");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Element unsafeGet(Object key) {
         throw new NonStopCacheException("unsafeGet() timed out");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGetQuiet(Object key) {
-        throw new NonStopCacheException("unsafeGetQuiet() timed out");
     }
 
     /**

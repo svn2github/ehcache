@@ -13,9 +13,9 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
 import org.junit.Assert;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;

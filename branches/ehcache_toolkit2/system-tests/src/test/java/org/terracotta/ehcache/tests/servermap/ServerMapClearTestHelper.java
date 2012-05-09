@@ -37,9 +37,9 @@ public abstract class ServerMapClearTestHelper {
     }
     barrier.await();
 
-    long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
     debug(index, "Asserting cache is populated");
     if (index == 0) {
+      long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
       debug(index, "should hit local cache for this node");
       checkElements(index, dsoMBean, cache, numElements, initialGetValueReqCount, 0);
 
@@ -47,6 +47,7 @@ public abstract class ServerMapClearTestHelper {
     barrier.await();
 
     if (index != 0) {
+      long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
       debug(index, "should NOT hit local cache for this node");
       checkElements(index, dsoMBean, cache, numElements, initialGetValueReqCount, numElements);
     }
