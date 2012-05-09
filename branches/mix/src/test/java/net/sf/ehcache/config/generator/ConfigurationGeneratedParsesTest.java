@@ -30,21 +30,21 @@ public class ConfigurationGeneratedParsesTest {
         "ehcache.xml",
         "ehcache-big.xml",
         "ehcache-cacheextension.xml",
-        "ehcache-comparator",
-        "ehcache-copy",
+        "ehcache-comparator.xml",
         "ehcache-countinglisteners.xml",
         "ehcache-search.xml",
         "ehcache-tx-local.xml",
         "ehcache-tx-twopc.xml",
         "ehcache-writer.xml",
-        "ehcacheUTF8.xml"
+        "ehcacheUTF8.xml",
+        "ehcache-persistence.xml"
     };
 
     @Test
     public void testGeneratedConfigIsValid() throws CacheException, UnsupportedEncodingException {
         for (String config : TEST_CONFIGS) {
             String generatedConfig;
-            CacheManager manager = new CacheManager(ConfigurationGeneratedParsesTest.class.getResource(config));
+            CacheManager manager = new CacheManager(ConfigurationGeneratedParsesTest.class.getClassLoader().getResource(config));
             try {
                 generatedConfig = manager.getActiveConfigurationText();
             } finally {
