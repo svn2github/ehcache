@@ -112,16 +112,23 @@ public class AbstractCacheTestBase extends AbstractTestBase {
 
     List<String> lines = IOUtils.readLines(is);
 
+    final boolean isStandAloneTest = getTestConfig().isStandAloneTest();
     // Replace PORT token
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
-      line = line.replace("localhost:PORT", getTerracottaURL());
-      line = line.replace("CONFIG", ehcacheConfigPath);
-      line = line.replace("TEMP", tempDir.getAbsolutePath());
-      line = line.replace("TERRACOTTA_URL", getTerracottaURL());
+      if (!isStandAloneTest) {
+        line = line.replace("localhost:PORT", getTerracottaURL());
+        line = line.replace("CONFIG", ehcacheConfigPath);
+        line = line.replace("TEMP", tempDir.getAbsolutePath());
+        line = line.replace("TERRACOTTA_URL", getTerracottaURL());
 
-      String nameSuffixReplaceValue = nameSuffix == null ? "" : "-" + nameSuffix;
-      line = line.replace("__NAME_SUFFIX__", nameSuffixReplaceValue);
+        String nameSuffixReplaceValue = nameSuffix == null ? "" : "-" + nameSuffix;
+        line = line.replace("__NAME_SUFFIX__", nameSuffixReplaceValue);
+      } else {
+        if (line.contains("terracotta")) {
+          line = "";
+        }
+      }
 
       lines.set(i, line);
     }
