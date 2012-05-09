@@ -31,6 +31,7 @@ import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.ReadWriteLockSync;
 import net.sf.ehcache.concurrent.StripedReadWriteLock;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
+import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -69,10 +70,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
      * @param cache the caching tier
      * @param authority the authority tier
      * @param copyStrategy the copyStrategy to use
+     * @param searchManager the search manager to use
      * @param copyOnWrite whether to copy on writes, false otherwise
      * @param copyOnRead whether to copy on reads, false otherwise
      */
-    public FrontEndCacheTier(T cache, U authority, ReadWriteCopyStrategy<Element> copyStrategy, boolean copyOnWrite, boolean copyOnRead) {
+    public FrontEndCacheTier(T cache, U authority, ReadWriteCopyStrategy<Element> copyStrategy, SearchManager searchManager,
+                             boolean copyOnWrite, boolean copyOnRead) {
+        super(searchManager);
         this.cache = cache;
         this.authority = authority;
         this.copyStrategy = copyStrategy;
@@ -772,7 +776,7 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
 
         private Element result;
         private boolean complete;
-        
+
         public Element get() {
             boolean interrupted = false;
             try {
