@@ -1173,7 +1173,7 @@ public class Cache implements InternalEhcache, StoreListener {
                         .invoke(null, this, onHeapPool, onDiskPool), copyStrategy);
             } catch (NoSuchMethodException e) {
                 throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
-                        + " method create(Ehcache, String)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
+                        + " method create(Ehcache, Pool, Pool)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
             } catch (InvocationTargetException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof CacheException) {
