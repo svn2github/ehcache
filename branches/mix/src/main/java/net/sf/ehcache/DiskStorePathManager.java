@@ -181,43 +181,30 @@ public final class DiskStorePathManager {
     }
 
     /**
-     * Legacy way of creating an index file
+     * Get a file object for the given cache-name and suffix
      *
-     * @param cacheName
-     * @return
+     * @param cacheName the cache name
+     * @param suffix a file suffix
+     * @return a file object
      */
-    public File getIndexFile(String cacheName) {
-        return new File(diskStorePath, safeName(cacheName) + ".index");
+    public File getFile(String cacheName, String suffix) {
+        return getFile(safeName(cacheName) + suffix);
     }
 
     /**
-     * Legacy way of creating a data file
+     * Get a file object for the given name
      *
-     * @param cacheName
-     * @return
+     * @param name the file name
+     * @return a file object
      */
-    public File getDataFile(String cacheName) {
-        return new File(diskStorePath, safeName(cacheName) + ".data");
-    }
-
-    /**
-     * Get the root directory for search indices
-     *
-     * @return search index root directory
-     */
-    public File getSearchIndexDir() {
-        return new File(diskStorePath, "search-index");
-    }
-
-    /**
-     * Create snapshots file. Used by RotatingSnapshotFile
-     *
-     * @param cacheName
-     * @param suffix
-     * @return
-     */
-    public File getSnapshotFile(String cacheName, String suffix) {
-        return new File(diskStorePath, safeName(cacheName) + suffix);
+    public File getFile(String name) {
+        File file = new File(diskStorePath, name);
+        for (File parent = file.getParentFile(); parent != null; parent = parent.getParentFile()) {
+            if (diskStorePath.equals(parent)) {
+                return file;
+            }
+        }
+        throw new IllegalArgumentException("Attempted to access file outside the disk-store path");
     }
 
     /**
