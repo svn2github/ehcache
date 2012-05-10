@@ -178,6 +178,11 @@ public final class DiskStorePathManager {
                 throw new CacheException("Failed to release disk store path's lock file:" + lockFile, e);
             }
         }
+        if (diskStorePath.getName().startsWith(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            if (diskStorePath.delete()) {
+                LOG.debug("Deleted directory " + diskStorePath.getName());
+            }
+        }
     }
 
     /**
