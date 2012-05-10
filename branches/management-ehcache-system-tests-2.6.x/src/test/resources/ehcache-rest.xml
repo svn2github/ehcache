@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="CM1">
+
+  <managementRESTService enabled="true" bind="localhost:9889"/>
+
+  <cache name="cache1" maxElementsInMemory="500">
+    <terracotta/>
+  </cache>
+
+  <cache name="cache2" maxElementsInMemory="500">
+    <terracotta/>
+  </cache>
+
+  <terracottaConfig url="localhost:PORT" rejoin="false"/>
+
+</ehcache>
