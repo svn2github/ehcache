@@ -17,6 +17,7 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.store.Store;
 
 /**
@@ -39,7 +40,7 @@ public interface FeaturesManager {
      * @param onDiskPool on-disk pool
      * @return a store for the given cache
      */
-    Store createStore(Cache cache, Pool onHeapPool, Pool onDiskPool);
+    Store createStore(Cache cache, Pool<PoolableStore> onHeapPool, Pool<PoolableStore> onDiskPool);
 
     /**
      * Called on {@code CacheManager} creation.
