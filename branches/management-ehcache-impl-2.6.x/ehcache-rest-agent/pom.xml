@@ -16,11 +16,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.terracotta</groupId>
-      <artifactId>management-core</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>management-ehcache-impl</artifactId>
       <version>${project.version}</version>      
@@ -36,6 +31,7 @@
         <configuration>
           <artifactSet>
             <includes>
+              <!-- includes all Terracotta and Ehcache related dependencies -->
               <include>org.terracotta:*</include>
               <include>net.sf.ehcache:*</include>
             </includes>
