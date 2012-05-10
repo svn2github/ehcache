@@ -86,5 +86,13 @@
               <include>net.sf.ehcache:sizeof-agent</include>
             </includes>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+            <scope>provided</scope>
+            <includes>
+              <include>net.sf.ehcache:ehcache-rest-agent</include>
+            </includes>
+        </dependencySet>         
     </dependencySets>
 </assembly>
