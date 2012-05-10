@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Filter;
 import java.util.logging.LogRecord;
@@ -53,7 +54,7 @@ public class EvictionListenerTest {
     @BeforeClass
     public static void createCacheManager() {
         Configuration configuration = new Configuration();
-        configuration.diskStore(new DiskStoreConfiguration().path("./target/tmp/"));
+        configuration.diskStore(new DiskStoreConfiguration().path("./target/tmp/")).name(EvictionListenerTest.class.getSimpleName());
         cacheManager = new CacheManager(configuration);
         Logger.getLogger(DiskStorageFactory.class.getName()).setFilter(new Filter() {
             public boolean isLoggable(LogRecord lr) {
@@ -80,7 +81,6 @@ public class EvictionListenerTest {
             cache.put(new Element("key" + i, UUID.randomUUID().toString()));
         }
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
-        assertThat(cache.getMemoryStoreSize(), is(100L));
         final int diskStoreSize = cache.getDiskStoreSize();
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
         System.out.println("\n\n ****");
@@ -163,7 +163,6 @@ public class EvictionListenerTest {
     public void testGetsAllEvictedKeys() throws InterruptedException, ExecutionException {
         CountingCacheEventListener countingCacheEventListener = accessCache(cache);
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
-        assertThat(cache.getMemoryStoreSize(), is(100L));
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
@@ -239,6 +238,25 @@ public class EvictionListenerTest {
         DiskStoreHelper.flushAllEntriesToDisk(diskCache).get();
         System.out.println(diskCache.getSize());
         assertThat(cacheElementsEvicted.size() + diskCache.getSize(), is(THREADS * PER_THREAD));
+    }
+
+    @Test
+    public void testGetsAllEvictedKeysWithDiskPersistentEntryBased() throws InterruptedException, ExecutionException {
+        cache = new Cache(new CacheConfiguration("testGetsAllEvictedKeysWithDiskPersistentEntryBased", 100)
+            .maxEntriesLocalDisk(2000)
+            .eternal(true)
+            .diskPersistent(true));
+        cacheManager.addCache(cache);
+        CountingCacheEventListener countingCacheEventListener = accessCache(cache);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
+//        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
+//            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
+//        }
+        assertThat(cache.getSize(), not(is(0)));
+        assertThat(cacheElementsEvicted.size(), not(is(0)));
+        System.out.println(cache.getSize());
+        assertThat(cacheElementsEvicted.size() + cache.getSize(), is(THREADS * PER_THREAD));
     }
 
     private CountingCacheEventListener accessCache(final Cache cacheUT) throws InterruptedException {
@@ -326,7 +344,14 @@ public class EvictionListenerTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws ExecutionException, InterruptedException {
+        if(cache != null) {
+            cache.removeAll();
+            final Future<Void> future = DiskStoreHelper.flushAllEntriesToDisk(cache);
+            if(future != null) {
+                future.get();
+            }
+        }
         cacheManager.removalAll();
     }
 

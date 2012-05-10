@@ -6,6 +6,8 @@ package net.sf.ehcache;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.junit.Assert.assertThat;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -294,8 +296,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             MILLISECONDS.sleep(400);
         }
 
-        Assert.assertEquals(10, cache.getSize());
-        Assert.assertEquals(10, cache.getMemoryStoreSize());
+        assertThat(cache.getSize(), lessThanOrEqualTo(10));
+        assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10L));
         Assert.assertEquals(5, cache.getDiskStoreSize());
     }
 

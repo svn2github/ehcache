@@ -108,7 +108,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
-                    disk, cache.getCacheConfiguration(), onHeapPoolAccessor, onDiskPoolAccessor);
+                    disk, cache.getCacheConfiguration(), onHeapPoolAccessor, onDiskPoolAccessor, cache.getCacheEventNotificationService());
         }
 
         this.disk = disk;
@@ -444,7 +444,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
-    public boolean removeIfTierNotPinned(final Object key) {
+    public boolean removeIfNotPinned(final Object key) {
         return !tierPinned && remove(key) != null;
     }
 
