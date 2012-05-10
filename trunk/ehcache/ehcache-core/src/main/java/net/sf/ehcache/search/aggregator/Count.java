@@ -51,7 +51,7 @@ public class Count implements AggregatorInstance<Integer> {
     /**
      * {@inheritDoc}
      */
-    public Attribute<Integer> getAttribute() {
+    public Attribute<?> getAttribute() {
         return null;
     }
 
