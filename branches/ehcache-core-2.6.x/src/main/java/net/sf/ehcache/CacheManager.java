@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
@@ -68,12 +69,14 @@ import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -203,6 +206,8 @@ public class CacheManager {
      */
     private DiskStorePathManager diskStorePathManager;
 
+    private volatile FeaturesManager featuresManager;
+
     private MBeanRegistrationProvider mbeanRegistrationProvider;
 
     private FailSafeTimer cacheManagerTimer;
@@ -226,6 +231,8 @@ public class CacheManager {
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     private Integer registeredMgmtSvrPort;
+
+    private volatile SearchManager searchManager;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -470,6 +477,10 @@ public class CacheManager {
                 registeredMgmtSvrPort = managementRESTService.getPort();
             }
         }
+
+        if (featuresManager != null) {
+            featuresManager.startup();
+        }
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
@@ -675,6 +686,8 @@ public class CacheManager {
         } else {
             diskStorePathManager = DiskStorePathManager.createInstance(diskStorePath);
         }
+
+        this.featuresManager = retrieveFeaturesManager();
 
         this.transactionManagerLookup = runtimeCfg.getTransactionManagerLookup();
 
@@ -1390,9 +1403,8 @@ public class CacheManager {
                 return;
             }
 
-            // release file lock on diskstore path
-            if (diskStorePathManager != null) {
-              diskStorePathManager.releaseLock();
+            if (searchManager != null) {
+                searchManager.shutdown();
             }
 
             boolean removeMgmtSvr = false;
@@ -1453,6 +1465,15 @@ public class CacheManager {
             removeShutdownHook();
             nonstopExecutorServiceFactory.shutdown(this);
             getCacheRejoinAction().unregisterAll();
+
+            if (featuresManager != null) {
+                featuresManager.shutdown();
+            }
+
+            // release file lock on diskstore path
+            if (diskStorePathManager != null) {
+              diskStorePathManager.releaseLock();
+            }
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);
@@ -1880,6 +1901,24 @@ public class CacheManager {
     }
 
     /**
+     * Get the indexed search manager
+     *
+     * @return an IndexedSearchManager
+     */
+    public SearchManager getIndexedSearchManager() {
+        synchronized (this) {
+            if (searchManager == null) {
+                SearchManager rv = (SearchManager) ClassLoaderUtil.createNewInstance(
+                        "net.sf.ehcache.store.offheap.search.LuceneIndexedSearchManager", new Class[] {DiskStorePathManager.class},
+                        new Object[] {diskStorePathManager});
+                rv.init();
+                searchManager = rv;
+            }
+            return searchManager;
+        }
+    }
+
+    /**
      * Create a soft lock factory for a specific cache
      *
      * @param cache the cache to create the soft lock factory for
@@ -2123,4 +2162,37 @@ public class CacheManager {
         }
     }
 
+    /**
+     * Get the features manager.
+     *
+     * @return the features manager
+     */
+    public FeaturesManager getFeaturesManager() {
+        return featuresManager;
+    }
+
+    private FeaturesManager retrieveFeaturesManager() {
+        try {
+            Class<? extends FeaturesManager> featuresManagerClass = ClassLoaderUtil.loadClass(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
+
+            try {
+                return featuresManagerClass.getConstructor(CacheManager.class).newInstance(this);
+            } catch (NoSuchMethodException e) {
+                throw new CacheException("Cannot find Enterprise features manager");
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof CacheException) {
+                    throw (CacheException) cause;
+                } else {
+                    throw new CacheException("Cannot instantiate enterprise features manager", cause);
+                }
+            } catch (IllegalAccessException e) {
+                throw new CacheException("Cannot instantiate enterprise features manager", e);
+            } catch (InstantiationException e) {
+                throw new CacheException("Cannot instantiate enterprise features manager", e);
+            }
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 }

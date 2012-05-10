@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import net.sf.ehcache.search.Result;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 
 /**
  * Compound sort ordering comparactor
  *
  * @author teck
+ * @param <T>
  */
-public class OrderComparator implements Comparator<Result> {
+public class OrderComparator<T extends BaseResult> implements Comparator<T> {
 
-    private final List<Comparator<Result>> comparators;
+    private final List<Comparator<T>> comparators;
 
     /**
      * Constructor
@@ -39,7 +39,7 @@ public class OrderComparator implements Comparator<Result> {
      * @param orderings
      */
     public OrderComparator(List<Ordering> orderings) {
-        comparators = new ArrayList<Comparator<Result>>();
+        comparators = new ArrayList<Comparator<T>>();
         int pos = 0;
         for (Ordering ordering : orderings) {
             switch (ordering.getDirection()) {
@@ -63,8 +63,8 @@ public class OrderComparator implements Comparator<Result> {
     /**
      * {@inheritDoc}
      */
-    public int compare(Result o1, Result o2) {
-        for (Comparator<Result> c : comparators) {
+    public int compare(T o1, T o2) {
+        for (Comparator<T> c : comparators) {
             int cmp = c.compare(o1, o2);
             if (cmp != 0) {
                 return cmp;
@@ -76,7 +76,7 @@ public class OrderComparator implements Comparator<Result> {
     /**
      * Simple ascending comparator
      */
-    private static class AscendingComparator implements Comparator<Result>, Serializable {
+    private class AscendingComparator implements Comparator<T>, Serializable {
 
         private final int pos;
 
@@ -84,9 +84,9 @@ public class OrderComparator implements Comparator<Result> {
             this.pos = pos;
         }
 
-        public int compare(Result o1, Result o2) {
-            Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
-            Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
+        public int compare(T o1, T o2) {
+            Object attr1 = o1.getSortAttribute(pos);
+            Object attr2 = o2.getSortAttribute(pos);
 
             if ((attr1 == null) && (attr2 == null)) {
                 return 0;
@@ -107,7 +107,7 @@ public class OrderComparator implements Comparator<Result> {
     /**
      * Simple descending comparator
      */
-    private static class DescendingComparator implements Comparator<Result>, Serializable {
+    private class DescendingComparator implements Comparator<T>, Serializable {
 
         private final int pos;
 
@@ -115,9 +115,9 @@ public class OrderComparator implements Comparator<Result> {
             this.pos = pos;
         }
 
-        public int compare(Result o1, Result o2) {
-            Object attr1 = ((ResultImpl) o1).getSortAttribute(pos);
-            Object attr2 = ((ResultImpl) o2).getSortAttribute(pos);
+        public int compare(T o1, T o2) {
+            Object attr1 = o1.getSortAttribute(pos);
+            Object attr2 = o2.getSortAttribute(pos);
 
             if ((attr1 == null) && (attr2 == null)) {
                 return 0;

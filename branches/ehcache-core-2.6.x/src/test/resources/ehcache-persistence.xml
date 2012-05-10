@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+    <cache name="basic-restartable-cache" maxBytesLocalHeap="32M">
+        <persistence strategy="localEnterprise" synchronousWrites="true"/>
+    </cache>
+</ehcache>

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -362,6 +362,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile boolean statistics = DEFAULT_STATISTICS;
     private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION.copy();
     private volatile SizeOfPolicyConfiguration sizeOfPolicyConfiguration;
+    private volatile PersistenceConfiguration persistenceConfiguration;
     private volatile ElementValueComparatorConfiguration elementValueComparatorConfiguration =
             DEFAULT_ELEMENT_VALUE_COMPARATOR_CONFIGURATION;
     private volatile Boolean copyOnRead;
@@ -578,6 +579,27 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheConfiguration sizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
         addSizeOfPolicy(sizeOfPolicyConfiguration);
+        return this;
+    }
+
+    /**
+     * Sets the PersistenceConfiguration for this cache.
+     *
+     * @param persistenceConfiguration the Persistence Configuration
+     */
+    public void addPersistence(PersistenceConfiguration persistenceConfiguration) {
+        this.persistenceConfiguration = persistenceConfiguration;
+    }
+
+    /**
+     * Builder to set the PersistenceConfiguration for this cache.
+     *
+     * @param persistenceConfiguration the Persistence Configuration
+     * @return this configuration instance
+     * @see #addPersistence(PersistenceConfiguration)
+     */
+    public CacheConfiguration persistence(PersistenceConfiguration persistenceConfiguration) {
+        addPersistence(persistenceConfiguration);
         return this;
     }
 
@@ -2367,6 +2389,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public SizeOfPolicyConfiguration getSizeOfPolicyConfiguration() {
         return sizeOfPolicyConfiguration;
+    }
+
+    /**
+     * Accessor
+     *
+     * @return the persistence configuration for this cache.
+     */
+    public PersistenceConfiguration getPersistenceConfiguration() {
+        return persistenceConfiguration;
     }
 
     /**

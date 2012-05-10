@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,16 +18,21 @@ package net.sf.ehcache.constructs.blocking;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheTest;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,9 +41,11 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -49,54 +56,72 @@ import static org.junit.Assert.fail;
  * @author Greg Luck
  * @version $Id$
  */
-public class BlockingCacheTest extends CacheTest {
+public final class BlockingCacheTest {
 
-    private BlockingCache blockingCache;
-
-    /**
-     * Load up the test cache
-     */
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
-        if (cache != null) {
-            blockingCache = new BlockingCache(cache);
-        }
-    }
-
-    /**
-     * teardown
-     */
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        if (manager.getStatus() == Status.STATUS_ALIVE) {
-            if (blockingCache != null) {
-                blockingCache.removeAll();
+    private static final String DISK_STORE_PATH = "target/BlockingCacheTest";
+    
+    @BeforeClass
+    public static void cleanupDisk() {
+        File diskStorePath = new File(DISK_STORE_PATH);
+        File[] files = diskStorePath.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                f.delete();
             }
         }
-        super.tearDown();
+    }
+    
+    @Before
+    public void noCacheManagersBefore() {
+        assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
+    }
+    
+    @After
+    public void noCacheManagersAfter() {
+        assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
 
+    private CacheManager createCacheManager(String cacheName) {
+        return createCacheManager(new CacheConfiguration()
+                .name(cacheName)
+                .maxEntriesLocalHeap(1)
+                .timeToIdleSeconds(2)
+                .timeToLiveSeconds(5)
+                .overflowToDisk(true)
+                .diskPersistent(true));
+    }
+    
+    private CacheManager createCacheManager(CacheConfiguration config) {
+        CacheManager manager = new CacheManager(new Configuration()
+                .name("BlockingCacheTest")
+                .diskStore(new DiskStoreConfiguration().path(DISK_STORE_PATH)));
+        manager.addCache(new Cache(config));
+        return manager;
+    }
+    
     @Test
     public void testSupportsStatsCorrectly() {
-        blockingCache.setStatisticsEnabled(true);
-        LiveCacheStatistics statistics = blockingCache.getLiveCacheStatistics();
-        long cacheMisses = statistics.getCacheMissCount();
-        long cacheHits = statistics.getCacheHitCount();
-        String key = "123451234";
-        blockingCache.get(key);
-        assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
-        assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
-        blockingCache.put(new Element(key, "value"));
-        assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
-        assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
-        assertNotNull(blockingCache.get(key));
-        assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHitCount());
-        blockingCache.setStatisticsEnabled(false);
-        blockingCache.remove(key);
+        CacheManager manager = createCacheManager("testSupportsStatsCorrectly");
+        try {
+            BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testSupportsStatsCorrectly"));
+            blockingCache.setStatisticsEnabled(true);
+            LiveCacheStatistics statistics = blockingCache.getLiveCacheStatistics();
+            long cacheMisses = statistics.getCacheMissCount();
+            long cacheHits = statistics.getCacheHitCount();
+            String key = "123451234";
+            blockingCache.get(key);
+            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
+            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+            blockingCache.put(new Element(key, "value"));
+            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
+            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+            assertNotNull(blockingCache.get(key));
+            assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHitCount());
+            blockingCache.setStatisticsEnabled(false);
+            blockingCache.remove(key);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -104,25 +129,28 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testAddEntry() throws Exception {
-        //some other test was leaving this non-empty
-        blockingCache.removeAll();
+        CacheManager manager = createCacheManager("testAddEntry");
+        try {
+            BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testAddEntry"));
 
-        final String key = "key";
-        final String value = "value";
-        Element element = new Element(key, value);
+            final String key = "key";
+            final String value = "value";
+            Element element = new Element(key, value);
 
-        // Check the cache is empty
-        assertEquals(0, blockingCache.getKeys().size());
+            // Check the cache is empty
+            assertEquals(0, blockingCache.getKeys().size());
 
-        // Put the entry
-        blockingCache.put(new Element(key, value));
+            // Put the entry
+            blockingCache.put(new Element(key, value));
 
-        // Check there is a single entry
-        assertEquals(1, blockingCache.getKeys().size());
-        assertTrue(blockingCache.getKeys().contains(key));
-        final Element returnedElement = blockingCache.get(key);
-        assertEquals(element, returnedElement);
-
+            // Check there is a single entry
+            assertEquals(1, blockingCache.getKeys().size());
+            assertTrue(blockingCache.getKeys().contains(key));
+            final Element returnedElement = blockingCache.get(key);
+            assertEquals(element, returnedElement);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -130,25 +158,32 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testGetEntries() throws Exception {
-        Ehcache cache = blockingCache.getCache();
-        for (int i = 0; i < 100; i++) {
-            cache.put(new Element(Integer.valueOf(i), "value" + i));
-        }
-        List keys = blockingCache.getKeys();
-        List elements = new ArrayList();
-        for (int i = 0; i < keys.size(); i++) {
-            Object key = keys.get(i);
-            elements.add(blockingCache.get(key));
-        }
-        assertEquals(100, elements.size());
-        Map map = new HashMap();
-        for (int i = 0; i < elements.size(); i++) {
-            Element element = (Element) elements.get(i);
-            map.put(element.getObjectKey(), element.getObjectValue());
-        }
-        for (int i = 0; i < 100; i++) {
-            Serializable value = (Serializable) map.get(Integer.valueOf(i));
-            assertEquals("value" + i, value);
+        CacheManager manager = createCacheManager("testGetEntries");
+        try {
+            BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testGetEntries"));
+            
+            Ehcache cache = blockingCache.getCache();
+            for (int i = 0; i < 100; i++) {
+                cache.put(new Element(Integer.valueOf(i), "value" + i));
+            }
+            List keys = blockingCache.getKeys();
+            List elements = new ArrayList();
+            for (int i = 0; i < keys.size(); i++) {
+                Object key = keys.get(i);
+                elements.add(blockingCache.get(key));
+            }
+            assertEquals(100, elements.size());
+            Map map = new HashMap();
+            for (int i = 0; i < elements.size(); i++) {
+                Element element = (Element) elements.get(i);
+                map.put(element.getObjectKey(), element.getObjectValue());
+            }
+            for (int i = 0; i < 100; i++) {
+                Serializable value = (Serializable) map.get(Integer.valueOf(i));
+                assertEquals("value" + i, value);
+            }
+        } finally {
+            manager.shutdown();
         }
     }
 
@@ -157,18 +192,23 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testAddMissingEntry() throws Exception {
-        Element element = new Element("key", "value");
+        CacheManager manager = createCacheManager("testAddMissingEntry");
+        try {
+            BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testAddMissingEntry"));
+            Element element = new Element("key", "value");
 
-        // Make sure the entry does not exist
-        assertNull(blockingCache.get("key"));
+            // Make sure the entry does not exist
+            assertNull(blockingCache.get("key"));
 
-        // Put the entry
-        blockingCache.put(element);
+            // Put the entry
+            blockingCache.put(element);
 
-        // Check the entry is in the cache
-        assertEquals(1, blockingCache.getKeys().size());
-        assertEquals(element, blockingCache.get("key"));
-
+            // Check the entry is in the cache
+            assertEquals(1, blockingCache.getKeys().size());
+            assertEquals(element, blockingCache.get("key"));
+        } finally {
+            manager.shutdown();
+        }
     }
 
 
@@ -177,30 +217,36 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testSecondThreadActuallyBlocks() throws Exception {
-        Element element = new Element("key", "value");
-        final List threadResults = new ArrayList();
+        CacheManager manager = createCacheManager("testSecondThreadActuallyBlocks");
+        try {
+            final BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testSecondThreadActuallyBlocks"));
+            Element element = new Element("key", "value");
+            final List threadResults = new ArrayList();
 
-        // Make sure the entry does not exist
-        assertNull(blockingCache.get("key"));
+            // Make sure the entry does not exist
+            assertNull(blockingCache.get("key"));
 
-        Thread secondThread = new Thread() {
-            @Override
-            public void run() {
-                threadResults.add(blockingCache.get("key"));
-            }
-        };
-        secondThread.start();
-        assertEquals(0, threadResults.size());
+            Thread secondThread = new Thread() {
+                @Override
+                public void run() {
+                    threadResults.add(blockingCache.get("key"));
+                }
+            };
+            secondThread.start();
+            assertEquals(0, threadResults.size());
 
-        // Put the entry
-        blockingCache.put(element);
-        secondThread.join();
-        assertEquals(1, threadResults.size());
-        assertEquals(element, threadResults.get(0));
+            // Put the entry
+            blockingCache.put(element);
+            secondThread.join();
+            assertEquals(1, threadResults.size());
+            assertEquals(element, threadResults.get(0));
 
-        // Check the entry is in the cache
-        assertEquals(1, blockingCache.getKeys().size());
-        assertEquals(element, blockingCache.get("key"));
+            // Check the entry is in the cache
+            assertEquals(1, blockingCache.getKeys().size());
+            assertEquals(element, blockingCache.get("key"));
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -208,11 +254,17 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testUnknownEntry() throws Exception {
-        // Make sure the entry does not exist
-        assertNull(blockingCache.get("key"));
-        // Put the entry
-        blockingCache.put(new Element("key", null));
-        assertEquals(0, blockingCache.getKeys().size());
+        CacheManager manager = createCacheManager("testUnknownEntry");
+        try {
+            BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testUnknownEntry"));
+            // Make sure the entry does not exist
+            assertNull(blockingCache.get("key"));
+            // Put the entry
+            blockingCache.put(new Element("key", null));
+            assertEquals(0, blockingCache.getKeys().size());
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -220,16 +272,21 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testRemoveEntry() throws Exception {
-        Element element = new Element("key", "value");
+        CacheManager manager = createCacheManager("testRemoveEntry");
+        try {
+            BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testRemoveEntry"));
+            Element element = new Element("key", "value");
 
-        // Add entry and make sure it's there
-        blockingCache.put(element);
-        assertEquals(element, blockingCache.get("key"));
+            // Add entry and make sure it's there
+            blockingCache.put(element);
+            assertEquals(element, blockingCache.get("key"));
 
-        // Remove the entry and make sure its gone
-        blockingCache.put(new Element("key", null));
-        assertEquals(0, blockingCache.getKeys().size());
-
+            // Remove the entry and make sure its gone
+            blockingCache.put(new Element("key", null));
+            assertEquals(0, blockingCache.getKeys().size());
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -237,112 +294,189 @@ public class BlockingCacheTest extends CacheTest {
      */
     @Test
     public void testClear() throws Exception {
-        Ehcache cache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
-        blockingCache = new BlockingCache(cache);
-        // Add some entries
-        blockingCache.put(new Element("key1", "value1"));
-        blockingCache.put(new Element("key2", "value2"));
-        blockingCache.put(new Element("key3", "value2"));
-        assertEquals(3, blockingCache.getKeys().size());
+        CacheManager manager = createCacheManager(new CacheConfiguration()
+                .name("testClear")
+                .maxEntriesLocalHeap(1000)
+                .eternal(false)
+                .overflowToDisk(false));
+        try {
+            BlockingCache blockingCache = new BlockingCache(manager.getCache("testClear"));
+            // Add some entries
+            blockingCache.put(new Element("key1", "value1"));
+            blockingCache.put(new Element("key2", "value2"));
+            blockingCache.put(new Element("key3", "value2"));
+            assertEquals(3, blockingCache.getKeys().size());
 
-        // Clear the cache
-        blockingCache.removeAll();
-        assertEquals(0, blockingCache.getKeys().size());
-    }
-
-
-    /**
-     * Creates a blocking test cache
-     */
-    @Override
-    protected Ehcache createTestCache() {
-        Ehcache cache = super.createTestCache();
-        return new BlockingCache(cache);
-    }
-
-    /**
-     * Gets the sample cache 1
-     */
-    @Override
-    protected Ehcache getSampleCache1() {
-        Cache cache = manager.getCache("sampleCache1");
-        manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
-        return manager.getEhcache("sampleCache1");
-    }
-
-    /**
-     * Use to manually test super class tests
-     */
-    @Test
-    public void testInstrumented() throws Exception {
-        super.testSizes();
-    }
-
-    @Override
-    @Test
-    public void testGetWithLoader() {
-        super.testGetWithLoader();
-    }
-
-
-    @Override
-    @Test
-    public void testFlushWhenOverflowToDisk() throws Exception {
-        super.testFlushWhenOverflowToDisk();
-    }
-
-    @Override
-    @Test
-    public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
-        //do nothing
-    }
-
-    @Override
-    @Test
-    public void testConcurrentPutsAreConsistent() throws InterruptedException {
-        //do nothing
+            // Clear the cache
+            blockingCache.removeAll();
+            assertEquals(0, blockingCache.getKeys().size());
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test
     public void testInlineEviction() throws InterruptedException {
-
-        final Serializable KEY = "DUH";
-        Cache cache = new Cache(new CacheConfiguration("fastExpiry", 1000).timeToIdleSeconds(2).timeToLiveSeconds(2));
-        manager.addCache(cache);
-        manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
-
-        Ehcache blockingCache = manager.getEhcache("fastExpiry");
-        blockingCache.put(new Element(KEY, "VALUE"));
-        assertNotNull(blockingCache.get(KEY));
-        // This tests inline eviction (EHC-420)
-        Thread.sleep(3000);
-        assertNull(blockingCache.get(KEY));
+        CacheManager manager = createCacheManager(new CacheConfiguration()
+                .name("testInlineEviction")
+                .maxEntriesLocalHeap(1000)
+                .timeToIdleSeconds(2)
+                .timeToLiveSeconds(2));
+        try {
+            final Serializable KEY = "DUH";
+            Cache cache = manager.getCache("testInlineEviction");
+            manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
+            Ehcache blockingCache = manager.getEhcache("testInlineEviction");
+            
+            blockingCache.put(new Element(KEY, "VALUE"));
+            assertNotNull(blockingCache.get(KEY));
+            // This tests inline eviction (EHC-420)
+            Thread.sleep(3000);
+            assertNull(blockingCache.get(KEY));
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test
     public void testTimeout() throws BrokenBarrierException, InterruptedException {
-        final CyclicBarrier barrier = new CyclicBarrier(2);
-        final String KEY = "BLOCKING_KEY";
-        blockingCache.setTimeoutMillis(1000);
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                assertNull(blockingCache.get(KEY));
-                try {
-                    barrier.await();
-                    Thread.sleep(5000);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                blockingCache.put(new Element(KEY, "VALUE"));
-            }
-        });
-        thread.start();
-        barrier.await();
+        CacheManager manager = createCacheManager("testTimeout");
         try {
-            blockingCache.get(KEY);
-            fail("BlockingCache.get should have not returned!");
-        } catch (CacheException e) {
-            // Expected
+            final BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testTimeout"));
+            final CyclicBarrier barrier = new CyclicBarrier(2);
+            final String KEY = "BLOCKING_KEY";
+            blockingCache.setTimeoutMillis(1000);
+            Thread thread = new Thread(new Runnable() {
+                public void run() {
+                    assertNull(blockingCache.get(KEY));
+                    try {
+                        barrier.await();
+                        Thread.sleep(5000);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    blockingCache.put(new Element(KEY, "VALUE"));
+                }
+            });
+            thread.start();
+            barrier.await();
+            try {
+                blockingCache.get(KEY);
+                fail("BlockingCache.get should have not returned!");
+            } catch (CacheException e) {
+                // Expected
+            }
+            thread.join();
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    /**
+     * Checks we cannot use a cache after shutdown
+     */
+    @Test
+    public void testUseCacheAfterManagerShutdown() throws CacheException {
+        CacheManager manager = createCacheManager(new CacheConfiguration()
+                .name("testUseCacheAfterManagerShutdown")
+                .maxEntriesLocalHeap(10000)
+                .maxEntriesLocalDisk(1000)
+                .timeToIdleSeconds(360)
+                .timeToLiveSeconds(1000)
+                .overflowToDisk(true)
+                .memoryStoreEvictionPolicy("LRU"));
+        try {
+            Cache cache = manager.getCache("testUseCacheAfterManagerShutdown");
+            manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
+            Ehcache blockingCache = manager.getEhcache("testUseCacheAfterManagerShutdown");
+
+            manager.shutdown();
+            Element element = new Element("key", "value");
+            try {
+                blockingCache.getSize();
+                fail();
+            } catch (IllegalStateException e) {
+                assertEquals("The testUseCacheAfterManagerShutdown Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
+            }
+            try {
+                blockingCache.put(element);
+                fail();
+            } catch (IllegalStateException e) {
+                assertEquals("The testUseCacheAfterManagerShutdown Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
+            }
+            try {
+                blockingCache.get("key");
+                fail();
+            } catch (IllegalStateException e) {
+                assertEquals("The testUseCacheAfterManagerShutdown Cache is not alive (STATUS_SHUTDOWN)", e.getMessage());
+            }
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    /**
+     * Tests cache, memory store and disk store sizes from config
+     */
+    @Test
+    public void testSizes() throws Exception {
+        CacheManager manager = createCacheManager(new CacheConfiguration()
+                .name("testUseCacheAfterManagerShutdown")
+                .maxEntriesLocalHeap(10000)
+                .maxEntriesLocalDisk(1000)
+                .timeToIdleSeconds(360)
+                .timeToLiveSeconds(1000)
+                .overflowToDisk(true)
+                .memoryStoreEvictionPolicy("LRU"));
+        try {
+            Cache cache = manager.getCache("testUseCacheAfterManagerShutdown");
+            manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
+            Ehcache blockingCache = manager.getEhcache("testUseCacheAfterManagerShutdown");
+
+            assertEquals(0, blockingCache.getMemoryStoreSize());
+
+            for (int i = 0; i < 10010; i++) {
+                blockingCache.put(new Element("key" + i, "value1"));
+            }
+
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+            assertThat(cache.getSize(), lessThanOrEqualTo(10000));
+            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+
+            //NonSerializable
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+            blockingCache.put(new Element(new Object(), Object.class));
+
+            int size = cache.getSize();
+            assertThat(size, lessThanOrEqualTo(10000));
+            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+
+            if(cache.remove("key4")) {
+                size--;
+            }
+            if(cache.remove("key3")) {
+                size--;
+            }
+
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+
+            assertEquals(size, cache.getSize());
+
+            //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
+            //assertEquals(10000, cache.getMemoryStoreSize());
+            //assertEquals(9, cache.getDiskStoreSize());
+
+
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+
+            blockingCache.removeAll();
+            assertEquals(0, blockingCache.getSize());
+            assertEquals(0, blockingCache.getMemoryStoreSize());
+            assertEquals(0, blockingCache.getDiskStoreSize());
+        } finally {
+            manager.shutdown();
         }
     }
 }

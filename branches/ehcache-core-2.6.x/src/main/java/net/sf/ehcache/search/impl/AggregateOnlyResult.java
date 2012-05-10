@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,6 +47,11 @@ public class AggregateOnlyResult extends BaseResult {
 
     @Override
     protected Object basicGetAttribute(String name) {
+        throw new AssertionError();
+    }
+
+    @Override
+    Object getSortAttribute(int pos) {
         throw new AssertionError();
     }
 

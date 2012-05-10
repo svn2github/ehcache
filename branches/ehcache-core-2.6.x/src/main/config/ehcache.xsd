@@ -88,6 +88,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="copyStrategy"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="elementValueComparator"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="sizeOfPolicy"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="persistence"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
@@ -128,6 +129,7 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="searchable"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="elementValueComparator"/>
                 <xs:element minOccurs="0" maxOccurs="1" ref="sizeOfPolicy"/>
+                <xs:element minOccurs="0" maxOccurs="1" ref="persistence"/>
             </xs:sequence>
             <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
             <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
@@ -366,6 +368,22 @@
         </xs:complexType>
     </xs:element>
 
+	<xs:element name="persistence">
+	    <xs:complexType>
+            <xs:attribute name="strategy" use="required" type="restartabilityStrategy"/>
+            <xs:attribute name="synchronousWrites" use="optional" default="false" type="xs:boolean"/>
+	    </xs:complexType>
+	</xs:element>
+	
+	<xs:simpleType name="restartabilityStrategy">
+	    <xs:restriction base="xs:string">
+	        <xs:enumeration value="localClassic"/>
+	        <xs:enumeration value="localEnterprise"/>
+	        <xs:enumeration value="localInMemory"/>
+	        <xs:enumeration value="distributed"/>
+	    </xs:restriction>
+	</xs:simpleType>
+	
     <xs:simpleType name="maxDepthExceededBehavior">
         <xs:restriction base="xs:string">
             <xs:enumeration value="continue"/>

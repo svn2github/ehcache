@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.FeaturesManager;
 import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.store.Store;
@@ -565,20 +566,20 @@ public final class Configuration {
 
     private long getOffHeapLimit() {
         try {
-            Class<Store> offHeapStoreClass = ClassLoaderUtil.loadClass(Cache.OFF_HEAP_STORE_CLASSNAME);
+            Class<Store> enterpriseFmClass = ClassLoaderUtil.loadClass(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
 
             try {
-                return (Long)offHeapStoreClass.getMethod("getMaxBytesAllocatable").invoke(null);
+                return (Long)enterpriseFmClass.getMethod("getMaxBytesAllocatable").invoke(null);
             } catch (NoSuchMethodException e) {
                 throw new CacheException("Cache: " + getName() + " cannot find static factory"
-                                         + " method create(Ehcache, String)" + " in store class " + Cache.OFF_HEAP_STORE_CLASSNAME, e);
+                                         + " method create(Ehcache, String)" + " in store class " + FeaturesManager.ENTERPRISE_FM_CLASSNAME, e);
             } catch (InvocationTargetException e) {
                 Throwable cause = e.getCause();
                 throw new CacheException("Cache: " + getName() + " cannot instantiate store "
-                                         + Cache.OFF_HEAP_STORE_CLASSNAME, cause);
+                                         + FeaturesManager.ENTERPRISE_FM_CLASSNAME, cause);
             } catch (IllegalAccessException e) {
                 throw new CacheException("Cache: " + getName() + " cannot instantiate store "
-                                         + Cache.OFF_HEAP_STORE_CLASSNAME, e);
+                                         + FeaturesManager.ENTERPRISE_FM_CLASSNAME, e);
             }
         } catch (ClassNotFoundException e) {
             throw new CacheException("Cache " + getName()

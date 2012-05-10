@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -112,7 +112,6 @@ public class DiskStorageFactory {
 
     private volatile boolean pinningEnabled;
 
-    private final RegisteredEventListeners cacheEventNotificationService;
     private final boolean diskPersistent;
 
     private final DiskStorePathManager diskStorePathManager;
@@ -120,20 +119,19 @@ public class DiskStorageFactory {
      * Constructs an disk persistent factory for the given cache and disk path.
      *
      * @param cache cache that fronts this factory
-     * @param cacheEventNotificationService the notification service
      */
     public DiskStorageFactory(Ehcache cache, RegisteredEventListeners cacheEventNotificationService) {
         this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
-        this.file = diskStorePathManager.getDataFile(cache.getName());
+        this.file = diskStorePathManager.getFile(cache.getName(), ".data");
         // if diskpath contains auto generated string
-        if (file.toString().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+        if (file.getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
             LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories" + " (they start with "
                     + DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n" + "Deleting data file "
                     + file.getAbsolutePath());
             deleteFile(file);
         }
-        this.indexFile = diskStorePathManager.getIndexFile(cache.getName());
+        this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
         this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
 
         diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
@@ -165,8 +163,6 @@ public class DiskStorageFactory {
         diskWriter.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         long expiryInterval = cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds();
         diskWriter.scheduleWithFixedDelay(new DiskExpiryTask(), expiryInterval, expiryInterval, TimeUnit.SECONDS);
-
-        this.cacheEventNotificationService = cacheEventNotificationService;
 
         flushTask = new IndexWriteTask(indexFile, cache.getCacheConfiguration().isClearOnFlush());
 
@@ -340,17 +336,6 @@ public class DiskStorageFactory {
     protected void delete() {
         deleteFile(file);
         allocator.clear();
-        if (file.getAbsolutePath().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-            //try to delete the auto_createtimestamp directory. Will work when the last Disk Store deletes
-            //the last files and the directory becomes empty.
-            File dataDirectory = file.getParentFile();
-            if (dataDirectory != null && dataDirectory.exists()) {
-                if (dataDirectory.delete()) {
-                    LOG.debug("Deleted directory " + dataDirectory.getName());
-                }
-            }
-
-        }
     }
 
     /**
@@ -517,9 +502,7 @@ public class DiskStorageFactory {
                     try {
                         placeholder.setFailedToFlush(true);
                         if (!frontEndCacheTier.isCached(placeholder.getKey())) {
-                            if (store.evict(placeholder.getKey(), placeholder)) {
-                                eventService.notifyElementEvicted(placeholder.getElement(), false);
-                            }
+                            store.evict(placeholder.getKey(), placeholder);
                         }
                     } finally {
                         l.unlock();
@@ -857,7 +840,7 @@ public class DiskStorageFactory {
                 if (eventService.hasCacheEventListeners()) {
                     try {
                         Element element = read(marker);
-                        if (store.evict(marker.getKey(), marker)) {
+                        if (store.remove(marker.getKey()) != null) {
                             eventService.notifyElementExpiry(element, false);
                         }
                     } catch (Exception e) {
@@ -969,7 +952,7 @@ public class DiskStorageFactory {
 
         try {
             shutdown();
-            if (getDataFile().getAbsolutePath().contains(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            if (getDataFile().getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
                 deleteFile(indexFile);
                 delete();
             }
@@ -1013,9 +996,6 @@ public class DiskStorageFactory {
                 Element evictedElement = store.evictElement(target.getKey(), null);
                 if (evictedElement != null) {
                     evicted++;
-                    if (cacheEventNotificationService != null) {
-                        cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
-                    }
                 }
             }
         }
@@ -1064,23 +1044,11 @@ public class DiskStorageFactory {
                 DiskSubstitute target = getDiskEvictionTarget(keyHint, size);
                 if (target != null) {
                     final Element element = store.evictElement(target.getKey(), target);
-                    notifyEvictionIfNotNull(element);
                     if (element != null && onDisk.get() <= diskCapacity) {
                         break;
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Fires an eviction notification if the specified element is not null
-     *
-     * @param element the element to notify about its eviction
-     */
-    void notifyEvictionIfNotNull(final Element element) {
-        if (element != null) {
-            eventService.notifyElementEvicted(element, false);
         }
     }
 

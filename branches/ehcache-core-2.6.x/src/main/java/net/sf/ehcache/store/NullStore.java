@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -328,7 +328,7 @@ public final class NullStore extends AbstractStore implements TierableStore {
     /**
      * {@inheritDoc}
      */
-    public boolean removeIfTierNotPinned(final Object key) {
+    public boolean removeIfNotPinned(final Object key) {
         return remove(key) != null;
     }
 

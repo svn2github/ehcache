@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -112,6 +112,14 @@ public interface Query {
      * @return this
      */
     public Query addOrderBy(Attribute<?> attribute, Direction direction);
+
+    /**
+     * Group result set by unique value(s) of specified attribute(s).
+     * Rows with duplicate values for these attributes will be removed. This method may also be chained to achieve the same effect.
+     * @param attribute
+     * @return
+     */
+    public Query addGroupBy(Attribute<?>... attribute);
 
     /**
      * Restrict the number of results returned from the search.

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
 import net.sf.ehcache.config.ElementValueComparatorConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
@@ -152,6 +153,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         addBootstrapCacheLoaderFactoryConfigurationElement(element, cacheConfiguration);
         addCacheExceptionHandlerFactoryConfigurationElement(element, cacheConfiguration);
         addSizeOfPolicyConfigurationElement(element, cacheConfiguration);
+        addPersistenceConfigurationElement(element, cacheConfiguration);
         addCopyStrategyConfigurationElement(element, cacheConfiguration);
         addElementValueComparatorConfigurationElement(element, cacheConfiguration);
         addCacheWriterConfigurationElement(element, cacheConfiguration);
@@ -184,6 +186,13 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         if (sizeOfPolicyConfiguration != null &&
                 !Configuration.DEFAULT_SIZEOF_POLICY_CONFIGURATION.equals(sizeOfPolicyConfiguration)) {
             element.addChildElement(new SizeOfPolicyConfigurationElement(element, sizeOfPolicyConfiguration));
+        }
+    }
+
+    private static void addPersistenceConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
+        PersistenceConfiguration persistenceConfiguration = cacheConfiguration.getPersistenceConfiguration();
+        if (persistenceConfiguration != null) {
+            element.addChildElement(new PersistenceConfigurationElement(element, persistenceConfiguration));
         }
     }
 

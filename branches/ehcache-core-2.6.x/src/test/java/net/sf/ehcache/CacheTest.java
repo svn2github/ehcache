@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1240,8 +1240,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testInitialiseFailures() {
         final String name = "testInitialiseFailures2";
         Cache cache = new Cache(name, 1, false, false, 5, 1);
-        cache.initialise();
-
+        manager.addCache(cache);
         try {
             cache.initialise();
             fail("Calling cache.initialise() multiple times should fail with IllegalStateException");
@@ -1251,6 +1250,8 @@ public class CacheTest extends AbstractCacheTest {
             } else {
                 throw e;
             }
+        } finally {
+            manager.removeCache(name);
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ public interface TierableStore extends Store {
     void fill(Element e);
 
     /**
-     * Removes the element if the tier. This method will remove if the element is pinned and present in the store
+     * This method will only remove if the element or the store is not pinned and the key is present in the store
      * @param key the key to the element
      * @return true if an element was removed
      * @see #remove(Object)
      */
-    boolean removeIfTierNotPinned(Object key);
+    boolean removeIfNotPinned(Object key);
 
     /**
      * Removes an item from the cache.
