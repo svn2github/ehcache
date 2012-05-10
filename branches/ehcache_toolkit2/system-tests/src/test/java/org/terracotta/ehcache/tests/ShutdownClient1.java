@@ -52,7 +52,7 @@ public class ShutdownClient1 extends ClientBase {
     waitUntilLastChanceThreadsAreGone(6 * 60);
     new PermStress().stress(10000);
     boolean failed = true;
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 10; i++) {
       failed = assertClassloadersGCed();
       for (int j = 0; j < 10; j++) {
         System.gc();
