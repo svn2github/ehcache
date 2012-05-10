@@ -318,6 +318,11 @@ public class BasicSearchTest {
                         }
                     }
 
+                    public AggregatorInstance<Integer> createClone()
+                    {
+                        return this;
+                    }
+
                     public Integer aggregateResult() {
                         return doubledSum;
                     }

@@ -38,6 +38,13 @@ public class Average implements AggregatorInstance<Double> {
 
     /**
      * {@inheritDoc}
+     */
+    public Average createClone() {
+        return new Average(attribute);
+    }
+
+    /**
+     * {@inheritDoc}
      * <p/>
      * NOTE: Null values are ignored and not included in the computation
      */
