@@ -12,7 +12,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -52,7 +51,20 @@ public class ShutdownClient1 extends ClientBase {
 
     waitUntilLastChanceThreadsAreGone(6 * 60);
     new PermStress().stress(10000);
-    assertClassloadersGCed();
+    boolean failed = true;
+    for (int i = 0; i < 30; i++) {
+      failed = assertClassloadersGCed();
+      for (int j = 0; j < 10; j++) {
+        System.gc();
+      }
+      if (failed) {
+        System.out.println("Sleeping for 5 seconds...");
+        TimeUnit.SECONDS.sleep(5);
+      } else {
+        break;
+      }
+    }
+    if (failed) { throw new AssertionError("Some classloader were not gced"); }
 
     Set<SimpleThreadInfo> afterShutdownThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
     afterShutdownThreads.removeAll(baseLineThreads);
@@ -86,7 +98,7 @@ public class ShutdownClient1 extends ClientBase {
   }
 
   // if only a single L1 loader got GC'ed, we can consider the test passed
-  private void assertClassloadersGCed() {
+  private boolean assertClassloadersGCed() {
     boolean failed = true;
     StringBuilder sb = new StringBuilder();
     for (WeakReference<ClassLoader> wr : CLASS_LOADER_LIST) {
@@ -101,8 +113,10 @@ public class ShutdownClient1 extends ClientBase {
       sb.deleteCharAt(sb.length() - 1);
       sb.deleteCharAt(sb.length() - 1);
       dumpHeap(ShutdownClient1.class.getSimpleName());
-      throw new AssertionError("Classloader(s) " + sb + " not GC'ed");
+      // throw new AssertionError("Classloader(s) " + sb + " not GC'ed");
+      System.out.println("Classloaders not gc'ed yet: " + sb.toString());
     }
+    return failed;
   }
 
   public static void printThreads(Set<SimpleThreadInfo> threads) {
@@ -178,11 +192,7 @@ public class ShutdownClient1 extends ClientBase {
   }
 
   private void storeL1ClassLoaderWeakReferences(Cache cache) throws Exception {
-    Method getStoreMethod = Cache.class.getDeclaredMethod("getStore", (Class[]) null);
-    getStoreMethod.setAccessible(true);
-
-    Object clusteredStore = getStoreMethod.invoke(cache, (Object[]) null);
-    ClassLoader clusteredStateLoader = clusteredStore.getClass().getClassLoader();
+    ClassLoader clusteredStateLoader = getBarrierForAllClients().getClass().getClassLoader();
 
     System.out.println("XXX: clusteredStateLoader: " + clusteredStateLoader);
     Assert.assertNotNull(clusteredStateLoader);
