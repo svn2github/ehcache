@@ -57,7 +57,7 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
 
     private static DiskStore createDiskStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         CacheConfiguration config = cache.getCacheConfiguration();
-        if (config.isDiskPersistent() || config.isOverflowToDisk()) {
+        if (config.isOverflowToDisk()) {
             return DiskStore.create(cache, onHeapPool, onDiskPool);
         } else {
             throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");

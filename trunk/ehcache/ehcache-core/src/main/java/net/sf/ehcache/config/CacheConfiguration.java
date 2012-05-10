@@ -1570,16 +1570,42 @@ public class CacheConfiguration implements Cloneable {
             });
         }
 
+        consolidatePersistenceSettings(cacheManager);
+
         if (overflowToOffHeap == null && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
             overflowToOffHeap = true;
         }
-        if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
+        if ((persistenceConfiguration != null && Strategy.LOCALCLASSIC.equals(persistenceConfiguration.getStrategy())) ||
+                (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0)) {
             overflowToDisk = true;
         }
         warnMaxEntriesLocalHeap(register, cacheManager);
         warnMaxEntriesForOverflowToOffHeap(register);
         warnSizeOfPolicyConfiguration();
         freezePoolUsages(cacheManager);
+    }
+
+    private void consolidatePersistenceSettings(CacheManager manager) {
+        if (persistenceConfiguration == null) {
+            if (diskPersistent) {
+                if (manager.getFeaturesManager() == null) {
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALCLASSIC));
+                } else {
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALENTERPRISE));
+                }
+            }
+        } else {
+            switch (persistenceConfiguration.getStrategy()) {
+                case DISTRIBUTED:
+                case LOCALINMEMORY:
+                    setDiskPersistent(false);
+                    break;
+                case LOCALCLASSIC:
+                case LOCALENTERPRISE:
+                    setDiskPersistent(true);
+                    break;
+            }
+        }
     }
 
     private void warnMaxEntriesForOverflowToOffHeap(final boolean register) {

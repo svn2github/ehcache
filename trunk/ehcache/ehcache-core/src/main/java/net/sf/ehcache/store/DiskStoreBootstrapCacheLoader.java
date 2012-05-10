@@ -18,6 +18,8 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.distribution.RemoteCacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,8 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
      * {@inheritDoc}
      */
     public void load(final Ehcache cache) throws CacheException {
-        if (cache.getCacheConfiguration().isDiskPersistent()) {
+        PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
+        if (persistence != null && Strategy.LOCALCLASSIC.equals(persistence.getStrategy())) {
             if (asynchronous) {
                 BootstrapThread thread = new BootstrapThread(cache);
                 thread.start();
@@ -133,6 +136,7 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
         /**
          * RemoteDebugger thread method.
          */
+        @Override
         public final void run() {
             try {
                 sleep(delay);

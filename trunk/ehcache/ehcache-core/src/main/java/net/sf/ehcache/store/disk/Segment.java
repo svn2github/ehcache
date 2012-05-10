@@ -149,7 +149,7 @@ public class Segment extends ReentrantReadWriteLock {
                 return false;
 
             case INCACHE:
-                return cacheConfiguration.isOverflowToDisk() || cacheConfiguration.isDiskPersistent();
+                return cacheConfiguration.isOverflowToDisk();
 
             default:
                 throw new IllegalArgumentException();

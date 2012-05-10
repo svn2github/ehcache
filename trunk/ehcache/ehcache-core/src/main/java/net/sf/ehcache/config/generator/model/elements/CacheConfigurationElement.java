@@ -97,8 +97,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 String.valueOf(CacheConfiguration.DEFAULT_CLEAR_ON_FLUSH)));
         element.addAttribute(new SimpleNodeAttribute("diskAccessStripes", cacheConfiguration.getDiskAccessStripes()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_DISK_ACCESS_STRIPES));
-        element.addAttribute(new SimpleNodeAttribute("diskPersistent", cacheConfiguration.isDiskPersistent()).optional(true).defaultValue(
-                CacheConfiguration.DEFAULT_DISK_PERSISTENT));
         element.addAttribute(new SimpleNodeAttribute("diskSpoolBufferSizeMB", cacheConfiguration.getDiskSpoolBufferSizeMB()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_SPOOL_BUFFER_SIZE));
         element

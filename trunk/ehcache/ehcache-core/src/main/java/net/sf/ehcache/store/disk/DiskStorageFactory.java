@@ -46,7 +46,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.store.FrontEndCacheTier;
@@ -134,7 +136,8 @@ public class DiskStorageFactory {
         this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
         this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
 
-        diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
+        PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
+        diskPersistent = persistence != null && Strategy.LOCALCLASSIC.equals(persistence.getStrategy());
         if (!diskPersistent) {
             deleteFile(file);
             deleteFile(indexFile);

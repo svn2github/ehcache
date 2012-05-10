@@ -31,9 +31,11 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
@@ -1084,11 +1086,19 @@ public class Cache implements InternalEhcache, StoreListener {
                         throw new CacheException("Cache " + configuration.getName()
                                 + " cannot be configured because the enterprise features manager could not be found. "
                                 + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
-                    } else if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                    }
+                    PersistenceConfiguration persistence = configuration.getPersistenceConfiguration();
+                    if (persistence != null && Strategy.LOCALENTERPRISE.equals(persistence.getStrategy())) {
+                        throw new CacheException("Cache " + configuration.getName()
+                                + " cannot be configured because the enterprise features manager could not be found. "
+                                + "You must use an enterprise version of Ehcache to successfully enable enterprise persistence.");
+                    }
+
+                    if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
                         Store disk = createDiskStore();
                         store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                     } else {
-                        if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
+                        if (configuration.isOverflowToDisk()) {
                             store = DiskBackedMemoryStore.create(this, onHeapPool, onDiskPool);
                         } else {
                             store = MemoryOnlyStore.create(this, onHeapPool);
@@ -1293,10 +1303,10 @@ public class Cache implements InternalEhcache, StoreListener {
     /**
      * Whether this cache uses a disk store
      *
-     * @return true if the cache either overflows to disk or is disk persistent
+     * @return true if the cache either overflows to disk or uses a local-classic persistence strategy.
      */
     protected boolean isDiskStore() {
-        return configuration.isOverflowToDisk() || configuration.isDiskPersistent();
+        return configuration.isOverflowToDisk();
     }
 
     /**
@@ -1941,7 +1951,7 @@ public class Cache implements InternalEhcache, StoreListener {
         boolean wasOffHeap = false;
         boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
         boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
-        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk() || getCacheConfiguration().isDiskPersistent();
+        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
         Element element;
 
         if (!wasInMemory) {
@@ -2738,7 +2748,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 .append(" memoryStoreEvictionPolicy = ").append(configuration.getMemoryStoreEvictionPolicy())
                 .append(" timeToLiveSeconds = ").append(configuration.getTimeToLiveSeconds())
                 .append(" timeToIdleSeconds = ").append(configuration.getTimeToIdleSeconds())
-                .append(" diskPersistent = ").append(configuration.isDiskPersistent())
+                .append(" persistence = ").append(configuration.getPersistenceConfiguration() == null ? "none" : configuration.getPersistenceConfiguration().getStrategy())
                 .append(" diskExpiryThreadIntervalSeconds = ").append(configuration.getDiskExpiryThreadIntervalSeconds())
                 .append(registeredEventListeners)
                 .append(" hitCount = ").append(getLiveCacheStatisticsNoCheck().getCacheHitCount())
