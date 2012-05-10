@@ -1604,6 +1604,8 @@ public class CacheConfiguration implements Cloneable {
                 case LOCALENTERPRISE:
                     setDiskPersistent(true);
                     break;
+                default:
+                    break;
             }
         }
     }

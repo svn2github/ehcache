@@ -244,7 +244,8 @@ public final class ConfigurationHelper {
         int count = 0;
         Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
         for (CacheConfiguration cacheConfig : configuration.getCacheConfigurations().values()) {
-            if (cacheConfig.isOverflowToDisk() || cacheConfig.isDiskPersistent() || (cacheConfig.isOverflowToOffHeap() && cacheConfig.isSearchable())) {
+            if (cacheConfig.isOverflowToDisk() || cacheConfig.isDiskPersistent() ||
+                    (cacheConfig.isOverflowToOffHeap() && cacheConfig.isSearchable())) {
                 count++;
             } else {
                 PersistenceConfiguration persistence = cacheConfig.getPersistenceConfiguration();
@@ -253,6 +254,9 @@ public final class ConfigurationHelper {
                         case LOCALCLASSIC:
                         case LOCALENTERPRISE:
                             count++;
+                            break;
+                        default:
+                            break;
                     }
                 }
             }

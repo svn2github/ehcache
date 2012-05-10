@@ -2748,7 +2748,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 .append(" memoryStoreEvictionPolicy = ").append(configuration.getMemoryStoreEvictionPolicy())
                 .append(" timeToLiveSeconds = ").append(configuration.getTimeToLiveSeconds())
                 .append(" timeToIdleSeconds = ").append(configuration.getTimeToIdleSeconds())
-                .append(" persistence = ").append(configuration.getPersistenceConfiguration() == null ? "none" : configuration.getPersistenceConfiguration().getStrategy())
+                .append(" persistence = ").append(configuration.getPersistenceConfiguration() == null ?
+                    "none" : configuration.getPersistenceConfiguration().getStrategy())
                 .append(" diskExpiryThreadIntervalSeconds = ").append(configuration.getDiskExpiryThreadIntervalSeconds())
                 .append(registeredEventListeners)
                 .append(" hitCount = ").append(getLiveCacheStatisticsNoCheck().getCacheHitCount())
