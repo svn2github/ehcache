@@ -100,12 +100,12 @@
       <version>1.0.1</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-rest-agent</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>    
+    </dependency-->    
 
     <!-- Test scope -->
     <dependency>
