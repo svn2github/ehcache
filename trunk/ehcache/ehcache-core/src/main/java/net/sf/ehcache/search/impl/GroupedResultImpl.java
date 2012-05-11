@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.search.impl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -70,9 +71,10 @@ public class GroupedResultImpl extends BaseResult {
     }
 
     /**
-     * {@inheritDoc}
+     * Map of attributes to their values, used to create this grouped result
+     * @return read-only map of group by attributes
      */
     public Map<String, Object> getGroupByValues() {
-        return groupByValues;
+        return Collections.unmodifiableMap(groupByValues);
     }
 }
