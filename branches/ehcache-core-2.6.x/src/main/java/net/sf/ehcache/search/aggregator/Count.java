@@ -31,6 +31,12 @@ public class Count implements AggregatorInstance<Integer> {
     /**
      * {@inheritDoc}
      */
+    public Count createClone() {
+        return new Count();
+    }
+    /**
+     * {@inheritDoc}
+     */
     public void accept(Object input) throws AggregatorException {
         count++;
     }

@@ -38,6 +38,12 @@ public class Max<T> implements AggregatorInstance<T> {
 
     /**
      * {@inheritDoc}
+     */
+    public Max<T> createClone() {
+        return new Max(attribute);
+    }
+    /**
+     * {@inheritDoc}
      * <p/>
      * NOTE: May return null if no input provided
      */

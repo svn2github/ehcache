@@ -48,4 +48,10 @@ public interface AggregatorInstance<T> {
      * @return attribute to aggregate (null if no attribute is applicable to function)
      */
     Attribute<?> getAttribute();
+
+    /**
+     * Create a clone of this aggregator, detaching from its result
+     * @return
+     */
+    AggregatorInstance<T> createClone();
 }

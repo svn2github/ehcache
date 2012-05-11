@@ -24,7 +24,9 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.Cache;
@@ -33,7 +35,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Person.Gender;
@@ -41,10 +42,24 @@ import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Or;
+import net.sf.ehcache.search.impl.GroupedResultImpl;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class BasicSearchTest {
+    private CacheManager cacheManager;
+
+    @Before
+    public void setup() {
+        this.cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
+    }
+
+    @After
+    public void tearDown() {
+        this.cacheManager.shutdown();
+    }
 
     @Test
     public void testInvalidConfiguration() {
@@ -65,8 +80,6 @@ public class BasicSearchTest {
 
     @Test
     public void testKeysValuesDisabled() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
-
         Cache cache = cacheManager.getCache("searchable-no-keys-values");
 
         CacheConfiguration config = cache.getCacheConfiguration();
@@ -91,12 +104,10 @@ public class BasicSearchTest {
             // expected
             System.err.println(se.getMessage());
         }
-        cacheManager.shutdown();
     }
 
     @Test
     public void testNonSearchableCache() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("not-searchable");
         assertFalse(cache.isSearchable());
 
@@ -106,12 +117,10 @@ public class BasicSearchTest {
         } catch (CacheException e) {
             // expected
         }
-        cacheManager.shutdown();
     }
 
     @Test
     public void testDefaultSearchableCache() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("default-searchable");
         assertTrue(cache.isSearchable());
 
@@ -137,12 +146,10 @@ public class BasicSearchTest {
         assertEquals(1, results.size());
         Object key = results.all().iterator().next().getKey();
         assertEquals("value", cache.get(key).getObjectValue());
-        cacheManager.shutdown();
     }
 
     @Test
     public void testQueryBuilder() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
 
         Query query1 = cache.createQuery();
@@ -183,7 +190,7 @@ public class BasicSearchTest {
             // expected
         }
         try {
-            query1.includeAttribute(new Attribute[] { new Attribute("foo"), null });
+            query1.includeAttribute(new Attribute[] {new Attribute("foo"), null});
             fail();
         } catch (NullPointerException npe) {
             // expected
@@ -228,12 +235,10 @@ public class BasicSearchTest {
         } catch (SearchException se) {
             // expected
         }
-        cacheManager.shutdown();
     }
 
     @Test
     public void testRange() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -277,13 +282,10 @@ public class BasicSearchTest {
         } catch (IllegalArgumentException iae) {
             // expected
         }
-        cacheManager.shutdown();
     }
 
     @Test
     public void testBasic() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
-
         // uses expression attribute extractors
         basicQueries(cacheManager.getEhcache("cache1"));
 
@@ -292,12 +294,10 @@ public class BasicSearchTest {
 
         // uses bean attributes
         basicQueries(cacheManager.getEhcache("bean-attributes"));
-        cacheManager.shutdown();
     }
 
     @Test
     public void testCustomAggregator() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -318,6 +318,10 @@ public class BasicSearchTest {
                         }
                     }
 
+                    public AggregatorInstance<Integer> createClone() {
+                        return this;
+                    }
+
                     public Integer aggregateResult() {
                         return doubledSum;
                     }
@@ -335,12 +339,10 @@ public class BasicSearchTest {
         for (Result result : results.all()) {
             assertEquals(246, result.getAggregatorResults().get(0));
         }
-        cacheManager.shutdown();
     }
 
     @Test
     public void testBuiltinFunctions() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -483,12 +485,10 @@ public class BasicSearchTest {
             }
         }
 
-        cacheManager.shutdown();
     }
 
     @Test
     public void testMaxResults() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -551,12 +551,10 @@ public class BasicSearchTest {
         results = query.execute();
         assertEquals(2, results.size());
 
-        cacheManager.shutdown();
     }
 
     @Test
     public void testAttributeQuery() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -607,8 +605,6 @@ public class BasicSearchTest {
                 // expected
             }
         }
-
-        cacheManager.shutdown();
 
     }
 
@@ -722,7 +718,6 @@ public class BasicSearchTest {
 
     @Test
     public void testOrdering() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -749,13 +744,10 @@ public class BasicSearchTest {
         query.end();
 
         verifyOrdered(cache, query, 3, 1);
-
-        cacheManager.shutdown();
     }
 
     @Test
     public void testILike() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -840,15 +832,10 @@ public class BasicSearchTest {
         query.end();
 
         verify(cache, query, 6);
-
-        cacheManager.shutdown();
-
     }
 
     @Test
     public void testTypeChecking() {
-        CacheManager cm = new CacheManager(new Configuration().defaultCache(new CacheConfiguration()));
-
         CacheConfiguration config = new CacheConfiguration("test", 0);
         config.setOverflowToDisk(false);
         config.diskPersistent(false);
@@ -856,7 +843,7 @@ public class BasicSearchTest {
         Searchable searchable = new Searchable().searchAttribute(new SearchAttribute().name("attr").expression("value.getAttr()"));
         config.addSearchable(searchable);
 
-        cm.addCache(new Cache(config));
+        cacheManager.addCache(new Cache(config));
 
         class Value {
             private final Object attr;
@@ -870,7 +857,7 @@ public class BasicSearchTest {
             }
         }
 
-        Ehcache cache = cm.getEhcache("test");
+        Ehcache cache = cacheManager.getEhcache("test");
         cache.put(new Element(1, new Value("foo")));
 
         Query query = cache.createQuery();
@@ -888,13 +875,10 @@ public class BasicSearchTest {
         // with proper type search will execute
         cache.put(new Element(1, new Value(4)));
         assertEquals(1, query.execute().all().iterator().next().getKey());
-
-        cm.shutdown();
     }
 
     @Test
     public void testEmptyQueries() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -921,13 +905,10 @@ public class BasicSearchTest {
                 System.err.println("Expected " + e);
             }
         }
-
-        cacheManager.shutdown();
     }
 
     @Test
     public void testIncludeValues() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
         Ehcache cache = cacheManager.getEhcache("cache1");
         SearchTestUtil.populateData(cache);
 
@@ -971,46 +952,119 @@ public class BasicSearchTest {
                 }
             }
         }
-
-        cacheManager.shutdown();
     }
 
     @Test
     public void testSearchWithPinnedKeys() {
-        CacheManager cacheManager = new CacheManager(getClass().getResource("/ehcache-search.xml"));
-        try {
-            Ehcache cache1 = cacheManager.getEhcache("cache1");
-            Ehcache cache2 = cacheManager.getEhcache("cache2");
-            Ehcache bean_attributes = cacheManager.getEhcache("bean-attributes");
-            cache1.setPinned(0, true);
-            cache2.setPinned(0, true);
-            bean_attributes.setPinned(0, true);
+        Ehcache cache1 = cacheManager.getEhcache("cache1");
+        Ehcache cache2 = cacheManager.getEhcache("cache2");
+        Ehcache bean_attributes = cacheManager.getEhcache("bean-attributes");
+        cache1.setPinned(0, true);
+        cache2.setPinned(0, true);
+        bean_attributes.setPinned(0, true);
 
-            // uses expression attribute extractors
-            basicQueries(cache1);
+        // uses expression attribute extractors
+        basicQueries(cache1);
 
-            // uses a "custom" attribute extractor too
-            basicQueries(cache2);
+        // uses a "custom" attribute extractor too
+        basicQueries(cache2);
 
-            // uses bean attributes
-            basicQueries(bean_attributes);
+        // uses bean attributes
+        basicQueries(bean_attributes);
 
-            cache1.setPinned(1, true);
-            cache2.setPinned(1, true);
-            bean_attributes.setPinned(1, true);
+        cache1.setPinned(1, true);
+        cache2.setPinned(1, true);
+        bean_attributes.setPinned(1, true);
 
-            // uses expression attribute extractors
-            basicQueries(cache1);
+        // uses expression attribute extractors
+        basicQueries(cache1);
 
-            // uses a "custom" attribute extractor too
-            basicQueries(cache2);
+        // uses a "custom" attribute extractor too
+        basicQueries(cache2);
 
-            // uses bean attributes
-            basicQueries(bean_attributes);
+        // uses bean attributes
+        basicQueries(bean_attributes);
 
-        } finally {
-            cacheManager.shutdown();
+    }
+
+    @Test
+    public void testBasicGroupBy() {
+        Ehcache cache = cacheManager.getEhcache("cache1");
+        assertTrue(cache.isSearchable());
+
+        int numOfDepts = 10;
+        int numOfMalesPerDept = 100;
+        int numOfFemalesPerDept = 100;
+
+        for (int i = 0; i < numOfDepts; i++) {
+            for (int j = 0; j < numOfMalesPerDept; j++) {
+                cache.put(new Element("male" + i + "-" + j, new Person("male" + j, j, Gender.MALE, "dept" + i)));
+            }
+
+            for (int j = 0; j < numOfFemalesPerDept; j++) {
+                cache.put(new Element("female" + i + "-" + j, new Person("female" + j, j, Gender.FEMALE, "dept" + i)));
+            }
         }
+
+        Query query;
+        Results results;
+
+        query = cache.createQuery();
+        query.includeAttribute(cache.getSearchAttribute("dept"));
+        query.includeAttribute(cache.getSearchAttribute("gender"));
+        query.includeAggregator(cache.getSearchAttribute("age").sum());
+        query.includeAggregator(cache.getSearchAttribute("age").min());
+        query.includeAggregator(cache.getSearchAttribute("age").max());
+        query.addGroupBy(cache.getSearchAttribute("dept"));
+        query.addOrderBy(cache.getSearchAttribute("dept"), Direction.DESCENDING);
+        query.addOrderBy(cache.getSearchAttribute("gender"), Direction.ASCENDING);
+        query.addGroupBy(cache.getSearchAttribute("gender"));
+        query.end();
+
+        results = query.execute();
+
+        assertEquals(numOfDepts * 2, results.size());
+
+        int i = 1;
+        for (Iterator<Result> iter = results.all().iterator(); iter.hasNext();) {
+            Result maleResult = iter.next();
+            System.out.println("XXXXXXXXX: " + maleResult);
+            assertEquals("dept" + (numOfDepts - i), maleResult.getAttribute(cache.getSearchAttribute("dept")));
+            assertEquals(Gender.MALE, maleResult.getAttribute(cache.getSearchAttribute("gender")));
+
+            assertTrue(maleResult instanceof GroupedResultImpl);
+            Map<String, Object> groupByValues = ((GroupedResultImpl) maleResult).getGroupByValues();
+            assertEquals(2, groupByValues.size());
+            assertEquals("dept" + (numOfDepts - i), groupByValues.get("dept"));
+            assertEquals(Gender.MALE, groupByValues.get("gender"));
+
+            List aggregateResults = maleResult.getAggregatorResults();
+            assertEquals(3, aggregateResults.size());
+            assertEquals(numOfMalesPerDept * (numOfMalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
+            assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
+            assertEquals(numOfMalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
+
+            Result femaleResult = iter.next();
+            System.out.println("XXXXXXXXX: " + femaleResult);
+
+            assertEquals("dept" + (numOfDepts - i), femaleResult.getAttribute(cache.getSearchAttribute("dept")));
+            assertEquals(Gender.FEMALE, femaleResult.getAttribute(cache.getSearchAttribute("gender")));
+
+            assertTrue(femaleResult instanceof GroupedResultImpl);
+            groupByValues = ((GroupedResultImpl) femaleResult).getGroupByValues();
+            assertEquals(2, groupByValues.size());
+            assertEquals("dept" + (numOfDepts - i), groupByValues.get("dept"));
+            assertEquals(Gender.FEMALE, groupByValues.get("gender"));
+
+            aggregateResults = femaleResult.getAggregatorResults();
+            assertEquals(3, aggregateResults.size());
+            assertEquals(numOfFemalesPerDept * (numOfFemalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
+            assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
+            assertEquals(numOfFemalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
+
+            i++;
+        }
+
     }
 
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {

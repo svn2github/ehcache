@@ -72,7 +72,7 @@ public class GroupedResultImpl extends BaseResult {
     /**
      * {@inheritDoc}
      */
-    Map<String, Object> getGroupByValues() {
+    public Map<String, Object> getGroupByValues() {
         return groupByValues;
     }
 }
