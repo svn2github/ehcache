@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A utility class for the validation of unsafe http method calls to ehcache resource services. These requests require
+ * that a unique resource is identified.
+ *
  * @author brandony
  */
 public final class EhcacheValidationUtils {
@@ -18,27 +21,29 @@ public final class EhcacheValidationUtils {
     Set<String> cmNames = Utils.trimToNull(cacheManagerNames) == null ? null : new HashSet<String>(
         Arrays.asList(cacheManagerNames.split(",")));
     if (cmNames == null) {
-      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
-          "No cache manager specified. Unsafe requests must specify a single cache manager name.").build());
+      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+          .entity("No cache manager specified. Unsafe requests must specify a single cache manager name.").build());
     }
 
     if (cmNames.size() != 1) {
-      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
-          "Multiple cache managers specified. Unsafe requests must specify a single cache manager name.").build());
+      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+          .entity("Multiple cache managers specified. Unsafe requests must specify a single cache manager name.")
+          .build());
     }
   }
 
   public static void validateUnsafeCacheRequest(UriInfo info) {
     String cacheNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
-    Set<String> cNames = cacheNames == null ? null : new HashSet<String>(Arrays.asList(cacheNames.split(",")));
+    Set<String> cNames = Utils.trimToNull(cacheNames) == null ? null : new HashSet<String>(
+        Arrays.asList(cacheNames.split(",")));
     if (cNames == null) {
-      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
-          "No cache specified. Unsafe requests must specify a single cache manager name.").build());
+      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+          .entity("No cache specified. Unsafe requests must specify a single cache manager name.").build());
     }
 
     if (cNames.size() != 1) {
-      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
-          "Multiple caches specified. Unsafe requests must specify a single cache manager name.").build());
+      throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+          .entity("Multiple caches specified. Unsafe requests must specify a single cache manager name.").build());
     }
   }
 }
