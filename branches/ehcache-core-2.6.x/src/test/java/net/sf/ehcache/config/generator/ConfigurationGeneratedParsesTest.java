@@ -37,7 +37,6 @@ public class ConfigurationGeneratedParsesTest {
         "ehcache-tx-twopc.xml",
         "ehcache-writer.xml",
         "ehcacheUTF8.xml",
-        "ehcache-persistence.xml"
     };
 
     @Test

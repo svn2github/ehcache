@@ -163,7 +163,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                 return !cacheConfiguration.isOverflowToOffHeap();
 
             case INCACHE:
-                return !(cacheConfiguration.isOverflowToOffHeap() || cacheConfiguration.isOverflowToDisk() || cacheConfiguration.isDiskPersistent());
+                return !cacheConfiguration.isOverflowToOffHeap() && !cacheConfiguration.isOverflowToDisk();
 
             default:
                 throw new IllegalArgumentException();

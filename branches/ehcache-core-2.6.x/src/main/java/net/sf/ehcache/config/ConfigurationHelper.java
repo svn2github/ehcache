@@ -237,38 +237,31 @@ public final class ConfigurationHelper {
         return caches;
     }
 
-
-    /**
-     * Calculates the number of caches in the configuration that overflow to disk
-     */
-    public final Integer numberOfCachesThatOverflowToDisk() {
-        int count = 0;
-        Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
-        for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
-            if (cacheConfiguration.overflowToDisk != null && cacheConfiguration.overflowToDisk) {
-                count++;
-            }
-        }
-        return Integer.valueOf(count);
-    }
-
-
     /**
      * Calculates the number of caches in the configuration that are diskPersistent
      */
-    public final Integer numberOfCachesThatAreDiskPersistent() {
+    public final int numberOfCachesThatUseDiskStorage() {
         int count = 0;
         Set cacheConfigurations = configuration.getCacheConfigurations().entrySet();
-        for (Iterator iterator = cacheConfigurations.iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            CacheConfiguration cacheConfiguration = (CacheConfiguration) entry.getValue();
-            if (cacheConfiguration.isDiskPersistent()) {
+        for (CacheConfiguration cacheConfig : configuration.getCacheConfigurations().values()) {
+            if (cacheConfig.isOverflowToDisk() || cacheConfig.isDiskPersistent() ||
+                    (cacheConfig.isOverflowToOffHeap() && cacheConfig.isSearchable())) {
                 count++;
+            } else {
+                PersistenceConfiguration persistence = cacheConfig.getPersistenceConfiguration();
+                if (persistence != null) {
+                    switch (persistence.getStrategy()) {
+                        case LOCALCLASSIC:
+                        case LOCALENTERPRISE:
+                            count++;
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         }
-        return Integer.valueOf(count);
+        return count;
     }
 
     /**

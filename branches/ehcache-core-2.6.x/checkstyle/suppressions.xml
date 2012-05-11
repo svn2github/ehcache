@@ -87,8 +87,9 @@
     <suppress checks="ClassFanOutComplexity" files="DiskStorageFactory.java"/>
     <suppress checks="ExecutableStatementCount" files="DiskStorageFactory.java"/>
 
-	<!-- Configuration schema is complex enough that the bean approach blows out the fan-out complexity -->
+    <!-- Configuration schema is complex enough that the bean approach blows out the complexity metrics -->
     <suppress checks="ClassFanOutComplexity" files="CacheConfiguration.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheConfiguration.java"/>
 
     <!-- A candidate, maybe... if you know what you do -->
     <suppress checks="NestedIfDepth" files="SlewClock.java"/>
