@@ -327,6 +327,8 @@ public final class DfltSamplerRepositoryService
 
     private final static String SAMPLED_STATS_ENABLED_ATTR = "SampledStatisticsEnabled";
 
+    private final static String BULK_LOAD_ENABLED = "ClusterBulkLoadEnabled";
+
     private CacheManager cacheManager;
 
     private CacheManagerSampler cacheManagerSampler;
@@ -414,6 +416,9 @@ public final class DfltSamplerRepositoryService
         if (cs != null) {
           Object enabledAttr = cacheResource.getAttributes().get(ENABLED_ATTR);
           if (enabledAttr != null) cs.setEnabled(Boolean.parseBoolean(enabledAttr.toString()));
+
+          Object enabledBlkLoad = cacheResource.getAttributes().get(BULK_LOAD_ENABLED);
+          if (enabledBlkLoad != null) cs.setNodeBulkLoadEnabled(Boolean.parseBoolean(enabledBlkLoad.toString()));
 
           Object enabledStatsAttr = cacheResource.getAttributes().get(STATS_ENABLED_ATTR);
           if (enabledStatsAttr != null) cs.setStatisticsEnabled(Boolean.parseBoolean(enabledStatsAttr.toString()));
