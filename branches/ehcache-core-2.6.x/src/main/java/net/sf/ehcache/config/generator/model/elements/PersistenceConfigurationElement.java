@@ -58,8 +58,9 @@ public class PersistenceConfigurationElement extends SimpleNodeElement {
         if (persistenceConfiguration == null) {
             return;
         }
-        addAttribute(new SimpleNodeAttribute("strategy"));
-        addAttribute(new SimpleNodeAttribute("synchronousWrites", PersistenceConfiguration.DEFAULT_SYNCHRONOUS_WRITES).optional(true));
+        addAttribute(new SimpleNodeAttribute("strategy", persistenceConfiguration.getStrategy()));
+        addAttribute(new SimpleNodeAttribute("synchronousWrites", persistenceConfiguration.getSynchronousWrites()).optional(true)
+                .defaultValue(PersistenceConfiguration.DEFAULT_SYNCHRONOUS_WRITES));
     }
 
 }
