@@ -13,14 +13,13 @@ import org.terracotta.management.embedded.StandaloneServer;
  * @author Ludovic Orban
  * @author brandony
  */
-public class ManagementServerImpl implements ManagementServer<CacheManager> {
+public class ManagementServerImpl implements ManagementServer {
 
   private final StandaloneServer standaloneServer = new StandaloneServer(null);
 
   private SamplerRepositoryService samplerRepoSvc;
 
   public ManagementServerImpl() {
-    System.out.println("*********************TEST");
   }
 
   /**

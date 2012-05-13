@@ -31,7 +31,14 @@ public class ManagementRESTServiceConfiguration {
      */
     public static final String DEFAULT_BIND = "0.0.0.0:9888";
 
+    /**
+     * Default timeout for the connection to the configured security service
+     */
+    public static final int DEFAULT_SECURITY_SVC_TIMEOUT = 5 * 1000;
+
     private volatile boolean enabled = false;
+    private volatile String securityServiceURL;
+    private volatile int securityServiceTimeout = DEFAULT_SECURITY_SVC_TIMEOUT;
     private volatile String bind = DEFAULT_BIND;
 
     private volatile int sampleHistorySize = CacheStatisticsSampler.DEFAULT_HISTORY_SIZE;
@@ -52,6 +59,51 @@ public class ManagementRESTServiceConfiguration {
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    /**
+     * Returns the security service location required for trusted identity assertion to the embedded REST management
+     * service.  This feature is only available with an enterprise license.
+     * <p/>
+     * If this value is set, then this service will require secure dialog with the TMS or other 3rd party REST client
+     * implementations. The service furnished by the enterprise version of the TMC is located is provided at /api/assertIdentity.
+     *
+     *
+     * @return a string representing the URL of the security service.
+     */
+    public String getSecurityServiceLocation() {
+        return securityServiceURL;
+    }
+
+    /**
+     * Sets the security service location required for trusted identity assertion to the embedded REST management
+     * service.  This feature is only available with an enterprise license.
+     * <p/>
+     * If this value is set, then this service will require secure dialog with the TMS or other 3rd party REST client
+     * implementations. The service furnished by the enterprise version of the TMC is located is provided at /api/assertIdentity.
+     *
+     * @param securityServiceURL a string representing the URL of the security service.
+     */
+    public void setSecurityServiceLocation(String securityServiceURL) {
+        this.securityServiceURL = securityServiceURL;
+    }
+
+    /**
+     * Returns the connection/read timeout value for the security service in milliseconds.
+     *
+     * @return security service timeout
+     */
+    public int getSecurityServiceTimeout() {
+        return securityServiceTimeout;
+    }
+
+    /**
+     * Sets the connection/read timeout value for the security service in milliseconds.
+     *
+     * @param securityServiceTimeout milliseconds to timeout
+     */
+    public void setSecurityServiceTimeout(int securityServiceTimeout) {
+        this.securityServiceTimeout = securityServiceTimeout;
     }
 
     /**
