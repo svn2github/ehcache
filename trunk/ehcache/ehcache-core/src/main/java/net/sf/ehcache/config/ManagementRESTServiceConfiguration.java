@@ -29,7 +29,7 @@ public class ManagementRESTServiceConfiguration {
     /**
      * Default bind value.
      */
-    public static final String DEFAULT_BIND = "0.0.0.0:9889";
+    public static final String DEFAULT_BIND = "0.0.0.0:9888";
 
     private volatile boolean enabled = false;
     private volatile String bind = DEFAULT_BIND;
