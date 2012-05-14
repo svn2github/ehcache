@@ -49,27 +49,32 @@ import java.util.Set;
  *
  * @author Ludovic Orban
  */
-public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
+public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
 
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
-    private MemoryOnlyStore(CacheConfiguration cacheConfiguration, NullStore cache, MemoryStore authority, SearchManager searchManager) {
-        super(cache, authority, cacheConfiguration.getCopyStrategy(), searchManager,
+    /**
+     * Create a MemoryOnlyStore
+     *
+     * @param cacheConfiguration the cache configuration
+     * @param authority the memory store
+     */
+    protected MemoryOnlyStore(CacheConfiguration cacheConfiguration, MemoryStore authority, SearchManager searchManager) {
+        super(NullStore.create(), authority, cacheConfiguration.getCopyStrategy(), searchManager,
               cacheConfiguration.isCopyOnWrite(), cacheConfiguration.isCopyOnRead());
     }
 
     /**
-     * Create an instance of MemoryStore
+     * Create an instance of MemoryOnlyStore
      * @param cache the cache
      * @param onHeapPool the on heap pool
-     * @return an instance of MemoryStore
+     * @return an instance of MemoryOnlyStore
      */
     public static Store create(Ehcache cache, Pool onHeapPool) {
-        final NullStore nullStore = NullStore.create();
         final MemoryStore memoryStore = NotifyingMemoryStore.create(cache, onHeapPool);
         final SearchManager searchManager = new BruteForceSearchManager(memoryStore);
 
-        return new MemoryOnlyStore(cache.getCacheConfiguration(), nullStore, memoryStore, searchManager);
+        return new MemoryOnlyStore(cache.getCacheConfiguration(), memoryStore, searchManager);
     }
 
     /**
@@ -101,11 +106,16 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
      *
      * @author teck
      */
-    private static class BruteForceSearchManager implements SearchManager {
+    protected static class BruteForceSearchManager implements SearchManager {
 
         private final MemoryStore memoryStore;
 
-        BruteForceSearchManager(MemoryStore memoryStore) {
+        /**
+         * Create a BruteForceSearchManager around the given memory store.
+         *
+         * @param memoryStore a MemoryStore to search
+         */
+        public BruteForceSearchManager(MemoryStore memoryStore) {
             this.memoryStore = memoryStore;
         }
 

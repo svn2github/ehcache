@@ -19,8 +19,11 @@ import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -44,7 +47,7 @@ import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
  */
 public class SelectableConcurrentHashMap {
 
-    private static final Element DUMMY_PINNED_ELEMENT = new Element(new DummyPinnedKey(), new DummyPinnedValue());
+    protected static final Element DUMMY_PINNED_ELEMENT = new Element(new DummyPinnedKey(), new DummyPinnedValue());
 
     /**
      * The maximum capacity, used if a higher value is implicitly
@@ -413,12 +416,12 @@ public class SelectableConcurrentHashMap {
 
     public Element put(Object key, Element element, long sizeOf) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, element, sizeOf, false);
+        return segmentFor(hash).put(key, hash, element, sizeOf, false, false, true);
     }
 
     public Element putIfAbsent(Object key, Element element, long sizeOf) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, element, sizeOf, true);
+        return segmentFor(hash).put(key, hash, element, sizeOf, true, false, true);
     }
 
     public Element remove(Object key) {
@@ -497,18 +500,22 @@ public class SelectableConcurrentHashMap {
      * @param hash the hash code for the key
      * @return the segment
      */
-    final Segment segmentFor(int hash) {
+    protected final Segment segmentFor(int hash) {
         return segments[(hash >>> segmentShift) & segmentMask];
     }
 
-    final class Segment extends ReentrantReadWriteLock {
+    protected final List<Segment> segments() {
+        return Collections.unmodifiableList(Arrays.asList(segments));
+    }
+
+    public class Segment extends ReentrantReadWriteLock {
 
         private static final int MAX_EVICTION = 5;
 
         /**
          * The number of elements in this segment's region.
          */
-        volatile int count;
+        protected volatile int count;
 
         /**
          * Number of updates that alter the size of the table. This is
@@ -530,7 +537,7 @@ public class SelectableConcurrentHashMap {
         /**
          * The per-segment table.
          */
-        volatile HashEntry[] table;
+        protected volatile HashEntry[] table;
 
         /**
          * The load factor for the hash table.  Even though this value
@@ -542,12 +549,20 @@ public class SelectableConcurrentHashMap {
 
         private Iterator<HashEntry> evictionIterator = iterator();
         private boolean fullyPinned;
-        private volatile int pinnedCount;
-        private volatile int numDummyPinnedKeys;
+        protected volatile int pinnedCount;
+        protected volatile int numDummyPinnedKeys;
 
-        private Segment(int initialCapacity, float lf) {
+        protected Segment(int initialCapacity, float lf) {
             loadFactor = lf;
             setTable(new HashEntry[initialCapacity]);
+        }
+
+        protected void preRemove(Object key) {
+
+        }
+
+        protected void postInstall(Object key, Element value, boolean pinned) {
+
         }
 
         /**
@@ -562,39 +577,9 @@ public class SelectableConcurrentHashMap {
         /**
          * Returns properly casted first entry of bin for given hash.
          */
-        HashEntry getFirst(int hash) {
+        protected HashEntry getFirst(int hash) {
             HashEntry[] tab = table;
             return tab[hash & (tab.length - 1)];
-        }
-
-        private void calculateEmptyPinnedKeySize(boolean pinned, HashEntry e) {
-            writeLock().lock();
-            try {
-                if(e == null && pinned) {//want to pin first time
-                    ++pinnedCount;
-                    ++numDummyPinnedKeys;
-                    return;
-                }
-                if(pinned) {
-                    ++pinnedCount;
-                    return;
-                }
-                if(e == null || (!e.pinned && !pinned)) {
-                  // 1. want to unpin which is not present
-                  // 2. want to pin/unpin again (same operation)
-                  // 3. want to unpin which was never pinned
-                    return;
-                }
-                if(pinned) {//want to pin
-                    ++pinnedCount;
-                    ++numDummyPinnedKeys;
-                } else {//want to unpin
-                    --pinnedCount;
-                    --numDummyPinnedKeys;
-                }
-            } finally {
-                writeLock().unlock();
-            }
         }
 
         public void setPinned(Object key, boolean pinned, int hash) {
@@ -604,11 +589,20 @@ public class SelectableConcurrentHashMap {
                 while (e != null && (e.hash != hash || !key.equals(e.key)))
                     e = e.next;
                 if (e != null) {
-                    e.pinned = pinned;
+                    if (pinned && !e.pinned) {
+                        pinnedCount++;
+                        e.pinned = true;
+                        postInstall(e.key, e.value, true);
+                    } else if (!pinned && e.pinned) {
+                        pinnedCount--;
+                        e.pinned = false;
+                        postInstall(e.key, e.value, false);
+                    }
                 } else if (pinned) {
-                    putInternal(key, hash, DUMMY_PINNED_ELEMENT, 0, false, true);
+                    put(key, hash, DUMMY_PINNED_ELEMENT, 0, false, true, true);
+                    pinnedCount++;
+                    numDummyPinnedKeys++;
                 }
-                calculateEmptyPinnedKeySize(pinned, e);
             } finally {
                 writeLock().unlock();
             }
@@ -654,11 +648,15 @@ public class SelectableConcurrentHashMap {
             }
         }
 
+        protected HashEntry createHashEntry(Object key, int hash, HashEntry next, Element value, long sizeOf, boolean pinned) {
+            return new HashEntry(key, hash, next, value, sizeOf, pinned);
+        }
+
         protected HashEntry relinkHashEntry(HashEntry e, HashEntry next) {
             return new HashEntry(e.key, e.hash, next, e.value, e.sizeOf, e.pinned);
         }
 
-        void clear() {
+        protected void clear() {
             writeLock().lock();
             try {
                 if (count != 0) {
@@ -693,6 +691,7 @@ public class SelectableConcurrentHashMap {
                         oldValue = v;
                         ++modCount;
                         if(!e.pinned) {
+                            preRemove(e.key);
                             // All entries following removed node can stay
                             // in list, but all preceding ones need to be
                             // cloned.
@@ -702,10 +701,11 @@ public class SelectableConcurrentHashMap {
                             tab[index] = newFirst;
                         } else {
                             ++c;
-                            e.value = DUMMY_PINNED_ELEMENT;
                             if (oldValue == DUMMY_PINNED_ELEMENT) {
                                oldValue = null;
                             } else {
+                                preRemove(e.key);
+                                e.value = DUMMY_PINNED_ELEMENT;
                                 ++numDummyPinnedKeys;
                             }
                         }
@@ -717,10 +717,6 @@ public class SelectableConcurrentHashMap {
             } finally {
                 writeLock().unlock();
             }
-        }
-
-        Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent) {
-            return putInternal(key, hash, value, sizeOf, onlyIfAbsent, false);
         }
 
         public void recalculateSize(Object key, int hash) {
@@ -763,7 +759,7 @@ public class SelectableConcurrentHashMap {
             }
         }
 
-        Element putInternal(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean pinned) {
+        protected Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean pinned, boolean fire) {
             Element[] evicted = new Element[MAX_EVICTION];
             writeLock().lock();
             try {
@@ -788,12 +784,18 @@ public class SelectableConcurrentHashMap {
                             --numDummyPinnedKeys;
                             oldValue = null;
                         }
+                        if (fire) {
+                            postInstall(key, value, e.pinned);
+                        }
                     }
                 } else {
                     oldValue = null;
                     ++modCount;
-                    tab[index] = new HashEntry(key, hash, first, value, sizeOf, pinned);
+                    tab[index] = createHashEntry(key, hash, first, value, sizeOf, pinned);
                     count = c; // write-volatile
+                    if (fire) {
+                        postInstall(key, value, pinned);
+                    }
                 }
 
                 if(!pinned && (onlyIfAbsent && oldValue != null || !onlyIfAbsent)) {
@@ -918,7 +920,7 @@ public class SelectableConcurrentHashMap {
             return lastUnpinned;
         }
 
-        private Iterator<HashEntry> iterator() {
+        protected Iterator<HashEntry> iterator() {
             return new SegmentIterator(this);
         }
 
@@ -1001,18 +1003,18 @@ public class SelectableConcurrentHashMap {
         }
     }
 
-    static final class HashEntry {
-        final Object key;
-        final int hash;
-        final HashEntry next;
+    public static class HashEntry {
+        public final Object key;
+        public final int hash;
+        public final HashEntry next;
 
-        volatile Element value;
+        public volatile Element value;
 
-        volatile boolean pinned;
-        volatile long sizeOf;
-        volatile boolean accessed = true;
+        public volatile boolean pinned;
+        public volatile long sizeOf;
+        public volatile boolean accessed = true;
 
-        private HashEntry(Object key, int hash, HashEntry next, Element value, long sizeOf, boolean pinned) {
+        protected HashEntry(Object key, int hash, HashEntry next, Element value, long sizeOf, boolean pinned) {
             this.key = key;
             this.hash = hash;
             this.next = next;
@@ -1072,12 +1074,12 @@ public class SelectableConcurrentHashMap {
     }
 
     @IgnoreSizeOf
-    private static class DummyPinnedKey implements Serializable {
+    protected static class DummyPinnedKey implements Serializable {
 
     }
 
     @IgnoreSizeOf
-    private static class DummyPinnedValue implements Serializable {
+    protected static class DummyPinnedValue implements Serializable {
 
     }
 
