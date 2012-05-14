@@ -2,7 +2,11 @@
  * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
  * notice. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
+
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
+import org.terracotta.ehcache.tests.WriteBehindClient1;
+import org.terracotta.ehcache.tests.WriteBehindClient2;
 
 import com.tc.test.config.model.TestConfig;
 

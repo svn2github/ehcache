@@ -5,6 +5,7 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
 
+import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.transaction.SoftLockId;
@@ -14,11 +15,13 @@ import org.terracotta.modules.ehcache.transaction.state.XATransactionDecision;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 
 /**
  * Factory used for creating {@link Toolkit} instances used for implementing clustered ehcache
@@ -62,6 +65,16 @@ public interface ToolkitInstanceFactory {
    * Returns a {@link ToolkitReadWriteLock} for protecting the cache's store cluster wide
    */
   ToolkitReadWriteLock getOrCreateStoreLock(Ehcache cache);
+
+  ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap();
+
+  ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap();
+
+  String getFullAsyncName(Ehcache cache, String asyncName);
+
+  String getAsyncNameListKey(String fullAsyncName, String nodeId);
+
+  ToolkitLock getAsyncWriteLock();
 
   /**
    * Returns a {@link ToolkitNotifier} for the cachse to notify {@link CacheEventNotificationMsg} across the cluster

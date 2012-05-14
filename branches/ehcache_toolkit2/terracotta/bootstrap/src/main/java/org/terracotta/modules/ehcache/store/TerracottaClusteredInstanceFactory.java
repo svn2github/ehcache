@@ -5,6 +5,7 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
@@ -18,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
+import org.terracotta.modules.ehcache.async.AsyncConfig;
+import org.terracotta.modules.ehcache.async.AsyncCoordinator;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.FireRejoinOperatorEventClusterListener;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
@@ -25,7 +29,13 @@ import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.SoftLockFactoryProvider;
 import org.terracotta.modules.ehcache.transaction.state.EhcacheTxnsClusteredStateFacade;
 import org.terracotta.modules.ehcache.transaction.state.EhcacheTxnsClusteredStateFacadeImpl;
+import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
+import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.ToolkitLogger;
+import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
+
+import java.util.LinkedList;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
@@ -34,6 +44,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   public static final String                    DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
   protected final ToolkitInstanceFactory        toolkitInstanceFactory;
+  private static final String                   DEFAULT_ASYNC_NAME         = "__DEFAULT__ASYNC__";
 
   // private final fields
   private final CacheCluster                    topology;
@@ -89,8 +100,51 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public WriteBehind createWriteBehind(Ehcache cache) {
-    // TODO:
-    return null;
+    final CacheWriterConfiguration config = cache.getCacheConfiguration().getCacheWriterConfiguration();
+    final AsyncConfig asyncConfig = new WriteBehindAsyncConfig(config.getMinWriteDelay() * 1000,
+                                                               config.getMaxWriteDelay() * 1000,
+                                                               config.getWriteBatching(), config.getWriteBatchSize(),
+                                                               cache.getCacheConfiguration()
+                                                                   .getTerracottaConfiguration().isSynchronousWrites(),
+                                                               config.getRetryAttempts(),
+                                                               config.getRetryAttemptDelaySeconds() * 1000,
+                                                               config.getRateLimitPerSecond(),
+                                                               config.getWriteBehindMaxQueueSize());
+
+    final AsyncCoordinator asyncCoordinator = getAsyncCoordinator(DEFAULT_ASYNC_NAME, cache, asyncConfig);
+    return new AsyncWriteBehind(asyncCoordinator, cache);
+  }
+
+  private AsyncCoordinator getAsyncCoordinator(final String asyncName, final Ehcache cache, final AsyncConfig config) {
+    final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache, asyncName);
+    final ToolkitMap<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
+    final ToolkitMap<String, LinkedList<String>> listNamesMap = toolkitInstanceFactory.getOrCreateAsyncListNamesMap();
+    LinkedList<String> nameList = new LinkedList<String>();
+    String nodeId = getCurrentNodeId();
+    String nameListKey = toolkitInstanceFactory.getAsyncNameListKey(fullAsyncName, nodeId);
+    ToolkitLock toolkitLock = toolkitInstanceFactory.getAsyncWriteLock();
+    // AsyncCoordinator async = null;
+    toolkitLock.lock();
+    try {
+      AsyncConfig oldConfig = configMap.putIfAbsent(fullAsyncName, config);
+      if (oldConfig != null && !oldConfig.equals(config)) { throw new IllegalArgumentException(
+                                                                                               "can not get AsyncCoordinator for same name but different configs.\nExisting config\n"
+                                                                                                   + oldConfig
+                                                                                                   + "\nNew Config\n"
+                                                                                                   + config); }
+
+      LinkedList<String> oldList = listNamesMap.putIfAbsent(nameListKey, nameList);
+      if (oldList != null) { throw new IllegalArgumentException("can not get AsyncCoordinator more that once for node "
+                                                                + nodeId); }
+      return new AsyncCoordinatorImpl(fullAsyncName, nameListKey, config, toolkitInstanceFactory);
+      // return async;
+    } finally {
+      toolkitLock.unlock();
+    }
+  }
+
+  private String getCurrentNodeId() {
+    return toolkitInstanceFactory.getToolkit().getClusterInfo().waitUntilNodeJoinsCluster().getId();
   }
 
   @Override

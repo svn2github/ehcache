@@ -9,6 +9,7 @@ import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
+import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
@@ -22,6 +23,8 @@ import org.terracotta.toolkit.client.ToolkitClient;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
@@ -31,6 +34,7 @@ import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
@@ -48,6 +52,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                 + "xaTxnsDecision";
   private static final String              ALL_SOFT_LOCKS_MAP_SUFFIX          = "softLocks";
   private static final String              NEW_SOFT_LOCKS_LIST_SUFFIX         = "newSoftLocks";
+
+  private static final String              DEFAULT_ASYNC_LOCK                 = "__DEFAULT__ASYNC__LOCK__";
+  private static final String              ASYNC                              = "async";
+  private static final String              ASYNC_CONFIG_MAP                   = ASYNC + DELIMITER + "asyncConfigMap";
+  public static final String               ASYNC_NAME_LIST_MAP                = ASYNC + DELIMITER + "asyncListNamesMap";
 
   protected final Toolkit                  toolkit;
 
@@ -265,6 +274,38 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitList<SoftLockId> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName) {
     return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                            + NEW_SOFT_LOCKS_LIST_SUFFIX);
+  }
+
+  @Override
+  public ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap() {
+    Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    return toolkit.getMap(ASYNC_CONFIG_MAP, configuration);
+  }
+
+  @Override
+  public ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap() {
+    Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    return toolkit.getMap(ASYNC_NAME_LIST_MAP, configuration);
+  }
+
+  @Override
+  public String getFullAsyncName(Ehcache cache, String asyncName) {
+    String cacheMgrName = getCacheManagerName(cache);
+    String cacheName = cache.getName();
+    String fullAsyncName = cacheMgrName + DELIMITER + cacheName + DELIMITER + ASYNC + DELIMITER + asyncName;
+    return fullAsyncName;
+  }
+
+  @Override
+  public String getAsyncNameListKey(String fullAsyncName, String nodeId) {
+    return fullAsyncName + DELIMITER + nodeId;
+  }
+
+  @Override
+  public ToolkitLock getAsyncWriteLock() {
+    return toolkit.getLock(DEFAULT_ASYNC_LOCK, ToolkitLockType.WRITE);
   }
 
 }
