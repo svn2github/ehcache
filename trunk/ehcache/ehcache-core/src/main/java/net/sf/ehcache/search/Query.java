@@ -118,6 +118,7 @@ public interface Query {
      * Rows with duplicate values for these attributes will be removed. This method may also be chained to achieve the same effect.
      * @param attribute
      * @return
+     * @since 2.6
      */
     public Query addGroupBy(Attribute<?>... attribute);
 
