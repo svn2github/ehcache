@@ -15,7 +15,7 @@ import org.terracotta.management.embedded.StandaloneServer;
  */
 public class ManagementServerImpl implements ManagementServer {
 
-  private final StandaloneServer standaloneServer = new StandaloneServer(null);
+  private final StandaloneServer standaloneServer = new StandaloneServer();
 
   private SamplerRepositoryService samplerRepoSvc;
 
