@@ -70,6 +70,7 @@ public interface StoreQuery {
     /**
      * Get the set of attributes to group result set by
      * @return attributes to group by (if any)
+     * @since 2.6
      */
     Set<Attribute<?>> groupByAttributes();
 
