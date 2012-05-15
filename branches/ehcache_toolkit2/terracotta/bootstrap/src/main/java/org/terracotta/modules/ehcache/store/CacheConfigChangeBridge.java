@@ -53,12 +53,12 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
 
   @Override
   public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
-    changeAndNotify(DynamicConfigType.MAX_TTI_SECONDS, newTimeToIdle);
+    changeAndNotify(DynamicConfigType.MAX_TTI_SECONDS, (int) newTimeToIdle);
   }
 
   @Override
   public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
-    changeAndNotify(DynamicConfigType.MAX_TTL_SECONDS, newTimeToLive);
+    changeAndNotify(DynamicConfigType.MAX_TTL_SECONDS, (int) newTimeToLive);
   }
 
   @Override

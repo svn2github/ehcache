@@ -2089,8 +2089,12 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     private Element searchInStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
-        Element element = compoundStore.getQuiet(key);
-
+        Element element = null;
+        if (isTerracottaClustered()) {
+            element = compoundStore.get(key);
+        } else {
+            element = compoundStore.getQuiet(key);
+        }
         return elementStatsHelper(key, quiet, notifyListeners, element);
     }
 

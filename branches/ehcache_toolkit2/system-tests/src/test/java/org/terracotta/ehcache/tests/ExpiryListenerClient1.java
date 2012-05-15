@@ -53,7 +53,7 @@ public class ExpiryListenerClient1 extends ClientBase implements CacheEventListe
 
   public void notifyElementExpired(Ehcache cache, Element element) {
     Assert.assertNotNull(element.getKey());
-    Assert.assertNotNull(element.getValue());
+    Assert.assertNull(element.getValue());
     System.out.println("Got evicted: " + element);
   }
 

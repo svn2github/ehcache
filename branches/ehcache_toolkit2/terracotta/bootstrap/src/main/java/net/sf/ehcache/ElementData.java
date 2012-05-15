@@ -6,6 +6,8 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.util.TimeUtil;
 
+import org.terracotta.toolkit.internal.collections.TimestampedValue;
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -14,7 +16,7 @@ import java.io.ObjectOutput;
 /**
  * @author Nishant
  */
-public class ElementData implements Externalizable {
+public class ElementData implements Externalizable, TimestampedValue {
   private volatile Object  value;
   private volatile long    version;
   private volatile long    creationTime;
@@ -94,6 +96,11 @@ public class ElementData implements Externalizable {
     timeToLive = in.readInt();
     timeToIdle = in.readInt();
     lastUpdateTime = in.readLong();
+  }
+
+  @Override
+  public void updateTimestamps(int createTime, int lastAccessedTime) {
+    setLastAccessedTimeInternal(lastAccessedTime);
   }
 
 }
