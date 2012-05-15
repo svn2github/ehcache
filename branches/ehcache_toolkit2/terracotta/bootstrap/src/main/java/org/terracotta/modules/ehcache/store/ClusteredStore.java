@@ -239,8 +239,11 @@ public class ClusteredStore implements TerracottaStore {
     if (writerManager != null) {
       writerManager.put(element);
     }
-
-    return doPut(pKey, element, searchMetaData);
+    if (element.usesCacheDefaultLifespan()) {
+      return doPut(pKey, element, searchMetaData);
+    } else {
+      return doPutWithCustomLifespan(pKey, element, searchMetaData);
+    }
   }
 
   @Override
@@ -639,10 +642,20 @@ public class ClusteredStore implements TerracottaStore {
   private boolean doPut(Object portableKey, Element element, MetaData searchMetaData) {
 
     ElementData value = valueModeHandler.createElementData(element);
-    int creationTimeInSecs = (int) (element.getCreationTime() / 1000);
-    int customTTI = element.getTimeToIdle();
-    int customTTL = element.getTimeToLive();
+    if (checkContainsKeyOnPut) {
+      return backend.putWithMetaData(portableKey, value, searchMetaData) == null ? true : false;
+    } else {
+      backend.putNoReturnWithMetaData(portableKey, value, searchMetaData);
+      return true;
+    }
+  }
 
+  private boolean doPutWithCustomLifespan(Object portableKey, Element element, MetaData searchMetaData) {
+
+    ElementData value = valueModeHandler.createElementData(element);
+    int creationTimeInSecs = (int) (element.getCreationTime() / 1000);
+    int customTTI = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToIdle();
+    int customTTL = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToLive();
     if (checkContainsKeyOnPut) {
       return backend.putWithMetaData(portableKey, value, creationTimeInSecs, customTTI, customTTL, searchMetaData) == null ? true
           : false;
