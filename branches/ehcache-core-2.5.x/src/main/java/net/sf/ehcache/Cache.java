@@ -4059,7 +4059,11 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     void clusterRejoinStarted() {
         try {
-            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().dispose();
+            TerracottaStore tcStore = nonstopActiveDelegateHolder.getUnderlyingTerracottaStore();
+            if(tcStore == null) {
+                throw new NullPointerException("Underlying Terracotta Store is null");
+            }
+            tcStore.dispose();
         } catch (Exception e) {
             LOG.debug("Ignoring exception while disposing old store on rejoin - " + e.getMessage(), e);
         }
