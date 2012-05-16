@@ -21,13 +21,29 @@
   </properties>  
 
   <modules>
-    <module>ehcache-core</module>
     <module>terracotta</module>
     <module>ehcache</module>
     <module>system-tests</module>
   </modules>
 
   <profiles>
+    <profile>
+      <!--
+        Profile to include the ehcache-core module in the build. This profile
+        is active as long as the jenkins.publisher property is NOT set.
+        This allows the Jenkins publisher job to exclude the ehcache-core
+        module and therefore work around a cyclic dependency problem.
+      -->
+      <id>include-ehcache-core</id>
+      <activation>
+        <property>
+          <name>!jenkins.publisher</name>
+        </property>
+      </activation>
+      <modules>
+        <module>ehcache-core</module>
+      </modules>
+    </profile>
     <profile>
       <id>dist</id>
       <modules>
