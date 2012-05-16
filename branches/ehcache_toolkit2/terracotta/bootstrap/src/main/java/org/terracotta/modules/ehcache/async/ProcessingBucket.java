@@ -88,13 +88,13 @@ public class ProcessingBucket<E extends Serializable> {
     return System.currentTimeMillis() - baselineTimestamp;
   }
 
-  void start(boolean isDaemon) throws ExistingRunningThreadException {
+  void start(boolean workingOnDeadBucket) throws ExistingRunningThreadException {
     Lock lock = bucketWriteLock;
     lock.lock();
     try {
       ensureNonExistingThread();
-      processingWorker = new ProcessingWorker("ProcessingWorker-" + bucketName);
-      processingWorker.setDaemon(isDaemon);
+      processingWorker = new ProcessingWorker("ProcessingWorker-" + bucketName, workingOnDeadBucket);
+      processingWorker.setDaemon(true);
       processingWorker.start();
     } finally {
       lock.unlock();
@@ -111,7 +111,7 @@ public class ProcessingBucket<E extends Serializable> {
       Lock lock = bucketReadLock;
       lock.lock();
       try {
-        return processingWorker.isDaemon() ? cancelled : toolkitList.isEmpty();
+        return cancelled;
       } finally {
         lock.unlock();
       }
@@ -331,7 +331,7 @@ public class ProcessingBucket<E extends Serializable> {
         signalNotFull();
 
         if (toolkitList.isEmpty()) {
-          stoppedButBucketNotEmpty.signal();
+          stoppedButBucketNotEmpty.signalAll();
         } else {
           signalNotEmpty();
         }
@@ -406,10 +406,12 @@ public class ProcessingBucket<E extends Serializable> {
   }
 
   private final class ProcessingWorker extends Thread {
-    private boolean isRunning = false;
+    private boolean       isRunning = false;
+    private final boolean workingOnDeadBucket;
 
-    public ProcessingWorker(String threadName) {
+    public ProcessingWorker(String threadName, boolean workingOnDeadBucket) {
       super(threadName);
+      this.workingOnDeadBucket = workingOnDeadBucket;
     }
 
     @Override
@@ -480,7 +482,7 @@ public class ProcessingBucket<E extends Serializable> {
       }
 
       // Destroying buckets with no owners
-      if (!processingWorker.isDaemon()) {
+      if (processingWorker.isWorkingOnDeadBucket()) {
         toolkitList.destroy();
       }
       isRunning = false;
@@ -488,6 +490,10 @@ public class ProcessingBucket<E extends Serializable> {
 
     public boolean isWorking() {
       return isRunning;
+    }
+
+    public boolean isWorkingOnDeadBucket() {
+      return workingOnDeadBucket;
     }
   }
 

@@ -68,11 +68,11 @@ public interface ToolkitInstanceFactory {
 
   ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap();
 
-  ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap();
+  ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
 
   String getFullAsyncName(Ehcache cache, String asyncName);
 
-  String getAsyncNameListKey(String fullAsyncName, String nodeId);
+  String getAsyncNode(String fullAsyncName, String nodeId);
 
   ToolkitLock getAsyncWriteLock();
 

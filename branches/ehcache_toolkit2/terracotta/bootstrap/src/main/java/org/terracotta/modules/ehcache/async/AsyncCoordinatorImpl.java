@@ -64,7 +64,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private ItemScatterPolicy<? super E>                 scatterPolicy;
   private ItemsFilter<E>                               filter;
   private final ClusterInfo                            cluster;
-  private final String                                 nameListKey;
+  private final String                                 asyncNode;
   private final Toolkit                                toolkit;
   private final ToolkitInstanceFactory                 toolkitInstanceFactory;
   private ItemProcessor<E>                             processor;
@@ -73,7 +73,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   public AsyncCoordinatorImpl(String name, String nameListKey, AsyncConfig config,
                               ToolkitInstanceFactory toolkitInstanceFactory) {
     this.name = name;
-    this.nameListKey = nameListKey;
+    this.asyncNode = nameListKey;
     if (null == config) {
       this.config = DefaultAsyncConfig.getInstance();
     } else {
@@ -82,7 +82,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.localBuckets = new ArrayList<ProcessingBucket<E>>();
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.toolkit = toolkitInstanceFactory.getToolkit();
-    this.listNamesMap = toolkitInstanceFactory.getOrCreateAsyncListNamesMap();
+    this.listNamesMap = toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name);
     ToolkitLockType lockType = config.isSynchronousWrite() ? ToolkitLockType.SYNCHRONOUS_WRITE : ToolkitLockType.WRITE;
     this.coordinatorLock = toolkit.getLock(nameListKey, lockType);
     this.cluster = toolkit.getClusterInfo();
@@ -112,12 +112,14 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
                                                                       "scatterPolicy should have been null for AsyncCoordinator "
                                                                           + name); }
       this.scatterPolicy = policy;
-      LinkedList<String> nameList = listNamesMap.get(nameListKey);
-      if (!nameList.isEmpty()) { throw new IllegalArgumentException("nameList already populated for AsyncCoordinator "
-                                                                    + name); }
+      LinkedList<String> tmpLList = new LinkedList<String>();
+      LinkedList<String> nameList = listNamesMap.putIfAbsent(asyncNode, tmpLList);
+      if (nameList != null) { throw new IllegalArgumentException("nameList already populated for AsyncCoordinator "
+                                                                 + name); }
+      nameList = tmpLList;
       this.processor = itemProcessor;
       for (int i = 0; i < processingConcurrency; i++) {
-        String bucketName = nameListKey + DELIMITER + BUCKET + DELIMITER + i;
+        String bucketName = asyncNode + DELIMITER + BUCKET + DELIMITER + i;
         ToolkitList<E> toolkitList = toolkit.getList(bucketName);
         ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
                                                              LoggingErrorHandler.getInstance());
@@ -125,7 +127,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         localBuckets.add(bucket);
         nameList.add(bucketName);
       }
-      listNamesMap.put(nameListKey, nameList);
+      listNamesMap.put(asyncNode, nameList);
       listner = new AsyncClusterListener();
       cluster.addClusterListener(listner);
       status = Status.STARTED;
@@ -182,9 +184,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         if (cluster != null) {
           cluster.removeClusterListener(listner);
         }
-        LinkedList<String> nameList = listNamesMap.get(nameListKey);
-        nameList.clear();
-        listNamesMap.put(nameListKey, nameList);
+        listNamesMap.remove(asyncNode);
         status = Status.STOPPED;
       }
     } finally {
@@ -220,7 +220,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private class AsyncClusterListener implements ClusterListener {
     @Override
     public void onClusterEvent(ClusterEvent event, ClusterInfo clusterInfo) {
-      String otherNodeNameListKey = toolkitInstanceFactory.getAsyncNameListKey(name, event.getNode().getId());
+      String otherNodeNameListKey = toolkitInstanceFactory.getAsyncNode(name, event.getNode().getId());
       switch (event.getType()) {
         case NODE_LEFT:
           processOtherNode(otherNodeNameListKey);
@@ -234,22 +234,22 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   private void processOtherNode(String otherNodeNameListKey) {
     if (status == Status.STARTED) {
-      Lock lock = toolkitInstanceFactory.getAsyncWriteLock();
+      Lock lock = coordinatorLock;
       lock.lock();
       try {
         LinkedList<String> nameList = listNamesMap.get(otherNodeNameListKey);
-        LinkedList<String> newOwner = listNamesMap.get(nameListKey);
+        LinkedList<String> newOwner = listNamesMap.get(asyncNode);
         if (nameList != null) {
           for (String bucketName : nameList) {
             ToolkitList<E> toolkitList = toolkit.getList(bucketName);
             ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
                                                                  LoggingErrorHandler.getInstance());
             bucket.setItemsFilter(filter);
-            bucket.start(false);
+            bucket.start(true);
             newOwner.add(bucketName);
           }
           listNamesMap.remove(otherNodeNameListKey); // removing buckets from old node
-          listNamesMap.put(nameListKey, newOwner); // transferring bucket ownership to new node
+          listNamesMap.put(asyncNode, newOwner); // transferring bucket ownership to new node
         }
       } catch (ExistingRunningThreadException e) {
         LOGGER.warn(e.getMessage());
@@ -265,7 +265,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     if (cluster != null) {
       deadNodes = new HashSet<String>(listNamesMap.keySet());
       for (ClusterNode node : cluster.getClusterTopology().getNodes()) {
-        deadNodes.remove(toolkitInstanceFactory.getAsyncNameListKey(name, node.getId()));
+        deadNodes.remove(toolkitInstanceFactory.getAsyncNode(name, node.getId()));
       }
     }
     return deadNodes;

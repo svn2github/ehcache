@@ -284,10 +284,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap() {
+  public ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
     Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    return toolkit.getMap(ASYNC_NAME_LIST_MAP, configuration);
+    return toolkit.getMap(fullAsyncName, configuration);
   }
 
   @Override
@@ -299,7 +299,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public String getAsyncNameListKey(String fullAsyncName, String nodeId) {
+  public String getAsyncNode(String fullAsyncName, String nodeId) {
     return fullAsyncName + DELIMITER + nodeId;
   }
 
