@@ -585,11 +585,7 @@ public class ClusteredStore implements TerracottaStore {
     Set<Entry<Object, Serializable>> entrySet = values.entrySet();
     for (Map.Entry<Object, Serializable> entry : entrySet) {
       Object key = this.valueModeHandler.getRealKeyObject((String) entry.getKey());
-      if (entry.getValue() == null) {
-        elements.put(key, null);
-      } else {
-        elements.put(key, this.valueModeHandler.createElement(key, entry.getValue()));
-      }
+      elements.put(key, this.valueModeHandler.createElement(key, entry.getValue()));
     }
     return elements;
   }

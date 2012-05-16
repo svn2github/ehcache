@@ -34,7 +34,7 @@ public class ValueModeHandlerSerialization implements ValueModeHandler {
 
   @Override
   public Element createElement(Object key, Serializable value) {
-    return ((ElementData) value).createElement(key);
+    return value == null ? null : ((ElementData) value).createElement(key);
   }
 
 }
