@@ -64,6 +64,29 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
          dynamicConfig="true">
 
     <!--
+    Management Rest Service configuration
+    =====================================
+    
+    The managementRESTService element is optional.  By default the REST service that exposes monitoring and
+    management features for the caches within the cache manager is disabled.  Enabling this feature will
+    affect cache performance.
+    
+    To meaningfully use this REST monitoring feature, you should also set statistics="true" on caches.
+
+    The 'bind' attribute defaults to "0.0.0.0:9888" and sets the IP Address and Port to bind the web service
+    to.  "0.0.0.0" binds to all local addresses / network interfaces.
+
+    If you provide the 'securityServiceLocation' attribute, this will also enable authentication and other
+    security measures on the REST service - which are only available for the enterprise-edition of the
+    service.  The location should be the URL to the Terracotta Management Server that is being used to
+    manage the ehcache instance.
+    
+    <managementRESTService enabled="true" securityServiceLocation="http://localhost:9889/tmc/api/assertIdentity"  />
+    
+     -->
+    <managementRESTService enabled="true" bind="0.0.0.0:9888" />
+    
+    <!--
     DiskStore configuration
     =======================
 

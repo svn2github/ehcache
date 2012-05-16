@@ -25,6 +25,13 @@
             <xs:attribute default="0" name="maxBytesLocalDisk" type="memoryUnit" use="optional"/>
         </xs:complexType>
     </xs:element>
+    <xs:element name="managementRESTService">
+        <xs:complexType>
+            <xs:attribute name="enabled" use="optional"/>
+            <xs:attribute name="bind" use="optional"/>
+            <xs:attribute name="securityServiceLocation" use="optional"/>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="diskStore">
         <xs:complexType>
             <xs:attribute name="path" use="optional"/>
