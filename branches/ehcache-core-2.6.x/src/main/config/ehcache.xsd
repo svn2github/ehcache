@@ -4,6 +4,7 @@
     <xs:element name="ehcache">
         <xs:complexType>
             <xs:sequence>
+                <xs:element maxOccurs="1" minOccurs="0" ref="managementRESTService"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="diskStore"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="sizeOfPolicy"/>
                 <xs:element maxOccurs="1" minOccurs="0" ref="transactionManagerLookup"/>
@@ -22,6 +23,13 @@
             <xs:attribute default="0" name="maxBytesLocalHeap" type="memoryUnitOrPercentage" use="optional"/>
             <xs:attribute default="0" name="maxBytesLocalOffHeap" type="memoryUnit" use="optional"/>
             <xs:attribute default="0" name="maxBytesLocalDisk" type="memoryUnit" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="managementRESTService">
+        <xs:complexType>
+            <xs:attribute name="enabled" use="optional"/>
+            <xs:attribute name="bind" use="optional"/>
+            <xs:attribute name="securityServiceLocation" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="diskStore">
