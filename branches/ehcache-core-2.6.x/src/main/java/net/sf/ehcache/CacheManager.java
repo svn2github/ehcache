@@ -158,7 +158,7 @@ public class CacheManager {
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
-    private static final Map<Integer, ManagementServer> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer>();
+    private static final Map<String, ManagementServer> MGMT_SVR_BY_BIND = new HashMap<String, ManagementServer>();
 
 
   /**
@@ -230,7 +230,7 @@ public class CacheManager {
     private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
-    private Integer registeredMgmtSvrPort;
+    private String registeredMgmtSvrBind;
 
     private volatile SearchManager searchManager;
 
@@ -451,30 +451,26 @@ public class CacheManager {
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
              */
             synchronized (CacheManager.class) {
-                if (!MGMT_SVR_BY_PORT.containsKey(managementRESTService.getPort())) {
-                    Class<ManagementServer> managementServerClass;
+                if (!MGMT_SVR_BY_BIND.containsKey(managementRESTService.getBind())) {
+                    ManagementServer embeddedRESTServer;
+
                     try {
-                        managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(
-                            "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+                        embeddedRESTServer = (ManagementServer)ClassLoaderUtil.createNewInstance(MANAGEMENT_SERVER_CLASS_NAME,
+                            new Class[]{managementRESTService.getClass()}, new Object[]{managementRESTService});
+                    } catch (CacheException e) {
+                        if (e.getCause() instanceof ClassNotFoundException) {
+                            throw new RuntimeException(
+                                "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+                        } else {
+                            throw new RuntimeException("Failed to instantiate ManagementServer.", e);
+                        }
                     }
 
-                    ManagementServer standaloneRestServer;
-                    try {
-                        standaloneRestServer = managementServerClass.newInstance();
-                    } catch (InstantiationException e) {
-                        throw new RuntimeException("Failed to instantiate ManagementServer.", e);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Failed to instantiate ManagementServer due to access restriction.", e);
-                    }
-
-                    standaloneRestServer.setConfiguration(managementRESTService);
-                    standaloneRestServer.start();
-                    MGMT_SVR_BY_PORT.put(managementRESTService.getPort(), standaloneRestServer);
+                    embeddedRESTServer.start();
+                    MGMT_SVR_BY_BIND.put(managementRESTService.getBind(), embeddedRESTServer);
                 }
-                MGMT_SVR_BY_PORT.get(managementRESTService.getPort()).register(this);
-                registeredMgmtSvrPort = managementRESTService.getPort();
+                MGMT_SVR_BY_BIND.get(managementRESTService.getBind()).register(this);
+                registeredMgmtSvrBind = managementRESTService.getBind();
             }
         }
 
@@ -1406,8 +1402,8 @@ public class CacheManager {
             }
 
             boolean removeMgmtSvr = false;
-            if (registeredMgmtSvrPort != null) {
-                ManagementServer standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
+            if (registeredMgmtSvrBind != null) {
+                ManagementServer standaloneRestServer = MGMT_SVR_BY_BIND.get(registeredMgmtSvrBind);
 
                 try {
                     standaloneRestServer.unregister(this);
@@ -1420,10 +1416,10 @@ public class CacheManager {
                     LOG.warn("Failed to shutdown the ManagementRESTService", e);
                 } finally {
                     if (removeMgmtSvr) {
-                        MGMT_SVR_BY_PORT.remove(registeredMgmtSvrPort);
+                        MGMT_SVR_BY_BIND.remove(registeredMgmtSvrBind);
                     }
 
-                    registeredMgmtSvrPort = null;
+                    registeredMgmtSvrBind = null;
                 }
             }
 
