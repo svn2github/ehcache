@@ -80,11 +80,14 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     security measures on the REST service - which are only available for the enterprise-edition of the
     service.  The location should be the URL to the Terracotta Management Server that is being used to
     manage the ehcache instance.
-    
+
+    examples:
+        
+    <managementRESTService enabled="true" bind="0.0.0.0:9888" />
+
     <managementRESTService enabled="true" securityServiceLocation="http://localhost:9889/tmc/api/assertIdentity"  />
     
      -->
-    <managementRESTService enabled="true" bind="0.0.0.0:9888" />
     
     <!--
     DiskStore configuration
