@@ -2,14 +2,14 @@
 
 package net.sf.ehcache.management.resource.services;
 
-import com.sun.jersey.api.core.InjectParam;
-import net.sf.ehcache.management.services.EntityResourceFactory;
-import net.sf.ehcache.management.validators.impl.AgentRequestValidator;
+import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.Representable;
 import org.terracotta.management.resource.services.AgentsResourceService;
 import org.terracotta.management.resource.services.Utils;
+import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -21,9 +21,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * <p>
  * An embedded implementation of {@link AgentsResourceService}.
- * </p>
+ * <p/>
  *
  * @author brandony
  */
@@ -32,12 +31,11 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
   private final static Set<String> DFLT_ATTRS = new HashSet<String>(Arrays.asList(new String[]{"Name"}));
   private final EntityResourceFactory entityResourceFactory;
 
-  private final AgentRequestValidator validator;
+  private final RequestValidator validator;
 
-  public AgentsResourceServiceImpl(@InjectParam EntityResourceFactory entityResourceFactory,
-                                   @InjectParam AgentRequestValidator validator) {
-    this.entityResourceFactory = entityResourceFactory;
-    this.validator = validator;
+  public AgentsResourceServiceImpl() {
+    this.entityResourceFactory = EmbeddedEhcacheServiceLocator.locator().locateEntityResourceFactory();
+    this.validator = EmbeddedEhcacheServiceLocator.locator().locateRequestValidator();
   }
 
   /**

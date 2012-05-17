@@ -1,4 +1,4 @@
-package net.sf.ehcache.management.services;
+package net.sf.ehcache.management.service;
 
 import net.sf.ehcache.management.resource.CacheConfigEntity;
 import net.sf.ehcache.management.resource.CacheEntity;
@@ -15,6 +15,10 @@ import java.util.Set;
  * @author brandony
  */
 public interface EntityResourceFactory {
+  interface Locator {
+    EntityResourceFactory locateEntityResourceFactory();
+  }
+
   Collection<CacheManagerEntity> createCacheManagerEntities(Set<String> cacheManagerNames,
                                                             Set<String> attributes);
 

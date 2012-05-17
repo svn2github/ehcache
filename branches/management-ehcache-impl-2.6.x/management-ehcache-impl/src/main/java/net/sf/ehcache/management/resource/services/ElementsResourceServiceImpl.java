@@ -5,9 +5,9 @@
 
 package net.sf.ehcache.management.resource.services;
 
-import com.sun.jersey.api.core.InjectParam;
-import net.sf.ehcache.management.services.CacheService;
-import net.sf.ehcache.management.validators.impl.CacheRequestValidator;
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
+import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
@@ -18,12 +18,11 @@ import javax.ws.rs.core.UriInfo;
 @Path("/agents/cacheManagers/caches/elements")
 public final class ElementsResourceServiceImpl implements ElementsResourceService {
   private CacheService cacheSvc;
-  private CacheRequestValidator validator;
+  private RequestValidator validator;
 
-  public ElementsResourceServiceImpl(@InjectParam CacheService cacheSvc,
-                                     @InjectParam CacheRequestValidator validator) {
-    this.cacheSvc = cacheSvc;
-    this.validator = validator;
+  public ElementsResourceServiceImpl() {
+    this.cacheSvc = EmbeddedEhcacheServiceLocator.locator().locateCacheService();
+    this.validator = EmbeddedEhcacheServiceLocator.locator().locateRequestValidator();
   }
 
   /**

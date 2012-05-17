@@ -1,4 +1,4 @@
-package net.sf.ehcache.management.services;
+package net.sf.ehcache.management.service;
 
 import net.sf.ehcache.CacheManager;
 
@@ -8,6 +8,10 @@ import net.sf.ehcache.CacheManager;
  * @author brandony
  */
 public interface SamplerRepositoryService {
+  interface Locator {
+    SamplerRepositoryService locateSamplerRepositoryService();
+  }
+
   /**
    * Register a {@link CacheManager} for sampling.
    *

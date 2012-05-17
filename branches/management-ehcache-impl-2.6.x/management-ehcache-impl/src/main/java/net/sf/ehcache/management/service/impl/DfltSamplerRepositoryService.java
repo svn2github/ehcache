@@ -2,7 +2,7 @@
  * All content copyright (c) 2003-2012 Terracotta, Inc., except as may otherwise be noted in a separate copyright
  * notice. All rights reserved.
  */
-package net.sf.ehcache.management.services.impl;
+package net.sf.ehcache.management.service.impl;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -18,9 +18,9 @@ import net.sf.ehcache.management.sampled.CacheManagerSampler;
 import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
 import net.sf.ehcache.management.sampled.ComprehensiveCacheSampler;
 import net.sf.ehcache.management.sampled.ComprehensiveCacheSamplerImpl;
-import net.sf.ehcache.management.services.CacheService;
-import net.sf.ehcache.management.services.EntityResourceFactory;
-import net.sf.ehcache.management.services.SamplerRepositoryService;
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EntityResourceFactory;
+import net.sf.ehcache.management.service.SamplerRepositoryService;
 
 import javax.inject.Named;
 import java.util.Collection;

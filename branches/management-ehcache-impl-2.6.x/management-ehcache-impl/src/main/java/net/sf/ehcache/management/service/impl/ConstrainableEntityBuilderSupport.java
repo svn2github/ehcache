@@ -2,9 +2,9 @@
  * All content copyright (c) 2003-2012 Terracotta, Inc., except as may otherwise be noted in a separate copyright
  * notice. All rights reserved.
  */
-package net.sf.ehcache.management.services.impl;
+package net.sf.ehcache.management.service.impl;
 
-import net.sf.ehcache.management.services.AccessorPrefix;
+import net.sf.ehcache.management.service.AccessorPrefix;
 import org.slf4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;

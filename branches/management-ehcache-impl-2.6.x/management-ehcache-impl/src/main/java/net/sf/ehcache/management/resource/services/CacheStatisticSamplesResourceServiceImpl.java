@@ -4,11 +4,11 @@
  */
 package net.sf.ehcache.management.resource.services;
 
-import com.sun.jersey.api.core.InjectParam;
 import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
-import net.sf.ehcache.management.services.EntityResourceFactory;
-import net.sf.ehcache.management.validators.impl.CacheRequestValidator;
+import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.terracotta.management.resource.services.Utils;
+import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -25,12 +25,11 @@ import java.util.Set;
 public final class CacheStatisticSamplesResourceServiceImpl implements CacheStatisticSamplesResourceService {
   private final EntityResourceFactory entityResourceFactory;
 
-  private final CacheRequestValidator validator;
+  private final RequestValidator validator;
 
-  public CacheStatisticSamplesResourceServiceImpl(@InjectParam EntityResourceFactory entityResourceFactory,
-                                                  @InjectParam CacheRequestValidator validator) {
-    this.entityResourceFactory = entityResourceFactory;
-    this.validator = validator;
+  public CacheStatisticSamplesResourceServiceImpl() {
+    this.entityResourceFactory = EmbeddedEhcacheServiceLocator.locator().locateEntityResourceFactory();
+    this.validator = EmbeddedEhcacheServiceLocator.locator().locateRequestValidator();
   }
 
   @Override

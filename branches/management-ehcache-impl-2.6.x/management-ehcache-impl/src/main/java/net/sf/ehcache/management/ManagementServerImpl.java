@@ -3,23 +3,29 @@ package net.sf.ehcache.management;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
-import net.sf.ehcache.management.services.SamplerRepositoryService;
-import net.sf.ehcache.management.services.impl.DfltSamplerRepositoryService;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.ContextLoader;
+import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
+import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.service.impl.DfltSamplerRepositoryService;
 import org.terracotta.management.embedded.StandaloneServer;
+import org.terracotta.management.service.ServiceLocator;
 
 /**
- * @author Ludovic Orban
  * @author brandony
  */
 public class ManagementServerImpl implements ManagementServer {
 
-  private final StandaloneServer standaloneServer = new StandaloneServer();
+  private final StandaloneServer standaloneServer;
 
-  private SamplerRepositoryService samplerRepoSvc;
+  public ManagementServerImpl(ManagementRESTServiceConfiguration configuration) {
+    DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService();
+    ServiceLocator.load(
+        new EmbeddedEhcacheServiceLocator(new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
+            samplerRepoSvc));
 
-  public ManagementServerImpl() {
+    standaloneServer = new StandaloneServer();
+    standaloneServer.setBasePackage("net.sf.ehcache.management");
+    standaloneServer.setHost(configuration.getHost());
+    standaloneServer.setPort(configuration.getPort());
   }
 
   /**
@@ -50,22 +56,8 @@ public class ManagementServerImpl implements ManagementServer {
    * {@inheritDoc}
    */
   @Override
-  public void setConfiguration(ManagementRESTServiceConfiguration configuration) {
-    standaloneServer.setBasePackage("net.sf.ehcache.management");
-    standaloneServer.setHost(configuration.getHost());
-    standaloneServer.setPort(configuration.getPort());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void register(CacheManager managedResource) {
-    if(samplerRepoSvc == null) {
-      ApplicationContext ctx = ContextLoader.getCurrentWebApplicationContext();
-      samplerRepoSvc =  ctx.getBean(DfltSamplerRepositoryService.class);
-    }
-    samplerRepoSvc.register(managedResource);
+    EmbeddedEhcacheServiceLocator.locator().locateSamplerRepositoryService().register(managedResource);
   }
 
   /**
@@ -73,7 +65,7 @@ public class ManagementServerImpl implements ManagementServer {
    */
   @Override
   public void unregister(CacheManager managedResource) {
-    if(samplerRepoSvc != null) samplerRepoSvc.unregister(managedResource);
+    EmbeddedEhcacheServiceLocator.locator().locateSamplerRepositoryService().unregister(managedResource);
   }
 
   /**
@@ -81,6 +73,6 @@ public class ManagementServerImpl implements ManagementServer {
    */
   @Override
   public boolean hasRegistered() {
-    return samplerRepoSvc != null && samplerRepoSvc.hasRegistered();
+    return EmbeddedEhcacheServiceLocator.locator().locateSamplerRepositoryService().hasRegistered();
   }
 }
