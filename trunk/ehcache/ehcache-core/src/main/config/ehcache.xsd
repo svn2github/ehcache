@@ -51,12 +51,6 @@
             <xs:attribute name="propertySeparator" use="optional"/>
         </xs:complexType>
     </xs:element>
-    <xs:element name="managementRESTService">
-        <xs:complexType>
-            <xs:attribute name="enabled" type="xs:boolean" use="required"/>
-            <xs:attribute name="bind" use="optional"/>
-        </xs:complexType>
-    </xs:element>
     <xs:element name="cacheManagerPeerProviderFactory">
         <xs:complexType>
             <xs:attribute name="class" use="required"/>
