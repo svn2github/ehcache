@@ -35,7 +35,8 @@
               <include>org.terracotta:*</include>
               <include>net.sf.ehcache:*</include>
             </includes>
-          </artifactSet>        
+          </artifactSet>
+          <promoteTransitiveDependencies>true</promoteTransitiveDependencies>          
         </configuration>
         <executions>
           <execution>
