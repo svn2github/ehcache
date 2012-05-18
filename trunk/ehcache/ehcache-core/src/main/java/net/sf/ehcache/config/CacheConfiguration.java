@@ -18,7 +18,6 @@ package net.sf.ehcache.config;
 
 import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1308,7 +1307,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalOffHeapAsString() {
-        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalOffHeap());
+        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : Long.toString(getMaxBytesLocalOffHeap());
     }
 
     /**
@@ -1347,7 +1346,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalHeapAsString() {
-        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalHeap());
+        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : Long.toString(getMaxBytesLocalHeap());
     }
 
     /**
@@ -1409,7 +1408,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalDiskAsString() {
-        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalDisk());
+        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : Long.toString(getMaxBytesLocalDisk());
     }
 
     /**
