@@ -59,13 +59,19 @@ public class ManagementRESTServiceConfigurationElement extends SimpleNodeElement
         if (managementRESTServiceConfiguration == null) {
             return;
         }
-        addAttribute(new SimpleNodeAttribute("enabled", false));
-        addAttribute(new SimpleNodeAttribute("bind",
-                ManagementRESTServiceConfiguration.DEFAULT_BIND));
-        addAttribute(new SimpleNodeAttribute("securityServiceLocation", ""));
-        addAttribute(new SimpleNodeAttribute("securityServiceTimeout", ManagementRESTServiceConfiguration.DEFAULT_SECURITY_SVC_TIMEOUT));
-        addAttribute(new SimpleNodeAttribute("sampleHistorySize", CacheStatisticsSampler.DEFAULT_HISTORY_SIZE));
-        addAttribute(new SimpleNodeAttribute("sampleIntervalSeconds", CacheStatisticsSampler.DEFAULT_INTERVAL_SECS));
-        addAttribute(new SimpleNodeAttribute("sampleSearchIntervalSeconds", CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC));
+        addAttribute(new SimpleNodeAttribute("enabled", managementRESTServiceConfiguration.isEnabled()).defaultValue(false));
+        addAttribute(new SimpleNodeAttribute("bind", managementRESTServiceConfiguration.getBind())
+            .defaultValue(ManagementRESTServiceConfiguration.DEFAULT_BIND));
+        addAttribute(new SimpleNodeAttribute("securityServiceLocation", managementRESTServiceConfiguration
+            .getSecurityServiceLocation()).optional(true));
+        addAttribute(new SimpleNodeAttribute("securityServiceTimeout", managementRESTServiceConfiguration
+            .getSecurityServiceTimeout()).optional(true)
+            .defaultValue(ManagementRESTServiceConfiguration.DEFAULT_SECURITY_SVC_TIMEOUT));
+        addAttribute(new SimpleNodeAttribute("sampleHistorySize", managementRESTServiceConfiguration.getSampleHistorySize())
+            .optional(true).defaultValue(CacheStatisticsSampler.DEFAULT_HISTORY_SIZE));
+        addAttribute(new SimpleNodeAttribute("sampleIntervalSeconds", managementRESTServiceConfiguration
+            .getSampleIntervalSeconds()).optional(true).defaultValue(CacheStatisticsSampler.DEFAULT_INTERVAL_SECS));
+        addAttribute(new SimpleNodeAttribute("sampleSearchIntervalSeconds", managementRESTServiceConfiguration
+            .getSampleSearchIntervalSeconds()).optional(true).defaultValue(CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC));
     }
 }

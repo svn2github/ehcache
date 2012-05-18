@@ -27,8 +27,8 @@
     </xs:element>
     <xs:element name="managementRESTService">
         <xs:complexType>
-            <xs:attribute name="enabled" use="optional" type="xs:boolean"/>
-            <xs:attribute name="bind" use="optional"/>
+            <xs:attribute name="enabled" type="xs:boolean"/>
+            <xs:attribute name="bind"/>
             <xs:attribute name="securityServiceLocation" use="optional"/>
             <xs:attribute name="securityServiceTimeout" use="optional" type="xs:integer"/>
             <xs:attribute name="sampleHistorySize" use="optional" type="xs:integer"/>
