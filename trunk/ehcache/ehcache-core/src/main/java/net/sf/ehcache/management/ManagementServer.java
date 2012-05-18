@@ -16,16 +16,16 @@
 
 package net.sf.ehcache.management;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 
 /**
  * Interface implemented by management servers.
  *
- * @param <MANAGED> the type to be managed by this {@code ManagementServer}
- *
  * @author Ludovic Orban
+ * @author brandony
  */
-public interface ManagementServer<MANAGED> {
+public interface ManagementServer {
 
     /**
      * Start the management server
@@ -49,14 +49,14 @@ public interface ManagementServer<MANAGED> {
      *
      * @param managedResource the resource to be managed
      */
-    public void register(MANAGED managedResource);
+    public void register(CacheManager managedResource);
 
     /**
      * Removes the submitted resource under the purview of this {@code ManagementServer}.
      *
      * @param managedResource the resource to be managed
      */
-    public void unregister(MANAGED managedResource);
+    public void unregister(CacheManager managedResource);
 
     /**
      * Returns true if this {@code ManagementServer} has any resources registered.

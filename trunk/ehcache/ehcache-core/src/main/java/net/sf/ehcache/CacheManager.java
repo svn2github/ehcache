@@ -158,7 +158,7 @@ public class CacheManager {
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
-    private static final Map<Integer, ManagementServer<CacheManager>> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer<CacheManager>>();
+    private static final Map<Integer, ManagementServer> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer>();
 
     /**
      * Status of the Cache Manager
@@ -460,7 +460,7 @@ public class CacheManager {
                             "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
                     }
 
-                    ManagementServer<CacheManager> standaloneRestServer;
+                    ManagementServer standaloneRestServer;
                     try {
                         standaloneRestServer = managementServerClass.newInstance();
                     } catch (InstantiationException e) {
@@ -1407,7 +1407,7 @@ public class CacheManager {
 
             boolean removeMgmtSvr = false;
             if (registeredMgmtSvrPort != null) {
-                ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
+                ManagementServer standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
 
                 try {
                     standaloneRestServer.unregister(this);
