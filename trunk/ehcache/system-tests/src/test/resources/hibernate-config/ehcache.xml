@@ -6,7 +6,7 @@
     overflowToDisk="false">
 
     <terracotta clustered="true">
-      <nonstop enabled="false" />
+      <nonstop enabled="true" />
     </terracotta>
   </defaultCache>
 
