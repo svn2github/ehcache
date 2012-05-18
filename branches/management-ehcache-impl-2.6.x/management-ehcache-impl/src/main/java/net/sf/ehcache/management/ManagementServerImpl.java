@@ -12,20 +12,14 @@ import org.terracotta.management.service.ServiceLocator;
 /**
  * @author brandony
  */
-public class ManagementServerImpl implements ManagementServer {
+public final class ManagementServerImpl implements ManagementServer {
 
   private final StandaloneServer standaloneServer;
 
   public ManagementServerImpl(ManagementRESTServiceConfiguration configuration) {
-    DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService();
-    ServiceLocator.load(
-        new EmbeddedEhcacheServiceLocator(new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
-            samplerRepoSvc));
-
     standaloneServer = new StandaloneServer();
-    standaloneServer.setBasePackage("net.sf.ehcache.management");
-    standaloneServer.setHost(configuration.getHost());
-    standaloneServer.setPort(configuration.getPort());
+    setupContainer(configuration);
+    loadEmbeddedAgentServiceLocator();
   }
 
   /**
@@ -74,5 +68,18 @@ public class ManagementServerImpl implements ManagementServer {
   @Override
   public boolean hasRegistered() {
     return EmbeddedEhcacheServiceLocator.locator().locateSamplerRepositoryService().hasRegistered();
+  }
+
+  private void setupContainer(ManagementRESTServiceConfiguration configuration) {
+    standaloneServer.setBasePackage("net.sf.ehcache.management");
+    standaloneServer.setHost(configuration.getHost());
+    standaloneServer.setPort(configuration.getPort());
+  }
+
+  private void loadEmbeddedAgentServiceLocator() {
+    DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService();
+    ServiceLocator.load(
+        new EmbeddedEhcacheServiceLocator(new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
+            samplerRepoSvc));
   }
 }
