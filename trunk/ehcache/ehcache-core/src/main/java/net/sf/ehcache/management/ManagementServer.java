@@ -17,7 +17,6 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 
 /**
  * Interface implemented by management servers.
@@ -36,13 +35,6 @@ public interface ManagementServer {
      * Stop the management server
      */
     public void stop();
-
-    /**
-     * Configure the management server
-     *
-     * @param configuration the configuration
-     */
-    public void setConfiguration(ManagementRESTServiceConfiguration configuration);
 
     /**
      * Puts the submitted resource under the purview of this {@code ManagementServer}.
