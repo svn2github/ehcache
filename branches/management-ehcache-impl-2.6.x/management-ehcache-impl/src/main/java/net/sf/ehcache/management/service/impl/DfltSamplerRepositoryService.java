@@ -22,7 +22,6 @@ import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
 
-import javax.inject.Named;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +41,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author brandony
  */
-@Named("dfltSamplerRepoSvc")
 public final class DfltSamplerRepositoryService
     implements SamplerRepositoryService, EntityResourceFactory, CacheService {
   /**
