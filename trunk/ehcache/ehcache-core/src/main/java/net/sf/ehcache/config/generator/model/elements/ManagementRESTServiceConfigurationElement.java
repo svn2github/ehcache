@@ -20,6 +20,7 @@ import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
+import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 
 /**
  * Element representing the {@link net.sf.ehcache.config.ManagementRESTServiceConfiguration}
@@ -61,6 +62,10 @@ public class ManagementRESTServiceConfigurationElement extends SimpleNodeElement
         addAttribute(new SimpleNodeAttribute("enabled", false));
         addAttribute(new SimpleNodeAttribute("bind",
                 ManagementRESTServiceConfiguration.DEFAULT_BIND));
+        addAttribute(new SimpleNodeAttribute("securityServiceLocation", ""));
+        addAttribute(new SimpleNodeAttribute("securityServiceTimeout", ManagementRESTServiceConfiguration.DEFAULT_SECURITY_SVC_TIMEOUT));
+        addAttribute(new SimpleNodeAttribute("sampleHistorySize", CacheStatisticsSampler.DEFAULT_HISTORY_SIZE));
+        addAttribute(new SimpleNodeAttribute("sampleIntervalSeconds", CacheStatisticsSampler.DEFAULT_INTERVAL_SECS));
+        addAttribute(new SimpleNodeAttribute("sampleSearchIntervalSeconds", CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC));
     }
-
 }
