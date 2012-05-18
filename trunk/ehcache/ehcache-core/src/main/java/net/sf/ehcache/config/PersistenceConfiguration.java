@@ -35,15 +35,15 @@ public class PersistenceConfiguration {
         /**
          * Standard open source (non fault-tolerant) on-disk persistence
          */
-        LOCALCLASSIC,
+        LOCALTEMPSWAP,
         /**
          * Enterprise fault tolerant persistence
          */
-        LOCALENTERPRISE,
+        LOCALRESTARTABLE,
         /**
-         * In-memory persistence (aka no persistence)
+         * No persistence
          */
-        LOCALINMEMORY,
+        NONE,
         /**
          * Terracotta clustered persistence (requires a Terracotta clustered cache).
          */

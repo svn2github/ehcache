@@ -1574,7 +1574,7 @@ public class CacheConfiguration implements Cloneable {
         if (overflowToOffHeap == null && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
             overflowToOffHeap = true;
         }
-        if ((persistenceConfiguration != null && Strategy.LOCALCLASSIC.equals(persistenceConfiguration.getStrategy())) ||
+        if ((persistenceConfiguration != null && Strategy.LOCALTEMPSWAP.equals(persistenceConfiguration.getStrategy())) ||
                 (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0)) {
             overflowToDisk = true;
         }
@@ -1588,19 +1588,19 @@ public class CacheConfiguration implements Cloneable {
         if (persistenceConfiguration == null) {
             if (diskPersistent) {
                 if (manager.getFeaturesManager() == null) {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALCLASSIC));
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
                 } else {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALENTERPRISE));
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALRESTARTABLE));
                 }
             }
         } else {
             switch (persistenceConfiguration.getStrategy()) {
                 case DISTRIBUTED:
-                case LOCALINMEMORY:
+                case NONE:
                     setDiskPersistent(false);
                     break;
-                case LOCALCLASSIC:
-                case LOCALENTERPRISE:
+                case LOCALTEMPSWAP:
+                case LOCALRESTARTABLE:
                     setDiskPersistent(true);
                     break;
                 default:
