@@ -37,13 +37,13 @@ public class ManagementRESTServiceConfiguration {
     public static final int DEFAULT_SECURITY_SVC_TIMEOUT = 5 * 1000;
 
     private volatile boolean enabled = false;
-    private volatile String securityServiceURL;
+    private volatile String securityServiceLocation;
     private volatile int securityServiceTimeout = DEFAULT_SECURITY_SVC_TIMEOUT;
     private volatile String bind = DEFAULT_BIND;
 
     private volatile int sampleHistorySize = CacheStatisticsSampler.DEFAULT_HISTORY_SIZE;
     private volatile int sampleIntervalSeconds = CacheStatisticsSampler.DEFAULT_INTERVAL_SECS;
-    private volatile int sampleSearchInterval = CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC;
+    private volatile int sampleSearchIntervalSeconds = CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC;
 
     /**
      * Check if the REST services should be enabled or not.
@@ -72,7 +72,7 @@ public class ManagementRESTServiceConfiguration {
      * @return a string representing the URL of the security service.
      */
     public String getSecurityServiceLocation() {
-        return securityServiceURL;
+        return securityServiceLocation;
     }
 
     /**
@@ -85,7 +85,7 @@ public class ManagementRESTServiceConfiguration {
      * @param securityServiceURL a string representing the URL of the security service.
      */
     public void setSecurityServiceLocation(String securityServiceURL) {
-        this.securityServiceURL = securityServiceURL;
+        this.securityServiceLocation = securityServiceURL;
     }
 
     /**
@@ -191,7 +191,7 @@ public class ManagementRESTServiceConfiguration {
      * @return the sample search interval in seconds
      */
     public int getSampleSearchIntervalSeconds() {
-        return sampleSearchInterval;
+        return sampleSearchIntervalSeconds;
     }
 
     /**
@@ -200,7 +200,7 @@ public class ManagementRESTServiceConfiguration {
      * @param sampleSearchInterval to set
      */
     public void setSampleSearchIntervalSeconds(final int sampleSearchInterval) {
-        this.sampleSearchInterval = sampleSearchInterval;
+        this.sampleSearchIntervalSeconds = sampleSearchInterval;
     }
 
     /**
