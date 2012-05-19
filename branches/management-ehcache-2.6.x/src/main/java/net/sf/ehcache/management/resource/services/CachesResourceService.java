@@ -10,8 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
 
 /**
  * <p>
@@ -31,11 +31,11 @@ public interface CachesResourceService {
    * </p>
    * 
    * @param info {@link UriInfo} for this resource request
-   * @return a {@link Response} whose content includes a collection of {@link CacheEntity} objects when successful.
+   * @return a collection of {@link CacheEntity} objects when successful.
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  Response getCaches(@Context UriInfo info);
+  Collection<CacheEntity> getCaches(@Context UriInfo info);
 
   /**
    * <p>

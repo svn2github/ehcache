@@ -7,8 +7,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
 
 /**
  * <p>
@@ -28,9 +28,9 @@ public interface CacheManagersResourceService {
    * </p>
    * 
    * @param {@link UriInfo} for this resource request
-   * @return a {@link Response} whose content includes a collection of {@link CacheManagerEntity} objects when successful.
+   * @return a collection of {@link CacheManagerEntity} objects when successful.
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  Response getCacheManagers(@Context UriInfo info);
+  Collection<CacheManagerEntity> getCacheManagers(@Context UriInfo info);
 }
