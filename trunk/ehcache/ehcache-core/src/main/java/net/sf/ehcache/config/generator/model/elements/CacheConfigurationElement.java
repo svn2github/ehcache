@@ -30,6 +30,7 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
+import net.sf.ehcache.store.DefaultElementValueComparator;
 
 /**
  * Element representing the {@link CacheConfiguration}
@@ -205,7 +206,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
     private static void addElementValueComparatorConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         ElementValueComparatorConfiguration elementValueComparatorConfiguration = cacheConfiguration
                 .getElementValueComparatorConfiguration();
-        if (elementValueComparatorConfiguration != null) {
+        if (elementValueComparatorConfiguration != null &&
+                !elementValueComparatorConfiguration.getClassName().equals(DefaultElementValueComparator.class.getName())) {
             element.addChildElement(new ElementValueComparatorConfigurationElement(element, elementValueComparatorConfiguration));
         }
     }
