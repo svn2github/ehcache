@@ -36,7 +36,7 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
   /**
    * {@inheritDoc}
    */
-  public Response getCacheManagers(UriInfo info) {
+  public Collection<CacheManagerEntity> getCacheManagers(UriInfo info) {
     validator.validateSafe(info);
 
     String names = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
@@ -46,8 +46,6 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
     List<String> attrs = qParams.get(ATTR_QUERY_KEY);
     Set<String> cmAttrs = attrs == null || attrs.isEmpty() ? null : new HashSet<String>(attrs);
 
-    Collection<CacheManagerEntity> entities = entityResourceFactory.createCacheManagerEntities(cmNames, cmAttrs);
-
-    return Utils.buildNoCacheResponse(entities);
+    return entityResourceFactory.createCacheManagerEntities(cmNames, cmAttrs);
   }
 }

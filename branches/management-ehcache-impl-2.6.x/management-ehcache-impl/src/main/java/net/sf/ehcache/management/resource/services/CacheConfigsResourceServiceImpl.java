@@ -5,7 +5,6 @@ import net.sf.ehcache.management.resource.ConfigContainerEntity;
 import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.terracotta.management.resource.AgentEntity;
-import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -48,6 +47,6 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
     cc.setConfiguration(configs);
     cc.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
 
-    return Utils.buildNoCacheResponse(cc);
+    return Response.ok(cc).build();
   }
 }

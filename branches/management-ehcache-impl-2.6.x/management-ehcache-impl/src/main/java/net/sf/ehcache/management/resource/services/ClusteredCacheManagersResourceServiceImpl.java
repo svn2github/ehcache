@@ -3,7 +3,6 @@ package net.sf.ehcache.management.resource.services;
 import net.sf.ehcache.management.jmx.CacheManagerJmxClient;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 import org.terracotta.management.resource.AgentEntity;
-import org.terracotta.management.resource.services.Utils;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -21,6 +20,7 @@ import javax.ws.rs.core.UriInfo;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +37,7 @@ public class ClusteredCacheManagersResourceServiceImpl implements CacheManagersR
   /**
    * @see net.sf.ehcache.management.resource.services.CacheManagersResourceService#getCacheManagers(javax.ws.rs.core.UriInfo)
    */
-  public Response getCacheManagers(UriInfo info) {
+  public Collection<CacheManagerEntity> getCacheManagers(UriInfo info) {
     String ids = info.getPathSegments().get(0).getMatrixParameters().getFirst("ids");
     if (ids != null && !AgentEntity.EMBEDDED_AGENT_ID.equals(ids)) {
       throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
@@ -73,7 +73,7 @@ public class ClusteredCacheManagersResourceServiceImpl implements CacheManagersR
         result.add(e);
       }
 
-      return Utils.buildNoCacheResponse(result);
+      return result;
     } catch (Exception ex) {
       throw new WebApplicationException(
           Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());

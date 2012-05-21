@@ -4,7 +4,6 @@ import net.sf.ehcache.management.resource.CacheEntity;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
-import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -40,7 +39,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
    * {@inheritDoc}
    */
   @Override
-  public Response getCaches(final UriInfo info) {
+  public Collection<CacheEntity> getCaches(final UriInfo info) {
     validator.validateSafe(info);
 
     String cacheManagerNames = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
@@ -54,9 +53,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     List<String> attrs = qParams.get(ATTR_QUERY_KEY);
     Set<String> cAttrs = attrs == null || attrs.isEmpty() ? null : new HashSet<String>(attrs);
 
-    Collection<CacheEntity> entities = entityResourceFactory.createCacheEntities(cmNames, cNames, cAttrs);
-
-    return Utils.buildNoCacheResponse(entities);
+    return entityResourceFactory.createCacheEntities(cmNames, cNames, cAttrs);
   }
 
   /**

@@ -8,11 +8,9 @@ import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.Representable;
 import org.terracotta.management.resource.services.AgentsResourceService;
-import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,17 +39,17 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
   /**
    * {@inheritDoc}
    */
-  public Response getAgents(UriInfo info) {
+  public Collection<AgentEntity> getAgents(UriInfo info) {
     validator.validateSafe(info);
 
-    return Utils.buildNoCacheResponse(buildAgent());
+    return buildAgent();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Response getAgentsMetadata(UriInfo info) {
+  public Collection<AgentMetadataEntity> getAgentsMetadata(UriInfo info) {
     validator.validateSafe(info);
 
     AgentMetadataEntity ame = new AgentMetadataEntity();
@@ -62,7 +60,7 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
     // Set the version from this package
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
-    return Utils.buildNoCacheResponse(Collections.singleton(ame));
+    return Collections.singleton(ame);
   }
 
   private Collection<AgentEntity> buildAgent() {

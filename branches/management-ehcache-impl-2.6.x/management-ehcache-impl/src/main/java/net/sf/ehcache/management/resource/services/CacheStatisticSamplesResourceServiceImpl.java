@@ -33,7 +33,7 @@ public final class CacheStatisticSamplesResourceServiceImpl implements CacheStat
   }
 
   @Override
-  public Response getCacheStatisticSamples(UriInfo info) {
+  public Collection<CacheStatisticSampleEntity> getCacheStatisticSamples(UriInfo info) {
     validator.validateSafe(info);
 
     String cacheManagerNames = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
@@ -46,9 +46,6 @@ public final class CacheStatisticSamplesResourceServiceImpl implements CacheStat
     String sampleNames = info.getPathSegments().get(4).getMatrixParameters().getFirst("names");
     Set<String> sNames = sampleNames == null ? null : new HashSet<String>(Arrays.asList(sampleNames.split(",")));
 
-    Collection<CacheStatisticSampleEntity> entities = entityResourceFactory
-        .createCacheStatisticSampleEntity(cmNames, cNames, sNames);
-
-    return Utils.buildNoCacheResponse(entities);
+    return entityResourceFactory.createCacheStatisticSampleEntity(cmNames, cNames, sNames);
   }
 }
