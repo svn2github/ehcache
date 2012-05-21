@@ -38,7 +38,6 @@ import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.ReadCommittedClusteredSoftLockFactory;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
-import org.terracotta.util.TerracottaAtomicLong;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -60,7 +59,6 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private static final String        ROOT_NAME_EHCACHE_ASYNC_COORDINATOR = "ehcache-async-coordinator";
   private static final String        ROOT_NAME_UTILITIES                 = "ehcache-utilities";
   private static final String        ROOT_NAME_SOFT_LOCK_FACTORIES       = "ehcache-softlock-factories";
-  private static final String        ROOT_NAME_IDS                       = "ehcache-ids";
 
   private final Set<CacheStorePair>  cacheStorePairs                     = new HashSet<CacheStorePair>();
   private final Set<String>          registeredCacheManagers             = new HashSet<String>();
@@ -205,7 +203,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     ClusteredStore root = Terracotta.lookupOrCreateRoot(storeRootName(cacheMgrName, cacheName),
                                                         new Callable<ClusteredStore>() {
                                                           public ClusteredStore call() throws Exception {
-                                                            ClusteredStore store = newStore(cache, nextID());
+                                                            ClusteredStore store = newStore(cache, cacheMgrName + DELIM
+                                                                                                   + cacheName);
                                                             created.set(store);
                                                             return store;
                                                           }
@@ -255,17 +254,6 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     }
   }
 
-  private long nextID() {
-    final TerracottaAtomicLong root = Terracotta.lookupOrCreateRoot(ROOT_NAME_IDS,
-                                                                    new Callable<TerracottaAtomicLong>() {
-                                                                      public TerracottaAtomicLong call() {
-                                                                        return new TerracottaAtomicLong();
-                                                                      }
-                                                                    });
-
-    return root.getAndIncrement();
-  }
-
   private void waitUntilStoreCreatedInServer(final Ehcache ehcache) {
     if (isDCV2(ehcache)) {
       // We don't want to operate on the cache until the server is fully aware of it.
@@ -278,12 +266,12 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
         .getStorageStrategy());
   }
 
-  protected ClusteredStore newStore(final Ehcache cache, long uniqueID) {
-    return new ClusteredStore(cache, uniqueID);
+  protected ClusteredStore newStore(final Ehcache cache, final String qualifiedName) {
+    return new ClusteredStore(cache, qualifiedName);
   }
 
   private String getCacheManagerClusterId(CacheManager cacheManager) {
-    return cacheManager.isNamed() ? cacheManager.getName() : DEFAULT_CACHE_MANAGER_NAME;
+    return getCacheManagerName(cacheManager);
   }
 
   private static AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config) {
@@ -380,7 +368,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {
     String cacheName = cache.getName();
-    String cacheManagerName = cache.getCacheManager().getName();
+    String cacheManagerName = getCacheManagerName(cache.getCacheManager());
     ConcurrentMap<String, SoftLockFactory> factories = getSoftLockFactoriesRoot();
 
     SoftLockFactory softLockFactory = factories.get(cacheName);

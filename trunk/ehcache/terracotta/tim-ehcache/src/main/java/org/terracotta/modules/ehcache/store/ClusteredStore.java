@@ -116,10 +116,8 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
   private transient boolean                                                     cachePinned;
   private final boolean                                                         localCacheEnabled;
 
-  public ClusteredStore(final Ehcache cache, long uniqueID) {
-    // appending a unique identifier to the cache name is necessary to avoid collisions when the cache name starts with
-    // "_" or if the name contains characters not legal for use as a filesystem path (ie. L2 lucene index path)
-    this.qualifiedCacheName = cache.getCacheManager().getName() + "_" + cache.getName() + "_" + uniqueID;
+  public ClusteredStore(final Ehcache cache, final String qualifiedName) {
+    this.qualifiedCacheName = qualifiedName;
 
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     checkMemoryStoreEvictionPolicy(ehcacheConfig);
