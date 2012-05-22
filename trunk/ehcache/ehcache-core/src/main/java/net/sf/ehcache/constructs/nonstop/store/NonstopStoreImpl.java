@@ -34,6 +34,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration.TimeoutBehaviorType;
 import net.sf.ehcache.constructs.nonstop.ClusterOperation;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
+import net.sf.ehcache.constructs.nonstop.NonstopThread;
 import net.sf.ehcache.constructs.nonstop.concurrency.ExplicitLockingContextThreadLocal;
 import net.sf.ehcache.constructs.nonstop.concurrency.NonstopCacheLockProvider;
 import net.sf.ehcache.search.Attribute;
@@ -221,6 +222,10 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
         nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().expireElements();
     }
 
+    private boolean isCurrentThreadNonstopThread() {
+        return NonstopThread.isCurrentThreadNonstopThread();
+    }
+
     // -------------------------------------------------------
     // All methods below delegate to the clusterAwareStore
     // -------------------------------------------------------
@@ -229,35 +234,55 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
      * {@inheritDoc}
      */
     public void unpinAll() {
-        executorServiceStore.unpinAll();
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unpinAll();
+        } else {
+            executorServiceStore.unpinAll();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isPinned(Object key) {
-        return executorServiceStore.isPinned(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isPinned(key);
+        } else {
+            return executorServiceStore.isPinned(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void setPinned(Object key, boolean pinned) {
-        executorServiceStore.setPinned(key, pinned);
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setPinned(key, pinned);
+        } else {
+            executorServiceStore.setPinned(key, pinned);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void addStoreListener(StoreListener listener) {
-        executorServiceStore.addStoreListener(listener);
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().addStoreListener(listener);
+        } else {
+            executorServiceStore.addStoreListener(listener);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void removeStoreListener(StoreListener listener) {
-        executorServiceStore.removeStoreListener(listener);
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeStoreListener(listener);
+        } else {
+            executorServiceStore.removeStoreListener(listener);
+        }
     }
 
     /**
@@ -272,196 +297,308 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
      * {@inheritDoc}
      */
     public boolean isCacheCoherent() {
-        return executorServiceStore.isCacheCoherent();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isCacheCoherent();
+        } else {
+            return executorServiceStore.isCacheCoherent();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isClusterCoherent() {
-        return executorServiceStore.isClusterCoherent();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isClusterCoherent();
+        } else {
+            return executorServiceStore.isClusterCoherent();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isNodeCoherent() {
-        return executorServiceStore.isNodeCoherent();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().isNodeCoherent();
+        } else {
+            return executorServiceStore.isNodeCoherent();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
-        executorServiceStore.setNodeCoherent(coherent);
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().setNodeCoherent(coherent);
+        } else {
+            executorServiceStore.setNodeCoherent(coherent);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void dispose() {
-        executorServiceStore.dispose();
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().dispose();
+        } else {
+            executorServiceStore.dispose();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean containsKey(Object key) {
-        return executorServiceStore.containsKey(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().containsKey(key);
+        } else {
+            return executorServiceStore.containsKey(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean containsKeyInMemory(Object key) {
-        return executorServiceStore.containsKeyInMemory(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().containsKeyInMemory(key);
+        } else {
+            return executorServiceStore.containsKeyInMemory(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Results executeQuery(StoreQuery query) {
-        return executorServiceStore.executeQuery(query);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().executeQuery(query);
+        } else {
+            return executorServiceStore.executeQuery(query);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
-        return executorServiceStore.getSearchAttribute(attributeName);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getSearchAttribute(attributeName);
+        } else {
+            return executorServiceStore.getSearchAttribute(attributeName);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void flush() throws IOException {
-        executorServiceStore.flush();
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().flush();
+        } else {
+            executorServiceStore.flush();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element get(Object key) {
-        return executorServiceStore.get(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().get(key);
+        } else {
+            return executorServiceStore.get(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public int getInMemorySize() {
-        return executorServiceStore.getInMemorySize();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getInMemorySize();
+        } else {
+            return executorServiceStore.getInMemorySize();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public long getInMemorySizeInBytes() {
-        return executorServiceStore.getInMemorySizeInBytes();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getInMemorySizeInBytes();
+        } else {
+            return executorServiceStore.getInMemorySizeInBytes();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public List getKeys() {
-        return executorServiceStore.getKeys();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getKeys();
+        } else {
+            return executorServiceStore.getKeys();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element getQuiet(Object key) {
-        return executorServiceStore.getQuiet(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getQuiet(key);
+        } else {
+            return executorServiceStore.getQuiet(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Map<Object, Element> getAllQuiet(Collection<?> keys) {
-        return executorServiceStore.getAllQuiet(keys);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getAllQuiet(keys);
+        } else {
+            return executorServiceStore.getAllQuiet(keys);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Map<Object, Element> getAll(Collection<?> keys) {
-        return executorServiceStore.getAll(keys);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getAll(keys);
+        } else {
+            return executorServiceStore.getAll(keys);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public int getSize() {
-        return executorServiceStore.getSize();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getSize();
+        } else {
+            return executorServiceStore.getSize();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public int getTerracottaClusteredSize() {
-        return executorServiceStore.getTerracottaClusteredSize();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getTerracottaClusteredSize();
+        } else {
+            return executorServiceStore.getTerracottaClusteredSize();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean put(Element element) throws CacheException {
-        return executorServiceStore.put(element);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().put(element);
+        } else {
+            return executorServiceStore.put(element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void putAll(Collection<Element> elements) throws CacheException {
-        executorServiceStore.putAll(elements);
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().putAll(elements);
+        } else {
+            executorServiceStore.putAll(elements);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element putIfAbsent(Element element) throws NullPointerException {
-        return executorServiceStore.putIfAbsent(element);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().putIfAbsent(element);
+        } else {
+            return executorServiceStore.putIfAbsent(element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        return executorServiceStore.putWithWriter(element, writerManager);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().putWithWriter(element, writerManager);
+        } else {
+            return executorServiceStore.putWithWriter(element, writerManager);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element remove(Object key) {
-        return executorServiceStore.remove(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().remove(key);
+        } else {
+            return executorServiceStore.remove(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void removeAll(final Collection<?> keys) {
-        executorServiceStore.removeAll(keys);
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeAll(keys);
+        } else {
+            executorServiceStore.removeAll(keys);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public void removeAll() throws CacheException {
-        executorServiceStore.removeAll();
+        if (isCurrentThreadNonstopThread()) {
+            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeAll();
+        } else {
+            executorServiceStore.removeAll();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
-        return executorServiceStore.removeElement(element, comparator);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeElement(element, comparator);
+        } else {
+            return executorServiceStore.removeElement(element, comparator);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
-        return executorServiceStore.removeWithWriter(key, writerManager);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().removeWithWriter(key, writerManager);
+        } else {
+            return executorServiceStore.removeWithWriter(key, writerManager);
+        }
     }
 
     /**
@@ -469,63 +606,103 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
      */
     public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
             IllegalArgumentException {
-        return executorServiceStore.replace(old, element, comparator);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().replace(old, element, comparator);
+        } else {
+            return executorServiceStore.replace(old, element, comparator);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element replace(Element element) throws NullPointerException {
-        return executorServiceStore.replace(element);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().replace(element);
+        } else {
+            return executorServiceStore.replace(element);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Set getLocalKeys() {
-        return executorServiceStore.getLocalKeys();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getLocalKeys();
+        } else {
+            return executorServiceStore.getLocalKeys();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public CacheConfiguration.TransactionalMode getTransactionalMode() {
-        return executorServiceStore.getTransactionalMode();
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().getTransactionalMode();
+        } else {
+            return executorServiceStore.getTransactionalMode();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unlockedGet(Object key) {
-        return executorServiceStore.unlockedGet(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGet(key);
+        } else {
+            return executorServiceStore.unlockedGet(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unlockedGetQuiet(Object key) {
-        return executorServiceStore.unlockedGetQuiet(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGetQuiet(key);
+        } else {
+            return executorServiceStore.unlockedGetQuiet(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unsafeGet(Object key) {
-        return executorServiceStore.unsafeGet(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
+        } else {
+            return executorServiceStore.unsafeGet(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public Element unsafeGetQuiet(Object key) {
-        return executorServiceStore.unsafeGetQuiet(key);
+        if (isCurrentThreadNonstopThread()) {
+            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
+        } else {
+            return executorServiceStore.unsafeGetQuiet(key);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public <V> V executeClusterOperation(ClusterOperation<V> operation) {
-        return executorServiceStore.executeClusterOperation(operation);
+        if (isCurrentThreadNonstopThread()) {
+            try {
+                return operation.performClusterOperation();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return executorServiceStore.executeClusterOperation(operation);
+        }
     }
 
     /**
