@@ -68,8 +68,9 @@ public final class CacheManagerExecutorServiceFactory implements NonstopExecutor
                     private final AtomicInteger count = new AtomicInteger();
 
                     public Thread newThread(Runnable runnable) {
-                        Thread thread = new Thread(runnable, "NonStopCache [" + cacheManagerName + "] " + EXECUTOR_THREAD_NAME_PREFIX + "-"
-                                + count.incrementAndGet() + " for '" + Thread.currentThread().getName() + "'");
+                        Thread thread = new NonstopThread(runnable, "NonStopCache [" + cacheManagerName + "] "
+                                + EXECUTOR_THREAD_NAME_PREFIX + "-" + count.incrementAndGet() + " for '" + Thread.currentThread().getName()
+                                + "'");
                         thread.setDaemon(true);
                         return thread;
                     }
