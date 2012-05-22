@@ -2,7 +2,7 @@
 
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
@@ -32,8 +32,10 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
   private final RequestValidator validator;
 
   public AgentsResourceServiceImpl() {
-    this.entityResourceFactory = EmbeddedEhcacheServiceLocator.locator().locateEntityResourceFactory();
-    this.validator = EmbeddedEhcacheServiceLocator.locator().locateRequestValidator();
+    EntityResourceFactory.Locator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.entityResourceFactory = entityRsrcFactoryLocator.locateEntityResourceFactory();
+    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.validator = reqValidatorLocator.locateRequestValidator();
   }
 
   /**

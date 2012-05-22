@@ -2,7 +2,7 @@ package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.management.resource.CacheEntity;
 import net.sf.ehcache.management.service.CacheService;
-import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
@@ -30,9 +30,12 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
   private final RequestValidator validator;
 
   public CachesResourceServiceImpl() {
-    this.entityResourceFactory = EmbeddedEhcacheServiceLocator.locator().locateEntityResourceFactory();
-    this.cacheSvc = EmbeddedEhcacheServiceLocator.locator().locateCacheService();
-    this.validator = EmbeddedEhcacheServiceLocator.locator().locateRequestValidator();
+    EntityResourceFactory.Locator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.entityResourceFactory = entityRsrcFactoryLocator.locateEntityResourceFactory();
+    CacheService.Locator cacheSvcLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.cacheSvc = cacheSvcLocator.locateCacheService();
+    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.validator = reqValidatorLocator.locateRequestValidator();
   }
 
   /**

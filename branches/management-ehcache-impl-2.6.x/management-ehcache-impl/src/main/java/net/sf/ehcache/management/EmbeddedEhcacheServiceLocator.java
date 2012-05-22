@@ -3,21 +3,28 @@
  * notice. All rights reserved.
  */
 
-package net.sf.ehcache.management.service;
+package net.sf.ehcache.management;
 
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EntityResourceFactory;
+import net.sf.ehcache.management.service.SamplerRepositoryService;
 import org.terracotta.management.resource.services.validator.RequestValidator;
-import org.terracotta.management.service.ServiceLocator;
+import org.terracotta.management.ServiceLocator;
 
 /**
  * @author brandony
  */
-public final class EmbeddedEhcacheServiceLocator extends ServiceLocator
+public class EmbeddedEhcacheServiceLocator extends ServiceLocator
     implements CacheService.Locator, EntityResourceFactory.Locator, SamplerRepositoryService.Locator {
   private final CacheService cacheSvc;
 
   private final EntityResourceFactory entityRsrcFactory;
 
   private final SamplerRepositoryService samplerRepoSvc;
+
+  public static EmbeddedEhcacheServiceLocator locator() {
+    return (EmbeddedEhcacheServiceLocator)ServiceLocator.locator();
+  }
 
   public EmbeddedEhcacheServiceLocator(RequestValidator requestValidator,
                                        CacheService cacheSvc,
@@ -27,10 +34,6 @@ public final class EmbeddedEhcacheServiceLocator extends ServiceLocator
     this.cacheSvc = cacheSvc;
     this.entityRsrcFactory = entityRsrcFactory;
     this.samplerRepoSvc = samplerRepoSvc;
-  }
-
-  public static EmbeddedEhcacheServiceLocator locator() {
-    return (EmbeddedEhcacheServiceLocator)ServiceLocator.locator();
   }
 
   @Override

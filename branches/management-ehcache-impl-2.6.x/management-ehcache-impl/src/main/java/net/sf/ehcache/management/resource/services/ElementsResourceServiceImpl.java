@@ -6,7 +6,7 @@
 package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.management.service.CacheService;
-import net.sf.ehcache.management.service.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -21,8 +21,10 @@ public final class ElementsResourceServiceImpl implements ElementsResourceServic
   private RequestValidator validator;
 
   public ElementsResourceServiceImpl() {
-    this.cacheSvc = EmbeddedEhcacheServiceLocator.locator().locateCacheService();
-    this.validator = EmbeddedEhcacheServiceLocator.locator().locateRequestValidator();
+    CacheService.Locator cacheSvcLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.cacheSvc = cacheSvcLocator.locateCacheService();
+    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.validator = reqValidatorLocator.locateRequestValidator();
   }
 
   /**
