@@ -366,7 +366,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @param id The new id value
      */
-    public final void setId(final long id) {
+    void setId(final long id) {
         if (id == NOT_SET_ID) {
             throw new IllegalArgumentException("Id cannot be set to " + id);
         }
@@ -378,7 +378,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @return id the id
      */
-    public final long getId() {
+    long getId() {
         final long v = id;
         if (v == NOT_SET_ID) {
             throw new IllegalStateException("Id not set");
@@ -391,7 +391,7 @@ public class Element implements Serializable, Cloneable {
      *
      * @return true if this element has an Id
      */
-    public final boolean hasId() {
+    boolean hasId() {
         return id != NOT_SET_ID;
     }
 
