@@ -557,7 +557,7 @@ public class SelectableConcurrentHashMap {
             setTable(new HashEntry[initialCapacity]);
         }
 
-        protected void preRemove(Object key) {
+        protected void preRemove(HashEntry e) {
 
         }
 
@@ -691,7 +691,7 @@ public class SelectableConcurrentHashMap {
                         oldValue = v;
                         ++modCount;
                         if(!e.pinned) {
-                            preRemove(e.key);
+                            preRemove(e);
                             // All entries following removed node can stay
                             // in list, but all preceding ones need to be
                             // cloned.
@@ -704,7 +704,7 @@ public class SelectableConcurrentHashMap {
                             if (oldValue == DUMMY_PINNED_ELEMENT) {
                                oldValue = null;
                             } else {
-                                preRemove(e.key);
+                                preRemove(e);
                                 e.value = DUMMY_PINNED_ELEMENT;
                                 ++numDummyPinnedKeys;
                             }
