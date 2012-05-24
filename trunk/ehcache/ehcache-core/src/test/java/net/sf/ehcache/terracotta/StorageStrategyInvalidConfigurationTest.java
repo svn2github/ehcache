@@ -52,19 +52,7 @@ public class StorageStrategyInvalidConfigurationTest extends TestCase {
         } catch (InvalidConfigurationException e) {
             LOG.info("Caught expected exception: " + e);
 
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache1' error: NONSTOP can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache1' error: REJOIN can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache1' error: EVENTUAL consistency can't be enabled with CLASSIC strategy."));
-
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache2' error: NONSTOP can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache2' error: REJOIN can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache2' error: EVENTUAL consistency can't be enabled with CLASSIC strategy."));
-
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: REJOIN can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: EVENTUAL consistency can't be enabled with CLASSIC strategy."));
             Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: Terracotta clustered caches must be nonstop when rejoin is enabled."));
-
-            Assert.assertEquals(12, Pattern.compile("$", Pattern.MULTILINE).split(e.getMessage()).length);
         }
     }
 }
