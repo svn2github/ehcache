@@ -14,7 +14,6 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -96,7 +95,6 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
   private final CacheCoherence                                                  cacheCoherence;
   protected final String                                                        qualifiedCacheName;
   private final boolean                                                         isIdentity;
-  private final boolean                                                         isClassic;
   private final Consistency                                                     initialCoherenceMode;
   private final CacheConfiguration.TransactionalMode                            transactionalMode;
 
@@ -160,7 +158,6 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
     }
 
     this.isIdentity = terracottaConfiguration.getValueMode() == ValueMode.IDENTITY;
-    this.isClassic = StorageStrategy.CLASSIC.equals(terracottaConfiguration.getStorageStrategy());
   }
 
   private void checkMemoryStoreEvictionPolicy(final CacheConfiguration config) {
@@ -286,13 +283,8 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
     if (localBufferedMap == null) {
       localBufferedMap = new LocalBufferedMap<Object, TimestampedValue<Object>>(backend, cacheCoherence);
     }
-    if (StorageStrategy.DCV2.equals(cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy())) {
-      // use false by default
-      checkContainsKeyOnPut = TC_PROPERTIES.getBoolean(CHECK_CONTAINS_KEY_ON_PUT, false);
-    } else {
-      // use true by default
-      checkContainsKeyOnPut = TC_PROPERTIES.getBoolean(CHECK_CONTAINS_KEY_ON_PUT, true);
-    }
+    // use false by default
+    checkContainsKeyOnPut = TC_PROPERTIES.getBoolean(CHECK_CONTAINS_KEY_ON_PUT, false);
     CacheShutdownHook.INSTANCE.registerCache(cache);
 
     strictBackend = new StrictBackend(this, backend, valueModeHandler, cacheCoherence);
@@ -1050,7 +1042,7 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
   }
 
   public boolean isClassic() {
-    return isClassic;
+    return false;
   }
 
   public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {

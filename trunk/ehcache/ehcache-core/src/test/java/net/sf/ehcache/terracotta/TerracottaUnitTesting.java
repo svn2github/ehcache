@@ -41,21 +41,20 @@ import org.mockito.stubbing.Answer;
 public class TerracottaUnitTesting {
 
     public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory) throws Exception {
-        setupTerracottaTesting(mockFactory, null, TerracottaRuntimeType.EnterpriseExpress, StorageStrategy.DCV2);
+        setupTerracottaTesting(mockFactory, null, TerracottaRuntimeType.EnterpriseExpress);
     }
 
     public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory, Runnable onNewClusteredInstanceFactory)
             throws Exception {
-        setupTerracottaTesting(mockFactory, onNewClusteredInstanceFactory, TerracottaRuntimeType.EnterpriseExpress, StorageStrategy.DCV2);
+        setupTerracottaTesting(mockFactory, onNewClusteredInstanceFactory, TerracottaRuntimeType.EnterpriseExpress);
     }
 
-    public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory, TerracottaRuntimeType terracottaRuntimeType,
-                                              StorageStrategy defaultStorageStrategyForCurrentRuntime) throws Exception {
-        setupTerracottaTesting(mockFactory, null, terracottaRuntimeType, defaultStorageStrategyForCurrentRuntime);
+    public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory, TerracottaRuntimeType terracottaRuntimeType) throws Exception {
+        setupTerracottaTesting(mockFactory, null, terracottaRuntimeType);
     }
 
     public static void setupTerracottaTesting(final ClusteredInstanceFactory mockFactory, final Runnable onNewClusteredInstanceFactory,
-                                              TerracottaRuntimeType terracottaRuntimeType, StorageStrategy defaultStorageStrategyForCurrentRuntime)
+                                              TerracottaRuntimeType terracottaRuntimeType)
             throws Exception {
         TerracottaStore terracottaStore = Mockito.mock(TerracottaStore.class);
         CacheCluster mockCacheCluster = Mockito.mock(CacheCluster.class);
@@ -75,7 +74,6 @@ public class TerracottaUnitTesting {
                     }
                 });
         when(mockHelper.getTerracottaRuntimeTypeOrNull()).thenReturn(terracottaRuntimeType);
-        when(mockHelper.getDefaultStorageStrategyForCurrentRuntime((CacheConfiguration) any())).thenReturn(defaultStorageStrategyForCurrentRuntime);
 
         Method method = TerracottaClient.class.getDeclaredMethod("setTestMode", TerracottaClusteredInstanceHelper.class);
         method.setAccessible(true);

@@ -95,7 +95,9 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Default setting for storageStrategy
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      */
+    @Deprecated
     public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.DCV2;
 
     /**
@@ -129,17 +131,22 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Represents whether keys/values are to be stored in the local vm or the Terracotta server
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      *
      * @author Abhishek Sanoujam
      */
     public static enum StorageStrategy {
         /**
          * Store the key/values in the local vm
+         * @deprecated
+         * @see StorageStrategy
          */
         CLASSIC,
 
         /**
          * Store the key/values in the Terracotta Server
+         * @deprecated
+         * @see StorageStrategy
          */
         DCV2,
     }
@@ -156,7 +163,6 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean isCopyOnRead = DEFAULT_COPY_ON_READ;
     private boolean cacheXA = DEFAULT_CACHE_XA;
     private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
-    private StorageStrategy storageStrategy = DEFAULT_STORAGE_STRATEGY;
     private int concurrency = DEFAULT_CONCURRENCY;
     private NonstopConfiguration nonStopConfiguration = DEFAULT_NON_STOP_CONFIGURATION;
 
@@ -545,7 +551,9 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Converts the {@code storageStrategy} string argument to uppercase and looks up enum constant in StorageStrategy.
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      */
+    @Deprecated
     public void setStorageStrategy(String storageStrategy) {
         assertArgumentNotNull("Cache storageStrategy", storageStrategy);
         this.storageStrategy(StorageStrategy.valueOf(StorageStrategy.class, storageStrategy.toUpperCase()));
@@ -554,7 +562,9 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * @return this configuration instance
      * @see #setStorageStrategy(String)
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      */
+    @Deprecated
     public TerracottaConfiguration storageStrategy(String storageStrategy) {
         setStorageStrategy(storageStrategy);
         return this;
@@ -563,12 +573,16 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * @return this configuration instance
      * @see #setStorageStrategy(String)
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      */
+    @Deprecated
     public TerracottaConfiguration storageStrategy(StorageStrategy storageStrategy) {
         if (storageStrategy == null) {
             throw new IllegalArgumentException("Storage Strategy must be non-null");
         }
-        this.storageStrategy = storageStrategy;
+        if (storageStrategy == StorageStrategy.CLASSIC) {
+            LOG.warn("Setting StorageStrategy to CLASSIC has no effect, and will be DCV2 by default implicitly");
+        }
         this.storageStrategySet = true;
         return this;
     }
@@ -584,9 +598,11 @@ public class TerracottaConfiguration implements Cloneable {
 
     /**
      * Get the value mode in terms of the mode enum
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      */
+    @Deprecated
     public StorageStrategy getStorageStrategy() {
-        return this.storageStrategy;
+        return StorageStrategy.DCV2;
     }
 
     /**

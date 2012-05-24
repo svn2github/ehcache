@@ -1878,24 +1878,6 @@ public class CacheConfiguration implements Cloneable {
 
     private void validateTerracottaConfig(final Configuration configuration, final Collection<ConfigError> errors) {
         final TerracottaClientConfiguration clientConfiguration = configuration.getTerracottaConfiguration();
-        if (getTerracottaConfiguration().getStorageStrategy().equals(StorageStrategy.CLASSIC)) {
-            if (getTerracottaConfiguration().isNonstopEnabled()) {
-                errors.add(new CacheConfigError("NONSTOP can't be enabled with " + StorageStrategy.CLASSIC
-                    .name() + " strategy.", getName()));
-            }
-
-            if (clientConfiguration != null && clientConfiguration.isRejoin()) {
-                errors.add(new CacheConfigError("REJOIN can't be enabled with " + StorageStrategy.CLASSIC
-                    .name() + " strategy.", getName()));
-            }
-
-            if (getTerracottaConsistency().equals(Consistency.EVENTUAL)) {
-                errors.add(new CacheConfigError(Consistency.EVENTUAL
-                                                    .name() + " consistency can't be enabled with " + StorageStrategy.CLASSIC.name()
-                                                + " strategy.", getName()));
-            }
-        }
-
         if (clientConfiguration != null && clientConfiguration.isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
             errors.add(new CacheConfigError("Terracotta clustered caches must be nonstop when rejoin is enabled.", getName()));
         }
@@ -2565,7 +2547,9 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      *
      * @return the StorageStrategy if Terracotta-clustered or null
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      */
+    @Deprecated
     public StorageStrategy getTerracottaStorageStrategy() {
         return terracottaConfiguration != null ? terracottaConfiguration.getStorageStrategy() : null;
     }

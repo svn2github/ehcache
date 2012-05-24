@@ -9,7 +9,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
@@ -181,12 +180,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     String cacheMgrName = getCacheManagerName(cache.getCacheManager());
 
     final String cacheName = cache.getName();
-    if (isDCV2(cache)) {
-      synchronized (cacheName.intern()) {
-        // We don't want to leak the reference to the cache until the server is fully aware of it.
-        return getOrCreateStoreInternal(cacheMgrName, cacheName, cache);
-      }
-    } else {
+    synchronized (cacheName.intern()) {
+      // We don't want to leak the reference to the cache until the server is fully aware of it.
       return getOrCreateStoreInternal(cacheMgrName, cacheName, cache);
     }
   }
@@ -255,15 +250,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   private void waitUntilStoreCreatedInServer(final Ehcache ehcache) {
-    if (isDCV2(ehcache)) {
-      // We don't want to operate on the cache until the server is fully aware of it.
-      Terracotta.waitForAllCurrentTransactionsToComplete();
-    }
-  }
-
-  private boolean isDCV2(final Ehcache ehcache) {
-    return StorageStrategy.DCV2.equals(ehcache.getCacheConfiguration().getTerracottaConfiguration()
-        .getStorageStrategy());
+    // We don't want to operate on the cache until the server is fully aware of it.
+    Terracotta.waitForAllCurrentTransactionsToComplete();
   }
 
   protected ClusteredStore newStore(final Ehcache cache, final String qualifiedName) {
