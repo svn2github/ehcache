@@ -38,7 +38,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
 
 import org.slf4j.Logger;
@@ -91,17 +90,6 @@ public class TerracottaClient {
             rejoinThread.setDaemon(true);
             rejoinThread.start();
         }
-    }
-
-    /**
-     * Returns the default {@link StorageStrategy} type for the current Terracotta runtime.
-     *
-     * @param cacheConfiguration the cache's configuration
-     *
-     * @return the default {@link StorageStrategy} type for the current Terracotta runtime.
-     */
-    public static StorageStrategy getTerracottaDefaultStrategyForCurrentRuntime(final CacheConfiguration cacheConfiguration) {
-        return TerracottaClusteredInstanceHelper.getInstance().getDefaultStorageStrategyForCurrentRuntime(cacheConfiguration);
     }
 
     /*

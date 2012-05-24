@@ -37,7 +37,6 @@ import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonstopException;
@@ -87,7 +86,6 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.terracotta.InternalEhcache;
-import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
@@ -1050,10 +1048,6 @@ public class Cache implements InternalEhcache, StoreListener {
                              "maxElementsOnDisk set. Failing to set maxElementsOnDisk could mean no eviction of its elements from the " +
                              "Terracotta Server Array disk store. To avoid this, set maxElementsOnDisk to a non-zero value.", getName());
                 }
-                if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
-                    getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
-                            TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime(getCacheConfiguration()));
-                }
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
                     throw new CacheException(
@@ -1199,10 +1193,6 @@ public class Cache implements InternalEhcache, StoreListener {
         if ((coherent && consistency == Consistency.EVENTUAL) || (!coherent && consistency == Consistency.STRONG)) {
             throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
                     + "Please remove the coherent attribute as its deprecated.");
-        }
-        if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC) {
-            throw new InvalidConfigurationException(StorageStrategy.CLASSIC + " Storage strategy is not supported with "
-                    + "clustered cache. Please use " + StorageStrategy.DCV2);
         }
     }
 

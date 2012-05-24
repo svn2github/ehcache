@@ -44,7 +44,7 @@ public class StorageStrategyConfigTest extends TestCase {
         cache = cacheManager.getCache("classicStorageStrategy");
         storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
         LOG.info("classic storageStrategy: " + storageStrategy);
-        assertEquals(StorageStrategy.CLASSIC, storageStrategy);
+        assertEquals(StorageStrategy.DCV2, storageStrategy);
 
         cache = cacheManager.getCache("DCV2StorageStrategy");
         storageStrategy = cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy();
@@ -53,19 +53,19 @@ public class StorageStrategyConfigTest extends TestCase {
 
         TerracottaConfiguration config = cache.getCacheConfiguration().getTerracottaConfiguration();
         config.setStorageStrategy("classic");
-        assertEquals(StorageStrategy.CLASSIC, config.getStorageStrategy());
+        assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
 
         config.setStorageStrategy("DCV2");
         assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
 
         config.storageStrategy("classic");
-        assertEquals(StorageStrategy.CLASSIC, config.getStorageStrategy());
+        assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
 
         config.storageStrategy("DCV2");
         assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
 
         config.storageStrategy(StorageStrategy.CLASSIC);
-        assertEquals(StorageStrategy.CLASSIC, config.getStorageStrategy());
+        assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());
 
         config.storageStrategy(StorageStrategy.DCV2);
         assertEquals(StorageStrategy.DCV2, config.getStorageStrategy());

@@ -256,7 +256,6 @@
             <xs:attribute name="coherent" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="consistency" use="optional" type="consistencyType" default="eventual"/>
             <xs:attribute name="synchronousWrites" use="optional" type="xs:boolean" default="false"/>
-            <xs:attribute name="storageStrategy" use="optional" type="storageStrategyType" default="DCV2"/>
             <xs:attribute name="concurrency" use="optional" type="xs:nonNegativeInteger" default="0"/>
             <xs:attribute name="localCacheEnabled" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="compressionEnabled" use="optional" type="xs:boolean" default="false"/>
@@ -310,12 +309,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="serialization" />
             <xs:enumeration value="identity" />
-        </xs:restriction>
-    </xs:simpleType>
-    <xs:simpleType name="storageStrategyType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="classic" />
-            <xs:enumeration value="DCV2" />
         </xs:restriction>
     </xs:simpleType>
 

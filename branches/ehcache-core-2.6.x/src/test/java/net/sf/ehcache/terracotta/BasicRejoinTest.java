@@ -37,7 +37,6 @@ import net.sf.ehcache.cluster.ClusterTopologyListener;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.constructs.nonstop.ThreadDump;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
@@ -79,7 +78,7 @@ public class BasicRejoinTest extends TestCase {
     @Test
     public void testInvalidRejoinInCustom() throws Exception {
         ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
-        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, TerracottaRuntimeType.Custom, StorageStrategy.CLASSIC);
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, TerracottaRuntimeType.Custom);
 
         CacheCluster mockCacheCluster = new MockCacheCluster();
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
@@ -96,7 +95,7 @@ public class BasicRejoinTest extends TestCase {
     @Test
     public void testInvalidRejoinWithoutTerracotta() throws Exception {
         ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
-        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, (TerracottaRuntimeType) null, StorageStrategy.CLASSIC);
+        TerracottaUnitTesting.setupTerracottaTesting(mockFactory, (TerracottaRuntimeType) null);
 
         CacheCluster mockCacheCluster = new MockCacheCluster();
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
