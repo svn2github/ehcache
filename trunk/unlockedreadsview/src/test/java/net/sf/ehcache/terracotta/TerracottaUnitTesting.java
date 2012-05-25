@@ -87,7 +87,6 @@ public class TerracottaUnitTesting {
                     }
                 });
         when(mockHelper.getTerracottaRuntimeTypeOrNull()).thenReturn(terracottaRuntimeType);
-        when(mockHelper.getDefaultStorageStrategyForCurrentRuntime((CacheConfiguration) any())).thenReturn(defaultStorageStrategyForCurrentRuntime);
 
         Method method = TerracottaClient.class.getDeclaredMethod("setTestMode", TerracottaClusteredInstanceHelper.class);
         method.setAccessible(true);
