@@ -210,6 +210,10 @@ public interface Ehcache extends Cloneable {
     /**
      * Replace the cached element only if the current Element is equal to the supplied old Element.
      *
+     * With eventual consistency two simultaneous replace operations in different nodes (or threads) can return true.
+     * But at the Terracotta Server Array, only one of the operations is allowed to succeed and all competing values are invalidated,
+     * eventually making the caches consistent in all nodes.
+     *
      * @param old Element to be test against
      * @param element Element to be cached
      * @return true is the Element was replaced
