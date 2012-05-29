@@ -76,12 +76,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.terracotta.modules</groupId>
-      <artifactId>tim-ehcache</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
