@@ -38,6 +38,7 @@ public class ManagementRESTServiceConfiguration {
 
     private volatile boolean enabled = false;
     private volatile String securityServiceLocation;
+    private volatile boolean sslEnabled;
     private volatile int securityServiceTimeout = DEFAULT_SECURITY_SVC_TIMEOUT;
     private volatile String bind = DEFAULT_BIND;
 
@@ -139,6 +140,24 @@ public class ManagementRESTServiceConfiguration {
             throw new IllegalArgumentException("invalid bind format (should be IP:port)");
         }
         return Integer.parseInt(split[1]);
+    }
+
+    /**
+     * Indicates whether or not the embedded agent should enabled ssl.
+     *
+     * @return true if ssl should be enabled, false if not.
+     */
+    public boolean isSslEnabled() {
+        return sslEnabled;
+    }
+
+    /**
+     * Set ssl indicator for this embedded agent.
+     *
+     * @param sslEnabled boolean to indicate ssl status.
+     */
+    public void setSslEnabled(boolean sslEnabled) {
+        this.sslEnabled = sslEnabled;
     }
 
     /**

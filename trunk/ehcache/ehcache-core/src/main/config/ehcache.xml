@@ -79,11 +79,20 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     If you provide the 'securityServiceLocation' attribute, this will also enable authentication and other
     security measures on the REST service - which are only available for the enterprise-edition of the
     service.  The location should be the URL to the Terracotta Management Server that is being used to
-    manage the ehcache instance.
+    manage the ehcache instance. Enabling security requires that the management REST service be provided with
+    a terracotta keychain in the default location ${user.home}/.tc/mgmt/keychain or as defined by the system property
+    com.tc.management.keychain.file. The keychain is expected to hold a secret shared by the management client
+    and keyed with this REST service's URI.
 
     Related to the the enterprise-edition security setup is the 'securityServiceTimeout' attribute. Setting this
     value will allow adjustment of the connection timeout to the security service location. The default value is
     5000 millis.
+
+    If the 'sslEnabled' attribute is set to true, this will enable a non-blocking ssl connection to the management
+    REST service. Turning this ssl connection on requires an identity store be provided at the default location
+    ${user.home}/.tc/mgmt/keystore and that the JKS passphrase be included in the REST service keychain, keyed with
+    the identity store file URI, or that the keystore and passphrase be identified with the ssl system properties
+    javax.net.ssl.keyStore and javax.net.ssl.keyStorePassword.
 
     Finally, several attributes exist to configure sampling history.
 
