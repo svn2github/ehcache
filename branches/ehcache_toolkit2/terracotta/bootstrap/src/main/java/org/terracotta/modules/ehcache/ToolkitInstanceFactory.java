@@ -19,6 +19,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.serializer.Serializer;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -99,6 +100,7 @@ public interface ToolkitInstanceFactory {
 
   ToolkitList<SoftLockId> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
 
-  ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
+  Serializer getSerializer();
 
+  ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
 }

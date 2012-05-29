@@ -6,15 +6,23 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
 
+import org.terracotta.toolkit.serializer.Serializer;
+
 import java.io.IOException;
 import java.io.Serializable;
 
 public class ValueModeHandlerSerialization implements ValueModeHandler {
 
+  private final Serializer serializer;
+
+  public ValueModeHandlerSerialization(Serializer serializer) {
+    this.serializer = serializer;
+  }
+
   @Override
   public Object getRealKeyObject(String portableKey) {
     try {
-      return SerializationHelper.deserializeString(portableKey);
+      return serializer.deserializeFromString(portableKey);
     } catch (IOException e) {
       return null;
     } catch (ClassNotFoundException e) {
@@ -24,7 +32,7 @@ public class ValueModeHandlerSerialization implements ValueModeHandler {
 
   @Override
   public String createPortableKey(Object key) throws IOException {
-    return SerializationHelper.serializeToString(key);
+    return serializer.serializeToString(key);
   }
 
   @Override

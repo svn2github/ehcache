@@ -95,7 +95,8 @@ public class ClusteredStore implements TerracottaStore {
 
     // TODO: fix transactionalMode to be in cluster
     transactionalMode = ehcacheConfig.getTransactionalMode();
-    valueModeHandler = ValueModeHandlerFactory.createValueModeHandler(this, ehcacheConfig);
+    valueModeHandler = ValueModeHandlerFactory.createValueModeHandler(this, ehcacheConfig,
+                                                                      toolkitInstanceFactory.getSerializer());
 
     if (terracottaConfiguration.getLocalKeyCache()) {
       localKeyCacheMaxsize = terracottaConfiguration.getLocalKeyCacheSize();

@@ -30,7 +30,9 @@ import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields.PinningStore;
 import org.terracotta.toolkit.events.ToolkitNotifier;
+import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.serializer.Serializer;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -268,6 +270,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
+  public Serializer getSerializer() {
+    return ((ToolkitInternal) toolkit).getSerializer();
+  }
+
+  @Override
   public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
@@ -275,5 +282,4 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                           + CLUSTERED_STORE_CONFIG_MAP, config);
   }
-
 }
