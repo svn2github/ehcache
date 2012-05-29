@@ -31,6 +31,7 @@
             <xs:attribute name="bind" use="optional"/>
             <xs:attribute name="securityServiceLocation" use="optional"/>
             <xs:attribute name="securityServiceTimeout" use="optional" type="xs:integer"/>
+            <xs:attribute name="sslEnabled" use="optional" type="xs:boolean"/>
             <xs:attribute name="sampleHistorySize" use="optional" type="xs:integer"/>
             <xs:attribute name="sampleIntervalSeconds" use="optional" type="xs:integer"/>
             <xs:attribute name="sampleSearchIntervalSeconds" use="optional" type="xs:integer"/>
