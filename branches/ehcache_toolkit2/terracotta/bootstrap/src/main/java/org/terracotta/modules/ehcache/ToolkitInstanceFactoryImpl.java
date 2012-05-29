@@ -22,7 +22,6 @@ import org.terracotta.toolkit.client.TerracottaClientStaticFactory;
 import org.terracotta.toolkit.client.ToolkitClient;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
-import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -38,40 +37,29 @@ import java.util.LinkedList;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
-  public static final String               DELIMITER                          = "|";
+  public static final String  DELIMITER                          = "|";
 
-  private static final String              FULLY_QUALIFIED_NAME_MAP           = "fullyQualifiedNameMap";
-  private static final String              EVENT_NOTIFIER_SUFFIX              = "event-notifier";
-  private static final String              EHCACHE_NAME_PREFIX                = "__tc_clustered-ehcache";
-  private static final String              CONFIG_NOTIFIER_SUFFIX             = "config-notifier";
-  private static final String              EHCACHE_CLUSTERED_STORE_ID         = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                                + "clusteredStoreId";
-  private static final String              EHCACHE_TXNS_COMMIT_STATE_MAP_NAME = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                                + "txnsCommitState";
-  private static final String              EHCACHE_XA_TXNS_DECISION_MAP_NAME  = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                                + "xaTxnsDecision";
-  private static final String              ALL_SOFT_LOCKS_MAP_SUFFIX          = "softLocks";
-  private static final String              NEW_SOFT_LOCKS_LIST_SUFFIX         = "newSoftLocks";
+  private static final String EVENT_NOTIFIER_SUFFIX              = "event-notifier";
+  private static final String EHCACHE_NAME_PREFIX                = "__tc_clustered-ehcache";
+  private static final String CONFIG_NOTIFIER_SUFFIX             = "config-notifier";
+  private static final String EHCACHE_TXNS_COMMIT_STATE_MAP_NAME = EHCACHE_NAME_PREFIX + DELIMITER + "txnsCommitState";
+  private static final String EHCACHE_XA_TXNS_DECISION_MAP_NAME  = EHCACHE_NAME_PREFIX + DELIMITER + "xaTxnsDecision";
+  private static final String ALL_SOFT_LOCKS_MAP_SUFFIX          = "softLocks";
+  private static final String NEW_SOFT_LOCKS_LIST_SUFFIX         = "newSoftLocks";
 
-  private static final String              DEFAULT_ASYNC_LOCK                 = "__DEFAULT__ASYNC__LOCK__";
-  private static final String              ASYNC                              = "async";
-  private static final String              ASYNC_CONFIG_MAP                   = ASYNC + DELIMITER + "asyncConfigMap";
-  public static final String               ASYNC_NAME_LIST_MAP                = ASYNC + DELIMITER + "asyncListNamesMap";
+  private static final String DEFAULT_ASYNC_LOCK                 = "__DEFAULT__ASYNC__LOCK__";
+  private static final String ASYNC                              = "async";
+  private static final String ASYNC_CONFIG_MAP                   = ASYNC + DELIMITER + "asyncConfigMap";
+  private static final String CLUSTERED_STORE_CONFIG_MAP         = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
 
-  protected final Toolkit                  toolkit;
+  protected final Toolkit     toolkit;
 
-  private final ToolkitAtomicLong          clusteredStoreId;
-  private final ToolkitMap<String, String> fullyQualifiedNames;
-  private final ToolkitReadWriteLock       lock;
-  private final ToolkitClient              client;
+  private final ToolkitClient client;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.client = createTerracottaClient(terracottaClientConfiguration);
     // TODO: support namespacing the toolkit
     this.toolkit = client.getToolkit();
-    this.clusteredStoreId = toolkit.getAtomicLong(EHCACHE_CLUSTERED_STORE_ID);
-    this.fullyQualifiedNames = toolkit.getMap(EHCACHE_NAME_PREFIX + DELIMITER + FULLY_QUALIFIED_NAME_MAP);
-    this.lock = toolkit.getReadWriteLock(EHCACHE_NAME_PREFIX + DELIMITER + "factoryLock");
   }
 
   private static ToolkitClient createTerracottaClient(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -180,36 +168,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return getFullyQualifiedCacheName(getCacheManagerName(cache), cache.getName());
   }
 
-  public String getFullyQualifiedCacheName(String cacheMgrName, String cacheName) {
-    String fullyQualifiedNameWithoutId = getFullyQualifiedNameWithoutId(cacheMgrName, cacheName);
-    // try with unsafeGet
-    String cacheFQN = fullyQualifiedNames.unsafeGet(fullyQualifiedNameWithoutId);
-    if (cacheFQN != null) { return cacheFQN; }
-
-    // try with read locks
-    lock.readLock().lock();
-    try {
-      cacheFQN = fullyQualifiedNames.get(fullyQualifiedNameWithoutId);
-      if (cacheFQN != null) { return cacheFQN; }
-    } finally {
-      lock.readLock().unlock();
-    }
-
-    // finally try with write locks
-    lock.writeLock().lock();
-    try {
-      cacheFQN = fullyQualifiedNames.get(fullyQualifiedNameWithoutId);
-      if (cacheFQN != null) { return cacheFQN; }
-
-      cacheFQN = fullyQualifiedNameWithoutId + clusteredStoreId.incrementAndGet();
-      fullyQualifiedNames.put(fullyQualifiedNameWithoutId, cacheFQN);
-      return cacheFQN;
-    } finally {
-      lock.writeLock().unlock();
-    }
-  }
-
-  private static String getFullyQualifiedNameWithoutId(String cacheMgrName, String cacheName) {
+  public static String getFullyQualifiedCacheName(String cacheMgrName, String cacheName) {
     return EHCACHE_NAME_PREFIX + DELIMITER + cacheMgrName + DELIMITER + cacheName;
   }
 
@@ -306,6 +265,15 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public ToolkitLock getAsyncWriteLock() {
     return toolkit.getLock(DEFAULT_ASYNC_LOCK, ToolkitLockType.WRITE);
+  }
+
+  @Override
+  public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
+    // TODO: what should be the local cache config for the map?
+    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                          + CLUSTERED_STORE_CONFIG_MAP, config);
   }
 
 }

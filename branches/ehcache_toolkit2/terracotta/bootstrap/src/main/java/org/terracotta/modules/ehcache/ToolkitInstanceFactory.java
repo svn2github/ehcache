@@ -39,11 +39,6 @@ public interface ToolkitInstanceFactory {
   String getFullyQualifiedCacheName(Ehcache cache);
 
   /**
-   * Returns the fully qualified name given the cacheManager and the cache names
-   */
-  String getFullyQualifiedCacheName(String cacheManagerName, String cacheName);
-
-  /**
    * Returns the backend {@link ToolkitCacheWithMetadata} to be used for the cache
    */
   ToolkitCacheWithMetadata<Object, Serializable> getOrCreateToolkitCache(Ehcache cache);
@@ -103,5 +98,7 @@ public interface ToolkitInstanceFactory {
   ToolkitMap<String, SoftLockState> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName);
 
   ToolkitList<SoftLockId> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
+
+  ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
 
 }

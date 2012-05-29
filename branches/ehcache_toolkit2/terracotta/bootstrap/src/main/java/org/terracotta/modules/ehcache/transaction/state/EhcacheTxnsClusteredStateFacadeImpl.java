@@ -7,6 +7,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
+import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
 import org.terracotta.modules.ehcache.store.SerializationHelper;
 import org.terracotta.modules.ehcache.transaction.ClusteredTransactionID;
 import org.terracotta.modules.ehcache.transaction.SoftLockId;
@@ -229,17 +230,17 @@ public class EhcacheTxnsClusteredStateFacadeImpl implements EhcacheTxnsClustered
   }
 
   private String softLockWriteLockName(String cacheManagerName, String cacheName, SoftLockId softLockId) {
-    return toolkitInstanceFactory.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+    return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
            + serializeToString(softLockId) + DELIMITER + SOFT_LOCK_WRITE_LOCK_SUFFIX;
   }
 
   private String softLockFreezeLockName(String cacheManagerName, String cacheName, SoftLockId softLockId) {
-    return toolkitInstanceFactory.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+    return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
            + serializeToString(softLockId) + DELIMITER + SOFT_LOCK_FREEZE_LOCK_SUFFIX;
   }
 
   private String softLockNotifierLockName(String cacheManagerName, String cacheName, SoftLockId softLockId) {
-    return toolkitInstanceFactory.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+    return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
            + serializeToString(softLockId) + DELIMITER + SOFT_LOCK_NOTIFIER_LOCK_SUFFIX;
   }
 
@@ -263,7 +264,7 @@ public class EhcacheTxnsClusteredStateFacadeImpl implements EhcacheTxnsClustered
 
   private ToolkitLock getSoftLocksMapLock(String cacheManagerName, String cacheName) {
     return toolkitInstanceFactory.getToolkit()
-        .getLock(toolkitInstanceFactory.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+        .getLock(ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                      + SOFT_LOCKS_MAP_LOCK_SUFFIX, ToolkitLockType.WRITE);
   }
 
