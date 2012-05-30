@@ -69,6 +69,8 @@ public class ManagementRESTServiceConfigurationElement extends SimpleNodeElement
             .defaultValue(ManagementRESTServiceConfiguration.DEFAULT_SECURITY_SVC_TIMEOUT));
         addAttribute(new SimpleNodeAttribute("sslEnabled", managementRESTServiceConfiguration.isSslEnabled())
             .optional(true).defaultValue(false));
+        addAttribute(new SimpleNodeAttribute("needClientAuth", managementRESTServiceConfiguration.isNeedClientAuth())
+            .optional(true).defaultValue(false));
         addAttribute(new SimpleNodeAttribute("sampleHistorySize", managementRESTServiceConfiguration.getSampleHistorySize())
             .optional(true).defaultValue(CacheStatisticsSampler.DEFAULT_HISTORY_SIZE));
         addAttribute(new SimpleNodeAttribute("sampleIntervalSeconds", managementRESTServiceConfiguration

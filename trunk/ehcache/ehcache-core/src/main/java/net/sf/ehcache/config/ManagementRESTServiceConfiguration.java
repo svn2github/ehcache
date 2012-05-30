@@ -39,6 +39,7 @@ public class ManagementRESTServiceConfiguration {
     private volatile boolean enabled = false;
     private volatile String securityServiceLocation;
     private volatile boolean sslEnabled;
+    private volatile boolean needClientAuth;
     private volatile int securityServiceTimeout = DEFAULT_SECURITY_SVC_TIMEOUT;
     private volatile String bind = DEFAULT_BIND;
 
@@ -158,6 +159,30 @@ public class ManagementRESTServiceConfiguration {
      */
     public void setSslEnabled(boolean sslEnabled) {
         this.sslEnabled = sslEnabled;
+    }
+
+    /**
+     * Indicates whether or not the embedded agent should require ssl client certificate authorization.  This
+     * configuration setting is only relevant if ssl is enabled.
+     *
+     * @see #isSslEnabled()
+     *
+     * @return true if ssl client certificate authorization should be required, false if not.
+     */
+    public boolean isNeedClientAuth() {
+      return needClientAuth;
+    }
+
+    /**
+     * Set ssl client certificate authorization required setting. This configuration setting is only relevant if ssl
+     * is enabled.
+     *
+     * @see #setSslEnabled(boolean)
+     *
+     * @param needClientAuth
+     */
+    public void setNeedClientAuth(boolean needClientAuth) {
+      this.needClientAuth = needClientAuth;
     }
 
     /**
