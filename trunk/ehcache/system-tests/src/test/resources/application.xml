@@ -10,5 +10,6 @@
       <context-root>/BasicContainerTest</context-root>
     </web>
   </module>
-TOOLKIT_MODULE  
+TOOLKIT_MODULE
+  <library-directory>lib</library-directory>
 </application>

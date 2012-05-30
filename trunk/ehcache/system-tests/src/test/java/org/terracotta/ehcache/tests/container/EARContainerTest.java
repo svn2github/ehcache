@@ -108,8 +108,11 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
       File rv = new File(getTempDirectory(), "application.xml");
       out = new FileOutputStream(rv);
       String template = IOUtils.toString(in);
-      String appXml = template.replace("TOOLKIT_MODULE", appServerInfo().getId() == AppServerInfo.WEBSPHERE ? ""
-          : modulesSection);
+      String modulesText = modulesSection;
+      if (appServerInfo().getId() == AppServerInfo.WEBSPHERE || appServerInfo().toString().startsWith("jboss-7")) {
+        modulesText = "";
+      }
+      String appXml = template.replace("TOOLKIT_MODULE", modulesText);
       out.write(appXml.getBytes());
       return rv;
     } finally {
@@ -150,7 +153,8 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
     FileUtils.copyFileToDirectory(builder.makeDeployment().getFileSystemPath().getFile(), earDir);
 
     for (File earLib : earLibs) {
-      if (appServerInfo().getId() == AppServerInfo.WEBLOGIC || appServerInfo().getId() == AppServerInfo.WEBSPHERE) {
+      if (appServerInfo().getId() == AppServerInfo.WEBLOGIC || appServerInfo().getId() == AppServerInfo.WEBSPHERE
+          || (appServerInfo().toString().startsWith("jboss-7"))) {
         FileUtils.copyFileToDirectory(earLib, lib);
       } else {
         FileUtils.copyFileToDirectory(earLib, earDir);
