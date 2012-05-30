@@ -94,6 +94,13 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     the identity store file URI, or that the keystore and passphrase be identified with the ssl system properties
     javax.net.ssl.keyStore and javax.net.ssl.keyStorePassword.
 
+    The 'needClientAuth' attribute requires ssl client certificate authorization if the 'sslEnabled' attribute has been
+    set to true. Otherwise, it will be ignored.  Setting this attribute to true will require that the client's
+    identity is imported as trusted into a truststore which is provided in the default location
+    ${user.home}/.tc/mgmt/keystore and that the JKS passphrase be included in the REST service keychain, keyed with
+    the trust store file URI, or that the truststore and passphrase be identified with the ssl system properties
+    javax.net.ssl.trustStore and javax.net.ssl.trustStorePassword.
+
     Finally, several attributes exist to configure sampling history.
 
     - 'sampleHistorySize' allows the configuration of how many statistical samples will be kept in memory for
