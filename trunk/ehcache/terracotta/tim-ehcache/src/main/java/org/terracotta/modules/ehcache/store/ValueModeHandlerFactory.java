@@ -24,11 +24,9 @@ public abstract class ValueModeHandlerFactory {
       case SERIALIZATION:
         if (hibernateTypesPresent()) {
           LOG.info("Hibernate types found on the classpath : Enabling Hibernate value mode optimizations");
-          return new ValueModeHandlerHibernate(store, cacheConfiguration.isCopyOnRead(),
-                                               terracottaConfiguration.isCompressionEnabled());
+          return new ValueModeHandlerHibernate(store, cacheConfiguration);
         } else {
-          return new ValueModeHandlerSerialization(store, cacheConfiguration.isCopyOnRead(),
-                                                   terracottaConfiguration.isCompressionEnabled());
+          return new ValueModeHandlerSerialization(store, cacheConfiguration);
         }
       default:
         throw new CacheException("The Terracotta value type '" + terracottaConfiguration.getValueMode()

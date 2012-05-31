@@ -10,8 +10,5 @@ public class CopyOnWriteTest extends AbstractCacheTestBase {
 
   public CopyOnWriteTest(TestConfig testConfig) {
     super("copy-on-write-test.xml", testConfig, CopyOnWriteClient.class);
-
-    // DEV-7436 -- presumably toolkit2 will allow this test to pass
-    timebombTest("2012-07-01");
   }
 }

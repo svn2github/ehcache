@@ -7,6 +7,7 @@ import net.sf.ehcache.AbstractElementData;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.SerializationModeElementData;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.util.TimeUtil;
 
 import org.terracotta.bytecode.NotClearable;
@@ -26,15 +27,18 @@ class ValueModeHandlerSerialization implements ValueModeHandler, NotClearable {
   private transient volatile ClassLoader                    threadContextAwareClassLoader;
 
   private final boolean                                     copyOnRead;
+  private final boolean                                     copyOnWrite;
 
-  ValueModeHandlerSerialization(final ClusteredStore store, boolean copyOnRead, boolean compress) {
-    this(store, copyOnRead, new ElementSerializationStrategy(compress));
+  ValueModeHandlerSerialization(final ClusteredStore store, CacheConfiguration cacheConfig) {
+    this(store, cacheConfig, new ElementSerializationStrategy(cacheConfig.getTerracottaConfiguration()
+        .isCompressionEnabled()));
   }
 
-  ValueModeHandlerSerialization(final ClusteredStore store, boolean copyOnRead,
+  ValueModeHandlerSerialization(final ClusteredStore store, CacheConfiguration cacheConfig,
                                 SerializationStrategy3<AbstractElementData> serializationStrategy) {
     this.store = store;
-    this.copyOnRead = copyOnRead;
+    this.copyOnRead = cacheConfig.isCopyOnRead();
+    this.copyOnWrite = cacheConfig.isCopyOnWrite();
     this.serializationStrategy = serializationStrategy;
     init();
   }
@@ -67,8 +71,8 @@ class ValueModeHandlerSerialization implements ValueModeHandler, NotClearable {
       throw new CacheException(e);
     }
 
-    // we can store null in the entry if we're doing copy on read
-    value = copyOnRead ? null : value;
+    // we can store null in the entry if we're doing copyOnRead/copyOnWrite
+    value = copyOnRead || copyOnWrite ? null : value;
 
     SerializedEntryParameters<SerializationModeElementData> params = new SerializedEntryParameters<SerializationModeElementData>();
     params.deserialized(value).createTime(createTime).lastAccessedTime(createTime).serialized(data);
