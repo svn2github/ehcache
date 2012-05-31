@@ -62,7 +62,7 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
      */
     public void load(final Ehcache cache) throws CacheException {
         PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
-        if (persistence != null && Strategy.LOCALCLASSIC.equals(persistence.getStrategy())) {
+        if (persistence != null && Strategy.LOCALTEMPSWAP.equals(persistence.getStrategy())) {
             if (asynchronous) {
                 BootstrapThread thread = new BootstrapThread(cache);
                 thread.start();

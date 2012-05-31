@@ -251,8 +251,8 @@ public final class ConfigurationHelper {
                 PersistenceConfiguration persistence = cacheConfig.getPersistenceConfiguration();
                 if (persistence != null) {
                     switch (persistence.getStrategy()) {
-                        case LOCALCLASSIC:
-                        case LOCALENTERPRISE:
+                        case LOCALTEMPSWAP:
+                        case LOCALRESTARTABLE:
                             count++;
                             break;
                         default:

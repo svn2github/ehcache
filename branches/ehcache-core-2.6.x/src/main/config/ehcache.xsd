@@ -377,16 +377,16 @@
 
 	<xs:element name="persistence">
 	    <xs:complexType>
-            <xs:attribute name="strategy" use="required" type="restartabilityStrategy"/>
+            <xs:attribute name="strategy" use="required" type="persistenceStrategy"/>
             <xs:attribute name="synchronousWrites" use="optional" default="false" type="xs:boolean"/>
 	    </xs:complexType>
 	</xs:element>
 	
-	<xs:simpleType name="restartabilityStrategy">
+	<xs:simpleType name="persistenceStrategy">
 	    <xs:restriction base="xs:string">
-	        <xs:enumeration value="localClassic"/>
-	        <xs:enumeration value="localEnterprise"/>
-	        <xs:enumeration value="localInMemory"/>
+	        <xs:enumeration value="localTempSwap"/>
+	        <xs:enumeration value="localRestartable"/>
+	        <xs:enumeration value="none"/>
 	        <xs:enumeration value="distributed"/>
 	    </xs:restriction>
 	</xs:simpleType>

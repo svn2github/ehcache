@@ -119,7 +119,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
                      cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
         PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
-        persistent = persistence != null && Strategy.LOCALCLASSIC.equals(persistence.getStrategy());
+        persistent = persistence != null && Strategy.LOCALTEMPSWAP.equals(persistence.getStrategy());
     }
 
     /**

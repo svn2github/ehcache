@@ -1082,7 +1082,7 @@ public class Cache implements InternalEhcache, StoreListener {
                                 + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
                     }
                     PersistenceConfiguration persistence = configuration.getPersistenceConfiguration();
-                    if (persistence != null && Strategy.LOCALENTERPRISE.equals(persistence.getStrategy())) {
+                    if (persistence != null && Strategy.LOCALRESTARTABLE.equals(persistence.getStrategy())) {
                         throw new CacheException("Cache " + configuration.getName()
                                 + " cannot be configured because the enterprise features manager could not be found. "
                                 + "You must use an enterprise version of Ehcache to successfully enable enterprise persistence.");

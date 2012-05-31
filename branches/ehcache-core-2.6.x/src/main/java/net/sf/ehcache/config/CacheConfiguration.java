@@ -18,7 +18,6 @@ package net.sf.ehcache.config;
 
 import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -161,7 +160,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Default value for diskPersistent
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public static final boolean DEFAULT_DISK_PERSISTENT = false;
 
     /**
@@ -271,7 +273,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * For caches that overflow to disk, whether the disk cache persists between CacheManager instances.
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     protected volatile boolean diskPersistent = DEFAULT_DISK_PERSISTENT;
 
     /**
@@ -936,7 +941,9 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether the disk store persists between CacheManager instances. Note that this operates independently of {@link #overflowToDisk}.
      *
      * @param diskPersistent whether to persist the cache to disk between JVM restarts
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public final void setDiskPersistent(boolean diskPersistent) {
         checkDynamicChange();
         this.diskPersistent = diskPersistent;
@@ -949,7 +956,9 @@ public class CacheConfiguration implements Cloneable {
      * @param diskPersistent whether to persist the cache to disk between JVM restarts.
      * @return this configuration instance
      * @see #setDiskPersistent(boolean)
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public final CacheConfiguration diskPersistent(boolean diskPersistent) {
         setDiskPersistent(diskPersistent);
         return this;
@@ -1304,7 +1313,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalOffHeapAsString() {
-        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalOffHeap());
+        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : Long.toString(getMaxBytesLocalOffHeap());
     }
 
     /**
@@ -1343,7 +1352,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalHeapAsString() {
-        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalHeap());
+        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : Long.toString(getMaxBytesLocalHeap());
     }
 
     /**
@@ -1405,7 +1414,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalDiskAsString() {
-        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalDisk());
+        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : Long.toString(getMaxBytesLocalDisk());
     }
 
     /**
@@ -1565,7 +1574,7 @@ public class CacheConfiguration implements Cloneable {
         if (overflowToOffHeap == null && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
             overflowToOffHeap = true;
         }
-        if ((persistenceConfiguration != null && Strategy.LOCALCLASSIC.equals(persistenceConfiguration.getStrategy())) ||
+        if ((persistenceConfiguration != null && Strategy.LOCALTEMPSWAP.equals(persistenceConfiguration.getStrategy())) ||
                 (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0)) {
             overflowToDisk = true;
         }
@@ -1579,19 +1588,19 @@ public class CacheConfiguration implements Cloneable {
         if (persistenceConfiguration == null) {
             if (diskPersistent) {
                 if (manager.getFeaturesManager() == null) {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALCLASSIC));
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
                 } else {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALENTERPRISE));
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALRESTARTABLE));
                 }
             }
         } else {
             switch (persistenceConfiguration.getStrategy()) {
                 case DISTRIBUTED:
-                case LOCALINMEMORY:
+                case NONE:
                     setDiskPersistent(false);
                     break;
-                case LOCALCLASSIC:
-                case LOCALENTERPRISE:
+                case LOCALTEMPSWAP:
+                case LOCALRESTARTABLE:
                     setDiskPersistent(true);
                     break;
                 default:
@@ -2216,6 +2225,10 @@ public class CacheConfiguration implements Cloneable {
             if (diskPersistent) {
                 throw new InvalidConfigurationException("diskPersistent isn't supported for a clustered Terracotta cache");
             }
+            if (persistenceConfiguration != null && !Strategy.DISTRIBUTED.equals(persistenceConfiguration.getStrategy())) {
+                throw new InvalidConfigurationException(persistenceConfiguration.getStrategy() +
+                        " persistence strategy isn't supported for a clustered Terracotta cache");
+            }
             if (cacheEventListenerConfigurations != null) {
                 for (CacheEventListenerFactoryConfiguration listenerConfig : cacheEventListenerConfigurations) {
                     if (null == listenerConfig.getFullyQualifiedClassPath()) {
@@ -2342,7 +2355,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public boolean isDiskPersistent() {
         return diskPersistent;
     }

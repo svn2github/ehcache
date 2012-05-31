@@ -58,9 +58,10 @@ public class SizeOfPolicyConfigurationElement extends SimpleNodeElement {
         if (sizeOfPolicyConfiguration == null) {
             return;
         }
-        addAttribute(new SimpleNodeAttribute("maxDepth", SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH).optional(true));
-        addAttribute(new SimpleNodeAttribute("maxDepthExceededBehavior",
-                SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR).optional(true));
+        addAttribute(new SimpleNodeAttribute("maxDepth", sizeOfPolicyConfiguration.getMaxDepth())
+            .optional(true).defaultValue(SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH));
+        addAttribute(new SimpleNodeAttribute("maxDepthExceededBehavior", sizeOfPolicyConfiguration.getMaxDepthExceededBehavior())
+            .optional(true).defaultValue(SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR));
     }
 
 }

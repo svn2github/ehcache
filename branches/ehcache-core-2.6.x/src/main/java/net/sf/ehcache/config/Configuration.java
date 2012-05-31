@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -488,7 +487,7 @@ public final class Configuration {
      * @return Original input for maxBytesLocalHeap
      */
     public String getMaxBytesLocalHeapAsString() {
-        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalHeap());
+        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : Long.toString(getMaxBytesLocalHeap());
     }
 
     private int parsePercentage(final String stringValue) {
@@ -561,7 +560,7 @@ public final class Configuration {
      * @return Original input for maxBytesLocalOffHeap
      */
     public String getMaxBytesLocalOffHeapAsString() {
-        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalOffHeap());
+        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : Long.toString(getMaxBytesLocalOffHeap());
     }
 
     private long getOffHeapLimit() {
@@ -637,7 +636,7 @@ public final class Configuration {
      * @return Original input for maxBytesLocalDisk
      */
     public String getMaxBytesLocalDiskAsString() {
-        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalDisk());
+        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : Long.toString(getMaxBytesLocalDisk());
     }
 
     /**
