@@ -26,6 +26,7 @@ public class CacheShutdownHook {
   public static final CacheShutdownHook INSTANCE         = new CacheShutdownHook();
 
   private final Set<Ehcache>            registeredCaches = new HashSet<Ehcache>();
+  private boolean                       shutdown         = false;
   private TerracottaClusterInfo         terracottaClusterInfo;
 
   // private constructor
@@ -33,34 +34,41 @@ public class CacheShutdownHook {
     //
   }
 
-  public void init() {
+  public synchronized void init() {
     Terracotta.registerBeforeShutdownHook(new Runnable() {
       public void run() {
         shutdownRegisteredCaches();
       }
     });
-    synchronized (this) {
-      if (terracottaClusterInfo == null) {
-        terracottaClusterInfo = new TerracottaClusterInfo();
-      }
+    if (terracottaClusterInfo == null) {
+      terracottaClusterInfo = new TerracottaClusterInfo();
     }
   }
 
   private synchronized void shutdownRegisteredCaches() {
-    debug("Shutting down registered ehcaches...");
-    if (terracottaClusterInfo.areOperationsEnabled()) {
-      for (Ehcache cache : registeredCaches) {
-        try {
-          if (!cache.isNodeCoherent()) {
-            debug("Setting cache coherent: " + cache.getName());
-            cache.setNodeCoherent(true);
+    if (!shutdown) {
+      shutdown = true;
+      debug("Shutting down registered ehcaches...");
+      if (terracottaClusterInfo.areOperationsEnabled()) {
+        for (Ehcache cache : registeredCaches) {
+          try {
+            if (!cache.isNodeCoherent()) {
+              debug("Setting cache coherent: " + cache.getName());
+              cache.setNodeCoherent(true);
+            }
+          } catch (NonStopCacheException e) {
+            debug("NonStopCacheException ignored, probably L2 is not reachable anymore - " + e.getMessage());
           }
-        } catch (NonStopCacheException e) {
-          debug("NonStopCacheException ignored, probably L2 is not reachable anymore - " + e.getMessage());
         }
       }
+      debug("Completed shutting down ehcaches.");
+    } else {
+      debug("CacheShutdownHook has already shut down. Ignoring subsequent request.");
     }
-    debug("Completed shutting down ehcaches.");
+  }
+
+  public void shutdown() {
+    shutdownRegisteredCaches();
   }
 
   /**

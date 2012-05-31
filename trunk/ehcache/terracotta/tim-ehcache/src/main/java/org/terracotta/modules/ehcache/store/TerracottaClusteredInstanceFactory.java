@@ -348,6 +348,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
       }
       registeredCacheManagers.clear();
     }
+    CacheShutdownHook.INSTANCE.shutdown();
   }
 
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
