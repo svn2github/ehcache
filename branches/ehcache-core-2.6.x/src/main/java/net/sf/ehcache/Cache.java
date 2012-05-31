@@ -3689,8 +3689,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public void setSampledStatisticsEnabled(final boolean enableStatistics) {
         if (cacheManager == null) {
-            throw new IllegalStateException(
-                "You must add the cache to a CacheManager before enabling/disabling sampled statistics.");
+            throw new IllegalStateException("You must add the cache to a CacheManager before enabling/disabling sampled statistics.");
         }
         boolean oldValue = isSampledStatisticsEnabled();
         if (oldValue != enableStatistics) {
@@ -3698,16 +3697,16 @@ public class Cache implements InternalEhcache, StoreListener {
                 ManagementRESTServiceConfiguration mgmtRESTConfigSvc = cacheManager.getConfiguration().getManagementRESTService();
                 if (mgmtRESTConfigSvc != null && mgmtRESTConfigSvc.isEnabled()) {
                     sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer(), mgmtRESTConfigSvc.makeSampledCounterConfig(),
-                        mgmtRESTConfigSvc.makeSampledGetRateCounterConfig(), mgmtRESTConfigSvc.makeSampledSearchRateCounterConfig());
+                            mgmtRESTConfigSvc.makeSampledGetRateCounterConfig(), mgmtRESTConfigSvc.makeSampledSearchRateCounterConfig());
+                } else {
+                    sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
+                }
+                setStatisticsEnabled(true);
             } else {
-                sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
+                sampledCacheStatistics.disableSampledStatistics();
             }
-            setStatisticsEnabled(true);
-        } else {
-            sampledCacheStatistics.disableSampledStatistics();
+            firePropertyChange("SampledStatisticsEnabled", oldValue, enableStatistics);
         }
-        firePropertyChange("SampledStatisticsEnabled", oldValue, enableStatistics);
-      }
     }
 
     /**
