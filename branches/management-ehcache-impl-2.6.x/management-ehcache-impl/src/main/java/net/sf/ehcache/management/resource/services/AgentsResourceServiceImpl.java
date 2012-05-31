@@ -2,6 +2,7 @@
 
 package net.sf.ehcache.management.resource.services;
 
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.terracotta.management.resource.AgentEntity;
@@ -27,15 +28,19 @@ import java.util.Set;
 @Path("/agents")
 public final class AgentsResourceServiceImpl implements AgentsResourceService {
   private final static Set<String> DFLT_ATTRS = new HashSet<String>(Arrays.asList(new String[]{"Name"}));
+
   private final EntityResourceFactory entityResourceFactory;
 
   private final RequestValidator validator;
+
+  private final ManagementRESTServiceConfiguration mgmtRESTSvcConfig;
 
   public AgentsResourceServiceImpl() {
     EntityResourceFactory.Locator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
     this.entityResourceFactory = entityRsrcFactoryLocator.locateEntityResourceFactory();
     RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
     this.validator = reqValidatorLocator.locateRequestValidator();
+    this.mgmtRESTSvcConfig = EmbeddedEhcacheServiceLocator.locator().locateRESTConfiguration();
   }
 
   /**
@@ -62,6 +67,10 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
     // Set the version from this package
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
+    ame.setSecured(mgmtRESTSvcConfig.isSslEnabled());
+    ame.setSslEnabled(mgmtRESTSvcConfig.isSslEnabled());
+    ame.setNeedClientAuth(mgmtRESTSvcConfig.isNeedClientAuth());
+    ame.setLicensed(EmbeddedEhcacheServiceLocator.locator().isLicensedLocator());
     return Collections.singleton(ame);
   }
 

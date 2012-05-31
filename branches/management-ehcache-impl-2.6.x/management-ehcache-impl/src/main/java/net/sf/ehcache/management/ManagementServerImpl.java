@@ -21,7 +21,7 @@ public final class ManagementServerImpl implements ManagementServer {
   public ManagementServerImpl(ManagementRESTServiceConfiguration configuration) {
     standaloneServer = new StandaloneServer();
     setupContainer(configuration);
-    loadEmbeddedAgentServiceLocator();
+    loadEmbeddedAgentServiceLocator(configuration);
     SamplerRepositoryService.Locator locator = EmbeddedEhcacheServiceLocator.locator();
     this.samplerRepoSvc = locator.locateSamplerRepositoryService();
   }
@@ -80,10 +80,10 @@ public final class ManagementServerImpl implements ManagementServer {
     standaloneServer.setPort(configuration.getPort());
   }
 
-  private void loadEmbeddedAgentServiceLocator() {
+  private void loadEmbeddedAgentServiceLocator(ManagementRESTServiceConfiguration configuration) {
     DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService();
     ServiceLocator.load(
-        new EmbeddedEhcacheServiceLocator(new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
-            samplerRepoSvc));
+        new EmbeddedEhcacheServiceLocator(true, new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
+            samplerRepoSvc, configuration));
   }
 }
