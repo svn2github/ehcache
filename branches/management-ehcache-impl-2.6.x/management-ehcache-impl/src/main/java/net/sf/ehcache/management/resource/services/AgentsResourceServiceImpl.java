@@ -68,8 +68,6 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
     ame.setSecured(mgmtRESTSvcConfig.isSslEnabled());
-    ame.setSslEnabled(mgmtRESTSvcConfig.isSslEnabled());
-    ame.setNeedClientAuth(mgmtRESTSvcConfig.isNeedClientAuth());
     ame.setLicensed(EmbeddedEhcacheServiceLocator.locator().isLicensedLocator());
     return Collections.singleton(ame);
   }
