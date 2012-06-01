@@ -11,5 +11,4 @@
     </web>
   </module>
 TOOLKIT_MODULE
-  <library-directory>lib</library-directory>
 </application>
