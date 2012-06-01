@@ -61,6 +61,8 @@ final class ObjectGraphWalker {
 
     private static final boolean USE_VERBOSE_DEBUG_LOGGING;
 
+    private static final int INITIAL_MAP_SIZE = 5000;
+
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
             new WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>>();
@@ -123,7 +125,10 @@ final class ObjectGraphWalker {
         boolean warned = false;
         try {
             Queue<Object> toVisit = new LinkedList<Object>();
-            IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>(5000); // 5000: avoid excessive Map resizing //TODO should we try to dynamically auto-adjust this value based on the classes of {@code root}?
+            
+            // avoid excessive Map resizing
+            // TODO should we try to dynamically auto-adjust this value based on the classes of {@code root}?
+            IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>(INITIAL_MAP_SIZE);
 
             if (root != null) {
                 if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
