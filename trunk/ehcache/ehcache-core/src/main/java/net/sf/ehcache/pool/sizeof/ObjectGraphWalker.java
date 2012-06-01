@@ -24,7 +24,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
-import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
@@ -121,8 +122,8 @@ final class ObjectGraphWalker {
         long result = 0;
         boolean warned = false;
         try {
-            Stack<Object> toVisit = new Stack<Object>();
-            IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>();
+            Queue<Object> toVisit = new LinkedList<Object>();
+            IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>(5000); // 5000: avoid excessive Map resizing //TODO should we try to dynamically auto-adjust this value based on the classes of {@code root}?
 
             if (root != null) {
                 if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
@@ -144,7 +145,7 @@ final class ObjectGraphWalker {
             while (!toVisit.isEmpty()) {
                 warned = checkMaxDepth(maxDepth, abortWhenMaxDepthExceeded, warned, visited);
 
-                Object ref = toVisit.pop();
+                Object ref = toVisit.remove();
 
                 if (visited.containsKey(ref)) {
                     continue;
@@ -248,9 +249,9 @@ final class ObjectGraphWalker {
         return cached.booleanValue();
     }
 
-    private static void nullSafeAdd(final Stack<Object> toVisit, final Object o) {
+    private static void nullSafeAdd(final Queue<Object> toVisit, final Object o) {
         if (o != null) {
-            toVisit.push(o);
+            toVisit.add(o);
         }
     }
 
