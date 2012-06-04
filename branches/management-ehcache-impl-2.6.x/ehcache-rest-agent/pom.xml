@@ -20,6 +20,12 @@
       <artifactId>management-ehcache-impl</artifactId>
       <version>${project.version}</version>      
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>7.6.4.v20120524</version>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
   
   <build>
