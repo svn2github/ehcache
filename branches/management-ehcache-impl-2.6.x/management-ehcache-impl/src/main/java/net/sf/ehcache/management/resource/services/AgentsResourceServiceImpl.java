@@ -9,6 +9,7 @@ import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.Representable;
 import org.terracotta.management.resource.services.AgentsResourceService;
+import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -67,7 +68,7 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
     // Set the version from this package
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
-    ame.setSecured(mgmtRESTSvcConfig.isSslEnabled());
+    ame.setSecured(Utils.trimToNull(mgmtRESTSvcConfig.getSecurityServiceLocation()) != null);
     ame.setLicensed(EmbeddedEhcacheServiceLocator.locator().isLicensedLocator());
     return Collections.singleton(ame);
   }
