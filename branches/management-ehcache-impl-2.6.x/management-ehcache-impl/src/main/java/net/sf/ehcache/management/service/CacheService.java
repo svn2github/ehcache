@@ -1,6 +1,7 @@
 package net.sf.ehcache.management.service;
 
 import net.sf.ehcache.management.resource.CacheEntity;
+import org.terracotta.management.ServiceExecutionException;
 
 /**
  * @author brandony
@@ -28,7 +29,7 @@ public interface CacheService {
    */
   void createOrUpdateCache(String cacheManagerName,
                            String cacheName,
-                           CacheEntity resource);
+                           CacheEntity resource) throws ServiceExecutionException;
 
   /**
    * Clears all the elements in the cache.
