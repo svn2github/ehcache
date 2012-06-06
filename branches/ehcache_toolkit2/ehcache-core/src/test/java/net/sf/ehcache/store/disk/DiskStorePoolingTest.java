@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class DiskStorePoolingTest {
 
-    private static final int ELEMENT_SIZE_ON_DISK = 298;
+    private static final int ELEMENT_SIZE_ON_DISK = 311;
     private static final int ITERATIONS = 100;
 
     private final static DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new CacheConfiguration()

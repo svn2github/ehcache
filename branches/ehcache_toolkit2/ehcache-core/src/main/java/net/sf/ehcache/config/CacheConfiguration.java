@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package net.sf.ehcache.config;
 
 import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +30,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.event.NotificationScope;
@@ -160,7 +160,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Default value for diskPersistent
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public static final boolean DEFAULT_DISK_PERSISTENT = false;
 
     /**
@@ -264,13 +267,11 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * For caches that overflow to disk, whether the disk cache persists between CacheManager instances.
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     protected volatile boolean diskPersistent = DEFAULT_DISK_PERSISTENT;
-
-    /**
-     * The path where the disk store is located
-     */
-    protected volatile String diskStorePath;
 
     /**
      * The size of the disk spool used to buffer writes
@@ -361,6 +362,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile boolean statistics = DEFAULT_STATISTICS;
     private volatile CopyStrategyConfiguration copyStrategyConfiguration = DEFAULT_COPY_STRATEGY_CONFIGURATION.copy();
     private volatile SizeOfPolicyConfiguration sizeOfPolicyConfiguration;
+    private volatile PersistenceConfiguration persistenceConfiguration;
     private volatile ElementValueComparatorConfiguration elementValueComparatorConfiguration =
         new ElementValueComparatorConfiguration();
     private volatile Boolean copyOnRead;
@@ -578,6 +580,27 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheConfiguration sizeOfPolicy(SizeOfPolicyConfiguration sizeOfPolicyConfiguration) {
         addSizeOfPolicy(sizeOfPolicyConfiguration);
+        return this;
+    }
+
+    /**
+     * Sets the PersistenceConfiguration for this cache.
+     *
+     * @param persistenceConfiguration the Persistence Configuration
+     */
+    public void addPersistence(PersistenceConfiguration persistenceConfiguration) {
+        this.persistenceConfiguration = persistenceConfiguration;
+    }
+
+    /**
+     * Builder to set the PersistenceConfiguration for this cache.
+     *
+     * @param persistenceConfiguration the Persistence Configuration
+     * @return this configuration instance
+     * @see #addPersistence(PersistenceConfiguration)
+     */
+    public CacheConfiguration persistence(PersistenceConfiguration persistenceConfiguration) {
+        addPersistence(persistenceConfiguration);
         return this;
     }
 
@@ -913,7 +936,9 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether the disk store persists between CacheManager instances. Note that this operates independently of {@link #overflowToDisk}.
      *
      * @param diskPersistent whether to persist the cache to disk between JVM restarts
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public final void setDiskPersistent(boolean diskPersistent) {
         checkDynamicChange();
         this.diskPersistent = diskPersistent;
@@ -926,7 +951,9 @@ public class CacheConfiguration implements Cloneable {
      * @param diskPersistent whether to persist the cache to disk between JVM restarts.
      * @return this configuration instance
      * @see #setDiskPersistent(boolean)
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public final CacheConfiguration diskPersistent(boolean diskPersistent) {
         setDiskPersistent(diskPersistent);
         return this;
@@ -1280,7 +1307,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalOffHeapAsString() {
-        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalOffHeap());
+        return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : Long.toString(getMaxBytesLocalOffHeap());
     }
 
     /**
@@ -1319,7 +1346,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalHeapAsString() {
-        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalHeap());
+        return maxBytesLocalHeapInput != null ? maxBytesLocalHeapInput : Long.toString(getMaxBytesLocalHeap());
     }
 
     /**
@@ -1381,7 +1408,7 @@ public class CacheConfiguration implements Cloneable {
      * @return value as string in bytes
      */
     public String getMaxBytesLocalDiskAsString() {
-        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : NumberFormat.getNumberInstance().format(getMaxBytesLocalDisk());
+        return maxBytesLocalDiskInput != null ? maxBytesLocalDiskInput : Long.toString(getMaxBytesLocalDisk());
     }
 
     /**
@@ -1542,16 +1569,44 @@ public class CacheConfiguration implements Cloneable {
             });
         }
 
+        consolidatePersistenceSettings(cacheManager);
+
         if (overflowToOffHeap == null && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
             overflowToOffHeap = true;
         }
-        if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
+        if ((persistenceConfiguration != null && Strategy.LOCALTEMPSWAP.equals(persistenceConfiguration.getStrategy())) ||
+                (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0)) {
             overflowToDisk = true;
         }
         warnMaxEntriesLocalHeap(register, cacheManager);
         warnMaxEntriesForOverflowToOffHeap(register);
         warnSizeOfPolicyConfiguration();
         freezePoolUsages(cacheManager);
+    }
+
+    private void consolidatePersistenceSettings(CacheManager manager) {
+        if (persistenceConfiguration == null) {
+            if (diskPersistent) {
+                if (manager.getFeaturesManager() == null) {
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+                } else {
+                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALRESTARTABLE));
+                }
+            }
+        } else {
+            switch (persistenceConfiguration.getStrategy()) {
+                case DISTRIBUTED:
+                case NONE:
+                    setDiskPersistent(false);
+                    break;
+                case LOCALTEMPSWAP:
+                case LOCALRESTARTABLE:
+                    setDiskPersistent(true);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     private void warnMaxEntriesForOverflowToOffHeap(final boolean register) {
@@ -1823,24 +1878,6 @@ public class CacheConfiguration implements Cloneable {
 
     private void validateTerracottaConfig(final Configuration configuration, final Collection<ConfigError> errors) {
         final TerracottaClientConfiguration clientConfiguration = configuration.getTerracottaConfiguration();
-        if (getTerracottaConfiguration().getStorageStrategy().equals(StorageStrategy.CLASSIC)) {
-            if (getTerracottaConfiguration().isNonstopEnabled()) {
-                errors.add(new CacheConfigError("NONSTOP can't be enabled with " + StorageStrategy.CLASSIC
-                    .name() + " strategy.", getName()));
-            }
-
-            if (clientConfiguration != null && clientConfiguration.isRejoin()) {
-                errors.add(new CacheConfigError("REJOIN can't be enabled with " + StorageStrategy.CLASSIC
-                    .name() + " strategy.", getName()));
-            }
-
-            if (getTerracottaConsistency().equals(Consistency.EVENTUAL)) {
-                errors.add(new CacheConfigError(Consistency.EVENTUAL
-                                                    .name() + " consistency can't be enabled with " + StorageStrategy.CLASSIC.name()
-                                                + " strategy.", getName()));
-            }
-        }
-
         if (clientConfiguration != null && clientConfiguration.isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
             errors.add(new CacheConfigError("Terracotta clustered caches must be nonstop when rejoin is enabled.", getName()));
         }
@@ -2188,6 +2225,10 @@ public class CacheConfiguration implements Cloneable {
             if (diskPersistent) {
                 throw new InvalidConfigurationException("diskPersistent isn't supported for a clustered Terracotta cache");
             }
+            if (persistenceConfiguration != null && !Strategy.DISTRIBUTED.equals(persistenceConfiguration.getStrategy())) {
+                throw new InvalidConfigurationException(persistenceConfiguration.getStrategy() +
+                        " persistence strategy isn't supported for a clustered Terracotta cache");
+            }
             if (cacheEventListenerConfigurations != null) {
                 for (CacheEventListenerFactoryConfiguration listenerConfig : cacheEventListenerConfigurations) {
                     if (null == listenerConfig.getFullyQualifiedClassPath()) {
@@ -2314,7 +2355,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
+     * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
+    @Deprecated
     public boolean isDiskPersistent() {
         return diskPersistent;
     }
@@ -2372,6 +2416,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public SizeOfPolicyConfiguration getSizeOfPolicyConfiguration() {
         return sizeOfPolicyConfiguration;
+    }
+
+    /**
+     * Accessor
+     *
+     * @return the persistence configuration for this cache.
+     */
+    public PersistenceConfiguration getPersistenceConfiguration() {
+        return persistenceConfiguration;
     }
 
     /**
@@ -2494,7 +2547,9 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      *
      * @return the StorageStrategy if Terracotta-clustered or null
+     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
      */
+    @Deprecated
     public StorageStrategy getTerracottaStorageStrategy() {
         return terracottaConfiguration != null ? terracottaConfiguration.getStorageStrategy() : null;
     }

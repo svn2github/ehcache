@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -58,9 +58,10 @@ public class SizeOfPolicyConfigurationElement extends SimpleNodeElement {
         if (sizeOfPolicyConfiguration == null) {
             return;
         }
-        addAttribute(new SimpleNodeAttribute("maxDepth", SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH).optional(true));
-        addAttribute(new SimpleNodeAttribute("maxDepthExceededBehavior",
-                SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR).optional(true));
+        addAttribute(new SimpleNodeAttribute("maxDepth", sizeOfPolicyConfiguration.getMaxDepth())
+            .optional(true).defaultValue(SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH));
+        addAttribute(new SimpleNodeAttribute("maxDepthExceededBehavior", sizeOfPolicyConfiguration.getMaxDepthExceededBehavior())
+            .optional(true).defaultValue(SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR));
     }
 
 }

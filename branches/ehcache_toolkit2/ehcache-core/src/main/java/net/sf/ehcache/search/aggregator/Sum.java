@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,6 +40,12 @@ public class Sum implements AggregatorInstance<Long> {
 
     /**
      * {@inheritDoc}
+     */
+    public Sum createClone() {
+        return new Sum(attribute);
+    }
+    /**
+     * {@inheritDoc}
      * <p/>
      * NOTE: null inputs are ignored
      */
@@ -50,9 +56,9 @@ public class Sum implements AggregatorInstance<Long> {
 
         if (input instanceof Number) {
             if (engine == null) {
-                engine = Engine.create((Number) input);
+                engine = Engine.create((Number)input);
             } else {
-                engine.accept((Number) input);
+                engine.accept((Number)input);
             }
         } else {
             throw new AggregatorException("Non-number type encounted: " + input.getClass());

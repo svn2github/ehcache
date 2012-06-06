@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.store.Store;
 
 import org.slf4j.Logger;
@@ -193,8 +192,7 @@ public class NonstopTestUtil extends TestCase {
     public static Cache getMockTerracottaStore(Store mockTerracottaStore, NonstopConfiguration nonstopConfiguration) {
         CacheManager cacheManager = mock(CacheManager.class);
         CacheConfiguration cacheConfiguration = new CacheConfiguration("someName", 10000);
-        TerracottaConfiguration terracottaConfiguration = new TerracottaConfiguration().clustered(true).storageStrategy(
-                StorageStrategy.DCV2);
+        TerracottaConfiguration terracottaConfiguration = new TerracottaConfiguration().clustered(true);
         terracottaConfiguration.addNonstop(nonstopConfiguration);
         cacheConfiguration.addTerracotta(terracottaConfiguration);
         Searchable searchable = new Searchable();

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package net.sf.ehcache.constructs.nonstop.concurrency;
 
 import java.util.LinkedList;
 
+import net.sf.ehcache.util.lang.VicariousThreadLocal;
+
 /**
  * A class that maintains a thread local to keep track of any explicit locks acquired by the app thread
  *
@@ -26,7 +28,7 @@ import java.util.LinkedList;
  */
 public final class ExplicitLockingContextThreadLocal {
 
-    private final ThreadLocal<ExplicitLockingContext> contextThreadLocal = new ThreadLocal<ExplicitLockingContext>() {
+    private final VicariousThreadLocal<ExplicitLockingContext> contextThreadLocal = new VicariousThreadLocal<ExplicitLockingContext>() {
         @Override
         protected ExplicitLockingContextImpl initialValue() {
             return new ExplicitLockingContextImpl();

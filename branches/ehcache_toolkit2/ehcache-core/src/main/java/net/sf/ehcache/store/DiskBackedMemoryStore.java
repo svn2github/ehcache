@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.disk.DiskStore;
 
 import java.io.Serializable;
@@ -31,8 +32,9 @@ import java.io.Serializable;
  */
 public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskStore> {
 
-    private DiskBackedMemoryStore(CacheConfiguration cacheConfiguration, MemoryStore cache, DiskStore authority) {
-        super(cache, authority, cacheConfiguration.getCopyStrategy(), cacheConfiguration.isCopyOnWrite(), cacheConfiguration.isCopyOnRead());
+    private DiskBackedMemoryStore(CacheConfiguration cacheConfiguration, MemoryStore cache, DiskStore authority, SearchManager searchManager) {
+        super(cache, authority, cacheConfiguration.getCopyStrategy(), searchManager,
+              cacheConfiguration.isCopyOnWrite(), cacheConfiguration.isCopyOnRead());
     }
 
     /**
@@ -46,7 +48,7 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
         final MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
         DiskStore diskStore = createDiskStore(cache, onHeapPool, onDiskPool);
 
-        return new DiskBackedMemoryStore(cache.getCacheConfiguration(), memoryStore, diskStore);
+        return new DiskBackedMemoryStore(cache.getCacheConfiguration(), memoryStore, diskStore, null);
     }
 
     private static MemoryStore createMemoryStore(Ehcache cache, Pool onHeapPool) {
@@ -55,7 +57,7 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
 
     private static DiskStore createDiskStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         CacheConfiguration config = cache.getCacheConfiguration();
-        if (config.isDiskPersistent() || config.isOverflowToDisk()) {
+        if (config.isOverflowToDisk()) {
             return DiskStore.create(cache, onHeapPool, onDiskPool);
         } else {
             throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");

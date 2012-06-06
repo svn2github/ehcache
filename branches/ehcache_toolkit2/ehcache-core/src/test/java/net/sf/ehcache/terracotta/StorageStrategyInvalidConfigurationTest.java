@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package net.sf.ehcache.terracotta;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -52,19 +50,7 @@ public class StorageStrategyInvalidConfigurationTest extends TestCase {
         } catch (InvalidConfigurationException e) {
             LOG.info("Caught expected exception: " + e);
 
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache1' error: NONSTOP can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache1' error: REJOIN can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache1' error: EVENTUAL consistency can't be enabled with CLASSIC strategy."));
-
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache2' error: NONSTOP can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache2' error: REJOIN can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache2' error: EVENTUAL consistency can't be enabled with CLASSIC strategy."));
-
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: REJOIN can't be enabled with CLASSIC strategy."));
-            Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: EVENTUAL consistency can't be enabled with CLASSIC strategy."));
             Assert.assertTrue(e.getMessage().contains("Cache 'cache3' error: Terracotta clustered caches must be nonstop when rejoin is enabled."));
-
-            Assert.assertEquals(12, Pattern.compile("$", Pattern.MULTILINE).split(e.getMessage()).length);
         }
     }
 }

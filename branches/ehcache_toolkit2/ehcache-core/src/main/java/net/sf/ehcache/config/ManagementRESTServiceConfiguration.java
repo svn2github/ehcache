@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,14 +29,23 @@ public class ManagementRESTServiceConfiguration {
     /**
      * Default bind value.
      */
-    public static final String DEFAULT_BIND = "0.0.0.0:9889";
+    public static final String DEFAULT_BIND = "0.0.0.0:9888";
+
+    /**
+     * Default timeout for the connection to the configured security service
+     */
+    public static final int DEFAULT_SECURITY_SVC_TIMEOUT = 5 * 1000;
 
     private volatile boolean enabled = false;
+    private volatile String securityServiceLocation;
+    private volatile boolean sslEnabled;
+    private volatile boolean needClientAuth;
+    private volatile int securityServiceTimeout = DEFAULT_SECURITY_SVC_TIMEOUT;
     private volatile String bind = DEFAULT_BIND;
 
     private volatile int sampleHistorySize = CacheStatisticsSampler.DEFAULT_HISTORY_SIZE;
     private volatile int sampleIntervalSeconds = CacheStatisticsSampler.DEFAULT_INTERVAL_SECS;
-    private volatile int sampleSearchInterval = CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC;
+    private volatile int sampleSearchIntervalSeconds = CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC;
 
     /**
      * Check if the REST services should be enabled or not.
@@ -52,6 +61,51 @@ public class ManagementRESTServiceConfiguration {
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    /**
+     * Returns the security service location required for trusted identity assertion to the embedded REST management
+     * service.  This feature is only available with an enterprise license.
+     * <p/>
+     * If this value is set, then this service will require secure dialog with the TMS or other 3rd party REST client
+     * implementations. The service furnished by the enterprise version of the TMC is located is provided at /api/assertIdentity.
+     *
+     *
+     * @return a string representing the URL of the security service.
+     */
+    public String getSecurityServiceLocation() {
+        return securityServiceLocation;
+    }
+
+    /**
+     * Sets the security service location required for trusted identity assertion to the embedded REST management
+     * service.  This feature is only available with an enterprise license.
+     * <p/>
+     * If this value is set, then this service will require secure dialog with the TMS or other 3rd party REST client
+     * implementations. The service furnished by the enterprise version of the TMC is located is provided at /api/assertIdentity.
+     *
+     * @param securityServiceURL a string representing the URL of the security service.
+     */
+    public void setSecurityServiceLocation(String securityServiceURL) {
+        this.securityServiceLocation = securityServiceURL;
+    }
+
+    /**
+     * Returns the connection/read timeout value for the security service in milliseconds.
+     *
+     * @return security service timeout
+     */
+    public int getSecurityServiceTimeout() {
+        return securityServiceTimeout;
+    }
+
+    /**
+     * Sets the connection/read timeout value for the security service in milliseconds.
+     *
+     * @param securityServiceTimeout milliseconds to timeout
+     */
+    public void setSecurityServiceTimeout(int securityServiceTimeout) {
+        this.securityServiceTimeout = securityServiceTimeout;
     }
 
     /**
@@ -87,6 +141,48 @@ public class ManagementRESTServiceConfiguration {
             throw new IllegalArgumentException("invalid bind format (should be IP:port)");
         }
         return Integer.parseInt(split[1]);
+    }
+
+    /**
+     * Indicates whether or not the embedded agent should enabled ssl.
+     *
+     * @return true if ssl should be enabled, false if not.
+     */
+    public boolean isSslEnabled() {
+        return sslEnabled;
+    }
+
+    /**
+     * Set ssl indicator for this embedded agent.
+     *
+     * @param sslEnabled boolean to indicate ssl status.
+     */
+    public void setSslEnabled(boolean sslEnabled) {
+        this.sslEnabled = sslEnabled;
+    }
+
+    /**
+     * Indicates whether or not the embedded agent should require ssl client certificate authorization.  This
+     * configuration setting is only relevant if ssl is enabled.
+     *
+     * @see #isSslEnabled()
+     *
+     * @return true if ssl client certificate authorization should be required, false if not.
+     */
+    public boolean isNeedClientAuth() {
+      return needClientAuth;
+    }
+
+    /**
+     * Set ssl client certificate authorization required setting. This configuration setting is only relevant if ssl
+     * is enabled.
+     *
+     * @see #setSslEnabled(boolean)
+     *
+     * @param needClientAuth
+     */
+    public void setNeedClientAuth(boolean needClientAuth) {
+      this.needClientAuth = needClientAuth;
     }
 
     /**
@@ -139,7 +235,7 @@ public class ManagementRESTServiceConfiguration {
      * @return the sample search interval in seconds
      */
     public int getSampleSearchIntervalSeconds() {
-        return sampleSearchInterval;
+        return sampleSearchIntervalSeconds;
     }
 
     /**
@@ -148,7 +244,7 @@ public class ManagementRESTServiceConfiguration {
      * @param sampleSearchInterval to set
      */
     public void setSampleSearchIntervalSeconds(final int sampleSearchInterval) {
-        this.sampleSearchInterval = sampleSearchInterval;
+        this.sampleSearchIntervalSeconds = sampleSearchInterval;
     }
 
     /**

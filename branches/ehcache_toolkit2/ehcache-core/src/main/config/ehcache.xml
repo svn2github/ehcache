@@ -64,6 +64,61 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
          dynamicConfig="true">
 
     <!--
+    Management Rest Service configuration
+    =====================================
+    
+    The managementRESTService element is optional.  By default the REST service that exposes monitoring and
+    management features for the caches within the cache manager is disabled.  Enabling this feature will
+    affect cache performance.
+    
+    To meaningfully use this REST monitoring feature, you should also set statistics="true" on caches.
+
+    The 'bind' attribute defaults to "0.0.0.0:9888" and sets the IP Address and Port to bind the web service
+    to.  "0.0.0.0" binds to all local addresses / network interfaces.
+
+    If you provide the 'securityServiceLocation' attribute, this will also enable authentication and other
+    security measures on the REST service - which are only available for the enterprise-edition of the
+    service.  The location should be the URL to the Terracotta Management Server that is being used to
+    manage the ehcache instance. Enabling security requires that the management REST service be provided with
+    a terracotta keychain in the default location ${user.home}/.tc/mgmt/keychain or as defined by the system property
+    com.tc.management.keychain.file. The keychain is expected to hold a secret shared by the management client
+    and keyed with this REST service's URI.
+
+    Related to the the enterprise-edition security setup is the 'securityServiceTimeout' attribute. Setting this
+    value will allow adjustment of the connection timeout to the security service location. The default value is
+    5000 millis.
+
+    If the 'sslEnabled' attribute is set to true, this will enable a non-blocking ssl connection to the management
+    REST service. Turning this ssl connection on requires an identity store be provided at the default location
+    ${user.home}/.tc/mgmt/keystore and that the JKS passphrase be included in the REST service keychain, keyed with
+    the identity store file URI, or that the keystore and passphrase be identified with the ssl system properties
+    javax.net.ssl.keyStore and javax.net.ssl.keyStorePassword.
+
+    The 'needClientAuth' attribute requires ssl client certificate authorization if the 'sslEnabled' attribute has been
+    set to true. Otherwise, it will be ignored.  Setting this attribute to true will require that the client's
+    identity is imported as trusted into a truststore which is provided in the default location
+    ${user.home}/.tc/mgmt/keystore and that the JKS passphrase be included in the REST service keychain, keyed with
+    the trust store file URI, or that the truststore and passphrase be identified with the ssl system properties
+    javax.net.ssl.trustStore and javax.net.ssl.trustStorePassword.
+
+    Finally, several attributes exist to configure sampling history.
+
+    - 'sampleHistorySize' allows the configuration of how many statistical samples will be kept in memory for
+    each cache. The default value is set to 30.
+    - 'sampleIntervalSeconds' allows the configuration of how often cache statistics will be obtained in seconds.
+    The default value is set to 1 second.
+    - 'sampleSearchIntervalSeconds' allows the configuration of how often cache seach statistics will be obtained in
+    seconds. The default value is set to 10 seconds.
+
+    examples:
+    
+    <managementRESTService enabled="true" bind="0.0.0.0:9888" />
+
+    <managementRESTService enabled="true" securityServiceLocation="http://localhost:9889/tmc/api/assertIdentity"  />
+    
+     -->
+    
+    <!--
     DiskStore configuration
     =======================
 
@@ -920,10 +975,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
       Map being used underneath the store.
 
       This value cannot be changed programmatically once a cache is initialized.
-
-    * storageStrategy=classic|DCV2 - What storage implementation to use. From Ehcache 2.4, the default is DCV2
-      ("Distributed Cache Version 2"). The key functional difference is that DCV2 does not consume local memory
-      for key storage.
 
     The <terracotta> sub-element also has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
     cache operation cannot be completed within a set time or in the event of a clusterOffline message. If this element does not appear, nonstop behavior is off.

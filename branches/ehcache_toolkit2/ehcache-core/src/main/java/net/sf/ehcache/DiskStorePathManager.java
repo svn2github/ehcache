@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -178,37 +178,38 @@ public final class DiskStorePathManager {
                 throw new CacheException("Failed to release disk store path's lock file:" + lockFile, e);
             }
         }
+        if (diskStorePath.getName().startsWith(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            if (diskStorePath.delete()) {
+                LOG.debug("Deleted directory " + diskStorePath.getName());
+            }
+        }
     }
 
     /**
-     * Legacy way of creating an index file
+     * Get a file object for the given cache-name and suffix
      *
-     * @param cacheName
-     * @return
+     * @param cacheName the cache name
+     * @param suffix a file suffix
+     * @return a file object
      */
-    public File getIndexFile(String cacheName) {
-        return new File(diskStorePath, safeName(cacheName) + ".index");
+    public File getFile(String cacheName, String suffix) {
+        return getFile(safeName(cacheName) + suffix);
     }
 
     /**
-     * Legacy way of creating a data file
+     * Get a file object for the given name
      *
-     * @param cacheName
-     * @return
+     * @param name the file name
+     * @return a file object
      */
-    public File getDataFile(String cacheName) {
-        return new File(diskStorePath, safeName(cacheName) + ".data");
-    }
-
-    /**
-     * Create snapshots file. Used by RotatingSnapshotFile
-     *
-     * @param cacheName
-     * @param suffix
-     * @return
-     */
-    public File getSnapshotFile(String cacheName, String suffix) {
-        return new File(diskStorePath, safeName(cacheName) + suffix);
+    public File getFile(String name) {
+        File file = new File(diskStorePath, name);
+        for (File parent = file.getParentFile(); parent != null; parent = parent.getParentFile()) {
+            if (diskStorePath.equals(parent)) {
+                return file;
+            }
+        }
+        throw new IllegalArgumentException("Attempted to access file outside the disk-store path");
     }
 
     /**
@@ -233,4 +234,5 @@ public final class DiskStorePathManager {
             super(message);
         }
     }
+
 }

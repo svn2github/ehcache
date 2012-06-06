@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public final class NotifyingMemoryStore extends MemoryStore {
      * @param pool  the pool tracking the on-heap usage
      */
     private NotifyingMemoryStore(final Ehcache cache, Pool pool) {
-        super(cache, pool, true);
+        super(cache, pool, true, new BasicBackingFactory());
         this.cache = cache;
     }
 

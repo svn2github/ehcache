@@ -55,6 +55,8 @@
     <suppress checks="NPathComplexity" files="ConfigurationElement.java"/>
     <suppress checks="FinalClass" files="TerracottaClusteredInstanceHelper.java"/>
     <suppress checks="UnusedImports" files="Ehcache.java"/>
+    <suppress checks="CyclomaticComplexity" files="BaseQueryInterpreter.java"/>
+    <suppress checks="ReturnCount" files="BaseQueryInterpreter.java"/>
 
     <suppress checks="DeclarationOrder" files="TimeoutBehaviorConfiguration.java"/>
     <suppress checks="DeclarationOrder" files="TerracottaClusteredInstanceHelper.java"/>
@@ -84,6 +86,10 @@
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStorageFactory.java"/>
     <suppress checks="ClassFanOutComplexity" files="DiskStorageFactory.java"/>
     <suppress checks="ExecutableStatementCount" files="DiskStorageFactory.java"/>
+
+    <!-- Configuration schema is complex enough that the bean approach blows out the complexity metrics -->
+    <suppress checks="ClassFanOutComplexity" files="CacheConfiguration.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheConfiguration.java"/>
 
     <!-- A candidate, maybe... if you know what you do -->
     <suppress checks="NestedIfDepth" files="SlewClock.java"/>

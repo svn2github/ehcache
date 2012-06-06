@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,16 +16,15 @@
 
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.CacheManager;
 
 /**
  * Interface implemented by management servers.
  *
- * @param <MANAGED> the type to be managed by this {@code ManagementServer}
- *
  * @author Ludovic Orban
+ * @author brandony
  */
-public interface ManagementServer<MANAGED> {
+public interface ManagementServer {
 
     /**
      * Start the management server
@@ -38,25 +37,18 @@ public interface ManagementServer<MANAGED> {
     public void stop();
 
     /**
-     * Configure the management server
-     *
-     * @param configuration the configuration
-     */
-    public void setConfiguration(ManagementRESTServiceConfiguration configuration);
-
-    /**
      * Puts the submitted resource under the purview of this {@code ManagementServer}.
      *
      * @param managedResource the resource to be managed
      */
-    public void register(MANAGED managedResource);
+    public void register(CacheManager managedResource);
 
     /**
      * Removes the submitted resource under the purview of this {@code ManagementServer}.
      *
      * @param managedResource the resource to be managed
      */
-    public void unregister(MANAGED managedResource);
+    public void unregister(CacheManager managedResource);
 
     /**
      * Returns true if this {@code ManagementServer} has any resources registered.

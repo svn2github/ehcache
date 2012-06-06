@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,12 +29,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -158,6 +160,22 @@ public final class ConfigurationFactory {
         }
         configuration.setSource(ConfigurationSource.getConfigurationSource(inputStream));
         return configuration;
+    }
+
+    /**
+     * Configures a cache bean from a string of XML.
+     */
+    public static CacheConfiguration parseCacheConfiguration(String xmlString) throws CacheException {
+        CacheConfiguration cacheConfiguration = new CacheConfiguration();
+        try {
+            InputSource source = new InputSource(new StringReader(xmlString));
+            final SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            final BeanHandler handler = new BeanHandler(cacheConfiguration);
+            parser.parse(source, handler);
+        } catch (Exception e) {
+            throw new CacheException("Error configuring from input stream. Initial cause was " + e.getMessage(), e);
+        }
+        return cacheConfiguration;
     }
 
     /**

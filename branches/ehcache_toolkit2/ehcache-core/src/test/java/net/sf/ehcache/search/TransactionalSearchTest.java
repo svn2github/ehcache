@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,9 +21,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.transaction.TransactionManager;
@@ -38,6 +42,7 @@ import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
 import net.sf.ehcache.search.Person.Gender;
+import net.sf.ehcache.search.impl.GroupedResultImpl;
 
 import org.junit.After;
 import org.junit.Before;
@@ -280,5 +285,105 @@ public class TransactionalSearchTest {
                 throw new AssertionError("unexpected key: " + key);
             }
         }
+    }
+
+    @Test
+    public void testBasicGroupBy() throws Exception {
+        CacheConfiguration config = getBaseCacheConfiguration();
+        config.searchable(new Searchable().
+                searchAttribute(new SearchAttribute().name("age")).
+                searchAttribute(new SearchAttribute().name("gender")).
+                searchAttribute(new SearchAttribute().name("name")).
+                searchAttribute(new SearchAttribute().name("department")));
+        CacheManager cacheManager = new CacheManager();
+        Ehcache cache = new Cache(config);
+        cacheManager.addCache(cache);
+        assertTrue(cache.isSearchable());
+
+        int numOfDepts = 10;
+        int numOfMalesPerDept = 100;
+        int numOfFemalesPerDept = 100;
+
+        beginTransaction(cacheManager);
+        for (int i = 0; i < numOfDepts; i++) {
+            for (int j = 0; j < numOfMalesPerDept; j++) {
+                cache.put(new Element("male" + i + "-" + j, new Person("male" + j, j, Gender.MALE, "department" + i)));
+            }
+
+            for (int j = 0; j < numOfFemalesPerDept; j++) {
+                cache.put(new Element("female" + i + "-" + j, new Person("female" + j, j, Gender.FEMALE, "department" + i)));
+            }
+        }
+
+        commitTransaction(cacheManager);
+
+        Query query;
+        Results results;
+
+        query = cache.createQuery();
+        query.includeAttribute(cache.getSearchAttribute("department"));
+        query.includeAttribute(cache.getSearchAttribute("gender"));
+        query.includeAggregator(cache.getSearchAttribute("age").sum());
+        query.includeAggregator(cache.getSearchAttribute("age").min());
+        query.includeAggregator(cache.getSearchAttribute("age").max());
+        query.addGroupBy(cache.getSearchAttribute("department"));
+        query.addOrderBy(cache.getSearchAttribute("department"), Direction.DESCENDING);
+        query.addOrderBy(cache.getSearchAttribute("gender"), Direction.ASCENDING);
+        query.addGroupBy(cache.getSearchAttribute("gender"));
+        query.end();
+
+        results = query.execute();
+
+        assertEquals(numOfDepts * 2, results.size());
+
+        int i = 1;
+        for (Iterator<Result> iter = results.all().iterator(); iter.hasNext();) {
+            Result maleResult = iter.next();
+            Method getUnderylingResult = maleResult.getClass().getDeclaredMethod("getUnderylingResult");
+            getUnderylingResult.setAccessible(true);
+            maleResult = (Result) getUnderylingResult.invoke(maleResult);
+
+            System.out.println("XXXXXXXXX: " + maleResult);
+            assertTrue(maleResult instanceof GroupedResultImpl);
+            assertEquals("department" + (numOfDepts - i), maleResult.getAttribute(cache.getSearchAttribute("department")));
+            assertEquals(Gender.MALE, maleResult.getAttribute(cache.getSearchAttribute("gender")));
+
+            Map<String, Object> groupByValues = ((GroupedResultImpl) maleResult).getGroupByValues();
+            assertEquals(2, groupByValues.size());
+            assertEquals("department" + (numOfDepts - i), groupByValues.get("department"));
+            assertEquals(Gender.MALE, groupByValues.get("gender"));
+
+            List aggregateResults = maleResult.getAggregatorResults();
+            assertEquals(3, aggregateResults.size());
+            assertEquals(numOfMalesPerDept * (numOfMalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
+            assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
+            assertEquals(numOfMalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
+
+            Result femaleResult = iter.next();
+            getUnderylingResult = femaleResult.getClass().getDeclaredMethod("getUnderylingResult");
+            getUnderylingResult.setAccessible(true);
+            femaleResult = (Result) getUnderylingResult.invoke(femaleResult);
+            System.out.println("XXXXXXXXX: " + femaleResult);
+
+            assertEquals("department" + (numOfDepts - i), femaleResult.getAttribute(cache.getSearchAttribute("department")));
+            assertEquals(Gender.FEMALE, femaleResult.getAttribute(cache.getSearchAttribute("gender")));
+
+            assertTrue(femaleResult instanceof GroupedResultImpl);
+            groupByValues = ((GroupedResultImpl) femaleResult).getGroupByValues();
+            assertEquals(2, groupByValues.size());
+            assertEquals("department" + (numOfDepts - i), groupByValues.get("department"));
+            assertEquals(Gender.FEMALE, groupByValues.get("gender"));
+
+            aggregateResults = femaleResult.getAggregatorResults();
+            assertEquals(3, aggregateResults.size());
+            assertEquals(numOfFemalesPerDept * (numOfFemalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
+            assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
+            assertEquals(numOfFemalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
+
+            i++;
+        }
+
+        cacheManager.shutdown();
+
     }
 }

@@ -18,9 +18,11 @@ import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploy
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
 import com.tc.test.server.appserver.deployment.WARBuilder;
 import com.tc.test.server.appserver.deployment.WebApplicationServer;
+import com.tc.util.Grep;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.transaction.Transaction;
 
@@ -119,6 +121,21 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
     public final void tearDown() throws Exception {
       super.tearDown();
       derbyServer.shutdown();
+      
+      // DEV-6593
+      if (this.isConfiguredToRunWithAppServer()) {
+        File server0Log = new File(getServerManager().getTempDir(), "sandbox/server_0.log");
+        if (appServerInfo().getId() == AppServerInfo.WEBSPHERE) {
+          server0Log = new File(getServerManager().getTempDir(), "sandbox/server_0/logs/server1/SystemErr.log");
+        }
+        System.out.println("XXX: server_0.log: " + server0Log);
+        List<CharSequence> lines = Grep.grep("java.lang.NullPointerException", server0Log);
+        if (lines.size() > 0) { throw new Exception("Detected NPE in app server log: " + server0Log); }
+      }
+    }
+
+    protected boolean isConfiguredToRunWithAppServer() {
+      return !"unknown".equals(appServerInfo().getName());
     }
 
     protected abstract void customizeWar(DeploymentBuilder builder);

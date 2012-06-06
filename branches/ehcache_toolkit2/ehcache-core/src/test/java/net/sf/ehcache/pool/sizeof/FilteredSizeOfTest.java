@@ -8,6 +8,7 @@ import java.net.URLClassLoader;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.pool.sizeof.annotationfiltered.AnnotationFilteredPackage;
+import net.sf.ehcache.pool.sizeof.annotationfiltered.custom.CustomAnnotationFilteredPackage;
 import net.sf.ehcache.pool.sizeof.filter.AnnotationSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
@@ -57,6 +58,24 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
         assertThat(deepSizeOf(sizeOf, new Child()), equalTo(0L));
         assertThat(deepSizeOf(sizeOf, new ChildChild()), equalTo(0L));
         assertThat(deepSizeOf(sizeOf, new ChildChildChild()), equalTo(0L));
+    }
+
+    @Test
+    public void testCustomAnnotationFiltering() throws Exception {
+        SizeOf sizeOf = new CrossCheckingSizeOf(new AnnotationSizeOfFilter());
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternOrNotAnnotationFilteredField()), allOf(greaterThan(128L), lessThan(16 * 1024L)));
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotation()), equalTo(0L));
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationChild()), equalTo(0L));
+        assertThat(deepSizeOf(sizeOf, new MatchingPatternAnnotationNoInheritedChild()), allOf(greaterThan(4L)));
+        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation1()), allOf(greaterThan(4L)));
+        assertThat(deepSizeOf(sizeOf, new NonMatchingPatternAnnotation2()), allOf(greaterThan(4L)));
+        assertThat(deepSizeOf(sizeOf, new CustomAnnotationFilteredPackage()), equalTo(0L));
+    }
+        
+    @Test(expected=IllegalStateException.class)
+    public void testNotPossibleToHaveTwoIgnoreSizeOfAnnotations() throws Exception {
+        SizeOf sizeOf = new CrossCheckingSizeOf(new AnnotationSizeOfFilter());
+        deepSizeOf(sizeOf, new AnnotatedTwice());
     }
 
     @Test
@@ -189,6 +208,40 @@ public class FilteredSizeOfTest extends AbstractSizeOfTest {
     }
 
     public static class ChildChildChild extends ChildChild {
+    }
+
+    @com.terracotta.ehcache.special.annotation.IgnoreSizeOf(inherited=true)
+    public static class MatchingPatternAnnotation {
+    }
+
+    public static class MatchingPatternAnnotationChild extends MatchingPatternAnnotation{
+    }
+
+    @com.terracotta.ehcache.special.annotation.no.inherited.IgnoreSizeOf
+    public static class MatchingPatternAnnotationNoInherited {
+    }
+
+    public static class MatchingPatternAnnotationNoInheritedChild extends MatchingPatternAnnotationNoInherited{
+    }
+
+    @com.terracotta.ehcache.special.annotation.IgnoreSizeOffff
+    public static class NonMatchingPatternAnnotation1 {
+    }
+
+    @com.terracotta.special.annotation.IgnoreSizeOf
+    public static class NonMatchingPatternAnnotation2 {
+    }
+
+    @com.terracotta.ehcache.special.annotation.IgnoreSizeOf
+    @IgnoreSizeOf
+    public static class AnnotatedTwice {
+    }
+
+    public static class MatchingPatternOrNotAnnotationFilteredField {
+        @com.terracotta.ehcache.special.annotation.IgnoreSizeOf
+        private final byte[] matchingBigArray = new byte[16 * 1024];
+        @com.terracotta.special.annotation.IgnoreSizeOf
+        private final byte[] nonMatchingSmallArray = new byte[128];
     }
 
     public static class ResourceFilteredField {

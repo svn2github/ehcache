@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -163,5 +163,12 @@ public abstract class BaseResult implements Result {
         return sb.toString();
     }
 
+    /**
+     * Get attribute value for use in sorting
+     *
+     * @param pos
+     * @return
+     */
+    abstract Object getSortAttribute(int pos);
 
 }

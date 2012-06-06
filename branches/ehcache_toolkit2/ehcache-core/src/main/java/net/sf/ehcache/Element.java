@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -59,6 +59,8 @@ public class Element implements Serializable, Cloneable {
 
     private static final boolean ELEMENT_VERSION_AUTO = Boolean.getBoolean("net.sf.ehcache.element.version.auto");
 
+    private static final long NOT_SET_ID = 0;
+
     static {
         if (ELEMENT_VERSION_AUTO) {
             LOG.warn("Note that net.sf.ehcache.element.version.auto is set and user provided version will not be honored");
@@ -110,6 +112,8 @@ public class Element implements Serializable, Cloneable {
     private volatile long lastUpdateTime;
 
     private volatile boolean cacheDefaultLifespan = true;
+
+    private volatile long id = NOT_SET_ID;
 
     /**
      * A full constructor.
@@ -355,6 +359,40 @@ public class Element implements Serializable, Cloneable {
      */
     public final void setVersion(final long version) {
         this.version = version;
+    }
+
+    /**
+     * Sets the element identifier (this field is used internally by ehcache). Setting this field in application code will not be preserved
+     *
+     * @param id The new id value
+     */
+    void setId(final long id) {
+        if (id == NOT_SET_ID) {
+            throw new IllegalArgumentException("Id cannot be set to " + id);
+        }
+        this.id = id;
+    }
+
+    /**
+     * Gets the element identifier (this field is used internally by ehcache)
+     *
+     * @return id the id
+     */
+    long getId() {
+        final long v = id;
+        if (v == NOT_SET_ID) {
+            throw new IllegalStateException("Id not set");
+        }
+        return v;
+    }
+
+    /**
+     * Determines if an Id has been set on this element
+     *
+     * @return true if this element has an Id
+     */
+    boolean hasId() {
+        return id != NOT_SET_ID;
     }
 
     /**

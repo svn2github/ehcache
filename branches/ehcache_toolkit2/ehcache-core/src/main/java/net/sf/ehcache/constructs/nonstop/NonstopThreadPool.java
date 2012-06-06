@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.sf.ehcache.util.lang.VicariousThreadLocal;
+
 /**
  * A thread pool that creates another thread pool per requesting thread.
  *
@@ -46,7 +48,7 @@ public class NonstopThreadPool {
     private final Object workersLock = new Object();
     private final AtomicReference<State> state = new AtomicReference<State>(State.RUNNING);
     private final ReferenceQueue<Thread> gcedThreadsReferenceQueue = new ReferenceQueue<Thread>();
-    private final ThreadLocal<WorkerThreadLocal> workerThreadLocal = new ThreadLocal<WorkerThreadLocal>() {
+    private final VicariousThreadLocal<WorkerThreadLocal> workerThreadLocal = new VicariousThreadLocal<WorkerThreadLocal>() {
         @Override
         protected WorkerThreadLocal initialValue() {
             synchronized (workersLock) {

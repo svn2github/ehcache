@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,9 +17,16 @@
 package net.sf.ehcache.pool.sizeof.filter;
 
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
+import java.lang.annotation.Annotation;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Filter that will filter fields, based on the {@link IgnoreSizeOf} annotation
@@ -28,12 +35,45 @@ import java.util.Iterator;
  */
 public final class AnnotationSizeOfFilter implements SizeOfFilter {
 
+
+    private static final String IGNORE_SIZE_OF_VM_ARGUMENT = "net.sf.ehcache.pool.sizeof.ignore.pattern";
+
+    private static final Logger LOG = LoggerFactory.getLogger(AnnotationSizeOfFilter.class.getName());
+
+    //default is *ehcache.*IgnoreSizeOf
+    private static final String IGNORE_SIZE_OF_DEFAULT_REGEXP = "^.*ehcache\\..*IgnoreSizeOf$";
+    private static final Pattern IGNORE_SIZE_OF_PATTERN;
+
+    static {
+        String ignoreSizeOfRegexpVMArg = System.getProperty(IGNORE_SIZE_OF_VM_ARGUMENT);
+        String ignoreSizeOfRegexp = ignoreSizeOfRegexpVMArg != null ? ignoreSizeOfRegexpVMArg :  IGNORE_SIZE_OF_DEFAULT_REGEXP;
+        Pattern localPattern;
+        try {
+            localPattern = Pattern.compile(ignoreSizeOfRegexp);
+            LOG.info("Using regular expression provided through VM argument "
+                      + IGNORE_SIZE_OF_VM_ARGUMENT
+                      + " for IgnoreSizeOf annotation : "
+                      + ignoreSizeOfRegexp);
+        } catch (PatternSyntaxException e) {
+            throw new IllegalArgumentException("Invalid regular expression provided through VM argument "
+                      + IGNORE_SIZE_OF_VM_ARGUMENT
+                      + " : \n"
+                      + e.getMessage()
+                      + "\n using default regular expression for IgnoreSizeOf annotation : "
+                      + IGNORE_SIZE_OF_DEFAULT_REGEXP);
+        }
+        IGNORE_SIZE_OF_PATTERN = localPattern;
+    }
+
     /**
      * {@inheritDoc}
      */
     public Collection<Field> filterFields(Class<?> klazz, Collection<Field> fields) {
         for (Iterator<Field> it = fields.iterator(); it.hasNext();) {
-            if (it.next().isAnnotationPresent(IgnoreSizeOf.class)) {
+
+            Field field = it.next();
+            IgnoreSizeOf annotationOnField = getAnnotationOn(field, IgnoreSizeOf.class, IGNORE_SIZE_OF_PATTERN);
+            if (annotationOnField != null) {
                 it.remove();
             }
         }
@@ -46,21 +86,47 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
     public boolean filterClass(Class<?> klazz) {
         boolean classAnnotated = isAnnotationPresentOrInherited(klazz);
         Package pack = klazz.getPackage();
-        boolean packageAnnotated = pack == null ? false : pack.isAnnotationPresent(IgnoreSizeOf.class);
+        IgnoreSizeOf annotationOnPackage = pack == null ? null : getAnnotationOn(pack, IgnoreSizeOf.class, IGNORE_SIZE_OF_PATTERN);
+        boolean packageAnnotated = annotationOnPackage != null;
         return !classAnnotated && !packageAnnotated;
     }
 
     private boolean isAnnotationPresentOrInherited(final Class<?> instanceKlazz) {
         Class<?> klazz = instanceKlazz;
         while (klazz != null) {
-            final IgnoreSizeOf annotation = klazz.getAnnotation(IgnoreSizeOf.class);
-            if (annotation != null) {
-                if (klazz == instanceKlazz || annotation.inherited()) {
-                    return true;
-                }
+            IgnoreSizeOf annotationOnClass = getAnnotationOn(klazz, IgnoreSizeOf.class, IGNORE_SIZE_OF_PATTERN);
+            if (annotationOnClass != null && (klazz == instanceKlazz || annotationOnClass.inherited())) {
+                return true;
             }
             klazz = klazz.getSuperclass();
         }
         return false;
+    }
+
+    private boolean validateCustomAnnotationPattern(String canonicalName, Pattern matchingAnnotationPattern) {
+        Matcher matcher = matchingAnnotationPattern.matcher(canonicalName);
+
+        boolean found = matcher.matches();
+        if (found) {
+            LOG.debug(canonicalName + " matched IgnoreSizeOf annotation pattern " + IGNORE_SIZE_OF_PATTERN);
+        }
+        return found;
+    }
+
+    //EHC-938 : looking for all types of IgnoreSizeOf annotations
+    private  <T extends Annotation> T getAnnotationOn(AnnotatedElement element, Class<T> referenceAnnotation, Pattern matchingAnnotationPattern) {
+        T matchingAnnotation = null;
+        Annotation[] annotations = element.getAnnotations();
+        for (Annotation annotation : annotations) {
+            if (validateCustomAnnotationPattern(annotation.annotationType().getName(), matchingAnnotationPattern)) {
+                if (matchingAnnotation != null) {
+                    throw new IllegalStateException("You are not allowed to use more than one @" + referenceAnnotation.getName()
+                                                    + " annotations for the same element : "
+                                                    + element.toString());
+                }
+                matchingAnnotation = AnnotationProxyFactory.getAnnotationProxy(annotation, referenceAnnotation);
+            }
+        }
+        return matchingAnnotation;
     }
 }

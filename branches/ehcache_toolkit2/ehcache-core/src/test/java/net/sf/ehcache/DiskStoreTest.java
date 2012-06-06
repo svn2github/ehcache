@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
 public class DiskStoreTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
-    private static final int ELEMENT_ON_DISK_SIZE = 1270;
+    private static final int ELEMENT_ON_DISK_SIZE = 1283;
     private CacheManager manager2;
 
     @BeforeClass

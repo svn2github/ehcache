@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoinException;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class used by NonStopCache for executing tasks within a timeout limit.
@@ -56,6 +56,10 @@ public class NonstopExecutorServiceImpl implements NonstopExecutorService {
      */
     public <V> V execute(final Callable<V> callable, final long timeoutValueInMillis) throws TimeoutException, CacheException,
             InterruptedException {
+        if (NonstopThread.isCurrentThreadNonstopThread()) {
+            throw new AssertionError("Nonstop thread should execute inline instead of trying to use executor. Trying to execute callable: "
+                    + callable + ", timeoutMillis: " + timeoutValueInMillis + ", current thread: " + Thread.currentThread().getName());
+        }
         int attempt = 0;
         V result = null;
         long startTime = System.nanoTime();

@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,6 +36,12 @@ public class Max<T> implements AggregatorInstance<T> {
         this.attribute = attribute;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Max<T> createClone() {
+        return new Max(attribute);
+    }
     /**
      * {@inheritDoc}
      * <p/>

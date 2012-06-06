@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,8 +28,10 @@ import net.sf.ehcache.concurrent.StripedReadWriteLock;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolableStore;
@@ -116,7 +118,8 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.status.set(Status.STATUS_ALIVE);
         this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
                      cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
-        persistent = cache.getCacheConfiguration().isDiskPersistent();
+        PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
+        persistent = persistence != null && Strategy.LOCALTEMPSWAP.equals(persistence.getStrategy());
     }
 
     /**

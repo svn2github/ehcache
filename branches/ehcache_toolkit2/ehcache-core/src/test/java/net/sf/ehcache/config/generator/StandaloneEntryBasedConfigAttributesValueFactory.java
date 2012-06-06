@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -56,7 +56,8 @@ public class StandaloneEntryBasedConfigAttributesValueFactory implements XSDAttr
             }
             // these are deprecated
             if ("maxElementsInMemory".equals(attribute.getName()) ||
-                    "maxMemoryOffHeap".equals(attribute.getName())) {
+                    "maxMemoryOffHeap".equals(attribute.getName()) ||
+                    "diskPersistent".equals(attribute.getName())) {
                 return null;
             }
             if ("maxElementsOnDisk".equals(attribute.getName()) ||

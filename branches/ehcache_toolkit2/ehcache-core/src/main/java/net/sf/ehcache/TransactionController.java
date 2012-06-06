@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,18 +15,20 @@
  */
 package net.sf.ehcache;
 
-import net.sf.ehcache.transaction.TransactionIDFactory;
-import net.sf.ehcache.transaction.TransactionTimeoutException;
-import net.sf.ehcache.transaction.local.LocalTransactionContext;
-import net.sf.ehcache.transaction.TransactionException;
-import net.sf.ehcache.transaction.TransactionID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionID;
+import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.TransactionTimeoutException;
+import net.sf.ehcache.transaction.local.LocalTransactionContext;
+import net.sf.ehcache.util.lang.VicariousThreadLocal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * TransactionController is used to begin, commit and rollback local transactions
@@ -38,7 +40,7 @@ public final class TransactionController {
     private static final Logger LOG = LoggerFactory.getLogger(TransactionController.class.getName());
     private static final String MDC_KEY = "ehcache-txid";
 
-    private final ThreadLocal<TransactionID> currentTransactionIdThreadLocal = new ThreadLocal<TransactionID>();
+    private final VicariousThreadLocal<TransactionID> currentTransactionIdThreadLocal = new VicariousThreadLocal<TransactionID>();
     private final ConcurrentMap<TransactionID, LocalTransactionContext> contextMap =
             new ConcurrentHashMap<TransactionID, LocalTransactionContext>();
     private final TransactionIDFactory transactionIDFactory;
@@ -176,7 +178,7 @@ public final class TransactionController {
     /**
      * Get the transaction context bond to the current thread
      * @return the transaction context bond to the current thread or null if no transaction
-     *      started on the current thread          
+     *      started on the current thread
      */
     public LocalTransactionContext getCurrentTransactionContext() {
         TransactionID txId = currentTransactionIdThreadLocal.get();

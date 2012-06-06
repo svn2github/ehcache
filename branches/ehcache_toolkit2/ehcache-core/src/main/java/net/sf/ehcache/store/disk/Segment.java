@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ public class Segment extends ReentrantReadWriteLock {
                 return false;
 
             case INCACHE:
-                return cacheConfiguration.isOverflowToDisk() || cacheConfiguration.isDiskPersistent();
+                return cacheConfiguration.isOverflowToDisk();
 
             default:
                 throw new IllegalArgumentException();

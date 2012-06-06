@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,12 +23,14 @@ import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.CopyStrategyConfiguration;
 import net.sf.ehcache.config.ElementValueComparatorConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
+import net.sf.ehcache.store.DefaultElementValueComparator;
 
 /**
  * Element representing the {@link CacheConfiguration}
@@ -96,8 +98,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 String.valueOf(CacheConfiguration.DEFAULT_CLEAR_ON_FLUSH)));
         element.addAttribute(new SimpleNodeAttribute("diskAccessStripes", cacheConfiguration.getDiskAccessStripes()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_DISK_ACCESS_STRIPES));
-        element.addAttribute(new SimpleNodeAttribute("diskPersistent", cacheConfiguration.isDiskPersistent()).optional(true).defaultValue(
-                CacheConfiguration.DEFAULT_DISK_PERSISTENT));
         element.addAttribute(new SimpleNodeAttribute("diskSpoolBufferSizeMB", cacheConfiguration.getDiskSpoolBufferSizeMB()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_SPOOL_BUFFER_SIZE));
         element
@@ -152,6 +152,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         addBootstrapCacheLoaderFactoryConfigurationElement(element, cacheConfiguration);
         addCacheExceptionHandlerFactoryConfigurationElement(element, cacheConfiguration);
         addSizeOfPolicyConfigurationElement(element, cacheConfiguration);
+        addPersistenceConfigurationElement(element, cacheConfiguration);
         addCopyStrategyConfigurationElement(element, cacheConfiguration);
         addElementValueComparatorConfigurationElement(element, cacheConfiguration);
         addCacheWriterConfigurationElement(element, cacheConfiguration);
@@ -187,6 +188,13 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         }
     }
 
+    private static void addPersistenceConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
+        PersistenceConfiguration persistenceConfiguration = cacheConfiguration.getPersistenceConfiguration();
+        if (persistenceConfiguration != null) {
+            element.addChildElement(new PersistenceConfigurationElement(element, persistenceConfiguration));
+        }
+    }
+
     private static void addCopyStrategyConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         CopyStrategyConfiguration copyStrategyConfiguration = cacheConfiguration.getCopyStrategyConfiguration();
         if (copyStrategyConfiguration != null &&
@@ -198,7 +206,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
     private static void addElementValueComparatorConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         ElementValueComparatorConfiguration elementValueComparatorConfiguration = cacheConfiguration
                 .getElementValueComparatorConfiguration();
-        if (elementValueComparatorConfiguration != null) {
+        if (elementValueComparatorConfiguration != null &&
+                !elementValueComparatorConfiguration.getClassName().equals(DefaultElementValueComparator.class.getName())) {
             element.addChildElement(new ElementValueComparatorConfigurationElement(element, elementValueComparatorConfiguration));
         }
     }

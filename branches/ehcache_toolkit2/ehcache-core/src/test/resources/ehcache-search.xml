@@ -11,6 +11,8 @@
             <searchAttribute name="age" expression="value.getAge()"/>
             <searchAttribute name="gender" expression="value.getGender()"/>
             <searchAttribute name="name" expression="value.getName()"/>
+            <searchAttribute name="dept" expression="value.getDepartment()"/>
+            
         </searchable>
 
         <!-- EHC-800 should be able to use JavaBeans conventions <searchAttribute name="name"/>-->

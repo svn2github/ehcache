@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,6 +34,13 @@ public class Min<T> implements AggregatorInstance<T> {
      */
     public Min(Attribute<?> attribute) {
         this.attribute = attribute;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Min<T> createClone() {
+        return new Min(attribute);
     }
 
     /**

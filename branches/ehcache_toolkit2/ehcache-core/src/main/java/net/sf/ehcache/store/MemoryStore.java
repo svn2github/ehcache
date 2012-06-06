@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -118,9 +118,9 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      *
      * @param cache the cache
      * @param pool the pool tracking the on-heap usage
-     * @param doNotifications whether to notify the Cache's EventNotificationService on eviction and expiry
+     * @param notify whether to notify the Cache's EventNotificationService on eviction and expiry
      */
-    protected MemoryStore(final Ehcache cache, Pool pool, final boolean doNotifications) {
+    protected MemoryStore(Ehcache cache, Pool pool, boolean notify, BackingFactory factory) {
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
@@ -138,11 +138,12 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
         // create the CHM with initialCapacity sufficient to hold maximumSize
         final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, loadFactor);
-        map = new SelectableConcurrentHashMap(poolAccessor, elementPinningEnabled, initialCapacity,
-            loadFactor, CONCURRENCY_LEVEL, isClockEviction() && !storePinned ? maximumSize : 0,
-                doNotifications ? cache.getCacheEventNotificationService() : null);
+        int maximumCapacity = isClockEviction() && !storePinned ? maximumSize : 0;
+        RegisteredEventListeners eventListener = notify ? cache.getCacheEventNotificationService() : null;
+        this.map = factory.newBackingMap(poolAccessor, elementPinningEnabled, initialCapacity,
+                loadFactor, CONCURRENCY_LEVEL, maximumCapacity, eventListener);
 
-        status = Status.STATUS_ALIVE;
+        this.status = Status.STATUS_ALIVE;
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialized " + this.getClass().getName() + " for " + cache.getName());
@@ -163,7 +164,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
                 return !cacheConfiguration.isOverflowToOffHeap();
 
             case INCACHE:
-                return !(cacheConfiguration.isOverflowToOffHeap() || cacheConfiguration.isOverflowToDisk() || cacheConfiguration.isDiskPersistent());
+                return !cacheConfiguration.isOverflowToOffHeap() && !cacheConfiguration.isOverflowToDisk();
 
             default:
                 throw new IllegalArgumentException();
@@ -178,7 +179,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return the calculated initialCapacity. Returns 0 if the parameter <tt>maximumSizeGoal</tt> is less than or equal
      *         to 0
      */
-    static int getInitialCapacityForLoadFactor(int maximumSizeGoal, float loadFactor) {
+    protected static int getInitialCapacityForLoadFactor(int maximumSizeGoal, float loadFactor) {
         double actualMaximum = Math.ceil(maximumSizeGoal / loadFactor);
         return Math.max(0, actualMaximum >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) actualMaximum);
     }
@@ -191,10 +192,11 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
     public static MemoryStore create(final Ehcache cache, Pool pool) {
-        MemoryStore memoryStore = new MemoryStore(cache, pool, false);
+        MemoryStore memoryStore = new MemoryStore(cache, pool, false, new BasicBackingFactory());
         cache.getCacheConfiguration().addConfigurationListener(memoryStore);
         return memoryStore;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -449,7 +451,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * Flush to disk only if the cache is diskPersistent.
      */
-    public final void flush() {
+    public void flush() {
         if (cache.getCacheConfiguration().isClearOnFlush()) {
             removeAll();
         }
@@ -1058,6 +1060,39 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
             return;
         }
         map.recalculateSize(key);
+    }
+
+    /**
+     * Factory interface to create a MemoryStore backing.
+     */
+    protected interface BackingFactory {
+        /**
+         * Create a MemoryStore backing map.
+         *
+         * @param poolAccessor on-heap pool accessor
+         * @param elementPinning element pinning in this store
+         * @param initialCapacity initial store capacity
+         * @param loadFactor map load factor
+         * @param concurrency map concurrency
+         * @param maximumCapacity maximum store capacity
+         * @param eventListener event listener (or {@code null} for no notifications)
+         * @return a backing map
+         */
+        SelectableConcurrentHashMap newBackingMap(PoolAccessor<?> poolAccessor, boolean elementPinning, int initialCapacity,
+                float loadFactor, int concurrency, int maximumCapacity, RegisteredEventListeners eventListener);
+    }
+
+    /**
+     * Simple backing map factory.
+     */
+    static class BasicBackingFactory implements BackingFactory {
+
+        @Override
+        public SelectableConcurrentHashMap newBackingMap(PoolAccessor<?> poolAccessor, boolean elementPinning, int initialCapacity,
+                float loadFactor, int concurrency, int maximumCapacity, RegisteredEventListeners eventListener) {
+            return new SelectableConcurrentHashMap(poolAccessor, elementPinning, initialCapacity,
+                    loadFactor, concurrency, maximumCapacity, eventListener);
+        }
     }
 }
 

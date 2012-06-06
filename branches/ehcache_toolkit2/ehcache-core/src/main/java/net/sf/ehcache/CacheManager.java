@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
@@ -68,12 +69,14 @@ import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -144,7 +147,7 @@ public class CacheManager {
     /**
      * The factory to use for creating MBeanRegistrationProvider's
      */
-    private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl(); 
+    private static final MBeanRegistrationProviderFactory MBEAN_REGISTRATION_PROVIDER_FACTORY = new MBeanRegistrationProviderFactoryImpl();
 
     private static final String NO_DEFAULT_CACHE_ERROR_MSG = "Caches cannot be added by name when default cache config is not specified"
             + " in the config. Please add a default cache config in the configuration.";
@@ -155,7 +158,7 @@ public class CacheManager {
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
-    private static final Map<Integer, ManagementServer<CacheManager>> MGMT_SVR_BY_PORT = new HashMap<Integer, ManagementServer<CacheManager>>();
+    private static final Map<String, ManagementServer> MGMT_SVR_BY_BIND = new HashMap<String, ManagementServer>();
 
     /**
      * Status of the Cache Manager
@@ -202,6 +205,8 @@ public class CacheManager {
      */
     private DiskStorePathManager diskStorePathManager;
 
+    private volatile FeaturesManager featuresManager;
+
     private MBeanRegistrationProvider mbeanRegistrationProvider;
 
     private FailSafeTimer cacheManagerTimer;
@@ -223,8 +228,10 @@ public class CacheManager {
 
     private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
-    
-    private Integer registeredMgmtSvrPort;
+
+    private String registeredMgmtSvrBind;
+
+    private volatile SearchManager searchManager;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -444,31 +451,31 @@ public class CacheManager {
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
              */
             synchronized (CacheManager.class) {
-                if (!MGMT_SVR_BY_PORT.containsKey(managementRESTService.getPort())) {
-                    Class<ManagementServer> managementServerClass;
+                if (!MGMT_SVR_BY_BIND.containsKey(managementRESTService.getBind())) {
+                    ManagementServer embeddedRESTServer;
+
                     try {
-                        managementServerClass = ClassLoaderUtil.loadClass(MANAGEMENT_SERVER_CLASS_NAME);
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(
-                            "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+                        embeddedRESTServer = (ManagementServer)ClassLoaderUtil.createNewInstance(MANAGEMENT_SERVER_CLASS_NAME,
+                            new Class[]{managementRESTService.getClass()}, new Object[]{managementRESTService});
+                    } catch (CacheException e) {
+                        if (e.getCause() instanceof ClassNotFoundException) {
+                            throw new RuntimeException(
+                                "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
+                        } else {
+                            throw new RuntimeException("Failed to instantiate ManagementServer.", e);
+                        }
                     }
 
-                    ManagementServer<CacheManager> standaloneRestServer;
-                    try {
-                        standaloneRestServer = managementServerClass.newInstance();
-                    } catch (InstantiationException e) {
-                        throw new RuntimeException("Failed to instantiate ManagementServer.", e);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Failed to instantiate ManagementServer due to access restriction.", e);
-                    }
-
-                    standaloneRestServer.setConfiguration(managementRESTService);
-                    standaloneRestServer.start();
-                    MGMT_SVR_BY_PORT.put(managementRESTService.getPort(), standaloneRestServer);
+                    embeddedRESTServer.start();
+                    MGMT_SVR_BY_BIND.put(managementRESTService.getBind(), embeddedRESTServer);
                 }
-                MGMT_SVR_BY_PORT.get(managementRESTService.getPort()).register(this);
-                registeredMgmtSvrPort = managementRESTService.getPort();
+                MGMT_SVR_BY_BIND.get(managementRESTService.getBind()).register(this);
+                registeredMgmtSvrBind = managementRESTService.getBind();
             }
+        }
+
+        if (featuresManager != null) {
+            featuresManager.startup();
         }
     }
 
@@ -665,16 +672,16 @@ public class CacheManager {
 
         if (diskStorePath == null) {
             diskStorePathManager = DiskStorePathManager.createInstance(DiskStoreConfiguration.getDefaultPath());
-            int cachesRequiringDiskStores = configurationHelper.numberOfCachesThatOverflowToDisk().intValue()
-                    + configurationHelper.numberOfCachesThatAreDiskPersistent().intValue();
-            if (cachesRequiringDiskStores > 0) {
-            LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured."
-                    + " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath()
-                    + ". Please explicitly configure the diskStore element in ehcache.xml.");
+            if (configurationHelper.numberOfCachesThatUseDiskStorage() > 0) {
+                LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured."
+                        + " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath()
+                        + ". Please explicitly configure the diskStore element in ehcache.xml.");
             }
         } else {
             diskStorePathManager = DiskStorePathManager.createInstance(diskStorePath);
         }
+
+        this.featuresManager = retrieveFeaturesManager();
 
         this.transactionManagerLookup = runtimeCfg.getTransactionManagerLookup();
 
@@ -1390,14 +1397,13 @@ public class CacheManager {
                 return;
             }
 
-            // release file lock on diskstore path
-            if (diskStorePathManager != null) {
-              diskStorePathManager.releaseLock();
+            if (searchManager != null) {
+                searchManager.shutdown();
             }
 
             boolean removeMgmtSvr = false;
-            if (registeredMgmtSvrPort != null) {
-                ManagementServer<CacheManager> standaloneRestServer = MGMT_SVR_BY_PORT.get(registeredMgmtSvrPort);
+            if (registeredMgmtSvrBind != null) {
+                ManagementServer standaloneRestServer = MGMT_SVR_BY_BIND.get(registeredMgmtSvrBind);
 
                 try {
                     standaloneRestServer.unregister(this);
@@ -1410,10 +1416,10 @@ public class CacheManager {
                     LOG.warn("Failed to shutdown the ManagementRESTService", e);
                 } finally {
                     if (removeMgmtSvr) {
-                      MGMT_SVR_BY_PORT.remove(registeredMgmtSvrPort);
+                      MGMT_SVR_BY_BIND.remove(registeredMgmtSvrBind);
                     }
 
-                    registeredMgmtSvrPort = null;
+                    registeredMgmtSvrBind = null;
                 }
             }
 
@@ -1453,8 +1459,15 @@ public class CacheManager {
             removeShutdownHook();
             nonstopExecutorServiceFactory.shutdown(this);
             getCacheRejoinAction().unregisterAll();
-            
-            
+
+            if (featuresManager != null) {
+                featuresManager.shutdown();
+            }
+
+            // release file lock on diskstore path
+            if (diskStorePathManager != null) {
+              diskStorePathManager.releaseLock();
+            }
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);
@@ -1882,6 +1895,24 @@ public class CacheManager {
     }
 
     /**
+     * Get the indexed search manager
+     *
+     * @return an IndexedSearchManager
+     */
+    public SearchManager getIndexedSearchManager() {
+        synchronized (this) {
+            if (searchManager == null) {
+                SearchManager rv = (SearchManager) ClassLoaderUtil.createNewInstance(
+                        "net.sf.ehcache.store.offheap.search.LuceneIndexedSearchManager", new Class[] {DiskStorePathManager.class},
+                        new Object[] {diskStorePathManager});
+                rv.init();
+                searchManager = rv;
+            }
+            return searchManager;
+        }
+    }
+
+    /**
      * Create a soft lock factory for a specific cache
      *
      * @param cache the cache to create the soft lock factory for
@@ -2125,4 +2156,37 @@ public class CacheManager {
         }
     }
 
+    /**
+     * Get the features manager.
+     *
+     * @return the features manager
+     */
+    public FeaturesManager getFeaturesManager() {
+        return featuresManager;
+    }
+
+    private FeaturesManager retrieveFeaturesManager() {
+        try {
+            Class<? extends FeaturesManager> featuresManagerClass = ClassLoaderUtil.loadClass(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
+
+            try {
+                return featuresManagerClass.getConstructor(CacheManager.class).newInstance(this);
+            } catch (NoSuchMethodException e) {
+                throw new CacheException("Cannot find Enterprise features manager");
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof CacheException) {
+                    throw (CacheException) cause;
+                } else {
+                    throw new CacheException("Cannot instantiate enterprise features manager", cause);
+                }
+            } catch (IllegalAccessException e) {
+                throw new CacheException("Cannot instantiate enterprise features manager", e);
+            } catch (InstantiationException e) {
+                throw new CacheException("Cannot instantiate enterprise features manager", e);
+            }
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 }

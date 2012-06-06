@@ -36,7 +36,11 @@ public abstract class ClientBase extends AbstractClientBase {
   @Override
   public void doTest() throws Throwable {
     setupCacheManager();
-    runTest(getCache(), getClusteringToolkit());
+    if (getTestControlMbean().isStandAloneTest()) {
+      runTest(getCache(), null);
+    } else {
+      runTest(getCache(), getClusteringToolkit());
+    }
   }
 
   protected synchronized final ToolkitBarrier getBarrierForAllClients() {
@@ -47,6 +51,7 @@ public abstract class ClientBase extends AbstractClientBase {
   }
 
   protected final int waitForAllClients() throws InterruptedException, BrokenBarrierException {
+    if (getTestControlMbean().isStandAloneTest()) return 0;
     return getBarrierForAllClients().await();
   }
 

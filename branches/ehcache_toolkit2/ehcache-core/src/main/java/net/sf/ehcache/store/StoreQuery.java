@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -66,6 +66,13 @@ public interface StoreQuery {
      * @return the requested attributes (if any)
      */
     Set<Attribute<?>> requestedAttributes();
+
+    /**
+     * Get the set of attributes to group result set by
+     * @return attributes to group by (if any)
+     * @since 2.6
+     */
+    Set<Attribute<?>> groupByAttributes();
 
     /**
      * Get the requested search orderings

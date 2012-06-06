@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,11 +31,12 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonstopException;
@@ -78,13 +79,13 @@ import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
+import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.terracotta.InternalEhcache;
-import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionIDFactory;
@@ -110,7 +111,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -192,11 +192,6 @@ public class Cache implements InternalEhcache, StoreListener {
      * @see CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS CacheConfiguration#DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS for a preferred way of setting
      */
     public static final long DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS = CacheConfiguration.DEFAULT_EXPIRY_THREAD_INTERVAL_SECONDS;
-
-    /**
-     * The FQCN for offheap stores
-     */
-    public static final String OFF_HEAP_STORE_CLASSNAME = "net.sf.ehcache.store.offheap.OffHeapStore";
 
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class.getName());
 
@@ -1035,7 +1030,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
                 throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
             }
-            final Store store;
+
+            Store store;
             if (isTerracottaClustered()) {
                 checkClusteredConfig();
                 int maxConcurrency = Integer.getInteger(EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP,
@@ -1051,10 +1047,6 @@ public class Cache implements InternalEhcache, StoreListener {
                     LOG.warn("Performance may degrade and server disks could run out of space!\nThe distributed cache {} does not have " +
                              "maxElementsOnDisk set. Failing to set maxElementsOnDisk could mean no eviction of its elements from the " +
                              "Terracotta Server Array disk store. To avoid this, set maxElementsOnDisk to a non-zero value.", getName());
-                }
-                if (!getCacheConfiguration().getTerracottaConfiguration().isStorageStrategySet()) {
-                    getCacheConfiguration().getTerracottaConfiguration().storageStrategy(
-                            TerracottaClient.getTerracottaDefaultStrategyForCurrentRuntime(getCacheConfiguration()));
                 }
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
@@ -1081,22 +1073,37 @@ public class Cache implements InternalEhcache, StoreListener {
                 } else {
                     store = terracottaStore;
                 }
-            } else if (getCacheConfiguration().isOverflowToOffHeap()) {
-                store = createOffHeapStore(onHeapPool, onDiskPool, copyStrategy);
             } else {
-                if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
-                    Store disk = createDiskStore();
-                    store = makeXaStrictTransactionalIfNeeded(new LegacyStoreWrapper(
-                            new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration), copyStrategy);
-                } else {
-                    if (configuration.isDiskPersistent() || configuration.isOverflowToDisk()) {
-                        store = makeXaStrictTransactionalIfNeeded(DiskBackedMemoryStore.create(this,
-                                onHeapPool, onDiskPool), copyStrategy);
-                    } else {
-                        store = makeXaStrictTransactionalIfNeeded(MemoryOnlyStore.create(this, onHeapPool), copyStrategy);
+                FeaturesManager featuresManager = cacheManager.getFeaturesManager();
+                if (featuresManager == null) {
+                    if (configuration.isOverflowToOffHeap()) {
+                        throw new CacheException("Cache " + configuration.getName()
+                                + " cannot be configured because the enterprise features manager could not be found. "
+                                + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
                     }
+                    PersistenceConfiguration persistence = configuration.getPersistenceConfiguration();
+                    if (persistence != null && Strategy.LOCALRESTARTABLE.equals(persistence.getStrategy())) {
+                        throw new CacheException("Cache " + configuration.getName()
+                                + " cannot be configured because the enterprise features manager could not be found. "
+                                + "You must use an enterprise version of Ehcache to successfully enable enterprise persistence.");
+                    }
+
+                    if (useClassicLru && configuration.getMemoryStoreEvictionPolicy().equals(MemoryStoreEvictionPolicy.LRU)) {
+                        Store disk = createDiskStore();
+                        store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
+                    } else {
+                        if (configuration.isOverflowToDisk()) {
+                            store = DiskBackedMemoryStore.create(this, onHeapPool, onDiskPool);
+                        } else {
+                            store = MemoryOnlyStore.create(this, onHeapPool);
+                        }
+                    }
+                } else {
+                    store = featuresManager.createStore(this, onHeapPool, onDiskPool);
                 }
+                store = makeXaStrictTransactionalIfNeeded(store, copyStrategy);
             }
+
             /* note: this isn't part of makeXaStrictTransactionalIfNeeded() as only xa_strict supports NonStop, meaning that only
              * that transactional store can be wrapped by NonStopStore. Other TX modes have to wrap the NonStop store due to their
              * lack of NonStop support (ie: lack of transaction context suspension/resuming).
@@ -1162,36 +1169,6 @@ public class Cache implements InternalEhcache, StoreListener {
         }
     }
 
-    private Store createOffHeapStore(Pool onHeapPool, Pool onDiskPool, ReadWriteCopyStrategy<Element> copyStrategy) {
-        try {
-            Class<Store> offHeapStoreClass = ClassLoaderUtil.loadClass(OFF_HEAP_STORE_CLASSNAME);
-
-            try {
-                return makeXaStrictTransactionalIfNeeded((Store) offHeapStoreClass.getMethod("create",
-                        Ehcache.class, Pool.class, Pool.class)
-                        .invoke(null, this, onHeapPool, onDiskPool), copyStrategy);
-            } catch (NoSuchMethodException e) {
-                throw new CacheException("Cache: " + configuration.getName() + " cannot find static factory"
-                        + " method create(Ehcache, String)" + " in store class " + OFF_HEAP_STORE_CLASSNAME, e);
-            } catch (InvocationTargetException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof CacheException) {
-                    throw (CacheException) cause;
-                } else {
-                    throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
-                            + OFF_HEAP_STORE_CLASSNAME, cause);
-                }
-            } catch (IllegalAccessException e) {
-                throw new CacheException("Cache: " + configuration.getName() + " cannot instantiate store "
-                        + OFF_HEAP_STORE_CLASSNAME, e);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new CacheException("Cache " + configuration.getName()
-                    + " cannot be configured because the off-heap store class could not be found. "
-                    + "You must use an enterprise version of Ehcache to successfully enable overflowToOffHeap.");
-        }
-    }
-
     private void checkClusteredConfig() {
         final Consistency consistency = getCacheConfiguration().getTerracottaConfiguration().getConsistency();
         final boolean coherent = getCacheConfiguration().getTerracottaConfiguration().isCoherent();
@@ -1216,10 +1193,6 @@ public class Cache implements InternalEhcache, StoreListener {
         if ((coherent && consistency == Consistency.EVENTUAL) || (!coherent && consistency == Consistency.STRONG)) {
             throw new InvalidConfigurationException("Coherent and consistency attribute values are conflicting. "
                     + "Please remove the coherent attribute as its deprecated.");
-        }
-        if (getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy() == StorageStrategy.CLASSIC) {
-            throw new InvalidConfigurationException(StorageStrategy.CLASSIC + " Storage strategy is not supported with "
-                    + "clustered cache. Please use " + StorageStrategy.DCV2);
         }
     }
 
@@ -1320,10 +1293,10 @@ public class Cache implements InternalEhcache, StoreListener {
     /**
      * Whether this cache uses a disk store
      *
-     * @return true if the cache either overflows to disk or is disk persistent
+     * @return true if the cache either overflows to disk or uses a local-classic persistence strategy.
      */
     protected boolean isDiskStore() {
-        return configuration.isOverflowToDisk() || configuration.isDiskPersistent();
+        return configuration.isOverflowToDisk();
     }
 
     /**
@@ -1968,7 +1941,7 @@ public class Cache implements InternalEhcache, StoreListener {
         boolean wasOffHeap = false;
         boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
         boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
-        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk() || getCacheConfiguration().isDiskPersistent();
+        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
         Element element;
 
         if (!wasInMemory) {
@@ -2769,7 +2742,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 .append(" memoryStoreEvictionPolicy = ").append(configuration.getMemoryStoreEvictionPolicy())
                 .append(" timeToLiveSeconds = ").append(configuration.getTimeToLiveSeconds())
                 .append(" timeToIdleSeconds = ").append(configuration.getTimeToIdleSeconds())
-                .append(" diskPersistent = ").append(configuration.isDiskPersistent())
+                .append(" persistence = ").append(configuration.getPersistenceConfiguration() == null ?
+                    "none" : configuration.getPersistenceConfiguration().getStrategy())
                 .append(" diskExpiryThreadIntervalSeconds = ").append(configuration.getDiskExpiryThreadIntervalSeconds())
                 .append(registeredEventListeners)
                 .append(" hitCount = ").append(getLiveCacheStatisticsNoCheck().getCacheHitCount())
@@ -4023,11 +3997,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     Results executeQuery(StoreQuery query) throws SearchException {
 
-        if (!query.requestsKeys() && !query.requestsValues() && query.requestedAttributes().isEmpty() && query.getAggregatorInstances().isEmpty()) {
-            String msg = "No results specified. " +
-            "Please specify one or more of includeKeys(), includeValues(), includeAggregator() or includeAttribute()";
-            throw new SearchException(msg);
-        }
+        validateSearchQuery(query);
 
         if (isStatisticsEnabled()) {
             long start = System.currentTimeMillis();
@@ -4438,4 +4408,31 @@ public class Cache implements InternalEhcache, StoreListener {
 
     }
 
+    private void validateSearchQuery(StoreQuery query) throws SearchException {
+        if (!query.requestsKeys() && !query.requestsValues() && query.requestedAttributes().isEmpty() && query.getAggregatorInstances().isEmpty()) {
+            String msg = "No results specified. " +
+            "Please specify one or more of includeKeys(), includeValues(), includeAggregator() or includeAttribute()";
+            throw new SearchException(msg);
+        }
+        Set<Attribute<?>> groupBy = query.groupByAttributes();
+        if (!groupBy.isEmpty()) {
+            if (groupBy.contains(Query.KEY)) {
+                throw new SearchException("Explicit grouping by element key not supported.");
+            }
+            if (groupBy.contains(Query.VALUE)) {
+                throw new SearchException("Grouping by element value not supported.");
+            }
+            if (!groupBy.containsAll(query.requestedAttributes())) {
+                throw new SearchException("Some of the requested attributes not used in group by clause.");
+            }
+            for (Ordering order : query.getOrdering()) {
+                if (!groupBy.contains(order.getAttribute())) {
+                    throw new SearchException("All ordering attributes must be present in group by clause.");
+                }
+            }
+            if (query.requestsValues() || query.requestsKeys()) {
+                throw new SearchException("It is not possible to include keys or values with group by queries.");
+            }
+        }
+    }
 }

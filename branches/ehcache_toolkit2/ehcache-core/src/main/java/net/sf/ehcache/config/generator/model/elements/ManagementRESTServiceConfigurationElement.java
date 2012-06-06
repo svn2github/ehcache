@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
+import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 
 /**
  * Element representing the {@link net.sf.ehcache.config.ManagementRESTServiceConfiguration}
@@ -58,9 +59,23 @@ public class ManagementRESTServiceConfigurationElement extends SimpleNodeElement
         if (managementRESTServiceConfiguration == null) {
             return;
         }
-        addAttribute(new SimpleNodeAttribute("enabled", false));
-        addAttribute(new SimpleNodeAttribute("bind",
-                ManagementRESTServiceConfiguration.DEFAULT_BIND));
+        addAttribute(new SimpleNodeAttribute("enabled", managementRESTServiceConfiguration.isEnabled()).defaultValue(false));
+        addAttribute(new SimpleNodeAttribute("bind", managementRESTServiceConfiguration.getBind())
+            .defaultValue(ManagementRESTServiceConfiguration.DEFAULT_BIND));
+        addAttribute(new SimpleNodeAttribute("securityServiceLocation", managementRESTServiceConfiguration
+            .getSecurityServiceLocation()).optional(true));
+        addAttribute(new SimpleNodeAttribute("securityServiceTimeout", managementRESTServiceConfiguration
+            .getSecurityServiceTimeout()).optional(true)
+            .defaultValue(ManagementRESTServiceConfiguration.DEFAULT_SECURITY_SVC_TIMEOUT));
+        addAttribute(new SimpleNodeAttribute("sslEnabled", managementRESTServiceConfiguration.isSslEnabled())
+            .optional(true).defaultValue(false));
+        addAttribute(new SimpleNodeAttribute("needClientAuth", managementRESTServiceConfiguration.isNeedClientAuth())
+            .optional(true).defaultValue(false));
+        addAttribute(new SimpleNodeAttribute("sampleHistorySize", managementRESTServiceConfiguration.getSampleHistorySize())
+            .optional(true).defaultValue(CacheStatisticsSampler.DEFAULT_HISTORY_SIZE));
+        addAttribute(new SimpleNodeAttribute("sampleIntervalSeconds", managementRESTServiceConfiguration
+            .getSampleIntervalSeconds()).optional(true).defaultValue(CacheStatisticsSampler.DEFAULT_INTERVAL_SECS));
+        addAttribute(new SimpleNodeAttribute("sampleSearchIntervalSeconds", managementRESTServiceConfiguration
+            .getSampleSearchIntervalSeconds()).optional(true).defaultValue(CacheStatisticsSampler.DEFAULT_SEARCH_INTERVAL_SEC));
     }
-
 }

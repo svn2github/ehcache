@@ -1,5 +1,5 @@
 /**
- *  Copyright 2003-2010 Terracotta, Inc.
+ *  Copyright Terracotta, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -48,4 +48,10 @@ public interface AggregatorInstance<T> {
      * @return attribute to aggregate (null if no attribute is applicable to function)
      */
     Attribute<?> getAttribute();
+
+    /**
+     * Create a clone of this aggregator, detaching from its result
+     * @return
+     */
+    AggregatorInstance<T> createClone();
 }
