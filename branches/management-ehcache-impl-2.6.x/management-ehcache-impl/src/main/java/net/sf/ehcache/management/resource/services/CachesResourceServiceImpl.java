@@ -1,9 +1,11 @@
 package net.sf.ehcache.management.resource.services;
 
+import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.resource.CacheEntity;
 import net.sf.ehcache.management.service.CacheService;
-import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -22,6 +24,7 @@ import java.util.Set;
  */
 @Path("/agents/cacheManagers/caches")
 public final class CachesResourceServiceImpl implements CachesResourceService {
+  private final static Logger LOG = LoggerFactory.getLogger(CachesResourceServiceImpl.class);
 
   private final EntityResourceFactory entityResourceFactory;
 
@@ -71,7 +74,13 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
 
     String cacheName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
 
-    cacheSvc.createOrUpdateCache(cacheManagerName, cacheName, resource);
+    try {
+      cacheSvc.createOrUpdateCache(cacheManagerName, cacheName, resource);
+    } catch (Exception e) {
+      LOG.error("Failed to create or update cache.", e.getCause());
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+    }
   }
 
   /**

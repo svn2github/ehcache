@@ -21,6 +21,7 @@ import net.sf.ehcache.management.sampled.ComprehensiveCacheSamplerImpl;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
+import org.terracotta.management.ServiceExecutionException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -289,7 +290,7 @@ public final class DfltSamplerRepositoryService
   @Override
   public void createOrUpdateCache(String cacheManagerName,
                                   String cacheName,
-                                  CacheEntity resource) {
+                                  CacheEntity resource) throws ServiceExecutionException {
     cacheManagerSamplerRepoLock.readLock().lock();
 
     try {
@@ -326,6 +327,24 @@ public final class DfltSamplerRepositoryService
     private final static String SAMPLED_STATS_ENABLED_ATTR = "SampledStatisticsEnabled";
 
     private final static String BULK_LOAD_ENABLED = "ClusterBulkLoadEnabled";
+
+    private final static String MAX_ELEMENTS_ON_DISK = "MaxElementsOnDisk";
+
+    private final static String MAX_BYTES_LOCAL_DISK = "MaxBytesLocalDisk";
+
+    private final static String MAX_BYTES_LOCAL_DISK_STRING = "MaxBytesLocalDiskAsString";
+
+    private final static String MAX_BYTES_LOCAL_HEAP = "MaxBytesLocalHeap";
+
+    private final static String MAX_BYTES_LOCAL_HEAP_STRING = "MaxBytesLocalHeapAsString";
+
+    private final static String LOGGING_ENABLED = "LoggingEnabled";
+
+    private final static String TIME_TO_IDLE_SEC = "TimeToIdleSeconds";
+
+    private final static String TIME_TO_LIVE_SEC = "TimeToLiveSeconds";
+
+    private final static String MAX_ENTRIES_LOCAL_HEAP = "MaxEntriesLocalHeap";
 
     private CacheManager cacheManager;
 
@@ -404,7 +423,7 @@ public final class DfltSamplerRepositoryService
     }
 
     public void updateCache(String cacheSamplerName,
-                            CacheEntity cacheResource) {
+                            CacheEntity cacheResource) throws ServiceExecutionException {
       cacheSamplerMapLock.writeLock().lock();
 
       ComprehensiveCacheSampler cs;
@@ -412,22 +431,54 @@ public final class DfltSamplerRepositoryService
         cs = cacheSamplersByName.get(cacheSamplerName);
 
         if (cs != null) {
-          Object enabledAttr = cacheResource.getAttributes().get(ENABLED_ATTR);
-          if (enabledAttr != null) cs.setEnabled(Boolean.parseBoolean(enabledAttr.toString()));
+          try {
+            Boolean enabledAttr = (Boolean) cacheResource.getAttributes().get(ENABLED_ATTR);
+            if (enabledAttr != null) cs.setEnabled(enabledAttr);
 
-          Object enabledBlkLoad = cacheResource.getAttributes().get(BULK_LOAD_ENABLED);
-          if (enabledBlkLoad != null) cs.setNodeBulkLoadEnabled(Boolean.parseBoolean(enabledBlkLoad.toString()));
+            Boolean enabledBlkLoad = (Boolean) cacheResource.getAttributes().get(BULK_LOAD_ENABLED);
+            if (enabledBlkLoad != null) cs.setNodeBulkLoadEnabled(enabledBlkLoad);
 
-          Object enabledStatsAttr = cacheResource.getAttributes().get(STATS_ENABLED_ATTR);
-          if (enabledStatsAttr != null) cs.setStatisticsEnabled(Boolean.parseBoolean(enabledStatsAttr.toString()));
+            Boolean enabledStatsAttr = (Boolean) cacheResource.getAttributes().get(STATS_ENABLED_ATTR);
+            if (enabledStatsAttr != null) cs.setStatisticsEnabled(enabledStatsAttr);
 
-          Object enabledSampledStatsAttr = cacheResource.getAttributes().get(SAMPLED_STATS_ENABLED_ATTR);
-          if (enabledSampledStatsAttr != null) {
-            boolean enableSampledStats = Boolean.parseBoolean(enabledSampledStatsAttr.toString());
-            if (enableSampledStats) cs.enableSampledStatistics();
-            else cs.disableSampledStatistics();
+            Boolean enabledSampledStatsAttr = (Boolean) cacheResource.getAttributes().get(SAMPLED_STATS_ENABLED_ATTR);
+            if (enabledSampledStatsAttr != null) {
+              if (enabledSampledStatsAttr) cs.enableSampledStatistics();
+              else cs.disableSampledStatistics();
+            }
+
+            Integer maxElementsOnDiskAttr = (Integer) cacheResource.getAttributes().get(MAX_ELEMENTS_ON_DISK);
+            if (maxElementsOnDiskAttr != null) cs.setMaxElementsOnDisk(maxElementsOnDiskAttr);
+
+            Boolean loggingEnabledAttr = (Boolean) cacheResource.getAttributes().get(LOGGING_ENABLED);
+            if (loggingEnabledAttr != null) cs.setLoggingEnabled(loggingEnabledAttr);
+
+            Object mbldAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_DISK);
+            if (mbldAttr != null) cs.setMaxBytesLocalDisk(Long.parseLong(mbldAttr.toString()));
+
+            Object mbldsAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_DISK_STRING);
+            if (mbldsAttr != null) cs.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
+
+            Object mblhAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_HEAP);
+            if (mblhAttr != null) cs.setMaxBytesLocalDisk(Long.parseLong(mblhAttr.toString()));
+
+            Object mblhsAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_HEAP_STRING);
+            if (mblhsAttr != null) cs.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
+
+            Integer melhAttr = (Integer) cacheResource.getAttributes().get(MAX_ENTRIES_LOCAL_HEAP);
+            if (melhAttr != null) cs.setMaxEntriesLocalHeap(melhAttr);
+
+            Object ttiAttr = cacheResource.getAttributes().get(TIME_TO_IDLE_SEC);
+            if (ttiAttr != null) cs.setTimeToIdleSeconds(Long.parseLong(ttiAttr.toString()));
+
+            Object ttlAttr = cacheResource.getAttributes().get(TIME_TO_LIVE_SEC);
+            if (ttlAttr != null) cs.setTimeToLiveSeconds(Long.parseLong(ttlAttr.toString()));
+          } catch (RuntimeException e) {
+            throw new ServiceExecutionException(e);
           }
+
         }
+
       } finally {
         cacheSamplerMapLock.writeLock().unlock();
       }
