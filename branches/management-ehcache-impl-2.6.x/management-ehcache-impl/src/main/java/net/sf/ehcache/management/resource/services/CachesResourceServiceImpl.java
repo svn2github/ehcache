@@ -46,6 +46,8 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
    */
   @Override
   public Collection<CacheEntity> getCaches(final UriInfo info) {
+    LOG.info(String.format("Invoking CachesResourceServiceImpl.getCaches: %s", info.getRequestUri()));
+
     validator.validateSafe(info);
 
     String cacheManagerNames = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
@@ -68,6 +70,8 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
   @Override
   public void createOrUpdateCache(final UriInfo info,
                                   CacheEntity resource) {
+    LOG.info(String.format("Invoking CachesResourceServiceImpl.createOrUpdateCache: %s", info.getRequestUri()));
+
     validator.validate(info);
 
     String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
@@ -88,6 +92,8 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
    */
   @Override
   public void deleteCache(final UriInfo info) {
+    LOG.info(String.format("Invoking CachesResourceServiceImpl.deleteCache: %s", info.getRequestUri()));
+
     //todo: implement
     throw new WebApplicationException(
         Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Not yet implemented").build());
@@ -98,6 +104,8 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
    */
   @Override
   public void wipeStatistics(final UriInfo info) {
+    LOG.info(String.format("Invoking CachesResourceServiceImpl.wipeStatistics: %s", info.getRequestUri()));
+
     validator.validate(info);
     String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
     String cacheName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");

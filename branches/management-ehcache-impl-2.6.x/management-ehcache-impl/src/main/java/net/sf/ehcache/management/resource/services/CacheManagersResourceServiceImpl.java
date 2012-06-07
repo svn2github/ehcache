@@ -1,8 +1,10 @@
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.resource.CacheManagerEntity;
 import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.resource.CacheManagerEntity;
 import net.sf.ehcache.management.service.EntityResourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -21,6 +23,7 @@ import java.util.Set;
  */
 @Path("/agents/cacheManagers")
 public final class CacheManagersResourceServiceImpl implements CacheManagersResourceService {
+  private static final Logger LOG = LoggerFactory.getLogger(CacheManagersResourceServiceImpl.class);
 
   private final EntityResourceFactory entityResourceFactory;
 
@@ -37,6 +40,8 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
    * {@inheritDoc}
    */
   public Collection<CacheManagerEntity> getCacheManagers(UriInfo info) {
+    LOG.info(String.format("Invoking CacheManagersResourceServiceImpl.getCacheManagers: %s", info.getRequestUri()));
+
     validator.validateSafe(info);
 
     String names = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");

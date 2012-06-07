@@ -4,9 +4,11 @@
  */
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
 import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
+import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
 import net.sf.ehcache.management.service.EntityResourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -21,6 +23,7 @@ import java.util.Set;
  */
 @Path("/agents/cacheManagers/caches/statistics/samples")
 public final class CacheStatisticSamplesResourceServiceImpl implements CacheStatisticSamplesResourceService {
+  private static final Logger LOG = LoggerFactory.getLogger(CacheStatisticSamplesResourceServiceImpl.class);
   private final EntityResourceFactory entityResourceFactory;
 
   private final RequestValidator validator;
@@ -34,6 +37,9 @@ public final class CacheStatisticSamplesResourceServiceImpl implements CacheStat
 
   @Override
   public Collection<CacheStatisticSampleEntity> getCacheStatisticSamples(UriInfo info) {
+    LOG.info(String.format("Invoking CacheStatisticSamplesResourceServiceImpl.getCacheStatisticSamples: %s",
+        info.getRequestUri()));
+
     validator.validateSafe(info);
 
     String cacheManagerNames = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");

@@ -5,6 +5,8 @@ package net.sf.ehcache.management.resource.services;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.Representable;
@@ -28,6 +30,8 @@ import java.util.Set;
  */
 @Path("/agents")
 public final class AgentsResourceServiceImpl implements AgentsResourceService {
+  private static final Logger LOG = LoggerFactory.getLogger(AgentsResourceServiceImpl.class);
+
   private final static Set<String> DFLT_ATTRS = new HashSet<String>(Arrays.asList(new String[]{"Name"}));
 
   private final EntityResourceFactory entityResourceFactory;
@@ -48,6 +52,8 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
    * {@inheritDoc}
    */
   public Collection<AgentEntity> getAgents(UriInfo info) {
+    LOG.info(String.format("Invoking AgentsResourceServiceImpl.getAgents: %s", info.getRequestUri()));
+
     validator.validateSafe(info);
 
     return buildAgent();
@@ -58,6 +64,8 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
    */
   @Override
   public Collection<AgentMetadataEntity> getAgentsMetadata(UriInfo info) {
+    LOG.info(String.format("Invoking AgentsResourceServiceImpl.getAgentsMetadata: %s", info.getRequestUri()));
+
     validator.validateSafe(info);
 
     AgentMetadataEntity ame = new AgentMetadataEntity();
