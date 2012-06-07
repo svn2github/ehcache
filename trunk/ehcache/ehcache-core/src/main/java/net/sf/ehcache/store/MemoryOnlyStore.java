@@ -126,16 +126,6 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
         }
 
         @Override
-        public void shutdown() {
-            //
-        }
-
-        @Override
-        public void init() {
-            //
-        }
-
-        @Override
         public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors) {
             Criteria c = query.getCriteria();
 
