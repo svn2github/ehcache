@@ -248,7 +248,7 @@
             <net.sf.ehcache.skipUpdateCheck>true</net.sf.ehcache.skipUpdateCheck>
             <java.awt.headless>true</java.awt.headless>
             <net.sf.ehcache.speedAdjustmentFactor>${net.sf.ehcache.speedAdjustmentFactor}</net.sf.ehcache.speedAdjustmentFactor>
-            <java.io.tmpdir>c:\tmp</java.io.tmpdir>
+            <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
           </systemPropertyVariables>
           <classpathDependencyExcludes>
             <classpathDependencyExclude>net.sf.ehcache:sizeof-agent</classpathDependencyExclude>
