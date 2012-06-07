@@ -14,7 +14,8 @@ import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
-import com.tc.util.Assert;
+
+import junit.framework.Assert;
 
 public class ClassicIsInvalidTest extends AbstractCacheTestBase {
 
