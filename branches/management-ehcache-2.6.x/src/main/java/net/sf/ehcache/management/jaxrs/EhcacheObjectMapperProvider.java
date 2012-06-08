@@ -12,6 +12,9 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 /**
+ * A {@code ContextResolver} that provides special serialization for {@link AgentEntity} objects to reflect the correct
+ * attribute name describing the root {@link Representable} objects for this embedded agent.
+ *
  * @author brandony
  * 
  */
