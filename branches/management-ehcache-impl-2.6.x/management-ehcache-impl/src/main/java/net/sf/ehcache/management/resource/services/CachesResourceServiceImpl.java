@@ -6,6 +6,7 @@ import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -80,7 +81,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
 
     try {
       cacheSvc.createOrUpdateCache(cacheManagerName, cacheName, resource);
-    } catch (Exception e) {
+    } catch (ServiceExecutionException e) {
       LOG.error("Failed to create or update cache.", e.getCause());
       throw new WebApplicationException(
           Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());

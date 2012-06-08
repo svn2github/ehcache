@@ -6,8 +6,6 @@ package net.sf.ehcache.management.service.impl;
 
 import net.sf.ehcache.management.resource.CacheConfigEntity;
 import net.sf.ehcache.management.sampled.CacheManagerSampler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -27,7 +25,6 @@ import java.util.Map;
  * @author brandony
  */
 final class CacheConfigurationEntityBuilder {
-  private static final Logger LOG = LoggerFactory.getLogger(CacheManagerConfigurationEntityBuilder.class);
 
   private final Map<String, CacheManagerSampler> samplersByCName = new HashMap<String, CacheManagerSampler>();
 
@@ -65,25 +62,23 @@ final class CacheConfigurationEntityBuilder {
 
           String xml = sampler.generateActiveConfigDeclaration(cacheName);
 
-          Document config = null;
+          Document config;
           try {
             config = domBuilder.parse(new InputSource(new StringReader(xml)));
           } catch (SAXException e) {
-            LOG.error(String.format("Failed to parse cache configuration xml for \"%s\".", sampler.getName()),
+            throw new RuntimeException(String.format("Failed to parse cache configuration xml for \"%s\".", sampler.getName()),
                 e);
           } catch (IOException e) {
-            LOG.error(String.format("Failed to serialize manager configuration for \"%s\".", sampler.getName()),
+            throw new RuntimeException(String.format("Failed to serialize manager configuration for \"%s\".", sampler.getName()),
                 e);
           }
 
-          if (config != null) {
-            cce.setXml(config.getDocumentElement());
-            cces.add(cce);
-          }
+          cce.setXml(config.getDocumentElement());
+          cces.add(cce);
         }
 
     } catch (ParserConfigurationException e) {
-      LOG.error("Failed to instantiate DocumentBuilder for parsing cache configurations", e);
+      throw new RuntimeException("Failed to instantiate DocumentBuilder for parsing cache configurations", e);
     }
 
     return cces;

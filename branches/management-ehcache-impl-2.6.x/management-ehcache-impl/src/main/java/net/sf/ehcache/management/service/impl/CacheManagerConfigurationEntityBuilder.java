@@ -6,8 +6,6 @@ package net.sf.ehcache.management.service.impl;
 
 import net.sf.ehcache.management.resource.CacheManagerConfigEntity;
 import net.sf.ehcache.management.sampled.CacheManagerSampler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -25,8 +23,6 @@ import java.util.List;
  * @author brandony
  */
 final class CacheManagerConfigurationEntityBuilder {
-  private static final Logger LOG = LoggerFactory.getLogger(CacheManagerConfigurationEntityBuilder.class);
-
   private final List<CacheManagerSampler> cmSamplers = new ArrayList<CacheManagerSampler>();
 
   static CacheManagerConfigurationEntityBuilder createWith(CacheManagerSampler sampler) {
@@ -55,22 +51,20 @@ final class CacheManagerConfigurationEntityBuilder {
 
         String xml = sampler.generateActiveConfigDeclaration();
 
-        Document config = null;
+        Document config;
         try {
           config = domBuilder.parse(new InputSource(new StringReader(xml)));
         } catch (SAXException e) {
-          LOG.error(String.format("Failed to parse cache manager configuration xml for \"%s\".", sampler.getName()), e);
+          throw new RuntimeException(String.format("Failed to parse cache manager configuration xml for \"%s\".", sampler.getName()), e);
         } catch (IOException e) {
-          LOG.error(String.format("Failed to serialize cache manager configuration for \"%s\".", sampler.getName()), e);
+          throw new RuntimeException(String.format("Failed to serialize cache manager configuration for \"%s\".", sampler.getName()), e);
         }
 
-        if (config != null) {
-          cmce.setXml(config.getDocumentElement());
-          cmces.add(cmce);
-        }
+        cmce.setXml(config.getDocumentElement());
+        cmces.add(cmce);
       }
     } catch (ParserConfigurationException e) {
-      LOG.error("Failed to instantiate DocumentBuilder for parsing cache manager configurations", e);
+      throw new RuntimeException("Failed to instantiate DocumentBuilder for parsing cache manager configurations", e);
     }
 
     return cmces;

@@ -70,14 +70,15 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
 
     AgentMetadataEntity ame = new AgentMetadataEntity();
     ame.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
-    // TODO: I imagine there is some specific ehcache naming detail we can discover to build up a more descriptive name.
-    // If this ends up being a static value then make it a static member.
     ame.setAgencyOf("Ehcache");
-    // Set the version from this package
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
     ame.setSecured(Utils.trimToNull(mgmtRESTSvcConfig.getSecurityServiceLocation()) != null);
     ame.setLicensed(EmbeddedEhcacheServiceLocator.locator().isLicensedLocator());
+    ame.setNeedClientAuth(mgmtRESTSvcConfig.isNeedClientAuth());
+    ame.setSampleHistorySize(mgmtRESTSvcConfig.getSampleHistorySize());
+    ame.setSampleIntervalSeconds(mgmtRESTSvcConfig.getSampleIntervalSeconds());
+    ame.setSampleSearchIntervalSeconds(mgmtRESTSvcConfig.getSampleSearchIntervalSeconds());
     return Collections.singleton(ame);
   }
 
