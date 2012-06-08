@@ -1,3 +1,18 @@
+/**
+ *  Copyright Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package net.sf.ehcache.management;
 
 import java.io.ByteArrayOutputStream;
@@ -12,27 +27,45 @@ import java.util.jar.Attributes.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ResourceClassLoader can load classes nested in a subdirectory of a jar
+ * Example :
+ * ehcache.jar!/net/sf/ehcache/CacheManager is in the "normal" classpath and will be loaded by any typical classloader
+ * ehcache.jar!/subdirectory/net/sf/ehcache/CacheManager can only be loaded by the ResourceClassLoader, with prefix "subdirectory"
+ *
+ * @author Anthony Dahanne
+ *
+ */
 public class ResourceClassLoader extends ClassLoader {
 
+    private static final int BUFFER_SIZE = 1024;
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceClassLoader.class);
     private final String prefix;
     private final String implementationVersion;
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceClassLoader.class);
 
+    /**
+     * Given a parent classloader and the prefix to apply to the lookup path
+     * Creates a ResourceClassLoader able to load classes from resources prefixed with "prefix"
+     *
+     * @param prefix
+     * @param parent
+     * @throws IOException
+     */
     public ResourceClassLoader(String prefix, ClassLoader parent) throws IOException {
         super(parent);
         this.prefix = prefix;
-        String implementationVersion = null;
+        String temporaryImplementationVersion = null;
         // looking up the version of our jar, from the Manifest in the private package (prefix)
         try {
             URL manifestResource = getParent().getResource(prefix + "/META-INF/MANIFEST.MF");
             InputStream in = manifestResource.openStream();
             Manifest man = new Manifest(in);
             Attributes attributes = man.getMainAttributes();
-            implementationVersion = attributes.getValue(Name.IMPLEMENTATION_VERSION);
+            temporaryImplementationVersion = attributes.getValue(Name.IMPLEMENTATION_VERSION);
         } catch (Exception e) {
             LOG.warn("Could not read the rest agent Manifest", e);
         }
-        this.implementationVersion = implementationVersion;
+        this.implementationVersion = temporaryImplementationVersion;
     }
 
     @Override
@@ -90,7 +123,7 @@ public class ResourceClassLoader extends ClassLoader {
 
         if (classResource != null) {
             try {
-                byte[] array = new byte[1024];
+                byte[] array = new byte[BUFFER_SIZE];
                 InputStream in = classResource.openStream();
                 ByteArrayOutputStream out = new ByteArrayOutputStream(array.length);
                 int length = in.read(array);
