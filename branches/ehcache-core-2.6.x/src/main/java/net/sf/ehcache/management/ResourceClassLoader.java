@@ -63,7 +63,7 @@ public class ResourceClassLoader extends ClassLoader {
             Attributes attributes = man.getMainAttributes();
             temporaryImplementationVersion = attributes.getValue(Name.IMPLEMENTATION_VERSION);
         } catch (Exception e) {
-            LOG.warn("Could not read the rest agent Manifest", e);
+            LOG.warn("Could not read the Manifest", e);
         }
         this.implementationVersion = temporaryImplementationVersion;
     }
@@ -110,13 +110,6 @@ public class ResourceClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String className) throws ClassNotFoundException {
 
-        int index = className.lastIndexOf('.');
-        if (index != -1) {
-            String pkgname = className.substring(0, index);
-            if (getPackage(pkgname) == null) {
-                definePackage(pkgname, null, null, null, null, implementationVersion, null, null);
-            }
-        }
 
         String classRealName = prefix + "/" + className.replace('.', '/') + ".class";
         URL classResource = getParent().getResource(classRealName);
@@ -131,12 +124,21 @@ public class ResourceClassLoader extends ClassLoader {
                     out.write(array, 0, length);
                     length = in.read(array);
                 }
-                return defineClass(className, out.toByteArray(), 0, out.size());
+                Class<?> defineClass = defineClass(className, out.toByteArray(), 0, out.size());
+                // class defined ok, let's define its package too
+                int index = className.lastIndexOf('.');
+                if (index != -1) {
+                    String pkgname = className.substring(0, index);
+                    if (getPackage(pkgname) == null) {
+                        definePackage(pkgname, null, null, null, null, implementationVersion, null, null);
+                    }
+                }
+                return defineClass;
             } catch (IOException e) {
                 LOG.warn("Impossible to open " + classRealName + " for loading", e);
             }
         }
-        throw new ClassNotFoundException();
+        throw new ClassNotFoundException(className);
 
     }
 
