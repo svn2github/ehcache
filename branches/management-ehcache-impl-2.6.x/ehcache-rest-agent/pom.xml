@@ -14,11 +14,18 @@
   
   <description>Ehcache REST implementation</description>
 
+  <properties>
+    <management-core.version>1.0.0-SNAPSHOT</management-core.version>
+    <temporary.name>temporary-shaded-classes</temporary.name>
+    <private-classpath>rest-management-private-classpath</private-classpath>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>management-ehcache-impl</artifactId>
       <version>${project.version}</version>      
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
@@ -35,14 +42,17 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>1.6</version>
         <configuration>
+          <finalName>${temporary.name}</finalName>
           <artifactSet>
-            <includes>
-              <!-- includes all Terracotta and Ehcache related dependencies -->
-              <include>org.terracotta:*</include>
-              <include>net.sf.ehcache:*</include>
-            </includes>
+            <excludes>
+              <!-- excludes already existing classes in the main classpath -->
+              <exclude>org.slf4j:*</exclude>
+            </excludes>
           </artifactSet>
-          <promoteTransitiveDependencies>true</promoteTransitiveDependencies>          
+          <transformers>
+            <transformer
+              implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+          </transformers>
         </configuration>
         <executions>
           <execution>
@@ -51,7 +61,54 @@
               <goal>shade</goal>
             </goals>
           </execution>
-        </executions>        
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.goldin</groupId>
+        <artifactId>copy-maven-plugin</artifactId>
+        <version>0.2.5</version>
+        <executions>
+          <!-- assemble kit content -->
+          <execution>
+            <id>orig</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <verbose>true</verbose>
+              <resources>
+                <resource>
+                  <targetPath>${project.build.outputDirectory}</targetPath>
+                  <file>${project.build.directory}/${project.build.finalName}.jar</file>
+                  <unpack>true</unpack>
+                </resource>
+                <resource>
+                  <targetPath>${project.build.outputDirectory}/${private-classpath}</targetPath>
+                  <file>${project.build.directory}/${temporary.name}.jar</file>
+                  <unpack>true</unpack>
+                </resource>
+                <resource>
+                  <targetPath>${project.build.directory}/${project.build.finalName}.jar</targetPath>
+                  <directory>${project.build.outputDirectory}</directory>
+                  <pack>true</pack>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
