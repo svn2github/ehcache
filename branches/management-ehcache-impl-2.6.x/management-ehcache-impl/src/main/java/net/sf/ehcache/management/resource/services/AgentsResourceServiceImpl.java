@@ -78,7 +78,6 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
     ame.setNeedClientAuth(mgmtRESTSvcConfig.isNeedClientAuth());
     ame.setSampleHistorySize(mgmtRESTSvcConfig.getSampleHistorySize());
     ame.setSampleIntervalSeconds(mgmtRESTSvcConfig.getSampleIntervalSeconds());
-    ame.setSampleSearchIntervalSeconds(mgmtRESTSvcConfig.getSampleSearchIntervalSeconds());
     return Collections.singleton(ame);
   }
 

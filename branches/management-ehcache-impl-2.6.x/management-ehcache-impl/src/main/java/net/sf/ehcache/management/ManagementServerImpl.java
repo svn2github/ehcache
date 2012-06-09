@@ -81,6 +81,12 @@ public final class ManagementServerImpl implements ManagementServer {
   }
 
   private void loadEmbeddedAgentServiceLocator(ManagementRESTServiceConfiguration configuration) {
+    //Clear settings that are invalid for non-ee management servers
+    configuration.setNeedClientAuth(false);
+    configuration.setSecurityServiceLocation(null);
+    configuration.setSslEnabled(false);
+    configuration.setSecurityServiceTimeout(0);
+
     DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService();
     ServiceLocator.load(
         new EmbeddedEhcacheServiceLocator(true, new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
