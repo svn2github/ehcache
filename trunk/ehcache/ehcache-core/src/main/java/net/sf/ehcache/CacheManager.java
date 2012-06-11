@@ -1753,11 +1753,17 @@ public class CacheManager {
      * @throws CacheException if the cache with <code>cacheName</code> does not exist
      */
     public String getActiveConfigurationText(String cacheName) throws CacheException {
-        Cache cache = getCache(cacheName);
-        CacheConfiguration config = cache != null ? cache.getCacheConfiguration() : null;
-        if (config == null) {
+        boolean decoratedCache = false;
+        Ehcache cache = getCache(cacheName);
+        if (cache == null) {
+            cache = getEhcache(cacheName);
+            decoratedCache = true;
+        }
+        CacheConfiguration actualConfig = cache != null ? cache.getCacheConfiguration() : null;
+        if (actualConfig == null) {
             throw new CacheException("Cache with name '" + cacheName + "' does not exist");
         }
+        CacheConfiguration config = decoratedCache ? actualConfig.clone().name(cacheName) : actualConfig;
         return ConfigurationUtil.generateCacheConfigurationText(runtimeCfg.getConfiguration(), config);
     }
 
