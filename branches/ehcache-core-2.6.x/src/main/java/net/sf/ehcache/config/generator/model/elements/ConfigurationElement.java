@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.config.generator.model.elements;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -96,10 +96,14 @@ public class ConfigurationElement extends SimpleNodeElement {
 
         if (cacheManager != null) {
             for (String cacheName : cacheManager.getCacheNames()) {
-                Cache cache = cacheManager.getCache(cacheName);
-                if (cache != null) {
-                    addChildElement(new CacheConfigurationElement(this, configuration, cache.getCacheConfiguration()));
+                boolean decoratedCache = false;
+                Ehcache cache = cacheManager.getCache(cacheName);
+                if (cache == null) {
+                    cache = cacheManager.getEhcache(cacheName);
+                    decoratedCache = true;
                 }
+                CacheConfiguration config = decoratedCache ? cache.getCacheConfiguration().clone().name(cacheName) : cache.getCacheConfiguration();
+                addChildElement(new CacheConfigurationElement(this, configuration, config));
             }
         } else {
             for (CacheConfiguration cacheConfiguration : configuration.getCacheConfigurations().values()) {
