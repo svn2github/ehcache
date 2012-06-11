@@ -48,7 +48,8 @@ public interface FeaturesManager {
     void startup();
 
     /**
-     * Called on {@code CacheManager} shutdown.
+     * Called on {@code CacheManager} shutdown and on exception during CacheManager bootstrapping.
      */
-    void shutdown();
+    
+    void dispose();
 }
