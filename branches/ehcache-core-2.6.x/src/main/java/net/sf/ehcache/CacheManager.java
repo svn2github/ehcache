@@ -53,7 +53,6 @@ import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
-import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
@@ -229,8 +228,6 @@ public class CacheManager {
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     private String registeredMgmtSvrBind;
-
-    private volatile SearchManager searchManager;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -1377,10 +1374,6 @@ public class CacheManager {
                 return;
             }
 
-            if (searchManager != null) {
-                searchManager.shutdown();
-            }
-
             if (registeredMgmtSvrBind != null) {
                 ManagementServerLoader.unregister(registeredMgmtSvrBind, this);
                 registeredMgmtSvrBind = null;
@@ -1861,24 +1854,6 @@ public class CacheManager {
             transactionIDFactory = new DelegatingTransactionIDFactory(terracottaClient, getName());
         }
         return transactionIDFactory;
-    }
-
-    /**
-     * Get the indexed search manager
-     *
-     * @return an IndexedSearchManager
-     */
-    public SearchManager getIndexedSearchManager() {
-        synchronized (this) {
-            if (searchManager == null) {
-                SearchManager rv = (SearchManager) ClassLoaderUtil.createNewInstance(
-                        "net.sf.ehcache.store.offheap.search.LuceneIndexedSearchManager", new Class[] {DiskStorePathManager.class},
-                        new Object[] {diskStorePathManager});
-                rv.init();
-                searchManager = rv;
-            }
-            return searchManager;
-        }
     }
 
     /**

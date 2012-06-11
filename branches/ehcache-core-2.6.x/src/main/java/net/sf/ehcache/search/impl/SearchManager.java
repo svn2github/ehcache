@@ -31,16 +31,6 @@ import net.sf.ehcache.store.StoreQuery;
 public interface SearchManager {
 
     /**
-     * shutdown the search manager
-     */
-    void shutdown();
-
-    /**
-     * initialize the search manager
-     */
-    void init();
-
-    /**
      * Execute a query against the given cache
      *
      * @param cacheName cache name
