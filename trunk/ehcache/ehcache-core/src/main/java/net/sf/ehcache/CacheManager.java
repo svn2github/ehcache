@@ -40,7 +40,7 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.event.NonstopCacheEventListener;
-import net.sf.ehcache.management.ManagementServer;
+import net.sf.ehcache.management.ManagementServerLoader;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
@@ -156,8 +156,6 @@ public class CacheManager {
     private static final IdentityHashMap<CacheManager, String> CACHE_MANAGERS_REVERSE_MAP = new IdentityHashMap<CacheManager, String>();
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
-
-    private static final Map<String, ManagementServer> MGMT_SVR_BY_BIND = new HashMap<String, ManagementServer>();
 
     /**
      * Status of the Cache Manager
@@ -448,25 +446,7 @@ public class CacheManager {
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
              */
             synchronized (CacheManager.class) {
-                if (!MGMT_SVR_BY_BIND.containsKey(managementRESTService.getBind())) {
-                    ManagementServer embeddedRESTServer;
-
-                    try {
-                        embeddedRESTServer = (ManagementServer)ClassLoaderUtil.createNewInstance(MANAGEMENT_SERVER_CLASS_NAME,
-                            new Class[]{managementRESTService.getClass()}, new Object[]{managementRESTService});
-                    } catch (CacheException e) {
-                        if (e.getCause() instanceof ClassNotFoundException) {
-                            throw new RuntimeException(
-                                "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
-                        } else {
-                            throw new RuntimeException("Failed to instantiate ManagementServer.", e);
-                        }
-                    }
-
-                    embeddedRESTServer.start();
-                    MGMT_SVR_BY_BIND.put(managementRESTService.getBind(), embeddedRESTServer);
-                }
-                MGMT_SVR_BY_BIND.get(managementRESTService.getBind()).register(this);
+                ManagementServerLoader.register(this, managementRESTService);
                 registeredMgmtSvrBind = managementRESTService.getBind();
             }
         }
@@ -1394,26 +1374,9 @@ public class CacheManager {
                 return;
             }
 
-            boolean removeMgmtSvr = false;
             if (registeredMgmtSvrBind != null) {
-                ManagementServer standaloneRestServer = MGMT_SVR_BY_BIND.get(registeredMgmtSvrBind);
-
-                try {
-                    standaloneRestServer.unregister(this);
-
-                    if (!standaloneRestServer.hasRegistered()) {
-                        removeMgmtSvr = true;
-                        standaloneRestServer.stop();
-                    }
-                } catch (Exception e) {
-                    LOG.warn("Failed to shutdown the ManagementRESTService", e);
-                } finally {
-                    if (removeMgmtSvr) {
-                      MGMT_SVR_BY_BIND.remove(registeredMgmtSvrBind);
-                    }
-
-                    registeredMgmtSvrBind = null;
-                }
+                ManagementServerLoader.unregister(registeredMgmtSvrBind, this);
+                registeredMgmtSvrBind = null;
             }
 
             for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
