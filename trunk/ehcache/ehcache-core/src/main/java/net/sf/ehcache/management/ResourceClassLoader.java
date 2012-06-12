@@ -51,25 +51,34 @@ public class ResourceClassLoader extends ClassLoader {
      * @param parent
      * @throws IOException
      */
-    public ResourceClassLoader(String prefix, ClassLoader parent) throws IOException {
+    public ResourceClassLoader(String prefix, ClassLoader parent) {
         super(parent);
         this.prefix = prefix;
         String temporaryImplementationVersion = null;
+        InputStream in = null;
         // looking up the version of our jar, from the Manifest in the private package (prefix)
         try {
             URL manifestResource = getParent().getResource(prefix + "/META-INF/MANIFEST.MF");
-            InputStream in = manifestResource.openStream();
+            in = manifestResource.openStream();
             Manifest man = new Manifest(in);
             Attributes attributes = man.getMainAttributes();
             temporaryImplementationVersion = attributes.getValue(Name.IMPLEMENTATION_VERSION);
         } catch (Exception e) {
             LOG.warn("Could not read the Manifest", e);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+              } catch (Exception e) {
+                  /* Ignore */
+              }
         }
         this.implementationVersion = temporaryImplementationVersion;
     }
 
     @Override
-    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    public synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         // changing the order of delegation to prefer the resourceClassLoader over its parents
         Class c = findLoadedClass(name);
         if (c == null) {
@@ -115,9 +124,10 @@ public class ResourceClassLoader extends ClassLoader {
         URL classResource = getParent().getResource(classRealName);
 
         if (classResource != null) {
+            InputStream in = null;
             try {
                 byte[] array = new byte[BUFFER_SIZE];
-                InputStream in = classResource.openStream();
+                in = classResource.openStream();
                 ByteArrayOutputStream out = new ByteArrayOutputStream(array.length);
                 int length = in.read(array);
                 while (length > 0) {
@@ -136,6 +146,14 @@ public class ResourceClassLoader extends ClassLoader {
                 return defineClass;
             } catch (IOException e) {
                 LOG.warn("Impossible to open " + classRealName + " for loading", e);
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                  } catch (Exception e) {
+                      /* Ignore */
+                  }
             }
         }
         throw new ClassNotFoundException(className);
