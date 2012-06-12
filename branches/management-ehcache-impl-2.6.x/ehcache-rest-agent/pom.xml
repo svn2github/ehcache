@@ -16,8 +16,6 @@
 
   <properties>
     <management-core.version>1.0.0-SNAPSHOT</management-core.version>
-    <temporary.name>temporary-shaded-classes</temporary.name>
-    <scope>runtime</scope>
     <private-classpath>rest-management-private-classpath</private-classpath>
   </properties>
 
