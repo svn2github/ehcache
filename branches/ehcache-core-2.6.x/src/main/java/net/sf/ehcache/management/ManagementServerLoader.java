@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.management;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -48,11 +47,7 @@ public class ManagementServerLoader {
     private static final Logger LOG = LoggerFactory.getLogger(ManagementServerLoader.class);
 
     static {
-        try {
             RESOURCE_CLASS_LOADER = new ResourceClassLoader(PRIVATE_CLASSPATH, CacheManager.class.getClassLoader());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to instantiate ManagementServer.", e);
-        }
     }
 
     /**
