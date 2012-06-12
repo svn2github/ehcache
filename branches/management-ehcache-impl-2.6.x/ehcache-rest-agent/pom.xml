@@ -17,6 +17,7 @@
   <properties>
     <management-core.version>1.0.0-SNAPSHOT</management-core.version>
     <temporary.name>temporary-shaded-classes</temporary.name>
+    <scope>runtime</scope>
     <private-classpath>rest-management-private-classpath</private-classpath>
   </properties>
 
@@ -25,13 +26,11 @@
       <groupId>net.sf.ehcache</groupId>
       <artifactId>management-ehcache-impl</artifactId>
       <version>${project.version}</version>      
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
       <version>7.6.4.v20120524</version>
-      <scope>runtime</scope>
     </dependency>
   </dependencies>
   
@@ -42,7 +41,7 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>1.6</version>
         <configuration>
-          <finalName>${temporary.name}</finalName>
+        <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
           <artifactSet>
             <excludes>
               <!-- excludes already existing classes in the main classpath -->
@@ -79,14 +78,13 @@
               <verbose>true</verbose>
               <resources>
                 <resource>
-                  <targetPath>${project.build.outputDirectory}</targetPath>
+                  <targetPath>${project.build.outputDirectory}/${private-classpath}</targetPath>
                   <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   <unpack>true</unpack>
                 </resource>
                 <resource>
-                  <targetPath>${project.build.outputDirectory}/${private-classpath}</targetPath>
-                  <file>${project.build.directory}/${temporary.name}.jar</file>
-                  <unpack>true</unpack>
+                  <targetPath>${project.build.outputDirectory}/META-INF/</targetPath>
+                  <file>${project.build.outputDirectory}/${private-classpath}/META-INF/MANIFEST.MF</file>
                 </resource>
                 <resource>
                   <targetPath>${project.build.directory}/${project.build.finalName}.jar</targetPath>
