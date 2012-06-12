@@ -54,6 +54,7 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
     init();
   }
 
+  @Override
   public void loadReferences() {
     debug("loadReferences()");
     incoherentNodes.getClass();
@@ -94,26 +95,32 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
     }
   }
 
+  @Override
   public boolean isClusterOnline() {
     return clusterInfo.areOperationsEnabled();
   }
 
+  @Override
   public void dispose() {
     this.clusterInfo.removeClusterListener(this);
   }
 
+  @Override
   public void acquireReadLock() {
     this.readWriteLock.readLock().lock();
   }
 
+  @Override
   public void acquireWriteLock() {
     this.readWriteLock.writeLock().lock();
   }
 
+  @Override
   public void releaseReadLock() {
     this.readWriteLock.readLock().unlock();
   }
 
+  @Override
   public void releaseWriteLock() {
     this.readWriteLock.writeLock().unlock();
   }
@@ -159,6 +166,7 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
   }
 
   // write autolocked in config
+  @Override
   public synchronized void waitUntilClusterCoherent() throws InterruptedException {
     while (incoherentNodes.size() > 0) {
       if (DEBUG) {
@@ -175,6 +183,7 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
   }
 
   // read autolocked in config
+  @Override
   public synchronized boolean isClusterCoherent() {
     if (DEBUG) {
       debug("isClusterCoherent()");
@@ -189,10 +198,12 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
 
   // returns true if this node is coherent
   // other nodes might still be incoherent
+  @Override
   public boolean isNodeCoherent() {
     return coherentLocally.get();
   }
 
+  @Override
   public void setNodeCoherent(boolean coherent) {
     if (coherent) {
       if (coherentLocally.compareAndSet(false, true)) {
@@ -226,6 +237,7 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
     }
   }
 
+  @Override
   public void nodeLeft(ClusterEvent evt) {
     debug("Received node left event: " + evt.getNode().getId());
     String nodeID = evt.getNode().getId();
@@ -235,24 +247,31 @@ public class IncoherentNodesSet implements CacheCoherence, ClusterListener, NotC
         debug("Ignoring nodeLeft from current node " + nodeID);
       }
     } else {
-      if (this.removeIncoherentNode(nodeID)) {
-        if (isClusterCoherent()) {
-          clusteredStore.fireClusterCoherent(true);
+      if (clusterInfo.areOperationsEnabled()) {
+        if (this.removeIncoherentNode(nodeID)) {
+          if (isClusterCoherent()) {
+            clusteredStore.fireClusterCoherent(true);
+          }
         }
+      } else {
+        LOGGER.warn("Ignoring nodeLeft of node: " + nodeID + ", as current node is already offline");
       }
     }
   }
 
+  @Override
   public void nodeJoined(ClusterEvent evt) {
     synchronized (nodeJoinedEventListenerSync) {
       nodeJoinedEventListenerSync.notifyAll();
     }
   }
 
+  @Override
   public void operationsDisabled(ClusterEvent evt) {
     // no-op
   }
 
+  @Override
   public void operationsEnabled(ClusterEvent evt) {
     // no-op
   }
