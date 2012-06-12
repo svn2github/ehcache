@@ -40,7 +40,7 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
 import net.sf.ehcache.event.NonstopCacheEventListener;
-import net.sf.ehcache.management.ManagementServer;
+import net.sf.ehcache.management.ManagementServerLoader;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
@@ -53,7 +53,6 @@ import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
 import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
-import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
@@ -158,8 +157,6 @@ public class CacheManager {
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
-    private static final Map<String, ManagementServer> MGMT_SVR_BY_BIND = new HashMap<String, ManagementServer>();
-
     /**
      * Status of the Cache Manager
      */
@@ -230,8 +227,6 @@ public class CacheManager {
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     private String registeredMgmtSvrBind;
-
-    private volatile SearchManager searchManager;
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -372,6 +367,10 @@ public class CacheManager {
         try {
             doInit(configuration);
         } catch (Throwable t) {
+            if (featuresManager != null) {
+                featuresManager.dispose();
+            }
+            
             synchronized (CacheManager.class) {
                 final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
                 CACHE_MANAGERS_MAP.remove(name);
@@ -451,25 +450,7 @@ public class CacheManager {
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
              */
             synchronized (CacheManager.class) {
-                if (!MGMT_SVR_BY_BIND.containsKey(managementRESTService.getBind())) {
-                    ManagementServer embeddedRESTServer;
-
-                    try {
-                        embeddedRESTServer = (ManagementServer)ClassLoaderUtil.createNewInstance(MANAGEMENT_SERVER_CLASS_NAME,
-                            new Class[]{managementRESTService.getClass()}, new Object[]{managementRESTService});
-                    } catch (CacheException e) {
-                        if (e.getCause() instanceof ClassNotFoundException) {
-                            throw new RuntimeException(
-                                "Failed to initialize the ManagementRESTService - Did you include management-ehcache-impl on the classpath?", e);
-                        } else {
-                            throw new RuntimeException("Failed to instantiate ManagementServer.", e);
-                        }
-                    }
-
-                    embeddedRESTServer.start();
-                    MGMT_SVR_BY_BIND.put(managementRESTService.getBind(), embeddedRESTServer);
-                }
-                MGMT_SVR_BY_BIND.get(managementRESTService.getBind()).register(this);
+                ManagementServerLoader.register(this, managementRESTService);
                 registeredMgmtSvrBind = managementRESTService.getBind();
             }
         }
@@ -1397,30 +1378,9 @@ public class CacheManager {
                 return;
             }
 
-            if (searchManager != null) {
-                searchManager.shutdown();
-            }
-
-            boolean removeMgmtSvr = false;
             if (registeredMgmtSvrBind != null) {
-                ManagementServer standaloneRestServer = MGMT_SVR_BY_BIND.get(registeredMgmtSvrBind);
-
-                try {
-                    standaloneRestServer.unregister(this);
-
-                    if (!standaloneRestServer.hasRegistered()) {
-                        removeMgmtSvr = true;
-                        standaloneRestServer.stop();
-                    }
-                } catch (Exception e) {
-                    LOG.warn("Failed to shutdown the ManagementRESTService", e);
-                } finally {
-                    if (removeMgmtSvr) {
-                      MGMT_SVR_BY_BIND.remove(registeredMgmtSvrBind);
-                    }
-
-                    registeredMgmtSvrBind = null;
-                }
+                ManagementServerLoader.unregister(registeredMgmtSvrBind, this);
+                registeredMgmtSvrBind = null;
             }
 
             for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
@@ -1461,7 +1421,7 @@ public class CacheManager {
             getCacheRejoinAction().unregisterAll();
 
             if (featuresManager != null) {
-                featuresManager.shutdown();
+                featuresManager.dispose();
             }
 
             // release file lock on diskstore path
@@ -1797,11 +1757,17 @@ public class CacheManager {
      * @throws CacheException if the cache with <code>cacheName</code> does not exist
      */
     public String getActiveConfigurationText(String cacheName) throws CacheException {
-        Cache cache = getCache(cacheName);
-        CacheConfiguration config = cache != null ? cache.getCacheConfiguration() : null;
-        if (config == null) {
+        boolean decoratedCache = false;
+        Ehcache cache = getCache(cacheName);
+        if (cache == null) {
+            cache = getEhcache(cacheName);
+            decoratedCache = true;
+        }
+        CacheConfiguration actualConfig = cache != null ? cache.getCacheConfiguration() : null;
+        if (actualConfig == null) {
             throw new CacheException("Cache with name '" + cacheName + "' does not exist");
         }
+        CacheConfiguration config = decoratedCache ? actualConfig.clone().name(cacheName) : actualConfig;
         return ConfigurationUtil.generateCacheConfigurationText(runtimeCfg.getConfiguration(), config);
     }
 
@@ -1892,24 +1858,6 @@ public class CacheManager {
             transactionIDFactory = new DelegatingTransactionIDFactory(terracottaClient, getName());
         }
         return transactionIDFactory;
-    }
-
-    /**
-     * Get the indexed search manager
-     *
-     * @return an IndexedSearchManager
-     */
-    public SearchManager getIndexedSearchManager() {
-        synchronized (this) {
-            if (searchManager == null) {
-                SearchManager rv = (SearchManager) ClassLoaderUtil.createNewInstance(
-                        "net.sf.ehcache.store.offheap.search.LuceneIndexedSearchManager", new Class[] {DiskStorePathManager.class},
-                        new Object[] {diskStorePathManager});
-                rv.init();
-                searchManager = rv;
-            }
-            return searchManager;
-        }
     }
 
     /**

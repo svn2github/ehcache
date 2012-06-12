@@ -22,7 +22,7 @@ package net.sf.ehcache;
  *
  * @author teck
  */
-public class ElementVersionHelper {
+public class ElementIdHelper {
 
     /**
      * Is element id set?

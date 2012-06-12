@@ -14,11 +14,13 @@ import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebResponse;
 import com.tc.test.AppServerInfo;
 import com.tc.test.TestConfigObject;
+import com.tc.test.server.appserver.StandardAppServerParameters;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
 import com.tc.test.server.appserver.deployment.WARBuilder;
 import com.tc.test.server.appserver.deployment.WebApplicationServer;
 import com.tc.util.Grep;
+import com.tc.util.runtime.Vm;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -83,6 +85,12 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
     private void addPackageToAppServerClassPath(Class clazz) {
       String path = WARBuilder.calculatePathToClass(clazz).getFile().getAbsolutePath();
       TestConfigObject.getInstance().addToAppServerClassPath(path);
+    }
+
+    @Override
+    protected void configureServerParamers(StandardAppServerParameters params) {
+      super.configureServerParamers(params);
+      if (!Vm.isJRockit()) params.appendJvmArgs("-XX:MaxPermSize=160m");
     }
 
     @Override
