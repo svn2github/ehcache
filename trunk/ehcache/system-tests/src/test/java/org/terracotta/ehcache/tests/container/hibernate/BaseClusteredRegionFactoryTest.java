@@ -19,12 +19,10 @@ import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploy
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
 import com.tc.test.server.appserver.deployment.WARBuilder;
 import com.tc.test.server.appserver.deployment.WebApplicationServer;
-import com.tc.util.Grep;
 import com.tc.util.runtime.Vm;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.List;
 
 import javax.transaction.Transaction;
 
@@ -48,7 +46,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
   public static abstract class BaseClusteredCacheProviderTestSetup extends AbstractStandaloneContainerTestSetup {
 
     private NetworkServerControl derbyServer;
-    private Class testClass;
+    private final Class testClass;
 
     protected BaseClusteredCacheProviderTestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
                                                   String ehcacheConfigFile) {
