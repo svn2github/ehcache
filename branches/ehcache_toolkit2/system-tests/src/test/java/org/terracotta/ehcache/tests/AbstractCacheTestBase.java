@@ -5,18 +5,13 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.CacheManager;
 
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.io.IOUtils;
-import org.objectweb.asm.ClassWriter;
-import org.terracotta.test.util.JMXUtils;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.tests.base.AbstractTestBase;
 import org.terracotta.toolkit.client.TerracottaClient;
 
-import com.tc.admin.common.MBeanServerInvocationProxy;
+import com.tc.management.beans.L2MBeanNames;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.File;
@@ -54,25 +49,14 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String ehcache = TestBaseUtil.jarFor(CacheManager.class);
     String slf4jApi = TestBaseUtil.jarFor(org.slf4j.LoggerFactory.class);
     String slf4jBinder = TestBaseUtil.jarFor(org.slf4j.impl.StaticLoggerBinder.class);
-    String cLogging = TestBaseUtil.jarFor(org.apache.commons.logging.LogFactory.class);
-    String asm = TestBaseUtil.jarFor(ClassWriter.class); // needed for OtherClassloaderClient
+    String l2Mbean = TestBaseUtil.jarFor(L2MBeanNames.class);
     String jta = TestBaseUtil.jarFor(TransactionManager.class);
-    String oswego = TestBaseUtil.jarFor(EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap.class);
     String expressRuntime = TestBaseUtil.jarFor(TerracottaClient.class);
-    String parseException = TestBaseUtil.jarFor(ParseException.class); // apache commons
-    String httpMethod = TestBaseUtil.jarFor(HttpMethod.class);
-    String decoder = TestBaseUtil.jarFor(DecoderException.class);
-    String jmxUtils = TestBaseUtil.jarFor(JMXUtils.class);
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
 
-    // TODO: get rid of this
-    String mbeanSereverProxy = TestBaseUtil.jarFor(MBeanServerInvocationProxy.class);
-
-    String classpath = "";
-    classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
-                              writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, slf4jApi,
-                              slf4jBinder, cLogging, asm, jta, oswego, parseException, httpMethod, decoder, jmxUtils,
-                              clientBase, mbeanSereverProxy);
+    String classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
+                              writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, jta, slf4jApi,
+                              slf4jBinder, clientBase, l2Mbean);
 
     return classpath;
   }
