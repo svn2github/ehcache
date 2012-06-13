@@ -124,6 +124,14 @@ public class ResourceClassLoader extends ClassLoader {
         URL classResource = getParent().getResource(classRealName);
 
         if (classResource != null) {
+            // classresource ok, let's define its package too
+            int index = className.lastIndexOf('.');
+            if (index != -1) {
+                String pkgname = className.substring(0, index);
+                if (getPackage(pkgname) == null) {
+                    definePackage(pkgname, null, null, null, null, implementationVersion, null, null);
+                }
+            }
             InputStream in = null;
             try {
                 byte[] array = new byte[BUFFER_SIZE];
@@ -135,14 +143,6 @@ public class ResourceClassLoader extends ClassLoader {
                     length = in.read(array);
                 }
                 Class<?> defineClass = defineClass(className, out.toByteArray(), 0, out.size());
-                // class defined ok, let's define its package too
-                int index = className.lastIndexOf('.');
-                if (index != -1) {
-                    String pkgname = className.substring(0, index);
-                    if (getPackage(pkgname) == null) {
-                        definePackage(pkgname, null, null, null, null, implementationVersion, null, null);
-                    }
-                }
                 return defineClass;
             } catch (IOException e) {
                 LOG.warn("Impossible to open " + classRealName + " for loading", e);
