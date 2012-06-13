@@ -48,9 +48,12 @@ import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.constructs.blocking.CountingCacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
@@ -1411,4 +1414,19 @@ public class CacheManagerTest {
         }
     }
 
+    @Test
+    public void testStrategyNoneDoesntRequireDiskPath() {
+        Configuration config = new Configuration();
+        config.addCache(new CacheConfiguration().name("foo")
+                .maxEntriesLocalHeap(1000)
+                .persistence(new PersistenceConfiguration().strategy(Strategy.NONE)));
+
+        CacheManager manager = new CacheManager(config);
+        try {
+            ConfigurationHelper helper = new ConfigurationHelper(manager, config);
+            Assert.assertThat(helper.numberOfCachesThatUseDiskStorage(), is(0));
+        } finally {
+            manager.shutdown();
+        }
+    }
 }
