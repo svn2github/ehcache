@@ -119,4 +119,23 @@ public class DeleteOperation implements SingleOperation {
         }
         cacheWriter.throwAway(element, SingleOperationType.DELETE, e);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode() {
+      return getKey().hashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(Object other) {
+      if (other instanceof DeleteOperation) {
+        return getCreationTime() == ((DeleteOperation) other).getCreationTime() &&
+                getKey().equals(((DeleteOperation) other).getKey());
+      } else {
+        return false;
+      }
+    }
 }

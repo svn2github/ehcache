@@ -105,7 +105,7 @@ public class CacheWriterConfiguration implements Cloneable {
              */
             @Override
             public CacheWriterManager createWriterManager(Cache cache) {
-                return new WriteBehindManager();
+                return new WriteBehindManager(cache);
             }
         };
 

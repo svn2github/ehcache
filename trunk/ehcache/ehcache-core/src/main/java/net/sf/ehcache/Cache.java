@@ -1133,11 +1133,11 @@ public class Cache implements InternalEhcache, StoreListener {
             }
             compoundStore.setAttributeExtractors(extractors);
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
-            initialiseCacheWriterManager(false);
             cacheStatus.changeState(Status.STATUS_ALIVE);
+            initialiseRegisteredCacheWriter();
+            initialiseCacheWriterManager(false);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
-            initialiseRegisteredCacheWriter();
             // initialize live statistics
             // register to get notifications of
             // put/update/removeInternal/expiry/eviction

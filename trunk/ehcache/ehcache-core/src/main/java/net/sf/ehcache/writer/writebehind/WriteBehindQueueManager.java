@@ -36,7 +36,21 @@ public class WriteBehindQueueManager implements WriteBehind {
     private final ReentrantReadWriteLock.ReadLock readLock = rwLock.readLock();
     private final ReentrantReadWriteLock.WriteLock writeLock = rwLock.writeLock();
 
-    private List<WriteBehindQueue> queues = new ArrayList<WriteBehindQueue>();
+    private final List<WriteBehind> queues = new ArrayList<WriteBehind>();
+
+    /**
+     * Create the write behind queue manager with queues created via the passed in {@link WriteBehindQueueFactory}
+     *
+     * @param config configuration for the cache this write behind queue manager is working with
+     * @param queueFactory factory used to create the write behind queues.
+     */
+    protected WriteBehindQueueManager(CacheConfiguration config, WriteBehindQueueFactory queueFactory) {
+      CacheWriterConfiguration cacheWriterConfiguration = config.getCacheWriterConfiguration();
+      int writeBehindConcurrency = cacheWriterConfiguration.getWriteBehindConcurrency();
+      for (int i = 0; i < writeBehindConcurrency; i++) {
+        this.queues.add(queueFactory.createQueue(i, config));
+      }
+    }
 
     /**
      * Create a new write behind queue manager. Which in turn will create as many queues as
@@ -45,11 +59,7 @@ public class WriteBehindQueueManager implements WriteBehind {
      * @param config the configuration for the queue
      */
     public WriteBehindQueueManager(CacheConfiguration config) {
-        CacheWriterConfiguration cacheWriterConfiguration = config.getCacheWriterConfiguration();
-        int writeBehindConcurrency = cacheWriterConfiguration.getWriteBehindConcurrency();
-        for (int i = 0; i < writeBehindConcurrency; i++) {
-            this.queues.add(new WriteBehindQueue(config));
-        }
+      this(config, new WriteBehindQueueFactory());
     }
 
     /**
@@ -58,7 +68,7 @@ public class WriteBehindQueueManager implements WriteBehind {
     public void start(final CacheWriter writer) throws CacheException {
         writeLock.lock();
         try {
-            for (WriteBehindQueue queue : queues) {
+            for (WriteBehind queue : queues) {
                 queue.start(writer);
             }
         } finally {
@@ -78,7 +88,7 @@ public class WriteBehindQueueManager implements WriteBehind {
         }
     }
 
-    private WriteBehindQueue getQueue(final Object key) {
+    private WriteBehind getQueue(final Object key) {
         return queues.get(Math.abs(key.hashCode() % queues.size()));
     }
 
@@ -100,7 +110,7 @@ public class WriteBehindQueueManager implements WriteBehind {
     public void setOperationsFilter(final OperationsFilter filter) {
         readLock.lock();
         try {
-            for (WriteBehindQueue queue : queues) {
+            for (WriteBehind queue : queues) {
                 queue.setOperationsFilter(filter);
             }
         } finally {
@@ -114,7 +124,7 @@ public class WriteBehindQueueManager implements WriteBehind {
     public void stop() throws CacheException {
         writeLock.lock();
         try {
-            for (WriteBehindQueue queue : queues) {
+            for (WriteBehind queue : queues) {
                 queue.stop();
             }
         } finally {
@@ -129,12 +139,28 @@ public class WriteBehindQueueManager implements WriteBehind {
         int size = 0;
         readLock.lock();
         try {
-            for (WriteBehindQueue queue : queues) {
+            for (WriteBehind queue : queues) {
                 size += queue.getQueueSize();
             }
         } finally {
             readLock.unlock();
         }
         return size;
+    }
+
+    /**
+     * Factory used to create write behind queues.
+     */
+    protected static class WriteBehindQueueFactory {
+      /**
+       * Create a write behind queue stripe.
+       *
+       * @param index index of the stripe
+       * @param config cache configuration for the cache this queue will be associated with.
+       * @return a write behind queue
+       */
+      protected WriteBehind createQueue(int index, CacheConfiguration config) {
+        return new WriteBehindQueue(config);
+      }
     }
 }
