@@ -6,8 +6,8 @@ import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
 import net.sf.ehcache.management.service.impl.DfltSamplerRepositoryService;
-import org.terracotta.management.embedded.StandaloneServer;
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.embedded.StandaloneServer;
 
 /**
  * @author brandony
@@ -90,6 +90,6 @@ public final class ManagementServerImpl implements ManagementServer {
     DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService();
     ServiceLocator.load(
         new EmbeddedEhcacheServiceLocator(true, new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
-            samplerRepoSvc, configuration));
+            samplerRepoSvc, samplerRepoSvc, configuration));
   }
 }

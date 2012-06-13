@@ -6,7 +6,6 @@ import net.sf.ehcache.management.resource.ConfigContainerEntity;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
@@ -49,9 +48,7 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
     String cacheNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
     Set<String> cNames = cacheNames == null ? null : new HashSet<String>(Arrays.asList(cacheNames.split(",")));
 
-    Collection<CacheConfigEntity> configs = null;
-
-      configs = entityResourceFactory.createCacheConfigEntities(cmNames, cNames);
+    Collection<CacheConfigEntity> configs = entityResourceFactory.createCacheConfigEntities(cmNames, cNames);
 
     ConfigContainerEntity<CacheConfigEntity> cc = new ConfigContainerEntity<CacheConfigEntity>();
     cc.setConfiguration(configs);

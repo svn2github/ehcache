@@ -14,6 +14,7 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -78,6 +79,13 @@ public class ClusteredCacheManagersResourceServiceImpl implements CacheManagersR
       throw new WebApplicationException(
           Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
     }
+  }
+
+  @Override
+  public void updateCacheManager(@Context UriInfo info,
+                                 CacheManagerEntity resource) {
+    throw new WebApplicationException(
+        Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Not yet implemented").build());
   }
 
   private List<ObjectName> findCacheManagerObjectNames(MBeanServer platformMBeanServer,

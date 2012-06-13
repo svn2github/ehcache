@@ -3,7 +3,9 @@ package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -33,4 +35,16 @@ public interface CacheManagersResourceService {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   Collection<CacheManagerEntity> getCacheManagers(@Context UriInfo info);
+
+  /**
+   * Update a cache manager with the name specified in the request path, for a specific agent. The request
+   * path that does not identify a unique cache manager resource for update will constitute a bad request and will be
+   * denied, resulting in a response with a 400.
+   *
+   * @param info {@link UriInfo} for this resource request
+   * @param resource {@code CacheEntity} resource for update or creation
+   */
+  @PUT
+  @Consumes(MediaType.APPLICATION_JSON)
+  void updateCacheManager(@Context UriInfo info, CacheManagerEntity resource);
 }

@@ -18,6 +18,7 @@ import net.sf.ehcache.management.sampled.CacheManagerSampler;
 import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
 import net.sf.ehcache.management.sampled.ComprehensiveCacheSampler;
 import net.sf.ehcache.management.sampled.ComprehensiveCacheSamplerImpl;
+import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
@@ -43,7 +44,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author brandony
  */
 public final class DfltSamplerRepositoryService
-    implements SamplerRepositoryService, EntityResourceFactory, CacheService {
+    implements SamplerRepositoryService, EntityResourceFactory, CacheManagerService, CacheService {
   /**
    * Guarded By cacheManagerSamplerRepoLock
    */
@@ -313,6 +314,33 @@ public final class DfltSamplerRepositoryService
       if (entry != null) entry.clearCache(cacheName);
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void updateCacheManager(String cacheManagerName,
+                                 CacheManagerEntity resource) throws ServiceExecutionException {
+    cacheManagerSamplerRepoLock.writeLock().lock();
+
+    try {
+      SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
+      if (entry != null) {
+        CacheManagerSampler cms = entry.getCacheManagerSampler();
+
+        Object mbldAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK);
+        if (mbldAttr != null) cms.setMaxBytesLocalDisk(Long.parseLong(mbldAttr.toString()));
+
+        Object mblhAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP);
+        if (mblhAttr != null) cms.setMaxBytesLocalDisk(Long.parseLong(mblhAttr.toString()));
+
+        Object mbldsAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING);
+        if (mbldsAttr != null) cms.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
+
+        Object mblhsAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING);
+        if (mblhsAttr != null) cms.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
+      }
+    } finally {
+      cacheManagerSamplerRepoLock.writeLock().unlock();
     }
   }
 

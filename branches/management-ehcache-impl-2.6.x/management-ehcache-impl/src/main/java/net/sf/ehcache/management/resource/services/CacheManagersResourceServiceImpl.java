@@ -2,13 +2,17 @@ package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
+import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,18 +33,22 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
 
   private final RequestValidator validator;
 
+  private final CacheManagerService cacheMgrSvc;
+
   public CacheManagersResourceServiceImpl() {
     EntityResourceFactory.Locator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
     this.entityResourceFactory = entityRsrcFactoryLocator.locateEntityResourceFactory();
     RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
     this.validator = reqValidatorLocator.locateRequestValidator();
+    CacheManagerService.Locator cacheMgrSvcLocator = EmbeddedEhcacheServiceLocator.locator();
+    this.cacheMgrSvc = cacheMgrSvcLocator.locateCacheManagerService();
   }
 
   /**
    * {@inheritDoc}
    */
   public Collection<CacheManagerEntity> getCacheManagers(UriInfo info) {
-    LOG.info(String.format("Invoking CacheManagersResourceServiceImpl.getCacheManagers: %s", info.getRequestUri()));
+    LOG.info(String.format("Invoking getCacheManagers: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
 
@@ -52,5 +60,26 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
     Set<String> cmAttrs = attrs == null || attrs.isEmpty() ? null : new HashSet<String>(attrs);
 
     return entityResourceFactory.createCacheManagerEntities(cmNames, cmAttrs);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void updateCacheManager(UriInfo info,
+                                 CacheManagerEntity resource) {
+    LOG.info(String.format("Invoking getCacheManagers: %s", info.getRequestUri()));
+
+    validator.validate(info);
+
+    String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+
+    try {
+      cacheMgrSvc.updateCacheManager(cacheManagerName, resource);
+    } catch (ServiceExecutionException e) {
+      LOG.error("Failed to update cache manager.", e.getCause());
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+    }
   }
 }
