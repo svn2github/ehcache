@@ -35,6 +35,16 @@ public class ManagementRESTServiceConfiguration {
      */
     public static final int DEFAULT_SECURITY_SVC_TIMEOUT = 5 * 1000;
 
+    /**
+     * Default REST statistic sample history size
+     */
+    public static final int DEFAULT_REST_SAMPLE_HISTORY_SIZE = 360;
+
+    /**
+     * Default REST statistic sample interval
+     */
+    public static final int DEFAULT_REST_SAMPLE_INTERVAL = 5;
+
     private volatile boolean enabled = false;
     private volatile String securityServiceLocation;
     private volatile boolean sslEnabled;
@@ -42,9 +52,9 @@ public class ManagementRESTServiceConfiguration {
     private volatile int securityServiceTimeout = DEFAULT_SECURITY_SVC_TIMEOUT;
     private volatile String bind = DEFAULT_BIND;
 
-    private volatile int sampleHistorySize = 360;
-    private volatile int sampleIntervalSeconds = 5;
-    private volatile int sampleSearchIntervalSeconds = 5;
+    private volatile int sampleHistorySize = DEFAULT_REST_SAMPLE_HISTORY_SIZE;
+    private volatile int sampleIntervalSeconds = DEFAULT_REST_SAMPLE_INTERVAL;
+    private volatile int sampleSearchIntervalSeconds = DEFAULT_REST_SAMPLE_INTERVAL;
 
     /**
      * Check if the REST services should be enabled or not.
