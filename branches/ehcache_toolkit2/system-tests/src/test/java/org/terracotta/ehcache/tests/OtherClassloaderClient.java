@@ -32,10 +32,6 @@ import java.util.Map;
 
 public class OtherClassloaderClient extends ClientBase {
 
-  public static void main(String[] args) {
-    new OtherClassloaderClient(args).run();
-  }
-
   public OtherClassloaderClient(String[] args) {
     super("test", args);
   }

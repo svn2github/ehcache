@@ -10,6 +10,8 @@ import org.terracotta.ehcache.tests.mbean.DSOMBean;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
+import com.tc.util.concurrent.ThreadUtil;
+
 import junit.framework.Assert;
 
 /**
@@ -39,6 +41,7 @@ public abstract class ServerMapClearTestHelper {
 
     debug(index, "Asserting cache is populated");
     if (index == 0) {
+      ThreadUtil.reallySleep(10000); // Allow other client to hit the barrier
       long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
       debug(index, "should hit local cache for this node");
       checkElements(index, dsoMBean, cache, numElements, initialGetValueReqCount, 0);
@@ -47,6 +50,7 @@ public abstract class ServerMapClearTestHelper {
     barrier.await();
 
     if (index != 0) {
+      ThreadUtil.reallySleep(10000); // Allow other client to hit the barrier
       long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
       debug(index, "should NOT hit local cache for this node");
       checkElements(index, dsoMBean, cache, numElements, initialGetValueReqCount, numElements);
