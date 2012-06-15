@@ -571,4 +571,11 @@ public abstract class AbstractWriteBehindQueue implements WriteBehind {
           queueWriteLock.unlock();
       }
   }
+
+  /**
+   * Backdoor to allow killing the processing thread for testing purposes.
+   */
+  protected Thread getProcessingThread() {
+    return processingThread;
+  }
 }
