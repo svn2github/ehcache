@@ -19,6 +19,7 @@ package net.sf.ehcache;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
  * Interface implemented by classes providing access to extended functionality.
@@ -31,6 +32,14 @@ public interface FeaturesManager {
      * Fully qualified classname of the enterprise features manager
      */
     public static final String ENTERPRISE_FM_CLASSNAME = "net.sf.ehcache.EnterpriseFeaturesManager";
+
+    /**
+     * Create a WriteBehind instance for the given cache.
+     *
+     * @param cache cache to create write behind for
+     * @return a write behind instance
+     */
+    WriteBehind createWriteBehind(Cache cache);
 
     /**
      * Create a store for the given cache.

@@ -105,4 +105,25 @@ public class WriteOperation implements SingleOperation {
     public void throwAway(final CacheWriter cacheWriter, final RuntimeException e) {
         cacheWriter.throwAway(element, SingleOperationType.WRITE, e);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode() {
+      int hash = (int) getCreationTime();
+      hash = hash * 31 + getKey().hashCode();
+      return hash;
+    }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean equals(Object other) {
+    if (other instanceof WriteOperation) {
+      return getCreationTime() == ((WriteOperation) other).getCreationTime() && getKey().equals(
+              ((WriteOperation) other).getKey());
+    } else {
+      return false;
+    }
+  }
 }

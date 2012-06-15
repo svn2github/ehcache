@@ -266,7 +266,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * {@inheritDoc}
      */
-    public final boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+    public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
         if (delta > -1) {
             Element old = map.put(element.getObjectKey(), element, delta);
