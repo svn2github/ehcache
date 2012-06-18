@@ -19,6 +19,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -29,18 +30,28 @@ import net.sf.ehcache.writer.CacheWriterManager;
  * @version $Id$
  */
 public class WriteBehindManager implements CacheWriterManager {
-    private volatile WriteBehind writeBehind;
+    private final WriteBehind writeBehind;
+
+    /**
+     * Create using the given cache.
+     *
+     * @param cache cache
+     */
+    public WriteBehindManager(final Cache cache) {
+      if (cache.isTerracottaClustered()) {
+        writeBehind = cache.getCacheManager().createTerracottaWriteBehind(cache);
+      } else if (cache.getCacheConfiguration().getPersistenceConfiguration() != null &&
+              cache.getCacheConfiguration().getPersistenceConfiguration().getStrategy() == Strategy.LOCALRESTARTABLE) {
+        writeBehind = cache.getCacheManager().getFeaturesManager().createWriteBehind(cache);
+      } else {
+        writeBehind = new WriteBehindQueueManager(cache.getCacheConfiguration());
+      }
+    }
 
     /**
      * {@inheritDoc}
      */
     public void init(Cache cache) throws CacheException {
-        if (cache.isTerracottaClustered()) {
-            writeBehind = cache.getCacheManager().createTerracottaWriteBehind(cache);
-        } else {
-            writeBehind = new WriteBehindQueueManager(cache.getCacheConfiguration());
-        }
-
         CacheWriter cacheWriter = cache.getRegisteredCacheWriter();
         if (null == cacheWriter) {
             throw new CacheException("No cache writer was registered for cache " + cache.getName());

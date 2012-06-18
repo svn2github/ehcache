@@ -667,12 +667,11 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      * {@inheritDoc}
      */
     public long getWriterQueueLength() {
-        long length = -1;
         CacheWriterManager writerManager = cache.getWriterManager();
         if (writerManager instanceof WriteBehindManager) {
-            length = ((WriteBehindManager)writerManager).getQueueSize();
+            return ((WriteBehindManager)writerManager).getQueueSize();
         }
-        return length;
+        return 0;
     }
 
     /**

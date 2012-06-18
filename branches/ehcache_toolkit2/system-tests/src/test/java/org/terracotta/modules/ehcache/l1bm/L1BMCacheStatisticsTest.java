@@ -19,7 +19,6 @@ import org.terracotta.ehcache.tests.ClientBase;
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.CallableWaiter;
 
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
@@ -74,9 +73,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
     }
 
     private void hitCache(Cache cache) throws Exception {
-      Random random = new Random();
-      for (int i = 0; i < NUMBER_OF_ELEMENTS * 2; i++) {
-        cache.get("key-" + random.nextInt(NUMBER_OF_ELEMENTS * 2));
+      for (int i = NUMBER_OF_ELEMENTS * 2 - 1; i >= 0; i--) {
+        cache.get("key-" + i);
       }
     }
 
@@ -94,7 +92,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
 
     protected void testSizeCache(Cache cache) throws Exception {
       try {
-        loadCache(cache, false);
+        loadCache(cache, true);
         hitCache(cache);
         assertStatistics(cache, NUMBER_OF_ELEMENTS, NUMBER_OF_ELEMENTS, cache.getMemoryStoreSize(),
                          NUMBER_OF_ELEMENTS * 2 - cache.getMemoryStoreSize());
@@ -145,6 +143,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       final long lowerBound = (long) ((1.0 - tolerance) * expected);
       final long upperBound = (long) ((1.0 + tolerance) * expected);
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
           final long actual = getActual.call();
           if (lowerBound <= actual && upperBound >= actual) { return true; }
@@ -156,6 +155,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
 
     private Callable<Long> memoryStoreCount(final Cache cache) {
       return new Callable<Long>() {
+        @Override
         public Long call() throws Exception {
           return cache.getMemoryStoreSize();
         }
@@ -164,6 +164,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
 
     private Callable<Long> memoryStoreSizeInBytes(final Cache cache) {
       return new Callable<Long>() {
+        @Override
         public Long call() throws Exception {
           return cache.calculateInMemorySize();
         }
