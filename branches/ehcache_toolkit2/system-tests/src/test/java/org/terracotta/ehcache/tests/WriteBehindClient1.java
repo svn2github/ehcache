@@ -29,14 +29,12 @@ public class WriteBehindClient1 extends AbstractWriteBehindClient {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     for (int i = 0; i < 1000; i++) {
       cache.putWithWriter(new Element("key" + i % 200, "value" + i));
-      System.out.println("abhim WriteBehindClient1 " + i + " writeCount " + getWriteCount());
       if (0 == i % 10) {
         cache.removeWithWriter("key" + i % 200 / 10);
       }
     }
 
     while (getWriteCount() <= 100) {
-      // System.out.println("abhim WriteBehindClient1 sleeping 200 ms");
       Thread.sleep(200);
     }
   }
