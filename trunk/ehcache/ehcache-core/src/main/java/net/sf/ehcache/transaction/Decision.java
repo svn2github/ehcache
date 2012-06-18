@@ -13,16 +13,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package net.sf.ehcache.transaction;
 
-import java.io.Serializable;
-
 /**
- * A transaction identifier. Transaction ID's must be unique to the entire
- * cluster-wide CacheManager.
+ * The decision types a Transaction ID can be in
  *
  * @author Ludovic Orban
  */
-public interface TransactionID extends Serializable {
+public enum Decision {
 
+    /**
+     * Transaction decision not yet made.
+     */
+    IN_DOUBT,
+
+    /**
+     * Transaction has been marked for commit.
+     */
+    COMMIT,
+
+    /**
+     * Transaction has been marked for rollback.
+     */
+    ROLLBACK
 }

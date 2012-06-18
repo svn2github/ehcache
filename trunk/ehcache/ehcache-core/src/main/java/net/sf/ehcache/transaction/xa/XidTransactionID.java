@@ -31,16 +31,4 @@ public interface XidTransactionID extends TransactionID {
      * @return the XID
      */
     Xid getXid();
-
-    /**
-     * Mark this transaction ID for rollback
-     */
-    void markForRollback();
-
-    /**
-     * Check if this transaction ID has been marked for rollback
-     * @return true if this ID has been marked for rollback, false otherwise
-     */
-    boolean isDecisionRollback();
-
 }

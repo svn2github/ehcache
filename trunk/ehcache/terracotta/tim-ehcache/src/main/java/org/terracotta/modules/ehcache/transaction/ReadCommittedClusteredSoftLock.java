@@ -140,14 +140,16 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
     freezeLock.writeLock().unlock();
   }
 
-  public Element getFrozenElement() {
-    if (!isFrozen()) { throw new IllegalStateException(
-                                                       "cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired"); }
-    if (transactionID.isDecisionCommit()) {
-      return (Element) deserialize(newElement);
-    } else {
-      return (Element) deserialize(oldElement);
-    }
+  @Override
+  public Element getOldElement() {
+    if (!isFrozen()) { throw new IllegalStateException("cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired"); }
+    return (Element) deserialize(oldElement);
+  }
+
+  @Override
+  public Element getNewElement() {
+    if (!isFrozen()) { throw new IllegalStateException("cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired"); }
+    return (Element) deserialize(newElement);
   }
 
   public synchronized boolean isExpired() {

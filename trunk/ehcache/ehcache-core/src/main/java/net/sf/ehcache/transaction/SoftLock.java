@@ -101,9 +101,14 @@ public interface SoftLock extends Serializable {
     boolean isExpired();
 
     /**
-     * Get the Element with which this soft lock should be replaced by a commit, rollback or clean up
-     * @return the Element
+     * Get the Element with which this soft lock should be replaced by on rollback.
+     * @return the rollback Element
      */
-    Element getFrozenElement();
+    Element getOldElement();
 
+    /**
+     * Get the Element with which this soft lock should be replaced by on commit.
+     * @return the commit Element
+     */
+    Element getNewElement();
 }

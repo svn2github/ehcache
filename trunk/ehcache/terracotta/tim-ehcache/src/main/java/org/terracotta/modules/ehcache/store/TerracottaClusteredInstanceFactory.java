@@ -12,7 +12,9 @@ import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.util.ProductInfo;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
@@ -56,6 +58,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private static final String        ROOT_NAME_STORE                     = "ehcache-store";
   private static final String        ROOT_NAME_EVENT_REPLICATOR          = "ehcache-event-replicator";
   private static final String        ROOT_NAME_EHCACHE_ASYNC_COORDINATOR = "ehcache-async-coordinator";
+  private static final String        ROOT_NAME_EHCACHE_TRANSACTION_MAP   = "ehcache-transaction-map";
   private static final String        ROOT_NAME_UTILITIES                 = "ehcache-utilities";
   private static final String        ROOT_NAME_SOFT_LOCK_FACTORIES       = "ehcache-softlock-factories";
 
@@ -352,7 +355,17 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
-    return new ClusteredTransactionIDFactory(uuid, cacheManagerName);
+    return new ClusteredTransactionIDFactory(uuid, cacheManagerName, getOrCreateTransactionMap(cacheManagerName));
+  }
+
+  private ConcurrentMap<TransactionID, Decision> getOrCreateTransactionMap(String managerName) {
+    return Terracotta.lookupOrCreateRoot(ROOT_NAME_EHCACHE_TRANSACTION_MAP + DELIM + managerName,
+                                         new Callable<ConcurrentMap<TransactionID, Decision>>() {
+                                           @Override
+                                           public ConcurrentMap<TransactionID, Decision> call() throws Exception {
+                                             return new ConcurrentDistributedMap<TransactionID, Decision>();
+                                           }
+                                         });
   }
 
   public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {

@@ -262,57 +262,60 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void commitInternal(Xid xid, boolean onePhase) throws XAException {
-        LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-        liveCacheStatisticsWrapper.xaCommit();
-        if (onePhase) {
-            XATransactionContext twopcTransactionContext = xidToContextMap.get(xid);
-            if (twopcTransactionContext == null) {
-                throw new EhcacheXAException("cannot call commit(onePhase=true) after prepare", XAException.XAER_PROTO);
-            }
-
-            int rc = prepareInternal(xid);
-            if (rc == XA_RDONLY) {
-                return;
-            }
-        }
-
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid);
-        Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
-        LOG.debug("committing {} soft lock(s) for [{}]", softLocks.size(), xid);
-        for (SoftLock softLock : softLocks) {
-            if (softLock.isExpired()) {
-                softLock.lock();
-                softLock.freeze();
-            }
-        }
+        try {
+            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
+            liveCacheStatisticsWrapper.xaCommit();
+            if (onePhase) {
+                XATransactionContext twopcTransactionContext = xidToContextMap.get(xid);
+                if (twopcTransactionContext == null) {
+                    throw new EhcacheXAException("cannot call commit(onePhase=true) after prepare", XAException.XAER_PROTO);
+                }
 
-        for (SoftLock softLock : softLocks) {
+                int rc = prepareInternal(xid);
+                if (rc == XA_RDONLY) {
+                    return;
+                }
+            }
+
+            Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
+            LOG.debug("committing {} soft lock(s) for [{}]", softLocks.size(), xid);
+            for (SoftLock softLock : softLocks) {
+                if (softLock.isExpired()) {
+                    softLock.lock();
+                    softLock.freeze();
+                }
+            }
+
             try {
-                softLock.getTransactionID().markForCommit();
+                transactionIDFactory.markForCommit(xidTransactionID);
             } catch (IllegalStateException ise) {
                 throw new EhcacheXAException("XID already was rolling back: " + xid, XAException.XAER_RMERR);
             }
 
-            Element frozenElement = softLock.getFrozenElement();
+            for (SoftLock softLock : softLocks) {
+                Element frozenElement = softLock.getNewElement();
 
-            if (frozenElement != null) {
-                underlyingStore.put(frozenElement);
-            } else {
-                underlyingStore.remove(softLock.getKey());
+                if (frozenElement != null) {
+                    underlyingStore.put(frozenElement);
+                } else {
+                    underlyingStore.remove(softLock.getKey());
+                }
+
+                if (!softLock.wasPinned()) {
+                    underlyingStore.setPinned(softLock.getKey(), false);
+                }
             }
 
-            if (!softLock.wasPinned()) {
-                underlyingStore.setPinned(softLock.getKey(), false);
+            for (SoftLock softLock : softLocks) {
+                softLock.unfreeze();
+                softLock.unlock();
             }
+
+            fireAfterCommitOrRollback();
+        } finally {
+            transactionIDFactory.clear(xidTransactionID);
         }
-
-        for (SoftLock softLock : softLocks) {
-            softLock.unfreeze();
-            softLock.unlock();
-        }
-
-
-        fireAfterCommitOrRollback();
     }
 
     /**
@@ -365,46 +368,50 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void rollbackInternal(Xid xid) throws XAException {
-        LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-        liveCacheStatisticsWrapper.xaRollback();
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid);
-        Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
-        for (SoftLock softLock : softLocks) {
-            if (softLock.isExpired()) {
-                softLock.lock();
-                softLock.freeze();
+        try {
+            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
+            liveCacheStatisticsWrapper.xaRollback();
+            Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
+            for (SoftLock softLock : softLocks) {
+                if (softLock.isExpired()) {
+                    softLock.lock();
+                    softLock.freeze();
+                }
             }
-        }
 
-        for (SoftLock softLock : softLocks) {
             try {
-                ((XidTransactionID) softLock.getTransactionID()).markForRollback();
+                transactionIDFactory.markForRollback(xidTransactionID);
             } catch (IllegalStateException ise) {
                 throw new EhcacheXAException("XID already was committing: " + xid, XAException.XAER_RMERR);
             }
 
-            Element frozenElement = softLock.getFrozenElement();
+            for (SoftLock softLock : softLocks) {
+                Element frozenElement = softLock.getOldElement();
 
-            if (frozenElement != null) {
-                underlyingStore.put(frozenElement);
-            } else {
-                underlyingStore.remove(softLock.getKey());
+                if (frozenElement != null) {
+                    underlyingStore.put(frozenElement);
+                } else {
+                    underlyingStore.remove(softLock.getKey());
+                }
+
+                if (!softLock.wasPinned()) {
+                    underlyingStore.setPinned(softLock.getKey(), false);
+                }
             }
 
-            if (!softLock.wasPinned()) {
-                underlyingStore.setPinned(softLock.getKey(), false);
+            for (SoftLock softLock : softLocks) {
+                softLock.unfreeze();
+                softLock.unlock();
             }
+
+            // in case of a phase 1 rollback, we need to clean the context
+            xidToContextMap.remove(xid);
+
+            fireAfterCommitOrRollback();
+        } finally {
+            transactionIDFactory.clear(xidTransactionID);
         }
-
-        for (SoftLock softLock : softLocks) {
-            softLock.unfreeze();
-            softLock.unlock();
-        }
-
-        // in case of a phase 1 rollback, we need to clean the context
-        xidToContextMap.remove(xid);
-
-        fireAfterCommitOrRollback();
     }
 
     /**

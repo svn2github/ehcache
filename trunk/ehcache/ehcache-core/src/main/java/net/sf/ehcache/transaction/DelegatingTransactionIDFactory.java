@@ -19,6 +19,7 @@ import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
+import java.util.Set;
 import java.util.UUID;
 
 import javax.transaction.xa.Xid;
@@ -88,4 +89,28 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
         return get().restoreXidTransactionID(serializedForm);
     }
 
+    @Override
+    public void markForCommit(TransactionID transactionID) {
+        get().markForCommit(transactionID);
+    }
+
+    @Override
+    public void markForRollback(XidTransactionID transactionID) {
+        get().markForRollback(transactionID);
+    }
+
+    @Override
+    public boolean isDecisionCommit(TransactionID transactionID) {
+        return get().isDecisionCommit(transactionID);
+    }
+
+    @Override
+    public Set<TransactionID> getInDoubtTransactionIDs() {
+        return get().getInDoubtTransactionIDs();
+    }
+
+    @Override
+    public void clear(TransactionID transactionID) {
+        get().clear(transactionID);
+    }
 }

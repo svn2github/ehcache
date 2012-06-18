@@ -22,17 +22,7 @@ import javax.transaction.xa.Xid;
  */
 public final class XidTransactionIDImpl implements XidTransactionID {
 
-    /**
-     * The decision types a XID transaction ID can be in
-     */
-    private static enum Decision {
-        IN_DOUBT,
-        COMMIT,
-        ROLLBACK
-    }
-
     private final SerializableXid xid;
-    private volatile Decision decision = Decision.IN_DOUBT;
 
     /**
      * Constructor
@@ -40,40 +30,6 @@ public final class XidTransactionIDImpl implements XidTransactionID {
      */
     public XidTransactionIDImpl(Xid xid) {
         this.xid = new SerializableXid(xid);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isDecisionCommit() {
-        return decision.equals(Decision.COMMIT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void markForCommit() {
-        if (decision.equals(Decision.ROLLBACK)) {
-            throw new IllegalStateException(this + " already marked for rollback, cannot re-mark it for commit");
-        }
-        this.decision = Decision.COMMIT;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isDecisionRollback() {
-        return decision.equals(Decision.ROLLBACK);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void markForRollback() {
-        if (decision.equals(Decision.COMMIT)) {
-            throw new IllegalStateException(this + " already marked for commit, cannot re-mark it for rollback");
-        }
-        this.decision = Decision.ROLLBACK;
     }
 
     /**
@@ -108,6 +64,6 @@ public final class XidTransactionIDImpl implements XidTransactionID {
      */
     @Override
     public String toString() {
-        return "Unclustered " + xid + " (decision: " + decision + ")";
+        return "Unclustered " + xid;
     }
 }

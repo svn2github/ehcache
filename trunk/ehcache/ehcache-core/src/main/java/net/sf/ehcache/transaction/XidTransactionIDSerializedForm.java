@@ -34,7 +34,6 @@ import java.io.Serializable;
 public final class XidTransactionIDSerializedForm implements Serializable {
     private final String cacheManagerName;
     private final Xid xid;
-    private final String decision;
 
     /**
      * Constructor
@@ -42,12 +41,10 @@ public final class XidTransactionIDSerializedForm implements Serializable {
      * @param cacheManagerName the name of the cache manager which contains the factory
      *                         that created the original XidTransactionID
      * @param xid the XidTransactionID's XID
-     * @param decision the XidTransactionID's decision
      */
-    public XidTransactionIDSerializedForm(String cacheManagerName, Xid xid, String decision) {
+    public XidTransactionIDSerializedForm(String cacheManagerName, Xid xid) {
         this.cacheManagerName = cacheManagerName;
         this.xid = new SerializableXid(xid);
-        this.decision = decision;
     }
 
     /**
@@ -67,14 +64,6 @@ public final class XidTransactionIDSerializedForm implements Serializable {
      */
     public Xid getXid() {
         return xid;
-    }
-
-    /**
-     * Get the original XidTransactionID's decision
-     * @return the original XidTransactionID's decision
-     */
-    public String getDecision() {
-        return decision;
     }
 
     private Object readResolve() {

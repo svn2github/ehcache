@@ -163,15 +163,21 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     /**
      * {@inheritDoc}
      */
-    public Element getFrozenElement() {
+    public Element getOldElement() {
         if (!isFrozen()) {
-            throw new IllegalStateException("cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired");
+            throw new IllegalStateException("cannot get old element of a soft lock which hasn't been frozen or hasn't expired");
         }
-        if (transactionID.isDecisionCommit()) {
-            return newElement;
-        } else {
-            return oldElement;
+        return oldElement;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Element getNewElement() {
+        if (!isFrozen()) {
+            throw new IllegalStateException("cannot get new element of a soft lock which hasn't been frozen or hasn't expired");
         }
+        return newElement;
     }
 
     /**

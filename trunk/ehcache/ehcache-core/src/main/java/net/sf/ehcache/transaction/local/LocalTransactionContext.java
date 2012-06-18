@@ -18,6 +18,7 @@ package net.sf.ehcache.transaction.local;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionID;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class LocalTransactionContext {
 
     private boolean rollbackOnly;
     private final long expirationTimestamp;
+    private final TransactionIDFactory transactionIdFactory;
     private final TransactionID transactionId;
     private final Map<String, List<SoftLock>> softLockMap = new HashMap<String, List<SoftLock>>();
     private final Map<String, LocalTransactionStore> storeMap = new HashMap<String, LocalTransactionStore>();
@@ -50,12 +52,13 @@ public class LocalTransactionContext {
     /**
      * Create a new LocalTransactionContext
      * @param transactionTimeout the timeout before the context expires
-     * @param transactionId the unique transaction ID of the context
+     * @param transactionIdFactory the transaction ID factory to retrieve a new transaction id from
      */
-    public LocalTransactionContext(int transactionTimeout, TransactionID transactionId) {
+    public LocalTransactionContext(int transactionTimeout, TransactionIDFactory transactionIdFactory) {
         this.expirationTimestamp = MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) +
                 MILLISECONDS.convert(transactionTimeout, TimeUnit.SECONDS);
-        this.transactionId = transactionId;
+        this.transactionIdFactory = transactionIdFactory;
+        this.transactionId = transactionIdFactory.createTransactionID();
     }
 
     /**
@@ -151,7 +154,7 @@ public class LocalTransactionContext {
                 LOG.debug("{} participating cache(s), committing transaction {}", softLockMap.keySet().size(), transactionId);
             }
             freeze();
-            transactionId.markForCommit();
+            transactionIdFactory.markForCommit(transactionId);
 
             for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
                 String cacheName = stringListEntry.getKey();

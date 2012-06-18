@@ -13,19 +13,11 @@ import javax.transaction.xa.Xid;
  */
 public class ClusteredXidTransactionID implements XidTransactionID {
 
-    private static enum Decision {
-        IN_DOUBT,
-        COMMIT,
-        ROLLBACK
-    }
-
     private final Xid xid;
-    private volatile Decision decision = Decision.IN_DOUBT;
     private final String cacheManagerName;
 
     public ClusteredXidTransactionID(XidTransactionIDSerializedForm serializedForm) {
         this.xid = new XidClustered(serializedForm.getXid());
-        this.decision = Decision.valueOf(serializedForm.getDecision());
         this.cacheManagerName = serializedForm.getCacheManagerName();
     }
 
@@ -34,32 +26,7 @@ public class ClusteredXidTransactionID implements XidTransactionID {
         this.xid = new XidClustered(xid);
     }
 
-    // autolocked in config
-    public synchronized boolean isDecisionCommit() {
-        return decision.equals(Decision.COMMIT);
-    }
-
-    // autolocked in config
-    public synchronized void markForCommit() {
-        if (decision.equals(Decision.ROLLBACK)) {
-            throw new IllegalStateException(this + " already marked for rollback, cannot re-mark it for commit");
-        }
-        this.decision = Decision.COMMIT;
-    }
-
-    // autolocked in config
-    public synchronized boolean isDecisionRollback() {
-        return decision.equals(Decision.ROLLBACK);
-    }
-
-    // autolocked in config
-    public synchronized void markForRollback() {
-        if (decision.equals(Decision.COMMIT)) {
-            throw new IllegalStateException(this + " already marked for commit, cannot re-mark it for rollback");
-        }
-        this.decision = Decision.ROLLBACK;
-    }
-
+    @Override
     public Xid getXid() {
         return xid;
     }
@@ -89,11 +56,10 @@ public class ClusteredXidTransactionID implements XidTransactionID {
      */
     @Override
     public String toString() {
-        return "Clustered [" + xid + "] (decision: " + decision + ")";
+        return "Clustered [" + xid + "]";
     }
 
     private Object writeReplace() {
-        return new XidTransactionIDSerializedForm(cacheManagerName, xid, decision.toString());
+        return new XidTransactionIDSerializedForm(cacheManagerName, xid);
     }
-
 }

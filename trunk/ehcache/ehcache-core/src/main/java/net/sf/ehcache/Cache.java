@@ -1112,13 +1112,13 @@ public class Cache implements InternalEhcache, StoreListener {
             if (configuration.isXaTransactional()) {
                 SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
                 LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
-                        softLockFactory, this, store, copyStrategy);
+                        getCacheManager().getOrCreateTransactionIDFactory(), softLockFactory, this, store, copyStrategy);
                 this.compoundStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
                         cacheManager.getTransactionController());
             } else if (configuration.isLocalTransactional()) {
                 SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
-                this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(), softLockFactory, this, store,
-                        copyStrategy);
+                this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
+                        getCacheManager().getOrCreateTransactionIDFactory(), softLockFactory, this, store, copyStrategy);
             } else {
                 this.compoundStore = store;
             }

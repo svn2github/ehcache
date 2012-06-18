@@ -30,6 +30,7 @@ import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
 import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
 import net.sf.ehcache.util.LargeSet;
@@ -56,6 +57,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     private static final Logger LOG = LoggerFactory.getLogger(LocalTransactionStore.class.getName());
 
     private final TransactionController transactionController;
+    private final TransactionIDFactory transactionIdFactory;
     private final SoftLockFactory softLockFactory;
     private final Ehcache cache;
     private final String cacheName;
@@ -70,10 +72,11 @@ public class LocalTransactionStore extends AbstractTransactionStore {
      * @param store the underlying store
      * @param copyStrategy the configured CopyStrategy
      */
-    public LocalTransactionStore(TransactionController transactionController, SoftLockFactory softLockFactory, Ehcache cache,
-                                 Store store, ReadWriteCopyStrategy<Element> copyStrategy) {
+    public LocalTransactionStore(TransactionController transactionController, TransactionIDFactory transactionIdFactory,
+            SoftLockFactory softLockFactory, Ehcache cache, Store store, ReadWriteCopyStrategy<Element> copyStrategy) {
         super(store, copyStrategy);
         this.transactionController = transactionController;
+        this.transactionIdFactory = transactionIdFactory;
         this.softLockFactory = softLockFactory;
         this.cache = cache;
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
@@ -135,7 +138,12 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             softLock.lock();
             softLock.freeze();
             try {
-                Element frozenElement = softLock.getFrozenElement();
+                Element frozenElement;
+                if (transactionIdFactory.isDecisionCommit(softLock.getTransactionID())) {
+                    frozenElement = softLock.getNewElement();
+                } else {
+                    frozenElement = softLock.getOldElement();
+                }
                 if (frozenElement != null) {
                     underlyingStore.replace(oldElement, frozenElement, comparator);
                 } else {
@@ -970,7 +978,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     void commit(List<SoftLock> softLocks) {
         LOG.debug("committing {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
-            Element element = softLock.getFrozenElement();
+            Element element = softLock.getNewElement();
             if (element != null) {
                 underlyingStore.put(element);
             } else {
@@ -990,7 +998,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     void rollback(List<SoftLock> softLocks) {
         LOG.debug("rolling back {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
-            Element element = softLock.getFrozenElement();
+            Element element = softLock.getOldElement();
             if (element != null) {
                 underlyingStore.put(element);
             } else {

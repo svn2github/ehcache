@@ -19,7 +19,6 @@ public class ClusteredTransactionID implements TransactionID {
   private final String cacheManagerName;
   private final long creationTime;
   private final int id;
-  private volatile boolean commit;
 
   ClusteredTransactionID(String clusterUUID, String cacheManagerName) {
     this.clusterUUID = clusterUUID;
@@ -33,17 +32,6 @@ public class ClusteredTransactionID implements TransactionID {
     this.cacheManagerName = serializedForm.getCacheManagerName();
     this.creationTime = serializedForm.getCreationTime();
     this.id = serializedForm.getId();
-    this.commit = serializedForm.isCommit();
-  }
-
-  // autolocked in config
-  public synchronized boolean isDecisionCommit() {
-    return commit;
-  }
-
-  // autolocked in config
-  public synchronized void markForCommit() {
-    this.commit = true;
   }
 
   @Override
@@ -64,11 +52,11 @@ public class ClusteredTransactionID implements TransactionID {
 
   @Override
   public String toString() {
-    return id + ":" + creationTime + "@" + clusterUUID + (commit ? " (marked for commit)" : "");
+    return id + ":" + creationTime + "@" + clusterUUID;
   }
 
   private Object writeReplace() {
-    return new TransactionIDSerializedForm(cacheManagerName, clusterUUID, creationTime, id, commit);
+    return new TransactionIDSerializedForm(cacheManagerName, clusterUUID, creationTime, id);
   }
 
 }
