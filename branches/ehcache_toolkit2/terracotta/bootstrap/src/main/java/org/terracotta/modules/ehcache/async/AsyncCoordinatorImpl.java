@@ -59,21 +59,20 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   /**
    * status of this coordinator like STARTED, STOPPED etc
    */
-
   private volatile Status                              status;
   private ItemScatterPolicy<? super E>                 scatterPolicy;
   private ItemsFilter<E>                               filter;
   private final ClusterInfo                            cluster;
-  private final String                                 asyncNode;
+  private final String                                 asyncNameWithNodeId;
   private final Toolkit                                toolkit;
   private final ToolkitInstanceFactory                 toolkitInstanceFactory;
   private ItemProcessor<E>                             processor;
   private AsyncClusterListener                         listner;
 
-  public AsyncCoordinatorImpl(String name, String nameListKey, AsyncConfig config,
+  public AsyncCoordinatorImpl(String name, String asyncNameWithNodeId, AsyncConfig config,
                               ToolkitInstanceFactory toolkitInstanceFactory) {
     this.name = name;
-    this.asyncNode = nameListKey;
+    this.asyncNameWithNodeId = asyncNameWithNodeId;// async name with nodeId
     if (null == config) {
       this.config = DefaultAsyncConfig.getInstance();
     } else {
@@ -84,13 +83,13 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.toolkit = toolkitInstanceFactory.getToolkit();
     this.listNamesMap = toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name);
     ToolkitLockType lockType = config.isSynchronousWrite() ? ToolkitLockType.SYNCHRONOUS_WRITE : ToolkitLockType.WRITE;
-    this.coordinatorLock = toolkit.getLock(nameListKey, lockType);
+    this.coordinatorLock = toolkit.getLock(asyncNameWithNodeId, lockType);
     this.cluster = toolkit.getClusterInfo();
   }
 
   @Override
   public void start(ItemProcessor<E> itemProcessor, int processingConcurrency, ItemScatterPolicy<? super E> policy) {
-    if (null == processor) throw new IllegalArgumentException("processor can't be null");
+    if (null == itemProcessor) throw new IllegalArgumentException("processor can't be null");
     if (processingConcurrency < 1) throw new IllegalArgumentException("processingConcurrency needs to be at least 1");
 
     if (null == policy) {
@@ -113,13 +112,13 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
                                                                           + name); }
       this.scatterPolicy = policy;
       LinkedList<String> tmpLList = new LinkedList<String>();
-      LinkedList<String> nameList = listNamesMap.putIfAbsent(asyncNode, tmpLList);
+      LinkedList<String> nameList = listNamesMap.putIfAbsent(asyncNameWithNodeId, tmpLList);
       if (nameList != null) { throw new IllegalArgumentException("nameList already populated for AsyncCoordinator "
                                                                  + name); }
       nameList = tmpLList;
       this.processor = itemProcessor;
       for (int i = 0; i < processingConcurrency; i++) {
-        String bucketName = asyncNode + DELIMITER + BUCKET + DELIMITER + i;
+        String bucketName = asyncNameWithNodeId + DELIMITER + BUCKET + DELIMITER + i;
         ToolkitList<E> toolkitList = toolkit.getList(bucketName);
         ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
                                                              LoggingErrorHandler.getInstance());
@@ -127,13 +126,13 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         localBuckets.add(bucket);
         nameList.add(bucketName);
       }
-      listNamesMap.put(asyncNode, nameList);
+      listNamesMap.put(asyncNameWithNodeId, nameList);
       listner = new AsyncClusterListener();
       cluster.addClusterListener(listner);
       status = Status.STARTED;
       for (ProcessingBucket<E> bucket : localBuckets) {
         try {
-          bucket.start(true);
+          bucket.start(false);
         } catch (ExistingRunningThreadException e) {
           stop();
           throw new IllegalStateException(bucket.getBucketName() + " already started for AsyncCoordinator " + name);
@@ -184,7 +183,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         if (cluster != null) {
           cluster.removeClusterListener(listner);
         }
-        listNamesMap.remove(asyncNode);
+        listNamesMap.remove(asyncNameWithNodeId);
         status = Status.STOPPED;
       }
     } finally {
@@ -202,6 +201,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
    * 
    * @param filter filter to be applied
    */
+  @Override
   public void setOperationsFilter(ItemsFilter<E> filter) {
     Lock lock = coordinatorLock;
     lock.lock();
@@ -238,7 +238,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       lock.lock();
       try {
         LinkedList<String> nameList = listNamesMap.get(otherNodeNameListKey);
-        LinkedList<String> newOwner = listNamesMap.get(asyncNode);
+        LinkedList<String> newOwner = listNamesMap.get(asyncNameWithNodeId);
         if (nameList != null) {
           for (String bucketName : nameList) {
             ToolkitList<E> toolkitList = toolkit.getList(bucketName);
@@ -249,7 +249,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
             newOwner.add(bucketName);
           }
           listNamesMap.remove(otherNodeNameListKey); // removing buckets from old node
-          listNamesMap.put(asyncNode, newOwner); // transferring bucket ownership to new node
+          listNamesMap.put(asyncNameWithNodeId, newOwner); // transferring bucket ownership to new node
         }
       } catch (ExistingRunningThreadException e) {
         LOGGER.warn(e.getMessage());

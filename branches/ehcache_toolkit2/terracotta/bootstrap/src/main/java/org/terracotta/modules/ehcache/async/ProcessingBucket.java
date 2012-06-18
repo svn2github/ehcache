@@ -257,11 +257,7 @@ public class ProcessingBucket<E extends Serializable> {
         LOGGER.warn(getThreadName() + " : processItems() : nothing to process");
         return;
       }
-    } finally {
-      lock.unlock();
-    }
 
-    try {
       filterQuarantined();
       // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
       // max allowed fall behind delay hasn't expired

@@ -6,22 +6,20 @@ package org.terracotta.modules.ehcache.writebehind;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
 
-import junit.framework.Assert;
-
-public class SerializationWriteBehindTest extends AbstractCacheTestBase {
+public class CoalescingWriteBehindTest2 extends AbstractCacheTestBase {
 
   private static final int NODE_COUNT = 2;
 
-  public SerializationWriteBehindTest(TestConfig testConfig) {
-    super("basic-writebehind-test.xml", testConfig, App.class, App.class);
+  public CoalescingWriteBehindTest2(TestConfig testConfig) {
+    super("coalescing-writebehind-test.xml", testConfig, App.class, App.class);
   }
 
   public static class App extends ClientBase {
@@ -52,15 +50,17 @@ public class SerializationWriteBehindTest extends AbstractCacheTestBase {
         cache.registerCacheWriter(writer);
 
         for (int i = 0; i < 1000; i++) {
-          cache.putWithWriter(new Element(new SerializationWriteBehindType("key" + i % 200),
-                                          new SerializationWriteBehindType("value" + i)));
+          cache.putWithWriter(new Element("key" + i % 200, "value" + i));
           if (0 == i % 10) {
-            cache.removeWithWriter(new SerializationWriteBehindType("key" + i % 200 / 10));
+            cache.removeWithWriter("key" + i % 200 / 10);
           }
         }
       } else {
         writer = new WriteBehindCacheWriter("WriteBehindCacheWriter", index, 10L);
         cache.registerCacheWriter(writer);
+
+        cache.putWithWriter(new Element("key", "value"));
+        cache.removeWithWriter("key");
       }
 
       Thread.sleep(60000);
@@ -78,8 +78,13 @@ public class SerializationWriteBehindTest extends AbstractCacheTestBase {
         System.out.println("[Clients processed a total of " + totalWriteCount.get() + " writes]");
         System.out.println("[Clients processed a total of " + totalDeleteCount.get() + " deletes]");
 
-        Assert.assertEquals(1000, totalWriteCount.get());
-        Assert.assertEquals(100, totalDeleteCount.get());
+        if (totalWriteCount.get() < 201 || totalWriteCount.get() > 1001) { throw new AssertionError(
+                                                                                                    totalWriteCount
+                                                                                                        .get()); }
+
+        if (totalDeleteCount.get() < 21 || totalDeleteCount.get() > 101) { throw new AssertionError(
+                                                                                                    totalDeleteCount
+                                                                                                        .get()); }
       }
 
       barrier.await();

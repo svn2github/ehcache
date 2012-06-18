@@ -17,7 +17,7 @@ public class BasicWriteBehindTest extends AbstractCacheTestBase {
   private int totalDeleteCount = 0;
 
   public BasicWriteBehindTest(TestConfig testConfig) {
-    super("basic-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
+    super("basic-writebehind-test.xml", testConfig, WriteBehindClient1.class);
     testConfig.getClientConfig().setParallelClients(false);
   }
 

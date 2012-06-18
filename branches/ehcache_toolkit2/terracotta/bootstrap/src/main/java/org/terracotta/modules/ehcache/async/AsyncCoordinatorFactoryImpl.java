@@ -20,24 +20,31 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
     this.localMap = new ConcurrentHashMap<String, AsyncCoordinator>();
   }
 
+  @Override
   public AsyncCoordinator getOrCreateAsyncCoordinator(final String asyncName, final Ehcache cache,
                                                       final AsyncConfig config) {
     final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache, asyncName);
     final ToolkitMap<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
     String nodeId = getCurrentNodeId();
-    String asyncNode = toolkitInstanceFactory.getAsyncNode(fullAsyncName, nodeId);
+    String asyncNameWithNodeId = toolkitInstanceFactory.getAsyncNode(fullAsyncName, nodeId);
     ToolkitLock toolkitLock = toolkitInstanceFactory.getAsyncWriteLock();
     AsyncCoordinator async = localMap.get(fullAsyncName);
     toolkitLock.lock();
     try {
+      AsyncConfig oldConfig = configMap.putIfAbsent(fullAsyncName, config);
+      if (oldConfig != null && !oldConfig.equals(config)) { throw new IllegalArgumentException(
+                                                                                               "can not get AsyncCoordinator "
+                                                                                                   + asyncName
+                                                                                                   + " for same name but different configs.\nExisting config\n"
+                                                                                                   + oldConfig
+                                                                                                   + "\nNew Config\n"
+                                                                                                   + config); }
       if (async != null) {
-        AsyncConfig oldConfig = configMap.putIfAbsent(fullAsyncName, config);
-        if (oldConfig != null && !oldConfig.equals(config)) { throw new IllegalArgumentException(
-                                                                                                 "can not get AsyncCoordinator for same name but different configs.\nExisting config\n"
-                                                                                                     + oldConfig
-                                                                                                     + "\nNew Config\n"
-                                                                                                     + config); }
-        async = new AsyncCoordinatorImpl(fullAsyncName, asyncNode, config, toolkitInstanceFactory);
+        if (oldConfig == null) { throw new IllegalArgumentException("AsyncCoordinator " + asyncName
+                                                                    + " created for node " + nodeId
+                                                                    + " but entry not present in configMap"); }
+      } else {
+        async = new AsyncCoordinatorImpl(fullAsyncName, asyncNameWithNodeId, config, toolkitInstanceFactory);
         localMap.put(fullAsyncName, async);
       }
       return async;

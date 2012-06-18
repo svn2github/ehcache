@@ -6,33 +6,36 @@ package org.terracotta.modules.ehcache.writebehind;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
 
-public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
+import junit.framework.Assert;
+
+public class BasicWriteBehindTest2 extends AbstractCacheTestBase {
 
   private static final int NODE_COUNT = 2;
 
-  public CoalescingWriteBehindTest(TestConfig testConfig) {
-    super("coalescing-writebehind-test.xml", testConfig, App.class, App.class);
+  public BasicWriteBehindTest2(TestConfig testConfig) {
+    super(testConfig, App.class, App.class);
   }
 
   public static class App extends ClientBase {
 
     private final ToolkitBarrier     barrier;
+
     final ToolkitAtomicLong totalWriteCount;
     final ToolkitAtomicLong totalDeleteCount;
 
     public App(String[] args) {
       super(args);
       this.barrier = getClusteringToolkit().getBarrier("barrier", NODE_COUNT);
-      this.totalWriteCount = getClusteringToolkit().getAtomicLong("long1");
-      this.totalDeleteCount = getClusteringToolkit().getAtomicLong("long2");
+      this.totalWriteCount = getClusteringToolkit().getAtomicLong("al1");
+      this.totalDeleteCount = getClusteringToolkit().getAtomicLong("al2");
     }
 
     public static void main(String[] args) {
@@ -78,13 +81,8 @@ public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
         System.out.println("[Clients processed a total of " + totalWriteCount.get() + " writes]");
         System.out.println("[Clients processed a total of " + totalDeleteCount.get() + " deletes]");
 
-        if (totalWriteCount.get() < 201 || totalWriteCount.get() > 1001) { throw new AssertionError(
-                                                                                                    totalWriteCount
-                                                                                                        .get()); }
-
-        if (totalDeleteCount.get() < 21 || totalDeleteCount.get() > 101) { throw new AssertionError(
-                                                                                                    totalDeleteCount
-                                                                                                        .get()); }
+        Assert.assertEquals(1001, totalWriteCount.get());
+        Assert.assertEquals(101, totalDeleteCount.get());
       }
 
       barrier.await();
