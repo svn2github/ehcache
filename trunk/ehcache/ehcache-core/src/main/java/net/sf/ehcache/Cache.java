@@ -88,7 +88,7 @@ import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
 import net.sf.ehcache.transaction.local.LocalTransactionStore;
@@ -1110,13 +1110,13 @@ public class Cache implements InternalEhcache, StoreListener {
              * lack of NonStop support (ie: lack of transaction context suspension/resuming).
              */
             if (configuration.isXaTransactional()) {
-                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                SoftLockManager softLockFactory = cacheManager.createSoftLockFactory(this);
                 LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
                         getCacheManager().getOrCreateTransactionIDFactory(), softLockFactory, this, store, copyStrategy);
                 this.compoundStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
                         cacheManager.getTransactionController());
             } else if (configuration.isLocalTransactional()) {
-                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                SoftLockManager softLockFactory = cacheManager.createSoftLockFactory(this);
                 this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
                         getCacheManager().getOrCreateTransactionIDFactory(), softLockFactory, this, store, copyStrategy);
             } else {
@@ -1217,7 +1217,7 @@ public class Cache implements InternalEhcache, StoreListener {
             if (configuration.isTerracottaClustered()) {
                 configuration.getTerracottaConfiguration().setCacheXA(true);
             }
-            SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+            SoftLockManager softLockFactory = cacheManager.createSoftLockFactory(this);
             TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
 
             // this xaresource is for initial registration and recovery

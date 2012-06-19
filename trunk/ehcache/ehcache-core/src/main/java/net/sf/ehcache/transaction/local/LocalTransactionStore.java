@@ -27,7 +27,7 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
 import net.sf.ehcache.transaction.TransactionException;
@@ -59,7 +59,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
 
     private final TransactionController transactionController;
     private final TransactionIDFactory transactionIdFactory;
-    private final SoftLockFactory softLockFactory;
+    private final SoftLockManager softLockFactory;
     private final Ehcache cache;
     private final String cacheName;
     private final ElementValueComparator comparator;
@@ -74,7 +74,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
      * @param copyStrategy the configured CopyStrategy
      */
     public LocalTransactionStore(TransactionController transactionController, TransactionIDFactory transactionIdFactory,
-            SoftLockFactory softLockFactory, Ehcache cache, Store store, ReadWriteCopyStrategy<Element> copyStrategy) {
+            SoftLockManager softLockFactory, Ehcache cache, Store store, ReadWriteCopyStrategy<Element> copyStrategy) {
         super(store, copyStrategy);
         this.transactionController = transactionController;
         this.transactionIdFactory = transactionIdFactory;
@@ -154,7 +154,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
                 }
 
                 if (!softLockId.wasPinned()) {
-                    underlyingStore.setPinned(softLock.getKey(), false);
+                    underlyingStore.setPinned(softLockId.getKey(), false);
                 }
             } finally {
                 softLock.unfreeze();
@@ -353,7 +353,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         if (key == null) {
             return null;
         }
-        
+
         while (true) {
             final boolean isPinned = underlyingStore.isPinned(key);
             assertNotTimedOut(key, isPinned);
@@ -1022,7 +1022,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
-            
+
             if (!softLockId.wasPinned()) {
                 underlyingStore.setPinned(softLock.getKey(), false);
             }
@@ -1044,7 +1044,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             } else {
                 underlyingStore.remove(softLock.getKey());
             }
-            
+
             if (!softLockId.wasPinned()) {
                 underlyingStore.setPinned(softLock.getKey(), false);
             }

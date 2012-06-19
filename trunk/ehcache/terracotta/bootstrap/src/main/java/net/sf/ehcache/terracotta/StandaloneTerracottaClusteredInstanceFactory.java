@@ -9,7 +9,7 @@ import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
@@ -83,7 +83,7 @@ public class StandaloneTerracottaClusteredInstanceFactory implements ClusteredIn
     return realFactory.createTransactionIDFactory(uuid, cacheManagerName);
   }
 
-  public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {
+  public SoftLockManager getOrCreateSoftLockFactory(Ehcache cache) {
     return realFactory.getOrCreateSoftLockFactory(cache);
   }
 }

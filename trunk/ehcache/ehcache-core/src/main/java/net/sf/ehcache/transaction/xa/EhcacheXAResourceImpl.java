@@ -23,7 +23,7 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
@@ -65,7 +65,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final Store underlyingStore;
     private final TransactionIDFactory transactionIDFactory;
     private final TransactionManager txnManager;
-    private final SoftLockFactory softLockFactory;
+    private final SoftLockManager softLockFactory;
     private final ConcurrentMap<Xid, XATransactionContext> xidToContextMap = new ConcurrentHashMap<Xid, XATransactionContext>();
     private final XARequestProcessor processor;
     private volatile Xid currentXid;
@@ -82,7 +82,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @param transactionIDFactory the transaction ID factory
      */
     public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup,
-                                 SoftLockFactory softLockFactory, TransactionIDFactory transactionIDFactory,
+                                 SoftLockManager softLockFactory, TransactionIDFactory transactionIDFactory,
                                  ReadWriteCopyStrategy<Element> copyStrategy) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;

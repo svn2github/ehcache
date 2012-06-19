@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.FeaturesManager;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
@@ -27,11 +28,12 @@ import javax.transaction.xa.Xid;
 /**
  * A TransactionIDFactory implementation with delegates calls to either a clustered
  * or non-clustered factory
- * 
+ *
  * @author Ludovic Orban
  */
 public class DelegatingTransactionIDFactory implements TransactionIDFactory {
 
+    private final FeaturesManager featuresManager;
     private final TerracottaClient terracottaClient;
     private final String cacheManagerName;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
@@ -43,7 +45,8 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
      * @param terracottaClient a terracotta client
      * @param cacheManagerName the name of the cache manager which creates this.
      */
-    public DelegatingTransactionIDFactory(TerracottaClient terracottaClient, String cacheManagerName) {
+    public DelegatingTransactionIDFactory(FeaturesManager featuresManager, TerracottaClient terracottaClient, String cacheManagerName) {
+        this.featuresManager = featuresManager;
         this.terracottaClient = terracottaClient;
         this.cacheManagerName = cacheManagerName;
     }
@@ -56,7 +59,11 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
         }
 
         if (transactionIDFactory == null) {
-            transactionIDFactory = new TransactionIDFactoryImpl();
+            if (featuresManager == null) {
+                transactionIDFactory = new TransactionIDFactoryImpl();
+            } else {
+                transactionIDFactory = new TransactionIDFactoryImpl(featuresManager.createTransactionMap());
+            }
         }
         return transactionIDFactory;
     }

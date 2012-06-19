@@ -17,7 +17,7 @@ package net.sf.ehcache.transaction.xa.commands;
 
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
 /**
@@ -47,14 +47,14 @@ public interface Command {
      * @param comparator the element value comparator
      * @return true if prepare updated the store, false otherwise
      */
-    boolean prepare(Store store, SoftLockFactory softLockFactory, XidTransactionID transactionId, ElementValueComparator comparator);
+    boolean prepare(Store store, SoftLockManager softLockFactory, XidTransactionID transactionId, ElementValueComparator comparator);
 
     /**
      * Rollback the prepared change
      * @param store the underlying store
      * @param softLockFactory the soft lock factory
      */
-    public void rollback(Store store, SoftLockFactory softLockFactory);
+    public void rollback(Store store, SoftLockManager softLockFactory);
 
     /**
      * Get the key of the element this command is working on

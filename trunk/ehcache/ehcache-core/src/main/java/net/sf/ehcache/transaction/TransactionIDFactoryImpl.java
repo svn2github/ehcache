@@ -33,17 +33,39 @@ import javax.transaction.xa.Xid;
  */
 public class TransactionIDFactoryImpl implements TransactionIDFactory {
 
-    private final ConcurrentMap<TransactionID, Decision> transactionStates = new ConcurrentHashMap<TransactionID, Decision>();
+    private final ConcurrentMap<TransactionID, Decision> transactionStates;
+
+    /**
+     * Create a new factory using an in-heap map.
+     */
+    public TransactionIDFactoryImpl() {
+        this(new ConcurrentHashMap<TransactionID, Decision>());
+    }
+
+    /**
+     * Create a new factory using the supplied map.
+     *
+     * @param transactionMap map in which to store transaction states.
+     */
+    public TransactionIDFactoryImpl(ConcurrentMap<TransactionID, Decision> transactionMap) {
+        this.transactionStates = transactionMap;
+    }
 
     /**
      * {@inheritDoc}
      */
     public TransactionID createTransactionID() {
-        TransactionID id = new TransactionIDImpl();
-        if (transactionStates.putIfAbsent(id, Decision.IN_DOUBT) == null) {
-            return id;
-        } else {
-            throw new AssertionError();
+        /*
+         * The TransactionID "values" start at zero each time.  Since the map
+         * may be restartable and hence non empty at startup if we see a collision
+         * we can just throw away that transaction id and get a new one until we have
+         * a unique id.
+         */
+        while (true) {
+            TransactionID id = new TransactionIDImpl();
+            if (transactionStates.putIfAbsent(id, Decision.IN_DOUBT) == null) {
+                return id;
+            }
         }
     }
 

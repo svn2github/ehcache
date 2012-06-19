@@ -17,19 +17,18 @@
 package net.sf.ehcache.transaction;
 
 /**
- * A factory of soft-locks supporting a specific isolation level.
+ * A factory of read-committed soft locks.
  *
  * @author Chris Dennis
  */
-public interface SoftLockFactory {
+public class ReadCommittedSoftLockFactory implements SoftLockFactory {
 
     /**
-     * Construct a new softlock to be managed by the given manager for a specific key.
-     *
-     * @param manager soft lock manager
-     * @param key key to generate against
-     * @return a new soft lock
+     * {@inheritDoc}
      */
-    SoftLock newSoftLock(SoftLockManager manager, Object key);
+    @Override
+    public ReadCommittedSoftLockImpl newSoftLock(SoftLockManager manager, Object key) {
+        return new ReadCommittedSoftLockImpl(manager, key);
+    }
 
 }

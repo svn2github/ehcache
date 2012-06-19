@@ -40,7 +40,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
 import net.sf.ehcache.transaction.TransactionException;
@@ -68,7 +68,7 @@ public class XATransactionStore extends AbstractTransactionStore {
 
     private final TransactionManagerLookup transactionManagerLookup;
     private final TransactionIDFactory transactionIdFactory;
-    private final SoftLockFactory softLockFactory;
+    private final SoftLockManager softLockFactory;
     private final Ehcache cache;
 
     private final ConcurrentHashMap<Transaction, EhcacheXAResource> transactionToXAResourceMap =
@@ -84,7 +84,7 @@ public class XATransactionStore extends AbstractTransactionStore {
      * @param store the underlying store
      * @param copyStrategy the original copy strategy
      */
-    public XATransactionStore(TransactionManagerLookup transactionManagerLookup, SoftLockFactory softLockFactory,
+    public XATransactionStore(TransactionManagerLookup transactionManagerLookup, SoftLockManager softLockFactory,
                               TransactionIDFactory transactionIdFactory, Ehcache cache, Store store,
                               ReadWriteCopyStrategy<Element> copyStrategy) {
         super(store, copyStrategy);

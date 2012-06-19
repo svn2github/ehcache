@@ -19,7 +19,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.xa.OptimisticLockFailureException;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
@@ -63,7 +63,7 @@ public abstract class AbstractStoreCommand implements Command {
     /**
      * {@inheritDoc}
      */
-    public boolean prepare(Store store, SoftLockFactory softLockFactory, XidTransactionID transactionId,
+    public boolean prepare(Store store, SoftLockManager softLockFactory, XidTransactionID transactionId,
                            ElementValueComparator comparator) {
         Object objectKey = getObjectKey();
         final boolean wasPinned = store.isPinned(objectKey);
@@ -98,7 +98,7 @@ public abstract class AbstractStoreCommand implements Command {
     /**
      * {@inheritDoc}
      */
-    public void rollback(Store store, SoftLockFactory softLockFactory) {
+    public void rollback(Store store, SoftLockManager softLockFactory) {
         if (oldElement == null) {
             store.remove(getObjectKey());
         } else {

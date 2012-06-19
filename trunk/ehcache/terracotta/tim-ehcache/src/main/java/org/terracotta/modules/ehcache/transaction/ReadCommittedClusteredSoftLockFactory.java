@@ -6,7 +6,7 @@ package org.terracotta.modules.ehcache.transaction;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Ludovic Orban
  */
-public class ReadCommittedClusteredSoftLockFactory implements SoftLockFactory {
+public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
 
   private final static Object MARKER = new Object();
 
@@ -125,7 +125,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockFactory {
     return result;
   }
 
-  void clearSoftLock(ReadCommittedClusteredSoftLock softLock) {
+  public void clearSoftLock(SoftLock softLock) {
     newKeyLocks.remove(softLock);
 
     for (Map.Entry<ClusteredSoftLockID, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {

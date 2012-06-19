@@ -29,23 +29,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ReadCommittedSoftLockImpl implements SoftLock {
     private static final int PRIME = 31;
 
-    private final ReadCommittedSoftLockFactoryImpl factory;
+    private final SoftLockManager factory;
     private final ReentrantLock lock;
     private final ReentrantReadWriteLock freezeLock;
 
-    private final TransactionID transactionID;
     private final Object key;
     private volatile boolean expired;
 
     /**
      * Create a new ReadCommittedSoftLockImpl instance
      * @param factory the creating factory
-     * @param transactionID the transaction ID
      * @param key the element's key this soft lock is going to protect
      */
-    ReadCommittedSoftLockImpl(ReadCommittedSoftLockFactoryImpl factory, TransactionID transactionID, Object key) {
+    ReadCommittedSoftLockImpl(SoftLockManager factory, Object key) {
         this.factory = factory;
-        this.transactionID = transactionID;
         this.key = key;
         this.lock = new ReentrantLock();
         this.freezeLock = new ReentrantReadWriteLock();
@@ -64,7 +61,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     public Element getElement(TransactionID currentTransactionId, SoftLockID softLockId) {
         freezeLock.readLock().lock();
         try {
-            if (transactionID.equals(currentTransactionId)) {
+            if (softLockId.getTransactionID().equals(currentTransactionId)) {
                 return softLockId.getNewElement();
             } else {
                 return softLockId.getOldElement();
@@ -72,13 +69,6 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         } finally {
             freezeLock.readLock().unlock();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public TransactionID getTransactionID() {
-        return transactionID;
     }
 
     /**
@@ -157,10 +147,6 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         if (object instanceof ReadCommittedSoftLockImpl) {
             ReadCommittedSoftLockImpl other = (ReadCommittedSoftLockImpl) object;
 
-            if (!transactionID.equals(other.transactionID)) {
-                return false;
-            }
-
             if (!key.equals(other.key)) {
                 return false;
             }
@@ -175,12 +161,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      */
     @Override
     public int hashCode() {
-        int hashCode = PRIME;
-
-        hashCode *= transactionID.hashCode();
-        hashCode *= key.hashCode();
-
-        return hashCode;
+        return key.hashCode();
     }
 
     /**
@@ -188,7 +169,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      */
     @Override
     public String toString() {
-        return "Soft Lock [clustered: false, isolation: rc, transactionID: " + transactionID + ", key: " + key + "]";
+        return "Soft Lock [clustered: false, isolation: rc, key: " + key + "]";
     }
 
 }

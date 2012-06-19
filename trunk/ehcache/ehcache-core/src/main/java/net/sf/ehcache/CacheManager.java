@@ -58,8 +58,10 @@ import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.terracotta.TerracottaClientRejoinListener;
 import net.sf.ehcache.transaction.DelegatingTransactionIDFactory;
-import net.sf.ehcache.transaction.ReadCommittedSoftLockFactoryImpl;
+import net.sf.ehcache.transaction.ReadCommittedSoftLockFactory;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManagerImpl;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
@@ -214,7 +216,7 @@ public class CacheManager {
 
     private volatile TransactionController transactionController;
 
-    private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
+    private final ConcurrentMap<String, SoftLockManager> softLockManagers = new ConcurrentHashMap<String, SoftLockManager>();
 
     private volatile Pool onHeapPool;
 
@@ -370,7 +372,7 @@ public class CacheManager {
             if (featuresManager != null) {
                 featuresManager.dispose();
             }
-            
+
             synchronized (CacheManager.class) {
                 final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
                 CACHE_MANAGERS_MAP.remove(name);
@@ -416,11 +418,12 @@ public class CacheManager {
             }
         }
 
+        ConfigurationHelper configurationHelper = new ConfigurationHelper(this, configuration);
+        configure(configurationHelper);
+
         this.transactionController = new TransactionController(getOrCreateTransactionIDFactory(),
                 configuration.getDefaultTransactionTimeoutInSeconds());
 
-        ConfigurationHelper configurationHelper = new ConfigurationHelper(this, configuration);
-        configure(configurationHelper);
         status = Status.STATUS_ALIVE;
 
         for (CacheManagerPeerProvider cacheManagerPeerProvider : cacheManagerPeerProviders.values()) {
@@ -1855,7 +1858,7 @@ public class CacheManager {
      */
     public TransactionIDFactory getOrCreateTransactionIDFactory() {
         if (transactionIDFactory == null) {
-            transactionIDFactory = new DelegatingTransactionIDFactory(terracottaClient, getName());
+            transactionIDFactory = new DelegatingTransactionIDFactory(featuresManager, terracottaClient, getName());
         }
         return transactionIDFactory;
     }
@@ -1866,21 +1869,26 @@ public class CacheManager {
      * @param cache the cache to create the soft lock factory for
      * @return a SoftLockFactory
      */
-    SoftLockFactory createSoftLockFactory(Ehcache cache) {
-        SoftLockFactory softLockFactory;
+    SoftLockManager createSoftLockFactory(Ehcache cache) {
+        SoftLockManager softLockManager;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            softLockFactory = getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache);
+            softLockManager = getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache);
         } else {
-            softLockFactory = softLockFactories.get(cache.getName());
-            if (softLockFactory == null) {
-                softLockFactory = new ReadCommittedSoftLockFactoryImpl(cache.getName());
-                SoftLockFactory old = softLockFactories.putIfAbsent(cache.getName(), softLockFactory);
+            SoftLockFactory lockFactory = new ReadCommittedSoftLockFactory();
+            softLockManager = softLockManagers.get(cache.getName());
+            if (softLockManager == null) {
+                if (featuresManager == null) {
+                    softLockManager = new SoftLockManagerImpl(cache.getName(), lockFactory);
+                } else {
+                    softLockManager = featuresManager.createSoftLockManager(cache, lockFactory);
+                }
+                SoftLockManager old = softLockManagers.putIfAbsent(cache.getName(), softLockManager);
                 if (old != null) {
-                    softLockFactory = old;
+                    softLockManager = old;
                 }
             }
         }
-        return softLockFactory;
+        return softLockManager;
     }
 
     private void clusterRejoinStarted() {

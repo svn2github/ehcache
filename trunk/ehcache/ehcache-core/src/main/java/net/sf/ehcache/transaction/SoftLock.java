@@ -31,12 +31,6 @@ public interface SoftLock {
     Object getKey();
 
     /**
-     * Get the ID of the transaction under which this soft lock is operating
-     * @return the TransactionID
-     */
-    TransactionID getTransactionID();
-
-    /**
      * Get the element the current transaction is supposed to see.
      * @param currentTransactionId the current transaction under which this call is executed
      * @param softLockId the soft lock ID
