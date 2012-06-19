@@ -35,6 +35,7 @@ public class EhcacheModuleActivator extends TerracottaConfiguratorModule {
     config.addIncludePattern("org.terracotta.modules.ehcache.transaction.ClusteredTransactionID", true);
     config.addIncludePattern("org.terracotta.modules.ehcache.transaction.ReadCommittedClusteredSoftLock", true);
     config.addIncludePattern("org.terracotta.modules.ehcache.transaction.ReadCommittedClusteredSoftLockFactory", true);
+    config.addIncludePattern("org.terracotta.modules.ehcache.transaction.ClusteredSoftLockID", true);
     config.addIncludePattern("org.terracotta.modules.ehcache.transaction.xa.XidClustered", true);
     config.addIncludePattern("org.terracotta.modules.ehcache.transaction.xa.ClusteredXidTransactionID", true);
     config.addIncludePattern("org.terracotta.modules.ehcache.store.servermap.ServerMapLocalStoreFactoryImpl", true);
@@ -48,17 +49,6 @@ public class EhcacheModuleActivator extends TerracottaConfiguratorModule {
     config.addWriteAutolock("* org.terracotta.modules.ehcache.coherence.IncoherentNodesSet.queryIsNodeCoherent*(..)");
     config
         .addWriteAutolock("* org.terracotta.modules.ehcache.coherence.IncoherentNodesSet.waitUntilClusterCoherent*(..)");
-    config.addWriteAutolock("* org.terracotta.modules.ehcache.transaction.ClusteredTransactionID.markForCommit*(..)");
-    config
-        .addWriteAutolock("* org.terracotta.modules.ehcache.transaction.ClusteredTransactionID.isDecisionCommit*(..)");
-    config
-        .addWriteAutolock("* org.terracotta.modules.ehcache.transaction.xa.ClusteredXidTransactionID.markForCommit*(..)");
-    config
-        .addWriteAutolock("* org.terracotta.modules.ehcache.transaction.xa.ClusteredXidTransactionID.isDecisionCommit*(..)");
-    config
-        .addWriteAutolock("* org.terracotta.modules.ehcache.transaction.xa.ClusteredXidTransactionID.markForRollback*(..)");
-    config
-        .addWriteAutolock("* org.terracotta.modules.ehcache.transaction.xa.ClusteredXidTransactionID.isDecisionRollback*(..)");
     config
         .addWriteAutolock("* org.terracotta.modules.ehcache.transaction.ReadCommittedClusteredSoftLock.isExpired*(..)");
     config
