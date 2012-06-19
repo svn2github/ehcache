@@ -1,22 +1,8 @@
 package net.sf.ehcache.transaction;
 
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.xa.Xid;
-
-import net.sf.ehcache.Cache;
+import bitronix.tm.BitronixTransactionManager;
+import bitronix.tm.TransactionManagerServices;
+import bitronix.tm.internal.TransactionStatusChangeListener;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -24,19 +10,19 @@ import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
-import net.sf.ehcache.transaction.xa.XATransactionStore;
-import net.sf.ehcache.transaction.xa.XidTransactionID;
 import net.sf.ehcache.util.RetryAssert;
-
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import bitronix.tm.BitronixTransactionManager;
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.internal.TransactionStatusChangeListener;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import javax.transaction.Status;
+
+import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author lorban
@@ -216,74 +202,6 @@ public class SoftLockPinningTest {
             assertNull("xaCache2 key " + i, xaCache2.get(i));
         }
         transactionManager.commit();
-    }
-
-    @Test
-    public void testSoftLockSerialization() throws Exception {
-        transactionController.begin();
-
-        TransactionID transactionId = transactionController.getCurrentTransactionContext().getTransactionId();
-        SoftLock originalSoftLock = cacheManager.getSoftLockFactory(cache1.getName()).createSoftLock(transactionId, -1, null, null, false);
-
-        // serialize a soft lock
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(originalSoftLock);
-        oos.close();
-
-        // deserialize the soft lock
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
-        SoftLock deserializedSoftLock = (SoftLock)ois.readObject();
-        ois.close();
-
-        // check that we got the original soft lock back
-        assertTrue(originalSoftLock == deserializedSoftLock);
-
-        transactionController.commit();
-    }
-
-    @Test
-    public void testXaSoftLockSerialization() throws Exception {
-        transactionManager.begin();
-        XidTransactionID xidTransactionID = findXidTransactionId(xaCache1);
-
-        SoftLock originalSoftLock = cacheManager.getSoftLockFactory(xaCache1.getName()).createSoftLock(xidTransactionID, -1, null, null, false);
-
-        // serialize a soft lock
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(originalSoftLock);
-        oos.close();
-
-        // deserialize the soft lock
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
-        SoftLock deserializedSoftLock = (SoftLock)ois.readObject();
-        ois.close();
-
-        // check that we got the original soft lock back
-        assertTrue(originalSoftLock == deserializedSoftLock);
-
-        transactionManager.commit();
-    }
-
-    private XidTransactionID findXidTransactionId(Ehcache xaCache) throws NoSuchFieldException, IllegalAccessException, SystemException {
-        // an element must be added to the cache so that it gets enlisted and we can get its XAResource's currentXid
-        xaCache.put(new Element(1, 1));
-
-        Field compoundStoreField = Cache.class.getDeclaredField("compoundStore");
-        compoundStoreField.setAccessible(true);
-        XATransactionStore xaTransactionStore = (XATransactionStore)compoundStoreField.get(xaCache);
-        EhcacheXAResourceImpl ehcacheXAResource = xaTransactionStore.getOrCreateXAResource();
-
-        Field currentXidField = EhcacheXAResourceImpl.class.getDeclaredField("currentXid");
-        currentXidField.setAccessible(true);
-        Xid currentXid = (Xid)currentXidField.get(ehcacheXAResource);
-
-        Field transactionIdFactoryField = XATransactionStore.class.getDeclaredField("transactionIdFactory");
-        transactionIdFactoryField.setAccessible(true);
-        TransactionIDFactory transactionIdFactory = (TransactionIDFactory)transactionIdFactoryField.get(xaTransactionStore);
-
-        return transactionIdFactory.createXidTransactionID(currentXid);
     }
 
 }

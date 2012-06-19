@@ -15,13 +15,8 @@
  */
 package net.sf.ehcache.transaction;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -31,21 +26,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author Ludovic Orban
  */
-@IgnoreSizeOf
 public class ReadCommittedSoftLockImpl implements SoftLock {
     private static final int PRIME = 31;
 
     private final ReadCommittedSoftLockFactoryImpl factory;
-    private final boolean wasPinned;
     private final ReentrantLock lock;
     private final ReentrantReadWriteLock freezeLock;
 
-    private final String cacheManagerName;
-    private final String cacheName;
     private final TransactionID transactionID;
     private final Object key;
-    private Element newElement;
-    private final Element oldElement;
     private volatile boolean expired;
 
     /**
@@ -53,20 +42,11 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      * @param factory the creating factory
      * @param transactionID the transaction ID
      * @param key the element's key this soft lock is going to protect
-     * @param newElement the new element, can be null
-     * @param oldElement the old element, can be null
-     * @param wasPinned true if the key whose element is about to be replaced by this soft lock was pinned in the underlying store
      */
-    ReadCommittedSoftLockImpl(ReadCommittedSoftLockFactoryImpl factory, TransactionID transactionID, Object key,
-                              Element newElement, Element oldElement, boolean wasPinned) {
+    ReadCommittedSoftLockImpl(ReadCommittedSoftLockFactoryImpl factory, TransactionID transactionID, Object key) {
         this.factory = factory;
-        this.wasPinned = wasPinned;
-        this.cacheManagerName = factory.getCacheManagerName();
-        this.cacheName = factory.getCacheName();
         this.transactionID = transactionID;
         this.key = key;
-        this.newElement = newElement;
-        this.oldElement = oldElement;
         this.lock = new ReentrantLock();
         this.freezeLock = new ReentrantReadWriteLock();
     }
@@ -81,13 +61,13 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     /**
      * {@inheritDoc}
      */
-    public Element getElement(TransactionID currentTransactionId) {
+    public Element getElement(TransactionID currentTransactionId, SoftLockID softLockId) {
         freezeLock.readLock().lock();
         try {
             if (transactionID.equals(currentTransactionId)) {
-                return newElement;
+                return softLockId.getNewElement();
             } else {
-                return oldElement;
+                return softLockId.getOldElement();
             }
         } finally {
             freezeLock.readLock().unlock();
@@ -97,24 +77,8 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     /**
      * {@inheritDoc}
      */
-    public Element updateElement(Element newElement) {
-        Element e = this.newElement;
-        this.newElement = newElement;
-        return e;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public TransactionID getTransactionID() {
         return transactionID;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean wasPinned() {
-        return wasPinned;
     }
 
     /**
@@ -158,26 +122,6 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
             throw new IllegalStateException("cannot freeze an unlocked soft lock");
         }
         freezeLock.writeLock().lock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element getOldElement() {
-        if (!isFrozen()) {
-            throw new IllegalStateException("cannot get old element of a soft lock which hasn't been frozen or hasn't expired");
-        }
-        return oldElement;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element getNewElement() {
-        if (!isFrozen()) {
-            throw new IllegalStateException("cannot get new element of a soft lock which hasn't been frozen or hasn't expired");
-        }
-        return newElement;
     }
 
     /**
@@ -239,54 +183,12 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
         return hashCode;
     }
 
-    private Object writeReplace() throws ObjectStreamException {
-        return new ReadCommittedSoftLockImplSerializedForm(cacheManagerName, cacheName, transactionID, key);
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        return "Soft Lock [clustered: false, isolation: rc, transactionID: " + transactionID + ", key: " + key +
-                ", newElement: " + newElement + ", oldElement: " + oldElement + "]";
-    }
-
-    /**
-     * ReadCommittedSoftLockImpl serialized form
-     */
-    private static final class ReadCommittedSoftLockImplSerializedForm implements Serializable {
-
-        private final String cacheManagerName;
-        private final String cacheName;
-        private final TransactionID transactionID;
-        private final Object key;
-
-        private ReadCommittedSoftLockImplSerializedForm(String cacheManagerName, String cacheName, TransactionID transactionID, Object key) {
-            this.cacheManagerName = cacheManagerName;
-            this.cacheName = cacheName;
-            this.transactionID = transactionID;
-            this.key = key;
-        }
-
-        private Object readResolve() throws ObjectStreamException {
-            for (int i = 0; i < CacheManager.ALL_CACHE_MANAGERS.size(); i++) {
-                CacheManager cacheManager = CacheManager.ALL_CACHE_MANAGERS.get(i);
-                if (cacheManager.getName().equals(cacheManagerName)) {
-                    try {
-                        ReadCommittedSoftLockFactoryImpl softLockFactory =
-                            (ReadCommittedSoftLockFactoryImpl) cacheManager.getSoftLockFactory(cacheName);
-                        return softLockFactory.getLock(transactionID, key);
-                    } catch (CacheException ce) {
-                        throw new TransactionException("cannot deserialize SoftLock from cache " + cacheName +
-                                                       " as the cache cannot be found in cache manager " + cacheManagerName);
-                    }
-                }
-            }
-            throw new TransactionException("unable to find referent SoftLock in " + cacheManagerName + " " + cacheName +
-                                           " for key [" + key + "] under transaction " + transactionID);
-        }
-
+        return "Soft Lock [clustered: false, isolation: rc, transactionID: " + transactionID + ", key: " + key + "]";
     }
 
 }

@@ -20,6 +20,7 @@ import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.xa.OptimisticLockFailureException;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
@@ -67,8 +68,9 @@ public abstract class AbstractStoreCommand implements Command {
         Object objectKey = getObjectKey();
         final boolean wasPinned = store.isPinned(objectKey);
 
-        SoftLock softLock = softLockFactory.createSoftLock(transactionId, objectKey, newElement, oldElement, wasPinned);
-        softLockedElement = createElement(objectKey, softLock, store, wasPinned);
+        SoftLockID softLockId = softLockFactory.createSoftLockID(transactionId, objectKey, newElement, oldElement, wasPinned);
+        SoftLock softLock = softLockFactory.createSoftLock(softLockId);
+        softLockedElement = createElement(objectKey, softLockId, store, wasPinned);
         softLock.lock();
         softLock.freeze();
 
@@ -96,24 +98,27 @@ public abstract class AbstractStoreCommand implements Command {
     /**
      * {@inheritDoc}
      */
-    public void rollback(Store store) {
+    public void rollback(Store store, SoftLockFactory softLockFactory) {
         if (oldElement == null) {
             store.remove(getObjectKey());
         } else {
             store.put(oldElement);
         }
 
-        SoftLock softLock = (SoftLock) softLockedElement.getObjectValue();
-        if (!softLock.wasPinned()) {
-            store.setPinned(softLock.getKey(), false);
+        SoftLockID softLockId = (SoftLockID) softLockedElement.getObjectValue();
+        SoftLock softLock = softLockFactory.findSoftLockById(softLockId);
+
+        if (!softLockId.wasPinned()) {
+            store.setPinned(softLockId.getKey(), false);
         }
+
         softLock.unfreeze();
         softLock.unlock();
         softLockedElement = null;
     }
 
-    private Element createElement(Object key, SoftLock softLock, Store store, boolean wasPinned) {
-        Element element = new Element(key, softLock);
+    private Element createElement(Object key, SoftLockID softLockId, Store store, boolean wasPinned) {
+        Element element = new Element(key, softLockId);
         element.setEternal(true);
         if (!wasPinned) {
             store.setPinned(key, true);

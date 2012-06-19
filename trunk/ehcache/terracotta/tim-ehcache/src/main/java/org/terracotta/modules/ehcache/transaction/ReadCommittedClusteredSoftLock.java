@@ -3,14 +3,10 @@
  */
 package org.terracotta.modules.ehcache.transaction;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.locking.TerracottaReadWriteLock;
 
 import java.io.ByteArrayInputStream;
@@ -18,41 +14,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
 /**
  * @author Ludovic Orban
  */
-@IgnoreSizeOf
 public class ReadCommittedClusteredSoftLock implements SoftLock {
 
   private final ReadCommittedClusteredSoftLockFactory factory;
-  private final String                                cacheManagerName;
-  private final String                                cacheName;
   private final TransactionID                         transactionID;
-  private final boolean                               pinned;
   private final byte[]                                key;
-  private byte[]                                      newElement;
-  private final byte[]                                oldElement;
+  private volatile transient Object                   deserializedKey;
   private final TerracottaReadWriteLock               lock;
   private final TerracottaReadWriteLock               freezeLock;
   private final TerracottaReadWriteLock               notificationLock;
   private final Condition                             notifier;
   private boolean                                     expired;
 
-  ReadCommittedClusteredSoftLock(ReadCommittedClusteredSoftLockFactory factory, TransactionID transactionID,
-                                 Object key, Element newElement, Element oldElement, boolean pinned) {
+  ReadCommittedClusteredSoftLock(ReadCommittedClusteredSoftLockFactory factory, TransactionID transactionID, Object key) {
     this.factory = factory;
-    this.cacheManagerName = factory.getCacheManagerName();
-    this.cacheName = factory.getCacheName();
     this.transactionID = transactionID;
-    this.pinned = pinned;
     this.key = serialize(key);
-    this.newElement = serialize(newElement);
-    this.oldElement = serialize(oldElement);
+    this.deserializedKey = key;
     this.lock = new TerracottaReadWriteLock();
     this.freezeLock = new TerracottaReadWriteLock();
     this.notificationLock = new TerracottaReadWriteLock();
@@ -60,34 +44,27 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
   }
 
   public Object getKey() {
-    return deserialize(key);
+    if (deserializedKey == null) {
+      deserializedKey = deserialize(key);
+    }
+    return deserializedKey;
   }
 
-  public Element getElement(TransactionID currentTransactionId) {
+  public Element getElement(TransactionID currentTransactionId, SoftLockID softLockId) {
     freezeLock.readLock().lock();
     try {
       if (transactionID.equals(currentTransactionId)) {
-        return (Element) deserialize(newElement);
+        return softLockId.getNewElement();
       } else {
-        return (Element) deserialize(oldElement);
+        return softLockId.getOldElement();
       }
     } finally {
       freezeLock.readLock().unlock();
     }
   }
 
-  public Element updateElement(Element e) {
-    Element prev = (Element) deserialize(this.newElement);
-    this.newElement = serialize(e);
-    return prev;
-  }
-
   public TransactionID getTransactionID() {
     return transactionID;
-  }
-
-  public boolean wasPinned() {
-    return pinned;
   }
 
   public void lock() {
@@ -104,7 +81,7 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
   }
 
   public boolean tryLock(long ms) throws InterruptedException {
-    if (isExpired() && factory.getLock(transactionID, deserialize(key)) != null) {
+    if (isExpired() && factory.getLock(transactionID, getKey()) != null) {
       notificationLock.writeLock().lock();
       try {
         while (!isLocked()) {
@@ -138,18 +115,6 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
 
   public void unfreeze() {
     freezeLock.writeLock().unlock();
-  }
-
-  @Override
-  public Element getOldElement() {
-    if (!isFrozen()) { throw new IllegalStateException("cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired"); }
-    return (Element) deserialize(oldElement);
-  }
-
-  @Override
-  public Element getNewElement() {
-    if (!isFrozen()) { throw new IllegalStateException("cannot get frozen element of a soft lock which hasn't been frozen or hasn't expired"); }
-    return (Element) deserialize(newElement);
   }
 
   public synchronized boolean isExpired() {
@@ -187,7 +152,7 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
       ReadCommittedClusteredSoftLock other = (ReadCommittedClusteredSoftLock) object;
 
       if (!transactionID.equals(other.transactionID)) { return false; }
-      if (!Arrays.equals(key, other.key)) { return false; }
+      if (!getKey().equals(other.getKey())) { return false; }
 
       return true;
     }
@@ -199,19 +164,14 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
     int hashCode = 31;
 
     hashCode *= transactionID.hashCode();
-    hashCode *= Arrays.hashCode(key);
+    hashCode *= getKey().hashCode();
 
     return hashCode;
   }
 
-  private Object writeReplace() {
-    return new ReadCommittedClusteredSoftLockSerializedForm(cacheManagerName, cacheName, transactionID, key);
-  }
-
   @Override
   public String toString() {
-    return "Soft Lock [clustered: true, isolation: rc, transactionID: " + transactionID + ", key: " + deserialize(key)
-           + ", newElement: " + deserialize(newElement) + "]";
+    return "Soft Lock [clustered: true, isolation: rc, transactionID: " + transactionID + ", key: " + getKey() + "]";
   }
 
   private static byte[] serialize(Object obj) {
@@ -236,45 +196,6 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
     } catch (Exception e) {
       throw new RuntimeException("error deserializing " + bytes);
     }
-  }
-
-  /**
-   * ReadCommittedClusteredSoftLock serialized form
-   */
-  private static final class ReadCommittedClusteredSoftLockSerializedForm implements Serializable {
-
-    private final String        cacheManagerName;
-    private final String        cacheName;
-    private final TransactionID transactionID;
-    private final byte[]        key;
-
-    private ReadCommittedClusteredSoftLockSerializedForm(String cacheManagerName, String cacheName,
-                                                         TransactionID transactionID, byte[] key) {
-      this.cacheManagerName = cacheManagerName;
-      this.cacheName = cacheName;
-      this.transactionID = transactionID;
-      this.key = key;
-    }
-
-    private Object readResolve() {
-      for (int i = 0; i < CacheManager.ALL_CACHE_MANAGERS.size(); i++) {
-        CacheManager cacheManager = CacheManager.ALL_CACHE_MANAGERS.get(i);
-        if (cacheManager.getName().equals(cacheManagerName)) {
-          try {
-            ReadCommittedClusteredSoftLockFactory softLockFactory = (ReadCommittedClusteredSoftLockFactory)cacheManager
-                .getSoftLockFactory(cacheName);
-            return softLockFactory.getLock(transactionID, deserialize(key));
-          } catch (CacheException ce) {
-            throw new TransactionException("cannot deserialize SoftLock from cache " + cacheName +
-                                           " as the cache cannot be found in cache manager " + cacheManagerName);
-          }
-        }
-      }
-      throw new TransactionException("unable to find referent clustered SoftLock in " + cacheManagerName + " "
-                                     + cacheName + " for key [" + deserialize(key) + "] under transaction "
-                                     + transactionID);
-    }
-
   }
 
 }

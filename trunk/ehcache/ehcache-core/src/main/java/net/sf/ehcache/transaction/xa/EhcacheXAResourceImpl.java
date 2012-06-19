@@ -24,6 +24,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -225,7 +226,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 preparedCommands.add(0, command);
             } catch (OptimisticLockFailureException ie) {
                 for (Command preparedCommand : preparedCommands) {
-                    preparedCommand.rollback(underlyingStore);
+                    preparedCommand.rollback(underlyingStore, softLockFactory);
                 }
                 preparedCommands.clear();
                 throw new EhcacheXAException(command + " failed because value changed between execution and 2PC",
@@ -294,7 +295,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             for (SoftLock softLock : softLocks) {
-                Element frozenElement = softLock.getNewElement();
+                SoftLockID softLockId = (SoftLockID)underlyingStore.getQuiet(softLock.getKey()).getObjectValue();
+                Element frozenElement = softLockId.getNewElement();
 
                 if (frozenElement != null) {
                     underlyingStore.put(frozenElement);
@@ -302,7 +304,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     underlyingStore.remove(softLock.getKey());
                 }
 
-                if (!softLock.wasPinned()) {
+                if (!softLockId.wasPinned()) {
                     underlyingStore.setPinned(softLock.getKey(), false);
                 }
             }
@@ -387,7 +389,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             for (SoftLock softLock : softLocks) {
-                Element frozenElement = softLock.getOldElement();
+                SoftLockID softLockId = (SoftLockID)underlyingStore.getQuiet(softLock.getKey()).getObjectValue();
+                Element frozenElement = softLockId.getOldElement();
 
                 if (frozenElement != null) {
                     underlyingStore.put(frozenElement);
@@ -395,7 +398,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     underlyingStore.remove(softLock.getKey());
                 }
 
-                if (!softLock.wasPinned()) {
+                if (!softLockId.wasPinned()) {
                     underlyingStore.setPinned(softLock.getKey(), false);
                 }
             }

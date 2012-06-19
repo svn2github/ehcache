@@ -370,12 +370,11 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {
     String cacheName = cache.getName();
-    String cacheManagerName = getCacheManagerName(cache.getCacheManager());
     ConcurrentMap<String, SoftLockFactory> factories = getSoftLockFactoriesRoot();
 
     SoftLockFactory softLockFactory = factories.get(cacheName);
     if (softLockFactory == null) {
-      softLockFactory = new ReadCommittedClusteredSoftLockFactory(cacheManagerName, cacheName);
+      softLockFactory = new ReadCommittedClusteredSoftLockFactory(cacheName);
       SoftLockFactory old = factories.putIfAbsent(cacheName, softLockFactory);
       if (old != null) {
         softLockFactory = old;

@@ -16,10 +16,12 @@
 package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -33,73 +35,60 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
 
     private static final Object MARKER = new Object();
 
-    private final String cacheManagerName;
     private final String cacheName;
 
     // actually all we need would be a ConcurrentSet...
     private final ConcurrentMap<ReadCommittedSoftLockImpl, Object> newKeyLocks = new ConcurrentHashMap<ReadCommittedSoftLockImpl, Object>();
 
-    private final ConcurrentMap<ReadCommittedSoftLockImpl, Object> allLocks = new ConcurrentHashMap<ReadCommittedSoftLockImpl, Object>();
+    private final ConcurrentMap<SoftLockID, ReadCommittedSoftLockImpl> allLocks = new ConcurrentHashMap<SoftLockID, ReadCommittedSoftLockImpl>();
 
     /**
      * Create a new ReadCommittedSoftLockFactoryImpl instance for a cache
-     * @param cacheManagerName the name of the cache manager
      * @param cacheName the name of the cache
      */
-    public ReadCommittedSoftLockFactoryImpl(String cacheManagerName, String cacheName) {
-        this.cacheManagerName = cacheManagerName;
+    public ReadCommittedSoftLockFactoryImpl(String cacheName) {
         this.cacheName = cacheName;
-    }
-
-    /**
-     * Get the cache manager name
-     * @return the cache manager name
-     */
-    String getCacheManagerName() {
-        return cacheManagerName;
-    }
-
-    /**
-     * Get the cache name
-     * @return the cache name
-     */
-    String getCacheName() {
-        return cacheName;
     }
 
     /**
      * {@inheritDoc}
      */
-    public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned) {
-        ReadCommittedSoftLockImpl softLock = new ReadCommittedSoftLockImpl(this, transactionID, key, newElement, oldElement, pinned);
+    public SoftLock createSoftLock(SoftLockID softLockId) {
+        ReadCommittedSoftLockImpl softLock = new ReadCommittedSoftLockImpl(this, softLockId.getTransactionID(), softLockId.getKey());
 
-        allLocks.put(softLock, MARKER);
+        allLocks.put(softLockId, softLock);
 
-        if (oldElement == null) {
+        if (softLockId.getOldElement() == null) {
             newKeyLocks.put(softLock, MARKER);
         }
         return softLock;
     }
 
     /**
-     * Get a lock
-     * @param transactionId the lock transaction ID
-     * @param key the lock key
-     * @return the lock, or null if there is no lock created with this transaction ID and key
+     * {@inheritDoc}
      */
-    ReadCommittedSoftLockImpl getLock(TransactionID transactionId, Object key) {
-        for (ReadCommittedSoftLockImpl readCommittedSoftLock : allLocks.keySet()) {
-            if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) {
-                return readCommittedSoftLock;
-            }
+    public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned) {
+        if (newElement != null && newElement.getObjectValue() instanceof SoftLockID) {
+            throw new AssertionError("newElement must not contain a soft lock ID");
         }
-        return null;
+        if (oldElement != null && oldElement.getObjectValue() instanceof SoftLockID) {
+            throw new AssertionError("oldElement must not contain a soft lock ID");
+        }
+
+        return new SoftLockID(transactionID, key, newElement, oldElement, pinned);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Set<Object> getKeysInvisibleInContext(LocalTransactionContext currentTransactionContext) {
+    public SoftLock findSoftLockById(SoftLockID softLockId) {
+        return allLocks.get(softLockId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Set<Object> getKeysInvisibleInContext(LocalTransactionContext currentTransactionContext, Store underlyingStore) {
         Set<Object> invisibleKeys = new HashSet<Object>();
 
         // all new keys added into the store are invisible
@@ -107,7 +96,9 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
 
         List<SoftLock> currentTransactionContextSoftLocks = currentTransactionContext.getSoftLocksForCache(cacheName);
         for (SoftLock softLock : currentTransactionContextSoftLocks) {
-            if (softLock.getElement(currentTransactionContext.getTransactionId()) == null) {
+            SoftLockID softLockId = (SoftLockID)underlyingStore.getQuiet(softLock.getKey()).getObjectValue();
+
+            if (softLock.getElement(currentTransactionContext.getTransactionId(), softLockId) == null) {
                 // if the soft lock's element is null in the current transaction then the key is invisible
                 invisibleKeys.add(softLock.getKey());
             } else {
@@ -125,7 +116,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
     public Set<TransactionID> collectExpiredTransactionIDs() {
         Set<TransactionID> result = new HashSet<TransactionID>();
 
-        for (ReadCommittedSoftLockImpl softLock : allLocks.keySet()) {
+        for (ReadCommittedSoftLockImpl softLock : allLocks.values()) {
             if (softLock.isExpired()) {
                 result.add(softLock.getTransactionID());
             }
@@ -140,7 +131,7 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
     public Set<SoftLock> collectAllSoftLocksForTransactionID(TransactionID transactionID) {
         Set<SoftLock> result = new HashSet<SoftLock>();
 
-        for (ReadCommittedSoftLockImpl softLock : allLocks.keySet()) {
+        for (ReadCommittedSoftLockImpl softLock : allLocks.values()) {
             if (softLock.getTransactionID().equals(transactionID)) {
                 result.add(softLock);
             }
@@ -156,7 +147,12 @@ public class ReadCommittedSoftLockFactoryImpl implements SoftLockFactory {
     void clearSoftLock(ReadCommittedSoftLockImpl softLock) {
         newKeyLocks.remove(softLock);
 
-        allLocks.remove(softLock);
+        for (Map.Entry<SoftLockID, ReadCommittedSoftLockImpl> entry : allLocks.entrySet()) {
+            if (entry.getValue().equals(softLock)) {
+                allLocks.remove(entry.getKey());
+                break;
+            }
+        }
     }
 
     private Set<Object> getNewKeys() {

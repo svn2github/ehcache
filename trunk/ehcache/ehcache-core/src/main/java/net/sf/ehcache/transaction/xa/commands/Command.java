@@ -52,8 +52,9 @@ public interface Command {
     /**
      * Rollback the prepared change
      * @param store the underlying store
+     * @param softLockFactory the soft lock factory
      */
-    public void rollback(Store store);
+    public void rollback(Store store, SoftLockFactory softLockFactory);
 
     /**
      * Get the key of the element this command is working on

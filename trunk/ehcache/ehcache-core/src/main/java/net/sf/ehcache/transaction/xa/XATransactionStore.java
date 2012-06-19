@@ -41,6 +41,7 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionIDFactory;
@@ -381,8 +382,9 @@ public class XATransactionStore extends AbstractTransactionStore {
                 return null;
             }
             Object value = element.getObjectValue();
-            if (value instanceof SoftLock) {
-                SoftLock softLock = (SoftLock) value;
+            if (value instanceof SoftLockID) {
+                SoftLockID softLockId = (SoftLockID) value;
+                SoftLock softLock = softLockFactory.findSoftLockById(softLockId);
                 try {
                     LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
                     boolean gotLock = softLock.tryLock(timeLeft);
@@ -408,10 +410,11 @@ public class XATransactionStore extends AbstractTransactionStore {
                 return null;
             }
             Object value = element.getObjectValue();
-            if (value instanceof SoftLock) {
-                SoftLock softLock = (SoftLock) value;
+            if (value instanceof SoftLockID) {
+                SoftLockID softLockId = (SoftLockID) value;
                 try {
                     LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
+                    SoftLock softLock = softLockFactory.findSoftLockById(softLockId);
                     boolean gotLock = softLock.tryLock(timeLeft);
                     if (gotLock) {
                         softLock.clearTryLock();

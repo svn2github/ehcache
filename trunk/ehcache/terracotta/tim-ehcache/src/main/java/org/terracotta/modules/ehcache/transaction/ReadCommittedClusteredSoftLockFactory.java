@@ -4,8 +4,10 @@
 package org.terracotta.modules.ehcache.transaction;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
 import org.terracotta.collections.ConcurrentDistributedMap;
@@ -23,7 +25,6 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockFactory {
   private final static Object MARKER = new Object();
 
   private final String cacheName;
-  private final String cacheManagerName;
 
   // actually all we need would be a ConcurrentSet...
   private final ConcurrentMap<ReadCommittedClusteredSoftLock, Object> newKeyLocks = new ConcurrentDistributedMap<ReadCommittedClusteredSoftLock, Object>();
@@ -32,28 +33,38 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockFactory {
   private final ConcurrentMap<ReadCommittedClusteredSoftLock, Object> allLocks = new ConcurrentDistributedMap<ReadCommittedClusteredSoftLock, Object>();
 
 
-  public ReadCommittedClusteredSoftLockFactory(String cacheManagerName, String cacheName) {
-    this.cacheManagerName = cacheManagerName;
+  public ReadCommittedClusteredSoftLockFactory(String cacheName) {
     this.cacheName = cacheName;
   }
 
-  String getCacheName() {
-    return cacheName;
-  }
-
-  String getCacheManagerName() {
-    return cacheManagerName;
-  }
-
-  public SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned) {
-    ReadCommittedClusteredSoftLock softLock = new ReadCommittedClusteredSoftLock(this, transactionID, key, newElement, oldElement, pinned);
+  public SoftLock createSoftLock(SoftLockID softLockId) {
+    ReadCommittedClusteredSoftLock softLock = new ReadCommittedClusteredSoftLock(this, softLockId.getTransactionID(), softLockId.getKey());
 
     allLocks.put(softLock, MARKER);
 
-    if (oldElement == null) {
+    if (softLockId.getOldElement() == null) {
       newKeyLocks.put(softLock, MARKER);
     }
     return softLock;
+  }
+
+  public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned) {
+    if (newElement != null && newElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError("newElement must not contain a soft lock ID"); }
+    if (oldElement != null && oldElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError("oldElement must not contain a soft lock ID"); }
+
+    return new SoftLockID(transactionID, key, newElement, oldElement, pinned);
+  }
+
+  public SoftLock findSoftLockById(SoftLockID softLockId) {
+    Set<ReadCommittedClusteredSoftLock> readCommittedSoftLocks = allLocks.keySet();
+    for (ReadCommittedClusteredSoftLock readCommittedSoftLock : readCommittedSoftLocks) {
+      if (softLockId.getTransactionID().equals(readCommittedSoftLock.getTransactionID()) &&
+          softLockId.getKey().equals(readCommittedSoftLock.getKey())) {
+        return readCommittedSoftLock;
+      }
+    }
+
+    return null;
   }
 
   ReadCommittedClusteredSoftLock getLock(TransactionID transactionId, Object key) {
@@ -66,7 +77,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockFactory {
     return null;
   }
 
-  public Set<Object> getKeysInvisibleInContext(LocalTransactionContext currentTransactionContext) {
+  public Set<Object> getKeysInvisibleInContext(LocalTransactionContext currentTransactionContext, Store underlyingStore) {
     Set<Object> invisibleKeys = new HashSet<Object>();
 
     // all new keys added into the store are invisible
@@ -74,7 +85,9 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockFactory {
 
     List<SoftLock> currentTransactionContextSoftLocks = currentTransactionContext.getSoftLocksForCache(cacheName);
     for (SoftLock softLock : currentTransactionContextSoftLocks) {
-      if (softLock.getElement(currentTransactionContext.getTransactionId()) == null) {
+      SoftLockID softLockId = (SoftLockID)underlyingStore.getQuiet(softLock.getKey()).getObjectValue();
+
+      if (softLock.getElement(currentTransactionContext.getTransactionId(), softLockId) == null) {
         // if the soft lock's element is null in the current transaction then the key is invisible
         invisibleKeys.add(softLock.getKey());
       } else {

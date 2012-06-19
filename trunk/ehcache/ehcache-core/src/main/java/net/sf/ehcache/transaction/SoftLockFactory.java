@@ -16,6 +16,7 @@
 package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
 
 import java.util.Set;
@@ -28,15 +29,29 @@ import java.util.Set;
 public interface SoftLockFactory {
 
     /**
-     * Create a new, unlocked soft lock
+     * Create a new soft lock ID
      * @param transactionID the transaction ID under which the soft lock will operate
      * @param key the key of the Element this soft lock is protecting
      * @param newElement the new Element
      * @param oldElement the actual Element
-     * @param pinned true if the element that is going to be replaced by a soft lock is pinned
+     * @param pinned true if the actual Element is pinned
+     * @return the soft lock ID
+     */
+    SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned);
+
+    /**
+     * Create a new, unlocked soft lock
+     * @param softLockId the soft lock's ID
      * @return the soft lock
      */
-    SoftLock createSoftLock(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned);
+    SoftLock createSoftLock(SoftLockID softLockId);
+
+    /**
+     * Find a previously created and still existing soft lock
+     * @param softLockId the soft lock's ID
+     * @return the soft lock
+     */
+    SoftLock findSoftLockById(SoftLockID softLockId);
 
     /**
      * Get a Set of keys protected by soft locks which must not be visible to a transaction context
@@ -44,7 +59,7 @@ public interface SoftLockFactory {
      * @param transactionContext the transaction context
      * @return a Set of keys invisible to the context
      */
-    Set<Object> getKeysInvisibleInContext(LocalTransactionContext transactionContext);
+    Set<Object> getKeysInvisibleInContext(LocalTransactionContext transactionContext, Store underlyingStore);
 
     /**
      * Get a Set of TransactionIDs for which the soft locks have expired

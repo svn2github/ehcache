@@ -17,14 +17,12 @@ package net.sf.ehcache.transaction;
 
 import net.sf.ehcache.Element;
 
-import java.io.Serializable;
-
 /**
  * A soft lock is used to lock elements in transactional stores
  * 
  * @author Ludovic Orban
  */
-public interface SoftLock extends Serializable {
+public interface SoftLock {
 
     /**
      * Get the key of the element this soft lock is guarding
@@ -39,24 +37,12 @@ public interface SoftLock extends Serializable {
     TransactionID getTransactionID();
 
     /**
-     * Check if the key was pinned in the underlying store before its element was replaced by this soft lock
-     * @return true if the key was pinned, false otherwise
-     */
-    boolean wasPinned();
-
-    /**
      * Get the element the current transaction is supposed to see.
      * @param currentTransactionId the current transaction under which this call is executed
+     * @param softLockId the soft lock ID
      * @return the Element visible to the current transaction
      */
-    Element getElement(TransactionID currentTransactionId);
-
-    /**
-     * Change the Element at the key this soft lock is guarding
-     * @param element the new Element
-     * @return the previous Element
-     */
-    Element updateElement(Element element);
+    Element getElement(TransactionID currentTransactionId, SoftLockID softLockId);
 
     /**
      * Lock the soft lock
@@ -84,7 +70,7 @@ public interface SoftLock extends Serializable {
 
     /**
      * Freeze the soft lock. A soft lock should only be frozen for a very short period of time as this blocks
-     * the {@link #getElement(TransactionID)} method calls.
+     * the {@link #getElement(TransactionID, SoftLockID)} method calls.
      * Freeze is used to mark the start of a commit / rollback phase
      */
     void freeze();
@@ -100,15 +86,5 @@ public interface SoftLock extends Serializable {
      */
     boolean isExpired();
 
-    /**
-     * Get the Element with which this soft lock should be replaced by on rollback.
-     * @return the rollback Element
-     */
-    Element getOldElement();
 
-    /**
-     * Get the Element with which this soft lock should be replaced by on commit.
-     * @return the commit Element
-     */
-    Element getNewElement();
 }
