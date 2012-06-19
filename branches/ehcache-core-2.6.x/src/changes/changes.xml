@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+     <release version="2.6.0" date="2012-06" description="Major Release">
+        	<action dev="" type="New Feature" issue="">
+            Fast Restartibility -  Standalone Ehcache now has support for full fault tolerance using new Fast Restartability (from disk). This allows for continuous accessibility of previously cached data after a planned or unplanned shutdown. 
+             </action>
+             <action dev="" type="New Feature" issue="">
+            Terracotta Managment Console for Ehcache - A new web-based monitoring and administration tool for standalone Ehcache applications. This replaces Ehcache Monitor and provides an enhanced user interface focused on ease of use in managing your Ehcache deployments.
+             </action>
+            </release>
      <release version="2.5.2" date="2012-04" description="Bug Fix Release">
         	<action dev="" type="update" issue="EHC-898">
             net.sf.ehcache.configurationResourceName is ignored
