@@ -8,6 +8,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -35,33 +36,14 @@ public class ClassicIsInvalidTest extends AbstractCacheTestBase {
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
 
-      try {
-        crerateCache("eventualClassicIdentity", cacheManager, "CLASSIC", Consistency.EVENTUAL, "IDENTITY");
-        Assert.fail("was able to create a clustered cache with \"classic\" storage strategy");
-      } catch (Exception e) {
-        // expected exception
-      }
+      Cache c = crerateCache("eventualClassicSerialization", cacheManager, "CLASSIC", Consistency.EVENTUAL,
+                             "SERIALIZATION");
+      Assert.assertEquals(c.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy(),
+                          StorageStrategy.DCV2);
 
-      try {
-        crerateCache("eventualClassicSerialization", cacheManager, "CLASSIC", Consistency.EVENTUAL, "SERIALIZATION");
-        Assert.fail("was able to create a clustered cache with \"classic\" storage strategy");
-      } catch (Exception e) {
-        // expected exception
-      }
-
-      try {
-        crerateCache("strongClassicIdentity", cacheManager, "CLASSIC", Consistency.STRONG, "IDENTITY");
-        Assert.fail("was able to create a clustered cache with \"classic\" storage strategy");
-      } catch (Exception e) {
-        // expected exception
-      }
-
-      try {
-        crerateCache("strongClassicSerialization", cacheManager, "CLASSIC", Consistency.STRONG, "SERIALIZATION");
-        Assert.fail("was able to create a clustered cache with \"classic\" storage strategy");
-      } catch (Exception e) {
-        // expected exception
-      }
+      c = crerateCache("strongClassicSerialization", cacheManager, "CLASSIC", Consistency.STRONG, "SERIALIZATION");
+      Assert.assertEquals(c.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy(),
+                          StorageStrategy.DCV2);
 
       crerateCache("eventualDCV2Serialization", cacheManager, "DCV2", Consistency.EVENTUAL, "SERIALIZATION");
       crerateCache("strongDCV2Serialization", cacheManager, "DCV2", Consistency.STRONG, "SERIALIZATION");
