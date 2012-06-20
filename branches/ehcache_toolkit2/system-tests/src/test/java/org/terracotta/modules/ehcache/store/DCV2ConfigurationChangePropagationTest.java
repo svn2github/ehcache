@@ -6,10 +6,10 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.concurrent.ThreadUtil;
@@ -31,7 +31,7 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
 
     private final ToolkitBarrier barrier1;
     private final ToolkitBarrier barrier2;
-    private int           clientId;
+    private int                  clientId;
 
     public App(String[] args) {
       super(args);
@@ -46,34 +46,12 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       clientId = barrier1.await();
-
+      cacheManager = getCacheManager();
       if (clientId != 2) {
-        CacheManager cm = cacheManager;
-        cacheManager.shutdown();
-        try {
-          setupCacheManager();
-          cm = testTTIChange();
-        } finally {
-          cm.shutdown();
-        }
-        try {
-          setupCacheManager();
-          cm = testTTLChange();
-        } finally {
-          cm.shutdown();
-        }
-        try {
-          setupCacheManager();
-          cm = testDiskCapacityChange();
-        } finally {
-          cm.shutdown();
-        }
-        try {
-          setupCacheManager();
-          cm = testMemoryCapacityChange();
-        } finally {
-          cm.shutdown();
-        }
+        testTTIChange();
+        testTTLChange();
+        testDiskCapacityChange();
+        testMemoryCapacityChange();
       }
       barrier1.await();
       if (clientId == 2) {
