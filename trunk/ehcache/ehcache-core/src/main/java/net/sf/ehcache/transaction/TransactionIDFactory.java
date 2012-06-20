@@ -17,6 +17,7 @@ package net.sf.ehcache.transaction;
 
 import java.util.Set;
 
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
 import javax.transaction.xa.Xid;
@@ -50,7 +51,7 @@ public interface TransactionIDFactory {
      * @param xid the XID
      * @return a transaction ID
      */
-    XidTransactionID createXidTransactionID(Xid xid);
+    XidTransactionID createXidTransactionID(Xid xid, Ehcache cache);
 
     /**
      * Restore a XID transaction ID from its serialized form
@@ -81,16 +82,23 @@ public interface TransactionIDFactory {
     boolean isDecisionCommit(TransactionID transactionID);
 
     /**
-     * Get the set of in-doubt transactions.
-     *
-     * @return the set of in-doubt transactions
-     */
-    Set<TransactionID> getInDoubtTransactionIDs();
-
-    /**
      * Clear this transaction's state representation.
      *
      * @param transactionID transaction to be cleared
      */
     void clear(TransactionID transactionID);
+
+    /**
+     * Get the set of all transactions.
+     *
+     * @return the set of transactions
+     */
+    Set<XidTransactionID> getAllXidTransactionIDsFor(Ehcache cache);
+
+    /**
+     * Return {@code true} if the factory state is persistent (survives JVM restart).
+     *
+     * @return {@code true} is state is persistent
+     */
+    Boolean isPersistent();
 }

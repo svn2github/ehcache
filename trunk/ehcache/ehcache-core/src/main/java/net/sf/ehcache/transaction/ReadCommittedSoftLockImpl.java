@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ReadCommittedSoftLockImpl implements SoftLock {
     private static final int PRIME = 31;
 
-    private final SoftLockManager factory;
+    private final SoftLockManager manager;
     private final ReentrantLock lock;
     private final ReentrantReadWriteLock freezeLock;
 
@@ -38,11 +38,11 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
 
     /**
      * Create a new ReadCommittedSoftLockImpl instance
-     * @param factory the creating factory
+     * @param manager the creating manager
      * @param key the element's key this soft lock is going to protect
      */
-    ReadCommittedSoftLockImpl(SoftLockManager factory, Object key) {
-        this.factory = factory;
+    ReadCommittedSoftLockImpl(SoftLockManager manager, Object key) {
+        this.manager = manager;
         this.key = key;
         this.lock = new ReentrantLock();
         this.freezeLock = new ReentrantReadWriteLock();
@@ -136,7 +136,7 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
     }
 
     private void clear() {
-        factory.clearSoftLock(this);
+        manager.clearSoftLock(this);
     }
 
     /**

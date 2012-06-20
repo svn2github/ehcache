@@ -68,7 +68,7 @@ public class XATransactionStore extends AbstractTransactionStore {
 
     private final TransactionManagerLookup transactionManagerLookup;
     private final TransactionIDFactory transactionIdFactory;
-    private final SoftLockManager softLockFactory;
+    private final SoftLockManager softLockManager;
     private final Ehcache cache;
 
     private final ConcurrentHashMap<Transaction, EhcacheXAResource> transactionToXAResourceMap =
@@ -78,13 +78,13 @@ public class XATransactionStore extends AbstractTransactionStore {
     /**
      * Constructor
      * @param transactionManagerLookup the transaction manager lookup implementation
-     * @param softLockFactory the soft lock factory
+     * @param softLockManager the soft lock manager
      * @param transactionIdFactory the transaction ID factory
      * @param cache the cache
      * @param store the underlying store
      * @param copyStrategy the original copy strategy
      */
-    public XATransactionStore(TransactionManagerLookup transactionManagerLookup, SoftLockManager softLockFactory,
+    public XATransactionStore(TransactionManagerLookup transactionManagerLookup, SoftLockManager softLockManager,
                               TransactionIDFactory transactionIdFactory, Ehcache cache, Store store,
                               ReadWriteCopyStrategy<Element> copyStrategy) {
         super(store, copyStrategy);
@@ -93,7 +93,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         if (transactionManagerLookup.getTransactionManager() == null) {
             throw new TransactionException("no JTA transaction manager could be located, cannot bind twopc cache with JTA");
         }
-        this.softLockFactory = softLockFactory;
+        this.softLockManager = softLockManager;
         this.cache = cache;
     }
 
@@ -116,7 +116,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         if (xaResource == null) {
             LOG.debug("creating new XAResource");
             xaResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup,
-                    softLockFactory, transactionIdFactory, copyStrategy);
+                    softLockManager, transactionIdFactory, copyStrategy);
             transactionToXAResourceMap.put(transaction, xaResource);
             xaResource.addTwoPcExecutionListener(new CleanupXAResource(getCurrentTransaction()));
         }
@@ -384,7 +384,7 @@ public class XATransactionStore extends AbstractTransactionStore {
             Object value = element.getObjectValue();
             if (value instanceof SoftLockID) {
                 SoftLockID softLockId = (SoftLockID) value;
-                SoftLock softLock = softLockFactory.findSoftLockById(softLockId);
+                SoftLock softLock = softLockManager.findSoftLockById(softLockId);
                 try {
                     LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
                     boolean gotLock = softLock.tryLock(timeLeft);
@@ -414,7 +414,7 @@ public class XATransactionStore extends AbstractTransactionStore {
                 SoftLockID softLockId = (SoftLockID) value;
                 try {
                     LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
-                    SoftLock softLock = softLockFactory.findSoftLockById(softLockId);
+                    SoftLock softLock = softLockManager.findSoftLockById(softLockId);
                     boolean gotLock = softLock.tryLock(timeLeft);
                     if (gotLock) {
                         softLock.clearTryLock();

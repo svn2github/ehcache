@@ -15,12 +15,10 @@
  */
 package net.sf.ehcache.transaction;
 
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 import net.sf.ehcache.transaction.xa.XidTransactionIDImpl;
 
@@ -31,42 +29,17 @@ import javax.transaction.xa.Xid;
 
  * @author Ludovic Orban
  */
-public class TransactionIDFactoryImpl implements TransactionIDFactory {
+public class TransactionIDFactoryImpl extends AbstractTransactionIDFactory {
 
-    private final ConcurrentMap<TransactionID, Decision> transactionStates;
-
-    /**
-     * Create a new factory using an in-heap map.
-     */
-    public TransactionIDFactoryImpl() {
-        this(new ConcurrentHashMap<TransactionID, Decision>());
-    }
-
-    /**
-     * Create a new factory using the supplied map.
-     *
-     * @param transactionMap map in which to store transaction states.
-     */
-    public TransactionIDFactoryImpl(ConcurrentMap<TransactionID, Decision> transactionMap) {
-        this.transactionStates = transactionMap;
-    }
+    private final ConcurrentMap<TransactionID, Decision> transactionStates = new ConcurrentHashMap<TransactionID, Decision>();
 
     /**
      * {@inheritDoc}
      */
     public TransactionID createTransactionID() {
-        /*
-         * The TransactionID "values" start at zero each time.  Since the map
-         * may be restartable and hence non empty at startup if we see a collision
-         * we can just throw away that transaction id and get a new one until we have
-         * a unique id.
-         */
-        while (true) {
-            TransactionID id = new TransactionIDImpl();
-            if (transactionStates.putIfAbsent(id, Decision.IN_DOUBT) == null) {
-                return id;
-            }
-        }
+        TransactionID id = new TransactionIDImpl();
+        getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
+        return id;
     }
 
     /**
@@ -79,9 +52,9 @@ public class TransactionIDFactoryImpl implements TransactionIDFactory {
     /**
      * {@inheritDoc}
      */
-    public XidTransactionID createXidTransactionID(Xid xid) {
-        XidTransactionID id = new XidTransactionIDImpl(xid);
-        transactionStates.putIfAbsent(id, Decision.IN_DOUBT);
+    public XidTransactionID createXidTransactionID(Xid xid, Ehcache cache) {
+        XidTransactionID id = new XidTransactionIDImpl(xid, cache.getName());
+        getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
         return id;
     }
 
@@ -92,81 +65,13 @@ public class TransactionIDFactoryImpl implements TransactionIDFactory {
         throw new UnsupportedOperationException("unclustered transaction IDs are directly deserializable!");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void markForCommit(TransactionID transactionID) {
-        while (true) {
-            Decision current = transactionStates.get(transactionID);
-            switch (current) {
-                case IN_DOUBT:
-                    if (transactionStates.replace(transactionID, Decision.IN_DOUBT, Decision.COMMIT)) {
-                        return;
-                    }
-                    break;
-                case ROLLBACK:
-                    throw new IllegalStateException(this + " already marked for rollback, cannot re-mark it for commit");
-                case COMMIT:
-                    return;
-                default:
-                    throw new AssertionError();
-            }
-        }
+    protected ConcurrentMap<TransactionID, Decision> getTransactionStates() {
+        return transactionStates;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void markForRollback(XidTransactionID transactionID) {
-        while (true) {
-            Decision current = transactionStates.get(transactionID);
-            switch (current) {
-                case IN_DOUBT:
-                    if (transactionStates.replace(transactionID, Decision.IN_DOUBT, Decision.ROLLBACK)) {
-                        return;
-                    }
-                    break;
-                case ROLLBACK:
-                    return;
-                case COMMIT:
-                    throw new IllegalStateException(this + " already marked for commit, cannot re-mark it for rollback");
-                default:
-                    throw new AssertionError();
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isDecisionCommit(TransactionID transactionID) {
-        return Decision.COMMIT.equals(transactionStates.get(transactionID));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Set<TransactionID> getInDoubtTransactionIDs() {
-        Set<TransactionID> result = new HashSet<TransactionID>();
-
-        for (Entry<TransactionID, Decision> e : transactionStates.entrySet()) {
-            if (Decision.IN_DOUBT.equals(e.getValue())) {
-                result.add(e.getKey());
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void clear(TransactionID transactionID) {
-        transactionStates.remove(transactionID);
+    public Boolean isPersistent() {
+        return Boolean.FALSE;
     }
 }

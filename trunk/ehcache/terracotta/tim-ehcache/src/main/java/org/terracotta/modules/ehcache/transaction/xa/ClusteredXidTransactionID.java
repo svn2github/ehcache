@@ -14,15 +14,18 @@ import javax.transaction.xa.Xid;
 public class ClusteredXidTransactionID implements XidTransactionID {
 
     private final Xid xid;
+    private final String cacheName;
     private final String cacheManagerName;
 
     public ClusteredXidTransactionID(XidTransactionIDSerializedForm serializedForm) {
         this.xid = new XidClustered(serializedForm.getXid());
         this.cacheManagerName = serializedForm.getCacheManagerName();
+        this.cacheName = serializedForm.getCacheName();
     }
 
-    public ClusteredXidTransactionID(Xid xid, String cacheManagerName) {
+    public ClusteredXidTransactionID(Xid xid, String cacheManagerName, String cacheName) {
         this.cacheManagerName = cacheManagerName;
+        this.cacheName = cacheName;
         this.xid = new XidClustered(xid);
     }
 
@@ -30,6 +33,11 @@ public class ClusteredXidTransactionID implements XidTransactionID {
     public Xid getXid() {
         return xid;
     }
+
+  @Override
+  public String getCacheName() {
+    return cacheName;
+  }
 
     /**
      * {@inheritDoc}
@@ -60,6 +68,6 @@ public class ClusteredXidTransactionID implements XidTransactionID {
     }
 
     private Object writeReplace() {
-        return new XidTransactionIDSerializedForm(cacheManagerName, xid);
+        return new XidTransactionIDSerializedForm(cacheManagerName, cacheName, xid);
     }
 }

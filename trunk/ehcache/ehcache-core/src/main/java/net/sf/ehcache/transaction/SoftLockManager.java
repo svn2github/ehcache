@@ -71,7 +71,7 @@ public interface SoftLockManager {
      * Get a Set of TransactionIDs for which the soft locks have expired
      * @return a Set of TransactionIDs for which the soft locks have expired
      */
-    Set<TransactionID> collectExpiredTransactionIDs();
+    Set<TransactionID> collectAllLiveTransactionIDs();
 
     /**
      * Get a the soft locks of the specified transaction ID

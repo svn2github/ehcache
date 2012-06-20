@@ -23,13 +23,15 @@ import javax.transaction.xa.Xid;
 public final class XidTransactionIDImpl implements XidTransactionID {
 
     private final SerializableXid xid;
+    private final String cacheName;
 
     /**
      * Constructor
      * @param xid a XID
      */
-    public XidTransactionIDImpl(Xid xid) {
+    public XidTransactionIDImpl(Xid xid, String cacheName) {
         this.xid = new SerializableXid(xid);
+        this.cacheName = cacheName;
     }
 
     /**
@@ -37,6 +39,14 @@ public final class XidTransactionIDImpl implements XidTransactionID {
      */
     public Xid getXid() {
         return xid;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCacheName() {
+        return cacheName;
     }
 
     /**

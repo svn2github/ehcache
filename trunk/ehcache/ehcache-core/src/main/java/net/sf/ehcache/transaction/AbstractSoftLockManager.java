@@ -125,11 +125,11 @@ public abstract class AbstractSoftLockManager implements SoftLockManager {
     /**
      * {@inheritDoc}
      */
-    public Set<TransactionID> collectExpiredTransactionIDs() {
+    public Set<TransactionID> collectAllLiveTransactionIDs() {
         Set<TransactionID> result = new HashSet<TransactionID>();
 
         for (Entry<SoftLockID, SoftLock> entry : getAllLocks().entrySet()) {
-            if (entry.getValue().isExpired()) {
+            if (!entry.getValue().isExpired()) {
                 result.add(entry.getKey().getTransactionID());
             }
         }

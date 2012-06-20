@@ -65,7 +65,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final Store underlyingStore;
     private final TransactionIDFactory transactionIDFactory;
     private final TransactionManager txnManager;
-    private final SoftLockManager softLockFactory;
+    private final SoftLockManager softLockManager;
     private final ConcurrentMap<Xid, XATransactionContext> xidToContextMap = new ConcurrentHashMap<Xid, XATransactionContext>();
     private final XARequestProcessor processor;
     private volatile Xid currentXid;
@@ -78,17 +78,17 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @param cache the cache
      * @param underlyingStore the underlying store
      * @param txnManagerLookup the transaction manager lookup
-     * @param softLockFactory the soft lock factory
+     * @param softLockManager the soft lock manager
      * @param transactionIDFactory the transaction ID factory
      */
     public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup,
-                                 SoftLockManager softLockFactory, TransactionIDFactory transactionIDFactory,
+                                 SoftLockManager softLockManager, TransactionIDFactory transactionIDFactory,
                                  ReadWriteCopyStrategy<Element> copyStrategy) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;
         this.transactionIDFactory = transactionIDFactory;
         this.txnManager = txnManagerLookup.getTransactionManager();
-        this.softLockFactory = softLockFactory;
+        this.softLockManager = softLockManager;
         this.processor = new XARequestProcessor(this);
         this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
@@ -213,7 +213,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
 
 
-        XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid);
+        XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid, cache);
 
         List<Command> commands = twopcTransactionContext.getCommands();
         List<Command> preparedCommands = new LinkedList<Command>();
@@ -222,11 +222,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         LOG.debug("preparing {} command(s) for [{}]", commands.size(), xid);
         for (Command command : commands) {
             try {
-                prepareUpdated |= command.prepare(underlyingStore, softLockFactory, xidTransactionID, comparator);
+                prepareUpdated |= command.prepare(underlyingStore, softLockManager, xidTransactionID, comparator);
                 preparedCommands.add(0, command);
             } catch (OptimisticLockFailureException ie) {
                 for (Command preparedCommand : preparedCommands) {
-                    preparedCommand.rollback(underlyingStore, softLockFactory);
+                    preparedCommand.rollback(underlyingStore, softLockManager);
                 }
                 preparedCommands.clear();
                 throw new EhcacheXAException(command + " failed because value changed between execution and 2PC",
@@ -263,7 +263,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void commitInternal(Xid xid, boolean onePhase) throws XAException {
-        XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid);
+        XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid, cache);
         try {
             LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
             liveCacheStatisticsWrapper.xaCommit();
@@ -279,7 +279,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 }
             }
 
-            Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
+            Set<SoftLock> softLocks = softLockManager.collectAllSoftLocksForTransactionID(xidTransactionID);
             LOG.debug("committing {} soft lock(s) for [{}]", softLocks.size(), xid);
             for (SoftLock softLock : softLocks) {
                 if (softLock.isExpired()) {
@@ -335,9 +335,14 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Thread t = new Thread("ehcache recovery thread") {
             @Override
             public void run() {
-                Set<TransactionID> transactionIDs = softLockFactory.collectExpiredTransactionIDs();
-                for (TransactionID transactionID : transactionIDs) {
-                    XidTransactionID xidTransactionID = (XidTransactionID) transactionID;
+                Set<XidTransactionID> allOurTransactionIDs = transactionIDFactory.getAllXidTransactionIDsFor(cache);
+                Set<TransactionID> allLiveTransactionIDs = softLockManager.collectAllLiveTransactionIDs();
+
+                Set<XidTransactionID> recoveryRequired = new HashSet<XidTransactionID>(allOurTransactionIDs);
+                recoveryRequired.removeAll(allLiveTransactionIDs);
+
+                for (XidTransactionID transactionID : recoveryRequired) {
+                    XidTransactionID xidTransactionID = transactionID;
                     xids.add(xidTransactionID.getXid());
                 }
             }
@@ -370,11 +375,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void rollbackInternal(Xid xid) throws XAException {
-        XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid);
+        XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid, cache);
         try {
             LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
             liveCacheStatisticsWrapper.xaRollback();
-            Set<SoftLock> softLocks = softLockFactory.collectAllSoftLocksForTransactionID(xidTransactionID);
+            Set<SoftLock> softLocks = softLockManager.collectAllSoftLocksForTransactionID(xidTransactionID);
             for (SoftLock softLock : softLocks) {
                 if (softLock.isExpired()) {
                     softLock.lock();

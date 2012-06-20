@@ -16,15 +16,12 @@
 
 package net.sf.ehcache;
 
-import java.util.concurrent.ConcurrentMap;
-
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.SoftLockManager;
-import net.sf.ehcache.transaction.TransactionID;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
@@ -62,7 +59,7 @@ public interface FeaturesManager {
      *
      * @return a transaction map for the cache manager
      */
-    ConcurrentMap<TransactionID, Decision> createTransactionMap();
+    TransactionIDFactory createTransactionIDFactory();
 
     /**
      * Create a soft-lock map for the given cache

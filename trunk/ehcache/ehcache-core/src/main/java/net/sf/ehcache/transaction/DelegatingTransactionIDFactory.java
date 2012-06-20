@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.FeaturesManager;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
@@ -62,7 +63,7 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
             if (featuresManager == null) {
                 transactionIDFactory = new TransactionIDFactoryImpl();
             } else {
-                transactionIDFactory = new TransactionIDFactoryImpl(featuresManager.createTransactionMap());
+                transactionIDFactory = featuresManager.createTransactionIDFactory();
             }
         }
         return transactionIDFactory;
@@ -85,8 +86,8 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
     /**
      * {@inheritDoc}
      */
-    public XidTransactionID createXidTransactionID(Xid xid) {
-        return get().createXidTransactionID(xid);
+    public XidTransactionID createXidTransactionID(Xid xid, Ehcache cache) {
+        return get().createXidTransactionID(xid, cache);
     }
 
     /**
@@ -112,12 +113,21 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
     }
 
     @Override
-    public Set<TransactionID> getInDoubtTransactionIDs() {
-        return get().getInDoubtTransactionIDs();
+    public void clear(TransactionID transactionID) {
+        get().clear(transactionID);
     }
 
     @Override
-    public void clear(TransactionID transactionID) {
-        get().clear(transactionID);
+    public Set<XidTransactionID> getAllXidTransactionIDsFor(Ehcache cache) {
+        return get().getAllXidTransactionIDsFor(cache);
+    }
+
+    @Override
+    public Boolean isPersistent() {
+        if (transactionIDFactory == null) {
+            return null;
+        } else {
+            return get().isPersistent();
+        }
     }
 }

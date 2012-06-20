@@ -3,19 +3,18 @@
  */
 package org.terracotta.modules.ehcache.transaction;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.transaction.AbstractTransactionIDFactory;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.TransactionIDSerializedForm;
 import net.sf.ehcache.transaction.XidTransactionIDSerializedForm;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.transaction.xa.ClusteredXidTransactionID;
 
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.transaction.xa.Xid;
@@ -23,7 +22,7 @@ import javax.transaction.xa.Xid;
 /**
  * @author Ludovic Orban
  */
-public class ClusteredTransactionIDFactory implements TransactionIDFactory {
+public class ClusteredTransactionIDFactory extends AbstractTransactionIDFactory {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClusteredTransactionIDFactory.class.getName());
 
@@ -40,78 +39,37 @@ public class ClusteredTransactionIDFactory implements TransactionIDFactory {
     LOG.debug("ClusteredTransactionIDFactory UUID: {}", clusterUUID);
   }
 
+  @Override
   public TransactionID createTransactionID() {
     TransactionID id = new ClusteredTransactionID(clusterUUID, cacheManagerName);
-    transactionStates.putIfAbsent(id, Decision.IN_DOUBT);
+    getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
     return id;
   }
 
+  @Override
   public TransactionID restoreTransactionID(TransactionIDSerializedForm serializedForm) {
     return new ClusteredTransactionID(serializedForm);
   }
 
-  public XidTransactionID createXidTransactionID(Xid xid) {
-    XidTransactionID id = new ClusteredXidTransactionID(xid, cacheManagerName);
-    transactionStates.putIfAbsent(id, Decision.IN_DOUBT);
+  @Override
+  public XidTransactionID createXidTransactionID(Xid xid, Ehcache cache) {
+    XidTransactionID id = new ClusteredXidTransactionID(xid, cacheManagerName, cache.getName());
+    getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
     return id;
   }
 
+  @Override
   public XidTransactionID restoreXidTransactionID(XidTransactionIDSerializedForm serializedForm) {
     return new ClusteredXidTransactionID(serializedForm);
   }
-  
+
   @Override
-  public void markForCommit(TransactionID transactionID) {
-    while (true) {
-      Decision current = transactionStates.get(transactionID);
-      switch (current) {
-        case IN_DOUBT:
-          if (transactionStates.replace(transactionID, Decision.IN_DOUBT, Decision.COMMIT)) { return; }
-          break;
-        case ROLLBACK:
-          throw new IllegalStateException(this + " already marked for rollback, cannot re-mark it for commit");
-        case COMMIT:
-          return;
-      }
-    }
+  protected ConcurrentMap<TransactionID, Decision> getTransactionStates() {
+    return transactionStates;
   }
 
   @Override
-  public void markForRollback(XidTransactionID transactionID) {
-    while (true) {
-      Decision current = transactionStates.get(transactionID);
-      switch (current) {
-        case IN_DOUBT:
-          if (transactionStates.replace(transactionID, Decision.IN_DOUBT, Decision.ROLLBACK)) { return; }
-          break;
-        case ROLLBACK:
-          return;
-        case COMMIT:
-          throw new IllegalStateException(this + " already marked for commit, cannot re-mark it for rollback");
-      }
-    }
-  }
-
-  @Override
-  public boolean isDecisionCommit(TransactionID transactionID) {
-    return Decision.COMMIT.equals(transactionStates.get(transactionID));
-  }
-
-  @Override
-  public Set<TransactionID> getInDoubtTransactionIDs() {
-    Set<TransactionID> result = new HashSet<TransactionID>();
-
-    for (Entry<TransactionID, Decision> e : transactionStates.entrySet()) {
-      if (Decision.IN_DOUBT.equals(e.getValue())) {
-        result.add(e.getKey());
-      }
-    }
-
-    return result;
-  }
-
-  @Override
-  public void clear(TransactionID transactionID) {
-    transactionStates.remove(transactionID);
+  public Boolean isPersistent() {
+    return Boolean.TRUE;
   }
 }

@@ -31,4 +31,11 @@ public interface XidTransactionID extends TransactionID {
      * @return the XID
      */
     Xid getXid();
+
+    /**
+     * Get the name of the associated Ehcache resource.
+     *
+     * @return the Ehcache resource name
+     */
+    String getCacheName();
 }

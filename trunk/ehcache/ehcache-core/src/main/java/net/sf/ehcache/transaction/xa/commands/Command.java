@@ -42,19 +42,19 @@ public interface Command {
     /**
      * Prepare the commmand un the underlying store
      * @param store the underdyling store
-     * @param softLockFactory the soft lock factory
+     * @param softLockManager the soft lock manager
      * @param transactionId the transaction ID
      * @param comparator the element value comparator
      * @return true if prepare updated the store, false otherwise
      */
-    boolean prepare(Store store, SoftLockManager softLockFactory, XidTransactionID transactionId, ElementValueComparator comparator);
+    boolean prepare(Store store, SoftLockManager softLockManager, XidTransactionID transactionId, ElementValueComparator comparator);
 
     /**
      * Rollback the prepared change
      * @param store the underlying store
-     * @param softLockFactory the soft lock factory
+     * @param softLockManager the soft lock manager
      */
-    public void rollback(Store store, SoftLockManager softLockFactory);
+    public void rollback(Store store, SoftLockManager softLockManager);
 
     /**
      * Get the key of the element this command is working on

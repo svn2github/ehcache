@@ -31,7 +31,7 @@ public final class TransactionIDImpl implements TransactionID {
     /**
      * Create a new TransactionIDImpl instance
      */
-    TransactionIDImpl() {
+    public TransactionIDImpl() {
         this.id = ID_GENERATOR.getAndIncrement();
     }
 
