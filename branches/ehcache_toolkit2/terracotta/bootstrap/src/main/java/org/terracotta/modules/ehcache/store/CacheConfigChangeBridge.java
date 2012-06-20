@@ -45,35 +45,37 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
     notifier.removeNotificationListener(this);
   }
 
-  private void changeAndNotify(DynamicConfigType type, Serializable newValue) {
+  private void change(DynamicConfigType type, Serializable newValue, boolean notifyRemote) {
     backend.setConfigField(type.getToolkitConfigName(), newValue);
+    if (notifyRemote) {
     notifier.notifyListeners(new CacheConfigChangeNotificationMsg(fullyQualifiedEhcacheName, type
         .getToolkitConfigName(), newValue));
+    }
   }
 
   @Override
   public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
-    changeAndNotify(DynamicConfigType.MAX_TTI_SECONDS, (int) newTimeToIdle);
+    change(DynamicConfigType.MAX_TTI_SECONDS, (int) newTimeToIdle, true);
   }
 
   @Override
   public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
-    changeAndNotify(DynamicConfigType.MAX_TTL_SECONDS, (int) newTimeToLive);
+    change(DynamicConfigType.MAX_TTL_SECONDS, (int) newTimeToLive, true);
   }
 
   @Override
   public void diskCapacityChanged(int oldCapacity, int newCapacity) {
-    changeAndNotify(DynamicConfigType.MAX_TOTAL_COUNT, newCapacity);
+    change(DynamicConfigType.MAX_TOTAL_COUNT, newCapacity, true);
   }
 
   @Override
   public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
-    changeAndNotify(DynamicConfigType.MAX_COUNT_LOCAL_HEAP, newCapacity);
+    change(DynamicConfigType.MAX_COUNT_LOCAL_HEAP, newCapacity, false);
   }
 
   @Override
   public void maxBytesLocalHeapChanged(long oldValue, long newValue) {
-    changeAndNotify(DynamicConfigType.MAX_BYTES_LOCAL_HEAP, newValue);
+    change(DynamicConfigType.MAX_BYTES_LOCAL_HEAP, newValue, false);
   }
 
   @Override
