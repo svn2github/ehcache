@@ -13,9 +13,12 @@ import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.writer.CacheWriter;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.terracotta.modules.ehcache.async.AsyncCoordinator;
 
+// TODO: Write a system test for these ops and remove this unit test
+@Ignore
 public class AsyncWriteBehindTest {
 
   @Test(expected = IllegalStateException.class)

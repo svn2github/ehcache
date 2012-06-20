@@ -15,6 +15,7 @@ import org.terracotta.toolkit.collections.ToolkitList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -44,6 +45,7 @@ public class ProcessingBucket<E extends Serializable> {
   private volatile boolean             cancelled          = false;
   private final AtomicLong             workDelay;
   private ProcessingWorker             processingWorker;
+  private Callable<Boolean>            destroyCallback;
 
   public ProcessingBucket(String bucketName, AsyncConfig config, ToolkitList toolkitList, ClusterInfo cluster,
                           ItemProcessor<E> processor, AsyncErrorHandler errorHandler) {
@@ -111,7 +113,7 @@ public class ProcessingBucket<E extends Serializable> {
       Lock lock = bucketReadLock;
       lock.lock();
       try {
-        return cancelled;
+        return cancelled || (processingWorker.isWorkingOnDeadBucket() && toolkitList.isEmpty());
       } finally {
         lock.unlock();
       }
@@ -138,18 +140,35 @@ public class ProcessingBucket<E extends Serializable> {
     Lock lock = bucketWriteLock;
     lock.lock();
     try {
+      signalNotEmpty();
       try {
         workDelay.set(0);
         while (!toolkitList.isEmpty()) {
           stoppedButBucketNotEmpty.await();
         }
+        cancelled = true;
+        if (!processingWorker.isWorkingOnDeadBucket()) {
+          destroyToolkitList();
+        }
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
-      cancelled = true;
-      signalNotEmpty();
     } finally {
       lock.unlock();
+    }
+  }
+
+  private void destroyToolkitList() {
+    toolkitList.destroy();
+    if (destroyCallback != null) {
+      try {
+        Boolean isRemoved = destroyCallback.call();
+        if (!isRemoved) { throw new IllegalStateException("bucket " + bucketName
+                                                          + " not found in localBuckets list");
+        }
+      } catch (Exception e) {
+        throw new IllegalStateException("Exception while removing bucket "+ bucketName+" from localBuckets list " + e);
+      }
     }
   }
 
@@ -401,6 +420,10 @@ public class ProcessingBucket<E extends Serializable> {
     }
   }
 
+  public void setDestroyCallback(Callable<Boolean> removeOnDestroy) {
+    this.destroyCallback = removeOnDestroy;
+  }
+
   private final class ProcessingWorker extends Thread {
     private boolean       isRunning = false;
     private final boolean workingOnDeadBucket;
@@ -479,7 +502,7 @@ public class ProcessingBucket<E extends Serializable> {
 
       // Destroying buckets with no owners
       if (processingWorker.isWorkingOnDeadBucket()) {
-        toolkitList.destroy();
+        destroyToolkitList();
       }
       isRunning = false;
     }

@@ -16,11 +16,11 @@ import com.tc.test.config.model.TestConfig;
 
 import junit.framework.Assert;
 
-public class BasicWriteBehindTest2 extends AbstractCacheTestBase {
+public class BasicWriteThroughTest extends AbstractCacheTestBase {
 
   private static final int NODE_COUNT = 2;
 
-  public BasicWriteBehindTest2(TestConfig testConfig) {
+  public BasicWriteThroughTest(TestConfig testConfig) {
     super(testConfig, App.class, App.class);
   }
 

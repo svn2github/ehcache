@@ -45,6 +45,7 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
                                                                     + " but entry not present in configMap"); }
       } else {
         async = new AsyncCoordinatorImpl(fullAsyncName, asyncNameWithNodeId, config, toolkitInstanceFactory);
+        // TODO: who/when to remove from localMap
         localMap.put(fullAsyncName, async);
       }
       return async;

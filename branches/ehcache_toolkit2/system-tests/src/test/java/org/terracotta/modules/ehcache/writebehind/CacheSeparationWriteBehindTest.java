@@ -6,13 +6,15 @@ package org.terracotta.modules.ehcache.writebehind;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
+
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
@@ -87,7 +89,7 @@ public class CacheSeparationWriteBehindTest extends AbstractCacheTestBase {
         cache2.removeWithWriter("key");
       }
 
-      Thread.sleep(60000);
+      TimeUnit.MINUTES.sleep(20);
       barrier.await();
 
       System.out.println("[Client " + index + " processed " + writer1.getWriteCount() + " writes for writer 1]");

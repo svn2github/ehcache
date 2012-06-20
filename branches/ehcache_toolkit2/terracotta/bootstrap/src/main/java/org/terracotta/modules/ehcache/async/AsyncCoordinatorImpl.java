@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -55,6 +56,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
    */
   private final ToolkitLock                            coordinatorLock;
   private final List<ProcessingBucket<E>>              localBuckets;
+  private final List<ProcessingBucket<E>>              deadBuckets;
 
   /**
    * status of this coordinator like STARTED, STOPPED etc
@@ -79,6 +81,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       this.config = config;
     }
     this.localBuckets = new ArrayList<ProcessingBucket<E>>();
+    this.deadBuckets = new ArrayList<ProcessingBucket<E>>();
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.toolkit = toolkitInstanceFactory.getToolkit();
     this.listNamesMap = toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name);
@@ -120,8 +123,9 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       for (int i = 0; i < processingConcurrency; i++) {
         String bucketName = asyncNameWithNodeId + DELIMITER + BUCKET + DELIMITER + i;
         ToolkitList<E> toolkitList = toolkit.getList(bucketName);
-        ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
-                                                             LoggingErrorHandler.getInstance());
+        final ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
+                                                                   LoggingErrorHandler.getInstance());
+        bucket.setDestroyCallback(removeOnDestroy(localBuckets, bucket));
         bucket.setItemsFilter(filter);
         localBuckets.add(bucket);
         nameList.add(bucketName);
@@ -129,15 +133,10 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       listNamesMap.put(asyncNameWithNodeId, nameList);
       listner = new AsyncClusterListener();
       cluster.addClusterListener(listner);
-      status = Status.STARTED;
       for (ProcessingBucket<E> bucket : localBuckets) {
-        try {
-          bucket.start(false);
-        } catch (ExistingRunningThreadException e) {
-          stop();
-          throw new IllegalStateException(bucket.getBucketName() + " already started for AsyncCoordinator " + name);
-        }
+        startBucket(bucket, false);
       }
+      status = Status.STARTED;
     } finally {
       lock.unlock();
     }
@@ -148,6 +147,24 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       processOtherNode(otherNodeNameListKey);
     }
 
+  }
+
+  private Callable<Boolean> removeOnDestroy(final List<ProcessingBucket<E>> list, final ProcessingBucket<E> bucket) {
+    return new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return list.remove(bucket);
+      }
+    };
+  }
+
+  private void startBucket(ProcessingBucket<E> bucket, boolean workingOnDeadBucket) {
+    try {
+      bucket.start(workingOnDeadBucket);
+    } catch (ExistingRunningThreadException e) {
+      stop();
+      throw new IllegalStateException(bucket.getBucketName() + " already started for AsyncCoordinator " + name);
+    }
   }
 
   @Override
@@ -174,18 +191,21 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     Lock lock = coordinatorLock;
     lock.lock();
     try {
-      if (status == Status.STARTED) {
-        for (ProcessingBucket<E> bucket : localBuckets) {
-          bucket.stop();
-        }
-        localBuckets.clear();
-        scatterPolicy = null;
-        if (cluster != null) {
-          cluster.removeClusterListener(listner);
-        }
-        listNamesMap.remove(asyncNameWithNodeId);
-        status = Status.STOPPED;
+      getStatus().checkRunning();
+      status = Status.STOPPED;
+      for (ProcessingBucket<E> bucket : localBuckets) {
+        bucket.stop();
       }
+      localBuckets.clear();
+      for (ProcessingBucket<E> bucket : deadBuckets) {
+        bucket.stop();
+      }
+      deadBuckets.clear();
+      scatterPolicy = null;
+      if (cluster != null) {
+        cluster.removeClusterListener(listner);
+      }
+      listNamesMap.remove(asyncNameWithNodeId);
     } finally {
       lock.unlock();
     }
@@ -233,29 +253,31 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   }
 
   private void processOtherNode(String otherNodeNameListKey) {
-    if (status == Status.STARTED) {
-      Lock lock = coordinatorLock;
-      lock.lock();
-      try {
-        LinkedList<String> nameList = listNamesMap.get(otherNodeNameListKey);
+    Lock lock = coordinatorLock;
+    lock.lock();
+    try {
+      if (status == Status.STARTED) {
+        LinkedList<String> oldNameList = listNamesMap.get(otherNodeNameListKey);
         LinkedList<String> newOwner = listNamesMap.get(asyncNameWithNodeId);
-        if (nameList != null) {
-          for (String bucketName : nameList) {
+        if (oldNameList != null) {
+          for (String bucketName : oldNameList) {
             ToolkitList<E> toolkitList = toolkit.getList(bucketName);
             ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
                                                                  LoggingErrorHandler.getInstance());
+            bucket.setDestroyCallback(removeOnDestroy(deadBuckets, bucket));
             bucket.setItemsFilter(filter);
-            bucket.start(true);
+            deadBuckets.add(bucket);
             newOwner.add(bucketName);
           }
           listNamesMap.remove(otherNodeNameListKey); // removing buckets from old node
           listNamesMap.put(asyncNameWithNodeId, newOwner); // transferring bucket ownership to new node
+          for (ProcessingBucket<E> bucket : deadBuckets) {
+            startBucket(bucket, true);
+          }
         }
-      } catch (ExistingRunningThreadException e) {
-        LOGGER.warn(e.getMessage());
-      } finally {
-        lock.unlock();
       }
+    } finally {
+      lock.unlock();
     }
   }
 
