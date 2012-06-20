@@ -40,8 +40,8 @@ public final class AnnotationSizeOfFilter implements SizeOfFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnnotationSizeOfFilter.class.getName());
 
-    //default is *ehcache.*IgnoreSizeOf
-    private static final String IGNORE_SIZE_OF_DEFAULT_REGEXP = "^.*ehcache\\..*IgnoreSizeOf$";
+    //default is *cache.*IgnoreSizeOf
+    private static final String IGNORE_SIZE_OF_DEFAULT_REGEXP = "^.*cache\\..*IgnoreSizeOf$";
     private static final Pattern IGNORE_SIZE_OF_PATTERN;
 
     static {
