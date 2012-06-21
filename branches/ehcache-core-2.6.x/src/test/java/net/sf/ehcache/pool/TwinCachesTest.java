@@ -305,11 +305,20 @@ public class TwinCachesTest {
 
     @Test
     public void testIntroducedRandomAccessDoubledCache() throws IOException {
+        doTestIntroducedAccessDoubledCache(System.nanoTime());
+    }
+
+    @Test
+    public void testIntroducedFixedAccessDoubledCache() throws IOException {
+        // See MNK-3643
+        doTestIntroducedAccessDoubledCache(944752613893346L);
+    }
+
+    private void doTestIntroducedAccessDoubledCache(final long seed) {
         CacheManager manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
 
-        long seed = System.nanoTime();
         System.err.println("TwinCachesTest.testIntroducedRandomAccessDoubledCache seed=" + seed);
         Random rndm = new Random(seed);
         float ratio = rndm.nextFloat();
@@ -349,7 +358,7 @@ public class TwinCachesTest {
         System.err.println("[2] Count Ratio    : " + (1 - ratio));
         System.err.println("[2] Count Measured : " + (((float) two.getSize()) / totalCount) + " [" + two.getSize() + "]");
 
-        Assert.assertEquals(ratio, ((float) one.getSize()) / totalCount, 0.1f);
+        Assert.assertEquals(ratio, ((float)one.getSize()) / totalCount, 0.1f);
         Assert.assertEquals(1f - ratio, ((float) two.getSize()) / totalCount, 0.1f);
 
         long totalBytes = one.calculateInMemorySize() + two.calculateInMemorySize();
