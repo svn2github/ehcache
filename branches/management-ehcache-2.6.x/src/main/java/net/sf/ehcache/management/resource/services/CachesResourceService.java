@@ -3,6 +3,7 @@ package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.management.resource.CacheEntity;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -48,6 +49,7 @@ public interface CachesResourceService {
    * @param resource {@code CacheEntity} resource for update or creation
    */
   @PUT
+  @Consumes(MediaType.APPLICATION_JSON)
   void createOrUpdateCache(@Context UriInfo info, CacheEntity resource);
 
   /**
