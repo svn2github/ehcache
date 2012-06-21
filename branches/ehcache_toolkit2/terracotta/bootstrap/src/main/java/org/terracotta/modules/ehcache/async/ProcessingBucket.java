@@ -439,11 +439,11 @@ public class ProcessingBucket<E extends Serializable> {
       try {
         while (!isCancelled()) {
           // process the items if this node's operations are enabled
-          if (null != cluster || cluster.areOperationsEnabled()) {
+          if (areOperationsEnabled()) {
             try {
               processItems();
             } catch (final Throwable e) {
-              if (null == cluster || cluster.areOperationsEnabled()) {
+              if (areOperationsEnabled()) {
                 errorHandler.onError(ProcessingBucket.this, e);
               } else {
                 LOGGER.warn("Caught error on processing items, but looks like we were shut down. "
@@ -491,8 +491,7 @@ public class ProcessingBucket<E extends Serializable> {
           }
         }
       } catch (Throwable t) {
-        if (t.getClass().getName().equals("com.tc.exception.TCNotRunningException") && cluster != null
-            && !cluster.areOperationsEnabled()) {
+        if (t.getClass().getName().equals("com.tc.exception.TCNotRunningException") && !areOperationsEnabled()) {
           LOGGER.warn("Caught TCNotRunningException on processing thread, but looks like we were shut down. "
                       + "This can safely be ignored!", t);
         }
@@ -505,6 +504,10 @@ public class ProcessingBucket<E extends Serializable> {
         destroyToolkitList();
       }
       isRunning = false;
+    }
+
+    private boolean areOperationsEnabled() {
+      return null != cluster && cluster.areOperationsEnabled();
     }
 
     public boolean isWorking() {
