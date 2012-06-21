@@ -18,8 +18,8 @@ import org.terracotta.modules.ehcache.transaction.SoftLockState;
 import org.terracotta.modules.ehcache.transaction.state.TransactionCommitState;
 import org.terracotta.modules.ehcache.transaction.state.XATransactionDecision;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.client.TerracottaClientStaticFactory;
 import org.terracotta.toolkit.client.ToolkitClient;
+import org.terracotta.toolkit.client.ToolkitClientBuilderFactory;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
@@ -31,6 +31,7 @@ import org.terracotta.toolkit.config.ToolkitMapConfigFields;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields.PinningStore;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.client.TerracottaToolkitClientBuilderInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.serializer.Serializer;
 
@@ -71,13 +72,17 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     } else {
       config = terracottaClientConfiguration.getUrl();
     }
-    if (terracottaClientConfiguration.isRejoin()) {
-      return TerracottaClientStaticFactory.getFactory()
-          .createDedicatedClient(terracottaClientConfiguration.isUrlConfig(), config);
+    TerracottaToolkitClientBuilderInternal terracottaClientBuilder = (TerracottaToolkitClientBuilderInternal) ToolkitClientBuilderFactory
+        .newTerracottaToolkitClientBuilder()
+        .setDedicatedClient(terracottaClientConfiguration.isRejoin());
+    if (terracottaClientConfiguration.isUrlConfig()) {
+      terracottaClientBuilder.setTCConfigUrl(config);
     } else {
-      return TerracottaClientStaticFactory.getFactory().getOrCreateClient(terracottaClientConfiguration.isUrlConfig(),
-                                                                          config);
+      terracottaClientBuilder.setTCConfigSnippet(config);
     }
+    terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache");
+    terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache.hibernate");
+    return terracottaClientBuilder.buildToolkitClient();
   }
 
   @Override
