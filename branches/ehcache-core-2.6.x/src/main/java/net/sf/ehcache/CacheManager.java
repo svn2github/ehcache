@@ -368,6 +368,15 @@ public class CacheManager {
         try {
             doInit(configuration);
         } catch (Throwable t) {
+
+            if (featuresManager != null) {
+                featuresManager.dispose();
+            }
+            
+            if (diskStorePathManager != null) {
+                diskStorePathManager.releaseLock();
+            }
+
             synchronized (CacheManager.class) {
                 final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
                 CACHE_MANAGERS_MAP.remove(name);
@@ -1417,7 +1426,7 @@ public class CacheManager {
             getCacheRejoinAction().unregisterAll();
 
             if (featuresManager != null) {
-                featuresManager.shutdown();
+                featuresManager.dispose();
             }
 
             // release file lock on diskstore path
