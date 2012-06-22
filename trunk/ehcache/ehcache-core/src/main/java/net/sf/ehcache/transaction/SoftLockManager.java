@@ -40,13 +40,6 @@ public interface SoftLockManager {
     SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned);
 
     /**
-     * Create a new, unlocked soft lock
-     * @param softLockId the soft lock's ID
-     * @return the soft lock
-     */
-    SoftLock createSoftLock(SoftLockID softLockId);
-
-    /**
      * Clear a soft lock
      * @param softLock the lock to clear
      */

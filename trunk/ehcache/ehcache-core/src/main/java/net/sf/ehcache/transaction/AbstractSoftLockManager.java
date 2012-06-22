@@ -65,20 +65,6 @@ public abstract class AbstractSoftLockManager implements SoftLockManager {
     /**
      * {@inheritDoc}
      */
-    public SoftLock createSoftLock(SoftLockID softLockId) {
-        SoftLock softLock = lockFactory.newSoftLock(this, softLockId.getKey());
-
-        getAllLocks().put(softLockId, softLock);
-
-        if (softLockId.getOldElement() == null) {
-            getNewKeyLocks().put(softLockId, Boolean.TRUE);
-        }
-        return softLock;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned) {
         if (newElement != null && newElement.getObjectValue() instanceof SoftLockID) {
             throw new AssertionError("newElement must not contain a soft lock ID");
@@ -87,7 +73,22 @@ public abstract class AbstractSoftLockManager implements SoftLockManager {
             throw new AssertionError("oldElement must not contain a soft lock ID");
         }
 
-        return new SoftLockID(transactionID, key, newElement, oldElement, pinned);
+        SoftLockID lockId = new SoftLockID(transactionID, key, newElement, oldElement, pinned);
+
+        if (getAllLocks().containsKey(lockId)) {
+            return lockId;
+        } else {
+            SoftLock lock = lockFactory.newSoftLock(this, key);
+
+            if (getAllLocks().putIfAbsent(lockId, lock) != null) {
+                throw new AssertionError();
+            } else {
+                if (oldElement == null) {
+                    getNewKeyLocks().put(lockId, Boolean.TRUE);
+                }
+                return lockId;
+            }
+        }
     }
 
     /**
