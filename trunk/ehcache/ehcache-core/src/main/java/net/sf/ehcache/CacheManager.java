@@ -372,6 +372,10 @@ public class CacheManager {
             if (featuresManager != null) {
                 featuresManager.dispose();
             }
+            
+            if (diskStorePathManager != null) {
+                diskStorePathManager.releaseLock();
+            }
 
             synchronized (CacheManager.class) {
                 final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
