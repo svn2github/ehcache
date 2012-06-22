@@ -28,6 +28,8 @@ import org.hibernate.cfg.Environment;
 import org.junit.After;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -137,7 +139,8 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             public Long call() throws Exception {
                 return cache.getElementCountOnDisk();
             }
-        }, Is.is(1000L));
+        }, lessThan(1002L));
+        assertThat(cache.getElementCountOnDisk(), greaterThan(999L));
 
         //clear
         cache.clear();
