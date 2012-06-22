@@ -1872,7 +1872,7 @@ public class CacheManager {
     SoftLockManager createSoftLockManager(Ehcache cache) {
         SoftLockManager softLockManager;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            softLockManager = getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache);
+            softLockManager = getClusteredInstanceFactory(cache).getOrCreateSoftLockManager(cache);
         } else {
             SoftLockFactory lockFactory = new ReadCommittedSoftLockFactory();
             softLockManager = softLockManagers.get(cache.getName());

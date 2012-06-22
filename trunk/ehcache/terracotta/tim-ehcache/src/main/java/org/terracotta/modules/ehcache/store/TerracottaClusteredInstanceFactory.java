@@ -60,7 +60,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private static final String        ROOT_NAME_EHCACHE_ASYNC_COORDINATOR = "ehcache-async-coordinator";
   private static final String        ROOT_NAME_EHCACHE_TRANSACTION_MAP   = "ehcache-transaction-map";
   private static final String        ROOT_NAME_UTILITIES                 = "ehcache-utilities";
-  private static final String        ROOT_NAME_SOFT_LOCK_FACTORIES       = "ehcache-softlock-factories";
+  private static final String        ROOT_NAME_SOFT_LOCK_MANAGERS        = "ehcache-softlock-managers";
 
   private final Set<CacheStorePair>  cacheStorePairs                     = new HashSet<CacheStorePair>();
   private final Set<String>          registeredCacheManagers             = new HashSet<String>();
@@ -368,14 +368,14 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
                                          });
   }
 
-  public SoftLockManager getOrCreateSoftLockFactory(Ehcache cache) {
-    String cacheName = cache.getName();
-    ConcurrentMap<String, SoftLockManager> factories = getSoftLockFactoriesRoot();
+  public SoftLockManager getOrCreateSoftLockManager(Ehcache cache) {
+    String key = cache.getCacheManager().getName() + "#" + cache.getName();
+    ConcurrentMap<String, SoftLockManager> factories = getSoftLockManagersRoot();
 
-    SoftLockManager softLockFactory = factories.get(cacheName);
+    SoftLockManager softLockFactory = factories.get(key);
     if (softLockFactory == null) {
-      softLockFactory = new ReadCommittedClusteredSoftLockFactory(cacheName);
-      SoftLockManager old = factories.putIfAbsent(cacheName, softLockFactory);
+      softLockFactory = new ReadCommittedClusteredSoftLockFactory(cache.getName());
+      SoftLockManager old = factories.putIfAbsent(key, softLockFactory);
       if (old != null) {
         softLockFactory = old;
       }
@@ -384,9 +384,9 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     return softLockFactory;
   }
 
-  private static ConcurrentMap<String, SoftLockManager> getSoftLockFactoriesRoot() {
+  private static ConcurrentMap<String, SoftLockManager> getSoftLockManagersRoot() {
     final ConcurrentMap<String, SoftLockManager> root = Terracotta
-        .lookupOrCreateRoot(ROOT_NAME_SOFT_LOCK_FACTORIES, new Callable<ConcurrentMap<String, SoftLockManager>>() {
+        .lookupOrCreateRoot(ROOT_NAME_SOFT_LOCK_MANAGERS, new Callable<ConcurrentMap<String, SoftLockManager>>() {
           public ConcurrentMap<String, SoftLockManager> call() throws Exception {
             return new ConcurrentDistributedMap<String, SoftLockManager>();
           }
