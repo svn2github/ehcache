@@ -136,7 +136,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     if (ehcacheConfig.getPinningConfiguration() != null) {
       builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
     }
-    builder.maxCountLocalHeap(ehcacheConfig.getMaxEntriesLocalHeap());
+    builder.maxCountLocalHeap((int)ehcacheConfig.getMaxEntriesLocalHeap());
     builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
     builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
     builder.offheapEnabled(ehcacheConfig.isOverflowToOffHeap());
