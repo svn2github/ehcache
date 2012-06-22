@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.modules.ehcache.transaction.xa;
+package org.terracotta.modules.ehcache.txn.xa;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -13,7 +13,7 @@ import javax.transaction.xa.Xid;
  */
 public final class XidClustered implements Xid, Serializable {
 
-  private final int    formatId;
+  private final int formatId;
   private final byte[] globalTxId;
   private final byte[] branchQualifier;
 
@@ -22,34 +22,41 @@ public final class XidClustered implements Xid, Serializable {
     this.globalTxId = xid.getGlobalTransactionId();
     this.branchQualifier = xid.getBranchQualifier();
   }
-
-  public XidClustered(int formatId, byte[] globalTxId, byte[] branchQualifier) {
+  
+  public XidClustered(int formatId, byte [] globalTxId, byte [] branchQualifier) {
     this.formatId = formatId;
     this.globalTxId = globalTxId;
     this.branchQualifier = branchQualifier;
   }
 
+  @Override
   public int getFormatId() {
     return formatId;
   }
 
+  @Override
   public byte[] getGlobalTransactionId() {
     return globalTxId;
   }
 
+  @Override
   public byte[] getBranchQualifier() {
     return branchQualifier;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) { return true; }
-    if (o == null || getClass() != o.getClass()) { return false; }
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
-    XidClustered that = (XidClustered) o;
+    XidClustered that = (XidClustered)o;
 
-    return formatId == that.formatId && Arrays.equals(branchQualifier, that.branchQualifier)
-           && Arrays.equals(globalTxId, that.globalTxId);
+    return formatId == that.formatId && Arrays.equals(branchQualifier, that.branchQualifier) && Arrays
+      .equals(globalTxId, that.globalTxId);
 
   }
 
@@ -63,7 +70,10 @@ public final class XidClustered implements Xid, Serializable {
 
   @Override
   public String toString() {
-    return "XidClustered{" + "formatId=" + formatId + ", globalTxId=" + Arrays.toString(globalTxId)
-           + ", branchQualifier=" + Arrays.toString(branchQualifier) + '}';
+    return "XidClustered{" +
+           "formatId=" + formatId +
+           ", globalTxId=" + Arrays.toString(globalTxId) +
+           ", branchQualifier=" + Arrays.toString(branchQualifier) +
+           '}';
   }
 }

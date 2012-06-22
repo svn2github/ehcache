@@ -4,14 +4,13 @@
 package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.transaction.Decision;
+import net.sf.ehcache.transaction.SoftLockID;
+import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
-import org.terracotta.modules.ehcache.transaction.SoftLockId;
-import org.terracotta.modules.ehcache.transaction.SoftLockState;
-import org.terracotta.modules.ehcache.transaction.state.TransactionCommitState;
-import org.terracotta.modules.ehcache.transaction.state.XATransactionDecision;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -92,15 +91,20 @@ public interface ToolkitInstanceFactory {
   /**
    * Return the map used for storing commit state of ehcache transactions
    */
-  ToolkitMap<String, TransactionCommitState> getOrCreateTransactionCommitStateMap();
+  ToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
 
-  ToolkitMap<String, XATransactionDecision> getOrCreateXATransactionDecisionMap();
+  ToolkitMap<String, SoftLockID> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName);
 
-  ToolkitMap<String, SoftLockState> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName);
-
-  ToolkitList<SoftLockId> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
+  ToolkitList<SoftLockID> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
 
   Serializer getSerializer();
 
   ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
+
+  ToolkitReadWriteLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID);
+
+  ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName, TransactionID transactionID);
+
+  ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName, TransactionID transactionID);
+
 }

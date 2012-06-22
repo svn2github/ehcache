@@ -7,32 +7,30 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
-import org.terracotta.modules.ehcache.transaction.state.EhcacheTxnsClusteredStateFacade;
+import org.terracotta.modules.ehcache.txn.ReadCommittedClusteredSoftLockFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class SoftLockFactoryProvider {
-  private final ConcurrentMap<String, SoftLockFactory> softLockFactories = new ConcurrentHashMap<String, SoftLockFactory>();
-  private final EhcacheTxnsClusteredStateFacade        ehcacheTxnsClusteredFacade;
+public class SoftLockManagerProvider {
+  private final ConcurrentMap<String, SoftLockManager> softLockFactories = new ConcurrentHashMap<String, SoftLockManager>();
   private final ToolkitInstanceFactory                 toolkitInstanceFactory;
 
-  public SoftLockFactoryProvider(final EhcacheTxnsClusteredStateFacade ehcacheTxnsClusteredFacade,
+  public SoftLockManagerProvider(
                                  ToolkitInstanceFactory toolkitInstanceFactory) {
-    this.ehcacheTxnsClusteredFacade = ehcacheTxnsClusteredFacade;
     this.toolkitInstanceFactory = toolkitInstanceFactory;
   }
 
-  public SoftLockFactory getOrCreateClusteredSoftLockFactory(Ehcache cache) {
+  public SoftLockManager getOrCreateClusteredSoftLockFactory(Ehcache cache) {
     String name = toolkitInstanceFactory.getFullyQualifiedCacheName(cache);
-    SoftLockFactory softLockFactory = softLockFactories.get(name);
+    SoftLockManager softLockFactory = softLockFactories.get(name);
     if (softLockFactory == null) {
-      softLockFactory = new ReadCommittedClusteredSoftLockFactory(ehcacheTxnsClusteredFacade, cache.getCacheManager()
+      softLockFactory = new ReadCommittedClusteredSoftLockFactory(toolkitInstanceFactory, cache.getCacheManager()
           .getName(), cache.getName());
-      SoftLockFactory old = softLockFactories.putIfAbsent(name, softLockFactory);
+      SoftLockManager old = softLockFactories.putIfAbsent(name, softLockFactory);
       if (old == null) {
         // Put successful add a Cache Event Listener.
         cache.getCacheEventNotificationService().registerListener(new EventListener(name));

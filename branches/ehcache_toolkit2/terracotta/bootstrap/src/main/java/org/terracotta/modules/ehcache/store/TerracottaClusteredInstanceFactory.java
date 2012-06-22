@@ -10,7 +10,7 @@ import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.util.ProductInfo;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
@@ -26,10 +26,8 @@ import org.terracotta.modules.ehcache.async.AsyncCoordinatorFactoryImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.FireRejoinOperatorEventClusterListener;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
-import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
-import org.terracotta.modules.ehcache.transaction.SoftLockFactoryProvider;
-import org.terracotta.modules.ehcache.transaction.state.EhcacheTxnsClusteredStateFacade;
-import org.terracotta.modules.ehcache.transaction.state.EhcacheTxnsClusteredStateFacadeImpl;
+import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
+import org.terracotta.modules.ehcache.txn.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.ToolkitLogger;
@@ -46,16 +44,14 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   // private final fields
   private final CacheCluster                    topology;
   private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
-  private final EhcacheTxnsClusteredStateFacade ehcacheTxnsClusteredFacade;
-  private final SoftLockFactoryProvider         softLockFactoryProvider;
+  private final SoftLockManagerProvider         softLockManagerProvider;
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
     topology = createTopology(toolkitInstanceFactory);
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
-    ehcacheTxnsClusteredFacade = new EhcacheTxnsClusteredStateFacadeImpl(toolkitInstanceFactory);
-    softLockFactoryProvider = new SoftLockFactoryProvider(ehcacheTxnsClusteredFacade, toolkitInstanceFactory);
+    softLockManagerProvider = new SoftLockManagerProvider(toolkitInstanceFactory);
     asyncCoordinatorFactory = createAsyncCoordinatorFactory();
     logEhcacheBuildInfo();
   }
@@ -97,6 +93,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     return new ClusteredStore(toolkitInstanceFactory, cache);
   }
 
+  @Override
   public CacheCluster getTopology() {
     return topology;
   }
@@ -140,12 +137,14 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
-    return new ClusteredTransactionIDFactory(ehcacheTxnsClusteredFacade, uuid, cacheManagerName);
+    return new ClusteredTransactionIDFactory(uuid, cacheManagerName,
+                                             toolkitInstanceFactory
+                                                 .getOrCreateTransactionCommitStateMap(cacheManagerName));
   }
 
   @Override
-  public SoftLockFactory getOrCreateSoftLockFactory(Ehcache cache) {
-    return softLockFactoryProvider.getOrCreateClusteredSoftLockFactory(cache);
+  public SoftLockManager getOrCreateSoftLockFactory(Ehcache cache) {
+    return softLockManagerProvider.getOrCreateClusteredSoftLockFactory(cache);
   }
 
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {

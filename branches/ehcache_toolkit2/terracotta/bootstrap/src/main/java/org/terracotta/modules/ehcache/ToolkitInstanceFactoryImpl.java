@@ -8,15 +8,14 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.transaction.Decision;
+import net.sf.ehcache.transaction.SoftLockID;
+import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
-import org.terracotta.modules.ehcache.transaction.SoftLockId;
-import org.terracotta.modules.ehcache.transaction.SoftLockState;
-import org.terracotta.modules.ehcache.transaction.state.TransactionCommitState;
-import org.terracotta.modules.ehcache.transaction.state.XATransactionDecision;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.client.ToolkitClient;
 import org.terracotta.toolkit.client.ToolkitClientBuilderFactory;
@@ -212,23 +211,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, TransactionCommitState> getOrCreateTransactionCommitStateMap() {
-    // TODO: what should be the local cache config for the map?
-    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
-        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    return toolkit.getMap(EHCACHE_TXNS_COMMIT_STATE_MAP_NAME, config);
-  }
-
-  @Override
-  public ToolkitMap<String, XATransactionDecision> getOrCreateXATransactionDecisionMap() {
-    // TODO: what should be the local cache config for the map?
-    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
-        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    return toolkit.getMap(EHCACHE_XA_TXNS_DECISION_MAP_NAME, config);
-  }
-
-  @Override
-  public ToolkitMap<String, SoftLockState> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName) {
+  public ToolkitMap<String, SoftLockID> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
@@ -237,7 +220,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitList<SoftLockId> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName) {
+  public ToolkitList<SoftLockID> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName) {
     return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                            + NEW_SOFT_LOCKS_LIST_SUFFIX);
   }
@@ -286,5 +269,28 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
     return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                           + CLUSTERED_STORE_CONFIG_MAP, config);
+  }
+
+  @Override
+  public ToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
+    return null;
+  }
+
+  @Override
+  public ToolkitReadWriteLock getSoftLockWriteLock(String cacheManagerName, String cacheName,
+                                                   TransactionID transactionID) {
+    return null;
+  }
+
+  @Override
+  public ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName,
+                                                    TransactionID transactionID) {
+    return null;
+  }
+
+  @Override
+  public ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName,
+                                                      TransactionID transactionID) {
+    return null;
   }
 }

@@ -200,11 +200,13 @@ public class ClusteredStore implements TerracottaStore {
     throw new UnsupportedOperationException("Recalculate size is not supported for Terracotta clustered caches.");
   }
 
+  @Override
   public synchronized void addStoreListener(StoreListener listener) {
     removeStoreListener(listener);
     getEventListenerList().add(StoreListener.class, listener);
   }
 
+  @Override
   public synchronized void removeStoreListener(StoreListener listener) {
     getEventListenerList().remove(StoreListener.class, listener);
   }
@@ -380,6 +382,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public Element replace(Element element) throws NullPointerException {
+    // TODO: Revisit
     Object pKey = generatePortableKeyFor(element.getKey());
     ToolkitLock lock = backend.createFinegrainedLock(pKey);
     lock.lock();
