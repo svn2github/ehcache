@@ -88,7 +88,7 @@ import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
-import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
 import net.sf.ehcache.transaction.local.LocalTransactionStore;
@@ -1110,15 +1110,15 @@ public class Cache implements InternalEhcache, StoreListener {
              * lack of NonStop support (ie: lack of transaction context suspension/resuming).
              */
             if (configuration.isXaTransactional()) {
-                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+                SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
                 LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
-                        softLockFactory, this, store, copyStrategy);
+                        getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, copyStrategy);
                 this.compoundStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
                         cacheManager.getTransactionController());
             } else if (configuration.isLocalTransactional()) {
-                SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
-                this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(), softLockFactory, this, store,
-                        copyStrategy);
+                SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+                this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
+                        getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, copyStrategy);
             } else {
                 this.compoundStore = store;
             }
@@ -1217,15 +1217,15 @@ public class Cache implements InternalEhcache, StoreListener {
             if (configuration.isTerracottaClustered()) {
                 configuration.getTerracottaConfiguration().setCacheXA(true);
             }
-            SoftLockFactory softLockFactory = cacheManager.createSoftLockFactory(this);
+            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
             TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
 
             // this xaresource is for initial registration and recovery
             xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
-                    softLockFactory, transactionIDFactory, copyStrategy);
+                    softLockManager, transactionIDFactory, copyStrategy);
             transactionManagerLookup.register(xaResource);
 
-            wrappedStore = new XATransactionStore(transactionManagerLookup, softLockFactory, transactionIDFactory, this, clusteredStore,
+            wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, clusteredStore,
                     copyStrategy);
         } else {
             wrappedStore = clusteredStore;

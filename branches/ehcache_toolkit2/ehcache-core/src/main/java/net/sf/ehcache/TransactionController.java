@@ -95,7 +95,7 @@ public final class TransactionController {
             throw new TransactionException("transaction already started");
         }
 
-        LocalTransactionContext newTx = new LocalTransactionContext(transactionTimeoutSeconds, transactionIDFactory.createTransactionID());
+        LocalTransactionContext newTx = new LocalTransactionContext(transactionTimeoutSeconds, transactionIDFactory);
         contextMap.put(newTx.getTransactionId(), newTx);
         currentTransactionIdThreadLocal.set(newTx.getTransactionId());
 
@@ -135,6 +135,7 @@ public final class TransactionController {
             throw te;
         } finally {
             contextMap.remove(txId);
+            transactionIDFactory.clear(txId);
             currentTransactionIdThreadLocal.remove();
             MDC.remove(MDC_KEY);
         }
@@ -156,6 +157,7 @@ public final class TransactionController {
             statistics.transactionRolledBack();
         } finally {
             contextMap.remove(txId);
+            transactionIDFactory.clear(txId);
             currentTransactionIdThreadLocal.remove();
             MDC.remove(MDC_KEY);
         }

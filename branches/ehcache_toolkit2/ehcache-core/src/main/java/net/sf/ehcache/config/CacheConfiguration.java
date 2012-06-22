@@ -1607,6 +1607,17 @@ public class CacheConfiguration implements Cloneable {
                     break;
             }
         }
+
+        if (persistenceConfiguration != null && persistenceConfiguration.getSynchronousWrites()) {
+            switch (persistenceConfiguration.getStrategy()) {
+                case NONE:
+                case LOCALTEMPSWAP:
+                    throw new InvalidConfigurationException("Persistence: synchronousWrites=\"true\" is not supported "
+                            + "with strategy \"localTempSwap\" or \"none\"");
+                default:
+                    break;
+            }
+        }
     }
 
     private void warnMaxEntriesForOverflowToOffHeap(final boolean register) {

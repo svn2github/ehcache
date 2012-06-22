@@ -3,6 +3,8 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,6 +13,7 @@ import java.lang.reflect.Field;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -133,6 +136,42 @@ public class CacheConfigurationTest {
             fail("This should throw InvalidConfigurationException");
         } catch (CacheException e) {
             assertThat(e.getMessage().contains("use maxElementsOnDisk instead"), is(true));
+        }
+    }
+
+    @Test
+    public void testSynchronousWritesPersistenceConfiguration() {
+        CacheConfiguration configuration = new CacheConfiguration("Test", 10).persistence(new PersistenceConfiguration()
+                .strategy(Strategy.LOCALTEMPSWAP).synchronousWrites(true));
+        try {
+            cacheManager.addCache(new Cache(configuration));
+            fail("Expected InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage(), containsString("synchronousWrites"));
+        } finally {
+            cacheManager.removeCache("Test");
+        }
+
+        configuration = new CacheConfiguration("Test", 10).persistence(new PersistenceConfiguration()
+                .strategy(Strategy.NONE).synchronousWrites(true));
+        try {
+            cacheManager.addCache(new Cache(configuration));
+            fail("Expected InvalidConfigurationException");
+        } catch (InvalidConfigurationException e) {
+            assertThat(e.getMessage(), containsString("synchronousWrites"));
+        } finally {
+            cacheManager.removeCache("Test");
+        }
+
+        configuration = new CacheConfiguration("Test", 10).persistence(new PersistenceConfiguration()
+                .strategy(Strategy.LOCALRESTARTABLE).synchronousWrites(true));
+        try {
+            cacheManager.addCache(new Cache(configuration));
+            fail("Expected CacheException");
+        } catch (CacheException e) {
+            assertThat(e.getMessage(), containsString("enterprise"));
+        } finally {
+            cacheManager.removeCache("Test");
         }
     }
 

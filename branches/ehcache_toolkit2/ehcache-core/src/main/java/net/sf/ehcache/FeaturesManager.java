@@ -19,6 +19,9 @@ package net.sf.ehcache;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolableStore;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.SoftLockFactory;
+import net.sf.ehcache.transaction.SoftLockManager;
+import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
@@ -52,6 +55,20 @@ public interface FeaturesManager {
     Store createStore(Cache cache, Pool<PoolableStore> onHeapPool, Pool<PoolableStore> onDiskPool);
 
     /**
+     * Create a transaction map for the associated cache manager
+     *
+     * @return a transaction map for the cache manager
+     */
+    TransactionIDFactory createTransactionIDFactory();
+
+    /**
+     * Create a soft-lock map for the given cache
+     *
+     * @return a soft-lcok map for the given cache
+     */
+    SoftLockManager createSoftLockManager(Ehcache cache, SoftLockFactory lockFactory);
+
+    /**
      * Called on {@code CacheManager} creation.
      */
     void startup();
@@ -59,6 +76,5 @@ public interface FeaturesManager {
     /**
      * Called on {@code CacheManager} shutdown and on exception during CacheManager bootstrapping.
      */
-    
     void dispose();
 }

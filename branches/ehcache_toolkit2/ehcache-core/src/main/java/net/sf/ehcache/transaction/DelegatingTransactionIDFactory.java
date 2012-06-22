@@ -15,10 +15,13 @@
  */
 package net.sf.ehcache.transaction;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.FeaturesManager;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
+import java.util.Set;
 import java.util.UUID;
 
 import javax.transaction.xa.Xid;
@@ -26,11 +29,12 @@ import javax.transaction.xa.Xid;
 /**
  * A TransactionIDFactory implementation with delegates calls to either a clustered
  * or non-clustered factory
- * 
+ *
  * @author Ludovic Orban
  */
 public class DelegatingTransactionIDFactory implements TransactionIDFactory {
 
+    private final FeaturesManager featuresManager;
     private final TerracottaClient terracottaClient;
     private final String cacheManagerName;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
@@ -42,7 +46,8 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
      * @param terracottaClient a terracotta client
      * @param cacheManagerName the name of the cache manager which creates this.
      */
-    public DelegatingTransactionIDFactory(TerracottaClient terracottaClient, String cacheManagerName) {
+    public DelegatingTransactionIDFactory(FeaturesManager featuresManager, TerracottaClient terracottaClient, String cacheManagerName) {
+        this.featuresManager = featuresManager;
         this.terracottaClient = terracottaClient;
         this.cacheManagerName = cacheManagerName;
     }
@@ -55,7 +60,11 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
         }
 
         if (transactionIDFactory == null) {
-            transactionIDFactory = new TransactionIDFactoryImpl();
+            if (featuresManager == null) {
+                transactionIDFactory = new TransactionIDFactoryImpl();
+            } else {
+                transactionIDFactory = featuresManager.createTransactionIDFactory();
+            }
         }
         return transactionIDFactory;
     }
@@ -77,8 +86,8 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
     /**
      * {@inheritDoc}
      */
-    public XidTransactionID createXidTransactionID(Xid xid) {
-        return get().createXidTransactionID(xid);
+    public XidTransactionID createXidTransactionID(Xid xid, Ehcache cache) {
+        return get().createXidTransactionID(xid, cache);
     }
 
     /**
@@ -88,4 +97,37 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
         return get().restoreXidTransactionID(serializedForm);
     }
 
+    @Override
+    public void markForCommit(TransactionID transactionID) {
+        get().markForCommit(transactionID);
+    }
+
+    @Override
+    public void markForRollback(XidTransactionID transactionID) {
+        get().markForRollback(transactionID);
+    }
+
+    @Override
+    public boolean isDecisionCommit(TransactionID transactionID) {
+        return get().isDecisionCommit(transactionID);
+    }
+
+    @Override
+    public void clear(TransactionID transactionID) {
+        get().clear(transactionID);
+    }
+
+    @Override
+    public Set<XidTransactionID> getAllXidTransactionIDsFor(Ehcache cache) {
+        return get().getAllXidTransactionIDsFor(cache);
+    }
+
+    @Override
+    public Boolean isPersistent() {
+        if (transactionIDFactory == null) {
+            return null;
+        } else {
+            return get().isPersistent();
+        }
+    }
 }

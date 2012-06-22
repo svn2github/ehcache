@@ -36,7 +36,7 @@ public class XATransactionSizeOfTest {
     public void setUp() throws Exception {
         CacheConfiguration txCache1Cfg = new CacheConfiguration().name("txCache1")
             .transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT)
-            .sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(10)
+            .sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(14)
                 .maxDepthExceededBehavior(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
         CopyStrategyConfiguration copyStrategyConfiguration = new CopyStrategyConfiguration();
         copyStrategyConfiguration.setClass(SerializationCopyStrategy.class.getName());
