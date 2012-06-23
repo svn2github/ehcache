@@ -35,6 +35,7 @@ public class ResultsImpl implements Results {
     private final boolean hasAttributes;
     private final boolean hasAggregators;
     private final boolean hasValues;
+    private final boolean empty;
 
     /**
      * Constructor
@@ -50,6 +51,7 @@ public class ResultsImpl implements Results {
         this.hasAttributes = hasAttributes;
         this.hasAggregators = hasAggregators;
         this.results = Collections.unmodifiableList(results);
+        this.empty = results.isEmpty();
     }
 
     @Override
@@ -110,6 +112,9 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public boolean hasKeys() {
+        if (empty) {
+            return false;
+        }
         return hasKeys;
     }
 
@@ -117,6 +122,10 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public boolean hasValues() {
+        if (empty) {
+            return false;
+        }
+
         return hasValues;
     }
 
@@ -124,6 +133,10 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public boolean hasAttributes() {
+        if (empty) {
+            return false;
+        }
+
         return hasAttributes;
     }
 
@@ -131,6 +144,9 @@ public class ResultsImpl implements Results {
      * {@inheritDoc}
      */
     public boolean hasAggregators() {
+        if (empty) {
+            return false;
+        }
         return hasAggregators;
     }
 
