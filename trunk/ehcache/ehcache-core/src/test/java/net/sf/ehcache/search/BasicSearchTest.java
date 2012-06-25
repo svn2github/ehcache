@@ -1070,7 +1070,9 @@ public class BasicSearchTest {
     private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
         Results results = query.execute();
         assertEquals(expectedKeys.length, results.size());
-        if (expectedKeys.length != 0) {
+        if (expectedKeys.length == 0) {
+            assertFalse(results.hasKeys());
+        } else {
             assertTrue(results.hasKeys());
         }
         assertFalse(results.hasAttributes());
