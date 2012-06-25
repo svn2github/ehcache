@@ -1869,7 +1869,7 @@ public class CacheManager {
      * @param cache the cache to create the soft lock manager for
      * @return a SoftLockManager
      */
-   public   SoftLockManager createSoftLockManager(Ehcache cache) {
+    SoftLockManager createSoftLockManager(Ehcache cache) {
         SoftLockManager softLockManager;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
             softLockManager = getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache);

@@ -95,7 +95,7 @@ public interface ToolkitInstanceFactory {
   ToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
 
   ToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
-                                                                                            String cacheName);
+                                                                                               String cacheName);
 
   ToolkitList<ReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
 
@@ -103,10 +103,12 @@ public interface ToolkitInstanceFactory {
 
   ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
 
-  ToolkitLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID);
+  ToolkitLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID, Object key);
 
-  ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName, TransactionID transactionID);
+  ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName, TransactionID transactionID,
+                                             Object key);
 
-  ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName, TransactionID transactionID);
+  ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName, TransactionID transactionID,
+                                               Object key);
 
 }

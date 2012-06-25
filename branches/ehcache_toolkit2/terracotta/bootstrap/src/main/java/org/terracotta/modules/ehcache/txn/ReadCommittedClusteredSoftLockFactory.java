@@ -24,13 +24,13 @@ import java.util.Set;
  * @author Ludovic Orban
  */
 public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
-  private final String                                                          cacheName;
-  private final String                                                          cacheManagerName;
+  private final String                                                             cacheName;
+  private final String                                                             cacheManagerName;
 
-  private final ToolkitInstanceFactory                                          toolkitInstanceFactory;
+  private final ToolkitInstanceFactory                                             toolkitInstanceFactory;
 
   // actually all we need would be a ConcurrentSet...
-  private final ToolkitList<ReadCommittedClusteredSoftLock>                     newKeyLocks;
+  private final ToolkitList<ReadCommittedClusteredSoftLock>                        newKeyLocks;
 
   // locks must be inserted in a clustered collection b/c they must be managed by the L1 before they are returned
   private final ToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> allLocks;
@@ -71,20 +71,22 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
 
   @Override
   public SoftLock findSoftLockById(SoftLockID softLockId) {
-    return allLocks.get(new ClusteredSoftLockIDKey(softLockId));
+    ReadCommittedClusteredSoftLock softLock = allLocks.get(new ClusteredSoftLockIDKey(softLockId));
+    softLock.initializeTransients(toolkitInstanceFactory, this);
+    return softLock;
   }
 
   ReadCommittedClusteredSoftLock getLock(TransactionID transactionId, Object key) {
 
     for (Map.Entry<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
       ReadCommittedClusteredSoftLock readCommittedSoftLock = allLocks.get(entry.getKey()); // workaround for DEV-5390
-      if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) { return readCommittedSoftLock; }
+      readCommittedSoftLock.initializeTransients(toolkitInstanceFactory, this);
+      if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) {
+        readCommittedSoftLock.initializeTransients(toolkitInstanceFactory, this);
+        return readCommittedSoftLock;
+      }
     }
     return null;
-  }
-
-  ReadCommittedClusteredSoftLock resolveLock(TransactionID transactionId, Object key) {
-    return new ReadCommittedClusteredSoftLock(toolkitInstanceFactory, this, transactionId, key);
   }
 
   @Override

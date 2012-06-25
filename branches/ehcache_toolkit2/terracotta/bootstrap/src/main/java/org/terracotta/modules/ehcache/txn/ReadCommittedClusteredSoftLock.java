@@ -3,12 +3,9 @@
  */
 package org.terracotta.modules.ehcache.txn;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockID;
-import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
@@ -24,32 +21,39 @@ import java.util.concurrent.locks.Condition;
  */
 public class ReadCommittedClusteredSoftLock implements SoftLock, Serializable {
 
-  private final ReadCommittedClusteredSoftLockFactory factory;
-  private final TransactionID                         transactionID;
-  private volatile transient Object                   deserializedKey;
-  private final ToolkitLock                           lock;
-  private final ToolkitReadWriteLock                  freezeLock;
-  private final ToolkitReadWriteLock                  notificationLock;
-  private final Condition                             notifier;
-  private boolean                                     expired;
-  private final String                                cacheManagerName;
-  private final String                                cacheName;
-
+  private final TransactionID                             transactionID;
+  private final Object                                    deserializedKey;
+  private transient ReadCommittedClusteredSoftLockFactory factory;
+  private transient ToolkitLock                           lock;
+  private transient ToolkitReadWriteLock                  freezeLock;
+  private transient ToolkitReadWriteLock                  notificationLock;
+  private transient Condition                             notifier;
+  private transient boolean                               expired;
+  private transient volatile boolean                      initialized;
 
   ReadCommittedClusteredSoftLock(ToolkitInstanceFactory toolkitInstanceFactory,
-                                 ReadCommittedClusteredSoftLockFactory factory,
-                                 TransactionID transactionID, Object key) {
-    this.factory = factory;
-    this.cacheManagerName = factory.getCacheManagerName();
+                                 ReadCommittedClusteredSoftLockFactory factory, TransactionID transactionID, Object key) {
     this.deserializedKey = key;
-    this.cacheName = factory.getCacheName();
     this.transactionID = transactionID;
-    this.lock = toolkitInstanceFactory.getSoftLockWriteLock(cacheManagerName, cacheName, transactionID);
-    this.freezeLock = toolkitInstanceFactory.getSoftLockFreezeLock(cacheManagerName, cacheName, transactionID);
-    this.notificationLock = toolkitInstanceFactory.getSoftLockNotifierLock(cacheManagerName, cacheName, transactionID);
-    this.notifier = notificationLock.writeLock().getCondition();
+    initializeTransients(toolkitInstanceFactory, factory);
   }
 
+  public synchronized void initializeTransients(ToolkitInstanceFactory toolkitInstanceFactory,
+                                   ReadCommittedClusteredSoftLockFactory factoryParam) {
+    if (!initialized) {
+      this.factory = factoryParam;
+      String cacheManagerName = factory.getCacheManagerName();
+      String cacheName = factory.getCacheName();
+      this.lock = toolkitInstanceFactory.getSoftLockWriteLock(cacheManagerName, cacheName, transactionID,
+                                                              deserializedKey);
+      this.freezeLock = toolkitInstanceFactory.getSoftLockFreezeLock(cacheManagerName, cacheName, transactionID,
+                                                                     deserializedKey);
+      this.notificationLock = toolkitInstanceFactory.getSoftLockNotifierLock(cacheManagerName, cacheName,
+                                                                             transactionID, deserializedKey);
+      this.notifier = notificationLock.writeLock().getCondition();
+      this.initialized = true;
+    }
+  }
 
   @Override
   public Object getKey() {
@@ -186,50 +190,6 @@ public class ReadCommittedClusteredSoftLock implements SoftLock, Serializable {
   @Override
   public String toString() {
     return "Soft Lock [clustered: true, isolation: rc, transactionID: " + transactionID + ", key: " + getKey() + "]";
-  }
-
-  private Object writeReplace() {
-    return new ReadCommittedClusteredSoftLockSerializedForm(cacheManagerName, cacheName, transactionID, deserializedKey);
-  }
-
-  /**
-   * ReadCommittedClusteredSoftLock serialized form
-   */
-  private static final class ReadCommittedClusteredSoftLockSerializedForm implements Serializable {
-
-    private final String     cacheManagerName;
-    private final String     cacheName;
-    private final TransactionID transactionID;
-    private final Object        key;
-
-    private ReadCommittedClusteredSoftLockSerializedForm(String cacheManagerName, String cacheName,
-                                                         TransactionID transactionID, Object key) {
-      this.cacheManagerName = cacheManagerName;
-      this.cacheName = cacheName;
-      this.transactionID = transactionID;
-      this.key = key;
-    }
-
-    private Object readResolve() {
-      for (int i = 0; i < CacheManager.ALL_CACHE_MANAGERS.size(); i++) {
-        CacheManager cacheManager = CacheManager.ALL_CACHE_MANAGERS.get(i);
-        if (cacheManager.getName().equals(cacheManagerName)) {
-          try {
-
-            ReadCommittedClusteredSoftLockFactory softLockFactory = (ReadCommittedClusteredSoftLockFactory) cacheManager
-                .createSoftLockManager(cacheManager
-                .getCache(cacheName));
-            return softLockFactory.resolveLock(transactionID, key);
-          } catch (CacheException ce) {
-            throw new TransactionException("cannot deserialize SoftLock from cache " + cacheName
-                                           + " as the cache cannot be found in cache manager " + cacheManagerName);
-          }
-        }
-      }
-      throw new TransactionException("unable to find referent clustered SoftLock in " + cacheManagerName + " "
-                                     + cacheName + " for key [" + key + "] under transaction " + transactionID);
-    }
-
   }
 
 }
