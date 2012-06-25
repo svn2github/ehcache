@@ -5,12 +5,13 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.transaction.Decision;
-import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
+import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
+import org.terracotta.modules.ehcache.txn.ReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -93,15 +94,16 @@ public interface ToolkitInstanceFactory {
    */
   ToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
 
-  ToolkitMap<String, SoftLockID> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName);
+  ToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
+                                                                                            String cacheName);
 
-  ToolkitList<SoftLockID> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
+  ToolkitList<ReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName);
 
   Serializer getSerializer();
 
   ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
 
-  ToolkitReadWriteLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID);
+  ToolkitLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID);
 
   ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName, TransactionID transactionID);
 

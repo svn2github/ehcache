@@ -13,6 +13,7 @@ import net.sf.ehcache.transaction.xa.XidTransactionID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.txn.xa.ClusteredXidTransactionID;
 import org.terracotta.toolkit.collections.ToolkitMap;
 
@@ -34,10 +35,10 @@ public class ClusteredTransactionIDFactory extends AbstractTransactionIDFactory 
   private final ToolkitMap<TransactionID, Decision> transactionStates;
 
   public ClusteredTransactionIDFactory(String clusterUUID, String cacheManagerName,
-                                       ToolkitMap<TransactionID, Decision> transactionMap) {
+                                       ToolkitInstanceFactory toolkitInstanceFactory) {
     this.clusterUUID = clusterUUID;
     this.cacheManagerName = cacheManagerName;
-    this.transactionStates = transactionMap;
+    this.transactionStates = toolkitInstanceFactory.getOrCreateTransactionCommitStateMap(cacheManagerName);
     LOG.debug("ClusteredTransactionIDFactory UUID: {}", clusterUUID);
   }
 

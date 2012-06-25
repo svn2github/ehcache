@@ -12,6 +12,7 @@ import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
+import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
 
 import java.util.HashSet;
@@ -23,24 +24,24 @@ import java.util.Set;
  * @author Ludovic Orban
  */
 public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
-  private final static Boolean                                                     MARKER      = Boolean.TRUE;
-  private final String                                              cacheName;
-  private final String                                              cacheManagerName;
+  private final String                                                          cacheName;
+  private final String                                                          cacheManagerName;
 
-  private final ToolkitInstanceFactory                                    toolkitInstanceFactory;
+  private final ToolkitInstanceFactory                                          toolkitInstanceFactory;
 
   // actually all we need would be a ConcurrentSet...
-  private ToolkitMap<ReadCommittedClusteredSoftLock, Boolean>                newKeyLocks;
+  private final ToolkitList<ReadCommittedClusteredSoftLock>                     newKeyLocks;
 
   // locks must be inserted in a clustered collection b/c they must be managed by the L1 before they are returned
-  private ToolkitMap<ClusteredSoftLockID, ReadCommittedClusteredSoftLock> allLocks;
-
+  private final ToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> allLocks;
 
   public ReadCommittedClusteredSoftLockFactory(ToolkitInstanceFactory toolkitInstanceFactory, String cacheManagerName,
-                                                  String cacheName) {
+                                               String cacheName) {
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.cacheManagerName = cacheManagerName;
     this.cacheName = cacheName;
+    allLocks = toolkitInstanceFactory.getOrCreateAllSoftLockMap(cacheManagerName, cacheName);
+    newKeyLocks = toolkitInstanceFactory.getOrCreateNewSoftLocksSet(cacheManagerName, cacheName);
   }
 
   @Override
@@ -49,36 +50,41 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
                                                                                  softLockId.getTransactionID(),
                                                                                  softLockId.getKey());
 
-    allLocks.put(new ClusteredSoftLockID(softLockId), softLock);
+    allLocks.put(new ClusteredSoftLockIDKey(softLockId), softLock);
 
     if (softLockId.getOldElement() == null) {
-      newKeyLocks.put(softLock, MARKER);
+      newKeyLocks.add(softLock);
     }
     return softLock;
   }
 
   @Override
-  public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned) {
-    if (newElement != null && newElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError("newElement must not contain a soft lock ID"); }
-    if (oldElement != null && oldElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError("oldElement must not contain a soft lock ID"); }
+  public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement,
+                                     boolean pinned) {
+    if (newElement != null && newElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError(
+                                                                                                            "newElement must not contain a soft lock ID"); }
+    if (oldElement != null && oldElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError(
+                                                                                                            "oldElement must not contain a soft lock ID"); }
 
     return new SoftLockID(transactionID, key, newElement, oldElement, pinned);
   }
 
   @Override
   public SoftLock findSoftLockById(SoftLockID softLockId) {
-    return allLocks.get(new ClusteredSoftLockID(softLockId));
+    return allLocks.get(new ClusteredSoftLockIDKey(softLockId));
   }
 
   ReadCommittedClusteredSoftLock getLock(TransactionID transactionId, Object key) {
-    for (Map.Entry<ClusteredSoftLockID, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      ReadCommittedClusteredSoftLock readCommittedSoftLock = allLocks.get(entry.getKey()); //workaround for DEV-5390
-      if (readCommittedSoftLock.getTransactionID().equals(transactionId) &&
-          readCommittedSoftLock.getKey().equals(key)) {
-        return readCommittedSoftLock;
-      }
+
+    for (Map.Entry<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
+      ReadCommittedClusteredSoftLock readCommittedSoftLock = allLocks.get(entry.getKey()); // workaround for DEV-5390
+      if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) { return readCommittedSoftLock; }
     }
     return null;
+  }
+
+  ReadCommittedClusteredSoftLock resolveLock(TransactionID transactionId, Object key) {
+    return new ReadCommittedClusteredSoftLock(toolkitInstanceFactory, this, transactionId, key);
   }
 
   @Override
@@ -90,7 +96,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
 
     List<SoftLock> currentTransactionContextSoftLocks = currentTransactionContext.getSoftLocksForCache(cacheName);
     for (SoftLock softLock : currentTransactionContextSoftLocks) {
-      SoftLockID softLockId = (SoftLockID)underlyingStore.getQuiet(softLock.getKey()).getObjectValue();
+      SoftLockID softLockId = (SoftLockID) underlyingStore.getQuiet(softLock.getKey()).getObjectValue();
 
       if (softLock.getElement(currentTransactionContext.getTransactionId(), softLockId) == null) {
         // if the soft lock's element is null in the current transaction then the key is invisible
@@ -111,8 +117,8 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   public synchronized Set<TransactionID> collectAllLiveTransactionIDs() {
     Set<TransactionID> result = new HashSet<TransactionID>();
 
-    for (Map.Entry<ClusteredSoftLockID, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      ReadCommittedClusteredSoftLock softLock = allLocks.get(entry.getKey()); //workaround for DEV-5390
+    for (Map.Entry<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
+      ReadCommittedClusteredSoftLock softLock = allLocks.get(entry.getKey()); // workaround for DEV-5390
       if (!softLock.isExpired()) {
         result.add(softLock.getTransactionID());
       }
@@ -128,8 +134,8 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   public Set<SoftLock> collectAllSoftLocksForTransactionID(TransactionID transactionID) {
     Set<SoftLock> result = new HashSet<SoftLock>();
 
-    for (Map.Entry<ClusteredSoftLockID, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      ReadCommittedClusteredSoftLock softLock = allLocks.get(entry.getKey()); //workaround for DEV-5390
+    for (Map.Entry<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
+      ReadCommittedClusteredSoftLock softLock = allLocks.get(entry.getKey()); // workaround for DEV-5390
       if (softLock.getTransactionID().equals(transactionID)) {
         result.add(softLock);
       }
@@ -142,7 +148,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   public void clearSoftLock(SoftLock softLock) {
     newKeyLocks.remove(softLock);
 
-    for (Map.Entry<ClusteredSoftLockID, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
+    for (Map.Entry<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
       if (entry.getValue().equals(softLock)) {
         allLocks.remove(entry.getKey());
         break;
@@ -152,9 +158,9 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
 
   private Set<Object> getNewKeys() {
     Set<Object> result = new HashSet<Object>();
-
-    for (ReadCommittedClusteredSoftLock softLock : newKeyLocks.keySet()) {
-      newKeyLocks.get(softLock); //workaround for DEV-5390
+    int i = 0;
+    for (ReadCommittedClusteredSoftLock softLock : newKeyLocks) {
+      newKeyLocks.get(i); // workaround for DEV-5390
       result.add(softLock.getKey());
     }
 

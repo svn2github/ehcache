@@ -44,11 +44,12 @@ public class ReadCommittedClusteredSoftLock implements SoftLock, Serializable {
     this.deserializedKey = key;
     this.cacheName = factory.getCacheName();
     this.transactionID = transactionID;
-    this.lock = toolkitInstanceFactory.getSoftLockWriteLock(cacheManagerName, cacheName, transactionID).writeLock();
+    this.lock = toolkitInstanceFactory.getSoftLockWriteLock(cacheManagerName, cacheName, transactionID);
     this.freezeLock = toolkitInstanceFactory.getSoftLockFreezeLock(cacheManagerName, cacheName, transactionID);
     this.notificationLock = toolkitInstanceFactory.getSoftLockNotifierLock(cacheManagerName, cacheName, transactionID);
     this.notifier = notificationLock.writeLock().getCondition();
   }
+
 
   @Override
   public Object getKey() {
@@ -215,8 +216,10 @@ public class ReadCommittedClusteredSoftLock implements SoftLock, Serializable {
         if (cacheManager.getName().equals(cacheManagerName)) {
           try {
 
-            ReadCommittedClusteredSoftLockFactory softLockFactory = null;
-            return softLockFactory.getLock(transactionID, key);
+            ReadCommittedClusteredSoftLockFactory softLockFactory = (ReadCommittedClusteredSoftLockFactory) cacheManager
+                .createSoftLockManager(cacheManager
+                .getCache(cacheName));
+            return softLockFactory.resolveLock(transactionID, key);
           } catch (CacheException ce) {
             throw new TransactionException("cannot deserialize SoftLock from cache " + cacheName
                                            + " as the cache cannot be found in cache manager " + cacheManagerName);

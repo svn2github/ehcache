@@ -9,13 +9,16 @@ import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.transaction.Decision;
-import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
+import org.terracotta.modules.ehcache.collections.SerializedToolkitMap;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
+import org.terracotta.modules.ehcache.store.SerializationHelper;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
+import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
+import org.terracotta.modules.ehcache.txn.ReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.client.ToolkitClient;
 import org.terracotta.toolkit.client.ToolkitClientBuilderFactory;
@@ -44,8 +47,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private static final String EVENT_NOTIFIER_SUFFIX              = "event-notifier";
   private static final String EHCACHE_NAME_PREFIX                = "__tc_clustered-ehcache";
   private static final String CONFIG_NOTIFIER_SUFFIX             = "config-notifier";
-  private static final String EHCACHE_TXNS_COMMIT_STATE_MAP_NAME = EHCACHE_NAME_PREFIX + DELIMITER + "txnsCommitState";
-  private static final String EHCACHE_XA_TXNS_DECISION_MAP_NAME  = EHCACHE_NAME_PREFIX + DELIMITER + "xaTxnsDecision";
+  private static final String EHCACHE_TXNS_DECISION_STATE_MAP_NAME = EHCACHE_NAME_PREFIX + DELIMITER + "txnsDecision";
   private static final String ALL_SOFT_LOCKS_MAP_SUFFIX          = "softLocks";
   private static final String NEW_SOFT_LOCKS_LIST_SUFFIX         = "newSoftLocks";
 
@@ -53,6 +55,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private static final String ASYNC                              = "async";
   private static final String ASYNC_CONFIG_MAP                   = ASYNC + DELIMITER + "asyncConfigMap";
   private static final String CLUSTERED_STORE_CONFIG_MAP         = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
+
+  private static final String EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME = EHCACHE_NAME_PREFIX + DELIMITER + "softWriteLock";
+
+  private static final String EHCACHE_TXNS_SOFTLOCK_FREEZE_LOCK_NAME   = EHCACHE_NAME_PREFIX + DELIMITER
+                                                                         + "softFreezeLock";
+
+  private static final String EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME = EHCACHE_NAME_PREFIX + DELIMITER
+                                                                         + "softNotifierLock";
 
   protected final Toolkit     toolkit;
 
@@ -211,16 +221,23 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, SoftLockID> getOrCreateAllSoftLockMap(String cacheManagerName, String cacheName) {
+  public ToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
+                                                                                                   String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+    ToolkitMap<String, ReadCommittedClusteredSoftLock> map = toolkit
+        .getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                           + ALL_SOFT_LOCKS_MAP_SUFFIX, config);
+    return new SerializedToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock>(map,
+                                                                                         ((ToolkitInternal) toolkit)
+                                                                                             .getSerializer());
+
   }
 
   @Override
-  public ToolkitList<SoftLockID> getOrCreateNewSoftLocksSet(String cacheManagerName, String cacheName) {
+  public ToolkitList<ReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
+                                                                                String cacheName) {
     return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                            + NEW_SOFT_LOCKS_LIST_SUFFIX);
   }
@@ -273,24 +290,46 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
-    return null;
+    // TODO: what should be the local cache config for the map?
+    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    ToolkitMap<String, Decision> map = toolkit.getMap(cacheManagerName + DELIMITER
+                                                      + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config);
+    return new SerializedToolkitMap<TransactionID, Decision>(map, ((ToolkitInternal) toolkit).getSerializer());
   }
 
   @Override
-  public ToolkitReadWriteLock getSoftLockWriteLock(String cacheManagerName, String cacheName,
+  public ToolkitLock getSoftLockWriteLock(String cacheManagerName, String cacheName,
                                                    TransactionID transactionID) {
-    return null;
+
+    return toolkit.getLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                               + serializeToString(transactionID) + DELIMITER
+                               + EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME, ToolkitLockType.WRITE);
+  }
+
+  private static String serializeToString(Object serializable) {
+    try {
+      return SerializationHelper.serializeToString(serializable);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName,
                                                     TransactionID transactionID) {
-    return null;
+
+    return toolkit.getReadWriteLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                                    + serializeToString(transactionID) + DELIMITER
+                                    + EHCACHE_TXNS_SOFTLOCK_FREEZE_LOCK_NAME);
   }
 
   @Override
   public ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName,
                                                       TransactionID transactionID) {
-    return null;
+
+    return toolkit.getReadWriteLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                                    + serializeToString(transactionID) + DELIMITER
+                                    + EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME);
   }
 }

@@ -137,9 +137,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
-    return new ClusteredTransactionIDFactory(uuid, cacheManagerName,
-                                             toolkitInstanceFactory
-                                                 .getOrCreateTransactionCommitStateMap(cacheManagerName));
+    return new ClusteredTransactionIDFactory(uuid, cacheManagerName, toolkitInstanceFactory);
   }
 
   @Override
