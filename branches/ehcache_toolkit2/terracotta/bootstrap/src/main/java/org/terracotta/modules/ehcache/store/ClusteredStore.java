@@ -38,6 +38,7 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.toolkit.ToolkitProperties;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
+import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
@@ -64,6 +65,7 @@ public class ClusteredStore implements TerracottaStore {
                                                                                                              .getLogger(ClusteredStore.class
                                                                                                                  .getName());
   private static final String                                    CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
+  private static final String                                    TRANSACTIONAL_MODE                      = "trasactionalMode";
 
   // final protected fields
   protected final ToolkitCacheWithMetadata<Object, Serializable> backend;
@@ -94,7 +96,15 @@ public class ClusteredStore implements TerracottaStore {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
 
     // TODO: fix transactionalMode to be in cluster
-    transactionalMode = ehcacheConfig.getTransactionalMode();
+    ToolkitMap<String, Serializable> configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache
+        .getCacheManager().getName(), cache.getName());
+    CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
+    if (transactionalModeTemp == null) {
+      configMap.putIfAbsent(TRANSACTIONAL_MODE, ehcacheConfig.getTransactionalMode());
+      transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
+    }
+    transactionalMode = transactionalModeTemp;
+
     valueModeHandler = ValueModeHandlerFactory.createValueModeHandler(this, ehcacheConfig,
                                                                       toolkitInstanceFactory.getSerializer());
 
