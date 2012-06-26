@@ -139,6 +139,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
     for (Map.Entry<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
       ReadCommittedClusteredSoftLock softLock = allLocks.get(entry.getKey()); // workaround for DEV-5390
       if (softLock.getTransactionID().equals(transactionID)) {
+        softLock.initializeTransients(toolkitInstanceFactory, this);
         result.add(softLock);
       }
     }
