@@ -1,18 +1,10 @@
 /*
- * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy
- * of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- * 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved. Licensed under the Apache
+ * License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.terracotta.modules.ehcache.collections;
@@ -23,7 +15,6 @@ import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.config.Configuration;
-import org.terracotta.toolkit.serializer.Serializer;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,11 +28,9 @@ import java.util.Set;
 
 public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitMap<K, V> {
   private final ToolkitMap<String, V> toolkitMap;
-  private final Serializer            serializer;
 
-  public SerializedToolkitMap(ToolkitMap toolkitMap, Serializer serializer) {
+  public SerializedToolkitMap(ToolkitMap toolkitMap) {
     this.toolkitMap = toolkitMap;
-    this.serializer = serializer;
   }
 
   @Override
@@ -54,7 +43,7 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
     return this.toolkitMap.isEmpty();
   }
 
-  private String serializeKeyToString(Object key) {
+  private static String serializeToString(Object key) {
     try {
       return SerializationHelper.serializeToString(key);
     } catch (IOException e) {
@@ -62,9 +51,9 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
     }
   }
 
-  private K deserializeKeyFromString(String key) {
+  private static Object deserializeFromString(String key) {
     try {
-      return (K) SerializationHelper.deserializeString(key);
+      return SerializationHelper.deserializeFromString(key);
     } catch (IOException e) {
       throw new RuntimeException(e);
     } catch (ClassNotFoundException e) {
@@ -74,31 +63,29 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public boolean containsKey(Object key) {
-    String stringKey = serializeKeyToString(key);
-    return this.toolkitMap.containsKey(stringKey);
+    return this.toolkitMap.containsKey(serializeToString(key));
   }
 
   @Override
   public V get(Object key) {
-    String stringKey = serializeKeyToString(key);
-    return this.toolkitMap.get(stringKey);
+    return this.toolkitMap.get(serializeToString(key));
   }
 
   @Override
   public V put(K key, V value) {
-    return this.toolkitMap.put(serializeKeyToString(key), value);
+    return this.toolkitMap.put(serializeToString(key), value);
   }
 
   @Override
   public V remove(Object key) {
-    return this.toolkitMap.remove(serializeKeyToString(key));
+    return this.toolkitMap.remove(serializeToString(key));
   }
 
   @Override
   public void putAll(Map<? extends K, ? extends V> m) {
     Map<String, V> tempMap = new HashMap<String, V>();
     for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
-      tempMap.put(serializeKeyToString(entry.getKey()), entry.getValue());
+      tempMap.put(serializeToString(entry.getKey()), entry.getValue());
     }
 
     toolkitMap.putAll(tempMap);
@@ -116,12 +103,12 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public void lockEntry(K key) {
-    toolkitMap.lockEntry(serializeKeyToString(key));
+    toolkitMap.lockEntry(serializeToString(key));
   }
 
   @Override
   public void unlockEntry(K key) {
-    toolkitMap.unlockEntry(serializeKeyToString(key));
+    toolkitMap.unlockEntry(serializeToString(key));
   }
 
   @Override
@@ -146,22 +133,22 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public ToolkitLock createFinegrainedLock(K key) {
-    return toolkitMap.createFinegrainedLock(serializeKeyToString(key));
+    return toolkitMap.createFinegrainedLock(serializeToString(key));
   }
 
   @Override
   public void removeNoReturn(K key) {
-    toolkitMap.removeNoReturn(serializeKeyToString(key));
+    toolkitMap.removeNoReturn(serializeToString(key));
   }
 
   @Override
   public V unsafeGet(K key) {
-    return toolkitMap.unsafeGet(serializeKeyToString(key));
+    return toolkitMap.unsafeGet(serializeToString(key));
   }
 
   @Override
   public void putNoReturn(K key, V value) {
-    toolkitMap.putNoReturn(serializeKeyToString(key), value);
+    toolkitMap.putNoReturn(serializeToString(key), value);
   }
 
   @Override
@@ -171,7 +158,7 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public Set<K> localKeySet() {
-    throw new UnsupportedOperationException();
+    return new ToolkitKeySet(toolkitMap.localKeySet());
   }
 
   @Override
@@ -181,31 +168,31 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public boolean isPinned(K key) {
-    return toolkitMap.isPinned(serializeKeyToString(key));
+    return toolkitMap.isPinned(serializeToString(key));
   }
 
   @Override
   public void setPinned(K key, boolean pinned) {
-    toolkitMap.setPinned(serializeKeyToString(key), pinned);
+    toolkitMap.setPinned(serializeToString(key), pinned);
   }
 
   @Override
   public boolean containsLocalKey(K key) {
-    return toolkitMap.containsLocalKey(serializeKeyToString(key));
+    return toolkitMap.containsLocalKey(serializeToString(key));
   }
 
   @Override
   public Map<K, V> getAll(Collection<K> keys) {
     HashSet<String> tempSet = new HashSet<String>();
     for (K key : keys) {
-      tempSet.add(serializeKeyToString(key));
+      tempSet.add(serializeToString(key));
     }
 
     Map<String, V> m = toolkitMap.getAll(tempSet);
     Map<K, V> tempMap = m.isEmpty() ? Collections.EMPTY_MAP : new HashMap<K, V>();
 
     for (Entry<String, V> entry : m.entrySet()) {
-      tempMap.put(deserializeKeyFromString(entry.getKey()), entry.getValue());
+      tempMap.put((K) deserializeFromString(entry.getKey()), entry.getValue());
     }
 
     return tempMap;
@@ -248,7 +235,7 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public V putIfAbsent(K key, V value) {
-    return toolkitMap.putIfAbsent(serializeKeyToString(key), value);
+    return toolkitMap.putIfAbsent(serializeToString(key), value);
   }
 
   @Override
@@ -263,20 +250,20 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public boolean remove(Object key, Object value) {
-    return this.toolkitMap.remove(serializeKeyToString(key), value);
+    return this.toolkitMap.remove(serializeToString(key), value);
   }
 
   @Override
   public boolean replace(K key, V oldValue, V newValue) {
-    return this.toolkitMap.replace(serializeKeyToString(key), oldValue, newValue);
+    return this.toolkitMap.replace(serializeToString(key), oldValue, newValue);
   }
 
   @Override
   public V replace(K key, V value) {
-    return this.toolkitMap.replace(serializeKeyToString(key), value);
+    return this.toolkitMap.replace(serializeToString(key), value);
   }
 
-  private class ToolkitEntrySet implements Set<java.util.Map.Entry<K, V>> {
+  private static class ToolkitEntrySet<K, V> implements Set<java.util.Map.Entry<K, V>> {
     private final Set<java.util.Map.Entry<String, V>> set;
 
     public ToolkitEntrySet(Set<java.util.Map.Entry<String, V>> set) {
@@ -299,17 +286,13 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
       Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) o;
       ToolkitMapEntry<String, V> toolkitEntry = null;
-      try {
-        toolkitEntry = new ToolkitMapEntry<String, V>(serializer.serializeToString(entry.getKey()), entry.getValue());
-      } catch (IOException e) {
-        return false;
-      }
+      toolkitEntry = new ToolkitMapEntry<String, V>(serializeToString(entry.getKey()), entry.getValue());
       return this.set.contains(toolkitEntry);
     }
 
     @Override
     public Iterator<java.util.Map.Entry<K, V>> iterator() {
-      return new ToolkitEntryIterator<K, V>(set.iterator(), serializer);
+      return new ToolkitEntryIterator<K, V>(set.iterator());
     }
 
     @Override
@@ -361,11 +344,9 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
   private static class ToolkitEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 
     private final Iterator<Map.Entry<String, V>> iter;
-    private final Serializer                     serializer;
 
-    public ToolkitEntryIterator(Iterator<Map.Entry<String, V>> iter, Serializer serializer) {
+    public ToolkitEntryIterator(Iterator<Map.Entry<String, V>> iter) {
       this.iter = iter;
-      this.serializer = serializer;
     }
 
     @Override
@@ -377,14 +358,7 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
     public java.util.Map.Entry<K, V> next() {
       Map.Entry<String, V> entry = iter.next();
       if (entry == null) { return null; }
-
-      try {
-        return new ToolkitMapEntry(serializer.deserializeFromString(entry.getKey()), entry.getValue());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      return new ToolkitMapEntry(deserializeFromString(entry.getKey()), entry.getValue());
     }
 
     @Override
@@ -396,7 +370,7 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   private static class ToolkitMapEntry<K, V> implements Map.Entry<K, V> {
     private final K k;
-    private V       v;
+    private final V v;
 
     public ToolkitMapEntry(K k, V v) {
       this.k = k;
@@ -415,14 +389,12 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
     @Override
     public V setValue(V value) {
-      V old = v;
-      this.v = value;
-      return old;
+      throw new UnsupportedOperationException();
     }
 
   }
 
-  private class ToolkitKeySet implements Set<K> {
+  private static class ToolkitKeySet<K> implements Set<K> {
 
     private final Set<String> set;
 
@@ -442,16 +414,12 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
     @Override
     public boolean contains(Object o) {
-      try {
-        return set.contains(serializer.serializeToString(o));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      return set.contains(serializeToString(o));
     }
 
     @Override
     public Iterator<K> iterator() {
-      return new ToolkitKeyIterator<K>(set.iterator(), serializer);
+      return new ToolkitKeyIterator<K>(set.iterator());
     }
 
     @Override
@@ -503,11 +471,9 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
   private static class ToolkitKeyIterator<K> implements Iterator<K> {
 
     private final Iterator<String> iter;
-    private final Serializer       serializer;
 
-    public ToolkitKeyIterator(Iterator<String> iter, Serializer serializer) {
+    public ToolkitKeyIterator(Iterator<String> iter) {
       this.iter = iter;
-      this.serializer = serializer;
     }
 
     @Override
@@ -519,13 +485,7 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
     public K next() {
       String k = iter.next();
       if (k == null) { return null; }
-      try {
-        return (K) serializer.deserializeFromString(k);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      return (K) deserializeFromString(k);
     }
 
     @Override
@@ -539,14 +499,14 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
   public Map<K, V> getAllQuiet(Collection<K> keys) {
     HashSet<String> tempSet = new HashSet<String>();
     for (K key : keys) {
-      tempSet.add(serializeKeyToString(key));
+      tempSet.add(serializeToString(key));
     }
 
     Map<String, V> m = toolkitMap.getAllQuiet(tempSet);
     Map<K, V> tempMap = m.isEmpty() ? Collections.EMPTY_MAP : new HashMap<K, V>();
 
     for (Entry<String, V> entry : m.entrySet()) {
-      tempMap.put(deserializeKeyFromString(entry.getKey()), entry.getValue());
+      tempMap.put((K) deserializeFromString(entry.getKey()), entry.getValue());
     }
 
     return tempMap;
@@ -574,17 +534,17 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   @Override
   public boolean containsKeyLocalOnHeap(K key) {
-    return this.toolkitMap.containsKeyLocalOnHeap(serializeKeyToString(key));
+    return this.toolkitMap.containsKeyLocalOnHeap(serializeToString(key));
   }
 
   @Override
   public boolean containsKeyLocalOffHeap(K key) {
-    return this.toolkitMap.containsKeyLocalOffHeap(serializeKeyToString(key));
+    return this.toolkitMap.containsKeyLocalOffHeap(serializeToString(key));
   }
 
   @Override
   public ToolkitLock createFinegrainedLock(K key, ToolkitLockType lockType) {
-    return this.toolkitMap.createFinegrainedLock(serializeKeyToString(key), lockType);
+    return this.toolkitMap.createFinegrainedLock(serializeToString(key), lockType);
   }
 
   @Override

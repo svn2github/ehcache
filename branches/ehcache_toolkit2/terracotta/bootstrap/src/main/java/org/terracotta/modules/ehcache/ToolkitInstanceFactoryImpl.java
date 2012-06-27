@@ -32,10 +32,8 @@ import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields;
 import org.terracotta.toolkit.config.ToolkitMapConfigFields.PinningStore;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.client.TerracottaToolkitClientBuilderInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
-import org.terracotta.toolkit.serializer.Serializer;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -229,9 +227,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
     ToolkitMap<String, ReadCommittedClusteredSoftLock> map = toolkit
         .getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX, config);
-    return new SerializedToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock>(map,
-                                                                                            ((ToolkitInternal) toolkit)
-                                                                                                .getSerializer());
+    return new SerializedToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock>(map);
 
   }
 
@@ -275,11 +271,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public Serializer getSerializer() {
-    return ((ToolkitInternal) toolkit).getSerializer();
-  }
-
-  @Override
   public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
@@ -295,7 +286,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
     ToolkitMap<String, Decision> map = toolkit.getMap(cacheManagerName + DELIMITER
                                                       + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config);
-    return new SerializedToolkitMap<TransactionID, Decision>(map, ((ToolkitInternal) toolkit).getSerializer());
+    return new SerializedToolkitMap<TransactionID, Decision>(map);
   }
 
   @Override
