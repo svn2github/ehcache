@@ -22,6 +22,10 @@ public class MultiAppServerTransactionManagerLookup implements TransactionManage
     };
 
 
+    public void init() {
+        //
+    }
+
     public TransactionManager getTransactionManager() {
         for (String jndiName : JNDI_NAMES) {
             TransactionManager tm = lookup(jndiName);

@@ -32,6 +32,7 @@ import java.io.Serializable;
 public final class TransactionIDSerializedForm implements Serializable {
     private final String cacheManagerName;
     private final String clusterUUID;
+    private final String ownerID;
     private final long creationTime;
     private final int id;
 
@@ -44,9 +45,10 @@ public final class TransactionIDSerializedForm implements Serializable {
      * @param creationTime the TransactionID's creation time
      * @param id the TransactionID's internal ID
      */
-    public TransactionIDSerializedForm(String cacheManagerName, String clusterUUID, long creationTime, int id) {
+    public TransactionIDSerializedForm(String cacheManagerName, String clusterUUID, String ownerID, long creationTime, int id) {
         this.cacheManagerName = cacheManagerName;
         this.clusterUUID = clusterUUID;
+        this.ownerID = ownerID;
         this.creationTime = creationTime;
         this.id = id;
     }
@@ -68,6 +70,15 @@ public final class TransactionIDSerializedForm implements Serializable {
      */
     public String getClusterUUID() {
         return clusterUUID;
+    }
+
+    /**
+     * Get the original TransactionID's owner id
+     *
+     * @return the original TransactionID's owner id
+     */
+    public String getOwnerID() {
+        return ownerID;
     }
 
     /**

@@ -281,4 +281,10 @@ public interface LiveCacheStatistics {
      */
     long getXaRollbackCount();
 
+    /**
+     * Return the Cache's XAResource recovered XIDs count
+     * @return the Cache's XAResource recovered XIDs count
+     */
+    long getXaRecoveredCount();
+
 }

@@ -61,12 +61,6 @@ public interface SoftLockManager {
     Set<Object> getKeysInvisibleInContext(LocalTransactionContext transactionContext, Store underlyingStore);
 
     /**
-     * Get a Set of TransactionIDs for which the soft locks have expired
-     * @return a Set of TransactionIDs for which the soft locks have expired
-     */
-    Set<TransactionID> collectAllLiveTransactionIDs();
-
-    /**
      * Get a the soft locks of the specified transaction ID
      * @param transactionID the transaction ID
      * @return a Set of SoftLocks

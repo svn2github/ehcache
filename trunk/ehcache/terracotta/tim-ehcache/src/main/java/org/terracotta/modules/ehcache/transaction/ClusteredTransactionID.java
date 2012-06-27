@@ -11,17 +11,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Ludovic Orban
  */
-public class ClusteredTransactionID implements TransactionID {
+public class ClusteredTransactionID implements TransactionID, ClusteredID {
 
   private static final AtomicInteger idGenerator = new AtomicInteger();
 
   private final String clusterUUID;
+  private final String               ownerID;
   private final String cacheManagerName;
   private final long creationTime;
   private final int id;
 
-  ClusteredTransactionID(String clusterUUID, String cacheManagerName) {
+  ClusteredTransactionID(String ownerID, String clusterUUID, String cacheManagerName) {
     this.clusterUUID = clusterUUID;
+    this.ownerID = ownerID;
     this.cacheManagerName = cacheManagerName;
     this.creationTime = System.currentTimeMillis();
     this.id = idGenerator.getAndIncrement();
@@ -29,9 +31,15 @@ public class ClusteredTransactionID implements TransactionID {
 
   ClusteredTransactionID(TransactionIDSerializedForm serializedForm) {
     this.clusterUUID = serializedForm.getClusterUUID();
+    this.ownerID = serializedForm.getOwnerID();
     this.cacheManagerName = serializedForm.getCacheManagerName();
     this.creationTime = serializedForm.getCreationTime();
     this.id = serializedForm.getId();
+  }
+
+  @Override
+  public String getOwnerID() {
+    return ownerID;
   }
 
   @Override
@@ -56,7 +64,7 @@ public class ClusteredTransactionID implements TransactionID {
   }
 
   private Object writeReplace() {
-    return new TransactionIDSerializedForm(cacheManagerName, clusterUUID, creationTime, id);
+    return new TransactionIDSerializedForm(cacheManagerName, clusterUUID, ownerID, creationTime, id);
   }
 
 }

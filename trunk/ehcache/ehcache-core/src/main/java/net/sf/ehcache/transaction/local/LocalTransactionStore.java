@@ -31,6 +31,7 @@ import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
 import net.sf.ehcache.transaction.TransactionException;
+import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
@@ -42,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +85,13 @@ public class LocalTransactionStore extends AbstractTransactionStore {
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
             .createElementComparatorInstance(cache.getCacheConfiguration());
         this.cacheName = cache.getName();
+        transactionController.getRecoveryManager().register(this);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        transactionController.getRecoveryManager().unregister(this);
     }
 
     /**
@@ -163,6 +172,36 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             }
             return true;
         }
+    }
+
+    /**
+     * Recover and resolve all
+     * @return
+     */
+    public Set<TransactionID> recover() {
+        Set<TransactionID> allOurTransactionIDs = transactionIdFactory.getAllTransactionIDs();
+
+        Set<TransactionID> recoveryRequired = new HashSet<TransactionID>(allOurTransactionIDs);
+        Iterator<TransactionID> iterator = recoveryRequired.iterator();
+        while (iterator.hasNext()) {
+            TransactionID transactionId = iterator.next();
+            if (!transactionIdFactory.isExpired(transactionId)) {
+                iterator.remove();
+            }
+        }
+
+        LOG.debug("recover: {} dead transactions are going to be recovered", recoveryRequired.size());
+        for (TransactionID transactionId : recoveryRequired) {
+            Set<SoftLock> softLocks = softLockManager.collectAllSoftLocksForTransactionID(transactionId);
+            for (SoftLock softLock : softLocks) {
+                Element element = underlyingStore.getQuiet(softLock.getKey());
+                SoftLockID softLockId = (SoftLockID)element.getObjectValue();
+                cleanupExpiredSoftLock(element, softLockId);
+            }
+            LOG.debug("recover: recovered {} soft locks from dead transaction with ID [{}]", softLocks.size(), transactionId);
+        }
+
+        return recoveryRequired;
     }
 
     /* transactional methods */

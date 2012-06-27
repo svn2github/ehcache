@@ -23,6 +23,10 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
         }
     }
 
+    public void init() {
+      //
+    }
+
     public synchronized void register(EhcacheXAResource resource) {
       //
     }

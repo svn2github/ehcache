@@ -25,7 +25,6 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
-import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.commands.Command;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -332,17 +332,21 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
         final Set<Xid> xids = Collections.synchronizedSet(new HashSet<Xid>());
 
-        Thread t = new Thread("ehcache recovery thread") {
+        Thread t = new Thread("ehcache [" + cache.getName() + "] XA recovery thread") {
             @Override
             public void run() {
                 Set<XidTransactionID> allOurTransactionIDs = transactionIDFactory.getAllXidTransactionIDsFor(cache);
-                Set<TransactionID> allLiveTransactionIDs = softLockManager.collectAllLiveTransactionIDs();
 
                 Set<XidTransactionID> recoveryRequired = new HashSet<XidTransactionID>(allOurTransactionIDs);
-                recoveryRequired.removeAll(allLiveTransactionIDs);
+                Iterator<XidTransactionID> iterator = recoveryRequired.iterator();
+                while (iterator.hasNext()) {
+                    XidTransactionID xidTransactionId = iterator.next();
+                    if (!transactionIDFactory.isExpired(xidTransactionId)) {
+                        iterator.remove();
+                    }
+                }
 
-                for (XidTransactionID transactionID : recoveryRequired) {
-                    XidTransactionID xidTransactionID = transactionID;
+                for (XidTransactionID xidTransactionID : recoveryRequired) {
                     xids.add(xidTransactionID.getXid());
                 }
             }
@@ -355,6 +359,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
         if (t.isAlive()) {
             t.interrupt();
+        }
+
+        if (!xids.isEmpty()) {
+            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
+            liveCacheStatisticsWrapper.xaRecovered(xids.size());
         }
 
         return xids.toArray(new Xid[0]);

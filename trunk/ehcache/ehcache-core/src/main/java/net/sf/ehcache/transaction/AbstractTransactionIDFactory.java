@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.transaction;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -117,5 +118,13 @@ public abstract class AbstractTransactionIDFactory implements TransactionIDFacto
         }
 
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<TransactionID> getAllTransactionIDs() {
+        return Collections.unmodifiableSet(getTransactionStates().keySet());
     }
 }

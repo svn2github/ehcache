@@ -290,6 +290,13 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     /**
      * {@inheritDoc}
      */
+    public void xaRecovered(int count) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void cacheMissNotFound() {
         // no-op
     }
@@ -437,6 +444,13 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
      * {@inheritDoc}
      */
     public long getXaRollbackCount() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getXaRecoveredCount() {
         return 0;
     }
 

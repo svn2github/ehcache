@@ -32,6 +32,13 @@ import java.util.Properties;
 public interface TransactionManagerLookup {
 
     /**
+     * Switch the TransactionManagerLookup implementation to its initialized state.
+     * All EhcacheXAResources registered before initialization are queued up internally
+     * and are only registered with the transaction manager during initialization.
+     */
+    void init();
+
+    /**
      * Lookup available txnManagers
      * @return TransactionManager
      */

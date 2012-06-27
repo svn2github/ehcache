@@ -17,6 +17,9 @@ package net.sf.ehcache.transaction.manager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -59,6 +62,8 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     private transient String vendor = "";
     private transient Properties properties = new Properties();
     private final Lock lock = new ReentrantLock();
+    private final List<EhcacheXAResource> uninitializedEhcacheXAResources = new ArrayList<EhcacheXAResource>();
+    private volatile boolean initialized = false;
 
     private final JndiSelector defaultJndiSelector = new JndiSelector("genericJNDI", "java:/TransactionManager");
 
@@ -66,6 +71,28 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             new JndiSelector("Weblogic", "javax.transaction.TransactionManager"),
             new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
             new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager")};
+
+    /**
+     * {@inheritDoc}
+     */
+    public void init() {
+        if (!initialized) {
+            lock.lock();
+            try {
+                Iterator<EhcacheXAResource> iterator = uninitializedEhcacheXAResources.iterator();
+                while (iterator.hasNext()) {
+                    EhcacheXAResource resource = iterator.next();
+                    registerInternal(resource);
+                    iterator.remove();
+                }
+            } finally {
+                lock.unlock();
+            }
+            initialized = true;
+        }
+    }
+
+    /**
 
     /**
      * Lookup available txnManagers
@@ -90,6 +117,19 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
      * {@inheritDoc}
      */
     public void register(EhcacheXAResource resource) {
+        if (initialized) {
+            registerInternal(resource);
+        } else {
+            lock.lock();
+            try {
+                uninitializedEhcacheXAResources.add(resource);
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    private void registerInternal(final EhcacheXAResource resource) {
         if (vendor.equals("Bitronix")) {
             registerResourceWithBitronix(resource.getCacheName(), resource);
         }
@@ -99,8 +139,24 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
      * {@inheritDoc}
      */
     public void unregister(EhcacheXAResource resource) {
-        if (vendor.equals("Bitronix")) {
-            unregisterResourceWithBitronix(resource.getCacheName(), resource);
+        if (initialized) {
+            if (vendor.equals("Bitronix")) {
+                unregisterResourceWithBitronix(resource.getCacheName(), resource);
+            }
+        } else {
+            lock.lock();
+            try {
+                Iterator<EhcacheXAResource> iterator = uninitializedEhcacheXAResources.iterator();
+                while (iterator.hasNext()) {
+                    EhcacheXAResource uninitializedEhcacheXAResource = iterator.next();
+                    if (uninitializedEhcacheXAResource == resource) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+            } finally {
+                lock.unlock();
+            }
         }
     }
 

@@ -465,6 +465,20 @@ public class CacheManager {
         if (featuresManager != null) {
             featuresManager.startup();
         }
+
+        // init XA recovery
+        transactionManagerLookup.init();
+
+        // start local tx recovery
+        Thread localTransactionsRecoveryThread = new Thread() {
+            @Override
+            public void run() {
+                transactionController.getRecoveryManager().recover();
+            }
+        };
+        localTransactionsRecoveryThread.setName("ehcache local transactions recovery");
+        localTransactionsRecoveryThread.setDaemon(true);
+        localTransactionsRecoveryThread.start();
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {

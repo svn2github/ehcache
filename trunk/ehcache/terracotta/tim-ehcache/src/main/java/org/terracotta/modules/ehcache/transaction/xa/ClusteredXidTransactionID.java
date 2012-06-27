@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.transaction.xa;
 
+import org.terracotta.modules.ehcache.transaction.ClusteredID;
+
 import net.sf.ehcache.transaction.XidTransactionIDSerializedForm;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
@@ -11,21 +13,24 @@ import javax.transaction.xa.Xid;
 /**
  * @author Ludovic Orban
  */
-public class ClusteredXidTransactionID implements XidTransactionID {
+public class ClusteredXidTransactionID implements XidTransactionID, ClusteredID {
 
     private final Xid xid;
+    private final String ownerID;
     private final String cacheName;
     private final String cacheManagerName;
 
     public ClusteredXidTransactionID(XidTransactionIDSerializedForm serializedForm) {
         this.xid = new XidClustered(serializedForm.getXid());
+        this.ownerID = serializedForm.getOwnerID();
         this.cacheManagerName = serializedForm.getCacheManagerName();
         this.cacheName = serializedForm.getCacheName();
     }
 
-    public ClusteredXidTransactionID(Xid xid, String cacheManagerName, String cacheName) {
+    public ClusteredXidTransactionID(Xid xid, String ownerID, String cacheManagerName, String cacheName) {
         this.cacheManagerName = cacheManagerName;
         this.cacheName = cacheName;
+        this.ownerID = ownerID;
         this.xid = new XidClustered(xid);
     }
 
@@ -34,10 +39,15 @@ public class ClusteredXidTransactionID implements XidTransactionID {
         return xid;
     }
 
-  @Override
-  public String getCacheName() {
-    return cacheName;
-  }
+    @Override
+    public String getCacheName() {
+        return cacheName;
+    }
+
+    @Override
+    public String getOwnerID() {
+        return ownerID;
+    }
 
     /**
      * {@inheritDoc}
@@ -68,6 +78,6 @@ public class ClusteredXidTransactionID implements XidTransactionID {
     }
 
     private Object writeReplace() {
-        return new XidTransactionIDSerializedForm(cacheManagerName, cacheName, xid);
+        return new XidTransactionIDSerializedForm(cacheManagerName, cacheName, ownerID, xid);
     }
 }

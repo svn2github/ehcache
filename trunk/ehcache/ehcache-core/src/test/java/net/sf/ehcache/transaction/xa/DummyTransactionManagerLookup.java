@@ -40,6 +40,10 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
 
     private static DummyTransactionManager transactionManager = new DummyTransactionManager();
 
+    public void init() {
+
+    }
+
     public TransactionManager getTransactionManager() {
         return transactionManager;
     }

@@ -106,23 +106,6 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
    * {@inheritDoc}
    */
   @Override
-  public synchronized Set<TransactionID> collectAllLiveTransactionIDs() {
-    Set<TransactionID> result = new HashSet<TransactionID>();
-
-    for (Map.Entry<ClusteredSoftLockID, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      ReadCommittedClusteredSoftLock softLock = allLocks.get(entry.getKey()); //workaround for DEV-5390
-      if (!softLock.isExpired()) {
-        result.add(softLock.getTransactionID());
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public Set<SoftLock> collectAllSoftLocksForTransactionID(TransactionID transactionID) {
     Set<SoftLock> result = new HashSet<SoftLock>();
 

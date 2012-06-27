@@ -20,7 +20,7 @@ import javax.transaction.xa.Xid;
 /**
  * @author Ludovic Orban
  */
-public final class XidTransactionIDImpl implements XidTransactionID {
+public class XidTransactionIDImpl implements XidTransactionID {
 
     private final SerializableXid xid;
     private final String cacheName;
