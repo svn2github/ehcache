@@ -125,7 +125,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         ToolkitList<E> toolkitList = toolkit.getList(bucketName);
         final ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
                                                                    LoggingErrorHandler.getInstance());
-        bucket.setDestroyCallback(removeOnDestroy(localBuckets, bucket));
         bucket.setItemsFilter(filter);
         localBuckets.add(bucket);
         nameList.add(bucketName);
@@ -197,7 +196,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         bucket.stop();
       }
       localBuckets.clear();
-      for (ProcessingBucket<E> bucket : deadBuckets) {
+      List<ProcessingBucket<E>> deadBucketsCopy = new ArrayList<ProcessingBucket<E>>(deadBuckets);
+      for (ProcessingBucket<E> bucket : deadBucketsCopy) {
         bucket.stop();
       }
       deadBuckets.clear();

@@ -67,7 +67,12 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
     System.out.println("\n\n\n\n\nStart Printing Stack Trace--------------------");
     for (int i = 0; i < listIntC.size(); i++) {
       ThreadInfo tinfo = tbean.getThreadInfo(listIntC.get(i));
-      System.out.println(tinfo.getStackTrace());
+      System.out.println(tinfo.getThreadName());
+      System.out.println("Thread name: " + tinfo.getThreadName() + "-" + tinfo.getThreadId());
+      for (StackTraceElement e : tinfo.getStackTrace()) {
+        System.out.println("    at " + e);
+      }
+      System.out.println();
     }
     System.out.println("End-----------------------\n\n\n\n\n");
     Assert.assertEquals(daemonThreadCountA, daemonThreadCountC);

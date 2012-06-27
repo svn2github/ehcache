@@ -150,6 +150,7 @@ public class ProcessingBucket<E extends Serializable> {
         if (!processingWorker.isWorkingOnDeadBucket()) {
           destroyToolkitList();
         }
+        processingWorker.interrupt();
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
@@ -163,11 +164,10 @@ public class ProcessingBucket<E extends Serializable> {
     if (destroyCallback != null) {
       try {
         Boolean isRemoved = destroyCallback.call();
-        if (!isRemoved) { throw new IllegalStateException("bucket " + bucketName
-                                                          + " not found in localBuckets list");
-        }
+        if (!isRemoved) { throw new IllegalStateException("bucket " + bucketName + " not found in localBuckets list"); }
       } catch (Exception e) {
-        throw new IllegalStateException("Exception while removing bucket "+ bucketName+" from localBuckets list " + e);
+        throw new IllegalStateException("Exception while removing bucket " + bucketName + " from localBuckets list "
+                                        + e);
       }
     }
   }
