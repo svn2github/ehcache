@@ -3,12 +3,14 @@
  */
 package org.terracotta.modules.ehcache.writebehind;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.writer.writebehind.WriteBehindManager;
+
 import org.terracotta.ehcache.tests.AbstractWriteBehindClient;
-import org.terracotta.ehcache.tests.Client1;
 import org.terracotta.ehcache.tests.WriteBehindCacheWriter;
 import org.terracotta.toolkit.Toolkit;
-
-import com.tc.object.cache.CacheManager;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
@@ -34,7 +36,7 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
     int daemonThreadCountA = tbean.getDaemonThreadCount();
     long[] listA = tbean.getAllThreadIds();
     for (int loopNumber = 0; loopNumber < 4; loopNumber++) {
-      cacheManager = new CacheManager(Client1.class.getResourceAsStream("/ehcache-config.xml"));
+      cacheManager = new CacheManager(WriteBehindThreadsTestClient.class.getResourceAsStream("/ehcache-config.xml"));
       int daemonThreadCountB = tbean.getDaemonThreadCount();
       Assert.assertTrue(daemonThreadCountA < daemonThreadCountB);
       Cache cache = cacheManager.getCache("test");
