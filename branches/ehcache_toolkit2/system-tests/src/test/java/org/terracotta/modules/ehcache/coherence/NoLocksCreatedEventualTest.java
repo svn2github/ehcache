@@ -6,11 +6,11 @@ package org.terracotta.modules.ehcache.coherence;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.JMXUtils;
 import org.terracotta.test.util.TestBaseUtil;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.management.TerracottaMBean;
 import com.tc.management.beans.L2MBeanNames;
@@ -37,6 +37,8 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
 
   public NoLocksCreatedEventualTest(TestConfig testConfig) {
     super("cache-coherence-test.xml", testConfig, App.class);
+    disableTest();
+
     testConfig.addTcProperty(TCPropertiesConsts.L1_LOCKMANAGER_TIMEOUT_INTERVAL, "9000000");
 
   }
