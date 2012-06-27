@@ -6,9 +6,9 @@ package org.terracotta.modules.ehcache.coherence;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -49,6 +49,7 @@ public class GetSizeTest extends AbstractCacheTestBase {
 
       Thread putThread = new Thread(new Runnable() {
 
+        @Override
         public void run() {
           try {
             for (int i = 0; i < 1000 && !stop; i++) {
@@ -70,6 +71,7 @@ public class GetSizeTest extends AbstractCacheTestBase {
 
       Thread getSizeThread = new Thread(new Runnable() {
 
+        @Override
         public void run() {
           try {
             int lastSize = 0;
@@ -104,10 +106,6 @@ public class GetSizeTest extends AbstractCacheTestBase {
         throw new AssertionError("test failed");
       }
       debug("test finished successfully!");
-    }
-
-    private static void debug(String string) {
-      System.out.println(Thread.currentThread().getName() + ": " + string);
     }
   }
 
