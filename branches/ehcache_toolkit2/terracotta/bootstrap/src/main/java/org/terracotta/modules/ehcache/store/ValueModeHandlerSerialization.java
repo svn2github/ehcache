@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import org.terracotta.modules.ehcache.collections.SerializationHelper;
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
 

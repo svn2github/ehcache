@@ -9,7 +9,6 @@
 
 package org.terracotta.modules.ehcache.collections;
 
-import org.terracotta.modules.ehcache.store.SerializationHelper;
 import org.terracotta.toolkit.ToolkitObjectType;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;

@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.modules.ehcache.store;
+package org.terracotta.modules.ehcache.collections;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

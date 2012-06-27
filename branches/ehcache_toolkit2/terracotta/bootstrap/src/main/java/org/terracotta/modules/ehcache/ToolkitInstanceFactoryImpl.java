@@ -12,10 +12,10 @@ import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
+import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitMap;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
-import org.terracotta.modules.ehcache.store.SerializationHelper;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.txn.ReadCommittedClusteredSoftLock;
