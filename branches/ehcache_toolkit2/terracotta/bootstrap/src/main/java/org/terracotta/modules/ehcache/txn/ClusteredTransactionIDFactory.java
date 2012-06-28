@@ -74,8 +74,8 @@ public class ClusteredTransactionIDFactory extends AbstractTransactionIDFactory 
 
   @Override
   public XidTransactionID createXidTransactionID(Xid xid, Ehcache cache) {
-    XidTransactionID id = new ClusteredXidTransactionID(xid, clusterTopology.getCurrentNode().getId(),
-                                                        cacheManagerName, cache.getName());
+    XidTransactionID id = new ClusteredXidTransactionID(xid, cacheManagerName, cache.getName(), clusterTopology
+        .getCurrentNode().getId());
     getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
     return id;
   }
