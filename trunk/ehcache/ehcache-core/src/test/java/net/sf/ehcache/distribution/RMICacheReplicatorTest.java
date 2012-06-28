@@ -203,6 +203,13 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             } catch (CacheException ce) {
                 assertThat(ce.getMessage(), containsString("CAS"));
             }
+
+            try {
+                cache1.putIfAbsent(new Element("foo", "poo"), true);
+            } catch (CacheException ce) {
+                ce.printStackTrace();
+                throw new AssertionError("CAS operation should have succeeded.");
+            }
         } finally {
             destroyCluster(cluster);
         }
