@@ -9,7 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.tests.base.AbstractTestBase;
-import org.terracotta.toolkit.client.TerracottaClient;
+import org.terracotta.toolkit.client.ToolkitClientBuilderFactory;
 
 import com.tc.management.beans.L2MBeanNames;
 import com.tc.test.config.model.TestConfig;
@@ -51,7 +51,7 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String slf4jBinder = TestBaseUtil.jarFor(org.slf4j.impl.StaticLoggerBinder.class);
     String l2Mbean = TestBaseUtil.jarFor(L2MBeanNames.class);
     String jta = TestBaseUtil.jarFor(TransactionManager.class);
-    String expressRuntime = TestBaseUtil.jarFor(TerracottaClient.class);
+    String expressRuntime = TestBaseUtil.jarFor(ToolkitClientBuilderFactory.class);
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
 
     String classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
