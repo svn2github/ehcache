@@ -4,6 +4,8 @@
 package org.terracotta.modules.ehcache.txn;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.transaction.AbstractTransactionIDFactory;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
@@ -26,27 +28,43 @@ import javax.transaction.xa.Xid;
  */
 public class ClusteredTransactionIDFactory extends AbstractTransactionIDFactory {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ClusteredTransactionIDFactory.class.getName());
+  private static final Logger                       LOG = LoggerFactory.getLogger(ClusteredTransactionIDFactory.class
+                                                            .getName());
 
-
-  private final String clusterUUID;
-  private final String cacheManagerName;
+  private final String                              clusterUUID;
+  private final String                              cacheManagerName;
 
   private final ToolkitMap<TransactionID, Decision> transactionStates;
+  private final CacheCluster                        clusterTopology;
 
   public ClusteredTransactionIDFactory(String clusterUUID, String cacheManagerName,
-                                       ToolkitInstanceFactory toolkitInstanceFactory) {
+                                       ToolkitInstanceFactory toolkitInstanceFactory, CacheCluster topology) {
     this.clusterUUID = clusterUUID;
     this.cacheManagerName = cacheManagerName;
     this.transactionStates = toolkitInstanceFactory.getOrCreateTransactionCommitStateMap(cacheManagerName);
+    clusterTopology = topology;
     LOG.debug("ClusteredTransactionIDFactory UUID: {}", clusterUUID);
   }
 
   @Override
   public TransactionID createTransactionID() {
-    TransactionID id = new ClusteredTransactionID(clusterUUID, cacheManagerName);
+    TransactionID id = new ClusteredTransactionID(clusterTopology.getCurrentNode().getId(), clusterUUID,
+                                                  cacheManagerName);
     getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
     return id;
+  }
+
+  @Override
+  public boolean isExpired(TransactionID id) {
+    if (id instanceof ClusteredID) {
+      String ownerClientId = ((ClusteredID) id).getOwnerID();
+      for (ClusterNode node : clusterTopology.getNodes()) {
+        if (node.getId().equals(ownerClientId)) { return false; }
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override
@@ -56,7 +74,8 @@ public class ClusteredTransactionIDFactory extends AbstractTransactionIDFactory 
 
   @Override
   public XidTransactionID createXidTransactionID(Xid xid, Ehcache cache) {
-    XidTransactionID id = new ClusteredXidTransactionID(xid, cacheManagerName, cache.getName());
+    XidTransactionID id = new ClusteredXidTransactionID(xid, clusterTopology.getCurrentNode().getId(),
+                                                        cacheManagerName, cache.getName());
     getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
     return id;
   }

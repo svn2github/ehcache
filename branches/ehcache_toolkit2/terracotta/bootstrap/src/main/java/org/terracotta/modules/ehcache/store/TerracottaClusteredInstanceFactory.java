@@ -137,11 +137,11 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName) {
-    return new ClusteredTransactionIDFactory(uuid, cacheManagerName, toolkitInstanceFactory);
+    return new ClusteredTransactionIDFactory(uuid, cacheManagerName, toolkitInstanceFactory, topology);
   }
 
   @Override
-  public SoftLockManager getOrCreateSoftLockFactory(Ehcache cache) {
+  public SoftLockManager getOrCreateSoftLockManager(Ehcache cache) {
     return softLockManagerProvider.getOrCreateClusteredSoftLockFactory(cache);
   }
 

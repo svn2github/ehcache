@@ -14,6 +14,7 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
 
     private static DummyTransactionManager transactionManager;
 
+    @Override
     public TransactionManager getTransactionManager() {
         synchronized (DummyTransactionManagerLookup.class) {
             if (transactionManager == null) {
@@ -23,15 +24,23 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
         }
     }
 
+    @Override
     public synchronized void register(EhcacheXAResource resource) {
       //
     }
 
+    @Override
     public synchronized void unregister(EhcacheXAResource resource) {
       //
     }
 
+    @Override
     public void setProperties(Properties properties) {
       //
     }
+
+  @Override
+  public void init() {
+    //
+  }
 }

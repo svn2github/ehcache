@@ -22,6 +22,7 @@ public class MultiAppServerTransactionManagerLookup implements TransactionManage
     };
 
 
+    @Override
     public TransactionManager getTransactionManager() {
         for (String jndiName : JNDI_NAMES) {
             TransactionManager tm = lookup(jndiName);
@@ -52,16 +53,24 @@ public class MultiAppServerTransactionManagerLookup implements TransactionManage
         }
     }
 
+    @Override
     public void register(EhcacheXAResource resource) {
         // no-op
     }
 
+    @Override
     public void unregister(EhcacheXAResource resource) {
         // no-op
     }
 
+    @Override
     public void setProperties(Properties properties) {
         // no-op
     }
+
+  @Override
+  public void init() {
+    // no-op
+  }
 
 }

@@ -45,20 +45,6 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   }
 
   @Override
-  public SoftLock createSoftLock(SoftLockID softLockId) {
-    ReadCommittedClusteredSoftLock softLock = new ReadCommittedClusteredSoftLock(toolkitInstanceFactory, this,
-                                                                                 softLockId.getTransactionID(),
-                                                                                 softLockId.getKey());
-
-    allLocks.put(new ClusteredSoftLockIDKey(softLockId), softLock);
-
-    if (softLockId.getOldElement() == null) {
-      newKeyLocks.add(softLock);
-    }
-    return softLock;
-  }
-
-  @Override
   public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement,
                                      boolean pinned) {
     if (newElement != null && newElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError(
@@ -66,7 +52,24 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
     if (oldElement != null && oldElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError(
                                                                                                             "oldElement must not contain a soft lock ID"); }
 
-    return new SoftLockID(transactionID, key, newElement, oldElement, pinned);
+    SoftLockID lockId = new SoftLockID(transactionID, key, newElement, oldElement, pinned);
+    ClusteredSoftLockIDKey clusteredId = new ClusteredSoftLockIDKey(lockId);
+
+    if (allLocks.containsKey(clusteredId)) {
+      return lockId;
+    } else {
+      ReadCommittedClusteredSoftLock softLock = new ReadCommittedClusteredSoftLock(toolkitInstanceFactory, this,
+                                                                                   transactionID, key);
+
+      if (allLocks.putIfAbsent(clusteredId, softLock) != null) {
+        throw new AssertionError();
+      } else {
+        if (oldElement == null) {
+          newKeyLocks.add(softLock);
+        }
+        return lockId;
+      }
+    }
   }
 
   @Override
@@ -110,23 +113,6 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
     }
 
     return invisibleKeys;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized Set<TransactionID> collectAllLiveTransactionIDs() {
-    Set<TransactionID> result = new HashSet<TransactionID>();
-
-    for (Map.Entry<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      ReadCommittedClusteredSoftLock softLock = allLocks.get(entry.getKey()); // workaround for DEV-5390
-      if (!softLock.isExpired()) {
-        result.add(softLock.getTransactionID());
-      }
-    }
-
-    return result;
   }
 
   /**
