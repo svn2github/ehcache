@@ -6,10 +6,11 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.client.TerracottaClient;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.tests.base.AbstractClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.client.ToolkitClient;
+import org.terracotta.toolkit.client.ToolkitClientBuilderFactory;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import java.util.concurrent.BrokenBarrierException;
 
@@ -21,7 +22,7 @@ public abstract class ClientBase extends AbstractClientBase {
   private final String        name;
 
   protected CacheManager      cacheManager;
-  private TerracottaClient    terracottaClient;
+  private ToolkitClient       terracottaClient;
   private ToolkitBarrier             barrier;
 
   public ClientBase(String[] args) {
@@ -71,9 +72,10 @@ public abstract class ClientBase extends AbstractClientBase {
     return getTerracottaClient().getToolkit();
   }
 
-  public synchronized TerracottaClient getTerracottaClient() {
+  public synchronized ToolkitClient getTerracottaClient() {
     if (terracottaClient == null) {
-      terracottaClient = new TerracottaClient(getTerracottaUrl());
+      terracottaClient = ToolkitClientBuilderFactory.newTerracottaToolkitClientBuilder()
+          .setTCConfigUrl(getTerracottaUrl()).buildToolkitClient();
     }
     return terracottaClient;
   }
