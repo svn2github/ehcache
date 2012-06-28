@@ -5,6 +5,9 @@ import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.internal.TransactionStatusChangeListener;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+
+import bitronix.tm.resource.ResourceRegistrar;
+import bitronix.tm.resource.common.XAResourceProducer;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -14,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.transaction.Status;
 import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 /**
  * @author Ludovic Orban
@@ -78,6 +83,40 @@ public class XATransactionTest extends TestCase {
         tm.rollback();
 
         LOG.info("******* END");
+    }
+
+    public void testRecoveryWhileTransactionsAreLive() throws Exception {
+        tm.begin();
+
+        BitronixTransaction transaction = (BitronixTransaction)tm.getTransaction();
+        transaction.addTransactionStatusChangeListener(new TransactionStatusChangeListener() {
+            @Override
+            public void statusChanged(int oldStatus, int newStatus) {
+                if (oldStatus == Status.STATUS_PREPARED) {
+                    try {
+                        XAResourceProducer txCache1Producer = ResourceRegistrar.get("txCache1");
+                        XAResource xaResource1 = txCache1Producer.startRecovery().getXAResource();
+                        Xid[] recoveredXids1 = xaResource1.recover(XAResource.TMSTARTRSCAN);
+                        txCache1Producer.endRecovery();
+
+                        XAResourceProducer txCache2Producer = ResourceRegistrar.get("txCache2");
+                        XAResource xaResource2 = txCache2Producer.startRecovery().getXAResource();
+                        Xid[] recoveredXids2 = xaResource2.recover(XAResource.TMSTARTRSCAN);
+                        txCache1Producer.endRecovery();
+
+                        // recover should not return XIDs of active transactions
+                        assertEquals(0, recoveredXids1.length);
+                        assertEquals(0, recoveredXids2.length);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+
+        cache1.put(new Element(1, "one"));
+        cache2.put(new Element(1, "one"));
+        tm.commit();
     }
 
     public void testPutDuring2PC() throws Exception {

@@ -15,6 +15,10 @@
  */
 package net.sf.ehcache.transaction;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 import net.sf.ehcache.transaction.xa.XidTransactionIDImpl;
 
@@ -25,20 +29,17 @@ import javax.transaction.xa.Xid;
 
  * @author Ludovic Orban
  */
-public class TransactionIDFactoryImpl implements TransactionIDFactory {
+public class TransactionIDFactoryImpl extends AbstractTransactionIDFactory {
 
-    /**
-     * Create a new TransactionIDFactory
-     */
-    public TransactionIDFactoryImpl() {
-        //
-    }
+    private final ConcurrentMap<TransactionID, Decision> transactionStates = new ConcurrentHashMap<TransactionID, Decision>();
 
     /**
      * {@inheritDoc}
      */
     public TransactionID createTransactionID() {
-        return new TransactionIDImpl();
+        TransactionID id = new TransactionIDImpl();
+        getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
+        return id;
     }
 
     /**
@@ -51,8 +52,10 @@ public class TransactionIDFactoryImpl implements TransactionIDFactory {
     /**
      * {@inheritDoc}
      */
-    public XidTransactionID createXidTransactionID(Xid xid) {
-        return new XidTransactionIDImpl(xid);
+    public XidTransactionID createXidTransactionID(Xid xid, Ehcache cache) {
+        XidTransactionID id = new XidTransactionIDImpl(xid, cache.getName());
+        getTransactionStates().putIfAbsent(id, Decision.IN_DOUBT);
+        return id;
     }
 
     /**
@@ -62,4 +65,18 @@ public class TransactionIDFactoryImpl implements TransactionIDFactory {
         throw new UnsupportedOperationException("unclustered transaction IDs are directly deserializable!");
     }
 
+    @Override
+    protected ConcurrentMap<TransactionID, Decision> getTransactionStates() {
+        return transactionStates;
+    }
+
+    @Override
+    public Boolean isPersistent() {
+        return Boolean.FALSE;
+    }
+
+    @Override
+    public boolean isExpired(TransactionID transactionID) {
+        return false;
+    }
 }

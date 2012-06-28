@@ -32,9 +32,9 @@ import java.io.Serializable;
 public final class TransactionIDSerializedForm implements Serializable {
     private final String cacheManagerName;
     private final String clusterUUID;
+    private final String ownerID;
     private final long creationTime;
     private final int id;
-    private final boolean commit;
 
     /**
      * Constructor
@@ -44,14 +44,13 @@ public final class TransactionIDSerializedForm implements Serializable {
      * @param clusterUUID the TransactionID's cluster UUID
      * @param creationTime the TransactionID's creation time
      * @param id the TransactionID's internal ID
-     * @param commit TransactionID's commit status
      */
-    public TransactionIDSerializedForm(String cacheManagerName, String clusterUUID, long creationTime, int id, boolean commit) {
+    public TransactionIDSerializedForm(String cacheManagerName, String clusterUUID, String ownerID, long creationTime, int id) {
         this.cacheManagerName = cacheManagerName;
         this.clusterUUID = clusterUUID;
+        this.ownerID = ownerID;
         this.creationTime = creationTime;
         this.id = id;
-        this.commit = commit;
     }
 
     /**
@@ -74,6 +73,15 @@ public final class TransactionIDSerializedForm implements Serializable {
     }
 
     /**
+     * Get the original TransactionID's owner id
+     *
+     * @return the original TransactionID's owner id
+     */
+    public String getOwnerID() {
+        return ownerID;
+    }
+
+    /**
      * Get the original TransactionID's creation time
      *
      * @return the original TransactionID's creation time
@@ -89,15 +97,6 @@ public final class TransactionIDSerializedForm implements Serializable {
      */
     public int getId() {
         return id;
-    }
-
-    /**
-     * Get the original TransactionID's commit status
-     *
-     * @return the original TransactionID's commit status
-     */
-    public boolean isCommit() {
-        return commit;
     }
 
     private Object readResolve() {

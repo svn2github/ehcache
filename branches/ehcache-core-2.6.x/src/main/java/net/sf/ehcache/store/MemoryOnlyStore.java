@@ -32,7 +32,7 @@ import net.sf.ehcache.search.impl.OrderComparator;
 import net.sf.ehcache.search.impl.ResultImpl;
 import net.sf.ehcache.search.impl.ResultsImpl;
 import net.sf.ehcache.search.impl.SearchManager;
-import net.sf.ehcache.transaction.SoftLock;
+import net.sf.ehcache.transaction.SoftLockID;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -144,7 +144,7 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
             Collection<Element> matches = new LinkedList<Element>();
 
             for (Element element : memoryStore.elementSet()) {
-                if (element.getObjectValue() instanceof SoftLock) {
+                if (element.getObjectValue() instanceof SoftLockID) {
                     continue;
                 }
 

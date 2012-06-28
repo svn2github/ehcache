@@ -395,6 +395,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaRecoveredCount()
+     */
+    public long getXaRecoveredCount() {
+        return delegate.getXaRecoveredCount();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public long getWriterQueueLength() {
         return delegate.getWriterQueueLength();
@@ -461,6 +470,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public void xaRollback() {
         getDelegateAsLiveStatisticsData().xaRollback();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#xaRecovered(int)
+     */
+    public void xaRecovered(int count) {
+        getDelegateAsLiveStatisticsData().xaRecovered(count);
     }
 
     /**
@@ -581,4 +599,5 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
         super.clone();
         throw new CloneNotSupportedException();
     }
+
 }

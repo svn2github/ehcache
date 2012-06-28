@@ -20,60 +20,18 @@ import javax.transaction.xa.Xid;
 /**
  * @author Ludovic Orban
  */
-public final class XidTransactionIDImpl implements XidTransactionID {
-
-    /**
-     * The decision types a XID transaction ID can be in
-     */
-    private static enum Decision {
-        IN_DOUBT,
-        COMMIT,
-        ROLLBACK
-    }
+public class XidTransactionIDImpl implements XidTransactionID {
 
     private final SerializableXid xid;
-    private volatile Decision decision = Decision.IN_DOUBT;
+    private final String cacheName;
 
     /**
      * Constructor
      * @param xid a XID
      */
-    public XidTransactionIDImpl(Xid xid) {
+    public XidTransactionIDImpl(Xid xid, String cacheName) {
         this.xid = new SerializableXid(xid);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isDecisionCommit() {
-        return decision.equals(Decision.COMMIT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void markForCommit() {
-        if (decision.equals(Decision.ROLLBACK)) {
-            throw new IllegalStateException(this + " already marked for rollback, cannot re-mark it for commit");
-        }
-        this.decision = Decision.COMMIT;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isDecisionRollback() {
-        return decision.equals(Decision.ROLLBACK);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void markForRollback() {
-        if (decision.equals(Decision.COMMIT)) {
-            throw new IllegalStateException(this + " already marked for commit, cannot re-mark it for rollback");
-        }
-        this.decision = Decision.ROLLBACK;
+        this.cacheName = cacheName;
     }
 
     /**
@@ -81,6 +39,14 @@ public final class XidTransactionIDImpl implements XidTransactionID {
      */
     public Xid getXid() {
         return xid;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCacheName() {
+        return cacheName;
     }
 
     /**
@@ -108,6 +74,6 @@ public final class XidTransactionIDImpl implements XidTransactionID {
      */
     @Override
     public String toString() {
-        return "Unclustered " + xid + " (decision: " + decision + ")";
+        return "Unclustered " + xid;
     }
 }

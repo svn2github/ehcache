@@ -13,16 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package net.sf.ehcache.transaction;
 
-import java.io.Serializable;
-
 /**
- * A transaction identifier. Transaction ID's must be unique to the entire
- * cluster-wide CacheManager.
+ * A factory of read-committed soft locks.
  *
- * @author Ludovic Orban
+ * @author Chris Dennis
  */
-public interface TransactionID extends Serializable {
+public class ReadCommittedSoftLockFactory implements SoftLockFactory {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ReadCommittedSoftLockImpl newSoftLock(SoftLockManager manager, Object key) {
+        return new ReadCommittedSoftLockImpl(manager, key);
+    }
 
 }

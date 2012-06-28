@@ -537,6 +537,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaRecoveredCount()
+     */
+    public long getXaRecoveredCount() {
+        return sampledCacheDelegate.getXaRecoveredCount();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public boolean getHasWriteBehindWriter() {
         return sampledCacheDelegate.getHasWriteBehindWriter();

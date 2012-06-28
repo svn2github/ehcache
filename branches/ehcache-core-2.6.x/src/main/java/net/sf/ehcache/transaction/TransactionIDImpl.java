@@ -22,34 +22,27 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Ludovic Orban
  */
-public final class TransactionIDImpl implements TransactionID {
+public class TransactionIDImpl implements TransactionID {
 
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
     private final int id;
-    private volatile boolean commit;
 
     /**
      * Create a new TransactionIDImpl instance
      */
-    TransactionIDImpl() {
+    public TransactionIDImpl() {
         this.id = ID_GENERATOR.getAndIncrement();
     }
 
     /**
-     * {@inheritDoc}
+     * Create a new TransactionIDImpl instance from an existing one
+     * @param transactionId the transaction Id to copy
      */
-    public boolean isDecisionCommit() {
-        return commit;
+    protected TransactionIDImpl(TransactionIDImpl transactionId) {
+        TransactionIDImpl txIdImpl = transactionId;
+        this.id = txIdImpl.id;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void markForCommit() {
-        this.commit = true;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -76,6 +69,6 @@ public final class TransactionIDImpl implements TransactionID {
      */
     @Override
     public String toString() {
-        return "" + id + (commit ? " (marked for commit)" : "");
+        return Integer.toString(id);
     }
 }

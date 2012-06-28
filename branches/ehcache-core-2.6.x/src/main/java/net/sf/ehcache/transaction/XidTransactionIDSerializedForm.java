@@ -33,21 +33,23 @@ import java.io.Serializable;
  */
 public final class XidTransactionIDSerializedForm implements Serializable {
     private final String cacheManagerName;
+    private final String cacheName;
+    private final String ownerID;
     private final Xid xid;
-    private final String decision;
 
     /**
      * Constructor
      *
      * @param cacheManagerName the name of the cache manager which contains the factory
      *                         that created the original XidTransactionID
+     * @param cacheName the name of the cache for this id
      * @param xid the XidTransactionID's XID
-     * @param decision the XidTransactionID's decision
      */
-    public XidTransactionIDSerializedForm(String cacheManagerName, Xid xid, String decision) {
+    public XidTransactionIDSerializedForm(String cacheManagerName, String cacheName, String ownerID, Xid xid) {
         this.cacheManagerName = cacheManagerName;
+        this.cacheName = cacheName;
+        this.ownerID = ownerID;
         this.xid = new SerializableXid(xid);
-        this.decision = decision;
     }
 
     /**
@@ -61,20 +63,30 @@ public final class XidTransactionIDSerializedForm implements Serializable {
     }
 
     /**
+     * Get the name of the cache which this original XidTransactionID is for.
+     *
+     * @return the cache name
+     */
+    public String getCacheName() {
+        return cacheName;
+    }
+
+    /**
+     * Get the original XidTransactionID's owner id
+     *
+     * @return the original XidTransactionID's owner id
+     */
+    public String getOwnerID() {
+        return ownerID;
+    }
+
+    /**
      * Get the original XidTransactionID's XID
      *
      * @return the original XidTransactionID's XID
      */
     public Xid getXid() {
         return xid;
-    }
-
-    /**
-     * Get the original XidTransactionID's decision
-     * @return the original XidTransactionID's decision
-     */
-    public String getDecision() {
-        return decision;
     }
 
     private Object readResolve() {

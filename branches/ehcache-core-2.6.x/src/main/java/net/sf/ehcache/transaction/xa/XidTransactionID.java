@@ -33,14 +33,9 @@ public interface XidTransactionID extends TransactionID {
     Xid getXid();
 
     /**
-     * Mark this transaction ID for rollback
+     * Get the name of the associated Ehcache resource.
+     *
+     * @return the Ehcache resource name
      */
-    void markForRollback();
-
-    /**
-     * Check if this transaction ID has been marked for rollback
-     * @return true if this ID has been marked for rollback, false otherwise
-     */
-    boolean isDecisionRollback();
-
+    String getCacheName();
 }

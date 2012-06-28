@@ -15,20 +15,20 @@
  */
 package net.sf.ehcache;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
+import net.sf.ehcache.transaction.local.LocalRecoveryManager;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
 import net.sf.ehcache.util.lang.VicariousThreadLocal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TransactionController is used to begin, commit and rollback local transactions
@@ -44,6 +44,7 @@ public final class TransactionController {
     private final ConcurrentMap<TransactionID, LocalTransactionContext> contextMap =
             new ConcurrentHashMap<TransactionID, LocalTransactionContext>();
     private final TransactionIDFactory transactionIDFactory;
+    private final LocalRecoveryManager localRecoveryManager;
 
     private volatile int defaultTransactionTimeout;
 
@@ -56,6 +57,7 @@ public final class TransactionController {
      */
     TransactionController(TransactionIDFactory transactionIDFactory, int defaultTransactionTimeoutInSeconds) {
         this.transactionIDFactory = transactionIDFactory;
+        this.localRecoveryManager = new LocalRecoveryManager(transactionIDFactory);
         this.defaultTransactionTimeout = defaultTransactionTimeoutInSeconds;
     }
 
@@ -95,7 +97,7 @@ public final class TransactionController {
             throw new TransactionException("transaction already started");
         }
 
-        LocalTransactionContext newTx = new LocalTransactionContext(transactionTimeoutSeconds, transactionIDFactory.createTransactionID());
+        LocalTransactionContext newTx = new LocalTransactionContext(transactionTimeoutSeconds, transactionIDFactory);
         contextMap.put(newTx.getTransactionId(), newTx);
         currentTransactionIdThreadLocal.set(newTx.getTransactionId());
 
@@ -135,6 +137,7 @@ public final class TransactionController {
             throw te;
         } finally {
             contextMap.remove(txId);
+            transactionIDFactory.clear(txId);
             currentTransactionIdThreadLocal.remove();
             MDC.remove(MDC_KEY);
         }
@@ -156,6 +159,7 @@ public final class TransactionController {
             statistics.transactionRolledBack();
         } finally {
             contextMap.remove(txId);
+            transactionIDFactory.clear(txId);
             currentTransactionIdThreadLocal.remove();
             MDC.remove(MDC_KEY);
         }
@@ -213,6 +217,14 @@ public final class TransactionController {
         return statistics.getTransactionTimedOutCount();
     }
 
+
+    /**
+     * Get the local transactions recovery manager of this cache manager
+     * @return the local transactions recovery manager
+     */
+    public LocalRecoveryManager getRecoveryManager() {
+        return localRecoveryManager;
+    }
 
     /**
      * Holder for TransactionController statistics

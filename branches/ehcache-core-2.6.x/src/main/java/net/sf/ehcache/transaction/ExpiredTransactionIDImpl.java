@@ -15,14 +15,18 @@
  */
 package net.sf.ehcache.transaction;
 
-import java.io.Serializable;
 
 /**
- * A transaction identifier. Transaction ID's must be unique to the entire
- * cluster-wide CacheManager.
- *
  * @author Ludovic Orban
  */
-public interface TransactionID extends Serializable {
+public class ExpiredTransactionIDImpl extends TransactionIDImpl {
+
+    /**
+     * Create an expired transaction ID
+     * @param transactionId the non-expired transaction ID to copy
+     */
+    public ExpiredTransactionIDImpl(TransactionIDImpl transactionId) {
+      super(transactionId);
+    }
 
 }

@@ -13,16 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.transaction;
+package net.sf.ehcache.transaction.xa;
 
-import java.io.Serializable;
 
 /**
- * A transaction identifier. Transaction ID's must be unique to the entire
- * cluster-wide CacheManager.
- *
  * @author Ludovic Orban
  */
-public interface TransactionID extends Serializable {
+public class ExpiredXidTransactionIDImpl extends XidTransactionIDImpl {
+
+    /**
+     * Create an expired XidTransactionID from a non-expired copy
+     * @param xidTransactionId the non-expired copy
+     */
+    public ExpiredXidTransactionIDImpl(XidTransactionID xidTransactionId) {
+        super(xidTransactionId.getXid(), xidTransactionId.getCacheName());
+    }
 
 }
