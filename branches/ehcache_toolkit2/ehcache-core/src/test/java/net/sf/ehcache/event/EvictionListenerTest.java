@@ -3,6 +3,7 @@ package net.sf.ehcache.event;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -253,10 +254,15 @@ public class EvictionListenerTest {
 //        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
 //            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
 //        }
-        assertThat(cache.getSize(), not(is(0)));
-        assertThat(cacheElementsEvicted.size(), not(is(0)));
-        System.out.println(cache.getSize());
-        assertThat(cacheElementsEvicted.size() + cache.getSize(), is(THREADS * PER_THREAD));
+
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get(); // Make sure all is flushed...
+        final int cacheSize = cache.getSize();
+        final int evictedElementCount = cacheElementsEvicted.size();
+
+        assertThat(cacheSize, greaterThan(0));
+        assertThat(evictedElementCount, greaterThan(0));
+        System.out.println(cacheSize);
+        assertThat(evictedElementCount + cacheSize, is(THREADS * PER_THREAD));
     }
 
     private CountingCacheEventListener accessCache(final Cache cacheUT) throws InterruptedException {

@@ -40,13 +40,6 @@ public interface SoftLockManager {
     SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned);
 
     /**
-     * Create a new, unlocked soft lock
-     * @param softLockId the soft lock's ID
-     * @return the soft lock
-     */
-    SoftLock createSoftLock(SoftLockID softLockId);
-
-    /**
      * Clear a soft lock
      * @param softLock the lock to clear
      */
@@ -66,12 +59,6 @@ public interface SoftLockManager {
      * @return a Set of keys invisible to the context
      */
     Set<Object> getKeysInvisibleInContext(LocalTransactionContext transactionContext, Store underlyingStore);
-
-    /**
-     * Get a Set of TransactionIDs for which the soft locks have expired
-     * @return a Set of TransactionIDs for which the soft locks have expired
-     */
-    Set<TransactionID> collectAllLiveTransactionIDs();
 
     /**
      * Get a the soft locks of the specified transaction ID

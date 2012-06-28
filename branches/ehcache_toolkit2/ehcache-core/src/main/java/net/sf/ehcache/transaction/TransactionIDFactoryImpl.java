@@ -74,4 +74,9 @@ public class TransactionIDFactoryImpl extends AbstractTransactionIDFactory {
     public Boolean isPersistent() {
         return Boolean.FALSE;
     }
+
+    @Override
+    public boolean isExpired(TransactionID transactionID) {
+        return false;
+    }
 }

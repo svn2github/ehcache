@@ -385,14 +385,18 @@ public class XATransactionStore extends AbstractTransactionStore {
             if (value instanceof SoftLockID) {
                 SoftLockID softLockId = (SoftLockID) value;
                 SoftLock softLock = softLockManager.findSoftLockById(softLockId);
-                try {
-                    LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
-                    boolean gotLock = softLock.tryLock(timeLeft);
-                    if (gotLock) {
-                        softLock.clearTryLock();
+                if (softLock == null) {
+                    LOG.debug("cache {} underlying.get key {} soft lock died, retrying...", cache.getName(), key);
+                    continue;
+                } else {
+                    try {
+                        LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
+                        if (softLock.tryLock(timeLeft)) {
+                            softLock.clearTryLock();
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
                 }
             } else {
                 return element;
@@ -412,15 +416,19 @@ public class XATransactionStore extends AbstractTransactionStore {
             Object value = element.getObjectValue();
             if (value instanceof SoftLockID) {
                 SoftLockID softLockId = (SoftLockID) value;
-                try {
-                    LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
-                    SoftLock softLock = softLockManager.findSoftLockById(softLockId);
-                    boolean gotLock = softLock.tryLock(timeLeft);
-                    if (gotLock) {
-                        softLock.clearTryLock();
+                SoftLock softLock = softLockManager.findSoftLockById(softLockId);
+                if (softLock == null) {
+                    LOG.debug("cache {} underlying.getQuiet key {} soft lock died, retrying...", cache.getName(), key);
+                    continue;
+                } else {
+                    try {
+                        LOG.debug("cache {} key {} soft locked, awaiting unlock...", cache.getName(), key);
+                        if (softLock.tryLock(timeLeft)) {
+                            softLock.clearTryLock();
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
                 }
             } else {
                 return element;

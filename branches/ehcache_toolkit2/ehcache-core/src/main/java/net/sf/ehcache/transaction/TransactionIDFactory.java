@@ -89,11 +89,18 @@ public interface TransactionIDFactory {
     void clear(TransactionID transactionID);
 
     /**
-     * Get the set of all transactions.
+     * Get the set of all XID transactions of a cache.
      *
      * @return the set of transactions
      */
     Set<XidTransactionID> getAllXidTransactionIDsFor(Ehcache cache);
+
+    /**
+     * Get the set of all known transactions.
+     *
+     * @return the set of transactions
+     */
+    Set<TransactionID> getAllTransactionIDs();
 
     /**
      * Return {@code true} if the factory state is persistent (survives JVM restart).
@@ -101,4 +108,12 @@ public interface TransactionIDFactory {
      * @return {@code true} is state is persistent
      */
     Boolean isPersistent();
+
+    /**
+     * Check if the transaction ID expired, ie: that the transaction died abnormally
+     *
+     * @return true if the transaction ID expired and should be cleaned up, false otherwise
+     */
+    boolean isExpired(TransactionID transactionID);
+
 }

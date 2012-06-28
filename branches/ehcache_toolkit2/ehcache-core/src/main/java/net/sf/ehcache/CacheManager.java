@@ -372,6 +372,10 @@ public class CacheManager {
             if (featuresManager != null) {
                 featuresManager.dispose();
             }
+            
+            if (diskStorePathManager != null) {
+                diskStorePathManager.releaseLock();
+            }
 
             synchronized (CacheManager.class) {
                 final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
@@ -461,6 +465,20 @@ public class CacheManager {
         if (featuresManager != null) {
             featuresManager.startup();
         }
+
+        // init XA recovery
+        transactionManagerLookup.init();
+
+        // start local tx recovery
+        Thread localTransactionsRecoveryThread = new Thread() {
+            @Override
+            public void run() {
+                transactionController.getRecoveryManager().recover();
+            }
+        };
+        localTransactionsRecoveryThread.setName("ehcache local transactions recovery");
+        localTransactionsRecoveryThread.setDaemon(true);
+        localTransactionsRecoveryThread.start();
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
@@ -1872,7 +1890,7 @@ public class CacheManager {
     SoftLockManager createSoftLockManager(Ehcache cache) {
         SoftLockManager softLockManager;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            softLockManager = getClusteredInstanceFactory(cache).getOrCreateSoftLockFactory(cache);
+            softLockManager = getClusteredInstanceFactory(cache).getOrCreateSoftLockManager(cache);
         } else {
             SoftLockFactory lockFactory = new ReadCommittedSoftLockFactory();
             softLockManager = softLockManagers.get(cache.getName());

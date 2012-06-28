@@ -534,6 +534,17 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    public long getXaRecoveredCount() {
+        try {
+            return cache.getLiveCacheStatistics().getXaRecoveredCount();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean getHasWriteBehindWriter() {
         return cache.getWriterManager() instanceof WriteBehindManager &&
                cache.getRegisteredCacheWriter() != null;

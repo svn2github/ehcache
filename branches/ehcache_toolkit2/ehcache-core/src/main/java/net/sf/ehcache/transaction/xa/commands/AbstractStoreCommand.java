@@ -69,7 +69,7 @@ public abstract class AbstractStoreCommand implements Command {
         final boolean wasPinned = store.isPinned(objectKey);
 
         SoftLockID softLockId = softLockManager.createSoftLockID(transactionId, objectKey, newElement, oldElement, wasPinned);
-        SoftLock softLock = softLockManager.createSoftLock(softLockId);
+        SoftLock softLock = softLockManager.findSoftLockById(softLockId);
         softLockedElement = createElement(objectKey, softLockId, store, wasPinned);
         softLock.lock();
         softLock.freeze();

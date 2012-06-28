@@ -63,6 +63,7 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     private final AtomicLong maxGetTimeMillis = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
     private final AtomicLong xaCommitCount = new AtomicLong();
     private final AtomicLong xaRollbackCount = new AtomicLong();
+    private final AtomicLong xaRecoveredCount = new AtomicLong();
 
     private final List<CacheUsageListener> listeners = new CopyOnWriteArrayList<CacheUsageListener>();
 
@@ -128,6 +129,16 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         for (CacheUsageListener l : listeners) {
             l.notifyXaRollback();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void xaRecovered(int count) {
+        if (!statisticsEnabled.get()) {
+            return;
+        }
+        xaRecoveredCount.addAndGet(count);
     }
 
     /**
@@ -661,6 +672,15 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      */
     public long getXaRollbackCount() {
         return xaRollbackCount.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getXaRecoveredCount()
+     */
+    public long getXaRecoveredCount() {
+        return xaRecoveredCount.get();
     }
 
     /**

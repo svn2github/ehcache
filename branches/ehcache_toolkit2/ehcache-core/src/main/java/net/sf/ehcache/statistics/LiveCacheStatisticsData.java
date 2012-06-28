@@ -88,6 +88,11 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
     void xaRollback();
 
     /**
+     * Called when the Cache's XAResource has recovered one or more XID
+     */
+    void xaRecovered(int count);
+
+    /**
      * Adds time taken for a get operation in the cache
      *
      * @param millis

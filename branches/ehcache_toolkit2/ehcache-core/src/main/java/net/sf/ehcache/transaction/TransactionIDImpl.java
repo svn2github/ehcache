@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Ludovic Orban
  */
-public final class TransactionIDImpl implements TransactionID {
+public class TransactionIDImpl implements TransactionID {
 
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
@@ -33,6 +33,15 @@ public final class TransactionIDImpl implements TransactionID {
      */
     public TransactionIDImpl() {
         this.id = ID_GENERATOR.getAndIncrement();
+    }
+
+    /**
+     * Create a new TransactionIDImpl instance from an existing one
+     * @param transactionId the transaction Id to copy
+     */
+    protected TransactionIDImpl(TransactionIDImpl transactionId) {
+        TransactionIDImpl txIdImpl = transactionId;
+        this.id = txIdImpl.id;
     }
 
     /**

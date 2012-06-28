@@ -83,10 +83,10 @@ public interface ClusteredInstanceFactory {
     TransactionIDFactory createTransactionIDFactory(String uuid, String cacheManagerName);
 
     /**
-     * Create a SoftLockFactory for a cache
+     * Create a SoftLockManager for a cache
      *
-     * @param cache the cache for which to create a SoftLockFactory
-     * @return a SoftLockFactory
+     * @param cache the cache for which to create a SoftLockManager
+     * @return a SoftLockManager
      */
-    SoftLockManager getOrCreateSoftLockFactory(Ehcache cache);
+    SoftLockManager getOrCreateSoftLockManager(Ehcache cache);
 }

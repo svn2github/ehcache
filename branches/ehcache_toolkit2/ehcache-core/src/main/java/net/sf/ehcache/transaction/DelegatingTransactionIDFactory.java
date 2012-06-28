@@ -23,6 +23,7 @@ import net.sf.ehcache.transaction.xa.XidTransactionID;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.transaction.xa.Xid;
 
@@ -38,7 +39,7 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
     private final TerracottaClient terracottaClient;
     private final String cacheManagerName;
     private volatile ClusteredInstanceFactory clusteredInstanceFactory;
-    private volatile TransactionIDFactory transactionIDFactory;
+    private volatile AtomicReference<TransactionIDFactory> transactionIDFactory = new AtomicReference<TransactionIDFactory>();
 
     /**
      * Create a new DelegatingTransactionIDFactory
@@ -55,18 +56,25 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
     private TransactionIDFactory get() {
         ClusteredInstanceFactory cif = terracottaClient.getClusteredInstanceFactory();
         if (cif != null && cif != this.clusteredInstanceFactory) {
-            this.transactionIDFactory = cif.createTransactionIDFactory(UUID.randomUUID().toString(), cacheManagerName);
+            this.transactionIDFactory.set(cif.createTransactionIDFactory(UUID.randomUUID().toString(), cacheManagerName));
             this.clusteredInstanceFactory = cif;
         }
 
-        if (transactionIDFactory == null) {
+        if (transactionIDFactory.get() == null) {
+            TransactionIDFactory constructed;
             if (featuresManager == null) {
-                transactionIDFactory = new TransactionIDFactoryImpl();
+                constructed = new TransactionIDFactoryImpl();
             } else {
-                transactionIDFactory = featuresManager.createTransactionIDFactory();
+                constructed = featuresManager.createTransactionIDFactory();
             }
+            if (transactionIDFactory.compareAndSet(null, constructed)) {
+                return constructed;
+            } else {
+                return transactionIDFactory.get();
+            }
+        } else {
+            return transactionIDFactory.get();
         }
-        return transactionIDFactory;
     }
 
     /**
@@ -123,8 +131,18 @@ public class DelegatingTransactionIDFactory implements TransactionIDFactory {
     }
 
     @Override
+    public Set<TransactionID> getAllTransactionIDs() {
+        return get().getAllTransactionIDs();
+    }
+
+    @Override
+    public boolean isExpired(TransactionID transactionID) {
+        return get().isExpired(transactionID);
+    }
+
+    @Override
     public Boolean isPersistent() {
-        if (transactionIDFactory == null) {
+        if (transactionIDFactory.get() == null) {
             return null;
         } else {
             return get().isPersistent();

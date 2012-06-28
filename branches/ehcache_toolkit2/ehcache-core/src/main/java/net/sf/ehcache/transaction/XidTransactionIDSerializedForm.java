@@ -34,6 +34,7 @@ import java.io.Serializable;
 public class XidTransactionIDSerializedForm implements Serializable {
     private final String cacheManagerName;
     private final String cacheName;
+    private final String ownerID;
     private final Xid xid;
 
     /**
@@ -44,9 +45,10 @@ public class XidTransactionIDSerializedForm implements Serializable {
      * @param cacheName the name of the cache for this id
      * @param xid the XidTransactionID's XID
      */
-    public XidTransactionIDSerializedForm(String cacheManagerName, String cacheName, Xid xid) {
+    public XidTransactionIDSerializedForm(String cacheManagerName, String cacheName, String ownerID, Xid xid) {
         this.cacheManagerName = cacheManagerName;
         this.cacheName = cacheName;
+        this.ownerID = ownerID;
         this.xid = new SerializableXid(xid);
     }
 
@@ -67,6 +69,15 @@ public class XidTransactionIDSerializedForm implements Serializable {
      */
     public String getCacheName() {
         return cacheName;
+    }
+
+    /**
+     * Get the original XidTransactionID's owner id
+     *
+     * @return the original XidTransactionID's owner id
+     */
+    public String getOwnerID() {
+        return ownerID;
     }
 
     /**
