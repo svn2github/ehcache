@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -246,6 +245,13 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             throw new AssertionError("CAS operation should have failed.");
         } catch (CacheException ce) {
             assertEquals(true, ce.getMessage().contains("CAS"));
+        }
+
+        try {
+            cache1.putIfAbsent(new Element("foo", "poo"), true);
+        } catch (CacheException ce) {
+            ce.printStackTrace();
+            throw new AssertionError("CAS operation should have succeeded.");
         }
 
         try {
