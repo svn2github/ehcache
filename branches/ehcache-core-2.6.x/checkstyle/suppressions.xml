@@ -39,6 +39,7 @@
     <suppress checks="ClassFanOutComplexity" files="DiskStore.java"/>
     <suppress checks="FileLength" files="DiskStore.java"/>
     <suppress checks="FileLength" files="CacheConfiguration.java"/>
+    <suppress checks="FileLength" files="CacheSamplerImpl.java"/>
     <suppress checks="ClassFanOutComplexity" files="Cache.java"/>
     <suppress checks="ClassFanOutComplexity" files="CacheManager.java"/>
     <suppress checks="ParameterNumber" files="Cache.java"/>

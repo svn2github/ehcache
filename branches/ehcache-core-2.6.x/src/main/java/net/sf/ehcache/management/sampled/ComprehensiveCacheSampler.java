@@ -34,6 +34,13 @@ public interface ComprehensiveCacheSampler extends CacheSampler {
     public SampledCounter getCacheHitSample();
 
     /**
+     * Get the {@link SampledCounter} for cache hit ratio
+     *
+     * @return the {@code SampledCounter} for cache hit ratio
+     */
+    public SampledCounter getCacheHitRatioSample();
+
+    /**
      * Get the {@link SampledCounter} for in-memory cache hit
      *
      * @return the {@code SampledCounter} for cache hit count in memory
@@ -142,6 +149,14 @@ public interface ComprehensiveCacheSampler extends CacheSampler {
      * @return the {@code SampledRateCounter} of average get time taken for a get operation
      */
     public SampledRateCounter getAverageGetTimeSample();
+
+    /**
+     * Get the {@link SampledRateCounter} for average time taken for get() operation in the
+     * cache
+     *
+     * @return the {@code SampledRateCounter} of average get time taken for a get operation
+     */
+    public SampledRateCounter getAverageGetTimeNanosSample();
 
     /**
      * Get the {@link SampledRateCounter} for average search execution time for searches finishing within the last sample period

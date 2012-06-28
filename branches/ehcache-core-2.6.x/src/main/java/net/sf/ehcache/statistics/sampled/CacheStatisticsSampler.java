@@ -38,7 +38,7 @@ public interface CacheStatisticsSampler extends SampledCacheStatistics {
      * The default interval for sampling events for {@link SampledCounter} objects.
      */
     int DEFAULT_INTERVAL_SECS = 1;
-    
+
     /**
      * Get the {@link SampledCounter} for cache hit
      *
@@ -113,6 +113,13 @@ public interface CacheStatisticsSampler extends SampledCacheStatistics {
     SampledCounter getCacheMissNotFoundSample();
 
     /**
+     * Get the {@link SampledCounter} for cache hit ratio
+     *
+     * @return the {@code SampledCounter} for cache hit ratio
+     */
+    SampledCounter getCacheHitRatioSample();
+
+    /**
      * Get the {@link SampledCounter} element evicted from cache
      *
      * @return the {@code SampledCounter} for element evicted count
@@ -153,8 +160,18 @@ public interface CacheStatisticsSampler extends SampledCacheStatistics {
      * cache
      *
      * @return the {@code SampledRateCounter} of average get time taken for a get operation
+     * @deprecated
      */
+    @Deprecated
     SampledRateCounter getAverageGetTimeSample();
+
+    /**
+     * Get the {@link SampledRateCounter} for average time taken for get() operation in the
+     * cache
+     *
+     * @return the {@code SampledRateCounter} of average get time taken for a get operation
+     */
+    SampledRateCounter getAverageGetTimeNanosSample();
 
     /**
      * Get the {@link SampledRateCounter} for average search execution time for searches finishing within the last sample period

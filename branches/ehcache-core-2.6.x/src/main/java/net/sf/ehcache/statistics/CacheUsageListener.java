@@ -95,9 +95,20 @@ public interface CacheUsageListener {
     /**
      * Notified with time taken for a get operation in the cache
      *
+     * DEPRECATED: use notifyGetTimeNanos(long)
+     *
      * @param millis
+     * @deprecated
      */
+    @Deprecated
     void notifyTimeTakenForGet(final long millis);
+
+    /**
+     * Notified with time taken for a get operation in the cache
+     *
+     * @param nanos
+     */
+    void notifyGetTimeNanos(final long nanos);
 
     /**
      * Called when an element is expired in the cache

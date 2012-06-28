@@ -116,6 +116,12 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, CacheS
         return delegate.getAverageGetTimeMostRecentSample();
     }
 
+
+    @Override
+    public long getAverageGetTimeNanosMostRecentSample() {
+        return delegate.getAverageGetTimeNanosMostRecentSample();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -405,7 +411,15 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, CacheS
      *
      */
     public void notifyTimeTakenForGet(long millis) {
-        getDelegateAsListener().notifyTimeTakenForGet(millis);
+        /**/
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     */
+    public void notifyGetTimeNanos(long nanos) {
+        getDelegateAsListener().notifyGetTimeNanos(nanos);
     }
 
     /**
@@ -538,6 +552,11 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, CacheS
     }
 
     @Override
+    public SampledRateCounter getAverageGetTimeNanosSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getAverageGetTimeNanosSample();
+    }
+
+    @Override
     public SampledRateCounter getAverageSearchTimeSample() {
         return samplerDelegate == null ? null : samplerDelegate.getAverageSearchTimeSample();
     }
@@ -555,5 +574,15 @@ public class SampledCacheStatisticsWrapper implements CacheUsageListener, CacheS
     @Override
     public SampledCounter getCacheXaRollbacksSample() {
         return samplerDelegate == null ? null : samplerDelegate.getCacheXaRollbacksSample();
+    }
+
+    @Override
+    public int getCacheHitRatioMostRecentSample() {
+        return delegate.getCacheHitRatioMostRecentSample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitRatioSample() {
+        return samplerDelegate == null ? null : samplerDelegate.getCacheHitRatioSample();
     }
 }

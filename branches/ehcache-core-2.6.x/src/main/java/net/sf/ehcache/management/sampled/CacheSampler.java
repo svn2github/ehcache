@@ -492,7 +492,7 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     long getCacheExpirationRate();
 
     /**
-     * @return average get time (ms.)
+     * @return average get time (nanos.)
      */
-    float getCacheAverageGetTime();
+    long getCacheAverageGetTime();
 }

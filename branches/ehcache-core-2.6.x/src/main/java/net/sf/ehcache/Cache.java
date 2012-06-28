@@ -1584,11 +1584,11 @@ public class Cache implements InternalEhcache, StoreListener {
         }
 
         if (isStatisticsEnabled()) {
-            long start = System.currentTimeMillis();
+            long start = System.nanoTime();
             Element element = searchInStoreWithStats(key);
             //todo is this expensive. Maybe ditch.
-            long end = System.currentTimeMillis();
-            liveCacheStatisticsData.addGetTimeMillis(end - start);
+            long end = System.nanoTime();
+            liveCacheStatisticsData.addGetTimeNanos(end - start);
             return element;
         } else {
             return searchInStoreWithoutStats(key, false, true);

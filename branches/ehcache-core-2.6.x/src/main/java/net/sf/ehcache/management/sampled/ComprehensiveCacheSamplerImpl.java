@@ -21,11 +21,11 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 
 /**
  * The default implementation of {@link ComprehensiveCacheSampler}.
- * 
+ *
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
  */
 public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements ComprehensiveCacheSampler {
-    private Cache cache;
+    private final Cache cache;
 
     /**
      * Constructor that takes a {@link Cache}
@@ -43,6 +43,14 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
     @Override
     public SampledCounter getCacheHitSample() {
         return cache.getCacheStatisticsSampler().getCacheHitSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitRatioSample() {
+        return cache.getCacheStatisticsSampler().getCacheHitRatioSample();
     }
 
     /**
@@ -163,6 +171,14 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
     @Override
     public SampledRateCounter getAverageGetTimeSample() {
         return cache.getCacheStatisticsSampler().getAverageGetTimeSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageGetTimeNanosSample() {
+        return cache.getCacheStatisticsSampler().getAverageGetTimeNanosSample();
     }
 
     /**

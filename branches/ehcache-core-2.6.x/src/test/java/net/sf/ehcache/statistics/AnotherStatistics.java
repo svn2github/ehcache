@@ -202,6 +202,15 @@ public class AnotherStatistics extends LiveCacheStatisticsImpl implements
 
     /**
      * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyGetTimeNanos(long)
+     */
+    public void notifyGetTimeNanos(long nanos) {
+        super.addGetTimeNanos(nanos);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public void notifyCacheSearch(long executeTime) {
         throw new AssertionError();
