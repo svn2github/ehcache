@@ -42,6 +42,9 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     private static final Logger LOG = LoggerFactory.getLogger(LiveCacheStatisticsImpl.class.getName());
 
     private static final int MIN_MAX_DEFAULT_VALUE = -1;
+    private static final int MILLIS_PER_SECOND = 1000;
+    private static final int NANOS_PER_MILLI = MILLIS_PER_SECOND * MILLIS_PER_SECOND;
+    private static final int HIT_RATIO_MULTIPLIER = 100;
 
     private final AtomicBoolean statisticsEnabled = new AtomicBoolean(true);
     private final AtomicLong cacheHitInMemoryCount = new AtomicLong();
@@ -53,14 +56,14 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     private final AtomicLong cacheMissOnDiskCount = new AtomicLong();
     private final AtomicLong cacheMissExpired = new AtomicLong();
     private final AtomicLong cacheElementEvictedCount = new AtomicLong();
-    private final AtomicLong totalGetTimeTakenMillis = new AtomicLong();
+    private final AtomicLong totalGetTimeTakenNanos = new AtomicLong();
     private final AtomicLong cacheElementRemoved = new AtomicLong();
     private final AtomicLong cacheElementExpired = new AtomicLong();
     private final AtomicLong cacheElementPut = new AtomicLong();
     private final AtomicLong cacheElementUpdated = new AtomicLong();
     private final AtomicInteger statisticsAccuracy = new AtomicInteger();
-    private final AtomicLong minGetTimeMillis = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
-    private final AtomicLong maxGetTimeMillis = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
+    private final AtomicLong minGetTimeNanos = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
+    private final AtomicLong maxGetTimeNanos = new AtomicLong(MIN_MAX_DEFAULT_VALUE);
     private final AtomicLong xaCommitCount = new AtomicLong();
     private final AtomicLong xaRollbackCount = new AtomicLong();
     private final AtomicLong xaRecoveredCount = new AtomicLong();
@@ -91,13 +94,13 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
         cacheMissOffHeapCount.set(0);
         cacheMissOnDiskCount.set(0);
         cacheElementEvictedCount.set(0);
-        totalGetTimeTakenMillis.set(0);
+        totalGetTimeTakenNanos.set(0);
         cacheElementRemoved.set(0);
         cacheElementExpired.set(0);
         cacheElementPut.set(0);
         cacheElementUpdated.set(0);
-        minGetTimeMillis.set(MIN_MAX_DEFAULT_VALUE);
-        maxGetTimeMillis.set(MIN_MAX_DEFAULT_VALUE);
+        minGetTimeNanos.set(MIN_MAX_DEFAULT_VALUE);
+        maxGetTimeNanos.set(MIN_MAX_DEFAULT_VALUE);
         xaCommitCount.set(0);
         xaRollbackCount.set(0);
         for (CacheUsageListener l : listeners) {
@@ -164,19 +167,39 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
     /**
      * {@inheritDoc}
      */
+    public void addGetTimeNanos(long nanos) {
+        if (!statisticsEnabled.get()) {
+            return;
+        }
+        totalGetTimeTakenNanos.addAndGet(nanos);
+        for (CacheUsageListener l : listeners) {
+            l.notifyGetTimeNanos(nanos);
+            l.notifyTimeTakenForGet(nanos / NANOS_PER_MILLI);
+        }
+        if (minGetTimeNanos.get() == MIN_MAX_DEFAULT_VALUE || (nanos < minGetTimeNanos.get())) {
+            minGetTimeNanos.set(nanos);
+        }
+        if (maxGetTimeNanos.get() == MIN_MAX_DEFAULT_VALUE || (nanos > maxGetTimeNanos.get() && nanos > 0)) {
+            maxGetTimeNanos.set(nanos);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void addGetTimeMillis(long millis) {
         if (!statisticsEnabled.get()) {
             return;
         }
-        totalGetTimeTakenMillis.addAndGet(millis);
+        totalGetTimeTakenNanos.addAndGet(millis);
         for (CacheUsageListener l : listeners) {
             l.notifyTimeTakenForGet(millis);
         }
-        if (minGetTimeMillis.get() == MIN_MAX_DEFAULT_VALUE || (millis < minGetTimeMillis.get() /*&& millis > 0*/)) {
-            minGetTimeMillis.set(millis);
+        if (minGetTimeNanos.get() == MIN_MAX_DEFAULT_VALUE || (millis < minGetTimeNanos.get() /*&& millis > 0*/)) {
+            minGetTimeNanos.set(millis);
         }
-        if (maxGetTimeMillis.get() == MIN_MAX_DEFAULT_VALUE || (millis > maxGetTimeMillis.get() && millis > 0)) {
-            maxGetTimeMillis.set(millis);
+        if (maxGetTimeNanos.get() == MIN_MAX_DEFAULT_VALUE || (millis > maxGetTimeNanos.get() && millis > 0)) {
+            maxGetTimeNanos.set(millis);
         }
     }
 
@@ -397,11 +420,18 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      * {@inheritDoc}
      */
     public float getAverageGetTimeMillis() {
+        return getAverageGetTimeNanos() / (float) NANOS_PER_MILLI;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageGetTimeNanos() {
         long accessCount = getCacheHitCount() + getCacheMissCount();
         if (accessCount == 0) {
-            return 0f;
+            return 0;
         }
-        return (float) totalGetTimeTakenMillis.get() / accessCount;
+        return totalGetTimeTakenNanos.get() / accessCount;
     }
 
     /**
@@ -463,6 +493,16 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      */
     public long getCacheMissCountExpired() {
         return cacheMissExpired.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getCacheHitRatio() {
+        long hits = getCacheHitCount();
+        long accesses = hits + getCacheMissCount();
+
+        return (int) (accesses == 0 ? 0 : ((hits / (double) accesses) * HIT_RATIO_MULTIPLIER));
     }
 
     /**
@@ -653,7 +693,34 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
      */
     public long getMaxGetTimeMillis() {
-        return maxGetTimeMillis.get();
+        return maxGetTimeNanos.get() / NANOS_PER_MILLI;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
+     */
+    public long getMinGetTimeMillis() {
+        return minGetTimeNanos.get() / NANOS_PER_MILLI;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeNanos()
+     */
+    public long getMaxGetTimeNanos() {
+        return maxGetTimeNanos.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeNanos()
+     */
+    public long getMinGetTimeNanos() {
+        return minGetTimeNanos.get();
     }
 
     /**
@@ -692,14 +759,5 @@ public class LiveCacheStatisticsImpl implements LiveCacheStatistics, LiveCacheSt
             return ((WriteBehindManager)writerManager).getQueueSize();
         }
         return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
-     */
-    public long getMinGetTimeMillis() {
-        return minGetTimeMillis.get();
     }
 }

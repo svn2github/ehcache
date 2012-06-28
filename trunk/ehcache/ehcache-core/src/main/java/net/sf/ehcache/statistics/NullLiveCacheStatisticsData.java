@@ -460,4 +460,39 @@ public class NullLiveCacheStatisticsData implements LiveCacheStatistics, LiveCac
     public long getMinGetTimeMillis() {
         return 0;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addGetTimeNanos(long nanos) {
+        /**/
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getCacheHitRatio() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageGetTimeNanos() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMaxGetTimeNanos() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMinGetTimeNanos() {
+        return 0;
+    }
 }

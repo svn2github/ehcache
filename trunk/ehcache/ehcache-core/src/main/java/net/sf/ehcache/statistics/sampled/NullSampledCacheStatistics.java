@@ -38,6 +38,13 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      */
+    public long getAverageGetTimeNanosMostRecentSample() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public long getCacheElementEvictedMostRecentSample() {
         return 0;
     }
@@ -335,11 +342,19 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyGetTimeNanos(long)
+     */
+    public void notifyGetTimeNanos(long nanos) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.statistics.sampled.SampledCacheStatistics#clearStatistics()
      */
     public void clearStatistics() {
         // no-op
-
     }
 
     /**
@@ -388,6 +403,13 @@ public class NullSampledCacheStatistics implements CacheUsageListener, SampledCa
      * {@inheritDoc}
      */
     public long getCacheXaRollbacksMostRecentSample() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getCacheHitRatioMostRecentSample() {
         return 0;
     }
 }

@@ -28,16 +28,16 @@ import net.sf.ehcache.util.counter.sampled.SampledCounterImpl;
 
 /**
  * An implementation of a {@link CounterManager}.
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
- * 
+ *
  */
 public class CounterManagerImpl implements CounterManager {
 
-    private FailSafeTimer timer;
+    private final FailSafeTimer timer;
     private boolean shutdown;
-    private List<Counter> counters = new ArrayList<Counter>();
+    private final List<Counter> counters = new ArrayList<Counter>();
 
     /**
      * Constructor that accepts a timer that will be used for scheduling sampled
@@ -81,6 +81,14 @@ public class CounterManagerImpl implements CounterManager {
             throw new NullPointerException("config cannot be null");
         }
         Counter counter = config.createCounter();
+        addCounter(counter);
+        return counter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void addCounter(Counter counter) {
         if (counter instanceof SampledCounterImpl) {
             final SampledCounterImpl sampledCounter = (SampledCounterImpl) counter;
             TimerTask timerTask = new TimerTask() {
@@ -97,9 +105,7 @@ public class CounterManagerImpl implements CounterManager {
             timer.schedule(timerTask, sampledCounter.getIntervalMillis(), sampledCounter.getIntervalMillis());
         }
         counters.add(counter);
-        return counter;
     }
-
     /**
      * {@inheritDoc}
      */

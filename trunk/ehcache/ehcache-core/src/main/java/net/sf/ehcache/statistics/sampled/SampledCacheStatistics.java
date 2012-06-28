@@ -99,6 +99,13 @@ public interface SampledCacheStatistics {
     long getCacheMissNotFoundMostRecentSample();
 
     /**
+     * Get most recent value for cache hit ratio
+     *
+     * @return Most recent value for cache hit ratio
+     */
+    int getCacheHitRatioMostRecentSample();
+
+    /**
      * Get most recent value element evicted from cache
      *
      * @return Most recent sample for element evicted count
@@ -139,8 +146,18 @@ public interface SampledCacheStatistics {
      * cache
      *
      * @return Most recent sample of average get time taken for a get operation
+     * @deprecated
      */
+    @Deprecated
     long getAverageGetTimeMostRecentSample();
+
+    /**
+     * Get most recent value for average time taken for get() operation in the
+     * cache
+     *
+     * @return Most recent sample of average get time taken for a get operation
+     */
+    long getAverageGetTimeNanosMostRecentSample();
 
     /**
      * Get value for statisticsAccuracy

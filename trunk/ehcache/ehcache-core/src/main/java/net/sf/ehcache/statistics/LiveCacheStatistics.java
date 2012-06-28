@@ -102,6 +102,13 @@ public interface LiveCacheStatistics {
     long getCacheMissCountExpired();
 
     /**
+     * The ratio of hits to accesses (hits + misses).
+     *
+     * @return the ratio of hits to (hits + misses) (0 - 100)
+     */
+    int getCacheHitRatio();
+
+    /**
      * Size of the cache based on current accuracy settings.
      *
      * @return The size of the cache based on current accuracy setting
@@ -178,11 +185,18 @@ public interface LiveCacheStatistics {
     long getLocalDiskSizeInBytes();
 
     /**
-     * Average time in milli seconds taken to get an element from the cache.
+     * Average time in milliseconds taken to get an element from the cache.
      *
      * @return Average time taken for a get operation in milliseconds
      */
     float getAverageGetTimeMillis();
+
+    /**
+     * Average time in nanoseconds taken to get an element from the cache.
+     *
+     * @return Average time taken for a get operation in nanoseconds
+     */
+    long getAverageGetTimeNanos();
 
     /**
      * Number of elements evicted from the cache
@@ -252,20 +266,38 @@ public interface LiveCacheStatistics {
      * Return minimum time taken for a get operation in the cache in milliseconds
      *
      * @return minimum time taken for a get operation in the cache in milliseconds
+     * @deprecated
      */
+    @Deprecated
     long getMinGetTimeMillis();
 
     /**
      * Return maximum time taken for a get operation in the cache in milliseconds
      *
      * @return maximum time taken for a get operation in the cache in milliseconds
+     * @deprecated
      */
+    @Deprecated
     long getMaxGetTimeMillis();
+
+    /**
+     * Return maximum time taken for a get operation in the cache in milliseconds
+     *
+     * @return maximum time taken for a get operation in the cache in milliseconds
+     */
+    long getMaxGetTimeNanos();
+
+    /**
+     * Return minimum time taken for a get operation in the cache in nanoseconds
+     *
+     * @return minimum time taken for a get operation in the cache in nanoseconds
+     */
+    long getMinGetTimeNanos();
 
     /**
      * Gets the size of the write-behind queue, if any.
      * The value is for all local buckets
-     * @return Elements waiting to be processed by the write-behind writer. -1 if no write-behind
+     * @return Elements waiting to be processed by the write-behind writer.
      */
     long getWriterQueueLength();
 
