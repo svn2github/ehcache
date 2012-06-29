@@ -202,27 +202,92 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      * Adds an entry and unlocks it
      */
     @Override
-    public void put(Element element) {
+    public void put(final Element element) {
 
-        if (element == null) {
-            return;
+        doAndReleaseWriteLock(new PutAction<Void>(element) {
+            @Override
+            public Void put() {
+                if (element.getObjectValue() != null) {
+                    underlyingCache.put(element);
+                } else {
+                    underlyingCache.remove(element.getObjectKey());
+                }
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void put(final Element element, final boolean doNotNotifyCacheReplicators)
+        throws IllegalArgumentException, IllegalStateException, CacheException {
+        doAndReleaseWriteLock(new PutAction<Void>(element) {
+            @Override
+            public Void put() {
+                underlyingCache.put(element, doNotNotifyCacheReplicators);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void putQuiet(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        doAndReleaseWriteLock(new PutAction<Void>(element) {
+            @Override
+            public Void put() {
+                underlyingCache.putQuiet(element);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void putWithWriter(final Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
+        doAndReleaseWriteLock(new PutAction<Void>(element) {
+            @Override
+            public Void put() {
+                underlyingCache.putWithWriter(element);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public Element putIfAbsent(final Element element) throws NullPointerException {
+        return doAndReleaseWriteLock(new PutAction<Element>(element) {
+            @Override
+            public Element put() {
+                return underlyingCache.putIfAbsent(element);
+            }
+        });
+    }
+
+    @Override
+    public Element putIfAbsent(final Element element, final boolean doNotNotifyCacheReplicators) throws NullPointerException {
+        return doAndReleaseWriteLock(new PutAction<Element>(element) {
+            @Override
+            public Element put() {
+                return underlyingCache.putIfAbsent(element, doNotNotifyCacheReplicators);
+            }
+        });
+    }
+
+    private <V> V doAndReleaseWriteLock(PutAction<V> putAction) {
+
+        if (putAction.element == null) {
+            return null;
         }
-        Object key = element.getObjectKey();
-        Object value = element.getObjectValue();
+
+        Object key = putAction.element.getObjectKey();
 
         Sync lock = getLockForKey(key);
-        
+
         if (!lock.isHeldByCurrentThread(LockType.WRITE)) {
             lock.lock(LockType.WRITE);
         }
         try {
-            if (value != null) {
-                underlyingCache.put(element);
-            } else {
-                underlyingCache.remove(key);
-            }
+            return putAction.put();
         } finally {
-            //Release the readlock here. This will have been acquired in the get, where the element was null
+            //Release the writelock here. This will have been acquired in the get, where the element was null
             lock.unlock(LockType.WRITE);
         }
     }
@@ -354,6 +419,25 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
     @Override
     public void loadAll(Collection keys, Object argument) throws CacheException {
         throw new CacheException("This method is not appropriate for a Blocking Cache");
+    }
+
+    /**
+     * Callable like class to actually execute one of the many Ehcache.put* methods in the context of a BlockingCache
+     * @param <V>
+     */
+    private abstract static class PutAction<V> {
+
+        private final Element element;
+
+        private PutAction(Element element) {
+            this.element = element;
+        }
+
+        /**
+         * implement method with the put*
+         * @return the return value of the put*
+         */
+        abstract V put();
     }
 }
 
