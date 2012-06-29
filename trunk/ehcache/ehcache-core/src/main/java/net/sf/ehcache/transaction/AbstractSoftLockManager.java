@@ -109,14 +109,16 @@ public abstract class AbstractSoftLockManager implements SoftLockManager {
 
         List<SoftLock> currentTransactionContextSoftLocks = currentTransactionContext.getSoftLocksForCache(cacheName);
         for (SoftLock softLock : currentTransactionContextSoftLocks) {
-            SoftLockID softLockId = (SoftLockID)underlyingStore.getQuiet(softLock.getKey()).getObjectValue();
-
-            if (softLock.getElement(currentTransactionContext.getTransactionId(), softLockId) == null) {
-                // if the soft lock's element is null in the current transaction then the key is invisible
-                invisibleKeys.add(softLock.getKey());
-            } else {
-                // if the soft lock's element is not null in the current transaction then the key is visible
-                invisibleKeys.remove(softLock.getKey());
+            Element e = underlyingStore.getQuiet(softLock.getKey());
+            if (e.getObjectValue() instanceof SoftLockID) {
+                SoftLockID softLockId = (SoftLockID) e.getObjectValue();
+                if (softLock.getElement(currentTransactionContext.getTransactionId(), softLockId) == null) {
+                    // if the soft lock's element is null in the current transaction then the key is invisible
+                    invisibleKeys.add(softLock.getKey());
+                } else {
+                    // if the soft lock's element is not null in the current transaction then the key is visible
+                    invisibleKeys.remove(softLock.getKey());
+                }
             }
         }
 
@@ -144,7 +146,7 @@ public abstract class AbstractSoftLockManager implements SoftLockManager {
     public void clearSoftLock(SoftLock softLock) {
 
         for (Map.Entry<SoftLockID, SoftLock> entry : getAllLocks().entrySet()) {
-            if (entry.getValue().equals(softLock)) {
+            if (entry.getValue() == softLock) {
                 getAllLocks().remove(entry.getKey());
                 getNewKeyLocks().remove(entry.getKey());
                 break;

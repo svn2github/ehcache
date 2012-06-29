@@ -143,31 +143,6 @@ public class ReadCommittedSoftLockImpl implements SoftLock {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object object) {
-        if (object instanceof ReadCommittedSoftLockImpl) {
-            ReadCommittedSoftLockImpl other = (ReadCommittedSoftLockImpl) object;
-
-            if (!key.equals(other.key)) {
-                return false;
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return key.hashCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String toString() {
         return "Soft Lock [clustered: false, isolation: rc, key: " + key + "]";
     }
