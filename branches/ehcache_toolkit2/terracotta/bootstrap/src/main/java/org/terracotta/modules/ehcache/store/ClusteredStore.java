@@ -86,6 +86,7 @@ public class ClusteredStore implements TerracottaStore {
   // non-final private fields
   private EventListenerList                                      listenerList;
   private final CacheEventListener                               evictionListener;
+  private final ToolkitMap<String, Serializable>                 configMap;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     validateConfig(cache);
@@ -95,8 +96,7 @@ public class ClusteredStore implements TerracottaStore {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
 
-    // TODO: fix transactionalMode to be in cluster
-    ToolkitMap<String, Serializable> configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache
+    configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache
         .getCacheManager().getName(), cache.getName());
     CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
     if (transactionalModeTemp == null) {
@@ -410,6 +410,7 @@ public class ClusteredStore implements TerracottaStore {
   public void dispose() {
     backend.removeListener(evictionListener);
     backend.disposeLocally();
+    configMap.disposeLocally();
     cacheConfigChangeBridge.disconnectConfigs();
   }
 
