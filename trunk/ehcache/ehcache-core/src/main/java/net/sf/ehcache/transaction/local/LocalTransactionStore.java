@@ -175,14 +175,14 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     }
 
     /**
-     * Recover and resolve all
-     * @return
+     * Recover and resolve all known soft locks
+     * @return a set of transaction IDs that were recovered
      */
     public Set<TransactionID> recover() {
         Set<TransactionID> allOurTransactionIDs = transactionIdFactory.getAllTransactionIDs();
 
-        Set<TransactionID> recoveryRequired = new HashSet<TransactionID>(allOurTransactionIDs);
-        Iterator<TransactionID> iterator = recoveryRequired.iterator();
+        Set<TransactionID> recoveredIds = new HashSet<TransactionID>(allOurTransactionIDs);
+        Iterator<TransactionID> iterator = recoveredIds.iterator();
         while (iterator.hasNext()) {
             TransactionID transactionId = iterator.next();
             if (!transactionIdFactory.isExpired(transactionId)) {
@@ -190,18 +190,24 @@ public class LocalTransactionStore extends AbstractTransactionStore {
             }
         }
 
-        LOG.debug("recover: {} dead transactions are going to be recovered", recoveryRequired.size());
-        for (TransactionID transactionId : recoveryRequired) {
-            Set<SoftLock> softLocks = softLockManager.collectAllSoftLocksForTransactionID(transactionId);
-            for (SoftLock softLock : softLocks) {
+        LOG.debug("recover: {} dead transactions are going to be recovered", recoveredIds.size());
+        for (TransactionID transactionId : recoveredIds) {
+            Set<SoftLock> softLocks = new HashSet<SoftLock>(softLockManager.collectAllSoftLocksForTransactionID(transactionId));
+            Iterator<SoftLock> softLockIterator = softLocks.iterator();
+            while (softLockIterator.hasNext()) {
+                SoftLock softLock = softLockIterator.next();
                 Element element = underlyingStore.getQuiet(softLock.getKey());
-                SoftLockID softLockId = (SoftLockID)element.getObjectValue();
-                cleanupExpiredSoftLock(element, softLockId);
+                if (element.getObjectValue() instanceof SoftLockID) {
+                    SoftLockID softLockId = (SoftLockID)element.getObjectValue();
+                    cleanupExpiredSoftLock(element, softLockId);
+                } else {
+                    softLockIterator.remove();
+                }
             }
             LOG.debug("recover: recovered {} soft locks from dead transaction with ID [{}]", softLocks.size(), transactionId);
         }
 
-        return recoveryRequired;
+        return recoveredIds;
     }
 
     /* transactional methods */
