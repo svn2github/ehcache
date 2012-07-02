@@ -159,6 +159,8 @@ public class CacheManager {
 
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
+    private static final long LOCAL_TX_RECOVERY_THREAD_JOIN_TIMEOUT = 1000L;
+
     /**
      * Status of the Cache Manager
      */
@@ -215,6 +217,8 @@ public class CacheManager {
     private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile TransactionController transactionController;
+
+    private volatile Thread localTransactionsRecoveryThread;
 
     private final ConcurrentMap<String, SoftLockManager> softLockManagers = new ConcurrentHashMap<String, SoftLockManager>();
 
@@ -470,10 +474,17 @@ public class CacheManager {
         transactionManagerLookup.init();
 
         // start local tx recovery
-        Thread localTransactionsRecoveryThread = new Thread() {
+        localTransactionsRecoveryThread = new Thread() {
             @Override
             public void run() {
-                transactionController.getRecoveryManager().recover();
+                TransactionController ctrl = transactionController;
+                if (ctrl != null) {
+                    try {
+                        ctrl.getRecoveryManager().recover();
+                    } catch (Exception e) {
+                        LOG.warn("local transactions recovery thread failed", e);
+                    }
+                }
             }
         };
         localTransactionsRecoveryThread.setName("ehcache local transactions recovery");
@@ -1394,6 +1405,16 @@ public class CacheManager {
      */
     public void shutdown() {
         synchronized (CacheManager.class) {
+            if (localTransactionsRecoveryThread != null && localTransactionsRecoveryThread.isAlive()) {
+                localTransactionsRecoveryThread.interrupt();
+                try {
+                    localTransactionsRecoveryThread.join(LOCAL_TX_RECOVERY_THREAD_JOIN_TIMEOUT);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            localTransactionsRecoveryThread = null;
+
             if (status.equals(Status.STATUS_SHUTDOWN)) {
                 LOG.debug("CacheManager already shutdown");
                 return;
