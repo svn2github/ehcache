@@ -538,29 +538,12 @@ public class CacheManagerTest {
         URL configUrl = this.getClass().getResource("/ehcache-2.xml");
 
         CacheManager managerOne = CacheManager.create(configUrl);
+        assertFalse(managerOne.getDiskStorePathManager().isAutoCreated());
         try {
             Configuration secondCacheConfiguration = ConfigurationFactory.parseConfiguration(configUrl).name("some-name");
             CacheManager managerTwo = new CacheManager(secondCacheConfiguration);
             try {
-                String intialDiskStorePath = System.getProperty("java.io.tmpdir")
-                        + File.separator + "second";
-
-                File diskStorePathDir = new File(intialDiskStorePath);
-                File[] files = diskStorePathDir.listFiles();
-                File newDiskStorePath = null;
-                boolean newDiskStorePathFound = false;
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        if (file.getName().indexOf(
-                                DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
-                            newDiskStorePathFound = true;
-                            newDiskStorePath = file;
-                            break;
-                        }
-                    }
-                }
-                assertTrue(newDiskStorePathFound);
-                newDiskStorePath.delete();
+                assertTrue(managerTwo.getDiskStorePathManager().isAutoCreated());
             } finally {
                 managerTwo.shutdown();
             }
