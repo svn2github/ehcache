@@ -240,9 +240,9 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private class AsyncClusterListener implements ClusterListener {
     @Override
     public void onClusterEvent(ClusterEvent event, ClusterInfo clusterInfo) {
-      String otherNodeNameListKey = toolkitInstanceFactory.getAsyncNode(name, event.getNode().getId());
       switch (event.getType()) {
         case NODE_LEFT:
+          String otherNodeNameListKey = toolkitInstanceFactory.getAsyncNode(name, event.getNode().getId());
           processOtherNode(otherNodeNameListKey);
           break;
         default:

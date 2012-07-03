@@ -5,8 +5,6 @@ package org.terracotta.modules.ehcache.event;
 
 import org.terracotta.toolkit.cluster.ClusterNode;
 
-import java.net.UnknownHostException;
-
 /**
  * A bridge from ClusterNode in Toolkit to TerracottaNode in Ehcache-space.
  */
@@ -18,24 +16,19 @@ public class TerracottaNodeImpl implements net.sf.ehcache.cluster.ClusterNode {
     this.node = node;
   }
 
+  @Override
   public String getHostname() {
-    try {
       return this.node.getAddress().getHostName();
-    } catch (UnknownHostException e) {
-      return null;
-    }
   }
 
+  @Override
   public String getId() {
     return this.node.getId();
   }
 
+  @Override
   public String getIp() {
-    try {
       return this.node.getAddress().getHostAddress();
-    } catch (UnknownHostException e) {
-      return null;
-    }
   }
 
   @Override

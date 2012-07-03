@@ -678,7 +678,7 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public Element unsafeGet(Object key) {
     Object pKey = generatePortableKeyFor(key);
-    Serializable value = backend.unsafeGet(pKey);
+    Serializable value = backend.unsafeLocalGet(pKey);
     if (value == null) { return null; }
     Element element = this.valueModeHandler.createElement(key, value);
     return element;
