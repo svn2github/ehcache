@@ -376,7 +376,7 @@ public class CacheManager {
             if (featuresManager != null) {
                 featuresManager.dispose();
             }
-            
+
             if (diskStorePathManager != null) {
                 diskStorePathManager.releaseLock();
             }
@@ -684,14 +684,14 @@ public class CacheManager {
         String diskStorePath = configurationHelper.getDiskStorePath();
 
         if (diskStorePath == null) {
-            diskStorePathManager = DiskStorePathManager.createInstance(DiskStoreConfiguration.getDefaultPath());
+            diskStorePathManager = new DiskStorePathManager();
             if (configurationHelper.numberOfCachesThatUseDiskStorage() > 0) {
                 LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured."
                         + " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath()
                         + ". Please explicitly configure the diskStore element in ehcache.xml.");
             }
         } else {
-            diskStorePathManager = DiskStorePathManager.createInstance(diskStorePath);
+            diskStorePathManager = new DiskStorePathManager(diskStorePath);
         }
 
         this.featuresManager = retrieveFeaturesManager();

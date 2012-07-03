@@ -30,7 +30,7 @@ public class RotatingSnapshotFileTest {
 
     @Before
     public void setup() {
-        snapshotFile = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), "test");
+        snapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DIRECTORY), "test");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class RotatingSnapshotFileTest {
     @Test
     public void testStopsOnThreadInterrupted() throws IOException, InterruptedException {
 
-        final RotatingSnapshotFile file = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), "killMe");
+        final RotatingSnapshotFile file = new RotatingSnapshotFile(new DiskStorePathManager(DIRECTORY), "killMe");
         final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
         Set<String> keys = populateWithValues(file, 10000);
         assertThat(file.currentSnapshotFile().exists(), is(true));
@@ -122,7 +122,7 @@ public class RotatingSnapshotFileTest {
     @Test
     public void testFinishesOnThreadInterrupted() throws IOException, InterruptedException {
 
-        final RotatingSnapshotFile file = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DIRECTORY), "killMe");
+        final RotatingSnapshotFile file = new RotatingSnapshotFile(new DiskStorePathManager(DIRECTORY), "killMe");
         final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
         Set<String> keys = populateWithValues(file, 10000);
         assertThat(file.currentSnapshotFile().exists(), is(true));

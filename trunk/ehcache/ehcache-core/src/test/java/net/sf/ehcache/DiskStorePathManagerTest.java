@@ -42,18 +42,33 @@ public class DiskStorePathManagerTest {
     }
 
     @Test
+    public void testDefault() throws Exception {
+        dspm1 = new DiskStorePathManager();
+        dspm1.getFile("foo");
+        assertFalse(dspm1.isAutoCreated());
+        assertTrue(dspm1.isDefault());
+
+        dspm2 = new DiskStorePathManager();
+        dspm2.getFile("foo");
+        assertTrue(dspm2.isAutoCreated());
+        assertFalse(dspm2.isDefault());
+
+        Assert.assertFalse(getDiskStorePath(dspm1).equals(getDiskStorePath(dspm2)));
+    }
+
+    @Test
     public void testCollisionSameThread() throws Exception {
         String diskStorePath = getTempDir("testCollisionSameThread") + "/a/b/c";
 
-        dspm1 = DiskStorePathManager.createInstance(diskStorePath);
+        dspm1 = new DiskStorePathManager(diskStorePath);
         dspm1.getFile("foo");
         assertFalse(dspm1.isAutoCreated());
-        assertTrue(dspm1.usesExplicitlyConfiguredPath());
+        assertFalse(dspm1.isDefault());
 
-        dspm2 = DiskStorePathManager.createInstance(diskStorePath);
+        dspm2 = new DiskStorePathManager(diskStorePath);
         dspm2.getFile("foo");
         assertTrue(dspm2.isAutoCreated());
-        assertFalse(dspm2.usesExplicitlyConfiguredPath());
+        assertFalse(dspm2.isDefault());
 
         Assert.assertFalse(getDiskStorePath(dspm1).equals(getDiskStorePath(dspm2)));
     }
@@ -61,12 +76,12 @@ public class DiskStorePathManagerTest {
     @Test
     public void testCollisionDifferentThread() throws Exception {
         final String diskStorePath = getTempDir("testCollisionDifferentThread");
-        dspm1 = DiskStorePathManager.createInstance(diskStorePath);
+        dspm1 = new DiskStorePathManager(diskStorePath);
         dspm1.getFile("foo");
         Thread newThread = new Thread() {
             @Override
             public void run() {
-                dspm2 = DiskStorePathManager.createInstance(diskStorePath);
+                dspm2 = new DiskStorePathManager(diskStorePath);
                 dspm2.getFile("foo");
             }
         };
@@ -80,7 +95,7 @@ public class DiskStorePathManagerTest {
     public void testIllegalPath() {
         Assume.assumeTrue(System.getProperty("os.name").contains("Windows"));
         String diskStorePath = getTempDir("testIllegalPath") + "/com1";
-        dspm1 = DiskStorePathManager.createInstance(diskStorePath);
+        dspm1 = new DiskStorePathManager(diskStorePath);
         dspm1.getFile("foo");
     }
 

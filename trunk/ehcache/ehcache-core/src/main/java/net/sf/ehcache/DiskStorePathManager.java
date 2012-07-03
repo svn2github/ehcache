@@ -25,6 +25,8 @@ import java.nio.channels.OverlappingFileLockException;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.ehcache.config.DiskStoreConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,8 @@ public final class DiskStorePathManager {
     private static final Set<Character> ILLEGALS = new HashSet<Character>();
 
     private final File initialPath;
+    private final boolean defaultPath;
+
     private volatile DiskStorePath path;
 
     static {
@@ -66,23 +70,56 @@ public final class DiskStorePathManager {
     }
 
     /**
-     * private constructor
-     *
-     * @param initialPath
-     */
-    private DiskStorePathManager(File initialPath) {
-        this.initialPath = initialPath;
-    }
-
-    /**
      * Create a diskstore path manager with provided initial path.
      *
      * @param path
-     *
-     * @return diskstore manager instance
      */
-    public static final DiskStorePathManager createInstance(String path) {
-        return new DiskStorePathManager(new File(path));
+    public DiskStorePathManager(String initialPath) {
+        this.initialPath = new File(initialPath);
+        this.defaultPath = false;
+    }
+
+    /**
+     * Create a diskstore path manager using the default path.
+     */
+    public DiskStorePathManager() {
+        this.initialPath = new File(DiskStoreConfiguration.getDefaultPath());
+        this.defaultPath = true;
+    }
+
+    /**
+     * Resolve and lock this disk store path if the resultant path contains the supplied file.
+     *
+     * @param file file to check for
+     * @return {@code true} if the file existed and the path was successfully locked
+     */
+    public boolean resolveAndLockIfExists(String file) {
+        if (path != null) {
+            return getFile(file).exists();
+        }
+
+        synchronized (this) {
+            if (path != null) {
+                return getFile(file).exists();
+            }
+
+            // ensure disk store path exists
+            if (!initialPath.isDirectory()) {
+                return false;
+            } else if (!new File(initialPath, file).exists()) {
+                return false;
+            } else {
+                try {
+                    path = new DiskStorePath(initialPath, false, defaultPath);
+                } catch (DiskstoreNotExclusiveException e) {
+                    throw new CacheException(e);
+                }
+
+                LOG.debug("Using diskstore path {}", path.getDiskStorePath());
+                LOG.debug("Holding exclusive lock on {}", path.getLockFile());
+                return true;
+            }
+        }
     }
 
     private void resolveAndLockIfNeeded(boolean allowAutoCreate) throws DiskstoreNotExclusiveException {
@@ -105,7 +142,7 @@ public final class DiskStorePathManager {
                 }
 
                 try {
-                    path = new DiskStorePath(candidate, autoCreated);
+                    path = new DiskStorePath(candidate, autoCreated, !autoCreated && defaultPath);
                     break;
                 } catch (DiskstoreNotExclusiveException e) {
                     if (!allowAutoCreate) { throw e; }
@@ -162,19 +199,7 @@ public final class DiskStorePathManager {
     }
 
     /**
-     * Is the disk store path in use the result of an explicit configuration setting *and* that setting was honored
-     */
-    public boolean usesExplicitlyConfiguredPath() {
-        DiskStorePath diskStorePath = path;
-        if (diskStorePath == null) {
-            throw new IllegalStateException();
-        }
-
-        return diskStorePath.getDiskStorePath().equals(initialPath);
-    }
-
-    /**
-     * Was this path auto-created (ie. result of collision or implicit config)
+     * Was this path auto-created (ie. the result of a collision)
      *
      * @return true if path is auto created
      */
@@ -185,6 +210,20 @@ public final class DiskStorePathManager {
         }
 
         return diskStorePath.isAutoCreated();
+    }
+
+    /**
+     * Was this path sourced from the default value.
+     *
+     * @return true if path is the default
+     */
+    public boolean isDefault() {
+        DiskStorePath diskStorePath = path;
+        if (diskStorePath == null) {
+            throw new IllegalStateException();
+        }
+
+        return diskStorePath.isDefault();
     }
 
     /**
@@ -268,10 +307,12 @@ public final class DiskStorePathManager {
         private final File lockFile;
         private final File diskStorePath;
         private final boolean autoCreated;
+        private final boolean defaultPath;
 
-        DiskStorePath(File path, boolean autoCreated) throws DiskstoreNotExclusiveException {
+        DiskStorePath(File path, boolean autoCreated, boolean defaultPath) throws DiskstoreNotExclusiveException {
             this.diskStorePath = path;
             this.autoCreated = autoCreated;
+            this.defaultPath = defaultPath;
 
             lockFile = new File(path.getAbsoluteFile(), LOCK_FILE_NAME);
             lockFile.deleteOnExit();
@@ -299,6 +340,10 @@ public final class DiskStorePathManager {
 
         boolean isAutoCreated() {
             return autoCreated;
+        }
+
+        boolean isDefault() {
+            return defaultPath;
         }
 
         File getDiskStorePath() {
