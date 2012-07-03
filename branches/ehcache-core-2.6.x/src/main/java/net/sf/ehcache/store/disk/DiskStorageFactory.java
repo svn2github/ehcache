@@ -125,10 +125,9 @@ public class DiskStorageFactory {
     public DiskStorageFactory(Ehcache cache, RegisteredEventListeners cacheEventNotificationService) {
         this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
         this.file = diskStorePathManager.getFile(cache.getName(), ".data");
-        // if diskpath contains auto generated string
-        if (file.getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-            LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories" + " (they start with "
-                    + DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
+
+        if (diskStorePathManager.isAutoCreated()) {
+            LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories.\n"
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n" + "Deleting data file "
                     + file.getAbsolutePath());
             deleteFile(file);
@@ -955,7 +954,7 @@ public class DiskStorageFactory {
 
         try {
             shutdown();
-            if (getDataFile().getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            if (diskStorePathManager.isAutoCreated()) {
                 deleteFile(indexFile);
                 delete();
             }

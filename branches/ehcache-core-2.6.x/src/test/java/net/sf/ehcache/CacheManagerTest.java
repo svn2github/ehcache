@@ -495,34 +495,21 @@ public class CacheManagerTest {
      */
     @Test
     public void testCreateTwoCacheManagersWithSamePath() throws CacheException {
-        URL configUrl = this.getClass().getResource(
-                "/ehcache-2.xml");
+        URL configUrl = this.getClass().getResource("/ehcache-2.xml");
 
-        singletonManager = CacheManager.create(configUrl);
-        Configuration secondCacheConfiguration = ConfigurationFactory.parseConfiguration(configUrl).name("some-name");
-        instanceManager = new CacheManager(secondCacheConfiguration);
-
-        String intialDiskStorePath = System.getProperty("java.io.tmpdir")
-                + File.separator + "second";
-
-        File diskStorePathDir = new File(intialDiskStorePath);
-        File[] files = diskStorePathDir.listFiles();
-        File newDiskStorePath = null;
-        boolean newDiskStorePathFound = false;
-        for (File file : files) {
-            if (file.isDirectory()) {
-                if (file.getName().indexOf(
-                        DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX) != -1) {
-                    newDiskStorePathFound = true;
-                    newDiskStorePath = file;
-                    break;
-                }
+        CacheManager managerOne = CacheManager.create(configUrl);
+        assertFalse(managerOne.getDiskStorePathManager().isAutoCreated());
+        try {
+            Configuration secondCacheConfiguration = ConfigurationFactory.parseConfiguration(configUrl).name("some-name");
+            CacheManager managerTwo = new CacheManager(secondCacheConfiguration);
+            try {
+                assertTrue(managerTwo.getDiskStorePathManager().isAutoCreated());
+            } finally {
+                managerTwo.shutdown();
             }
-        }
-        assertTrue(newDiskStorePathFound);
-        newDiskStorePath.delete();
-        instanceManager.shutdown();
-
+        } finally {
+	    managerOne.shutdown();
+	}
     }
 
     /**

@@ -67,7 +67,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
         this.doKeySnapshot = doKeySnapshot;
         this.doKeySnapshotOnDedicatedThread = doKeySnapshotOnDedicatedThread;
         this.interval = interval;
-        this.diskStorePathManager = directory != null ? DiskStorePathManager.createInstance(directory) : null;
+        this.diskStorePathManager = directory != null ? new DiskStorePathManager(directory) : null;
     }
 
     /**
