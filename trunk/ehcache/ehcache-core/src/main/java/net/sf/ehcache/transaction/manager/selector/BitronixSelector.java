@@ -50,8 +50,8 @@ public class BitronixSelector extends FactorySelector {
 
             Class producerClass = ClassLoaderUtil.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
 
-            Class[] signature = new Class[] { String.class, XAResource.class };
-            Object[] args = new Object[] { uniqueName, ehcacheXAResource };
+            Class[] signature = new Class[] {String.class, XAResource.class};
+            Object[] args = new Object[] {uniqueName, ehcacheXAResource};
             Method method = producerClass.getMethod("registerXAResource", signature);
             method.invoke(null, args);
         } catch (Exception e) {
@@ -68,8 +68,8 @@ public class BitronixSelector extends FactorySelector {
         try {
             Class producerClass = ClassLoaderUtil.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
 
-            Class[] signature = new Class[] { String.class, XAResource.class };
-            Object[] args = new Object[] { uniqueName, ehcacheXAResource };
+            Class[] signature = new Class[] {String.class, XAResource.class};
+            Object[] args = new Object[] {uniqueName, ehcacheXAResource};
             Method method = producerClass.getMethod("unregisterXAResource", signature);
             method.invoke(null, args);
         } catch (Exception e) {

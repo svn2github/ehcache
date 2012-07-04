@@ -69,8 +69,7 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
     private final JndiSelector defaultJndiSelector = new GenericJndiSelector();
 
-    private final Selector[] transactionManagerSelectors = new Selector[] {
-        defaultJndiSelector,
+    private final Selector[] transactionManagerSelectors = new Selector[] {defaultJndiSelector,
         new GlassfishSelector(),
         new WeblogicSelector(),
         new BitronixSelector(),
@@ -120,11 +119,11 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
 
     private void lookupTransactionManager() {
-        for (Selector selector : transactionManagerSelectors) {
-            TransactionManager transactionManager = selector.getTransactionManager();
+        for (Selector s : transactionManagerSelectors) {
+            TransactionManager transactionManager = s.getTransactionManager();
             if (transactionManager != null) {
-                this.selector = selector;
-                LOG.debug("Found TransactionManager for {}", selector.getVendor());
+                this.selector = s;
+                LOG.debug("Found TransactionManager for {}", s.getVendor());
                 return;
             }
         }

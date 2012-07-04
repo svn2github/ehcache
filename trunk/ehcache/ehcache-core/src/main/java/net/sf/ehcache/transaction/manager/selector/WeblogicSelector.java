@@ -45,7 +45,6 @@ public class WeblogicSelector extends FactorySelector {
      */
     @Override
     public void registerResource(EhcacheXAResource ehcacheXAResource, boolean forRecovery) {
-        System.out.println("*** registering " + ehcacheXAResource + " - for recovery? " + forRecovery);
         if (!forRecovery) {
             return;
         }
@@ -68,7 +67,6 @@ public class WeblogicSelector extends FactorySelector {
      */
     @Override
     public void unregisterResource(final EhcacheXAResource ehcacheXAResource, final boolean forRecovery) {
-        System.out.println("*** unregistering " + ehcacheXAResource + " - for recovery? " + forRecovery);
         if (!forRecovery) {
             return;
         }
