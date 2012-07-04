@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
 import org.terracotta.modules.ehcache.async.errorhandlers.LoggingErrorHandler;
-import org.terracotta.modules.ehcache.async.exceptions.ExistingRunningThreadException;
+import org.terracotta.modules.ehcache.async.exceptions.ProcessingBucketAlreadyStartedException;
 import org.terracotta.modules.ehcache.async.scatterpolicies.HashCodeScatterPolicy;
 import org.terracotta.modules.ehcache.async.scatterpolicies.ItemScatterPolicy;
 import org.terracotta.modules.ehcache.async.scatterpolicies.SingleBucketScatterPolicy;
@@ -40,6 +40,10 @@ import java.util.concurrent.locks.Lock;
 public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordinator<E> {
   private static final Logger                          LOGGER    = LoggerFactory.getLogger(AsyncCoordinatorImpl.class
                                                                      .getName());
+  private static final String                          HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME = "com.tc.async.honorWorkDelayForProcessingDeadNodes";
+  // will be false by default
+  private final boolean                                HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES = Boolean
+                                                                                                                .getBoolean(HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME);
   private static final String                          BUCKET    = "bucket";
   private static final String                          DELIMITER = ToolkitInstanceFactoryImpl.DELIMITER;
   private final String                                 name;
@@ -140,12 +144,16 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       lock.unlock();
     }
 
+    processDeadNodes();
+
+  }
+
+  private void processDeadNodes() {
     // checking if there are any dead nodes and starting threads for those buckets also
     Set<String> deadNodes = determineDeadNodes();
     for (String otherNodeNameListKey : deadNodes) {
       processOtherNode(otherNodeNameListKey);
     }
-
   }
 
   private Callable<Boolean> removeOnDestroy(final List<ProcessingBucket<E>> list, final ProcessingBucket<E> bucket) {
@@ -160,7 +168,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private void startBucket(ProcessingBucket<E> bucket, boolean workingOnDeadBucket) {
     try {
       bucket.start(workingOnDeadBucket);
-    } catch (ExistingRunningThreadException e) {
+    } catch (ProcessingBucketAlreadyStartedException e) {
       stop();
       throw new IllegalStateException(bucket.getBucketName() + " already started for AsyncCoordinator " + name);
     }
@@ -253,6 +261,18 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   }
 
   private void processOtherNode(String otherNodeNameListKey) {
+    AsyncConfig deadNodeProcessingConfig = new AsyncConfigAdapter(config) {
+
+      @Override
+      public long getWorkDelay() {
+        if (HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES) {
+          return super.getWorkDelay();
+        } else {
+          return 0;
+        }
+      }
+
+    };
     Lock lock = coordinatorLock;
     lock.lock();
     try {
@@ -262,8 +282,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         if (oldNameList != null) {
           for (String bucketName : oldNameList) {
             ToolkitList<E> toolkitList = toolkit.getList(bucketName);
-            ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
-                                                                 LoggingErrorHandler.getInstance());
+            ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, deadNodeProcessingConfig, toolkitList,
+                                                                 cluster, processor, LoggingErrorHandler.getInstance());
             bucket.setDestroyCallback(removeOnDestroy(deadBuckets, bucket));
             bucket.setItemsFilter(filter);
             deadBuckets.add(bucket);

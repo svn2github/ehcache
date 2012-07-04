@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.async.errorhandlers.AsyncErrorHandler;
 import org.terracotta.modules.ehcache.async.exceptions.BusyProcessingException;
-import org.terracotta.modules.ehcache.async.exceptions.ExistingRunningThreadException;
+import org.terracotta.modules.ehcache.async.exceptions.ProcessingBucketAlreadyStartedException;
 import org.terracotta.modules.ehcache.async.exceptions.ProcessingException;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.collections.ToolkitList;
@@ -90,7 +90,7 @@ public class ProcessingBucket<E extends Serializable> {
     return System.currentTimeMillis() - baselineTimestamp;
   }
 
-  void start(boolean workingOnDeadBucket) throws ExistingRunningThreadException {
+  void start(boolean workingOnDeadBucket) throws ProcessingBucketAlreadyStartedException {
     Lock lock = bucketWriteLock;
     lock.lock();
     try {
@@ -103,8 +103,8 @@ public class ProcessingBucket<E extends Serializable> {
     }
   }
 
-  private void ensureNonExistingThread() throws ExistingRunningThreadException {
-    if (processingWorker != null && processingWorker.isWorking()) { throw new ExistingRunningThreadException(
+  private void ensureNonExistingThread() throws ProcessingBucketAlreadyStartedException {
+    if (processingWorker != null && processingWorker.isWorking()) { throw new ProcessingBucketAlreadyStartedException(
                                                                                                              processingWorker); }
   }
 

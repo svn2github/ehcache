@@ -14,6 +14,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
+ * Serialized representation of net.sf.ehcache.Element
+ * 
  * @author Nishant
  */
 public class ElementData implements Externalizable, TimestampedValue {
