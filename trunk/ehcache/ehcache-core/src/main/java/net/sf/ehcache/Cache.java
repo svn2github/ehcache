@@ -1223,7 +1223,7 @@ public class Cache implements InternalEhcache, StoreListener {
             // this xaresource is for initial registration and recovery
             xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
                     softLockManager, transactionIDFactory, copyStrategy);
-            transactionManagerLookup.register(xaResource);
+            transactionManagerLookup.register(xaResource, true);
 
             wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, clusteredStore,
                     copyStrategy);
@@ -2475,8 +2475,9 @@ public class Cache implements InternalEhcache, StoreListener {
             compoundStore = null;
         }
 
+        // unregister xa resource from recovery
         if (xaResource != null) {
-            transactionManagerLookup.unregister(xaResource);
+            transactionManagerLookup.unregister(xaResource, true);
             xaResource = null;
         }
 

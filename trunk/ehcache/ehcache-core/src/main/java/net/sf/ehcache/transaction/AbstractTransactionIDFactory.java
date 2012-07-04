@@ -45,6 +45,9 @@ public abstract class AbstractTransactionIDFactory implements TransactionIDFacto
     public void markForCommit(TransactionID transactionID) {
         while (true) {
             Decision current = getTransactionStates().get(transactionID);
+            if (current == null) {
+                throw new TransactionIDNotFoundException("transaction state of transaction ID [" + transactionID + "] already cleaned up");
+            }
             switch (current) {
                 case IN_DOUBT:
                     if (getTransactionStates().replace(transactionID, Decision.IN_DOUBT, Decision.COMMIT)) {
@@ -68,6 +71,9 @@ public abstract class AbstractTransactionIDFactory implements TransactionIDFacto
     public void markForRollback(XidTransactionID transactionID) {
         while (true) {
             Decision current = getTransactionStates().get(transactionID);
+            if (current == null) {
+                throw new TransactionIDNotFoundException("transaction state of transaction ID [" + transactionID + "] already cleaned up");
+            }
             switch (current) {
                 case IN_DOUBT:
                     if (getTransactionStates().replace(transactionID, Decision.IN_DOUBT, Decision.ROLLBACK)) {

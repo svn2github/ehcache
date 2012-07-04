@@ -133,7 +133,7 @@ public class XATransactionStore extends AbstractTransactionStore {
             XATransactionContext transactionContext = xaResource.getCurrentTransactionContext();
 
             if (transactionContext == null) {
-                transactionManagerLookup.register(xaResource);
+                transactionManagerLookup.register(xaResource, false);
                 LOG.debug("creating new XA context");
                 transactionContext = xaResource.createTransactionContext();
                 xaResource.addTwoPcExecutionListener(new UnregisterXAResource());
@@ -156,7 +156,7 @@ public class XATransactionStore extends AbstractTransactionStore {
             XATransactionContext transactionContext = xaResource.getCurrentTransactionContext();
 
             if (transactionContext == null) {
-                transactionManagerLookup.register(xaResource);
+                transactionManagerLookup.register(xaResource, false);
                 LOG.debug("creating new XA context");
                 transactionContext = xaResource.createTransactionContext();
                 xaResource.addTwoPcExecutionListener(new UnregisterXAResource());
@@ -221,7 +221,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         }
 
         public void afterCommitOrRollback(EhcacheXAResource xaResource) {
-            transactionManagerLookup.unregister(xaResource);
+            transactionManagerLookup.unregister(xaResource, false);
         }
     }
 

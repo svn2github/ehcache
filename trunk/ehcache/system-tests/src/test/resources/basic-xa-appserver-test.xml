@@ -14,7 +14,7 @@
         memoryStoreEvictionPolicy="LRU"
         />
 
-    <transactionManagerLookup class="org.terracotta.ehcache.tests.container.MultiAppServerTransactionManagerLookup"/>
+    <transactionManagerLookup class="net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup"/>
 
     <cache name="test"
         maxElementsInMemory="500"
