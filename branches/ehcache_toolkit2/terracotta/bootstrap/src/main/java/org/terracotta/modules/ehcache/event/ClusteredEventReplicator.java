@@ -23,7 +23,7 @@ public class ClusteredEventReplicator implements CacheEventListener {
                                                                    .getLogger(ClusteredEventReplicator.class);
   private final ToolkitNotifier<CacheEventNotificationMsg> toolkitNotifier;
   private final String                                     fullyQualifiedEhcacheName;
-  private final Ehcache                                    cache2;
+  private final Ehcache                                    cache;
   private final ClusteredEventReplicatorFactory            factory;
   private final ToolkitListener                            toolkitListener;
 
@@ -31,7 +31,7 @@ public class ClusteredEventReplicator implements CacheEventListener {
                                   ToolkitNotifier<CacheEventNotificationMsg> toolkitNotifier,
                                   ClusteredEventReplicatorFactory factory) {
     this.fullyQualifiedEhcacheName = fullyQualifiedEhcacheName;
-    this.cache2 = cache;
+    this.cache = cache;
     this.toolkitNotifier = toolkitNotifier;
     toolkitListener = new ToolkitListener();
     this.toolkitNotifier.addNotificationListener(toolkitListener);
@@ -99,7 +99,7 @@ public class ClusteredEventReplicator implements CacheEventListener {
     }
 
     private void processEventNotification(CacheEventNotificationMsg msg) {
-      RegisteredEventListeners notificationService = cache2.getCacheEventNotificationService();
+      RegisteredEventListeners notificationService = cache.getCacheEventNotificationService();
       switch (msg.getToolkitEventType()) {
         case ELEMENT_REMOVED:
           notificationService.notifyElementRemoved(msg.getElement(), true);
@@ -118,9 +118,6 @@ public class ClusteredEventReplicator implements CacheEventListener {
           break;
         case REMOVEALL:
           notificationService.notifyRemoveAll(true);
-          break;
-        case DISPOSE:
-          notificationService.dispose();
           break;
       }
     }

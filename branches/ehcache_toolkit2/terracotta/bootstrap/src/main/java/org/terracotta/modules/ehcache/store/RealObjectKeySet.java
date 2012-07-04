@@ -59,18 +59,19 @@ class RealObjectKeySet extends AbstractSet {
     private void advance() {
       next = NO_OBJECT;
 
-      while (keysIterator.hasNext()) {
+      if (keysIterator.hasNext()) {
         final Object real;
         real = mode.getRealKeyObject((String) keysIterator.next());
         next = real;
-        return;
       }
     }
 
+    @Override
     public boolean hasNext() {
       return next != NO_OBJECT;
     }
 
+    @Override
     public Object next() {
       Object rv = next;
       if (rv == NO_OBJECT) { throw new NoSuchElementException(); }
@@ -78,6 +79,7 @@ class RealObjectKeySet extends AbstractSet {
       return rv;
     }
 
+    @Override
     public void remove() {
       throw new UnsupportedOperationException();
     }

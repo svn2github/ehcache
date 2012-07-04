@@ -15,11 +15,11 @@ public class ClusteredTransactionID implements TransactionID, ClusteredID {
 
   private static final AtomicInteger idGenerator = new AtomicInteger();
 
-  private final String clusterUUID;
+  private final String               clusterUUID;
   private final String               ownerID;
-  private final String cacheManagerName;
-  private final long creationTime;
-  private final int id;
+  private final String               cacheManagerName;
+  private final long                 creationTime;
+  private final int                  id;
 
   ClusteredTransactionID(String ownerId, String clusterUUID, String cacheManagerName) {
     this.clusterUUID = clusterUUID;
@@ -46,9 +46,7 @@ public class ClusteredTransactionID implements TransactionID, ClusteredID {
   public final boolean equals(Object obj) {
     if (obj instanceof ClusteredTransactionID) {
       ClusteredTransactionID otherId = (ClusteredTransactionID) obj;
-      return id == otherId.id &&
-              clusterUUID.equals(otherId.clusterUUID) &&
-              creationTime == otherId.creationTime;
+      return id == otherId.id && clusterUUID.equals(otherId.clusterUUID) && creationTime == otherId.creationTime;
     }
     return false;
   }
@@ -60,7 +58,7 @@ public class ClusteredTransactionID implements TransactionID, ClusteredID {
 
   @Override
   public String toString() {
-    return id + ":" + creationTime + "@" + clusterUUID;
+    return id + ":" + ownerID + ":" + creationTime + "@" + clusterUUID;
   }
 
   private Object writeReplace() {

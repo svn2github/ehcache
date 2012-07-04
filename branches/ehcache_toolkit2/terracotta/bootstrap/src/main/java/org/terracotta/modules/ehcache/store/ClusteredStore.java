@@ -223,7 +223,7 @@ public class ClusteredStore implements TerracottaStore {
   private synchronized EventListenerList getEventListenerList() {
     if (listenerList == null) {
       listenerList = new EventListenerList();
-      // TODO: register for event listener
+      // TODO: do we still need to support sending notifications when bulk-load turns on/off
     }
     return listenerList;
   }
@@ -515,12 +515,14 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public Policy getInMemoryEvictionPolicy() {
-    return null;
+    // memory store eviction policy not configurable for clustered stores
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void setInMemoryEvictionPolicy(Policy policy) {
-    //
+    // memory store eviction policy not configurable for clustered stores
+    throw new UnsupportedOperationException();
   }
 
   @Override

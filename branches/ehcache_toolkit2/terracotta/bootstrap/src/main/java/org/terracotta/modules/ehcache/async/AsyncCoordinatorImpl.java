@@ -332,7 +332,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     Lock lock = coordinatorLock;
     lock.lock();
     try {
-      status.checkRunning();
+      getStatus().checkRunning();
       long size = 0;
       for (ProcessingBucket<E> bucket : localBuckets) {
         size += bucket.getWaitCount();

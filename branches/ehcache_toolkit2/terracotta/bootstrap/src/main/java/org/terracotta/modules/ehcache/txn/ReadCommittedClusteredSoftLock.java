@@ -12,47 +12,37 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 
-import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 
 /**
  * @author Ludovic Orban
  */
-public class ReadCommittedClusteredSoftLock implements SoftLock, Serializable {
+public class ReadCommittedClusteredSoftLock implements SoftLock {
 
-  private final TransactionID                             transactionID;
-  private final Object                                    deserializedKey;
-  private transient ReadCommittedClusteredSoftLockFactory factory;
-  private transient ToolkitLock                           lock;
-  private transient ToolkitReadWriteLock                  freezeLock;
-  private transient ToolkitReadWriteLock                  notificationLock;
-  private transient Condition                             notifier;
-  private transient boolean                               expired;
-  private transient volatile boolean                      initialized;
+  private final TransactionID                         transactionID;
+  private final Object                                deserializedKey;
+  private final ReadCommittedClusteredSoftLockFactory factory;
+  private final ToolkitLock                           lock;
+  private final ToolkitReadWriteLock                  freezeLock;
+  private final ToolkitReadWriteLock                  notificationLock;
+  private final Condition                             notifier;
+  private boolean                                     expired;
 
   ReadCommittedClusteredSoftLock(ToolkitInstanceFactory toolkitInstanceFactory,
                                  ReadCommittedClusteredSoftLockFactory factory, TransactionID transactionID, Object key) {
     this.deserializedKey = key;
     this.transactionID = transactionID;
-    initializeTransients(toolkitInstanceFactory, factory);
-  }
-
-  public synchronized void initializeTransients(ToolkitInstanceFactory toolkitInstanceFactory,
-                                   ReadCommittedClusteredSoftLockFactory factoryParam) {
-    if (!initialized) {
-      this.factory = factoryParam;
-      String cacheManagerName = factory.getCacheManagerName();
-      String cacheName = factory.getCacheName();
-      this.lock = toolkitInstanceFactory.getSoftLockWriteLock(cacheManagerName, cacheName, transactionID,
-                                                              deserializedKey);
-      this.freezeLock = toolkitInstanceFactory.getSoftLockFreezeLock(cacheManagerName, cacheName, transactionID,
-                                                                     deserializedKey);
-      this.notificationLock = toolkitInstanceFactory.getSoftLockNotifierLock(cacheManagerName, cacheName,
-                                                                             transactionID, deserializedKey);
-      this.notifier = notificationLock.writeLock().getCondition();
-      this.initialized = true;
-    }
+    this.factory = factory;
+    String cacheManagerName = factory.getCacheManagerName();
+    String cacheName = factory.getCacheName();
+    this.lock = toolkitInstanceFactory
+        .getSoftLockWriteLock(cacheManagerName, cacheName, transactionID, deserializedKey);
+    this.freezeLock = toolkitInstanceFactory.getSoftLockFreezeLock(cacheManagerName, cacheName, transactionID,
+                                                                   deserializedKey);
+    this.notificationLock = toolkitInstanceFactory.getSoftLockNotifierLock(cacheManagerName, cacheName, transactionID,
+                                                                           deserializedKey);
+    this.notifier = notificationLock.writeLock().getCondition();
   }
 
   @Override

@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class CacheEventNotificationMsg implements Serializable {
 
   public enum EventType {
-    ELEMENT_REMOVED, ELEMENT_PUT, ELEMENT_UPDATED, ELEMENT_EXPIRED, ELEMENT_EVICTED, REMOVEALL, DISPOSE
+    ELEMENT_REMOVED, ELEMENT_PUT, ELEMENT_UPDATED, ELEMENT_EXPIRED, ELEMENT_EVICTED, REMOVEALL
   }
 
   private final String    fullyQualifiedEhcacheName;

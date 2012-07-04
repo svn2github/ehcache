@@ -18,7 +18,7 @@ import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
-import org.terracotta.modules.ehcache.txn.ReadCommittedClusteredSoftLock;
+import org.terracotta.modules.ehcache.txn.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.client.ToolkitClient;
 import org.terracotta.toolkit.client.ToolkitClientBuilderFactory;
@@ -220,19 +220,19 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
+  public ToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
                                                                                                       String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    ToolkitMap<String, ReadCommittedClusteredSoftLock> map = toolkit
+    ToolkitMap<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
         .getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX, config);
-    return new SerializedToolkitMap<ClusteredSoftLockIDKey, ReadCommittedClusteredSoftLock>(map);
+    return new SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
 
   }
 
   @Override
-  public ToolkitList<ReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
+  public ToolkitList<SerializedReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
                                                                                 String cacheName) {
     return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                            + NEW_SOFT_LOCKS_LIST_SUFFIX);

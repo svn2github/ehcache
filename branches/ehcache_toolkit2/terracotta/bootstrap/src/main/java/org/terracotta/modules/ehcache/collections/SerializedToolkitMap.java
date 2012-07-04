@@ -25,6 +25,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An implementation of {@link ToolkitMap} that supports serializable keys
+ */
 public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitMap<K, V> {
   private final ToolkitMap<String, V> toolkitMap;
 
