@@ -15,8 +15,6 @@
  */
 package net.sf.ehcache.transaction.manager;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,13 +22,18 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAResource;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.transaction.manager.selector.AtomikosSelector;
+import net.sf.ehcache.transaction.manager.selector.BitronixSelector;
+import net.sf.ehcache.transaction.manager.selector.GenericJndiSelector;
+import net.sf.ehcache.transaction.manager.selector.GlassfishSelector;
+import net.sf.ehcache.transaction.manager.selector.JndiSelector;
+import net.sf.ehcache.transaction.manager.selector.NullSelector;
+import net.sf.ehcache.transaction.manager.selector.Selector;
+import net.sf.ehcache.transaction.manager.selector.WeblogicSelector;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
-import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +44,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * This implementation will:
  * <ol>
- * <li>try lookup an {@link javax.naming.InitialContext};
- * <li>if successful, lookup a TransactionManager under java:/TransactionManager, this location can be overridden;
- * <li>if it failed, or couldn't find {@link javax.transaction.TransactionManager} instance, look for a Bitronix TransactionManager;
- * <li>and finally an Atomikos one.
+ * <li>lookup a TransactionManager under java:/TransactionManager, this location can be overridden;
+ * <li>if it failed, lookup for a Glassfish transaction manager;
+ * <li>if it failed, lookup for a Weblogic transaction manager;
+ * <li>if it failed, look for a Bitronix TransactionManager;
+ * <li>and if it failed, finally an Atomikos one.
  * </ol>
  *
  * To specify under what specific name the TransactionManager is to be found, you can provide a jndiName property using
@@ -58,19 +62,19 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultTransactionManagerLookup.class.getName());
 
-    private transient TransactionManager transactionManager;
-    private transient String vendor = "";
-    private transient Properties properties = new Properties();
     private final Lock lock = new ReentrantLock();
     private final List<EhcacheXAResource> uninitializedEhcacheXAResources = new ArrayList<EhcacheXAResource>();
     private volatile boolean initialized = false;
+    private volatile Selector selector;
 
-    private final JndiSelector defaultJndiSelector = new JndiSelector("genericJNDI", "java:/TransactionManager");
+    private final JndiSelector defaultJndiSelector = new GenericJndiSelector();
 
     private final Selector[] transactionManagerSelectors = new Selector[] {defaultJndiSelector,
-            new JndiSelector("Weblogic", "javax.transaction.TransactionManager"),
-            new FactorySelector("Bitronix", "bitronix.tm.TransactionManagerServices"),
-            new ClassSelector("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager")};
+        new GlassfishSelector(),
+        new WeblogicSelector(),
+        new BitronixSelector(),
+        new AtomikosSelector()
+    };
 
     /**
      * {@inheritDoc}
@@ -81,8 +85,11 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             try {
                 Iterator<EhcacheXAResource> iterator = uninitializedEhcacheXAResources.iterator();
                 while (iterator.hasNext()) {
+                    if (getTransactionManager() == null) {
+                        throw new CacheException("No Transaction Manager could be located, cannot initialize DefaultTransactionManagerLookup");
+                    }
                     EhcacheXAResource resource = iterator.next();
-                    registerInternal(resource);
+                    selector.registerResource(resource, true);
                     iterator.remove();
                 }
             } finally {
@@ -93,32 +100,43 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
     }
 
     /**
-
-    /**
      * Lookup available txnManagers
      *
      * @return TransactionManager
      */
     public TransactionManager getTransactionManager() {
-        if (transactionManager == null) {
+        if (selector == null) {
             lock.lock();
             try {
-                if (transactionManager == null) {
+                if (selector == null) {
                     lookupTransactionManager();
                 }
             } finally {
                 lock.unlock();
             }
         }
-        return transactionManager;
+        return selector.getTransactionManager();
+    }
+
+    private void lookupTransactionManager() {
+        for (Selector s : transactionManagerSelectors) {
+            TransactionManager transactionManager = s.getTransactionManager();
+            if (transactionManager != null) {
+                this.selector = s;
+                LOG.debug("Found TransactionManager for {}", s.getVendor());
+                return;
+            }
+        }
+        this.selector = new NullSelector();
+        LOG.debug("Found no TransactionManager");
     }
 
     /**
      * {@inheritDoc}
      */
-    public void register(EhcacheXAResource resource) {
+    public void register(EhcacheXAResource resource, boolean forRecovery) {
         if (initialized) {
-            registerInternal(resource);
+            selector.registerResource(resource, forRecovery);
         } else {
             lock.lock();
             try {
@@ -129,20 +147,12 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         }
     }
 
-    private void registerInternal(final EhcacheXAResource resource) {
-        if (vendor.equals("Bitronix")) {
-            registerResourceWithBitronix(resource.getCacheName(), resource);
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
-    public void unregister(EhcacheXAResource resource) {
+    public void unregister(EhcacheXAResource resource, boolean forRecovery) {
         if (initialized) {
-            if (vendor.equals("Bitronix")) {
-                unregisterResourceWithBitronix(resource.getCacheName(), resource);
-            }
+            selector.unregisterResource(resource, forRecovery);
         } else {
             lock.lock();
             try {
@@ -164,187 +174,11 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
      * {@inheritDoc}
      */
     public void setProperties(Properties properties) {
-        this.properties = properties;
-        parseProperties();
-    }
-
-    private void parseProperties() {
-        if (this.properties != null) {
-            String jndiName = this.properties.getProperty("jndiName");
+        if (properties != null) {
+            String jndiName = properties.getProperty("jndiName");
             if (jndiName != null) {
                 defaultJndiSelector.setJndiName(jndiName);
             }
-        }
-    }
-
-    private void registerResourceWithBitronix(String uniqueName, EhcacheXAResource resource) {
-        try {
-            // This requires BTM 2.0.0 at least
-            Class producerClass = ClassLoaderUtil.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
-
-            Class[] signature = new Class[] {String.class, XAResource.class};
-            Object[] args = new Object[] {uniqueName, resource};
-            Method method = producerClass.getMethod("registerXAResource", signature);
-            method.invoke(null, args);
-        } catch (Exception e) {
-            LOG.error("unable to register resource of cache " + uniqueName + " with BTM", e);
-        }
-    }
-
-    private void unregisterResourceWithBitronix(String uniqueName, EhcacheXAResource resource) {
-        try {
-            // This requires BTM 2.0.0 at least
-            Class producerClass = ClassLoaderUtil.loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
-
-            Class[] signature = new Class[] {String.class, XAResource.class};
-            Object[] args = new Object[] {uniqueName, resource};
-            Method method = producerClass.getMethod("unregisterXAResource", signature);
-            method.invoke(null, args);
-        } catch (Exception e) {
-            LOG.error("unable to unregister resource of cache " + uniqueName + " with BTM", e);
-        }
-    }
-
-    private void lookupTransactionManager() {
-        InitialContext context = null;
-        try {
-            context = new InitialContext();
-        } catch (NamingException e) {
-            LOG.debug("Couldn't create an InitialContext", e);
-        }
-
-        for (Selector selector : transactionManagerSelectors) {
-            this.transactionManager = selector.lookup(context);
-            if (this.transactionManager != null) {
-                this.vendor = selector.getVendor();
-                LOG.debug("Found TransactionManager for {}", vendor);
-                return;
-            }
-        }
-
-        LOG.warn("No TransactionManager located!");
-    }
-
-    /**
-     *
-     */
-    private abstract static class Selector {
-
-        private final String vendor;
-
-        protected Selector(final String vendor) {
-            this.vendor = vendor;
-        }
-
-        public String getVendor() {
-            return vendor;
-        }
-
-        protected abstract TransactionManager lookup(InitialContext initialContext);
-    }
-
-    /**
-     *
-     */
-    private static final class JndiSelector extends Selector {
-
-        private volatile String jndiName;
-
-        private JndiSelector(final String vendor, final String jndiName) {
-            super(vendor);
-            this.jndiName = jndiName;
-        }
-
-        public String getJndiName() {
-            return jndiName;
-        }
-
-        public void setJndiName(final String jndiName) {
-            this.jndiName = jndiName;
-        }
-
-        @Override
-        protected TransactionManager lookup(InitialContext initialContext) {
-
-            if (initialContext == null) {
-                return null;
-            }
-
-            Object jndiObject;
-            try {
-                jndiObject = initialContext.lookup(getJndiName());
-                if (jndiObject instanceof TransactionManager) {
-                    return (TransactionManager) jndiObject;
-                }
-            } catch (NamingException e) {
-                LOG.debug("Couldn't locate TransactionManager for {} under {}", getVendor(), getJndiName());
-            }
-            return null;
-        }
-    }
-
-    /**
-     *
-     */
-    private static final class FactorySelector extends Selector {
-
-        private final String factoryClassName;
-
-        private FactorySelector(final String vendor, final String factoryClassName) {
-            super(vendor);
-            this.factoryClassName = factoryClassName;
-        }
-
-        @Override
-        protected TransactionManager lookup(final InitialContext initialContext) {
-            TransactionManager transactionManager = null;
-
-            try {
-                Class factoryClass = ClassLoaderUtil.loadClass(factoryClassName);
-                Class[] signature = null;
-                Object[] args = null;
-                Method method = factoryClass.getMethod("getTransactionManager", signature);
-                transactionManager = (TransactionManager) method.invoke(null, args);
-            } catch (ClassNotFoundException e) {
-                LOG.debug("FactorySelector failed lookup", e);
-            } catch (NoSuchMethodException e) {
-                LOG.debug("FactorySelector failed lookup", e);
-            } catch (InvocationTargetException e) {
-                LOG.debug("FactorySelector failed lookup", e);
-            } catch (IllegalAccessException e) {
-                LOG.debug("FactorySelector failed lookup", e);
-            }
-            return transactionManager;
-        }
-    }
-
-    /**
-     *
-     */
-    private static final class ClassSelector extends Selector {
-
-        private final String classname;
-
-        private ClassSelector(final String vendor, final String classname) {
-            super(vendor);
-            this.classname = classname;
-        }
-
-        @Override
-        protected TransactionManager lookup(final InitialContext initialContext) {
-            TransactionManager transactionManager = null;
-
-            try {
-                Class txManagerClass = ClassLoaderUtil.loadClass(classname);
-                transactionManager = (TransactionManager) txManagerClass.newInstance();
-            } catch (ClassNotFoundException e) {
-                LOG.debug("FactorySelector failed lookup", e);
-            } catch (InstantiationException e) {
-                LOG.debug("FactorySelector failed lookup", e);
-            } catch (IllegalAccessException e) {
-                LOG.debug("FactorySelector failed lookup", e);
-            }
-            return transactionManager;
         }
     }
 

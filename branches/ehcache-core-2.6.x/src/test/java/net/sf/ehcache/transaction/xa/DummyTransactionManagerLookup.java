@@ -48,11 +48,11 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
         return transactionManager;
     }
 
-    public synchronized void register(EhcacheXAResource resource) {
+    public synchronized void register(EhcacheXAResource resource, boolean forRecovery) {
 
     }
 
-    public synchronized void unregister(EhcacheXAResource resource) {
+    public synchronized void unregister(EhcacheXAResource resource, boolean forRecovery) {
     }
 
     public void setProperties(Properties properties) {
