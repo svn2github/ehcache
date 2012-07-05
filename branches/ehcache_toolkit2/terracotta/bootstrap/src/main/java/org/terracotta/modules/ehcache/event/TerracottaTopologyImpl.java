@@ -39,7 +39,7 @@ public class TerracottaTopologyImpl implements CacheCluster {
 
   @Override
   public ClusterNode waitUntilNodeJoinsCluster() {
-    return new TerracottaNodeImpl(cluster.waitUntilNodeJoinsCluster());
+    return new TerracottaNodeImpl(cluster.getCurrentNode());
   }
 
   @Override
@@ -57,6 +57,7 @@ public class TerracottaTopologyImpl implements CacheCluster {
     return cluster.areOperationsEnabled();
   }
 
+  @Override
   public boolean addTopologyListener(ClusterTopologyListener listener) {
     boolean rv;
     writeLock.lock();
@@ -71,6 +72,7 @@ public class TerracottaTopologyImpl implements CacheCluster {
     return rv;
   }
 
+  @Override
   public boolean removeTopologyListener(ClusterTopologyListener listener) {
     boolean rv;
     writeLock.lock();
@@ -93,6 +95,7 @@ public class TerracottaTopologyImpl implements CacheCluster {
     cluster.removeClusterListener(new ClusterListenerAdapter(listener));
   }
 
+  @Override
   public List<ClusterTopologyListener> getTopologyListeners() {
     writeLock.lock();
     try {

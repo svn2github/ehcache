@@ -55,7 +55,7 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
   }
 
   private String getCurrentNodeId() {
-    return toolkitInstanceFactory.getToolkit().getClusterInfo().waitUntilNodeJoinsCluster().getId();
+    return toolkitInstanceFactory.getToolkit().getClusterInfo().getCurrentNode().getId();
   }
 
 }

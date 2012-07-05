@@ -18,7 +18,7 @@ public class FireRejoinOperatorEventClusterListener implements ClusterTopologyLi
 
   public FireRejoinOperatorEventClusterListener(ToolkitInstanceFactory toolkitInstanceFactory) {
     this.toolkit = toolkitInstanceFactory.getToolkit();
-    this.currentNode = new TerracottaNodeImpl(toolkit.getClusterInfo().waitUntilNodeJoinsCluster());
+    this.currentNode = new TerracottaNodeImpl(toolkit.getClusterInfo().getCurrentNode());
   }
 
   @Override

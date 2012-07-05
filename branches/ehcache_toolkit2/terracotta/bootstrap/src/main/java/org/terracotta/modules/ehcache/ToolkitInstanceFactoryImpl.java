@@ -82,7 +82,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       config = terracottaClientConfiguration.getUrl();
     }
     TerracottaToolkitClientBuilderInternal terracottaClientBuilder = (TerracottaToolkitClientBuilderInternal) ToolkitClientBuilderFactory
-        .newTerracottaToolkitClientBuilder().setDedicatedClient(terracottaClientConfiguration.isRejoin());
+        .newTerracottaToolkitClientBuilder();
+    terracottaClientBuilder.setDedicatedClient(terracottaClientConfiguration.isRejoin());
     if (terracottaClientConfiguration.isUrlConfig()) {
       terracottaClientBuilder.setTCConfigUrl(config);
     } else {

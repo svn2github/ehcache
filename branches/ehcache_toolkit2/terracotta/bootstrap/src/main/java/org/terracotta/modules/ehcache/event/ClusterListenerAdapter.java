@@ -8,7 +8,7 @@ import net.sf.ehcache.cluster.ClusterTopologyListener;
 import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterEvent.Type;
 import org.terracotta.toolkit.cluster.ClusterInfo;
-import org.terracotta.toolkit.cluster.OutOfBandClusterListener;
+import org.terracotta.toolkit.internal.cluster.OutOfBandClusterListener;
 
 public class ClusterListenerAdapter implements OutOfBandClusterListener {
   private static final String           EHCACHE_TERRACOTTA_PACKAGE_NAME = "net.sf.ehcache.terracotta";
