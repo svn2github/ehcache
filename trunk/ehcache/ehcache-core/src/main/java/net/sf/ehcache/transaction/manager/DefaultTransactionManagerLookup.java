@@ -83,11 +83,11 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
         if (!initialized) {
             lock.lock();
             try {
-                if (getTransactionManager() == null) {
-                    throw new CacheException("No Transaction Manager could be located, cannot initialize DefaultTransactionManagerLookup");
-                }
                 Iterator<EhcacheXAResource> iterator = uninitializedEhcacheXAResources.iterator();
                 while (iterator.hasNext()) {
+                    if (getTransactionManager() == null) {
+                        throw new CacheException("No Transaction Manager could be located, cannot initialize DefaultTransactionManagerLookup");
+                    }
                     EhcacheXAResource resource = iterator.next();
                     selector.registerResource(resource, true);
                     iterator.remove();
