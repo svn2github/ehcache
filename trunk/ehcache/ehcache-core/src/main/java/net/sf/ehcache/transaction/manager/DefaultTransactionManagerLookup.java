@@ -16,9 +16,11 @@
 package net.sf.ehcache.transaction.manager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -86,7 +88,8 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
                 Iterator<EhcacheXAResource> iterator = uninitializedEhcacheXAResources.iterator();
                 while (iterator.hasNext()) {
                     if (getTransactionManager() == null) {
-                        throw new CacheException("No Transaction Manager could be located, cannot initialize DefaultTransactionManagerLookup");
+                        throw new CacheException("No Transaction Manager could be located, cannot initialize DefaultTransactionManagerLookup." +
+                                                 " Caches which registered an XAResource: " + getUninitializedXAResourceCacheNames());
                     }
                     EhcacheXAResource resource = iterator.next();
                     selector.registerResource(resource, true);
@@ -97,6 +100,14 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
             }
             initialized = true;
         }
+    }
+
+    private Set<String> getUninitializedXAResourceCacheNames() {
+        Set<String> names = new HashSet<String>();
+        for (EhcacheXAResource xar : uninitializedEhcacheXAResources) {
+            names.add(xar.getCacheName());
+        }
+        return names;
     }
 
     /**
