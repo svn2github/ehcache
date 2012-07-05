@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.collections;
 
+import net.sf.ehcache.util.FindBugsSuppressWarnings;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class SerializationHelper {
     }
   }
 
+  @FindBugsSuppressWarnings("DMI_INVOKING_TOSTRING_ON_ARRAY")
   public static Object deserialize(byte[] bytes) {
     try {
       ByteArrayInputStream bais = new ByteArrayInputStream(bytes);

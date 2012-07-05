@@ -80,7 +80,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.name = name;
     this.asyncNameWithNodeId = asyncNameWithNodeId;// async name with nodeId
     if (null == config) {
-      this.config = DefaultAsyncConfig.getInstance();
+      this.config = config = DefaultAsyncConfig.getInstance();
     } else {
       this.config = config;
     }

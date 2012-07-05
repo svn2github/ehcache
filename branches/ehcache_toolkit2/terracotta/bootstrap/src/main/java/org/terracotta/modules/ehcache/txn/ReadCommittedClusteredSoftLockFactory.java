@@ -133,7 +133,12 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
 
   @Override
   public void clearSoftLock(SoftLock softLock) {
-    newKeyLocks.remove(softLock);
+    for (SerializedReadCommittedClusteredSoftLock serializedSoftLock : newKeyLocks) {
+      if (serializedSoftLock.getSoftLock(toolkitInstanceFactory, this).equals(softLock)) {
+        newKeyLocks.remove(serializedSoftLock);
+        break;
+      }
+    }
 
     for (Map.Entry<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
       if (entry.getValue().getSoftLock(toolkitInstanceFactory, this).equals(softLock)) {
