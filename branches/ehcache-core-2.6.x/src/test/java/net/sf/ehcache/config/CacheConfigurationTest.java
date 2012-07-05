@@ -6,6 +6,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 
+import org.hamcrest.core.StringContains;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -162,6 +164,23 @@ public class CacheConfigurationTest {
             assertThat(e.getMessage(), containsString("enterprise"));
         } finally {
             cacheManager.removeCache("Test");
+        }
+    }
+
+    @Test
+    public void testPersistenceConfigMixing() {
+        CacheConfiguration persistence = new CacheConfiguration().persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+        try {
+            persistence.diskPersistent(true);
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
+        }
+
+        CacheConfiguration diskPersistent = new CacheConfiguration().diskPersistent(true);
+        try {
+            diskPersistent.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
         }
     }
 
