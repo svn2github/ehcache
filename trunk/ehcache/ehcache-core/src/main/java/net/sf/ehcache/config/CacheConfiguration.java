@@ -271,7 +271,7 @@ public class CacheConfiguration implements Cloneable {
      * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
     @Deprecated
-    protected volatile boolean diskPersistent = DEFAULT_DISK_PERSISTENT;
+    protected volatile Boolean diskPersistent;
 
     /**
      * The size of the disk spool used to buffer writes
@@ -589,6 +589,9 @@ public class CacheConfiguration implements Cloneable {
      * @param persistenceConfiguration the Persistence Configuration
      */
     public void addPersistence(PersistenceConfiguration persistenceConfiguration) {
+        if (diskPersistent != null) {
+            throw new InvalidConfigurationException("Cannot use both <persistence ...> and diskPersistent in a single cache configuration.");
+        }
         this.persistenceConfiguration = persistenceConfiguration;
     }
 
@@ -941,6 +944,9 @@ public class CacheConfiguration implements Cloneable {
     @Deprecated
     public final void setDiskPersistent(boolean diskPersistent) {
         checkDynamicChange();
+        if (persistenceConfiguration != null) {
+            throw new InvalidConfigurationException("Cannot use both <persistence ...> and diskPersistent in a single cache configuration.");
+        }
         this.diskPersistent = diskPersistent;
         validateConfiguration();
     }
@@ -1586,22 +1592,22 @@ public class CacheConfiguration implements Cloneable {
 
     private void consolidatePersistenceSettings(CacheManager manager) {
         if (persistenceConfiguration == null) {
-            if (diskPersistent) {
+            if (diskPersistent == Boolean.TRUE) {
                 if (manager.getFeaturesManager() == null) {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+                    persistenceConfiguration = new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP);
                 } else {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALRESTARTABLE));
+                    persistenceConfiguration = new PersistenceConfiguration().strategy(Strategy.LOCALRESTARTABLE);
                 }
             }
         } else {
             switch (persistenceConfiguration.getStrategy()) {
                 case DISTRIBUTED:
                 case NONE:
-                    setDiskPersistent(false);
+                    diskPersistent = Boolean.FALSE;
                     break;
                 case LOCALTEMPSWAP:
                 case LOCALRESTARTABLE:
-                    setDiskPersistent(true);
+                    diskPersistent = Boolean.TRUE;
                     break;
                 default:
                     break;
@@ -2233,7 +2239,7 @@ public class CacheConfiguration implements Cloneable {
             if (overflowToDisk != null && overflowToDisk) {
                 throw new InvalidConfigurationException("overflowToDisk isn't supported for a clustered Terracotta cache");
             }
-            if (diskPersistent) {
+            if (diskPersistent == Boolean.TRUE) {
                 throw new InvalidConfigurationException("diskPersistent isn't supported for a clustered Terracotta cache");
             }
             if (persistenceConfiguration != null && !Strategy.DISTRIBUTED.equals(persistenceConfiguration.getStrategy())) {
@@ -2371,7 +2377,8 @@ public class CacheConfiguration implements Cloneable {
      */
     @Deprecated
     public boolean isDiskPersistent() {
-        return diskPersistent;
+        Boolean persistent = diskPersistent;
+        return diskPersistent == null ? DEFAULT_DISK_PERSISTENT : persistent;
     }
 
     /**
