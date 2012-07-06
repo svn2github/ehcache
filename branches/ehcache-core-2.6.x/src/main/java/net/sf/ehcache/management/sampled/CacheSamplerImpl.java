@@ -556,7 +556,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     public long getMinGetTimeNanos() {
         try {
-            return cache.getLiveCacheStatistics().getMaxGetTimeNanos();
+            return cache.getLiveCacheStatistics().getMinGetTimeNanos();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
