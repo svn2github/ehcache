@@ -8,6 +8,7 @@ import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
+import org.terracotta.modules.ehcache.collections.SerializedToolkitMap;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
@@ -41,7 +42,7 @@ public interface ToolkitInstanceFactory {
   /**
    * Returns the backend {@link ToolkitCacheWithMetadata} to be used for the cache
    */
-  ToolkitCacheWithMetadata<Object, Serializable> getOrCreateToolkitCache(Ehcache cache);
+  ToolkitCacheWithMetadata<String, Serializable> getOrCreateToolkitCache(Ehcache cache);
 
   /**
    * Returns a {@link ToolkitNotifier} for the cache for notifying {@link CacheConfigChangeNotificationMsg} across the
@@ -91,9 +92,9 @@ public interface ToolkitInstanceFactory {
   /**
    * Return the map used for storing commit state of ehcache transactions
    */
-  ToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
+  SerializedToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
 
-  ToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
+  SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
                                                                                                String cacheName);
 
   ToolkitList<SerializedReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,

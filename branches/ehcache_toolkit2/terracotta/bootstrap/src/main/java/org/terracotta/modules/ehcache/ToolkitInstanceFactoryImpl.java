@@ -100,7 +100,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCacheWithMetadata<Object, Serializable> getOrCreateToolkitCache(Ehcache cache) {
+  public ToolkitCacheWithMetadata<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
     final Configuration clusteredCacheConfig = createClusteredMapConfig(toolkit.getConfigBuilderFactory()
         .newToolkitCacheConfigBuilder(), cache);
     return (ToolkitCacheWithMetadata) toolkit.getCache(getFullyQualifiedCacheName(cache), clusteredCacheConfig);
@@ -221,7 +221,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
+  public SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
                                                                                                       String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
@@ -281,7 +281,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
+  public SerializedToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();

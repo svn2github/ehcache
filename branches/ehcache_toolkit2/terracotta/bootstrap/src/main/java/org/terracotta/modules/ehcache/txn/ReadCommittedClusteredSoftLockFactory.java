@@ -12,8 +12,8 @@ import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
+import org.terracotta.modules.ehcache.collections.SerializedToolkitMap;
 import org.terracotta.toolkit.collections.ToolkitList;
-import org.terracotta.toolkit.collections.ToolkitMap;
 
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   private final ToolkitList<SerializedReadCommittedClusteredSoftLock>                        newKeyLocks;
 
   // locks must be inserted in a clustered collection b/c they must be managed by the L1 before they are returned
-  private final ToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> allLocks;
+  private final SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> allLocks;
 
   public ReadCommittedClusteredSoftLockFactory(ToolkitInstanceFactory toolkitInstanceFactory, String cacheManagerName,
                                                String cacheName) {
