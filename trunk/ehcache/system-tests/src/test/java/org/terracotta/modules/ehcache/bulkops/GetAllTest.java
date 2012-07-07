@@ -171,12 +171,9 @@ public class GetAllTest extends AbstractCacheTestBase {
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsOnDisk(10000);
       cacheConfiguration.setMaxElementsInMemory(10000);
-      cacheConfiguration.setOverflowToDisk(false);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setTimeToLiveSeconds(100000);
       cacheConfiguration.setTimeToIdleSeconds(200000);
-      cacheConfiguration.setDiskPersistent(false);
-      cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);

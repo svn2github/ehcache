@@ -5,8 +5,7 @@
       maxElementsInMemory="10"
       eternal="false"
       timeToIdleSeconds="120"
-      timeToLiveSeconds="120"
-      overflowToDisk="false">
+      timeToLiveSeconds="120">
       <terracotta/>
     </defaultCache>
   <terracottaConfig url="localhost:9510"/>

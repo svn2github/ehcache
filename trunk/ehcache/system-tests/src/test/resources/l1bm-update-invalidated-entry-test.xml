@@ -2,14 +2,12 @@
 
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="test"
          maxElementsInMemory="10000"
          timeToIdleSeconds="10"
-         timeToLiveSeconds="20"
-         overflowToDisk="false">
+         timeToLiveSeconds="20">
          <terracotta clustered="true" />
   </cache>
 

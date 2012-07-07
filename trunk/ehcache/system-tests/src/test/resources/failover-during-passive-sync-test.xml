@@ -4,13 +4,11 @@
 
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="test"
          maxElementsInMemory="10"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
          <terracotta concurrency="256" clustered="true" consistency="strong"/>
   </cache>

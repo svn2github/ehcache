@@ -68,8 +68,7 @@
   
   <cache name="defaultStorageStrategyCache"
        maxElementsInMemory="0"
-       eternal="true"
-       overflowToDisk="false">
+       eternal="true">
 
        <terracotta clustered="true"/>
   </cache>

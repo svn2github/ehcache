@@ -58,7 +58,8 @@ public class StandaloneSizeBasedConfigAttributesValueFactory implements XSDAttri
             if ("maxElementsInMemory".equals(attribute.getName()) ||
                     "maxMemoryOffHeap".equals(attribute.getName()) ||
                     "maxElementsOnDisk".equals(attribute.getName()) ||
-                    "diskPersistent".equals(attribute.getName())) {
+                    "diskPersistent".equals(attribute.getName()) ||
+                    "overflowToDisk".equals(attribute.getName())) {
                 return null;
             }
             if ("maxEntriesLocalDisk".equals(attribute.getName()) ||

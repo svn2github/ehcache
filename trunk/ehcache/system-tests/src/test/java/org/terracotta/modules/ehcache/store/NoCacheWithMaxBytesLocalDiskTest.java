@@ -49,10 +49,8 @@ public class NoCacheWithMaxBytesLocalDiskTest extends AbstractCacheTestBase {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxBytesLocalDisk(1024 * 1024L);
-      cacheConfiguration.setOverflowToDisk(false);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setMaxBytesLocalHeap(10 * 1024 * 1024L);
-      cacheConfiguration.setDiskPersistent(false);
       cacheConfiguration.setOverflowToOffHeap(false);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();

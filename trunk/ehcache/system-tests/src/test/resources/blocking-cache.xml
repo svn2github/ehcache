@@ -4,13 +4,11 @@
 
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="test1"
          maxElementsInMemory="10000"
-         timeToIdleSeconds="20"
-         overflowToDisk="false">
+         timeToIdleSeconds="20">
 
     <terracotta clustered="true">
       <non-stop enabled="false"/>
@@ -19,8 +17,7 @@
 
   <cache name="test2"
          maxElementsInMemory="10000"
-         timeToIdleSeconds="20"
-         overflowToDisk="false">
+         timeToIdleSeconds="20">
 
     <terracotta clustered="true">
       <non-stop enabled="false"/>

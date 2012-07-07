@@ -3,8 +3,7 @@
 <ehcache name="test">
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="test" maxEntriesLocalHeap="100"/>
   <terracottaConfig url="localhost:PORT"/>

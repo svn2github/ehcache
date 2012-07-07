@@ -2,8 +2,7 @@
 
 <ehcache name="test" updateCheck="false">
 
-  <defaultCache maxElementsInMemory="10000" eternal="true"
-    overflowToDisk="false">
+  <defaultCache maxElementsInMemory="10000" eternal="true">
 
     <terracotta clustered="true">
       <nonstop enabled="true" />

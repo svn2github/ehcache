@@ -125,7 +125,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     The diskStore element is optional. To turn off disk store path creation, comment out the diskStore
     element below.
 
-    Configure it if you have overflowToDisk or disk persistence enabled for any cache or if you use
+    Configure it if you have disk persistence enabled for any cache or if you use
     unclustered indexed search.
 
     If it is not configured, and a cache is created which requires a disk store, a warning will be
@@ -472,10 +472,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     The following attributes and elements are optional.
 
-    overflowToDisk:
-    Sets whether elements can overflow to disk when the memory store
-    has reached the maxInMemory limit.
-
     overflowToOffHeap:
     (boolean) This feature is available only in enterprise versions of Ehcache.
     When set to true, enables the cache to utilize off-heap memory
@@ -570,10 +566,9 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     It is available for Enterprise Ehcache users only.
 
     * localTempSwap - Swaps cache entries (on-heap and/or off-heap) to disk when the cache is full.
-    "localTempSwap" is not fault tolerant, and it is the only option for cache persistence in unclustered
-    Ehcache for open source users.  It is the equivalent of the deprecated "diskPersistent" attribute.
+    "localTempSwap" is not persistent.
 
-    * none - Does not persist cache entries to disk.
+    * none - Does not persist cache entries.
 
     * distributed - Defers to the <terracotta> configuration for persistence settings. This option
     is not applicable for standalone.
@@ -1049,13 +1044,13 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
             eternal="false"
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
-            overflowToDisk="true"
             diskSpoolBufferSizeMB="30"
             maxEntriesLocalDisk="10000000"
             diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
-            statistics="false"
-            />
+            statistics="false">
+        <persistence strategy="localTempSwap"/>
+    </defaultCache>
 
     <!--
     Sample caches. Following are some example caches. Remove these before use.
@@ -1075,13 +1070,13 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxEntriesLocalHeap="10000"
            maxEntriesLocalDisk="1000"
            eternal="false"
-           overflowToDisk="true"
            diskSpoolBufferSizeMB="20"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
-           transactionalMode="off"
-            />
+           transactionalMode="off">
+        <persistence strategy="localTempSwap"/>
+    </cache>
 
 
     <!--
@@ -1093,7 +1088,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     <cache name="sampleCache2"
            maxEntriesLocalHeap="1000"
            eternal="true"
-           overflowToDisk="false"
            memoryStoreEvictionPolicy="FIFO"
             />
 
@@ -1107,11 +1101,11 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxEntriesLocalHeap="500"
            eternal="false"
            overflowToDisk="true"
+           diskPersistent="true"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            diskExpiryThreadIntervalSeconds="1"
            memoryStoreEvictionPolicy="LFU">
-        <persistence strategy="localTempSwap"/>
     </cache>
 
 
@@ -1124,8 +1118,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxEntriesLocalHeap="10"
            eternal="false"
            timeToIdleSeconds="100"
-           timeToLiveSeconds="100"
-           overflowToDisk="false">
+           timeToLiveSeconds="100">
 
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
@@ -1143,8 +1136,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxEntriesLocalHeap="10"
            eternal="false"
            timeToIdleSeconds="100"
-           timeToLiveSeconds="100"
-           overflowToDisk="false">
+           timeToLiveSeconds="100">
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="replicateAsynchronously=false, replicatePuts=false,
@@ -1162,11 +1154,11 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxEntriesLocalHeap="10"
            eternal="false"
            timeToIdleSeconds="100"
-           timeToLiveSeconds="100"
-           overflowToDisk="true">
+           timeToLiveSeconds="100">
         <cacheEventListenerFactory
                 class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
                 properties="asynchronousReplicationIntervalMillis=200"/>
+        <persistence strategy="localTempSwap"/>
     </cache>
 
     <!--
@@ -1178,8 +1170,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxBytesLocalHeap="10m"
            eternal="false"
            timeToIdleSeconds="3600"
-           timeToLiveSeconds="1800"
-           overflowToDisk="false">
+           timeToLiveSeconds="1800">
         <terracotta/>
     </cache>
     -->
@@ -1191,7 +1182,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
-           overflowToDisk="false"
            diskExpiryThreadIntervalSeconds="1"
            transactionalMode="xa_strict">
     </cache>
@@ -1206,7 +1196,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
-           overflowToDisk="false"
            diskExpiryThreadIntervalSeconds="1"
            copyOnRead="true"
            copyOnWrite="true">
@@ -1221,8 +1210,8 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            timeToLiveSeconds="600"
            overflowToOffHeap="true"
            maxBytesLocalOffHeap="4g"
-           overflowToDisk="true"
-           diskExpiryThreadIntervalSeconds="1"
+           diskExpiryThreadIntervalSeconds="1">
+        <persistence strategy="localTempSwap"/>
      </cache>
     -->
     <!--

@@ -130,12 +130,9 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsOnDisk(1000000);
       cacheConfiguration.setMaxElementsInMemory(1000000);
-      cacheConfiguration.setOverflowToDisk(false);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setTimeToLiveSeconds(100000);
       cacheConfiguration.setTimeToIdleSeconds(200000);
-      cacheConfiguration.setDiskPersistent(false);
-      cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);

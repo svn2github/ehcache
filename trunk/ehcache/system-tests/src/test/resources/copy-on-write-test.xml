@@ -5,7 +5,6 @@
   <cache name="test"
          maxElementsInMemory="10000"
          eternal="true"
-         overflowToDisk="false"
          copyOnWrite="true"
          copyOnRead="false">
 

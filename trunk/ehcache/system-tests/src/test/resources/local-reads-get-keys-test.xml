@@ -2,11 +2,10 @@
 
 <ehcache name="test">
 
-  <defaultCache maxElementsInMemory="0" eternal="true"
-    overflowToDisk="false" />
+  <defaultCache maxElementsInMemory="0" eternal="true"/>
 
 
-  <cache name="dcv2" eternal="true" overflowToDisk="false" maxElementsInMemory="10000">
+  <cache name="dcv2" eternal="true" maxElementsInMemory="10000">
     <terracotta clustered="true" consistency="strong"
      >
       <nonstop timeoutMillis="5000">

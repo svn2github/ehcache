@@ -119,12 +119,9 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsInMemory(100000);
-      cacheConfiguration.setOverflowToDisk(false);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setTimeToLiveSeconds(100000);
       cacheConfiguration.setTimeToIdleSeconds(200000);
-      cacheConfiguration.setDiskPersistent(false);
-      cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);

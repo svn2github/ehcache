@@ -4,8 +4,7 @@
 
   <cache name="test"
          maxElementsInMemory="10000"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
          <terracotta clustered="true" consistency="strong"/>
   </cache>
