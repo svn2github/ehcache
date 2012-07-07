@@ -44,7 +44,6 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.store.Store;
 
 import org.slf4j.Logger;

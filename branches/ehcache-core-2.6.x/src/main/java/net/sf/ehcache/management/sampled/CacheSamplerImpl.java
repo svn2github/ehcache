@@ -21,7 +21,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.util.CacheTransactionHelper;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import org.slf4j.Logger;
@@ -411,14 +410,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     public String getTerracottaConsistency() {
         Consistency consistency = this.cache.getCacheConfiguration().getTerracottaConsistency();
         return consistency != null ? consistency.name() : "na";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getTerracottaStorageStrategy() {
-        StorageStrategy storageStrategy = this.cache.getCacheConfiguration().getTerracottaStorageStrategy();
-        return storageStrategy != null ? storageStrategy.name() : "na";
     }
 
     /**

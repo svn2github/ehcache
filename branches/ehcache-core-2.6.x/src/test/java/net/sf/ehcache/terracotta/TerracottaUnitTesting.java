@@ -27,7 +27,6 @@ import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
 
