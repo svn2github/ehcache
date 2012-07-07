@@ -296,8 +296,6 @@ public class ClusteredStore implements TerracottaStore, CacheConfigurationListen
 
     TC_LOGGER.info("Clustered Store [cache=" + ehcache.getName() + "] with checkContainsKeyOnPut: "
                    + checkContainsKeyOnPut);
-    TC_LOGGER.info("Clustered Store [cache=" + ehcache.getName() + "] with storageStrategy: "
-                   + ehcache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy().name());
 
     // fault in references
     backend.initializeLocalCache(createClusteredMapConfig(ehcache));
