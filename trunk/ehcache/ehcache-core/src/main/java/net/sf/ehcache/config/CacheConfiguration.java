@@ -32,7 +32,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
@@ -2577,17 +2576,6 @@ public class CacheConfiguration implements Cloneable {
      */
     public Consistency getTerracottaConsistency() {
         return terracottaConfiguration != null ? terracottaConfiguration.getConsistency() : null;
-    }
-
-    /**
-     * Accessor
-     *
-     * @return the StorageStrategy if Terracotta-clustered or null
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     */
-    @Deprecated
-    public StorageStrategy getTerracottaStorageStrategy() {
-        return terracottaConfiguration != null ? terracottaConfiguration.getStorageStrategy() : null;
     }
 
     /**

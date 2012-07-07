@@ -402,13 +402,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     */
-    public String getTerracottaStorageStrategy() {
-        return sampledCacheDelegate.getTerracottaStorageStrategy();
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableStatistics()
      */
