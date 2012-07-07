@@ -47,7 +47,7 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
       this.barrier = clusteringToolkit.getBarrier("test-barrier", NODE_COUNT);
 
-      Cache dcv2StrongIdentity = crerateCache("dcv2StrongIdentity", cacheManager, "DCV2", Consistency.STRONG,
+      Cache dcv2StrongIdentity = crerateCache("dcv2StrongIdentity", cacheManager, Consistency.STRONG,
                                               "SERIALIZATION");
       testBulkOpsSanity(dcv2StrongIdentity);
     }
@@ -114,7 +114,7 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
       System.out.println("client, I am done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency,
                                String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
@@ -127,7 +127,6 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
       cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy(storageStrategy);
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode);
       cacheConfiguration.addTerracotta(tcConfiguration);

@@ -2,7 +2,6 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
 import org.junit.Assert;
 import org.terracotta.api.ClusteringToolkit;
@@ -129,10 +128,6 @@ public class ShutdownClient1 extends ClientBase {
 
   protected void testCache(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     cache.put(new Element("key", "value"));
-
-    Assert.assertEquals(StorageStrategy.DCV2, cache.getCacheConfiguration().getTerracottaConfiguration()
-        .getStorageStrategy());
-    System.out.println("Asserted default storageStrategy");
   }
 
   private void assertThreadShutdown(Set<SimpleThreadInfo> dump) throws Exception {

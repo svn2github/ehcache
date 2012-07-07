@@ -47,41 +47,41 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
 
       Cache dcv2EventualSerializationWithStats = crerateCache("dcv2EventualSerializationWithStats", cacheManager,
-                                                              "DCV2", Consistency.EVENTUAL, ValueMode.SERIALIZATION);
+                                                              Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualSerializationWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2EventualSerializationWithStats, true);
 
-      Cache dcv2EventualIdentityWithStats = crerateCache("dcv2EventualIdentityWithStats", cacheManager, "DCV2",
+      Cache dcv2EventualIdentityWithStats = crerateCache("dcv2EventualIdentityWithStats", cacheManager,
                                                          Consistency.EVENTUAL, ValueMode.IDENTITY);
       dcv2EventualIdentityWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2EventualIdentityWithStats, true);
 
       Cache dcv2EventualSerializationWithoutStats = crerateCache("dcv2EventualSerializationWithoutStats", cacheManager,
-                                                                 "DCV2", Consistency.EVENTUAL, ValueMode.SERIALIZATION);
+                                                                 Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualSerializationWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2EventualSerializationWithoutStats, true);
 
-      Cache dcv2EventualIdentityWithoutStats = crerateCache("dcv2EventualIdentityWithoutStats", cacheManager, "DCV2",
+      Cache dcv2EventualIdentityWithoutStats = crerateCache("dcv2EventualIdentityWithoutStats", cacheManager,
                                                             Consistency.EVENTUAL, ValueMode.IDENTITY);
       dcv2EventualIdentityWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2EventualIdentityWithoutStats, true);
 
-      Cache dcv2StrongSerializationWithStats = crerateCache("dcv2StrongSerializationWithStats", cacheManager, "DCV2",
+      Cache dcv2StrongSerializationWithStats = crerateCache("dcv2StrongSerializationWithStats", cacheManager,
                                                             Consistency.STRONG, ValueMode.SERIALIZATION);
       dcv2StrongSerializationWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2StrongSerializationWithStats, false);
 
-      Cache dcv2StrongIdentityWithStats = crerateCache("dcv2StrongIdentityWithStats", cacheManager, "DCV2",
+      Cache dcv2StrongIdentityWithStats = crerateCache("dcv2StrongIdentityWithStats", cacheManager,
                                                        Consistency.STRONG, ValueMode.IDENTITY);
       dcv2StrongIdentityWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2StrongIdentityWithStats, false);
 
-      Cache dcv2StrongWithoutStats = crerateCache("dcv2StrongWithoutStats", cacheManager, "DCV2", Consistency.STRONG,
+      Cache dcv2StrongWithoutStats = crerateCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
                                                   ValueMode.SERIALIZATION);
       dcv2StrongWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2StrongWithoutStats, false);
 
-      Cache dcv2StrongIdentityWithoutStats = crerateCache("dcv2StrongIdentityWithoutStats", cacheManager, "DCV2",
+      Cache dcv2StrongIdentityWithoutStats = crerateCache("dcv2StrongIdentityWithoutStats", cacheManager,
                                                           Consistency.STRONG, ValueMode.IDENTITY);
       dcv2StrongIdentityWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2StrongIdentityWithoutStats, false);
@@ -161,7 +161,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
       System.out.println("XXXXXX done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency,
                                ValueMode valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setTimeToLiveSeconds(30);
@@ -169,7 +169,6 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
       cacheConfiguration.setMaxBytesLocalHeap(409600L);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy(storageStrategy);
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode.name());
       cacheConfiguration.addTerracotta(tcConfiguration);

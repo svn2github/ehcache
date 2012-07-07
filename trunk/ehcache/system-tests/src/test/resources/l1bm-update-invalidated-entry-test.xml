@@ -10,7 +10,7 @@
          timeToIdleSeconds="10"
          timeToLiveSeconds="20"
          overflowToDisk="false">
-         <terracotta clustered="true" storageStrategy="DCV2" />
+         <terracotta clustered="true" />
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

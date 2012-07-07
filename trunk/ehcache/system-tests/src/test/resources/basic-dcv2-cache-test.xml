@@ -12,7 +12,7 @@
          eternal="true"
          overflowToDisk="false">
 
-         <terracotta clustered="true" consistency="strong" storageStrategy="dcv2"/>
+         <terracotta clustered="true" consistency="strong"/>
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

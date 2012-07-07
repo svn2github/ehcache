@@ -200,7 +200,6 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       }
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy("DCV2");
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode.name());
       cacheConfiguration.addTerracotta(tcConfiguration);

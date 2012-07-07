@@ -7,7 +7,7 @@
          eternal="true"
          overflowToDisk="false">
 
-      <terracotta clustered="true" consistency="strong" storageStrategy="dcv2"/>
+      <terracotta clustered="true" consistency="strong"/>
   </cache>
   
     <cache name="eventualConsistencyCache"
@@ -15,7 +15,7 @@
          eternal="true"
          overflowToDisk="false">
 
-      <terracotta clustered="true" consistency="eventual" storageStrategy="dcv2"/>
+      <terracotta clustered="true" consistency="eventual"/>
   </cache>
   
   <cache name="testLocalSizeCache"
@@ -23,7 +23,7 @@
          eternal="true"
          overflowToDisk="false">
 
-      <terracotta clustered="true" consistency="eventual" storageStrategy="dcv2"/>
+      <terracotta clustered="true" consistency="eventual"/>
   </cache>
   
   <terracottaConfig url="localhost:PORT"/>

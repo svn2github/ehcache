@@ -12,7 +12,7 @@
          eternal="true"
          overflowToDisk="false">
 
-         <terracotta clustered="true" storageStrategy="DCV2"/>
+         <terracotta clustered="true"/>
   </cache>
   
   <cache name="defaultStorageStrategyCache"

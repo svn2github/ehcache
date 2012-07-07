@@ -48,12 +48,12 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
-      Cache dcv2StrongSerialization = crerateCache("dcv2StrongSerialization", cacheManager, "DCV2", Consistency.STRONG,
+      Cache dcv2StrongSerialization = crerateCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
                                                    "SERIALIZATION");
       testBulkOpsSanity(dcv2StrongSerialization);
       barrier.await();
 
-      Cache dcv2EventualSerialization = crerateCache("dcv2EventualSerialization", cacheManager, "DCV2",
+      Cache dcv2EventualSerialization = crerateCache("dcv2EventualSerialization", cacheManager,
                                                      Consistency.EVENTUAL, "SERIALIZATION");
       testBulkOpsSanity(dcv2EventualSerialization);
       barrier.await();
@@ -137,7 +137,7 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       System.out.println("client " + index + " done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency,
                                String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
@@ -150,15 +150,13 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy(storageStrategy);
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode);
       cacheConfiguration.addTerracotta(tcConfiguration);
 
       Cache cache = new Cache(cacheConfiguration);
       cm.addCache(cache);
-      System.out.println("\n\ncache " + cacheName + " created with consistency " + consistency + " storageStrategy "
-                         + storageStrategy);
+      System.out.println("\n\ncache " + cacheName + " created with consistency " + consistency);
       return cache;
     }
   }

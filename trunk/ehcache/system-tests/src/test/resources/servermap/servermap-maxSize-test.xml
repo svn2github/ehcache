@@ -6,7 +6,7 @@
 
 	<cache name="test" maxElementsInMemory="1000" eternal="true">
 
-		<terracotta clustered="true" storageStrategy="DCV2"
+		<terracotta clustered="true"
 			concurrency="1" />
 	</cache>
 

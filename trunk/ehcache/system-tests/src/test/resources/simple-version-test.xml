@@ -4,7 +4,7 @@
 
   <cache name="serialized" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="false">
     <terracotta clustered="true" valueMode="serialization"
-      consistency="strong" storageStrategy="dcv2" />
+      consistency="strong" />
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

@@ -8,7 +8,7 @@
 
   <cache name="dcv2" eternal="true" overflowToDisk="false" maxElementsInMemory="10000">
     <terracotta clustered="true" consistency="strong"
-      storageStrategy="DCV2">
+     >
       <nonstop timeoutMillis="5000">
         <timeoutBehavior type="localReads" />
       </nonstop>

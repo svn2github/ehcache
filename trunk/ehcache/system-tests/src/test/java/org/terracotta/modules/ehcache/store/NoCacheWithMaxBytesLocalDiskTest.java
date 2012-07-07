@@ -36,14 +36,14 @@ public class NoCacheWithMaxBytesLocalDiskTest extends AbstractCacheTestBase {
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
       try {
-        crerateCache("dcv2EventualWithStats", cacheManager, "DCV2", Consistency.EVENTUAL, "IDENTITY");
+        crerateCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL, "IDENTITY");
         Assert.fail("was able to create a clustered cache with \"maxBytesLocalDisk\" set");
       } catch (Exception e) {
         // expected exception
       }
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency,
                                String valueMode) {
       System.out.println("creating " + cacheName);
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
@@ -56,7 +56,6 @@ public class NoCacheWithMaxBytesLocalDiskTest extends AbstractCacheTestBase {
       cacheConfiguration.setOverflowToOffHeap(false);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy(storageStrategy);
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode);
       cacheConfiguration.addTerracotta(tcConfiguration);

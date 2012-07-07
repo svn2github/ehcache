@@ -15,7 +15,7 @@
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="all" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" storageStrategy="dcv2" consistency="strong"/>
+        <terracotta clustered="true" consistency="strong"/>
     </cache>
 
     <cache name="testLocal"
@@ -26,7 +26,7 @@
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="local" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" storageStrategy="dcv2" consistency="strong"/>
+        <terracotta clustered="true" consistency="strong"/>
     </cache>
 
     <cache name="testRemote"
@@ -47,7 +47,7 @@
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="all" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" valueMode="serialization" storageStrategy="dcv2" consistency="strong" />
+        <terracotta clustered="true" valueMode="serialization" consistency="strong" />
     </cache>
 
     <cache name="testSerializationExpiry"
@@ -58,7 +58,7 @@
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="all" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" valueMode="serialization" storageStrategy="dcv2" consistency="strong" />
+        <terracotta clustered="true" valueMode="serialization" consistency="strong" />
     </cache>
     
 

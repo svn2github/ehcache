@@ -13,7 +13,7 @@
          overflowToDisk="false"
          timeToLiveSeconds="3">
 
-         <terracotta clustered="true" storageStrategy="dcv2" consistency="strong"/>
+         <terracotta clustered="true" consistency="strong"/>
   </cache>
    <cache name="test2"
          maxElementsInMemory="500"
@@ -21,7 +21,7 @@
          eternal="true"
          overflowToDisk="false">
 
-         <terracotta clustered="true" storageStrategy="DCV2" consistency="strong"/>
+         <terracotta clustered="true" consistency="strong"/>
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

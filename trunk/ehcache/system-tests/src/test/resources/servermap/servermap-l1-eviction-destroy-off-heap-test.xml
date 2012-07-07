@@ -13,7 +13,7 @@
           
          eternal="false">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="4096" />
+      <terracotta clustered="true" concurrency="4096" />
   </cache>
 
  

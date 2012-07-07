@@ -10,7 +10,7 @@
          maxElementsInMemory="10"
          eternal="true">
 
-      <terracotta clustered="true" storageStrategy="DCV2"/>
+      <terracotta clustered="true"/>
   </cache>
   
   <cache name="testWithEvictionTTI"
@@ -19,7 +19,7 @@
          timeToIdleSeconds="30"
          maxElementsOnDisk="5000">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
   
    <cache name="testWithEvictionTTL"
@@ -28,7 +28,7 @@
          timeToLiveSeconds="30"
          maxElementsOnDisk="5000">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
   
   <cache name="testWithEvictionMaxElements"
@@ -36,7 +36,7 @@
          eternal="true"
          maxElementsOnDisk="5000">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
   
   <cache name="testWithElementEvictionTTI"
@@ -45,7 +45,7 @@
          timeToIdleSeconds="15"
          maxElementsOnDisk="500">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
   
   <cache name="testWithElementEvictionTTL"
@@ -54,7 +54,7 @@
          timeToLiveSeconds="15"
          maxElementsOnDisk="500">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
   
   <cache name="testMaxInDiskWithTTL"
@@ -63,7 +63,7 @@
          timeToLiveSeconds="900"
          maxElementsOnDisk="500">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
   
   <cache name="defaultStorageStrategyCache"

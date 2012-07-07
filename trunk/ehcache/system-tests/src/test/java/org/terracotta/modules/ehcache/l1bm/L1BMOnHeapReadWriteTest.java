@@ -106,7 +106,6 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
       cacheConfiguration.setMaxBytesLocalHeap(10485760L);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy("DCV2");
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode("SERIALIZATION");
       cacheConfiguration.addTerracotta(tcConfiguration);

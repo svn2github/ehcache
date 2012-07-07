@@ -6,7 +6,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
 import org.terracotta.api.ClusteringToolkit;
 
@@ -25,10 +24,6 @@ public class Client1 extends ClientBase {
   @Override
   protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
     cache.put(new Element("key", "value"));
-
-    Assert.assertEquals(StorageStrategy.DCV2, cache.getCacheConfiguration().getTerracottaConfiguration()
-        .getStorageStrategy());
-    System.out.println("Asserted default storageStrategy");
 
     testIsKeyInCache(true, cache.getCacheManager());
   }
