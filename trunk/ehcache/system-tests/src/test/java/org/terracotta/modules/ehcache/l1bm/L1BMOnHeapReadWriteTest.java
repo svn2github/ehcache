@@ -46,18 +46,18 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
       boolean shouldWait = true;
-      Cache eventualWithStatsCache = crerateCache("eventualWithStatsCache", cacheManager, "EVENTUAL", true);
+      Cache eventualWithStatsCache = createCache("eventualWithStatsCache", cacheManager, "EVENTUAL", true);
       testL1BigMemorySanity(eventualWithStatsCache, shouldWait);
 
-      Cache eventualWithoutStatsCache = crerateCache("eventualWithoutStatsCache", cacheManager, "EVENTUAL", false);
+      Cache eventualWithoutStatsCache = createCache("eventualWithoutStatsCache", cacheManager, "EVENTUAL", false);
       testL1BigMemorySanity(eventualWithoutStatsCache, shouldWait);
 
       shouldWait = false;
-      Cache strongWithStatsCache = crerateCache("strongWithStatsCache", cacheManager, "STRONG", true);
+      Cache strongWithStatsCache = createCache("strongWithStatsCache", cacheManager, "STRONG", true);
       testL1BigMemorySanity(strongWithStatsCache, shouldWait);
 
       shouldWait = false;
-      Cache strongWithoutStatsCache = crerateCache("strongWithoutStatsCache", cacheManager, "STRONG", false);
+      Cache strongWithoutStatsCache = createCache("strongWithoutStatsCache", cacheManager, "STRONG", false);
       testL1BigMemorySanity(strongWithoutStatsCache, shouldWait);
     }
 
@@ -100,7 +100,7 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
       System.out.println("XXXXXX done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String consistency, boolean isWithStats) {
+    private Cache createCache(String cacheName, CacheManager cm, String consistency, boolean isWithStats) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxBytesLocalHeap(10485760L);

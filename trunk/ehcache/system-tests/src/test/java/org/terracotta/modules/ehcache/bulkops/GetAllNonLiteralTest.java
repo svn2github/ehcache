@@ -46,7 +46,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
-      Cache dcv2StrongSerialization = crerateCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
+      Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
                                                    "SERIALIZATION");
       dcv2StrongSerialization.setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2StrongSerialization, false);
@@ -124,7 +124,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
       System.out.println("XXXXX done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency,
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
                                String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);

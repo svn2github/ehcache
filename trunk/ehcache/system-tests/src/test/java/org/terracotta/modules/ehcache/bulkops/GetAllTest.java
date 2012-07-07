@@ -47,32 +47,32 @@ public class GetAllTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
-      Cache dcv2EventualWithStats = crerateCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL,
+      Cache dcv2EventualWithStats = createCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL,
                                                  ValueMode.SERIALIZATION);
       dcv2EventualWithStats.setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2EventualWithStats, true);
 
-      Cache dcv2EventualWithoutStats = crerateCache("dcv2EventualWithoutStats", cacheManager,
+      Cache dcv2EventualWithoutStats = createCache("dcv2EventualWithoutStats", cacheManager,
                                                     Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualWithoutStats.setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2EventualWithoutStats, true);
 
-      Cache dcv2StrongWithStats = crerateCache("dcv2StrongWithStats", cacheManager, Consistency.STRONG,
+      Cache dcv2StrongWithStats = createCache("dcv2StrongWithStats", cacheManager, Consistency.STRONG,
                                                ValueMode.SERIALIZATION);
       dcv2StrongWithStats.setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2StrongWithStats, false);
 
-      Cache dcv2StrongIdentityWithStats = crerateCache("dcv2StrongIdentityWithStats", cacheManager,
+      Cache dcv2StrongIdentityWithStats = createCache("dcv2StrongIdentityWithStats", cacheManager,
                                                        Consistency.STRONG, ValueMode.IDENTITY);
       dcv2StrongIdentityWithStats.setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2StrongIdentityWithStats, false);
 
-      Cache dcv2StrongWithoutStats = crerateCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
+      Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
                                                   ValueMode.SERIALIZATION);
       dcv2StrongWithoutStats.setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2StrongWithoutStats, false);
 
-      Cache dcv2StrongIdentityWithoutStats = crerateCache("dcv2StrongIdentityWithoutStats", cacheManager,
+      Cache dcv2StrongIdentityWithoutStats = createCache("dcv2StrongIdentityWithoutStats", cacheManager,
                                                           Consistency.STRONG, ValueMode.IDENTITY);
       dcv2StrongIdentityWithoutStats.setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2StrongIdentityWithoutStats, false);
@@ -165,7 +165,7 @@ public class GetAllTest extends AbstractCacheTestBase {
       }
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency,
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
                                ValueMode valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);

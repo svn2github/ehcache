@@ -48,12 +48,12 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
-      Cache dcv2StrongSerialization = crerateCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
+      Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
                                                    "SERIALIZATION");
       testBulkOpsSanity(dcv2StrongSerialization);
       barrier.await();
 
-      Cache dcv2EventualSerialization = crerateCache("dcv2EventualSerialization", cacheManager,
+      Cache dcv2EventualSerialization = createCache("dcv2EventualSerialization", cacheManager,
                                                      Consistency.EVENTUAL, "SERIALIZATION");
       testBulkOpsSanity(dcv2EventualSerialization);
       barrier.await();
@@ -137,7 +137,7 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       System.out.println("client " + index + " done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency,
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
                                String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);

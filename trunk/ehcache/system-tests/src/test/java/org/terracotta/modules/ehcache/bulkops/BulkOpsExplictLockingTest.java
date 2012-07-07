@@ -47,9 +47,9 @@ public class BulkOpsExplictLockingTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
-      Cache dcv2Strong = crerateCache("dcv2Strong", cacheManager, Consistency.STRONG);
+      Cache dcv2Strong = createCache("dcv2Strong", cacheManager, Consistency.STRONG);
       testBulkOpsWithExplictLocking(dcv2Strong);
-      Cache dcv2Eventual = crerateCache("dcv2Eventual", cacheManager, Consistency.EVENTUAL);
+      Cache dcv2Eventual = createCache("dcv2Eventual", cacheManager, Consistency.EVENTUAL);
       testBulkOpsWithExplictLocking(dcv2Eventual);
 
     }
@@ -142,7 +142,7 @@ public class BulkOpsExplictLockingTest extends AbstractCacheTestBase {
       System.out.println("client, I am done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, Consistency consistency) {
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsInMemory(100000);
