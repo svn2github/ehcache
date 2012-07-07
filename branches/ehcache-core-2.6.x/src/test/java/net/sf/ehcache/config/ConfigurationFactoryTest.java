@@ -50,6 +50,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
@@ -254,7 +255,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
         assertEquals(120, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
         assertEquals(120, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
-        assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(Strategy.LOCALTEMPSWAP, defaultCache.getCacheConfiguration().getPersistenceConfiguration().getStrategy());
         assertEquals(10000, defaultCache.getCacheConfiguration().getMaxElementsInMemory());
         assertEquals(10000000, defaultCache.getCacheConfiguration().getMaxElementsOnDisk());
 
@@ -267,7 +268,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(false, sampleCache1Config.isEternal());
         assertEquals(300, sampleCache1Config.getTimeToIdleSeconds());
         assertEquals(600, sampleCache1Config.getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1Config.isOverflowToDisk());
+        assertEquals(Strategy.LOCALTEMPSWAP, sampleCache1Config.getPersistenceConfiguration().getStrategy());
         assertEquals(20, sampleCache1Config.getDiskSpoolBufferSizeMB());
 
         //  <cache name="sampleCache1"
@@ -284,7 +285,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
         assertEquals(1000, sampleCache1.getCacheConfiguration().getMaxElementsOnDisk());
         assertEquals(600, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(Strategy.LOCALTEMPSWAP, sampleCache1Config.getPersistenceConfiguration().getStrategy());
     }
 
     /**
@@ -881,7 +882,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
         assertEquals(120, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
         assertEquals(120, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
-        assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(Strategy.LOCALTEMPSWAP, defaultCache.getCacheConfiguration().getPersistenceConfiguration().getStrategy());
 
         //Check caches
         assertEquals(6, configurationHelper.createCaches().size());
@@ -898,7 +899,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(false, sampleCache1.getCacheConfiguration().isEternal());
         assertEquals(300, sampleCache1.getCacheConfiguration().getTimeToIdleSeconds());
         assertEquals(600, sampleCache1.getCacheConfiguration().getTimeToLiveSeconds());
-        assertEquals(true, sampleCache1.getCacheConfiguration().isOverflowToDisk());
+        assertEquals(Strategy.LOCALTEMPSWAP, sampleCache1.getCacheConfiguration().getPersistenceConfiguration().getStrategy());
     }
 
     /**
@@ -939,7 +940,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
             assertEquals(false, defaultCache.getCacheConfiguration().isEternal());
             assertEquals(120, defaultCache.getCacheConfiguration().getTimeToIdleSeconds());
             assertEquals(120, defaultCache.getCacheConfiguration().getTimeToLiveSeconds());
-            assertEquals(true, defaultCache.getCacheConfiguration().isOverflowToDisk());
+            assertEquals(Strategy.LOCALTEMPSWAP, defaultCache.getCacheConfiguration().getPersistenceConfiguration().getStrategy());
 
             //Check caches
             assertEquals(0, configurationHelper.createCaches().size());

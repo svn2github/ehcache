@@ -175,12 +175,24 @@ public class CacheConfigurationTest {
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
         }
+        try {
+            persistence.overflowToDisk(true);
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and overflowToDisk"));
+        }
 
         CacheConfiguration diskPersistent = new CacheConfiguration().diskPersistent(true);
         try {
             diskPersistent.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
+        }
+
+        CacheConfiguration overflowToDisk = new CacheConfiguration().overflowToDisk(true);
+        try {
+            overflowToDisk.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and overflowToDisk"));
         }
     }
 

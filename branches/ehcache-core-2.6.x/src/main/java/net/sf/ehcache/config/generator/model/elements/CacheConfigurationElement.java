@@ -93,7 +93,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         if (!(cacheConfiguration.getMaxBytesLocalHeap() > 0 || configuration.getMaxBytesLocalHeap() > 0)) {
             element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalHeap", cacheConfiguration.getMaxEntriesLocalHeap()).optional(false));
         }
-        element.addAttribute(new SimpleNodeAttribute("overflowToDisk", cacheConfiguration.isOverflowToDisk()).optional(true).defaultValue(false));
         element.addAttribute(new SimpleNodeAttribute("clearOnFlush", cacheConfiguration.isClearOnFlush()).optional(true).defaultValue(
                 String.valueOf(CacheConfiguration.DEFAULT_CLEAR_ON_FLUSH)));
         element.addAttribute(new SimpleNodeAttribute("diskAccessStripes", cacheConfiguration.getDiskAccessStripes()).optional(true)
@@ -131,6 +130,10 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         element.addAttribute(new SimpleNodeAttribute("memoryStoreEvictionPolicy", cacheConfiguration.getMemoryStoreEvictionPolicy()
                 .toString().toUpperCase()).optional(true).defaultValue(
                 CacheConfiguration.DEFAULT_MEMORY_STORE_EVICTION_POLICY.toString().toUpperCase()));
+        if (cacheConfiguration.isOverflowToDisk() && cacheConfiguration.isDiskPersistent()) {
+            element.addAttribute(new SimpleNodeAttribute("diskPersistent", "true"));
+            element.addAttribute(new SimpleNodeAttribute("overflowToDisk", "true"));
+        }
     }
 
     /**
@@ -152,7 +155,9 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         addBootstrapCacheLoaderFactoryConfigurationElement(element, cacheConfiguration);
         addCacheExceptionHandlerFactoryConfigurationElement(element, cacheConfiguration);
         addSizeOfPolicyConfigurationElement(element, cacheConfiguration);
-        addPersistenceConfigurationElement(element, cacheConfiguration);
+        if (!cacheConfiguration.isOverflowToDisk() || !cacheConfiguration.isDiskPersistent()) {
+            addPersistenceConfigurationElement(element, cacheConfiguration);
+        }
         addCopyStrategyConfigurationElement(element, cacheConfiguration);
         addElementValueComparatorConfigurationElement(element, cacheConfiguration);
         addCacheWriterConfigurationElement(element, cacheConfiguration);
