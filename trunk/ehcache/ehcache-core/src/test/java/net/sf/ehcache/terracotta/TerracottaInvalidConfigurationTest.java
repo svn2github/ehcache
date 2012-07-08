@@ -19,6 +19,8 @@ package net.sf.ehcache.terracotta;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.regex.Pattern;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
@@ -32,9 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StorageStrategyInvalidConfigurationTest extends TestCase {
+public class TerracottaInvalidConfigurationTest extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StorageStrategyInvalidConfigurationTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TerracottaInvalidConfigurationTest.class);
 
     @Test
     public void testInvalidRejoinWithoutNonstop() throws Exception {
@@ -45,7 +47,7 @@ public class StorageStrategyInvalidConfigurationTest extends TestCase {
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
 
         try {
-            new CacheManager(CacheManager.class.getResourceAsStream("/ehcache-classic-with-nonstop-invalid-configuration-test.xml"));
+            new CacheManager(CacheManager.class.getResourceAsStream("/ehcache-nonstop-invalid-configuration-test.xml"));
             fail("Trying to run rejoin without nonstop terracotta caches should fail");
         } catch (InvalidConfigurationException e) {
             LOG.info("Caught expected exception: " + e);
