@@ -40,7 +40,7 @@ import org.terracotta.toolkit.ToolkitProperties;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
-import org.terracotta.toolkit.config.ToolkitMapConfigFields;
+import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
@@ -118,7 +118,7 @@ public class ClusteredStore implements TerracottaStore {
     checkContainsKeyOnPut = isCheckContainsKeyOnPut(toolkitInstanceFactory, cache);
     backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache);
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
-                                       backend.getConfiguration().getInt(ToolkitMapConfigFields.CONCURRENCY_FIELD_NAME)));
+                                       backend.getConfiguration().getInt(ToolkitStoreConfigFields.CONCURRENCY_FIELD_NAME)));
     // connect configurations
     cacheConfigChangeBridge = createConfigChangeBridge(toolkitInstanceFactory, cache, backend);
     cacheConfigChangeBridge.connectConfigs();

@@ -29,8 +29,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
-import org.terracotta.toolkit.config.ToolkitMapConfigFields;
-import org.terracotta.toolkit.config.ToolkitMapConfigFields.PinningStore;
+import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
+import org.terracotta.toolkit.config.ToolkitStoreConfigFields.PinningStore;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.client.TerracottaToolkitClientBuilderInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
@@ -125,11 +125,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
 
     if (terracottaConfiguration.isSynchronousWrites()) {
-      builder.consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.SYNCHRONOUS_STRONG);
+      builder.consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.SYNCHRONOUS_STRONG);
     } else if (terracottaConfiguration.getConsistency() == Consistency.EVENTUAL) {
-      builder.consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.EVENTUAL);
+      builder.consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.EVENTUAL);
     } else {
-      builder.consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG);
+      builder.consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG);
     }
 
     if (terracottaConfiguration.getConcurrency() == TerracottaConfiguration.DEFAULT_CONCURRENCY) {
@@ -157,7 +157,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private static int calculateCorrectConcurrency(CacheConfiguration cacheConfiguration) {
     int maxElementOnDisk = cacheConfiguration.getMaxElementsOnDisk();
-    if (maxElementOnDisk <= 0 || maxElementOnDisk >= ToolkitMapConfigFields.DEFAULT_CONCURRENCY) { return ToolkitMapConfigFields.DEFAULT_CONCURRENCY; }
+    if (maxElementOnDisk <= 0 || maxElementOnDisk >= ToolkitStoreConfigFields.DEFAULT_CONCURRENCY) { return ToolkitStoreConfigFields.DEFAULT_CONCURRENCY; }
     int concurrency = 1;
     while (concurrency * 2 <= maxElementOnDisk) {// this while loop is not very time consuming, maximum it will do 8
                                                  // iterations
@@ -224,10 +224,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
                                                                                                       String cacheName) {
     // TODO: what should be the local cache config for the map?
-    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
-        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
+    Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
     ToolkitMap<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
-        .getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX, config);
+        .getStore(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
+                  config);
     return new SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
 
   }
@@ -241,16 +242,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap() {
-    Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
-        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    return toolkit.getMap(ASYNC_CONFIG_MAP, configuration);
+    return toolkit.getMap(ASYNC_CONFIG_MAP);
   }
 
   @Override
   public ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
-    Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
-        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    return toolkit.getMap(fullAsyncName, configuration);
+    Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
+    return toolkit.getStore(fullAsyncName, configuration);
   }
 
   @Override
@@ -274,18 +273,16 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
-    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
-        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
     return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
-                          + CLUSTERED_STORE_CONFIG_MAP, config);
+                          + CLUSTERED_STORE_CONFIG_MAP);
   }
 
   @Override
   public SerializedToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
     // TODO: what should be the local cache config for the map?
-    Configuration config = toolkit.getConfigBuilderFactory().newToolkitMapConfigBuilder()
-        .consistency(org.terracotta.toolkit.config.ToolkitMapConfigFields.Consistency.STRONG).build();
-    ToolkitMap<String, Decision> map = toolkit.getMap(cacheManagerName + DELIMITER
+    Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
+        .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
+    ToolkitMap<String, Decision> map = toolkit.getStore(cacheManagerName + DELIMITER
                                                       + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config);
     return new SerializedToolkitMap<TransactionID, Decision>(map);
   }

@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.config.ToolkitCacheConfigFields;
-import org.terracotta.toolkit.config.ToolkitMapConfigFields;
+import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
@@ -147,8 +147,8 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
 
   private static enum DynamicConfigType {
     MAX_TOTAL_COUNT(ToolkitCacheConfigFields.MAX_TOTAL_COUNT_FIELD_NAME), MAX_COUNT_LOCAL_HEAP(
-        ToolkitMapConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME), MAX_BYTES_LOCAL_HEAP(
-        ToolkitMapConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME), MAX_TTI_SECONDS(
+        ToolkitStoreConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME), MAX_BYTES_LOCAL_HEAP(
+        ToolkitStoreConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME), MAX_TTI_SECONDS(
         ToolkitCacheConfigFields.MAX_TTI_SECONDS_FIELD_NAME), MAX_TTL_SECONDS(
         ToolkitCacheConfigFields.MAX_TTL_SECONDS_FIELD_NAME);
 
