@@ -386,6 +386,7 @@ public class CacheManager {
                 final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
                 CACHE_MANAGERS_MAP.remove(name);
             }
+            ALL_CACHE_MANAGERS.remove(this);
             if (t instanceof CacheException) {
                 throw (CacheException) t;
             } else {

@@ -3,7 +3,6 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 
 import org.hamcrest.core.StringContains;
