@@ -49,12 +49,13 @@ public final class JVMUtil {
         }
 
         Thread[] threads;
+        int threadCount;
         do {
             int activeEstimate = root.activeCount();
             threads = new Thread[activeEstimate + 1];
-        } while (root.enumerate(threads) >= threads.length);
+        } while ((threadCount = root.enumerate(threads)) >= threads.length);
         
-        return new ArrayList<Thread>(Arrays.asList(threads));
+        return new ArrayList<Thread>(Arrays.asList(threads).subList(0, threadCount));
     }
 
 }
