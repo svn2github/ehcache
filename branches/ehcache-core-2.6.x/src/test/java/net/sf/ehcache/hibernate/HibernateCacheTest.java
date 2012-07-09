@@ -13,6 +13,7 @@ import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.hibernate.domain.Event;
 import net.sf.ehcache.hibernate.domain.EventManager;
 
@@ -33,6 +34,7 @@ import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.stat.Statistics;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -76,6 +78,18 @@ public class HibernateCacheTest {
     public static void tearDown() {
         getSessionFactory().close();
     }
+    
+    @Before
+    public void clearCaches() {
+        for (CacheManager manager : CacheManager.ALL_CACHE_MANAGERS) {
+            for (String s : manager.getCacheNames()) {
+                final Cache cache = manager.getCache(s);
+                if(cache.getStatus() == Status.STATUS_ALIVE) {
+                    cache.removeAll();
+                }
+            }
+        }
+    }
 
     @Test
     public void testQueryCacheInvalidation() throws Exception {
@@ -90,23 +104,23 @@ public class HibernateCacheTest {
 
         SecondLevelCacheStatistics slcs = s.getSessionFactory().getStatistics().getSecondLevelCacheStatistics(Item.class.getName());
 
-        assertEquals(slcs.getPutCount(), 1);
-        assertEquals(slcs.getElementCountInMemory(), 1);
-        assertEquals(slcs.getEntries().size(), 1);
+        assertEquals(1, slcs.getPutCount());
+        assertEquals(1, slcs.getElementCountInMemory());
+        assertEquals(1, slcs.getEntries().size());
 
         s = getSessionFactory().openSession();
         t = s.beginTransaction();
         i = (Item) s.get(Item.class, i.getId());
 
-        assertEquals(slcs.getHitCount(), 1);
-        assertEquals(slcs.getMissCount(), 0);
+        assertEquals(1, slcs.getHitCount());
+        assertEquals(0, slcs.getMissCount());
 
         i.setDescription("A bog standard item");
 
         t.commit();
         s.close();
 
-        assertEquals(slcs.getPutCount(), 2);
+        assertEquals(2, slcs.getPutCount());
 
         Object entry = slcs.getEntries().get(i.getId());
         Map map;
@@ -276,8 +290,6 @@ public class HibernateCacheTest {
         for (Event event : (List<Event>) mgr.listEvents()) {
             mgr.listEmailsOfEvent(event.getId());
         }
-
-        getSessionFactory().close();
 
         QueryStatistics queryStats = stats.getQueryStatistics("from Event");
         assertEquals("Cache Miss Count", 1L, queryStats.getCacheMissCount());
