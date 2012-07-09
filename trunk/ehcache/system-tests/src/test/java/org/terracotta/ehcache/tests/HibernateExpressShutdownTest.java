@@ -73,7 +73,7 @@ public class HibernateExpressShutdownTest extends AbstractCacheTestBase {
   protected List<String> getExtraJars() {
     List<String> extraJars = new ArrayList<String>();
     extraJars.add(TestBaseUtil.jarFor(org.hibernate.SessionFactory.class));
-    extraJars.add(TestBaseUtil.jarFor(org.apache.commons.collections.Buffer.class));
+    extraJars.add(TestBaseUtil.jarFor(org.apache.commons.collections.map.LRUMap.class));
     extraJars.add(TestBaseUtil.jarFor(org.apache.derby.jdbc.ClientDriver.class));
     extraJars.add(TestBaseUtil.jarFor(org.dom4j.Node.class));
     extraJars.add(TestBaseUtil.jarFor(antlr.Tool.class));
