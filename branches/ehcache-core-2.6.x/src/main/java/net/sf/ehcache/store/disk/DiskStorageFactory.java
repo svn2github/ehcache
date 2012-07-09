@@ -124,17 +124,16 @@ public class DiskStorageFactory {
         this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
         this.file = diskStorePathManager.getFile(cache.getName(), ".data");
 
-        if (diskStorePathManager.isAutoCreated()) {
+        this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
+        this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
+        this.diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
+
+        if (diskPersistent && diskStorePathManager.isAutoCreated()) {
             LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories.\n"
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n" + "Deleting data file "
                     + file.getAbsolutePath());
             deleteFile(file);
-        }
-        this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
-        this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
-
-        diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
-        if (!diskPersistent) {
+        } else if (!diskPersistent) {
             deleteFile(file);
             deleteFile(indexFile);
         }
