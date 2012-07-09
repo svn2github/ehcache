@@ -7,15 +7,27 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.AnyOf.anyOf;
 
 /**
  *
  * @author Chris Dennis
  */
 public class AgentLoaderRaceTest {
+
+    @BeforeClass
+    public static void checkForAgentLoading() {
+        Assume.assumeThat(System.getProperty("java.version"), anyOf(startsWith("1.6"), startsWith("1.7")));
+        Assume.assumeThat(System.getProperty("java.version"), not(startsWith("1.7.0_02")));
+        Assume.assumeThat(System.getProperty("java.vm.vendor"), not(startsWith("Apple")));
+    }
     
     /*
      * This test tries to expose an agent loading race seen in MNK-3255.
