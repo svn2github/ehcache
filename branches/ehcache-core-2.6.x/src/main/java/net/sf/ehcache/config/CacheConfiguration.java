@@ -1617,8 +1617,12 @@ public class CacheConfiguration implements Cloneable {
             switch (persistenceConfiguration.getStrategy()) {
                 case DISTRIBUTED:
                 case NONE:
-                case LOCALTEMPSWAP:
                     diskPersistent = Boolean.FALSE;
+                    break;
+                case LOCALTEMPSWAP:
+                    if (diskPersistent == null) {
+                        diskPersistent = Boolean.FALSE;
+                    }
                     break;
                 case LOCALRESTARTABLE:
                     diskPersistent = Boolean.TRUE;

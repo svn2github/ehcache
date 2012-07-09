@@ -18,8 +18,6 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.distribution.RemoteCacheException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
