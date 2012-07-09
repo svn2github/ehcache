@@ -17,6 +17,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
@@ -56,8 +57,8 @@ public class DiskStorePoolingTest {
 
     @Before
     public void setUp() {
-        cacheManager = CacheManager.create();
-        cache = new Cache(new CacheConfiguration("myCache1", 0).eternal(true).diskPersistent(true));
+        cacheManager = new CacheManager(new Configuration().name("DiskStorePoolingTest"));
+        cache = new Cache(new CacheConfiguration().name("myCache1").maxEntriesLocalHeap(100000).eternal(true).diskPersistent(true));
         cacheManager.addCache(cache);
         lastEvicted = null;
         cache.getCacheEventNotificationService().registerListener(new CacheEventListener() {
