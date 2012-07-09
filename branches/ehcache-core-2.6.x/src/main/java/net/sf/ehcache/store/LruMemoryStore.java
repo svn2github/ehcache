@@ -261,8 +261,7 @@ public class LruMemoryStore extends AbstractStore {
      * Flush to disk only if the cache is diskPersistent.
      */
     public final void flush() {
-        PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
-        if ((persistence != null && Strategy.LOCALTEMPSWAP.equals(persistence.getStrategy()))) {
+        if (cache.getCacheConfiguration().isDiskPersistent()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }

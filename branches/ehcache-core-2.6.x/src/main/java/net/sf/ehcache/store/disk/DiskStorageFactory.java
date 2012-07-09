@@ -135,8 +135,7 @@ public class DiskStorageFactory {
         this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
         this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
 
-        PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
-        diskPersistent = persistence != null && Strategy.LOCALTEMPSWAP.equals(persistence.getStrategy());
+        diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
         if (!diskPersistent) {
             deleteFile(file);
             deleteFile(indexFile);
