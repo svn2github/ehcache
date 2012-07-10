@@ -274,7 +274,7 @@ public class ManagementServiceTest extends AbstractCacheTest {
         Object object = mBeanServer.getAttribute(name, "Status");
         LOG.info(object.toString());
 
-        List caches = (List) mBeanServer.getAttribute(name, "Caches");
+        List<?> caches = (List<?>) mBeanServer.getAttribute(name, "Caches");
         assertThat(caches, hasSize(15));
 
         for (int i = 0; i < caches.size(); i++) {
