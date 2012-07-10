@@ -252,7 +252,6 @@ public class ProcessingBucket<E extends Serializable> {
 
     bucketWriteLock.lock();
     try {
-      if (cancelled) { return; }
       busy = true;
       lastProcessing = baselinedCurrentTimeMillis();
     } finally {
