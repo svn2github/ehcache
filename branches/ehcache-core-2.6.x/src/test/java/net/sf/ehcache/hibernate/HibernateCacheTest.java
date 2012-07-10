@@ -215,11 +215,10 @@ public class HibernateCacheTest {
         s.close();
 
     }
-    
+
     @Test
     public void testUnpinsOnRemoval() {
-        getSessionFactory();
-        Session session = sessionFactory.getCurrentSession();
+        Session session = getSessionFactory().getCurrentSession();
         Cache entityCache = CacheManager.getCacheManager("tc").getCache(Item.class.getName());
         long maxEntriesLocalHeap = 100;
         entityCache.getCacheConfiguration().setMaxEntriesLocalHeap(maxEntriesLocalHeap);
