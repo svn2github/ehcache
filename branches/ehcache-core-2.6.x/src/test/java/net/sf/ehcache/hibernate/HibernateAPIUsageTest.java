@@ -366,7 +366,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             //expected
         }
 
-        ((net.sf.ehcache.hibernate.EhCache) cache).getBackingCache().getCacheManager().shutdown();
+        provider.stop();
 
 
     }
@@ -541,7 +541,8 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             //expected
         }
 
-        ((net.sf.ehcache.hibernate.EhCache) cache).getBackingCache().getCacheManager().shutdown();
+        provider.stop();
+        provider2.stop();
     }
 
     /**
