@@ -12,6 +12,7 @@
             <excludes>
               <exclude>*sources.jar</exclude>
               <exclude>*javadoc.jar</exclude>
+              <exclude>*-tests.jar</exclude>
             </excludes>
             <outputDirectory>/lib</outputDirectory>
         </fileSet>
