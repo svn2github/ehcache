@@ -365,6 +365,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             //expected
         }
 
+        provider.stop();
     }
 
 
@@ -529,6 +530,8 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             //expected
         }
 
+        provider.stop();
+        provider2.stop();
     }
 
     /**
