@@ -18,8 +18,6 @@ package net.sf.ehcache.management;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 
@@ -29,7 +27,6 @@ import java.net.BindException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -57,7 +54,6 @@ import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.Is;
-import org.hibernate.type.CollectionType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

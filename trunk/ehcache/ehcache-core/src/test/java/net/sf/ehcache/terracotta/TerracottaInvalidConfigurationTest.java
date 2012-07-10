@@ -19,8 +19,6 @@ package net.sf.ehcache.terracotta;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.regex.Pattern;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
