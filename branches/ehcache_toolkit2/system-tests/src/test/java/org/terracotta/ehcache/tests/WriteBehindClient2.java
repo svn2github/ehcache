@@ -31,6 +31,6 @@ public class WriteBehindClient2 extends AbstractWriteBehindClient {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     cache.putWithWriter(new Element("key", "value"));
     cache.removeWithWriter("key");
-    TimeUnit.MINUTES.sleep(20);
+    TimeUnit.MINUTES.sleep(1);
   }
 }

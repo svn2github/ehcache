@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -40,8 +39,8 @@ public class ProcessingBucket<E extends Serializable> {
   private final Condition              stoppedButBucketNotEmpty;
   private final ToolkitList<E>         toolkitList;
   private long                         lastProcessing     = -1;
-  private final AtomicLong             lastWorkDoneMillis = new AtomicLong(-1);
-  private final AtomicBoolean          busy               = new AtomicBoolean(false);
+  private long                         lastWorkDoneMillis = -1;
+  private boolean                      busy               = false;
   private volatile boolean             cancelled          = false;
   private final AtomicLong             workDelay;
   private ProcessingWorker             processingWorker;
@@ -73,12 +72,11 @@ public class ProcessingBucket<E extends Serializable> {
    * @return returns recent time stamp when processItems() executed.
    */
   public long getLastProcessing() {
-    Lock lock = bucketReadLock;
-    lock.lock();
+    bucketReadLock.lock();
     try {
       return lastProcessing;
     } finally {
-      lock.unlock();
+      bucketReadLock.unlock();
     }
   }
 
@@ -91,31 +89,29 @@ public class ProcessingBucket<E extends Serializable> {
   }
 
   void start(boolean workingOnDeadBucket) throws ProcessingBucketAlreadyStartedException {
-    Lock lock = bucketWriteLock;
-    lock.lock();
+    bucketWriteLock.lock();
     try {
       ensureNonExistingThread();
       processingWorker = new ProcessingWorker("ProcessingWorker-" + bucketName, workingOnDeadBucket);
       processingWorker.setDaemon(true);
       processingWorker.start();
     } finally {
-      lock.unlock();
+      bucketWriteLock.unlock();
     }
   }
 
   private void ensureNonExistingThread() throws ProcessingBucketAlreadyStartedException {
     if (processingWorker != null && processingWorker.isWorking()) { throw new ProcessingBucketAlreadyStartedException(
-                                                                                                             processingWorker); }
+                                                                                                                      processingWorker); }
   }
 
   private boolean isCancelled() {
     try {
-      Lock lock = bucketReadLock;
-      lock.lock();
+      bucketReadLock.lock();
       try {
         return cancelled || (processingWorker.isWorkingOnDeadBucket() && toolkitList.isEmpty());
       } finally {
-        lock.unlock();
+        bucketReadLock.unlock();
       }
     } catch (RuntimeException e) {
       if (e.getClass().getName().equals("com.tc.exception.TCNotRunningException")) {
@@ -127,35 +123,30 @@ public class ProcessingBucket<E extends Serializable> {
   }
 
   public int getWaitCount() {
-    Lock lock = bucketReadLock;
-    lock.lock();
+    bucketReadLock.lock();
     try {
       return toolkitList.size();
     } finally {
-      lock.unlock();
+      bucketReadLock.unlock();
     }
   }
 
   public void stop() {
-    Lock lock = bucketWriteLock;
-    lock.lock();
+    bucketWriteLock.lock();
     try {
       signalNotEmpty();
       try {
+        cancelled = true;
         workDelay.set(0);
         while (!toolkitList.isEmpty()) {
           stoppedButBucketNotEmpty.await();
-        }
-        cancelled = true;
-        if (!processingWorker.isWorkingOnDeadBucket()) {
-          destroyToolkitList();
         }
         processingWorker.interrupt();
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
     } finally {
-      lock.unlock();
+      bucketWriteLock.unlock();
     }
   }
 
@@ -173,21 +164,19 @@ public class ProcessingBucket<E extends Serializable> {
   }
 
   public String getThreadName() {
-    Lock lock = bucketReadLock;
-    lock.lock();
+    bucketReadLock.lock();
     try {
       if (null == processingWorker) { return null; }
       return processingWorker.getName();
     } finally {
-      lock.unlock();
+      bucketReadLock.unlock();
     }
   }
 
   public void add(final E item) {
     if (null == item) return;
     int maxQueueSize = config.getMaxQueueSize();
-    Lock lock = bucketWriteLock;
-    lock.lock();
+    bucketWriteLock.lock();
     try {
       if (maxQueueSize != 0) {
         while (toolkitList.size() >= maxQueueSize) {
@@ -202,12 +191,9 @@ public class ProcessingBucket<E extends Serializable> {
         }
       }
       toolkitList.add(item);
-      if (toolkitList.size() + 1 < maxQueueSize) {
-        signalNotFull();
-      }
       signalNotEmpty();
     } finally {
-      lock.unlock();
+      bucketWriteLock.unlock();
     }
   }
 
@@ -223,35 +209,32 @@ public class ProcessingBucket<E extends Serializable> {
   private void filterQuarantined() {
     if (null == filter) { return; }
 
-    Lock lock = bucketWriteLock;
-    lock.lock();
+    bucketWriteLock.lock();
     try {
       ItemsFilter<E> itemsFilter = this.filter;
       if (itemsFilter != null) {
         itemsFilter.filter(toolkitList);
       }
     } finally {
-      lock.unlock();
+      bucketWriteLock.unlock();
     }
   }
 
   private void signalNotFull() {
-    Lock lock = bucketWriteLock;
-    lock.lock();
+    bucketWriteLock.lock();
     try {
-      bucketIsFull.signal();
+      bucketIsFull.signalAll();
     } finally {
-      lock.unlock();
+      bucketWriteLock.unlock();
     }
   }
 
   private void signalNotEmpty() {
-    Lock lock = bucketWriteLock;
-    lock.lock();
+    bucketWriteLock.lock();
     try {
-      bucketIsEmpty.signal();
+      bucketIsEmpty.signalAll();
     } finally {
-      lock.unlock();
+      bucketWriteLock.unlock();
     }
   }
 
@@ -260,21 +243,36 @@ public class ProcessingBucket<E extends Serializable> {
    * bucket will be processed.
    */
   private void processItems() throws BusyProcessingException, ProcessingException {
-    // set some state related to this processing run
-    final int workSize;
-    Lock lock = bucketWriteLock;
-    lock.lock();
+    bucketReadLock.lock();
     try {
-      if (busy.get()) { throw new BusyProcessingException(); }
+      if (busy) { throw new BusyProcessingException(); }
+    } finally {
+      bucketReadLock.unlock();
+    }
+
+    bucketWriteLock.lock();
+    try {
       if (cancelled) { return; }
-      busy.set(true);
+      busy = true;
       lastProcessing = baselinedCurrentTimeMillis();
-      workSize = toolkitList.size();
-      // if there's no work that needs to be done, stop the processing
-      if (0 == workSize) {
-        signalNotFull();
-        LOGGER.warn(getThreadName() + " : processItems() : nothing to process");
-        return;
+    } finally {
+      bucketWriteLock.unlock();
+    }
+
+    try {
+      // set some state related to this processing run
+      final int workSize;
+      bucketWriteLock.lock();
+      try {
+        if (cancelled) { return; }
+        workSize = toolkitList.size();
+        // if there's no work that needs to be done, stop the processing
+        if (0 == workSize) {
+          LOGGER.warn(getThreadName() + " : processItems() : nothing to process");
+          return;
+        }
+      } finally {
+        bucketWriteLock.unlock();
       }
 
       filterQuarantined();
@@ -284,7 +282,7 @@ public class ProcessingBucket<E extends Serializable> {
       if (config.isBatchingEnabled() && batchSize > 0) {
         // wait for another round if the batch size hasn't been filled up yet and the max write delay
         // hasn't expired yet
-        if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessing - lastWorkDoneMillis.get()) {
+        if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessing - lastWorkDoneMillis) {
           LOGGER.warn(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
                       + batchSize + " items to fill up a batch");
           return;
@@ -296,13 +294,12 @@ public class ProcessingBucket<E extends Serializable> {
         if (rateLimit > 0) {
           final long secondsSinceLastWorkDone;
           final int effectiveBatchSize;
-          lock = bucketReadLock;
-          lock.lock();
+          bucketReadLock.lock();
           try {
-            secondsSinceLastWorkDone = (baselinedCurrentTimeMillis() - lastWorkDoneMillis.get()) / 1000;
+            secondsSinceLastWorkDone = (baselinedCurrentTimeMillis() - lastWorkDoneMillis) / 1000;
             effectiveBatchSize = determineBatchSize();
           } finally {
-            lock.unlock();
+            bucketReadLock.unlock();
           }
           final long maxBatchSizeSinceLastWorkDone = rateLimit * secondsSinceLastWorkDone;
           if (effectiveBatchSize > maxBatchSizeSinceLastWorkDone) {
@@ -314,45 +311,40 @@ public class ProcessingBucket<E extends Serializable> {
         }
       }
 
-      // set some state related to this processing run
-      lastWorkDoneMillis.set(baselinedCurrentTimeMillis());
-      doProcessItems();
-    } finally {
-      lock = bucketWriteLock;
-      lock.lock();
+      bucketWriteLock.lock();
       try {
-        busy.set(false);
+        lastWorkDoneMillis = baselinedCurrentTimeMillis();
+        doProcessItems();
       } finally {
-        lock.unlock();
+        bucketWriteLock.unlock();
+      }
+
+    } finally {
+      bucketWriteLock.lock();
+      try {
+        busy = false;
+      } finally {
+        bucketWriteLock.unlock();
       }
     }
   }
 
   private void doProcessItems() throws ProcessingException {
     // process the quarantined items and remove them as they're processed
-    Lock lock = bucketWriteLock;
-    lock.lock();
-    try {
-      // don't process work if this node's operations have been disabled
-      if (cluster != null && !cluster.areOperationsEnabled()) {
-        signalNotEmpty();
-        return;
+    // don't process work if this node's operations have been disabled
+    if (cluster != null && !cluster.areOperationsEnabled()) {
+      return;
+    } else {
+      if (config.isBatchingEnabled() && config.getBatchSize() > 0) {
+        processBatchedItems();
       } else {
-        if (config.isBatchingEnabled() && config.getBatchSize() > 0) {
-          processBatchedItems();
-        } else {
-          processSingleItem();
-        }
-        signalNotFull();
-
-        if (toolkitList.isEmpty()) {
-          stoppedButBucketNotEmpty.signalAll();
-        } else {
-          signalNotEmpty();
-        }
+        processSingleItem();
       }
-    } finally {
-      lock.unlock();
+      signalNotFull();
+
+      if (toolkitList.isEmpty() && cancelled) {
+        stoppedButBucketNotEmpty.signalAll();
+      }
     }
   }
 
@@ -460,8 +452,7 @@ public class ProcessingBucket<E extends Serializable> {
           // otherwise it's possible to create a new work list for just a couple of items in case
           // the item processor is very fast, causing a large amount of data churn and broadcasts.
           // However, if the work delay is expired, the processing should start immediately.
-          Lock lock = bucketWriteLock;
-          lock.lock();
+          bucketWriteLock.lock();
           try {
             try {
               long tmpWorkDelay = workDelay.get();
@@ -487,7 +478,7 @@ public class ProcessingBucket<E extends Serializable> {
             }
 
           } finally {
-            lock.unlock();
+            bucketWriteLock.unlock();
           }
         }
       } catch (Throwable t) {
@@ -499,10 +490,8 @@ public class ProcessingBucket<E extends Serializable> {
         //
       }
 
-      // Destroying buckets with no owners
-      if (processingWorker.isWorkingOnDeadBucket()) {
-        destroyToolkitList();
-      }
+      // Destroy anyways, either stop happened or other dead-client bucket was finished processing
+      destroyToolkitList();
       isRunning = false;
     }
 
@@ -514,7 +503,7 @@ public class ProcessingBucket<E extends Serializable> {
       return isRunning;
     }
 
-    public boolean isWorkingOnDeadBucket() {
+    private boolean isWorkingOnDeadBucket() {
       return workingOnDeadBucket;
     }
   }
