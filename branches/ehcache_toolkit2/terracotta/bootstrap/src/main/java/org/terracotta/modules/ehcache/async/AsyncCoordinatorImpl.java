@@ -74,6 +74,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private final ToolkitInstanceFactory                 toolkitInstanceFactory;
   private ItemProcessor<E>                             processor;
   private AsyncClusterListener                         listner;
+  private StopCallable                                 stopCallable;
 
   public AsyncCoordinatorImpl(String name, String asyncNameWithNodeId, AsyncConfig config,
                               ToolkitInstanceFactory toolkitInstanceFactory) {
@@ -90,7 +91,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.toolkit = toolkitInstanceFactory.getToolkit();
     this.listNamesMap = toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name);
     ToolkitLockType lockType = config.isSynchronousWrite() ? ToolkitLockType.SYNCHRONOUS_WRITE : ToolkitLockType.WRITE;
-    this.coordinatorLock = toolkit.getLock(asyncNameWithNodeId, lockType);
+    this.coordinatorLock = toolkit.getLock(name, lockType);
     this.cluster = toolkit.getClusterInfo();
   }
 
@@ -214,6 +215,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         cluster.removeClusterListener(listner);
       }
       listNamesMap.remove(asyncNameWithNodeId);
+      stopCallable.stop();
     } finally {
       lock.unlock();
     }
@@ -341,6 +343,14 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     } finally {
       lock.unlock();
     }
+  }
+
+  public void registerStopCallable(StopCallable callable) {
+    this.stopCallable = callable;
+  }
+
+  public static interface StopCallable {
+    void stop();
   }
 
 }

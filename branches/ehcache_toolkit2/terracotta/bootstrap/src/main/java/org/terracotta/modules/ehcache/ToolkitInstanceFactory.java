@@ -66,7 +66,7 @@ public interface ToolkitInstanceFactory {
 
   ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
 
-  String getFullAsyncName(Ehcache cache, String asyncName);
+  String getFullAsyncName(Ehcache cache);
 
   String getAsyncNode(String fullAsyncName, String nodeId);
 

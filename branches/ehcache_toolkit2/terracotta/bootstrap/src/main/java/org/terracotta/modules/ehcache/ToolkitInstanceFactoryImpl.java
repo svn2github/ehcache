@@ -253,10 +253,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public String getFullAsyncName(Ehcache cache, String asyncName) {
+  public String getFullAsyncName(Ehcache cache) {
     String cacheMgrName = getCacheManagerName(cache);
     String cacheName = cache.getName();
-    String fullAsyncName = cacheMgrName + DELIMITER + cacheName + DELIMITER + ASYNC + DELIMITER + asyncName;
+    String fullAsyncName = cacheMgrName + DELIMITER + cacheName + DELIMITER + ASYNC;
     return fullAsyncName;
   }
 

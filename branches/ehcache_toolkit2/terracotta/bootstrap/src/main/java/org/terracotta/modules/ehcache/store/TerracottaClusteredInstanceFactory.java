@@ -39,7 +39,6 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   public static final String                    DEFAULT_CACHE_MANAGER_NAME = "__DEFAULT__";
 
   protected final ToolkitInstanceFactory        toolkitInstanceFactory;
-  private static final String                   DEFAULT_ASYNC_NAME         = "__DEFAULT__ASYNC__";
 
   // private final fields
   private final CacheCluster                    topology;
@@ -111,8 +110,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
                                                                config.getRateLimitPerSecond(),
                                                                config.getWriteBehindMaxQueueSize());
 
-    final AsyncCoordinator asyncCoordinator = asyncCoordinatorFactory.getOrCreateAsyncCoordinator(DEFAULT_ASYNC_NAME,
-                                                                                                  cache, asyncConfig);
+    final AsyncCoordinator asyncCoordinator = asyncCoordinatorFactory.getOrCreateAsyncCoordinator(cache, asyncConfig);
     return new AsyncWriteBehind(asyncCoordinator, cache);
   }
 

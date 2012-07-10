@@ -6,5 +6,5 @@ package org.terracotta.modules.ehcache.async;
 import net.sf.ehcache.Ehcache;
 
 public interface AsyncCoordinatorFactory {
-  AsyncCoordinator getOrCreateAsyncCoordinator(final String asyncName, final Ehcache cache, final AsyncConfig config);
+  AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config);
 }
