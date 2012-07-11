@@ -126,7 +126,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
    */
   @Override
   public String getUUID() {
-    return toolkitInstanceFactory.getToolkit().getClusterInfo().getUniversallyUniqueClientID();
+    return toolkitInstanceFactory.getToolkit().getClusterInfo().getClientUUID();
   }
 
   @Override
