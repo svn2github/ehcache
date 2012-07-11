@@ -372,6 +372,11 @@ public final class DiskStorePathManager {
                 }
             }
         }
+
+        @Override
+        public String toString() {
+            return diskStorePath.getAbsolutePath();
+        }
     }
 
 }
