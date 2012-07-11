@@ -170,9 +170,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     @Test
     public void testPeersBound() {
 
-        // MNK-3785
-        printMethodName();
-
         List cachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).getBoundCachePeers();
         assertEquals(55, cachePeers1.size());
         String[] boundCachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
@@ -206,19 +203,12 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
         assertEquals(cachePeers5.size(), boundCachePeers5.length);
     }
 
-    private void printMethodName() {
-        final StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
-        System.out.println(" *** Executing " + ste.getClassName() + "." + ste.getMethodName());
-    }
 
     /**
      * Are all of the replicated caches bound to the listener and working?
      */
     @Test
     public void testBoundListenerPeers() throws RemoteException {
-
-        // MNK-3785
-        printMethodName();
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         validateBoundCachePeer(boundCachePeers);
@@ -229,9 +219,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Test
     public void testBoundListenerPeersAfterDefaultCacheAdd() throws RemoteException {
-
-        // MNK-3785
-        printMethodName();
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         assertEquals(55, boundCachePeers.length);
@@ -249,9 +236,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Test
     public void testBoundListenerPeersAfterProgrammaticCacheAdd() throws RemoteException {
-
-        // MNK-3785
-        printMethodName();
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         assertEquals(55, boundCachePeers.length);
@@ -277,9 +261,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Test
     public void testBoundListenerPeersAfterCacheRemove() throws RemoteException {
-        // MNK-3785
-        printMethodName();
-
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
         assertEquals(55, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
@@ -305,9 +286,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Test
     public void testListenerShutsdown() {
-        // MNK-3785
-        printMethodName();
-
         CacheManagerPeerListener cachePeerListener = manager1.getCachePeerListener("RMI");
         List cachePeers1 = cachePeerListener.getBoundCachePeers();
         assertEquals(55, cachePeers1.size());
@@ -327,9 +305,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Test
     public void testListenerShutsdownFromShutdownHook() {
-        // MNK-3785 I think this might be the culprit... can't reproduce locally though
-        printMethodName();
-
         CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
         try {
             CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener("RMI");
