@@ -13,15 +13,15 @@ import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
-import org.terracotta.modules.ehcache.collections.SerializedToolkitMap;
+import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.txn.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitList;
-import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -195,13 +195,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache) {
+  public ToolkitCache<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache) {
     // implemented in ee version
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache) {
+  public ToolkitCache<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache) {
     // implemented in ee version
     throw new UnsupportedOperationException();
   }
@@ -212,15 +212,15 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
+  public SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
                                                                                                       String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
-    ToolkitMap<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
-        .getStore(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
+    ToolkitCache<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
+        .getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
                   config);
-    return new SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
+    return new SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
 
   }
 
@@ -232,15 +232,15 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap() {
-    return toolkit.getMap(ASYNC_CONFIG_MAP);
+  public ToolkitCache<String, AsyncConfig> getOrCreateAsyncConfigMap() {
+    return toolkit.getCache(ASYNC_CONFIG_MAP);
   }
 
   @Override
-  public ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
+  public ToolkitCache<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
     Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
-    return toolkit.getStore(fullAsyncName, configuration);
+    return toolkit.getCache(fullAsyncName, configuration);
   }
 
   @Override
@@ -262,20 +262,20 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
+  public ToolkitCache<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
-    return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+    return toolkit.getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                           + CLUSTERED_STORE_CONFIG_MAP);
   }
 
   @Override
-  public SerializedToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
+  public SerializedToolkitCache<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
-    ToolkitMap<String, Decision> map = toolkit.getStore(cacheManagerName + DELIMITER
+    ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
                                                       + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config);
-    return new SerializedToolkitMap<TransactionID, Decision>(map);
+    return new SerializedToolkitCache<TransactionID, Decision>(map);
   }
 
   @Override

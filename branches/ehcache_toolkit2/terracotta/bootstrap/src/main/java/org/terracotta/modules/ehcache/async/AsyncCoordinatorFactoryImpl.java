@@ -7,7 +7,7 @@ import net.sf.ehcache.Ehcache;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.StopCallable;
-import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +25,7 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
   public AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache,
                                                       final AsyncConfig config) {
     final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache);
-    final ToolkitMap<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
+    final ToolkitCache<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
     String nodeId = getCurrentNodeId();
     String asyncNameWithNodeId = toolkitInstanceFactory.getAsyncNode(fullAsyncName, nodeId);
     ToolkitLock toolkitLock = toolkitInstanceFactory.getAsyncWriteLock();

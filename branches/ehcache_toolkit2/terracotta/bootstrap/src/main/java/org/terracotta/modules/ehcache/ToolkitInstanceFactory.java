@@ -8,14 +8,14 @@ import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
 
 import org.terracotta.modules.ehcache.async.AsyncConfig;
-import org.terracotta.modules.ehcache.collections.SerializedToolkitMap;
+import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.txn.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitList;
-import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
@@ -51,20 +51,20 @@ public interface ToolkitInstanceFactory {
   ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(Ehcache cache);
 
   /**
-   * Returns a {@link ToolkitMap} for storing search attribute types
+   * Returns a {@link ToolkitCache} for storing search attribute types
    * 
    * @throws UnsupportedOperationException if search is not supported
    */
-  ToolkitMap<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache);
+  ToolkitCache<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache);
 
   /**
    * Returns a {@link ToolkitReadWriteLock} for protecting the cache's store cluster wide
    */
   ToolkitReadWriteLock getOrCreateStoreLock(Ehcache cache);
 
-  ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap();
+  ToolkitCache<String, AsyncConfig> getOrCreateAsyncConfigMap();
 
-  ToolkitMap<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
+  ToolkitCache<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
 
   String getFullAsyncName(Ehcache cache);
 
@@ -78,11 +78,11 @@ public interface ToolkitInstanceFactory {
   ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache);
 
   /**
-   * Returns a {@link ToolkitMap} for storing serialized extractors for the cache
+   * Returns a {@link ToolkitCache} for storing serialized extractors for the cache
    * 
    * @throws UnsupportedOperationException if search is not supported
    */
-  ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache);
+  ToolkitCache<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache);
 
   /**
    * Shutdown
@@ -92,15 +92,15 @@ public interface ToolkitInstanceFactory {
   /**
    * Return the map used for storing commit state of ehcache transactions
    */
-  SerializedToolkitMap<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
+  SerializedToolkitCache<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
 
-  SerializedToolkitMap<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
+  SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
                                                                                                String cacheName);
 
   ToolkitList<SerializedReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
                                                                                    String cacheName);
 
-  ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
+  ToolkitCache<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
 
   ToolkitLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID, Object key);
 

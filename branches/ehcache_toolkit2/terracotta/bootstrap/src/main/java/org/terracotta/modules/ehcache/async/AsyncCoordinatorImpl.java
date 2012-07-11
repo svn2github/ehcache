@@ -17,8 +17,8 @@ import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.cluster.ClusterListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
+import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitList;
-import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 
@@ -53,7 +53,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
    * this ToolkitMap map contains keys based on asyncName-nodeId and value will be linked list of bucketNames (or name
    * of ToolkitList)
    */
-  private final ToolkitMap<String, LinkedList<String>> listNamesMap;
+  private final ToolkitCache<String, LinkedList<String>> listNamesMap;
 
   /**
    * lock for this coordinator based on SynchronousWrite

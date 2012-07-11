@@ -9,7 +9,8 @@
 
 package org.terracotta.modules.ehcache.collections;
 
-import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.collections.ToolkitCache;
+import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.config.Configuration;
@@ -26,12 +27,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An implementation of {@link ToolkitMap} that supports serializable keys
+ * An implementation of {@link ToolkitCache} that supports serializable keys
  */
-public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitMap<K, V> {
-  private final ToolkitMap<String, V> toolkitMap;
+public class SerializedToolkitCache<K, V extends Serializable> implements ToolkitCache<K, V> {
+  private final ToolkitCache<String, V> toolkitMap;
 
-  public SerializedToolkitMap(ToolkitMap toolkitMap) {
+  public SerializedToolkitCache(ToolkitCache toolkitMap) {
     this.toolkitMap = toolkitMap;
   }
 
@@ -101,16 +102,6 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
   @Override
   public Set<K> keySet() {
     return new ToolkitKeySet(toolkitMap.keySet());
-  }
-
-  @Override
-  public void lockEntry(K key) {
-    toolkitMap.lockEntry(serializeToString(key));
-  }
-
-  @Override
-  public void unlockEntry(K key) {
-    toolkitMap.unlockEntry(serializeToString(key));
   }
 
   @Override
@@ -287,8 +278,8 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
       if (!(o instanceof Map.Entry)) { return false; }
 
       Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) o;
-      ToolkitMapEntry<String, V> toolkitEntry = null;
-      toolkitEntry = new ToolkitMapEntry<String, V>(serializeToString(entry.getKey()), entry.getValue());
+      ToolkitCacheEntry<String, V> toolkitEntry = null;
+      toolkitEntry = new ToolkitCacheEntry<String, V>(serializeToString(entry.getKey()), entry.getValue());
       return this.set.contains(toolkitEntry);
     }
 
@@ -360,7 +351,7 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
     public java.util.Map.Entry<K, V> next() {
       Map.Entry<String, V> entry = iter.next();
       if (entry == null) { return null; }
-      return new ToolkitMapEntry(deserializeFromString(entry.getKey()), entry.getValue());
+      return new ToolkitCacheEntry(deserializeFromString(entry.getKey()), entry.getValue());
     }
 
     @Override
@@ -370,11 +361,11 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
 
   }
 
-  private static class ToolkitMapEntry<K, V> implements Map.Entry<K, V> {
+  private static class ToolkitCacheEntry<K, V> implements Map.Entry<K, V> {
     private final K k;
     private final V v;
 
-    public ToolkitMapEntry(K k, V v) {
+    public ToolkitCacheEntry(K k, V v) {
       this.k = k;
       this.v = v;
     }
@@ -552,5 +543,33 @@ public class SerializedToolkitMap<K, V extends Serializable> implements ToolkitM
   @Override
   public void disposeLocally() {
     this.toolkitMap.disposeLocally();
+  }
+
+  @Override
+  public V getQuiet(K key) {
+    return this.toolkitMap.get(serializeToString(key));
+  }
+
+  @Override
+  public void putNoReturn(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
+    this.toolkitMap.putNoReturn(serializeToString(key), value, createTimeInSecs, customMaxTTISeconds,
+                                       customMaxTTLSeconds);
+
+  }
+
+  @Override
+  public V putIfAbsent(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
+    return this.toolkitMap.putIfAbsent(serializeToString(key), value, createTimeInSecs, customMaxTTISeconds,
+                                       customMaxTTLSeconds);
+  }
+
+  @Override
+  public void addListener(ToolkitCacheListener<K> listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeListener(ToolkitCacheListener<K> listener) {
+    throw new UnsupportedOperationException();
   }
 }

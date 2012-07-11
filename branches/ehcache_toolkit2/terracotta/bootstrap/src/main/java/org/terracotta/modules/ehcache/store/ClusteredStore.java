@@ -36,8 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
+import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
-import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
@@ -85,7 +85,7 @@ public class ClusteredStore implements TerracottaStore {
   // non-final private fields
   private EventListenerList                                      listenerList;
   private final CacheEventListener                               evictionListener;
-  private final ToolkitMap<String, Serializable>                 configMap;
+  private final ToolkitCache<String, Serializable>               configMap;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     validateConfig(cache);

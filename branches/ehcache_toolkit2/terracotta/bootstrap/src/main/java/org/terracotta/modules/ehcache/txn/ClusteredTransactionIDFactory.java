@@ -16,7 +16,7 @@ import net.sf.ehcache.transaction.xa.XidTransactionID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
-import org.terracotta.modules.ehcache.collections.SerializedToolkitMap;
+import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.txn.xa.ClusteredXidTransactionID;
 
 import java.util.concurrent.ConcurrentMap;
@@ -28,14 +28,15 @@ import javax.transaction.xa.Xid;
  */
 public class ClusteredTransactionIDFactory extends AbstractTransactionIDFactory {
 
-  private static final Logger                       LOG = LoggerFactory.getLogger(ClusteredTransactionIDFactory.class
-                                                            .getName());
+  private static final Logger                                   LOG = LoggerFactory
+                                                                        .getLogger(ClusteredTransactionIDFactory.class
+                                                                            .getName());
 
-  private final String                              clusterUUID;
-  private final String                              cacheManagerName;
+  private final String                                          clusterUUID;
+  private final String                                          cacheManagerName;
 
-  private final SerializedToolkitMap<TransactionID, Decision> transactionStates;
-  private final CacheCluster                        clusterTopology;
+  private final SerializedToolkitCache<TransactionID, Decision> transactionStates;
+  private final CacheCluster                                    clusterTopology;
 
   public ClusteredTransactionIDFactory(String clusterUUID, String cacheManagerName,
                                        ToolkitInstanceFactory toolkitInstanceFactory, CacheCluster topology) {
