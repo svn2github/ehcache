@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
-import org.terracotta.toolkit.ToolkitProperties;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
@@ -115,7 +114,7 @@ public class ClusteredStore implements TerracottaStore {
       keyLookupCache = null;
     }
 
-    checkContainsKeyOnPut = isCheckContainsKeyOnPut(toolkitInstanceFactory, cache);
+    checkContainsKeyOnPut = isCheckContainsKeyOnPut();
     backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache);
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
                                        backend.getConfiguration().getInt(ToolkitStoreConfigFields.CONCURRENCY_FIELD_NAME)));
@@ -175,16 +174,8 @@ public class ClusteredStore implements TerracottaStore {
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
 
-  private static boolean isCheckContainsKeyOnPut(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
-    ToolkitProperties toolkitProperties = toolkitInstanceFactory.getToolkit().getProperties();
-    // TODO: CleanUp StorageStrategy will always be DCV2
-    if (StorageStrategy.DCV2.equals(cache.getCacheConfiguration().getTerracottaConfiguration().getStorageStrategy())) {
-      // use false by default
-      return toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME, false);
-    } else {
-      // use true by default
-      return toolkitProperties.getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME, true);
-    }
+  private static boolean isCheckContainsKeyOnPut() {
+    return Boolean.getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
   }
 
   @Override
