@@ -24,8 +24,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Stack;
 
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
 import net.sf.ehcache.util.WeakIdentityConcurrentMap;
@@ -60,8 +59,6 @@ final class ObjectGraphWalker {
         " or Cache <sizeOfPolicy> element's maxDepth attribute. For more information, see the Ehcache configuration documentation.";
 
     private static final boolean USE_VERBOSE_DEBUG_LOGGING;
-
-    private static final int INITIAL_MAP_SIZE = 5000;
 
     // Todo this is probably not what we want...
     private final WeakIdentityConcurrentMap<Class<?>, SoftReference<Collection<Field>>> fieldCache =
@@ -124,11 +121,8 @@ final class ObjectGraphWalker {
         long result = 0;
         boolean warned = false;
         try {
-            Queue<Object> toVisit = new LinkedList<Object>();
-            
-            // avoid excessive Map resizing
-            // TODO should we try to dynamically auto-adjust this value based on the classes of {@code root}?
-            IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>(INITIAL_MAP_SIZE);
+            Stack<Object> toVisit = new Stack<Object>();
+            IdentityHashMap<Object, Object> visited = new IdentityHashMap<Object, Object>();
 
             if (root != null) {
                 if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
@@ -150,7 +144,7 @@ final class ObjectGraphWalker {
             while (!toVisit.isEmpty()) {
                 warned = checkMaxDepth(maxDepth, abortWhenMaxDepthExceeded, warned, visited);
 
-                Object ref = toVisit.remove();
+                Object ref = toVisit.pop();
 
                 if (visited.containsKey(ref)) {
                     continue;
@@ -254,9 +248,9 @@ final class ObjectGraphWalker {
         return cached.booleanValue();
     }
 
-    private static void nullSafeAdd(final Queue<Object> toVisit, final Object o) {
+    private static void nullSafeAdd(final Stack<Object> toVisit, final Object o) {
         if (o != null) {
-            toVisit.add(o);
+            toVisit.push(o);
         }
     }
 
