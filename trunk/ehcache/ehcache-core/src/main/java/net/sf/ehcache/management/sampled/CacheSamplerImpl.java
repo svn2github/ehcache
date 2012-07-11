@@ -503,7 +503,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     public long getAverageGetTimeNanos() {
         try {
-            return cache.getLiveCacheStatistics().getAverageGetTimeNanos();
+            return getAverageGetTimeNanosMostRecentSample();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
