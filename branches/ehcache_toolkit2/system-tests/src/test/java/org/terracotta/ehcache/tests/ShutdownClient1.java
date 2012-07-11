@@ -141,7 +141,7 @@ public class ShutdownClient1 extends ClientBase {
 
   public void shutdownExpressClient() {
     getCacheManager().shutdown();
-    getTerracottaClient().shutdown();
+    getClusteringToolkit().shutdown();
   }
 
   protected void testCache(Cache cache, Toolkit toolkit) throws Throwable {

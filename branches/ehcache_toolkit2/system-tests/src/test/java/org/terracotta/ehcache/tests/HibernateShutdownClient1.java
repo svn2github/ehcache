@@ -153,7 +153,7 @@ public class HibernateShutdownClient1 extends ClientBase {
   }
 
   public void shutdownExpressClient() {
-    getTerracottaClient().shutdown();
+    getClusteringToolkit().shutdown();
   }
 
   private void assertThreadShutdown(Set<SimpleThreadInfo> dump) throws Exception {

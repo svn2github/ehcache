@@ -20,8 +20,6 @@ import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.txn.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.client.ToolkitClient;
-import org.terracotta.toolkit.client.ToolkitClientBuilderFactory;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
@@ -32,7 +30,6 @@ import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields.PinningStore;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.client.TerracottaToolkitClientBuilderInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 
 import java.io.Serializable;
@@ -66,24 +63,18 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   protected final Toolkit     toolkit;
 
-  private final ToolkitClient client;
-
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
-    this.client = createTerracottaClient(terracottaClientConfiguration);
-    // TODO: support namespacing the toolkit
-    this.toolkit = client.getToolkit();
+    this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
   }
 
-  private static ToolkitClient createTerracottaClient(TerracottaClientConfiguration terracottaClientConfiguration) {
+  private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
     String config = null;
     if (!terracottaClientConfiguration.isUrlConfig()) {
       config = terracottaClientConfiguration.getEmbeddedConfig();
     } else {
       config = terracottaClientConfiguration.getUrl();
     }
-    TerracottaToolkitClientBuilderInternal terracottaClientBuilder = (TerracottaToolkitClientBuilderInternal) ToolkitClientBuilderFactory
-        .newTerracottaToolkitClientBuilder();
-    terracottaClientBuilder.setDedicatedClient(terracottaClientConfiguration.isRejoin());
+    TerracottaToolkitBuilder terracottaClientBuilder = new TerracottaToolkitBuilder();
     if (terracottaClientConfiguration.isUrlConfig()) {
       terracottaClientBuilder.setTCConfigUrl(config);
     } else {
@@ -91,7 +82,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache");
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache.hibernate");
-    return terracottaClientBuilder.buildToolkitClient();
+    return terracottaClientBuilder.buildToolkit();
   }
 
   @Override
@@ -217,7 +208,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public void shutdown() {
-    client.shutdown();
+    toolkit.shutdown();
   }
 
   @Override
