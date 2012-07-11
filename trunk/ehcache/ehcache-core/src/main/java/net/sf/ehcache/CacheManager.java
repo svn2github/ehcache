@@ -2111,14 +2111,8 @@ public class CacheManager {
             Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
             for (final WeakReference<Cache> cacheRef : caches) {
                 Cache c = cacheRef.get();
-                if (c == null) {
+                if (c == null || c == cache) {
                     toRemove.add(cacheRef);
-                    continue;
-                }
-
-                if (c == cache) {
-                    toRemove.add(cacheRef);
-                    return;
                 }
             }
             caches.removeAll(toRemove);
