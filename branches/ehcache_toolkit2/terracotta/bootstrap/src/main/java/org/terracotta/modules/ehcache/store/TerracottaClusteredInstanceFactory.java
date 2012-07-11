@@ -30,7 +30,8 @@ import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
 import org.terracotta.modules.ehcache.txn.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
-import org.terracotta.toolkit.ToolkitLogger;
+import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.ToolkitLogger;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
@@ -67,8 +68,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   private void logEhcacheBuildInfo() {
     final ProductInfo ehcacheCoreProductInfo = new ProductInfo();
-    ToolkitLogger logger = toolkitInstanceFactory.getToolkit().getLogger(TerracottaClusteredInstanceFactory.class
-                                                                             .getName());
+    ToolkitLogger logger = ((ToolkitInternal) toolkitInstanceFactory.getToolkit())
+        .getLogger(TerracottaClusteredInstanceFactory.class.getName());
     logger.info(ehcacheCoreProductInfo.toString());
   }
 
