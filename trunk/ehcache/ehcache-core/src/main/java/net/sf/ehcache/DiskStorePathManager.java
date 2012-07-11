@@ -159,7 +159,7 @@ public final class DiskStorePathManager {
             }
 
             if (autoCreated) {
-                LOG.warn("diskStorePath '" + path
+                LOG.warn("diskStorePath '" + initialPath
                         + "' is already used by an existing CacheManager either in the same VM or in a different process.\n"
                         + "The diskStore path for this CacheManager will be set to " + candidate + ".\nTo avoid this"
                         + " warning consider using the CacheManager factory methods to create a singleton CacheManager "
