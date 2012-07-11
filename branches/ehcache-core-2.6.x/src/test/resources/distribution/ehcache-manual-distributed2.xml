@@ -48,7 +48,7 @@
     -->
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
                               properties="peerDiscovery=manual,
-                              rmiUrls=//localhost:40001/sampleCache19|//localhost:40001/sampleCache18|//localhost:40001/sampleCache49|//localhost:40001/sampleCache17|//localhost:40001/sampleCache16|//localhost:40001/sampleCache48|//localhost:40001/sampleCache15|//localhost:40001/sampleCache47|//localhost:40001/sampleCache46|//localhost:40001/sampleCache13|//localhost:40001/sampleCache45|//localhost:40001/sampleCache12|//localhost:40001/sampleCache44|//localhost:40001/sampleCache43|//localhost:40001/sampleCache11|//localhost:40001/sampleCache10|//localhost:40001/sampleCache42|//localhost:40001/sampleCache41|//localhost:40001/sampleCache40|//localhost:40001/sampleCache9|//localhost:40001/sampleCache8|//localhost:40001/sampleCache7|//localhost:40001/sampleCache6|//localhost:40001/sampleCache5|//localhost:40001/sampleCache2|//localhost:40001/sampleCache1|//localhost:40003/sampleCache1|//localhost:40001/sampleCache39|//localhost:40001/sampleCache38|//localhost:40001/sampleCache37|//localhost:40001/sampleCache36|//localhost:40001/sampleCache35|//localhost:40001/sampleCache34|//localhost:40001/sampleCache33|//localhost:40001/sampleCache32|//localhost:40001/sampleCache31|//localhost:40001/sampleCache30|//localhost:40001/sampleCache29|//localhost:40001/sampleCache28|//localhost:40001/sampleCache27|//localhost:40001/sampleCache26|//localhost:40001/sampleCache25|//localhost:40001/sampleCache24|//localhost:40001/sampleCache56|//localhost:40001/sampleCache55|//localhost:40001/sampleCache23|//localhost:40001/sampleCache22|//localhost:40001/sampleCache54|//localhost:40001/sampleCache53|//localhost:40001/sampleCache21|//localhost:40001/sampleCache20|//localhost:40001/sampleCache52|//localhost:40001/sampleCache51|//localhost:40001/sampleCache50"/>
+                              rmiUrls=//localhost:5011/sampleCache19|//localhost:5011/sampleCache18|//localhost:5011/sampleCache49|//localhost:5011/sampleCache17|//localhost:5011/sampleCache16|//localhost:5011/sampleCache48|//localhost:5011/sampleCache15|//localhost:5011/sampleCache47|//localhost:5011/sampleCache46|//localhost:5011/sampleCache13|//localhost:5011/sampleCache45|//localhost:5011/sampleCache12|//localhost:5011/sampleCache44|//localhost:5011/sampleCache43|//localhost:5011/sampleCache11|//localhost:5011/sampleCache10|//localhost:5011/sampleCache42|//localhost:5011/sampleCache41|//localhost:5011/sampleCache40|//localhost:5011/sampleCache9|//localhost:5011/sampleCache8|//localhost:5011/sampleCache7|//localhost:5011/sampleCache6|//localhost:5011/sampleCache5|//localhost:5011/sampleCache2|//localhost:5011/sampleCache1|//localhost:5013/sampleCache1|//localhost:5011/sampleCache39|//localhost:5011/sampleCache38|//localhost:5011/sampleCache37|//localhost:5011/sampleCache36|//localhost:5011/sampleCache35|//localhost:5011/sampleCache34|//localhost:5011/sampleCache33|//localhost:5011/sampleCache32|//localhost:5011/sampleCache31|//localhost:5011/sampleCache30|//localhost:5011/sampleCache29|//localhost:5011/sampleCache28|//localhost:5011/sampleCache27|//localhost:5011/sampleCache26|//localhost:5011/sampleCache25|//localhost:5011/sampleCache24|//localhost:5011/sampleCache56|//localhost:5011/sampleCache55|//localhost:5011/sampleCache23|//localhost:5011/sampleCache22|//localhost:5011/sampleCache54|//localhost:5011/sampleCache53|//localhost:5011/sampleCache21|//localhost:5011/sampleCache20|//localhost:5011/sampleCache52|//localhost:5011/sampleCache51|//localhost:5011/sampleCache50"/>
 
     <!--
         (Enable for distributed operation)
@@ -64,7 +64,7 @@
         which is configured using RMICacheManagerPeerListenerFactory. It is configured as per the following example:
 
         <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                              properties="hostName=localhost, port=40001, socketTimeoutMillis=2000"/>
+                              properties="hostName=localhost, port=5011, socketTimeoutMillis=2000"/>
 
         Valid properties are:
         - hostName (optional) - the hostName of the host the listener is running on. Specify where the host is multihomed
@@ -75,7 +75,7 @@
 
     -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                              properties="hostName=localhost, port=40002"/>
+                              properties="hostName=localhost, port=5012"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through

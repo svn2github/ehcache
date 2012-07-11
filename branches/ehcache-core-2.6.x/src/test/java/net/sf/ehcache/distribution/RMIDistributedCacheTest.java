@@ -64,7 +64,7 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
 
     private final String hostName = "localhost";
 
-    private final Integer port = Integer.valueOf(40000);
+    private final Integer port = Integer.valueOf(5010);
     private final Integer remoteObjectPort = Integer.valueOf(0);
     private Element element;
     private CachePeer cache1Peer;

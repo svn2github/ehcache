@@ -51,8 +51,8 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
          * The sampleCache1 from manager3 is added to the rmiUrls list for manager1 and manager2
          */
         CacheManagerPeerProvider peerProvider = manager3.getCacheManagerPeerProvider("RMI");
-        peerProvider.registerPeer("//localhost:40001/sampleCache1");
-        peerProvider.registerPeer("//localhost:40002/sampleCache1");
+        peerProvider.registerPeer("//localhost:5011/sampleCache1");
+        peerProvider.registerPeer("//localhost:5012/sampleCache1");
 
         //Allow cluster setup
         waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager1, manager2, manager3);

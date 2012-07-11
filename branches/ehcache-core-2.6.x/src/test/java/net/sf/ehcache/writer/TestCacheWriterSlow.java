@@ -16,26 +16,16 @@
 package net.sf.ehcache.writer;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 
-public class TestCacheWriterSlow extends AbstractTestCacheWriter {
-    private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
-    private final Map<Object, Element> deletedElements = new HashMap<Object, Element>();
+public class TestCacheWriterSlow extends TestCacheWriter {
 
     public TestCacheWriterSlow() {
-    }
-
-    public Map<Object, Element> getWrittenElements() {
-        return writtenElements;
-    }
-
-    public Map<Object, Element> getDeletedElements() {
-        return deletedElements;
+        super(new Properties());
     }
 
     @Override
@@ -45,7 +35,7 @@ public class TestCacheWriterSlow extends AbstractTestCacheWriter {
         } catch (InterruptedException e) {
             throw new CacheException(e);
         }
-        writtenElements.put(element.getObjectKey(), element);
+        super.write(element);
     }
 
     @Override
@@ -55,9 +45,7 @@ public class TestCacheWriterSlow extends AbstractTestCacheWriter {
         } catch (InterruptedException e) {
             throw new CacheException(e);
         }
-        for (Element element : elements) {
-            writtenElements.put(element.getObjectKey() + "-batched", element);
-        }
+        super.writeAll(elements);
     }
 
     @Override
@@ -67,7 +55,7 @@ public class TestCacheWriterSlow extends AbstractTestCacheWriter {
         } catch (InterruptedException e) {
             throw new CacheException(e);
         }
-        deletedElements.put(entry.getKey(), entry.getElement());
+        super.delete(entry);
     }
 
     @Override
@@ -77,8 +65,6 @@ public class TestCacheWriterSlow extends AbstractTestCacheWriter {
         } catch (InterruptedException e) {
             throw new CacheException(e);
         }
-        for (CacheEntry entry : entries) {
-            deletedElements.put(entry.getKey() + "-batched", entry.getElement());
-        }
+        super.deleteAll(entries);
     }
 }

@@ -27,7 +27,6 @@ import org.hamcrest.Matcher;
 import org.junit.Assert;
 
 public class RetryAssert {
-    private static final long WAIT_TIME = 100L;
 
     protected RetryAssert() {
         // static only class
@@ -35,26 +34,22 @@ public class RetryAssert {
 
     public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<? super T> matcher) {
         boolean interrupted = false;
-        long start = System.nanoTime();
-        long end = start + unit.toNanos(time);
-        long sleep = Math.max(50, unit.toMillis(time) / 10);
-        AssertionError latest;
+        long end = System.nanoTime() + unit.toNanos(time);
         try {
-            while (true) {
+            for (long sleep = 10; ; sleep <<= 1L) {
                 try {
                     Assert.assertThat(value.call(), matcher);
                     return;
-                } catch (AssertionError e) {
-                    latest = e;
-                } catch (Exception e) {
-                    latest = new AssertionError(e);
+                } catch (Throwable t) {
+                    //ignore - wait for timeout
                 }
 
-                if (System.nanoTime() > end) {
+                long remaining = end - System.nanoTime();
+                if (remaining <= 0) {
                     break;
                 } else {
                     try {
-                        Thread.sleep(sleep);
+                        Thread.sleep(Math.min(sleep, TimeUnit.NANOSECONDS.toMillis(remaining) + 1));
                     } catch (InterruptedException e) {
                         interrupted = true;
                     }
@@ -65,7 +60,13 @@ public class RetryAssert {
                 Thread.currentThread().interrupt();
             }
         }
-        throw latest;
+        try {
+            Assert.assertThat(value.call(), matcher);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
     }
 
     public static Callable<Element> elementAt(final Ehcache cache, final Object key) {
