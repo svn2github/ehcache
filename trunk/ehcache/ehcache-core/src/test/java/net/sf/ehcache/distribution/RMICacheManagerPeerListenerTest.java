@@ -25,6 +25,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheEventListener;
 
+import org.hamcrest.core.DescribedAs;
 import org.junit.After;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
@@ -112,12 +113,12 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
         manager1.getCache(cacheName).put(new Element("setup", "setup"));
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
-            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), notNullValue());
+            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), DescribedAs.describedAs("Failed to propagate setup value to {}", notNullValue(), manager));
         }
 
         manager1.getCache(cacheName).removeAll();
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
-            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), is(0));
+            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), DescribedAs.describedAs("Failed to propagate removeAll to {}" , is(0), manager));
         }
 
         cache1 = manager1.getCache(cacheName);
