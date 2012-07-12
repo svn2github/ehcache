@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.Security;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -66,8 +67,15 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.MemorySizeParser;
+
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.CustomTypeSafeMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsMapContainingKey;
 import org.hamcrest.core.CombinableMatcher;
+import org.hamcrest.core.DescribedAs;
+import org.hamcrest.core.Is;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -659,7 +667,7 @@ public class CacheManagerTest {
     @Test
     public void testForCacheManagerThreadLeak() throws CacheException,
             InterruptedException {
-        final Collection<Thread> initialThreads = Collections.unmodifiableCollection(JVMUtil.enumerateThreads());
+        final Set<Thread> initialThreads = Collections.unmodifiableSet(Thread.getAllStackTraces().keySet());
 
         URL configuration = this.getClass().getResource("/ehcache-2.xml");
         for (int i = 0; i < 100; i++) {
@@ -672,14 +680,18 @@ public class CacheManagerTest {
         * the worker threads terminating and evaluation this assertion.  We
         * give the worker threads 10 seconds to terminate.
         */
-        assertBy(10, TimeUnit.SECONDS, new Callable<Collection<Thread>>() {
+        assertBy(10, TimeUnit.SECONDS, new Callable<Map<Thread, List<StackTraceElement>>>() {
             @Override
-            public Collection<Thread> call() throws Exception {
-                Collection<Thread> newThreads = new ArrayList<Thread>(JVMUtil.enumerateThreads());
-                newThreads.removeAll(initialThreads);
-                return newThreads;
+            public Map<Thread, List<StackTraceElement>> call() throws Exception {
+                Map<Thread, StackTraceElement[]> newThreads = Thread.getAllStackTraces();
+                newThreads.keySet().removeAll(initialThreads);
+                Map<Thread, List<StackTraceElement>> newThreadsListStack = new HashMap<Thread, List<StackTraceElement>>();
+                for (Entry<Thread, StackTraceElement[]> e : newThreads.entrySet()) {
+                    newThreadsListStack.put(e.getKey(), Arrays.asList(e.getValue()));
+                }
+                return newThreadsListStack;
             }
-        }, IsEmptyCollection.<Thread>empty());
+        }, is(Collections.<Thread, List<StackTraceElement>>emptyMap()));
     }
 
     /**
