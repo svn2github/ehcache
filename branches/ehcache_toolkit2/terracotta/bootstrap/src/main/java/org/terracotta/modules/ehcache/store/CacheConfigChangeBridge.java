@@ -99,7 +99,7 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   }
 
   @Override
-  public void onNotification(ToolkitNotifier notifierParam, ClusterNode remoteNode, Serializable msg) {
+  public void onNotification(ToolkitNotifier notifierParam, ClusterNode remoteNode, Object msg) {
     if (shouldProcessNotification(notifierParam, msg)) {
       processConfigChangeNotification((CacheConfigChangeNotificationMsg) msg);
     } else {
@@ -140,7 +140,7 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
     }
   }
 
-  private boolean shouldProcessNotification(ToolkitNotifier notifierParam, Serializable msg) {
+  private boolean shouldProcessNotification(ToolkitNotifier notifierParam, Object msg) {
     return notifier == notifierParam && msg instanceof CacheConfigChangeNotificationMsg
            && ((CacheConfigChangeNotificationMsg) msg).getFullyQualifiedEhcacheName().equals(fullyQualifiedEhcacheName);
   }
