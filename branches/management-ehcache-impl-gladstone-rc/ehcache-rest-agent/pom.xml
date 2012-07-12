@@ -5,7 +5,7 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>management-ehcache-impl-parent</artifactId>
-    <version>2.6.1-SNAPSHOT</version>
+    <version>2.6.0</version>
     <relativePath>..</relativePath>
   </parent>  
   
@@ -15,7 +15,7 @@
   <description>Ehcache REST implementation</description>
 
   <properties>
-    <management-core.version>1.0.1-SNAPSHOT</management-core.version>
+    <management-core.version>1.0.0</management-core.version>
     <private-classpath>rest-management-private-classpath</private-classpath>
   </properties>
 
