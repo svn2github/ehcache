@@ -528,23 +528,23 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public boolean isClusterCoherent() throws TerracottaNotRunningException {
-    return !backend.isBulkLoadEnabledInCluster();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public boolean isNodeCoherent() throws TerracottaNotRunningException {
-    return !backend.isBulkLoadEnabledInCurrentNode();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException {
-    backend.setBulkLoadEnabledInCurrentNode(!coherent);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException,
       InterruptedException {
-    backend.waitUntilBulkLoadCompleteInCluster();
+    throw new UnsupportedOperationException();
   }
 
   @Override
