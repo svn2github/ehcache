@@ -27,8 +27,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
+import org.terracotta.toolkit.config.ToolkitCacheConfigFields.PinningStore;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
-import org.terracotta.toolkit.config.ToolkitStoreConfigFields.PinningStore;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 
