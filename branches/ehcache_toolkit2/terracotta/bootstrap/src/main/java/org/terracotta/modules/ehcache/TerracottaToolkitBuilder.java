@@ -28,6 +28,7 @@ import java.util.Set;
 public class TerracottaToolkitBuilder {
 
   private static final String      TC_TUNNELLED_MBEAN_DOMAINS_KEY = "tunnelledMBeanDomains";
+  private static final String      TC_CONFIG_SNIPPET_KEY          = "tcConfigSnippet";
   private final TCConfigTypeStatus tcConfigTypeStatus            = new TCConfigTypeStatus();
   private final Set<String>        tunnelledMBeanDomains         = Collections.synchronizedSet(new HashSet<String>());
 
@@ -52,9 +53,16 @@ public class TerracottaToolkitBuilder {
         throw new IllegalStateException("Unknown tc config type - " + tcConfigTypeStatus.getState());
     }
     String toolkitUrl = createTerracottaToolkitUrl(isUrl, tcConfigOrUrl);
+    return ToolkitFactory.createToolkit(toolkitUrl, getTerracottaToolkitProperties(isUrl, tcConfigOrUrl));
+  }
+
+  private Properties getTerracottaToolkitProperties(boolean isUrl, String tcConfigOrUrl) {
     Properties properties = new Properties();
     properties.setProperty(TC_TUNNELLED_MBEAN_DOMAINS_KEY, getTunnelledDomainCSV());
-    return ToolkitFactory.createToolkit(toolkitUrl, properties);
+    if (!isUrl) {
+      properties.setProperty(TC_CONFIG_SNIPPET_KEY, tcConfigOrUrl);
+    }
+    return properties;
   }
 
   private String getTunnelledDomainCSV() {
@@ -67,10 +75,10 @@ public class TerracottaToolkitBuilder {
   }
 
   private String createTerracottaToolkitUrl(boolean isUrl, String tcConfigOrUrl) {
-    if (!isUrl) {
-      throw new UnsupportedOperationException("Implement tc config url for tcConfigSnippet");
-    } else {
+    if (isUrl) {
       return "toolkit:terracotta://" + tcConfigOrUrl;
+    } else {
+      return "toolkit:terracotta:";
     }
   }
 
