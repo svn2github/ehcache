@@ -104,6 +104,13 @@ public interface TransactionIDFactory {
 
     /**
      * Return {@code true} if the factory state is persistent (survives JVM restart).
+     * <p>
+     * This is a tri-state return:
+     * <ul>
+     *   <li>{@code Boolean.TRUE} : persistent</li>
+     *   <li>{@code Boolean.FALSE} : not persistent</li>
+     *   <li>{@code null} : not yet determined</li>
+     * </ul>
      *
      * @return {@code true} is state is persistent
      */
