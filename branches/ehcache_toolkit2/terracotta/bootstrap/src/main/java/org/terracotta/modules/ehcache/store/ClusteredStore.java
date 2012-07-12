@@ -38,7 +38,7 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
-import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
+import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
@@ -354,13 +354,13 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
     String pKey = generatePortableKeyFor(element.getKey());
-    ToolkitLock lock = backend.createFinegrainedLock(pKey);
-    lock.lock();
+    ToolkitReadWriteLock lock = backend.createLockForKey(pKey);
+    lock.writeLock().lock();
     try {
       Element oldElement = getQuiet(element.getKey());
       if (comparator.equals(oldElement, element)) { return remove(element.getKey()); }
     } finally {
-      lock.unlock();
+      lock.writeLock().unlock();
     }
     return null;
   }
@@ -369,13 +369,13 @@ public class ClusteredStore implements TerracottaStore {
   public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
       IllegalArgumentException {
     String pKey = generatePortableKeyFor(element.getKey());
-    ToolkitLock lock = backend.createFinegrainedLock(pKey);
-    lock.lock();
+    ToolkitReadWriteLock lock = backend.createLockForKey(pKey);
+    lock.writeLock().lock();
     try {
       Element oldElement = getQuiet(element.getKey());
       if (comparator.equals(oldElement, old)) { return putInternal(element, null); }
     } finally {
-      lock.unlock();
+      lock.writeLock().unlock();
     }
     return false;
   }
@@ -384,8 +384,8 @@ public class ClusteredStore implements TerracottaStore {
   public Element replace(Element element) throws NullPointerException {
     // TODO: Revisit
     String pKey = generatePortableKeyFor(element.getKey());
-    ToolkitLock lock = backend.createFinegrainedLock(pKey);
-    lock.lock();
+    ToolkitReadWriteLock lock = backend.createLockForKey(pKey);
+    lock.writeLock().lock();
     try {
       Element oldElement = getQuiet(element.getKey());
       if (oldElement != null) {
@@ -393,7 +393,7 @@ public class ClusteredStore implements TerracottaStore {
       }
       return oldElement;
     } finally {
-      lock.unlock();
+      lock.writeLock().unlock();
     }
   }
 

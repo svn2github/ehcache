@@ -11,6 +11,7 @@ import net.sf.ehcache.concurrent.Sync;
 import org.terracotta.modules.ehcache.store.ValueModeHandler;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
+import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 
 import java.io.IOException;
@@ -28,13 +29,14 @@ public class TCCacheLockProvider implements CacheLockProvider {
 
   @Override
   public Sync getSyncForKey(Object key) {
-    return new TCSync(createLock(key, ToolkitLockType.WRITE), createLock(key, ToolkitLockType.READ));
+    ToolkitReadWriteLock lock = createLock(key);
+    return new TCSync(lock.writeLock(), lock.readLock());
   }
 
-  private ToolkitLock createLock(Object key, ToolkitLockType lockType) {
+  private ToolkitReadWriteLock createLock(Object key) {
     try {
       Object portableKey = valueModeHandler.createPortableKey(key);
-      return backend.createFinegrainedLock(portableKey, lockType);
+      return backend.createLockForKey(portableKey);
     } catch (IOException e) {
       throw new CacheException(e);
     }

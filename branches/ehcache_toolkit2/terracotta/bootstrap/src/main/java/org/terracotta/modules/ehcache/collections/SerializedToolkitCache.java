@@ -11,8 +11,7 @@ package org.terracotta.modules.ehcache.collections;
 
 import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
-import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
-import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
+import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.object.ToolkitObjectType;
 
@@ -125,8 +124,8 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   }
 
   @Override
-  public ToolkitLock createFinegrainedLock(K key) {
-    return toolkitMap.createFinegrainedLock(serializeToString(key));
+  public ToolkitReadWriteLock createLockForKey(K key) {
+    return toolkitMap.createLockForKey(serializeToString(key));
   }
 
   @Override
@@ -533,11 +532,6 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   @Override
   public boolean containsKeyLocalOffHeap(K key) {
     return this.toolkitMap.containsKeyLocalOffHeap(serializeToString(key));
-  }
-
-  @Override
-  public ToolkitLock createFinegrainedLock(K key, ToolkitLockType lockType) {
-    return this.toolkitMap.createFinegrainedLock(serializeToString(key), lockType);
   }
 
   @Override
