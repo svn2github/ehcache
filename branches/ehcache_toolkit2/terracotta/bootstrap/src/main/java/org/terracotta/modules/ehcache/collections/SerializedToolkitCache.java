@@ -546,14 +546,4 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   public void removeListener(ToolkitCacheListener<K> listener) {
     throw new UnsupportedOperationException();
   }
-
-  @Override
-  public void unlockedPutAll(Map<? extends K, ? extends V> m) {
-    Map<String, V> map = new HashMap<String, V>();
-    for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
-      map.put(serializeToString(entry.getKey()), entry.getValue());
-    }
-    
-    toolkitCache.unlockedPutAll(map);
-  }
 }
