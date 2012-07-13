@@ -27,7 +27,6 @@ import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
 
@@ -36,28 +35,27 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 /**
- * 
+ *
  * @author Abhishek Sanoujam
- * 
+ *
  */
 public class TerracottaUnitTesting {
 
     public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory) throws Exception {
-        setupTerracottaTesting(mockFactory, null, TerracottaRuntimeType.EnterpriseExpress, StorageStrategy.DCV2);
+        setupTerracottaTesting(mockFactory, null, TerracottaRuntimeType.EnterpriseExpress);
     }
 
     public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory, Runnable onNewClusteredInstanceFactory)
             throws Exception {
-        setupTerracottaTesting(mockFactory, onNewClusteredInstanceFactory, TerracottaRuntimeType.EnterpriseExpress, StorageStrategy.DCV2);
+        setupTerracottaTesting(mockFactory, onNewClusteredInstanceFactory, TerracottaRuntimeType.EnterpriseExpress);
     }
 
-    public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory, TerracottaRuntimeType terracottaRuntimeType,
-            StorageStrategy defaultStorageStrategyForCurrentRuntime) throws Exception {
-        setupTerracottaTesting(mockFactory, null, terracottaRuntimeType, defaultStorageStrategyForCurrentRuntime);
+    public static void setupTerracottaTesting(ClusteredInstanceFactory mockFactory, TerracottaRuntimeType terracottaRuntimeType) throws Exception {
+        setupTerracottaTesting(mockFactory, null, terracottaRuntimeType);
     }
 
     public static void setupTerracottaTesting(final ClusteredInstanceFactory mockFactory, final Runnable onNewClusteredInstanceFactory,
-            TerracottaRuntimeType terracottaRuntimeType, StorageStrategy defaultStorageStrategyForCurrentRuntime) throws Exception {
+            TerracottaRuntimeType terracottaRuntimeType) throws Exception {
         TerracottaStore terracottaStore = Mockito.mock(TerracottaStore.class);
         CacheCluster mockCacheCluster = Mockito.mock(CacheCluster.class);
         when(mockFactory.createStore((Ehcache) any())).thenReturn(terracottaStore);
@@ -75,7 +73,7 @@ public class TerracottaUnitTesting {
                 return "127.0.0.1";
             }
         });
-        
+
         TerracottaClusteredInstanceHelper mockHelper = Mockito.mock(TerracottaClusteredInstanceHelper.class);
         when(mockHelper.newClusteredInstanceFactory((Map<String, CacheConfiguration>) any(), (TerracottaClientConfiguration) any()))
                 .thenAnswer(new Answer<ClusteredInstanceFactory>() {
