@@ -40,6 +40,8 @@ import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
+import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
@@ -60,32 +62,32 @@ import javax.swing.event.EventListenerList;
 
 public class ClusteredStore implements TerracottaStore {
 
-  private static final Logger                                    LOG                                     = LoggerFactory
-                                                                                                             .getLogger(ClusteredStore.class
-                                                                                                                 .getName());
-  private static final String                                    CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
-  private static final String                                    TRANSACTIONAL_MODE                      = "trasactionalMode";
+  private static final Logger                                 LOG                                     = LoggerFactory
+                                                                                                          .getLogger(ClusteredStore.class
+                                                                                                              .getName());
+  private static final String                                 CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
+  private static final String                                 TRANSACTIONAL_MODE                      = "trasactionalMode";
 
   // final protected fields
-  protected final ToolkitCacheWithMetadata<String, Serializable> backend;
-  protected final ValueModeHandler                               valueModeHandler;
-  protected final ToolkitInstanceFactory                         toolkitInstanceFactory;
-  protected final Ehcache                                        cache;
-  protected final String                                         fullyQualifiedCacheName;
+  protected final ClusteredStoreBackend<String, Serializable> backend;
+  protected final ValueModeHandler                            valueModeHandler;
+  protected final ToolkitInstanceFactory                      toolkitInstanceFactory;
+  protected final Ehcache                                     cache;
+  protected final String                                      fullyQualifiedCacheName;
 
   // final private fields
-  private final boolean                                          checkContainsKeyOnPut;
-  private final int                                              localKeyCacheMaxsize;
-  private final CacheConfiguration.TransactionalMode             transactionalMode;
-  private final Map<Object, String>                              keyLookupCache;
-  private final CacheConfigChangeBridge                          cacheConfigChangeBridge;
-  private final RegisteredEventListeners                         registeredEventListeners;
-  private final TCCacheLockProvider                              cacheLockProvider;
+  private final boolean                                       checkContainsKeyOnPut;
+  private final int                                           localKeyCacheMaxsize;
+  private final CacheConfiguration.TransactionalMode          transactionalMode;
+  private final Map<Object, String>                           keyLookupCache;
+  private final CacheConfigChangeBridge                       cacheConfigChangeBridge;
+  private final RegisteredEventListeners                      registeredEventListeners;
+  private final TCCacheLockProvider                           cacheLockProvider;
 
   // non-final private fields
-  private EventListenerList                                      listenerList;
-  private final CacheEventListener                               evictionListener;
-  private final ToolkitCache<String, Serializable>               configMap;
+  private EventListenerList                                   listenerList;
+  private final CacheEventListener                            evictionListener;
+  private final ToolkitCache<String, Serializable>            configMap;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     validateConfig(cache);
@@ -95,8 +97,8 @@ public class ClusteredStore implements TerracottaStore {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
 
-    configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache
-        .getCacheManager().getName(), cache.getName());
+    configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache.getCacheManager().getName(),
+                                                                          cache.getName());
     CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
     if (transactionalModeTemp == null) {
       configMap.putIfAbsent(TRANSACTIONAL_MODE, ehcacheConfig.getTransactionalMode());
@@ -115,9 +117,12 @@ public class ClusteredStore implements TerracottaStore {
     }
 
     checkContainsKeyOnPut = isCheckContainsKeyOnPut();
-    backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache);
+    backend = new ClusteredStoreBackend<String, Serializable>((ToolkitInternal) toolkitInstanceFactory.getToolkit(),
+                                                              (ToolkitCacheInternal) toolkitInstanceFactory
+                                                                  .getOrCreateToolkitCache(cache));
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
-                                       backend.getConfiguration().getInt(ToolkitStoreConfigFields.CONCURRENCY_FIELD_NAME)));
+                                       backend.getConfiguration()
+                                           .getInt(ToolkitStoreConfigFields.CONCURRENCY_FIELD_NAME)));
     // connect configurations
     cacheConfigChangeBridge = createConfigChangeBridge(toolkitInstanceFactory, cache, backend);
     cacheConfigChangeBridge.connectConfigs();
@@ -129,6 +134,10 @@ public class ClusteredStore implements TerracottaStore {
     evictionListener = new CacheEventListener();
     backend.addListener(evictionListener);
     cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
+  }
+
+  public String getFullyQualifiedCacheName() {
+    return fullyQualifiedCacheName;
   }
 
   private static CacheConfigChangeBridge createConfigChangeBridge(ToolkitInstanceFactory toolkitInstanceFactory,
@@ -528,23 +537,23 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public boolean isClusterCoherent() throws TerracottaNotRunningException {
-    throw new UnsupportedOperationException();
+    return !backend.isBulkLoadEnabledInCluster();
   }
 
   @Override
   public boolean isNodeCoherent() throws TerracottaNotRunningException {
-    throw new UnsupportedOperationException();
+    return !backend.isBulkLoadEnabledInCurrentNode();
   }
 
   @Override
   public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException, TerracottaNotRunningException {
-    throw new UnsupportedOperationException();
+    backend.setBulkLoadEnabledInCurrentNode(!coherent);
   }
 
   @Override
   public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException,
       InterruptedException {
-    throw new UnsupportedOperationException();
+    backend.waitUntilBulkLoadCompleteInCluster();
   }
 
   @Override
