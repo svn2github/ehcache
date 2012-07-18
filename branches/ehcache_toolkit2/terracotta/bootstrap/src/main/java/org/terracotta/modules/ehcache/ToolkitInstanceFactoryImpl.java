@@ -33,7 +33,7 @@ import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.Set;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
@@ -237,7 +237,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCache<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
+  public ToolkitCache<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
     Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
     return toolkit.getCache(fullAsyncName, configuration);
@@ -249,11 +249,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     String cacheName = cache.getName();
     String fullAsyncName = cacheMgrName + DELIMITER + cacheName + DELIMITER + ASYNC;
     return fullAsyncName;
-  }
-
-  @Override
-  public String getAsyncNode(String fullAsyncName, String nodeId) {
-    return fullAsyncName + DELIMITER + nodeId;
   }
 
   @Override

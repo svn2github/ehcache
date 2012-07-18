@@ -22,7 +22,7 @@ import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * Factory used for creating {@link Toolkit} instances used for implementing clustered ehcache
@@ -64,11 +64,9 @@ public interface ToolkitInstanceFactory {
 
   ToolkitCache<String, AsyncConfig> getOrCreateAsyncConfigMap();
 
-  ToolkitCache<String, LinkedList<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
+  ToolkitCache<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
 
   String getFullAsyncName(Ehcache cache);
-
-  String getAsyncNode(String fullAsyncName, String nodeId);
 
   ToolkitLock getAsyncWriteLock();
 

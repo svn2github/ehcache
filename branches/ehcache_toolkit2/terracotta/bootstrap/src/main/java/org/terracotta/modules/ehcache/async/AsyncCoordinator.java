@@ -9,6 +9,9 @@ import java.io.Serializable;
 
 public interface AsyncCoordinator<E extends Serializable> {
 
+  /**
+   * @throws IllegalArgumentException if processingConcurrency is less than 1 OR processor is null
+   */
   public void start(final ItemProcessor<E> processor, final int processingConcurrency,
                     ItemScatterPolicy<? super E> policy);
 

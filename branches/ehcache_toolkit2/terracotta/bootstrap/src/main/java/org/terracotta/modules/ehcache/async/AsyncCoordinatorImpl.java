@@ -24,13 +24,12 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.locks.Lock;
 
 /**
  * An AsyncCoordinator allows work to be added and processed asynchronously in a fault-tolerant and high performance
@@ -38,46 +37,45 @@ import java.util.concurrent.locks.Lock;
  */
 
 public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordinator<E> {
-  private static final Logger                          LOGGER    = LoggerFactory.getLogger(AsyncCoordinatorImpl.class
-                                                                     .getName());
-  private static final String                          HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME = "com.tc.async.honorWorkDelayForProcessingDeadNodes";
+  private static final Logger             LOGGER                                               = LoggerFactory
+                                                                                                   .getLogger(AsyncCoordinatorImpl.class
+                                                                                                       .getName());
+  private static final String             HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME = "com.tc.async.honorWorkDelayForProcessingDeadNodes";
   // will be false by default
-  private final boolean                                HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES = Boolean
-                                                                                                                .getBoolean(HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME);
-  private static final String                          BUCKET    = "bucket";
-  private static final String                          DELIMITER = ToolkitInstanceFactoryImpl.DELIMITER;
-  private final String                                 name;
-  private final AsyncConfig                            config;
+  private final boolean                   HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES           = Boolean
+                                                                                                   .getBoolean(HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME);
+  private static final String             BUCKET                                               = "bucket";
+  private static final String             DELIMITER                                            = ToolkitInstanceFactoryImpl.DELIMITER;
+  private final String                    name;
+  private final AsyncConfig               config;
 
-  /**
-   * this ToolkitMap map contains keys based on asyncName-nodeId and value will be linked list of bucketNames (or name
-   * of ToolkitList)
-   */
-  private final ToolkitCache<String, LinkedList<String>> listNamesMap;
+  private final BucketMetaInfoHandler<E>  bucketMetaInfoHandler;
 
   /**
    * lock for this coordinator based on SynchronousWrite
    */
-  private final ToolkitLock                            coordinatorLock;
-  private final List<ProcessingBucket<E>>              localBuckets;
-  private final List<ProcessingBucket<E>>              deadBuckets;
+  private final ToolkitLock               commonAsyncLock;
+  private final ToolkitLock               nodeWriteLock;
+  private final ToolkitLock               nodeReadLock;
+
+  private final List<ProcessingBucket<E>> localBuckets;
+  private final List<ProcessingBucket<E>> deadBuckets;
 
   /**
    * status of this coordinator like STARTED, STOPPED etc
    */
-  private volatile Status                              status;
-  private ItemScatterPolicy<? super E>                 scatterPolicy;
-  private ItemsFilter<E>                               filter;
-  private final ClusterInfo                            cluster;
-  private final String                                 nodeName;
-  private final Toolkit                                toolkit;
-  private final ToolkitInstanceFactory                 toolkitInstanceFactory;
-  private ItemProcessor<E>                             processor;
-  private AsyncClusterListener                         listner;
-  private StopCallable                                 stopCallable;
+  private volatile Status                 status;
+  private ItemScatterPolicy<? super E>    scatterPolicy;
+  private ItemsFilter<E>                  filter;
+  private final ClusterInfo               cluster;
+  private final String                    nodeName;
+  private final Toolkit                   toolkit;
+  private final ToolkitInstanceFactory    toolkitInstanceFactory;
+  private ItemProcessor<E>                processor;
+  private AsyncClusterListener            listner;
+  private StopCallable                    stopCallable;
 
-  public AsyncCoordinatorImpl(String name, AsyncConfig config,
-                              ToolkitInstanceFactory toolkitInstanceFactory) {
+  public AsyncCoordinatorImpl(String name, AsyncConfig config, ToolkitInstanceFactory toolkitInstanceFactory) {
     this.name = name;
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     if (null == config) {
@@ -87,20 +85,51 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     }
     this.toolkit = toolkitInstanceFactory.getToolkit();
     this.cluster = toolkit.getClusterInfo();
-    this.nodeName = toolkitInstanceFactory.getAsyncNode(name, cluster.getCurrentNode().getId());// async name with
-                                                                                                // nodeId
+    this.nodeName = getAsyncNodeName(name, cluster.getCurrentNode());
     this.localBuckets = new ArrayList<ProcessingBucket<E>>();
     this.deadBuckets = new ArrayList<ProcessingBucket<E>>();
-    this.listNamesMap = toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name);
+    this.bucketMetaInfoHandler = new BucketMetaInfoHandler<E>(nodeName,
+                                                              toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name));
     ToolkitLockType lockType = config.isSynchronousWrite() ? ToolkitLockType.SYNCHRONOUS_WRITE : ToolkitLockType.WRITE;
-    this.coordinatorLock = toolkit.getLock(name, lockType);
+    this.commonAsyncLock = toolkit.getLock(name, lockType);
+    this.nodeWriteLock = toolkit.getLock(nodeName, lockType);
+    this.nodeReadLock = toolkit.getLock(nodeName, ToolkitLockType.READ);
   }
 
   @Override
   public void start(ItemProcessor<E> itemProcessor, int processingConcurrency, ItemScatterPolicy<? super E> policy) {
+    validateArgs(itemProcessor, processingConcurrency);
+
+    nodeWriteLock.lock();
+    try {
+      if (status == Status.STARTED) {
+        LOGGER.warn("AsyncCoordinator " + name + " already started");
+        return;
+      }
+
+      this.scatterPolicy = getPolicy(policy, processingConcurrency);
+      this.processor = itemProcessor;
+      this.listner = new AsyncClusterListener();
+
+      cluster.addClusterListener(listner);
+
+      startBuckets(processingConcurrency);
+      status = Status.STARTED;
+    } finally {
+      nodeWriteLock.unlock();
+    }
+
+    processDeadNodes();
+
+  }
+
+  private void validateArgs(ItemProcessor<E> itemProcessor, int processingConcurrency) {
     if (null == itemProcessor) throw new IllegalArgumentException("processor can't be null");
     if (processingConcurrency < 1) throw new IllegalArgumentException("processingConcurrency needs to be at least 1");
+  }
 
+  private static <E extends Serializable> ItemScatterPolicy<? super E> getPolicy(ItemScatterPolicy<? super E> policy,
+                                                                                 int processingConcurrency) {
     if (null == policy) {
       if (1 == processingConcurrency) {
         policy = new SingleBucketScatterPolicy();
@@ -109,50 +138,39 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       }
     }
 
-    Lock lock = coordinatorLock;
-    lock.lock();
-    try {
-      if (status == Status.STARTED) {
-        LOGGER.warn("AsyncCoordinator " + name + " already started");
-        return;
-      }
-      if (scatterPolicy != null) { throw new IllegalArgumentException(
-                                                                      "scatterPolicy should have been null for AsyncCoordinator "
-                                                                          + name); }
-      this.scatterPolicy = policy;
-      LinkedList<String> tmpLList = new LinkedList<String>();
-      LinkedList<String> nameList = listNamesMap.putIfAbsent(nodeName, tmpLList);
-      if (nameList != null) { throw new IllegalArgumentException("nameList already populated for AsyncCoordinator "
-                                                                 + name); }
-      nameList = tmpLList;
-      this.processor = itemProcessor;
-      for (int i = 0; i < processingConcurrency; i++) {
-        String bucketName = nodeName + DELIMITER + BUCKET + DELIMITER + i;
-        ToolkitList<E> toolkitList = toolkit.getList(bucketName);
-        final ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, config, toolkitList, cluster, processor,
-                                                                   LoggingErrorHandler.getInstance());
-        bucket.setItemsFilter(filter);
-        localBuckets.add(bucket);
-        nameList.add(bucketName);
-      }
-      listNamesMap.put(nodeName, nameList);
-      listner = new AsyncClusterListener();
-      cluster.addClusterListener(listner);
-      for (ProcessingBucket<E> bucket : localBuckets) {
-        startBucket(bucket, false);
-      }
-      status = Status.STARTED;
-    } finally {
-      lock.unlock();
+    return policy;
+  }
+
+  private void startBuckets(int processingConcurrency) {
+    Set<String> nameList = new HashSet();
+    for (int i = 0; i < processingConcurrency; i++) {
+      String bucketName = nodeName + DELIMITER + BUCKET + DELIMITER + i;
+      ProcessingBucket<E> bucket = createBucket(bucketName, this.config, false);
+      localBuckets.add(bucket);
+      nameList.add(bucketName);
+    }
+    bucketMetaInfoHandler.bucketsCreated(nameList);
+
+    for (ProcessingBucket<E> bucket : localBuckets) {
+      startBucket(bucket, false);
+    }
+  }
+
+  private ProcessingBucket<E> createBucket(String bucketName, AsyncConfig processingConfig, boolean setDestroyCallback) {
+    ToolkitList<E> toolkitList = toolkit.getList(bucketName);
+    final ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, processingConfig, toolkitList, cluster,
+                                                               processor, LoggingErrorHandler.getInstance());
+    bucket.setItemsFilter(filter);
+    if (setDestroyCallback) {
+      bucket.setDestroyCallback(removeOnDestroy(deadBuckets, bucket));
     }
 
-    processDeadNodes();
-
+    return bucket;
   }
 
   private void processDeadNodes() {
     // checking if there are any dead nodes and starting threads for those buckets also
-    Set<String> deadNodes = determineDeadNodes();
+    Set<String> deadNodes = bucketMetaInfoHandler.deadNodesWithListsToProcess(name, cluster, toolkitInstanceFactory);
     for (String otherNodeNameListKey : deadNodes) {
       processOtherNode(otherNodeNameListKey);
     }
@@ -179,15 +197,15 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   @Override
   public void add(E item) {
     if (null == item) { return; }
-    Lock lock = coordinatorLock;
-    lock.lock();
+    // TODO: make sure this is in sync write txn after atomic toolkit
+    nodeWriteLock.lock();
     try {
       getStatus().checkRunning();
       final int index = scatterPolicy.selectBucket(localBuckets.size(), item);
       final ProcessingBucket bucket = localBuckets.get(index);
       bucket.add(item);
     } finally {
-      lock.unlock();
+      nodeWriteLock.unlock();
     }
   }
 
@@ -197,30 +215,39 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   @Override
   public void stop() {
-    Lock lock = coordinatorLock;
-    lock.lock();
+    nodeWriteLock.lock();
     try {
       getStatus().checkRunning();
       status = Status.STOPPED;
-      for (ProcessingBucket<E> bucket : localBuckets) {
-        bucket.stop();
-      }
-      localBuckets.clear();
-      List<ProcessingBucket<E>> deadBucketsCopy = new ArrayList<ProcessingBucket<E>>(deadBuckets);
-      for (ProcessingBucket<E> bucket : deadBucketsCopy) {
-        bucket.stop();
-      }
-      deadBuckets.clear();
-      scatterPolicy = null;
+
+      stopBuckets(localBuckets);
+      stopDeadBuckets();
+
       if (cluster != null) {
         cluster.removeClusterListener(listner);
       }
-      listNamesMap.remove(nodeName);
+
+      bucketMetaInfoHandler.clear();
       stopCallable.stop();
     } finally {
-      lock.unlock();
+      nodeWriteLock.unlock();
     }
+  }
 
+  private void stopDeadBuckets() {
+    commonAsyncLock.lock();
+    try {
+      stopBuckets(deadBuckets);
+    } finally {
+      commonAsyncLock.unlock();
+    }
+  }
+
+  private void stopBuckets(List<ProcessingBucket<E>> buckets) {
+    for (ProcessingBucket<E> bucket : buckets) {
+      bucket.stop();
+    }
+    buckets.clear();
   }
 
   /**
@@ -234,8 +261,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
    */
   @Override
   public void setOperationsFilter(ItemsFilter<E> filter) {
-    Lock lock = coordinatorLock;
-    lock.lock();
+    nodeWriteLock.lock();
     try {
       this.filter = filter;
       if (localBuckets != null) {
@@ -244,7 +270,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         }
       }
     } finally {
-      lock.unlock();
+      nodeWriteLock.unlock();
     }
   }
 
@@ -253,7 +279,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     public void onClusterEvent(ClusterEvent event, ClusterInfo clusterInfo) {
       switch (event.getType()) {
         case NODE_LEFT:
-          String otherNodeNameListKey = toolkitInstanceFactory.getAsyncNode(name, event.getNode().getId());
+          String otherNodeNameListKey = getAsyncNodeName(name, event.getNode());
           processOtherNode(otherNodeNameListKey);
           break;
         default:
@@ -263,7 +289,20 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   }
 
-  private void processOtherNode(String otherNodeNameListKey) {
+  private void processOtherNode(String deadNode) {
+    commonAsyncLock.lock();
+    try {
+      if (status == Status.STARTED) {
+        Collection<String> oldListNames = bucketMetaInfoHandler.transferAllListsFromNode(deadNode);
+        AsyncConfig deadNodeConfig = createDeadNodeConfig();
+        startProcessingDeadNodeBuckets(deadNodeConfig, oldListNames);
+      }
+    } finally {
+      commonAsyncLock.unlock();
+    }
+  }
+
+  private AsyncConfig createDeadNodeConfig() {
     AsyncConfig deadNodeProcessingConfig = new AsyncConfigAdapter(config) {
 
       @Override
@@ -276,44 +315,19 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       }
 
     };
-    Lock lock = coordinatorLock;
-    lock.lock();
-    try {
-      if (status == Status.STARTED) {
-        LinkedList<String> oldNameList = listNamesMap.get(otherNodeNameListKey);
-        LinkedList<String> newOwner = listNamesMap.get(nodeName);
-        if (oldNameList != null) {
-          for (String bucketName : oldNameList) {
-            ToolkitList<E> toolkitList = toolkit.getList(bucketName);
-            ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, deadNodeProcessingConfig, toolkitList,
-                                                                 cluster, processor, LoggingErrorHandler.getInstance());
-            bucket.setDestroyCallback(removeOnDestroy(deadBuckets, bucket));
-            bucket.setItemsFilter(filter);
-            deadBuckets.add(bucket);
-            newOwner.add(bucketName);
-          }
-          listNamesMap.remove(otherNodeNameListKey); // removing buckets from old node
-          listNamesMap.put(nodeName, newOwner); // transferring bucket ownership to new node
-          for (ProcessingBucket<E> bucket : deadBuckets) {
-            startBucket(bucket, true);
-          }
-        }
-      }
-    } finally {
-      lock.unlock();
-    }
+    return deadNodeProcessingConfig;
   }
 
-  private Set<String> determineDeadNodes() {
-    Set<String> deadNodes = Collections.EMPTY_SET;
-    // check if the all the known nodes still exist in the cluster
-    if (cluster != null) {
-      deadNodes = new HashSet<String>(listNamesMap.keySet());
-      for (ClusterNode node : cluster.getClusterTopology().getNodes()) {
-        deadNodes.remove(toolkitInstanceFactory.getAsyncNode(name, node.getId()));
+  private void startProcessingDeadNodeBuckets(AsyncConfig deadNodeProcessingConfig, Collection<String> oldListNames) {
+    List<ProcessingBucket<E>> newDeadBuckets = new ArrayList<ProcessingBucket<E>>();
+    if (oldListNames != null) {
+      for (String bucketName : oldListNames) {
+        ProcessingBucket<E> bucket = createBucket(bucketName, deadNodeProcessingConfig, true);
+        newDeadBuckets.add(bucket);
+        startBucket(bucket, true);
       }
+      deadBuckets.addAll(newDeadBuckets);
     }
-    return deadNodes;
   }
 
   private static enum Status {
@@ -332,8 +346,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   @Override
   public long getQueueSize() {
-    Lock lock = coordinatorLock;
-    lock.lock();
+    nodeReadLock.lock();
     try {
       getStatus().checkRunning();
       long size = 0;
@@ -342,7 +355,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       }
       return size;
     } finally {
-      lock.unlock();
+      nodeReadLock.unlock();
     }
   }
 
@@ -352,6 +365,73 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   public static interface StopCallable {
     void stop();
+  }
+
+  private static String getAsyncNodeName(String name, ClusterNode node) {
+    return name + DELIMITER + node.getId();
+  }
+
+  private static class BucketMetaInfoHandler<E extends Serializable> {
+    /**
+     * this ToolkitMap map contains keys based on asyncName-nodeId and value will be linked list of bucketNames (or name
+     * of ToolkitList)
+     */
+    private final ToolkitCache<String, Set<String>> nodeToListNamesMap;
+    private final String                            nodeName;
+
+    public BucketMetaInfoHandler(String nodeName, ToolkitCache<String, Set<String>> nodeToListNamesMap) {
+      this.nodeName = nodeName;
+      this.nodeToListNamesMap = nodeToListNamesMap;
+    }
+
+    public void bucketsCreated(Collection<String> bucketNames) {
+      Set<String> set = getSetForThisNode();
+      set.addAll(bucketNames);
+      this.nodeToListNamesMap.put(nodeName, set);
+    }
+
+    private Set<String> getSetForThisNode() {
+      Set<String> set = this.nodeToListNamesMap.get(nodeName);
+      if (set == null) {
+        set = addSetForNode();
+      }
+      return set;
+    }
+
+    private Set<String> addSetForNode() {
+      Set<String> tmpList = new HashSet<String>();
+      Set<String> rvList = this.nodeToListNamesMap.putIfAbsent(nodeName, tmpList);
+      return rvList == null ? tmpList : rvList;
+    }
+
+    public void clear() {
+      this.nodeToListNamesMap.remove(nodeName);
+    }
+
+    public Collection<String> transferAllListsFromNode(String node) {
+      Set<String> oldNameList = nodeToListNamesMap.get(node);
+
+      if (oldNameList != null) {
+        Set<String> newOwner = getSetForThisNode();
+
+        newOwner.addAll(oldNameList);
+        nodeToListNamesMap.put(nodeName, newOwner); // transferring bucket ownership to new node
+        nodeToListNamesMap.remove(node); // removing buckets from old node
+      }
+      return oldNameList;
+    }
+
+    private Set<String> deadNodesWithListsToProcess(String name, ClusterInfo cluster,
+                                                    ToolkitInstanceFactory toolkitInstanceFactory) {
+      Set<String> deadNodes = Collections.EMPTY_SET;
+      // check if the all the known nodes still exist in the cluster
+      deadNodes = new HashSet<String>(nodeToListNamesMap.keySet());
+      for (ClusterNode node : cluster.getClusterTopology().getNodes()) {
+        deadNodes.remove(getAsyncNodeName(name, node));
+      }
+      return deadNodes;
+    }
+
   }
 
 }

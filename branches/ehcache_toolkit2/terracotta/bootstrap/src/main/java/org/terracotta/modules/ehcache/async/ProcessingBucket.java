@@ -6,7 +6,6 @@ package org.terracotta.modules.ehcache.async;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.async.errorhandlers.AsyncErrorHandler;
-import org.terracotta.modules.ehcache.async.exceptions.BusyProcessingException;
 import org.terracotta.modules.ehcache.async.exceptions.ProcessingBucketAlreadyStartedException;
 import org.terracotta.modules.ehcache.async.exceptions.ProcessingException;
 import org.terracotta.toolkit.cluster.ClusterInfo;
@@ -40,7 +39,6 @@ public class ProcessingBucket<E extends Serializable> {
   private final ToolkitList<E>         toolkitList;
   private long                         lastProcessing     = -1;
   private long                         lastWorkDoneMillis = -1;
-  private boolean                      busy               = false;
   private volatile boolean             cancelled          = false;
   private final AtomicLong             workDelay;
   private ProcessingWorker             processingWorker;
@@ -134,17 +132,15 @@ public class ProcessingBucket<E extends Serializable> {
   public void stop() {
     bucketWriteLock.lock();
     try {
+      cancelled = true;
+      workDelay.set(0);
       signalNotEmpty();
-      try {
-        cancelled = true;
-        workDelay.set(0);
-        while (!toolkitList.isEmpty()) {
-          stoppedButBucketNotEmpty.await();
-        }
-        processingWorker.interrupt();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+      while (!toolkitList.isEmpty()) {
+        stoppedButBucketNotEmpty.await();
       }
+      processingWorker.interrupt();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     } finally {
       bucketWriteLock.unlock();
     }
@@ -190,8 +186,13 @@ public class ProcessingBucket<E extends Serializable> {
           }
         }
       }
+      boolean signalNotEmpty = toolkitList.size() == 0;
+
       toolkitList.add(item);
-      signalNotEmpty();
+
+      if (signalNotEmpty) {
+        signalNotEmpty();
+      }
     } finally {
       bucketWriteLock.unlock();
     }
@@ -242,90 +243,73 @@ public class ProcessingBucket<E extends Serializable> {
    * This method process items from bucket. Execution of this method does not guarantee that items from a non empty
    * bucket will be processed.
    */
-  private void processItems() throws BusyProcessingException, ProcessingException {
-    bucketReadLock.lock();
-    try {
-      if (busy) { throw new BusyProcessingException(); }
-    } finally {
-      bucketReadLock.unlock();
-    }
-
+  private void processItems() throws ProcessingException {
     bucketWriteLock.lock();
     try {
-      busy = true;
       lastProcessing = baselinedCurrentTimeMillis();
     } finally {
       bucketWriteLock.unlock();
     }
 
+    // set some state related to this processing run
+    final int workSize;
+    bucketReadLock.lock();
     try {
-      // set some state related to this processing run
-      final int workSize;
-      bucketWriteLock.lock();
-      try {
-        if (cancelled) { return; }
-        workSize = toolkitList.size();
-        // if there's no work that needs to be done, stop the processing
-        if (0 == workSize) {
-          LOGGER.warn(getThreadName() + " : processItems() : nothing to process");
-          return;
-        }
-      } finally {
-        bucketWriteLock.unlock();
+      if (cancelled) { return; }
+      workSize = toolkitList.size();
+      // if there's no work that needs to be done, stop the processing
+      if (0 == workSize) {
+        LOGGER.warn(getThreadName() + " : processItems() : nothing to process");
+        return;
       }
-
-      filterQuarantined();
-      // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
-      // max allowed fall behind delay hasn't expired
-      final int batchSize = config.getBatchSize();
-      if (config.isBatchingEnabled() && batchSize > 0) {
-        // wait for another round if the batch size hasn't been filled up yet and the max write delay
-        // hasn't expired yet
-        if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessing - lastWorkDoneMillis) {
-          LOGGER.warn(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
-                      + batchSize + " items to fill up a batch");
-          return;
-        }
-
-        // enforce the rate limit and wait for another round if too much would be processed compared to
-        // the last time when a batch was executed
-        final int rateLimit = config.getRateLimit();
-        if (rateLimit > 0) {
-          final long secondsSinceLastWorkDone;
-          final int effectiveBatchSize;
-          bucketReadLock.lock();
-          try {
-            secondsSinceLastWorkDone = (baselinedCurrentTimeMillis() - lastWorkDoneMillis) / 1000;
-            effectiveBatchSize = determineBatchSize();
-          } finally {
-            bucketReadLock.unlock();
-          }
-          final long maxBatchSizeSinceLastWorkDone = rateLimit * secondsSinceLastWorkDone;
-          if (effectiveBatchSize > maxBatchSizeSinceLastWorkDone) {
-            LOGGER.warn(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
-                        + " seconds ago, processing " + effectiveBatchSize
-                        + " batch items would exceed the rate limit of " + rateLimit + ", waiting for a while.");
-            return;
-          }
-        }
-      }
-
-      bucketWriteLock.lock();
-      try {
-        lastWorkDoneMillis = baselinedCurrentTimeMillis();
-        doProcessItems();
-      } finally {
-        bucketWriteLock.unlock();
-      }
-
     } finally {
-      bucketWriteLock.lock();
-      try {
-        busy = false;
-      } finally {
-        bucketWriteLock.unlock();
+      bucketReadLock.unlock();
+    }
+
+    filterQuarantined();
+    // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
+    // max allowed fall behind delay hasn't expired
+    final int batchSize = config.getBatchSize();
+    if (config.isBatchingEnabled() && batchSize > 0) {
+      // wait for another round if the batch size hasn't been filled up yet and the max write delay
+      // hasn't expired yet
+      if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessing - lastWorkDoneMillis) {
+        LOGGER.warn(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
+                    + batchSize + " items to fill up a batch");
+        return;
+      }
+
+      // enforce the rate limit and wait for another round if too much would be processed compared to
+      // the last time when a batch was executed
+      final int rateLimit = config.getRateLimit();
+      if (rateLimit > 0) {
+        final long secondsSinceLastWorkDone;
+        final int effectiveBatchSize;
+        bucketReadLock.lock();
+        try {
+          secondsSinceLastWorkDone = (baselinedCurrentTimeMillis() - lastWorkDoneMillis) / 1000;
+          effectiveBatchSize = determineBatchSize();
+        } finally {
+          bucketReadLock.unlock();
+        }
+        final long maxBatchSizeSinceLastWorkDone = rateLimit * secondsSinceLastWorkDone;
+        if (effectiveBatchSize > maxBatchSizeSinceLastWorkDone) {
+          LOGGER.warn(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
+                      + " seconds ago, processing " + effectiveBatchSize
+                      + " batch items would exceed the rate limit of " + rateLimit + ", waiting for a while.");
+          return;
+        }
       }
     }
+
+    bucketWriteLock.lock();
+    try {
+      lastWorkDoneMillis = baselinedCurrentTimeMillis();
+    } finally {
+      bucketWriteLock.unlock();
+    }
+
+    doProcessItems();
   }
 
   private void doProcessItems() throws ProcessingException {
@@ -339,17 +323,25 @@ public class ProcessingBucket<E extends Serializable> {
       } else {
         processSingleItem();
       }
-      signalNotFull();
 
       if (toolkitList.isEmpty() && cancelled) {
-        stoppedButBucketNotEmpty.signalAll();
+        signalStop();
       }
+    }
+  }
+
+  private void signalStop() {
+    bucketWriteLock.lock();
+    try {
+      stoppedButBucketNotEmpty.signalAll();
+    } finally {
+      bucketWriteLock.unlock();
     }
   }
 
   private void processSingleItem() throws ProcessingException {
     // process the next item
-    final E item = toolkitList.get(0);
+    final E item = getItemsFromQueue(1).get(0);
     final int retryAttempts = config.getRetryAttempts();
     int executionsLeft = retryAttempts + 1;
     while (executionsLeft-- > 0) {
@@ -371,17 +363,12 @@ public class ProcessingBucket<E extends Serializable> {
         }
       }
     }
-    toolkitList.remove(0);
+    removeFromQueue(1);
   }
 
   private void processBatchedItems() throws ProcessingException {
     final int effectiveBatchSize = determineBatchSize();
-
-    List<E> batch = new ArrayList<E>(effectiveBatchSize);
-    for (int i = 0; i < effectiveBatchSize; i++) {
-      final E item = toolkitList.get(i);
-      batch.add(item);
-    }
+    List<E> batch = getItemsFromQueue(effectiveBatchSize);
     final int retryAttempts = config.getRetryAttempts();
     int executionsLeft = retryAttempts + 1;
     while (executionsLeft-- > 0) {
@@ -406,8 +393,37 @@ public class ProcessingBucket<E extends Serializable> {
       }
     }
 
-    for (int i = 0; i < effectiveBatchSize; i++) {
-      toolkitList.remove(0);
+    removeFromQueue(effectiveBatchSize);
+  }
+
+  private List<E> getItemsFromQueue(final int effectiveBatchSize) {
+    bucketReadLock.lock();
+    try {
+      List<E> batch = new ArrayList<E>(effectiveBatchSize);
+      for (int i = 0; i < effectiveBatchSize; i++) {
+        final E item = toolkitList.get(i);
+        batch.add(item);
+      }
+      return batch;
+    } finally {
+      bucketReadLock.unlock();
+    }
+  }
+
+  private void removeFromQueue(final int effectiveBatchSize) {
+    bucketWriteLock.lock();
+    try {
+      boolean signalNotFull = toolkitList.size() >= this.config.getMaxQueueSize();
+
+      for (int i = 0; i < effectiveBatchSize; i++) {
+        toolkitList.remove(0);
+      }
+
+      if (signalNotFull) {
+        signalNotFull();
+      }
+    } finally {
+      bucketWriteLock.unlock();
     }
   }
 
