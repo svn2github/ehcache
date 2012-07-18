@@ -11,7 +11,7 @@
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-jgroupsreplication</artifactId>
     <name>JGroups Replication</name>
-    <version>1.7-SNAPSHOT</version>
+    <version>1.6</version>
     <packaging>jar</packaging>
     <description>This module provides replication via JGroups</description>
     <properties>
