@@ -6,7 +6,7 @@ package org.terracotta.modules.ehcache.async;
 import net.sf.ehcache.Ehcache;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
-import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.StopCallable;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.Callback;
 import org.terracotta.toolkit.collections.ToolkitCache;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,9 +44,9 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
                                                                         + fullAsyncName
                                                                         + " created for this node but entry not present in configMap"); }
       } else {
-        StopCallable stopCallable = new StopCallable() {
+        Callback stopCallable = new Callback() {
           @Override
-          public void stop() {
+          public void callback() {
             localMap.remove(fullAsyncName);
           }
         };

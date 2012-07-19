@@ -5,8 +5,7 @@ package org.terracotta.modules.ehcache.async;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.modules.ehcache.async.errorhandlers.AsyncErrorHandler;
-import org.terracotta.modules.ehcache.async.exceptions.ProcessingBucketAlreadyStartedException;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.Callback;
 import org.terracotta.modules.ehcache.async.exceptions.ProcessingException;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.collections.ToolkitList;
@@ -14,52 +13,54 @@ import org.terracotta.toolkit.collections.ToolkitList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ProcessingBucket<E extends Serializable> {
-  private static final Logger          LOGGER             = LoggerFactory.getLogger(ProcessingBucket.class.getName());
-  private final String                 bucketName;
-  private final AsyncConfig            config;
-  private final ClusterInfo            cluster;
-  private final ItemProcessor<E>       processor;
-  private final AsyncErrorHandler      errorHandler;
-  private volatile ItemsFilter<E>      filter;
-  private final long                   baselineTimestamp;
-  private final ReentrantReadWriteLock bucketLock;
-  private final Lock                   bucketWriteLock;
-  private final Lock                   bucketReadLock;
-  private final Condition              bucketIsEmpty;
-  private final Condition              bucketIsFull;
-  private final Condition              stoppedButBucketNotEmpty;
-  private final ToolkitList<E>         toolkitList;
-  private long                         lastProcessing     = -1;
-  private long                         lastWorkDoneMillis = -1;
-  private volatile boolean             cancelled          = false;
-  private final AtomicLong             workDelay;
-  private ProcessingWorker             processingWorker;
-  private Callable<Boolean>            destroyCallback;
+class ProcessingBucket<E extends Serializable> {
+  private static final Logger     LOGGER                   = LoggerFactory.getLogger(ProcessingBucket.class.getName());
+  private static final int        UNLIMITED_QUEUE_SIZE     = 0;
+
+  private final String            bucketName;
+  private final AsyncConfig       config;
+  private final ClusterInfo       cluster;
+  private final ItemProcessor<E>  processor;
+  private volatile ItemsFilter<E> filter;
+  private final long              baselineTimestampMillis;
+  private final Lock              bucketWriteLock;
+  private final Lock              bucketReadLock;
+  private final Condition         bucketNotEmpty;
+  private final Condition         bucketNotFull;
+  private final Condition         stoppedButBucketNotEmpty;
+  private final ToolkitList<E>    toolkitList;
+  private long                    lastProcessingTimeMillis = -1;
+  private long                    lastWorkDoneMillis       = -1;
+  private volatile boolean        cancelled                = false;
+  private final AtomicLong        workDelay;
+  private final ProcessingWorker  processingWorkerRunnable;
+  private volatile Thread         processingWorkerThread;
+  private Callback                destroyCallback;
+  private final boolean           workingOnDeadBucket;
 
   public ProcessingBucket(String bucketName, AsyncConfig config, ToolkitList toolkitList, ClusterInfo cluster,
-                          ItemProcessor<E> processor, AsyncErrorHandler errorHandler) {
+                          ItemProcessor<E> processor, boolean workingOnDeadBucket) {
     this.bucketName = bucketName;
     this.config = config;
     this.cluster = cluster;
     this.processor = processor;
     this.toolkitList = toolkitList;
-    this.baselineTimestamp = System.currentTimeMillis();
-    this.bucketLock = new ReentrantReadWriteLock();
+    this.baselineTimestampMillis = System.currentTimeMillis();
+    ReentrantReadWriteLock bucketLock = new ReentrantReadWriteLock();
     this.bucketReadLock = bucketLock.readLock();
     this.bucketWriteLock = bucketLock.writeLock();
-    this.bucketIsEmpty = bucketWriteLock.newCondition();
-    this.bucketIsFull = bucketWriteLock.newCondition();
+    this.bucketNotEmpty = bucketWriteLock.newCondition();
+    this.bucketNotFull = bucketWriteLock.newCondition();
     this.stoppedButBucketNotEmpty = bucketWriteLock.newCondition();
-    this.errorHandler = errorHandler;
     this.workDelay = new AtomicLong(config.getWorkDelay());
+    this.workingOnDeadBucket = workingOnDeadBucket;
+    this.processingWorkerRunnable = new ProcessingWorker("ProcessingWorker-" + bucketName);
   }
 
   public String getBucketName() {
@@ -72,7 +73,7 @@ public class ProcessingBucket<E extends Serializable> {
   public long getLastProcessing() {
     bucketReadLock.lock();
     try {
-      return lastProcessing;
+      return lastProcessingTimeMillis;
     } finally {
       bucketReadLock.unlock();
     }
@@ -83,31 +84,31 @@ public class ProcessingBucket<E extends Serializable> {
   }
 
   private long baselinedCurrentTimeMillis() {
-    return System.currentTimeMillis() - baselineTimestamp;
+    return System.currentTimeMillis() - baselineTimestampMillis;
   }
 
-  void start(boolean workingOnDeadBucket) throws ProcessingBucketAlreadyStartedException {
+  void start() {
     bucketWriteLock.lock();
     try {
       ensureNonExistingThread();
-      processingWorker = new ProcessingWorker("ProcessingWorker-" + bucketName, workingOnDeadBucket);
-      processingWorker.setDaemon(true);
-      processingWorker.start();
+      processingWorkerThread = new Thread(processingWorkerRunnable);
+      processingWorkerThread.setName(processingWorkerRunnable.getThreadName());
+      processingWorkerThread.setDaemon(true);
+      processingWorkerThread.start();
     } finally {
       bucketWriteLock.unlock();
     }
   }
 
-  private void ensureNonExistingThread() throws ProcessingBucketAlreadyStartedException {
-    if (processingWorker != null && processingWorker.isWorking()) { throw new ProcessingBucketAlreadyStartedException(
-                                                                                                                      processingWorker); }
+  private void ensureNonExistingThread() {
+    if (processingWorkerThread != null) { throw new AssertionError(processingWorkerRunnable.getThreadName()); }
   }
 
   private boolean isCancelled() {
     try {
       bucketReadLock.lock();
       try {
-        return cancelled || (processingWorker.isWorkingOnDeadBucket() && toolkitList.isEmpty());
+        return cancelled || (workingOnDeadBucket && toolkitList.isEmpty());
       } finally {
         bucketReadLock.unlock();
       }
@@ -132,13 +133,13 @@ public class ProcessingBucket<E extends Serializable> {
   public void stop() {
     bucketWriteLock.lock();
     try {
-      cancelled = true;
       workDelay.set(0);
-      signalNotEmpty();
       while (!toolkitList.isEmpty()) {
         stoppedButBucketNotEmpty.await();
       }
-      processingWorker.interrupt();
+      cancelled = true;
+      bucketNotEmpty.signalAll();
+      processingWorkerThread.interrupt();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     } finally {
@@ -149,24 +150,12 @@ public class ProcessingBucket<E extends Serializable> {
   private void destroyToolkitList() {
     toolkitList.destroy();
     if (destroyCallback != null) {
-      try {
-        Boolean isRemoved = destroyCallback.call();
-        if (!isRemoved) { throw new IllegalStateException("bucket " + bucketName + " not found in localBuckets list"); }
-      } catch (Exception e) {
-        throw new IllegalStateException("Exception while removing bucket " + bucketName + " from localBuckets list "
-                                        + e);
-      }
+      destroyCallback.callback();
     }
   }
 
-  public String getThreadName() {
-    bucketReadLock.lock();
-    try {
-      if (null == processingWorker) { return null; }
-      return processingWorker.getName();
-    } finally {
-      bucketReadLock.unlock();
-    }
+  private String getThreadName() {
+    return processingWorkerRunnable.getThreadName();
   }
 
   public void add(final E item) {
@@ -174,10 +163,10 @@ public class ProcessingBucket<E extends Serializable> {
     int maxQueueSize = config.getMaxQueueSize();
     bucketWriteLock.lock();
     try {
-      if (maxQueueSize != 0) {
+      if (maxQueueSize != UNLIMITED_QUEUE_SIZE) {
         while (toolkitList.size() >= maxQueueSize) {
           try {
-            bucketIsFull.await();
+            bucketNotFull.await();
           } catch (final InterruptedException e) {
             // if the wait for items is interrupted, act as if the bucket was canceled
             stop();
@@ -191,7 +180,7 @@ public class ProcessingBucket<E extends Serializable> {
       toolkitList.add(item);
 
       if (signalNotEmpty) {
-        signalNotEmpty();
+        bucketNotEmpty.signalAll();
       }
     } finally {
       bucketWriteLock.unlock();
@@ -221,24 +210,6 @@ public class ProcessingBucket<E extends Serializable> {
     }
   }
 
-  private void signalNotFull() {
-    bucketWriteLock.lock();
-    try {
-      bucketIsFull.signalAll();
-    } finally {
-      bucketWriteLock.unlock();
-    }
-  }
-
-  private void signalNotEmpty() {
-    bucketWriteLock.lock();
-    try {
-      bucketIsEmpty.signalAll();
-    } finally {
-      bucketWriteLock.unlock();
-    }
-  }
-
   /**
    * This method process items from bucket. Execution of this method does not guarantee that items from a non empty
    * bucket will be processed.
@@ -246,7 +217,7 @@ public class ProcessingBucket<E extends Serializable> {
   private void processItems() throws ProcessingException {
     bucketWriteLock.lock();
     try {
-      lastProcessing = baselinedCurrentTimeMillis();
+      lastProcessingTimeMillis = baselinedCurrentTimeMillis();
     } finally {
       bucketWriteLock.unlock();
     }
@@ -273,7 +244,7 @@ public class ProcessingBucket<E extends Serializable> {
     if (config.isBatchingEnabled() && batchSize > 0) {
       // wait for another round if the batch size hasn't been filled up yet and the max write delay
       // hasn't expired yet
-      if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessing - lastWorkDoneMillis) {
+      if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessingTimeMillis - lastWorkDoneMillis) {
         LOGGER.warn(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
                     + batchSize + " items to fill up a batch");
         return;
@@ -315,7 +286,7 @@ public class ProcessingBucket<E extends Serializable> {
   private void doProcessItems() throws ProcessingException {
     // process the quarantined items and remove them as they're processed
     // don't process work if this node's operations have been disabled
-    if (cluster != null && !cluster.areOperationsEnabled()) {
+    if (!cluster.areOperationsEnabled()) {
       return;
     } else {
       if (config.isBatchingEnabled() && config.getBatchSize() > 0) {
@@ -420,29 +391,30 @@ public class ProcessingBucket<E extends Serializable> {
       }
 
       if (signalNotFull) {
-        signalNotFull();
+        bucketNotFull.signalAll();
       }
     } finally {
       bucketWriteLock.unlock();
     }
   }
 
-  public void setDestroyCallback(Callable<Boolean> removeOnDestroy) {
+  void setDestroyCallback(Callback removeOnDestroy) {
     this.destroyCallback = removeOnDestroy;
   }
 
-  private final class ProcessingWorker extends Thread {
-    private boolean       isRunning = false;
-    private final boolean workingOnDeadBucket;
+  private final class ProcessingWorker implements Runnable {
+    private final String threadName;
 
-    public ProcessingWorker(String threadName, boolean workingOnDeadBucket) {
-      super(threadName);
-      this.workingOnDeadBucket = workingOnDeadBucket;
+    public ProcessingWorker(String threadName) {
+      this.threadName = threadName;
+    }
+
+    public String getThreadName() {
+      return threadName;
     }
 
     @Override
     public void run() {
-      isRunning = true;
       try {
         while (!isCancelled()) {
           // process the items if this node's operations are enabled
@@ -451,7 +423,7 @@ public class ProcessingBucket<E extends Serializable> {
               processItems();
             } catch (final Throwable e) {
               if (cluster.areOperationsEnabled()) {
-                errorHandler.onError(ProcessingBucket.this, e);
+                LOGGER.error(bucketName + " " + e);
               } else {
                 LOGGER.warn("Caught error on processing items, but looks like we were shut down. "
                             + "This can probably be safely ignored", e);
@@ -473,7 +445,7 @@ public class ProcessingBucket<E extends Serializable> {
               long tmpWorkDelay = workDelay.get();
               if (workDelay.get() != 0) {
                 do {
-                  bucketIsEmpty.await(tmpWorkDelay, TimeUnit.MILLISECONDS);
+                  bucketNotEmpty.await(tmpWorkDelay, TimeUnit.MILLISECONDS);
                   long actualWorkDelay = baselinedCurrentTimeMillis() - currentLastProcessing;
                   if (actualWorkDelay < tmpWorkDelay) {
                     tmpWorkDelay -= actualWorkDelay;
@@ -482,13 +454,13 @@ public class ProcessingBucket<E extends Serializable> {
                   }
                 } while (tmpWorkDelay > 0);
               } else {
-                while (toolkitList.isEmpty()) {
-                  bucketIsEmpty.await();
+                while (toolkitList.isEmpty() && !workingOnDeadBucket) {
+                  bucketNotEmpty.await();
                 }
               }
             } catch (final InterruptedException e) {
               // if the wait for items is interrupted, act as if the bucket was canceled
-              ProcessingBucket.this.stop();
+              stop();
               Thread.currentThread().interrupt();
             }
 
@@ -501,21 +473,10 @@ public class ProcessingBucket<E extends Serializable> {
           LOGGER.warn("Caught TCNotRunningException on processing thread, but looks like we were shut down. "
                       + "This can safely be ignored!", t);
         }
-      } finally {
-        //
       }
 
       // Destroy anyways, either stop happened or other dead-client bucket was finished processing
       destroyToolkitList();
-      isRunning = false;
-    }
-
-    public boolean isWorking() {
-      return isRunning;
-    }
-
-    private boolean isWorkingOnDeadBucket() {
-      return workingOnDeadBucket;
     }
   }
 

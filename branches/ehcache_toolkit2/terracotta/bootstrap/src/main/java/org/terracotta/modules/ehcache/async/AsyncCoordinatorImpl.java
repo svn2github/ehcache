@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
-import org.terracotta.modules.ehcache.async.errorhandlers.LoggingErrorHandler;
-import org.terracotta.modules.ehcache.async.exceptions.ProcessingBucketAlreadyStartedException;
 import org.terracotta.modules.ehcache.async.scatterpolicies.HashCodeScatterPolicy;
 import org.terracotta.modules.ehcache.async.scatterpolicies.ItemScatterPolicy;
 import org.terracotta.modules.ehcache.async.scatterpolicies.SingleBucketScatterPolicy;
@@ -25,10 +23,10 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 /**
  * An AsyncCoordinator allows work to be added and processed asynchronously in a fault-tolerant and high performance
@@ -72,10 +70,10 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private final ToolkitInstanceFactory    toolkitInstanceFactory;
   private ItemProcessor<E>                processor;
   private final AsyncClusterListener      listener;
-  private final StopCallable              stopCallable;
+  private final Callback                  stopCallable;
 
   public AsyncCoordinatorImpl(String name, AsyncConfig config, ToolkitInstanceFactory toolkitInstanceFactory,
-                              StopCallable stopCallable) {
+                              Callback stopCallable) {
     this.name = name;
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     if (null == config) {
@@ -109,6 +107,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         LOGGER.warn("AsyncCoordinator " + name + " already started");
         return;
       }
+
+      if (status != Status.UNINITIALIZED) { throw new IllegalStateException(); }
 
       this.scatterPolicy = getPolicy(policy, processingConcurrency);
       this.processor = itemProcessor;
@@ -162,14 +162,14 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     }
   }
 
-  private ProcessingBucket<E> createBucket(String bucketName, AsyncConfig processingConfig, boolean setDestroyCallback) {
+  private ProcessingBucket<E> createBucket(String bucketName, AsyncConfig processingConfig, boolean workingOnDeadBucket) {
     ToolkitList<E> toolkitList = toolkit.getList(bucketName);
     if (toolkitList.size() > 0) { throw new AssertionError("List created should not have size greater than 0"); }
 
     final ProcessingBucket<E> bucket = new ProcessingBucket<E>(bucketName, processingConfig, toolkitList, cluster,
-                                                               processor, LoggingErrorHandler.getInstance());
+                                                               processor, workingOnDeadBucket);
     bucket.setItemsFilter(filter);
-    if (setDestroyCallback) {
+    if (workingOnDeadBucket) {
       bucket.setDestroyCallback(removeOnDestroy(deadBuckets, bucket));
     }
 
@@ -184,22 +184,17 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     }
   }
 
-  private Callable<Boolean> removeOnDestroy(final List<ProcessingBucket<E>> list, final ProcessingBucket<E> bucket) {
-    return new Callable<Boolean>() {
+  private Callback removeOnDestroy(final List<ProcessingBucket<E>> list, final ProcessingBucket<E> bucket) {
+    return new Callback() {
       @Override
-      public Boolean call() throws Exception {
-        return list.remove(bucket);
+      public void callback() {
+        list.remove(bucket);
       }
     };
   }
 
   private void startBucket(ProcessingBucket<E> bucket, boolean workingOnDeadBucket) {
-    try {
-      bucket.start(workingOnDeadBucket);
-    } catch (ProcessingBucketAlreadyStartedException e) {
-      stop();
-      throw new IllegalStateException(bucket.getBucketName() + " already started for AsyncCoordinator " + name);
-    }
+    bucket.start();
   }
 
   @Override
@@ -234,7 +229,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       cluster.removeClusterListener(listener);
 
       bucketMetaInfoHandler.clear();
-      stopCallable.stop();
+      stopCallable.callback();
     } finally {
       nodeWriteLock.unlock();
     }
@@ -270,10 +265,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     nodeWriteLock.lock();
     try {
       this.filter = filter;
-      if (localBuckets != null) {
-        for (ProcessingBucket<E> bucket : localBuckets) {
-          bucket.setItemsFilter(filter);
-        }
+      for (ProcessingBucket<E> bucket : localBuckets) {
+        bucket.setItemsFilter(filter);
       }
     } finally {
       nodeWriteLock.unlock();
@@ -299,7 +292,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     commonAsyncLock.lock();
     try {
       if (status == Status.STARTED) {
-        Collection<String> oldListNames = bucketMetaInfoHandler.transferAllListsFromNode(deadNode);
+        Set<String> oldListNames = bucketMetaInfoHandler.transferAllListsFromNode(deadNode);
         AsyncConfig deadNodeConfig = createDeadNodeConfig();
         startProcessingDeadNodeBuckets(deadNodeConfig, oldListNames);
       }
@@ -324,29 +317,24 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     return deadNodeProcessingConfig;
   }
 
-  private void startProcessingDeadNodeBuckets(AsyncConfig deadNodeProcessingConfig, Collection<String> oldListNames) {
-    List<ProcessingBucket<E>> newDeadBuckets = new ArrayList<ProcessingBucket<E>>();
-    if (oldListNames != null) {
-      for (String bucketName : oldListNames) {
-        ProcessingBucket<E> bucket = createBucket(bucketName, deadNodeProcessingConfig, true);
-        newDeadBuckets.add(bucket);
-        startBucket(bucket, true);
-      }
-      deadBuckets.addAll(newDeadBuckets);
+  private void startProcessingDeadNodeBuckets(AsyncConfig deadNodeProcessingConfig, Set<String> oldListNames) {
+    for (String bucketName : oldListNames) {
+      ProcessingBucket<E> bucket = createBucket(bucketName, deadNodeProcessingConfig, true);
+      deadBuckets.add(bucket);
+      startBucket(bucket, true);
     }
   }
 
   private static enum Status {
-    UNINITIALIZED, STARTED {
+    UNINITIALIZED, STARTED, STOPPED {
       @Override
       final void checkRunning() {
-        // All good!
+        throw new IllegalStateException("AsyncCoordinator is " + this.name().toLowerCase() + "!");
       }
-    },
-    STOPPED;
+    };
 
     void checkRunning() {
-      throw new IllegalStateException("AsyncCoordinator is " + this.name().toLowerCase() + "!");
+      // All good
     }
   }
 
@@ -365,11 +353,14 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     }
   }
 
-  public static interface StopCallable {
-    void stop();
+  public static interface Callback {
+    void callback();
   }
 
   private static String getAsyncNodeName(String name, ClusterNode node) {
+    String nodeId = node.getId();
+    if (nodeId == null || nodeId.isEmpty()) { throw new AssertionError("nodeId cannot be " + nodeId); }
+
     return name + DELIMITER + node.getId();
   }
 
@@ -410,7 +401,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       this.nodeToListNamesMap.remove(nodeName);
     }
 
-    public Collection<String> transferAllListsFromNode(String node) {
+    public Set<String> transferAllListsFromNode(String node) {
       Set<String> oldNameList = nodeToListNamesMap.get(node);
 
       if (oldNameList != null) {
@@ -419,8 +410,10 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         newOwner.addAll(oldNameList);
         nodeToListNamesMap.put(nodeName, newOwner); // transferring bucket ownership to new node
         nodeToListNamesMap.remove(node); // removing buckets from old node
+        return oldNameList;
+      } else {
+        return Collections.EMPTY_SET;
       }
-      return oldNameList;
     }
 
     private Set<String> deadNodesWithListsToProcess(String name, ClusterInfo cluster,
