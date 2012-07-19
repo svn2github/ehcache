@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -140,8 +141,11 @@ final class AgentLoader {
                     } finally {
                         VIRTUAL_MACHINE_DETACH.invoke(vm);
                     }
-                } catch (Throwable e) {
-                    LOGGER.info("Failed to attach to VM and load the agent: {}: {}", e.getClass(), e.getMessage());
+                } catch (InvocationTargetException ite) {
+                    Throwable cause = ite.getCause();
+                    LOGGER.info("Failed to attach to VM and load the agent: {}: {}", cause.getClass(), cause.getMessage());
+                } catch (Throwable t) {
+                    LOGGER.info("Failed to attach to VM and load the agent: {}: {}", t.getClass(), t.getMessage());
                 }
             }
 
