@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -299,7 +298,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             try {
                 transactionIDFactory.markForCommit(xidTransactionID);
             } catch (TransactionIDNotFoundException tnfe) {
-                throw new EhcacheXAException("cannot find XID, it might have been duplicated an cleaned up earlier on: " + xid,
+                throw new EhcacheXAException("cannot find XID, it might have been duplicated and cleaned up earlier on: " + xid,
                     XAException.XAER_NOTA, tnfe);
             } catch (IllegalStateException ise) {
                 throw new EhcacheXAException("XID already was rolling back: " + xid, XAException.XAER_RMERR);
@@ -346,19 +345,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Thread t = new Thread("ehcache [" + cache.getName() + "] XA recovery thread") {
             @Override
             public void run() {
-                Set<XidTransactionID> allOurTransactionIDs = transactionIDFactory.getAllXidTransactionIDsFor(cache);
-
-                Set<XidTransactionID> recoveryRequired = new HashSet<XidTransactionID>(allOurTransactionIDs);
-                Iterator<XidTransactionID> iterator = recoveryRequired.iterator();
-                while (iterator.hasNext()) {
-                    XidTransactionID xidTransactionId = iterator.next();
-                    if (!transactionIDFactory.isExpired(xidTransactionId)) {
-                        iterator.remove();
+                for (XidTransactionID xidTransactionID : transactionIDFactory.getAllXidTransactionIDsFor(cache)) {
+                    if (transactionIDFactory.isExpired(xidTransactionID)) {
+                        xids.add(xidTransactionID.getXid());
                     }
-                }
-
-                for (XidTransactionID xidTransactionID : recoveryRequired) {
-                    xids.add(xidTransactionID.getXid());
                 }
             }
         };
