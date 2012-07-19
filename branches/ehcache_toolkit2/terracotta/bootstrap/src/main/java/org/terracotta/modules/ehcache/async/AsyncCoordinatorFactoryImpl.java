@@ -14,7 +14,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
-  private final ToolkitInstanceFactory                      toolkitInstanceFactory;
+  private final ToolkitInstanceFactory                          toolkitInstanceFactory;
   private final ConcurrentHashMap<String, AsyncCoordinatorImpl> localMap;
 
   public AsyncCoordinatorFactoryImpl(ToolkitInstanceFactory toolkitInstanceFactory) {
@@ -23,8 +23,7 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
   }
 
   @Override
-  public AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache,
-                                                      final AsyncConfig config) {
+  public AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config) {
     final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache);
     final ToolkitCache<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
     Lock localMapLock = new ReentrantLock();
@@ -40,19 +39,19 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
                                                                                                    + config); }
       AsyncCoordinatorImpl async = localMap.get(fullAsyncName);
       if (async != null) {
-        if (oldConfig == null) { throw new IllegalArgumentException("AsyncCoordinator " + fullAsyncName
+        if (oldConfig == null) { throw new IllegalArgumentException(
+                                                                    "AsyncCoordinator "
+                                                                        + fullAsyncName
                                                                         + " created for this node but entry not present in configMap"); }
       } else {
-        async = new AsyncCoordinatorImpl(fullAsyncName, config,
-                                                                  toolkitInstanceFactory);
-        localMap.put(fullAsyncName, async);
-
-        async.registerStopCallable(new StopCallable() {
+        StopCallable stopCallable = new StopCallable() {
           @Override
           public void stop() {
             localMap.remove(fullAsyncName);
           }
-        });
+        };
+        async = new AsyncCoordinatorImpl(fullAsyncName, config, toolkitInstanceFactory, stopCallable);
+        localMap.put(fullAsyncName, async);
       }
       return async;
     } finally {

@@ -16,6 +16,7 @@ import org.terracotta.modules.ehcache.txn.SerializedReadCommittedClusteredSoftLo
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitList;
+import org.terracotta.toolkit.collections.ToolkitStore;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
@@ -64,7 +65,7 @@ public interface ToolkitInstanceFactory {
 
   ToolkitCache<String, AsyncConfig> getOrCreateAsyncConfigMap();
 
-  ToolkitCache<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
+  ToolkitStore<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
 
   String getFullAsyncName(Ehcache cache);
 

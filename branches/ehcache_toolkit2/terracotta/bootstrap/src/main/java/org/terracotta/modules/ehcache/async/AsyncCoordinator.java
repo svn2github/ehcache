@@ -15,11 +15,24 @@ public interface AsyncCoordinator<E extends Serializable> {
   public void start(final ItemProcessor<E> processor, final int processingConcurrency,
                     ItemScatterPolicy<? super E> policy);
 
+  /**
+   * @param item null item are ignored.
+   */
   public void add(E item);
 
+  /**
+   * Stops and waits for the current processing to finish.<br>
+   * Calling this multiple times will result in {@link IllegalStateException}
+   */
   public void stop();
 
+  /**
+   * Sets a filter to filter out the items.
+   */
   public void setOperationsFilter(ItemsFilter<E> filter);
 
+  /**
+   * @return the current items to be processed
+   */
   public long getQueueSize();
 }
