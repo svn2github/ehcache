@@ -68,7 +68,7 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
   @Override
   public void updateCacheManager(UriInfo info,
                                  CacheManagerEntity resource) {
-    LOG.info(String.format("Invoking getCacheManagers: %s", info.getRequestUri()));
+    LOG.info(String.format("Invoking updateCacheManager: %s", info.getRequestUri()));
 
     validator.validate(info);
 
