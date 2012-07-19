@@ -9,6 +9,7 @@ import net.sf.ehcache.CacheManager;
 import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFactory;
+import org.terracotta.toolkit.ToolkitInstantiationException;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import java.util.concurrent.BrokenBarrierException;
@@ -69,9 +70,17 @@ public abstract class ClientBase extends AbstractClientBase {
 
   protected synchronized Toolkit getClusteringToolkit() {
     if (toolkit == null) {
-      toolkit = ToolkitFactory.createToolkit("toolkit:terracotta://" + getTerracottaUrl());
+      toolkit = createToolkit();
     }
     return toolkit;
+  }
+
+  private Toolkit createToolkit() {
+    try {
+      return ToolkitFactory.createToolkit("toolkit:terracotta://" + getTerracottaUrl());
+    } catch (ToolkitInstantiationException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public synchronized void clearTerracottaClient() {

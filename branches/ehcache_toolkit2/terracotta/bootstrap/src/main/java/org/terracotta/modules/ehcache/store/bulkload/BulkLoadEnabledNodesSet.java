@@ -40,7 +40,7 @@ public class BulkLoadEnabledNodesSet {
     }
 
     cleanupOfflineNodes();
-    cleanupOnNodeLeftListener = new CleanupOnNodeLeftListener(this, clusterInfo.getCurrentNode(), toolkit);
+    cleanupOnNodeLeftListener = new CleanupOnNodeLeftListener(this, clusterInfo, toolkit);
     clusterInfo.addClusterListener(cleanupOnNodeLeftListener);
   }
 
@@ -60,7 +60,7 @@ public class BulkLoadEnabledNodesSet {
     clusteredLock.lock();
     try {
 
-      Collection<ClusterNode> liveNodes = clusterInfo.getClusterTopology().getNodes();
+      Collection<ClusterNode> liveNodes = clusterInfo.getNodes();
       ArrayList<String> defunctNodes = new ArrayList<String>(bulkLoadEnabledNodesSet);
 
       if (LOGGING_ENABLED) {
@@ -170,19 +170,22 @@ public class BulkLoadEnabledNodesSet {
     private final BulkLoadEnabledNodesSet nodesSet;
     private final ClusterNode             currentNode;
 
-    public CleanupOnNodeLeftListener(BulkLoadEnabledNodesSet nodesSet, ClusterNode currentNode, Toolkit toolkit) {
+    private final ClusterInfo             clusterInfo;
+
+    public CleanupOnNodeLeftListener(BulkLoadEnabledNodesSet nodesSet, ClusterInfo clusterInfo, Toolkit toolkit) {
       this.nodesSet = nodesSet;
-      this.currentNode = currentNode;
+      this.clusterInfo = clusterInfo;
+      this.currentNode = clusterInfo.getCurrentNode();
       if (LOG == null) {
         LOG = ((ToolkitInternal) toolkit).getLogger(CleanupOnNodeLeftListener.class.getName());
       }
     }
 
     @Override
-    public void onClusterEvent(ClusterEvent event, ClusterInfo clusterInfo) {
+    public void onClusterEvent(ClusterEvent event) {
       switch (event.getType()) {
         case NODE_LEFT:
-          handleNodeLeft(clusterInfo, event);
+          handleNodeLeft(event);
           break;
         default:
           // not interested
@@ -190,7 +193,7 @@ public class BulkLoadEnabledNodesSet {
       }
     }
 
-    private void handleNodeLeft(ClusterInfo clusterInfo, ClusterEvent event) {
+    private void handleNodeLeft(ClusterEvent event) {
       String offlineNode = getIdForNode(event.getNode());
       LOGGER.info("Received node left event for: " + offlineNode);
       if (getIdForNode(currentNode).equals(offlineNode)) {

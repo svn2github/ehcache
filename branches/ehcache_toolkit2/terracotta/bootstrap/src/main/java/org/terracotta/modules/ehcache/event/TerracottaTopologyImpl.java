@@ -44,7 +44,7 @@ public class TerracottaTopologyImpl implements CacheCluster {
 
   @Override
   public Collection<ClusterNode> getNodes() {
-    Collection<org.terracotta.toolkit.cluster.ClusterNode> toolkitNodes = cluster.getClusterTopology().getNodes();
+    Collection<org.terracotta.toolkit.cluster.ClusterNode> toolkitNodes = cluster.getNodes();
     Collection<ClusterNode> nodes = new ArrayList<ClusterNode>();
     for (org.terracotta.toolkit.cluster.ClusterNode node : toolkitNodes) {
       nodes.add(new TerracottaNodeImpl(node));

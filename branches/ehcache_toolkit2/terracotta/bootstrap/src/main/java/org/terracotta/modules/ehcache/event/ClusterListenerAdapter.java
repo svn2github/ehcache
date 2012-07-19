@@ -7,7 +7,6 @@ import net.sf.ehcache.cluster.ClusterTopologyListener;
 
 import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterEvent.Type;
-import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.internal.cluster.OutOfBandClusterListener;
 
 public class ClusterListenerAdapter implements OutOfBandClusterListener {
@@ -19,7 +18,7 @@ public class ClusterListenerAdapter implements OutOfBandClusterListener {
   }
 
   @Override
-  public void onClusterEvent(org.terracotta.toolkit.cluster.ClusterEvent event, ClusterInfo clusterInfo) {
+  public void onClusterEvent(org.terracotta.toolkit.cluster.ClusterEvent event) {
     switch (event.getType()) {
       case NODE_JOINED:
         topologyListener.nodeJoined(new TerracottaNodeImpl(event.getNode()));

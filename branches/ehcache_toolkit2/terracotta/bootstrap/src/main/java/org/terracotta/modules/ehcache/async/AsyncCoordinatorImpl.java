@@ -275,7 +275,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   private class AsyncClusterListener implements ClusterListener {
     @Override
-    public void onClusterEvent(ClusterEvent event, ClusterInfo clusterInfo) {
+    public void onClusterEvent(ClusterEvent event) {
       switch (event.getType()) {
         case NODE_LEFT:
           String otherNodeNameListKey = getAsyncNodeName(name, event.getNode());
@@ -420,7 +420,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
                                                     ToolkitInstanceFactory toolkitInstanceFactory) {
       // check if the all the known nodes still exist in the cluster
       Set<String> deadNodes = new HashSet<String>(nodeToListNamesMap.keySet());
-      for (ClusterNode node : cluster.getClusterTopology().getNodes()) {
+      for (ClusterNode node : cluster.getNodes()) {
         deadNodes.remove(getAsyncNodeName(name, node));
       }
       return deadNodes;

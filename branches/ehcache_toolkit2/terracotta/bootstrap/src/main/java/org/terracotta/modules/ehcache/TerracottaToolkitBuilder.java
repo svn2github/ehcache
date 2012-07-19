@@ -19,6 +19,7 @@ package org.terracotta.modules.ehcache;
 
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFactory;
+import org.terracotta.toolkit.ToolkitInstantiationException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,7 +54,15 @@ public class TerracottaToolkitBuilder {
         throw new IllegalStateException("Unknown tc config type - " + tcConfigTypeStatus.getState());
     }
     String toolkitUrl = createTerracottaToolkitUrl(isUrl, tcConfigOrUrl);
-    return ToolkitFactory.createToolkit(toolkitUrl, getTerracottaToolkitProperties(isUrl, tcConfigOrUrl));
+    return createToolkit(toolkitUrl, getTerracottaToolkitProperties(isUrl, tcConfigOrUrl));
+  }
+
+  private Toolkit createToolkit(String url, Properties props) {
+    try {
+      return ToolkitFactory.createToolkit("toolkit:terracotta://" + url, props);
+    } catch (ToolkitInstantiationException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private Properties getTerracottaToolkitProperties(boolean isUrl, String tcConfigOrUrl) {
