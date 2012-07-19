@@ -29,7 +29,8 @@ import java.util.Set;
 public interface SoftLockManager {
 
     /**
-     * Create a new soft lock ID
+     * Create a new soft lock ID and associated soft lock if necessary.
+     *
      * @param transactionID the transaction ID under which the soft lock will operate
      * @param key the key of the Element this soft lock is protecting
      * @param newElement the new Element
