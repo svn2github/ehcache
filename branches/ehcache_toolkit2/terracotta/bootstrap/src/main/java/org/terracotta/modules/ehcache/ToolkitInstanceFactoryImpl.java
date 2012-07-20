@@ -28,7 +28,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.store.ToolkitStore;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 

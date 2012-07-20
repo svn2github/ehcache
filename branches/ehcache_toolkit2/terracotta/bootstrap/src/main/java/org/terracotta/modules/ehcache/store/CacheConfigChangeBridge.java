@@ -13,7 +13,7 @@ import org.terracotta.toolkit.cache.ToolkitCacheConfigFields;
 import org.terracotta.toolkit.events.ToolkitNotificationEvent;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;

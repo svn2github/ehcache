@@ -6,7 +6,7 @@ package net.sf.ehcache;
 
 import net.sf.ehcache.util.TimeUtil;
 
-import org.terracotta.toolkit.internal.collections.TimestampedValue;
+import org.terracotta.toolkit.internal.cache.TimestampedValue;
 
 import java.io.Externalizable;
 import java.io.IOException;

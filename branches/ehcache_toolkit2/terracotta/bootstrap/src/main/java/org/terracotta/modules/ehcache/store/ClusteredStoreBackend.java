@@ -9,8 +9,8 @@ import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheMetaDataCallback;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheMetaDataCallback;
 import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.internal.search.SearchBuilder;
 import org.terracotta.toolkit.object.ToolkitObjectType;
@@ -47,7 +47,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData<K, V> createEntryWithMetaData(K key,
+  public org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData<K, V> createEntryWithMetaData(K key,
                                                                                                                               V value,
                                                                                                                               MetaData metaData) {
     lock.readLock().lock();
@@ -185,7 +185,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void putAllWithMetaData(Collection<org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData<K, V>> entries) {
+  public void putAllWithMetaData(Collection<org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData<K, V>> entries) {
     lock.readLock().lock();
     try {
       activeDelegate.putAllWithMetaData(entries);
@@ -195,7 +195,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void removeAllWithMetaData(Collection<org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData<K, V>> entries) {
+  public void removeAllWithMetaData(Collection<org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData<K, V>> entries) {
     lock.readLock().lock();
     try {
       activeDelegate.removeAllWithMetaData(entries);
@@ -355,7 +355,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public Map<K, V> getAll(Collection<K> keys) {
+  public Map<K, V> getAll(Collection<? extends K> keys) {
     lock.readLock().lock();
     try {
       return activeDelegate.getAll(keys);

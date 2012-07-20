@@ -12,7 +12,7 @@ import org.terracotta.modules.ehcache.store.ValueModeHandler;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

@@ -7,7 +7,7 @@ import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 
 import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.internal.meta.MetaData;
 

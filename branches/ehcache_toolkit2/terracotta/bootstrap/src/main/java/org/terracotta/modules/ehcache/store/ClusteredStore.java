@@ -40,9 +40,9 @@ import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
@@ -410,7 +410,6 @@ public class ClusteredStore implements TerracottaStore {
   public void dispose() {
     backend.removeListener(evictionListener);
     backend.disposeLocally();
-    configMap.disposeLocally();
     cacheConfigChangeBridge.disconnectConfigs();
   }
 

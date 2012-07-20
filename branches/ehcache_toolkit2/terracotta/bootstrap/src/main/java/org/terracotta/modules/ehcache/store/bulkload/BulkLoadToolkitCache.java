@@ -10,8 +10,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.collections.ToolkitCacheMetaDataCallback;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheMetaDataCallback;
 import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.internal.search.SearchBuilder;
 import org.terracotta.toolkit.object.ToolkitObjectType;
@@ -216,7 +216,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public Map<K, V> getAll(Collection<K> keys) {
+  public Map<K, V> getAll(Collection<? extends K> keys) {
     Map<K, V> rv = new HashMap<K, V>();
     for (K key : keys) {
       rv.put(key, doGet(key, false));
