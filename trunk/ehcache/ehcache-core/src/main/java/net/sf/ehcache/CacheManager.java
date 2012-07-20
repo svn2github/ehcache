@@ -157,6 +157,8 @@ public class CacheManager {
 
     private static final IdentityHashMap<CacheManager, String> CACHE_MANAGERS_REVERSE_MAP = new IdentityHashMap<CacheManager, String>();
 
+    private static final Map<String, CacheManager> INITIALIZING_CACHE_MANAGERS_MAP = new ConcurrentHashMap<String, CacheManager>();
+
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
 
     private static final long LOCAL_TX_RECOVERY_THREAD_JOIN_TIMEOUT = 1000L;
@@ -447,7 +449,12 @@ public class CacheManager {
         mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(configuration);
 
         // do this last
-        addConfiguredCaches(configurationHelper);
+        INITIALIZING_CACHE_MANAGERS_MAP.put(runtimeCfg.getCacheManagerName(), this);
+        try {
+            addConfiguredCaches(configurationHelper);
+        } finally {
+          INITIALIZING_CACHE_MANAGERS_MAP.remove(runtimeCfg.getCacheManagerName());
+        }
 
         try {
             mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
@@ -2158,5 +2165,16 @@ public class CacheManager {
         } catch (ClassNotFoundException e) {
             return null;
         }
+    }
+
+
+    /**
+     * Get a currently initializing {@link CacheManager}.
+     *
+     * @param name name of the {@link CacheManager}; can be null
+     * @return the {@link CacheManager} if it exists.
+     */
+    static CacheManager getInitializingCacheManager(String name) {
+      return INITIALIZING_CACHE_MANAGERS_MAP.get(name);
     }
 }

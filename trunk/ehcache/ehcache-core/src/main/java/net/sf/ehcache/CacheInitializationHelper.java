@@ -53,4 +53,14 @@ public class CacheInitializationHelper {
     public static void initializeEhcache(final CacheManager cacheManager, final Ehcache cache) {
         cacheManager.initializeEhcache(cache, false);
     }
+
+    /**
+     * Get a currently initializing {@link CacheManager} by name
+     *
+     * @param name name of the {@link CacheManager}, can be null
+     * @return the initializing {@link CacheManager}
+     */
+    public static CacheManager getInitializingCacheManager(String name) {
+      return CacheManager.getInitializingCacheManager(name);
+    }
 }
