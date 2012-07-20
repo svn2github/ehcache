@@ -8,7 +8,7 @@ import net.sf.ehcache.cluster.ClusterTopologyListener;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.events.OperatorEventLevel;
+import org.terracotta.toolkit.monitoring.OperatorEventLevel;
 
 public class FireRejoinOperatorEventClusterListener implements ClusterTopologyListener {
   private static final String EHCACHE_OPERATOR_EVENT_APP_NAME = "ehcache";
