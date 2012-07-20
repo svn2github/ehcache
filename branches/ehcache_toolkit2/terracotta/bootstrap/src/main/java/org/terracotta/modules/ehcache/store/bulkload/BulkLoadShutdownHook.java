@@ -5,8 +5,8 @@ package org.terracotta.modules.ehcache.store.bulkload;
 
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 
+import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cluster.ClusterInfo;
-import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
 

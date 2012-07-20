@@ -14,13 +14,13 @@ import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.txn.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.collections.ToolkitCache;
+import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitList;
-import org.terracotta.toolkit.collections.ToolkitStore;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.store.ToolkitStore;
 
 import java.io.Serializable;
 import java.util.Set;

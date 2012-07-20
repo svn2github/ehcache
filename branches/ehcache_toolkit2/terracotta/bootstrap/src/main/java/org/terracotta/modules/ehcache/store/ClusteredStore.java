@@ -36,15 +36,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
-import org.terracotta.toolkit.collections.ToolkitCache;
-import org.terracotta.toolkit.collections.ToolkitCacheListener;
+import org.terracotta.toolkit.cache.ToolkitCache;
+import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
-import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
+import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;
 import java.util.ArrayList;

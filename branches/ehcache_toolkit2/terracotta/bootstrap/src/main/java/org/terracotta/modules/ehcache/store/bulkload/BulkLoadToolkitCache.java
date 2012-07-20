@@ -3,12 +3,11 @@
  */
 package org.terracotta.modules.ehcache.store.bulkload;
 
+import org.terracotta.toolkit.cache.ToolkitCacheConfigFields;
+import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
-import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
-import org.terracotta.toolkit.config.ToolkitCacheConfigFields;
-import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
@@ -16,6 +15,7 @@ import org.terracotta.toolkit.internal.collections.ToolkitCacheMetaDataCallback;
 import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.internal.search.SearchBuilder;
 import org.terracotta.toolkit.object.ToolkitObjectType;
+import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;
 import java.util.Collection;

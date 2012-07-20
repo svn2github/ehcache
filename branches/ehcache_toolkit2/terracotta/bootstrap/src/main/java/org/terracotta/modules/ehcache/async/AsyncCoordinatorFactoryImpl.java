@@ -7,7 +7,7 @@ import net.sf.ehcache.Ehcache;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.Callback;
-import org.terracotta.toolkit.collections.ToolkitCache;
+import org.terracotta.toolkit.cache.ToolkitCache;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;

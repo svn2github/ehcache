@@ -4,8 +4,8 @@
 package org.terracotta.modules.ehcache.store;
 
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadToolkitCache;
+import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
-import org.terracotta.toolkit.collections.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
