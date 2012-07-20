@@ -15,7 +15,6 @@
   <description>Ehcache REST implementation</description>
 
   <properties>
-    <management-core.version>1.0.1-SNAPSHOT</management-core.version>
     <private-classpath>rest-management-private-classpath</private-classpath>
   </properties>
 
