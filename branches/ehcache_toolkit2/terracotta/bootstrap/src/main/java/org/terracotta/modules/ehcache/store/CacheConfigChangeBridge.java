@@ -9,9 +9,9 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.config.ToolkitCacheConfigFields;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
+import org.terracotta.toolkit.events.ToolkitNotificationEvent;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
@@ -99,12 +99,11 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   }
 
   @Override
-  public void onNotification(ToolkitNotifier notifierParam, ClusterNode remoteNode, Object msg) {
-    if (shouldProcessNotification(notifierParam, msg)) {
-      processConfigChangeNotification((CacheConfigChangeNotificationMsg) msg);
+  public void onNotification(ToolkitNotificationEvent event) {
+    if (shouldProcessNotification(event)) {
+      processConfigChangeNotification((CacheConfigChangeNotificationMsg) event.getMessage());
     } else {
-      LOG.warn("Ignoring uninterested notification - notifier: " + notifierParam + ", remoteNode: " + remoteNode
-               + ", msg: " + msg);
+      LOG.warn("Ignoring uninterested notification - " + event);
     }
   }
 
@@ -140,9 +139,10 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
     }
   }
 
-  private boolean shouldProcessNotification(ToolkitNotifier notifierParam, Object msg) {
-    return notifier == notifierParam && msg instanceof CacheConfigChangeNotificationMsg
-           && ((CacheConfigChangeNotificationMsg) msg).getFullyQualifiedEhcacheName().equals(fullyQualifiedEhcacheName);
+  private boolean shouldProcessNotification(ToolkitNotificationEvent event) {
+    return event.getMessage() instanceof CacheConfigChangeNotificationMsg
+           && ((CacheConfigChangeNotificationMsg) event.getMessage()).getFullyQualifiedEhcacheName()
+               .equals(fullyQualifiedEhcacheName);
   }
 
   private static enum DynamicConfigType {

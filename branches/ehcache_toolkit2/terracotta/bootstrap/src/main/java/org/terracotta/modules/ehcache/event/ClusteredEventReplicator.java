@@ -12,11 +12,9 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg.EventType;
-import org.terracotta.toolkit.cluster.ClusterNode;
+import org.terracotta.toolkit.events.ToolkitNotificationEvent;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-
-import java.io.Serializable;
 
 public class ClusteredEventReplicator implements CacheEventListener {
   private static final Logger                              LOG = LoggerFactory
@@ -86,17 +84,16 @@ public class ClusteredEventReplicator implements CacheEventListener {
     toolkitNotifier.notifyListeners(new CacheEventNotificationMsg(fullyQualifiedEhcacheName, eventType, element));
   }
 
-  private class ToolkitListener implements ToolkitNotificationListener<CacheEventNotificationMsg> {
+  private class ToolkitListener implements ToolkitNotificationListener {
     @Override
-    public void onNotification(ToolkitNotifier<CacheEventNotificationMsg> notifierParam, ClusterNode remoteNode,
-                               CacheEventNotificationMsg msg) {
-      if (shouldProcessNotification(notifierParam, remoteNode, msg)) {
-        processEventNotification(msg);
+    public void onNotification(ToolkitNotificationEvent event) {
+      if (shouldProcessNotification(event)) {
+        processEventNotification((CacheEventNotificationMsg) event.getMessage());
       } else {
-        LOG.warn("Ignoring uninterested notification - notifier: " + notifierParam + ", remoteNode: " + remoteNode
-                 + ", msg: " + msg);
+        LOG.warn("Ignoring uninterested notification - " + event);
       }
     }
+
 
     private void processEventNotification(CacheEventNotificationMsg msg) {
       RegisteredEventListeners notificationService = cache.getCacheEventNotificationService();
@@ -122,9 +119,10 @@ public class ClusteredEventReplicator implements CacheEventListener {
       }
     }
 
-    private boolean shouldProcessNotification(ToolkitNotifier notifierParam, ClusterNode remoteNode, Serializable msg) {
-      return toolkitNotifier == notifierParam && msg instanceof CacheEventNotificationMsg
-             && ((CacheEventNotificationMsg) msg).getFullyQualifiedEhcacheName().equals(fullyQualifiedEhcacheName);
+    private boolean shouldProcessNotification(ToolkitNotificationEvent event) {
+      return event.getMessage() instanceof CacheEventNotificationMsg
+             && ((CacheEventNotificationMsg) event.getMessage()).getFullyQualifiedEhcacheName()
+                 .equals(fullyQualifiedEhcacheName);
     }
 
   }
