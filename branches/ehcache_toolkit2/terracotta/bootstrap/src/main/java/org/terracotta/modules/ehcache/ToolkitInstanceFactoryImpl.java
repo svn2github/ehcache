@@ -30,9 +30,7 @@ import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitCacheConfigFields.PinningStore;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
-import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -63,13 +61,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private static final String EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME = EHCACHE_NAME_PREFIX + DELIMITER
                                                                          + "softNotifierLock";
 
-  protected final ToolkitInternal toolkit;
+  protected final Toolkit     toolkit;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
   }
 
-  private static ToolkitInternal createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
+  private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
     String config = null;
     if (!terracottaClientConfiguration.isUrlConfig()) {
       config = terracottaClientConfiguration.getEmbeddedConfig();
@@ -84,7 +82,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache");
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache.hibernate");
-    return (ToolkitInternal) terracottaClientBuilder.buildToolkit();
+    return terracottaClientBuilder.buildToolkit();
   }
 
   @Override
@@ -215,7 +213,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
-                                                                                                      String cacheName) {
+                                                                                                                            String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
@@ -228,7 +226,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitList<SerializedReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
-                                                                                String cacheName) {
+                                                                                          String cacheName) {
     return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                            + NEW_SOFT_LOCKS_LIST_SUFFIX);
   }
@@ -262,7 +260,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitCache<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
     return toolkit.getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
-                          + CLUSTERED_STORE_CONFIG_MAP);
+                            + CLUSTERED_STORE_CONFIG_MAP);
   }
 
   @Override
@@ -271,7 +269,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.config.ToolkitStoreConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
-                                                      + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config);
+                                                          + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config);
     return new SerializedToolkitCache<TransactionID, Decision>(map);
   }
 
@@ -281,7 +279,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
     return toolkit.getLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                            + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
-                           + EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME, ToolkitLockTypeInternal.WRITE);
+                           + EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME);
   }
 
   private static String serializeToString(Object serializable) {
