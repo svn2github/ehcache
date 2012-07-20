@@ -24,14 +24,15 @@ import org.terracotta.toolkit.collections.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitStore;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
-import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.config.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.config.ToolkitCacheConfigFields.PinningStore;
 import org.terracotta.toolkit.config.ToolkitStoreConfigFields;
 import org.terracotta.toolkit.events.ToolkitNotifier;
+import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -62,13 +63,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private static final String EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME = EHCACHE_NAME_PREFIX + DELIMITER
                                                                          + "softNotifierLock";
 
-  protected final Toolkit     toolkit;
+  protected final ToolkitInternal toolkit;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
   }
 
-  private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
+  private static ToolkitInternal createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
     String config = null;
     if (!terracottaClientConfiguration.isUrlConfig()) {
       config = terracottaClientConfiguration.getEmbeddedConfig();
@@ -83,7 +84,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache");
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache.hibernate");
-    return terracottaClientBuilder.buildToolkit();
+    return (ToolkitInternal) terracottaClientBuilder.buildToolkit();
   }
 
   @Override
@@ -254,7 +255,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitLock getAsyncWriteLock() {
-    return toolkit.getLock(DEFAULT_ASYNC_LOCK, ToolkitLockType.WRITE);
+    return toolkit.getLock(DEFAULT_ASYNC_LOCK);
   }
 
   @Override
@@ -280,7 +281,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
     return toolkit.getLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                            + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
-                           + EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME, ToolkitLockType.WRITE);
+                           + EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME, ToolkitLockTypeInternal.WRITE);
   }
 
   private static String serializeToString(Object serializable) {

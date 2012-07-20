@@ -6,9 +6,9 @@ package org.terracotta.modules.ehcache.store.bulkload;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 
-import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.internal.meta.MetaData;
 
 import java.util.Collections;
@@ -62,7 +62,7 @@ public class LocalBufferedMap<K, V> {
     this.backend = backend;
     this.collectBuffer = newMap();
     this.flushBuffer = EMPTY_MAP;
-    this.concurrentTransactionLock = toolkit.getLock(CONCURRENT_TXN_LOCK_ID, ToolkitLockType.CONCURRENT);
+    this.concurrentTransactionLock = toolkit.getLock(CONCURRENT_TXN_LOCK_ID, ToolkitLockTypeInternal.CONCURRENT);
     this.flushToServerThread = new FlushToServerThread("BulkLoad Flush Thread [" + name + "]", this);
     flushToServerThread.setDaemon(true);
     sizeOfEngine = new DefaultSizeOfEngine(MAX_SIZEOF_DEPTH, true);

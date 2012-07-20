@@ -18,7 +18,8 @@ import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitStore;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
-import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
+import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -90,10 +91,11 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.deadBuckets = new ArrayList<ProcessingBucket<E>>();
     this.bucketMetaInfoHandler = new BucketMetaInfoHandler<E>(nodeName,
                                                               toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name));
-    ToolkitLockType lockType = config.isSynchronousWrite() ? ToolkitLockType.SYNCHRONOUS_WRITE : ToolkitLockType.WRITE;
-    this.commonAsyncLock = toolkit.getLock(name, ToolkitLockType.WRITE);
-    this.nodeWriteLock = toolkit.getLock(nodeName, lockType);
-    this.nodeReadLock = toolkit.getLock(nodeName, ToolkitLockType.READ);
+    ToolkitLockTypeInternal lockType = config.isSynchronousWrite() ? ToolkitLockTypeInternal.SYNCHRONOUS_WRITE
+        : ToolkitLockTypeInternal.WRITE;
+    this.commonAsyncLock = toolkit.getLock(name);
+    this.nodeWriteLock = ((ToolkitInternal) toolkit).getLock(nodeName, lockType);
+    this.nodeReadLock = ((ToolkitInternal) toolkit).getLock(nodeName, ToolkitLockTypeInternal.READ);
     this.stopCallable = stopCallable;
   }
 
