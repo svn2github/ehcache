@@ -5,8 +5,6 @@ import net.sf.ehcache.Element;
 
 import org.terracotta.api.ClusteringToolkit;
 
-import junit.framework.Assert;
-
 public class Client5 extends ServerMapClientBase {
 
   public Client5(String[] args) {
@@ -22,7 +20,7 @@ public class Client5 extends ServerMapClientBase {
     BasicServerMapExpressTestHelper.populateCache(cache);
     cache.put(new Element("client1-exited", "true"));
 
-    Cache storageCache = cache.getCacheManager().getCache("defaultStorageStrategyCache");
+    cache.getCacheManager().getCache("defaultStorageStrategyCache");
 
     System.out.println("Asserted different/explicit storage strategys");
   }
