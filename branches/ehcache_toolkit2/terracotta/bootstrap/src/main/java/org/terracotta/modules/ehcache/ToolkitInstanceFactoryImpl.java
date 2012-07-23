@@ -29,6 +29,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.store.ToolkitStoreConfigBuilderInternal;
 import org.terracotta.toolkit.store.ToolkitStore;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
@@ -132,7 +133,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String cmName = cache.getCacheManager().isNamed() ? cache.getCacheManager().getName()
         : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
-    builder.localStoreManagerName(cmName);
+    ((ToolkitStoreConfigBuilderInternal) builder).localStoreManagerName(cmName);
     if (ehcacheConfig.getPinningConfiguration() != null) {
       builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
     }

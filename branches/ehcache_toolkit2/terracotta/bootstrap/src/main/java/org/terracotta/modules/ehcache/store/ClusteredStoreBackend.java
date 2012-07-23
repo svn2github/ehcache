@@ -225,7 +225,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void putNoReturn(K key, V value, int createTimeInSecs, int maxTTISeconds, int maxTTLSeconds) {
+  public void putNoReturn(K key, V value, long createTimeInSecs, int maxTTISeconds, int maxTTLSeconds) {
     lock.readLock().lock();
     try {
       activeDelegate.putNoReturn(key, value, createTimeInSecs, maxTTISeconds, maxTTLSeconds);
@@ -235,7 +235,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V putIfAbsent(K key, V value, int createTimeInSecs, int maxTTISeconds, int maxTTLSeconds) {
+  public V putIfAbsent(K key, V value, long createTimeInSecs, int maxTTISeconds, int maxTTLSeconds) {
     lock.readLock().lock();
     try {
       return activeDelegate.putIfAbsent(key, value, createTimeInSecs, maxTTISeconds, maxTTLSeconds);
