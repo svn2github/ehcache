@@ -131,7 +131,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     if (processingConcurrency < 1) throw new IllegalArgumentException("processingConcurrency needs to be at least 1");
   }
 
-  private static <E> ItemScatterPolicy<? super E> getPolicy(ItemScatterPolicy<? super E> policy,
+  private static <F extends Serializable> ItemScatterPolicy<? super F> getPolicy(ItemScatterPolicy<? super F> policy,
                                                             int processingConcurrency) {
     if (null == policy) {
       if (1 == processingConcurrency) {
