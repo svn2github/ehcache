@@ -13,7 +13,6 @@ import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheMetaDataCallback;
 import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.internal.search.SearchBuilder;
-import org.terracotta.toolkit.object.ToolkitObjectType;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -48,8 +47,8 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData<K, V> createEntryWithMetaData(K key,
-                                                                                                                              V value,
-                                                                                                                              MetaData metaData) {
+                                                                                                                        V value,
+                                                                                                                        MetaData metaData) {
     lock.readLock().lock();
     try {
       return activeDelegate.createEntryWithMetaData(key, value, metaData);
@@ -649,16 +648,6 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
     lock.readLock().lock();
     try {
       return activeDelegate.getName();
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public ToolkitObjectType getType() {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.getType();
     } finally {
       lock.readLock().unlock();
     }

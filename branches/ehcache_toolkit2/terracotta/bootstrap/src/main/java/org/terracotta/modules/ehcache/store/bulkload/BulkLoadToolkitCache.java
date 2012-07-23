@@ -14,7 +14,6 @@ import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheMetaDataCallback;
 import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.internal.search.SearchBuilder;
-import org.terracotta.toolkit.object.ToolkitObjectType;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;
@@ -355,11 +354,6 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public String getName() {
     return toolkitCache.getName();
-  }
-
-  @Override
-  public ToolkitObjectType getType() {
-    return toolkitCache.getType();
   }
 
   @Override
