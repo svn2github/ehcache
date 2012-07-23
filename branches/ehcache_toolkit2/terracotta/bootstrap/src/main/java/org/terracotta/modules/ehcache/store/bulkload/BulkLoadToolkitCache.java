@@ -150,7 +150,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V getQuiet(K key) {
+  public V getQuiet(Object key) {
     return doGet(key, true);
   }
 
@@ -166,12 +166,12 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void removeNoReturn(K key) {
+  public void removeNoReturn(Object key) {
     removeWithMetaData(key, null);
   }
 
   @Override
-  public V unsafeLocalGet(K key) {
+  public V unsafeLocalGet(Object key) {
     V value = localBufferedMap.get(key);
     if (value == null) {
       value = toolkitCache.unsafeLocalGet(key);
@@ -210,7 +210,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean containsLocalKey(K key) {
+  public boolean containsLocalKey(Object key) {
     return localBufferedMap.containsKey(key) || toolkitCache.containsLocalKey(key);
   }
 
@@ -439,13 +439,13 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void removeNoReturnWithMetaData(K key, MetaData metaData) {
+  public void removeNoReturnWithMetaData(Object key, MetaData metaData) {
     removeWithMetaData(key, metaData);
   }
 
   @Override
-  public V removeWithMetaData(K key, MetaData metaData) {
-    V rv = localBufferedMap.remove(key, metaData);
+  public V removeWithMetaData(Object key, MetaData metaData) {
+    V rv = localBufferedMap.remove((K) key, metaData);
     if (rv == null) {
       rv = toolkitCache.get(key);
     }
@@ -453,7 +453,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean removeWithMetaData(K key, V value, MetaData metaData) {
+  public boolean removeWithMetaData(Object key, Object value, MetaData metaData) {
     throw new UnsupportedOperationException();
   }
 
@@ -483,12 +483,12 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean containsKeyLocalOnHeap(K key) {
+  public boolean containsKeyLocalOnHeap(Object key) {
     return localBufferedMap.containsKey(key) || toolkitCache.containsKeyLocalOnHeap(key);
   }
 
   @Override
-  public boolean containsKeyLocalOffHeap(K key) {
+  public boolean containsKeyLocalOffHeap(Object key) {
     return toolkitCache.containsKeyLocalOffHeap(key);
   }
 
@@ -515,7 +515,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void unlockedRemoveNoReturn(K k, MetaData metadata) {
+  public void unlockedRemoveNoReturn(Object k, MetaData metadata) {
     throw new UnsupportedOperationException();
   }
 

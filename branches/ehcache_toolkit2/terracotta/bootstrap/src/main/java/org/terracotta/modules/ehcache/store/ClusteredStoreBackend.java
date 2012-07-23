@@ -122,7 +122,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void removeNoReturnWithMetaData(K key, MetaData metaData) {
+  public void removeNoReturnWithMetaData(Object key, MetaData metaData) {
     lock.readLock().lock();
     try {
       activeDelegate.removeNoReturnWithMetaData(key, metaData);
@@ -132,7 +132,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V removeWithMetaData(K key, MetaData metaData) {
+  public V removeWithMetaData(Object key, MetaData metaData) {
     lock.readLock().lock();
     try {
       return activeDelegate.removeWithMetaData(key, metaData);
@@ -142,7 +142,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean removeWithMetaData(K key, V value, MetaData metaData) {
+  public boolean removeWithMetaData(Object key, Object value, MetaData metaData) {
     lock.readLock().lock();
     try {
       return activeDelegate.removeWithMetaData(key, value, metaData);
@@ -204,7 +204,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V getQuiet(K key) {
+  public V getQuiet(Object key) {
     lock.readLock().lock();
     try {
       return activeDelegate.getQuiet(key);
@@ -294,7 +294,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void removeNoReturn(K key) {
+  public void removeNoReturn(Object key) {
     lock.readLock().lock();
     try {
       activeDelegate.removeNoReturn(key);
@@ -304,7 +304,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V unsafeLocalGet(K key) {
+  public V unsafeLocalGet(Object key) {
     lock.readLock().lock();
     try {
       return activeDelegate.unsafeLocalGet(key);
@@ -344,7 +344,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean containsLocalKey(K key) {
+  public boolean containsLocalKey(Object key) {
     lock.readLock().lock();
     try {
       return activeDelegate.containsLocalKey(key);
@@ -494,7 +494,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean containsKeyLocalOnHeap(K key) {
+  public boolean containsKeyLocalOnHeap(Object key) {
     lock.readLock().lock();
     try {
       return activeDelegate.containsKeyLocalOnHeap(key);
@@ -504,7 +504,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean containsKeyLocalOffHeap(K key) {
+  public boolean containsKeyLocalOffHeap(Object key) {
     lock.readLock().lock();
     try {
       return activeDelegate.containsKeyLocalOffHeap(key);
@@ -674,7 +674,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void unlockedRemoveNoReturn(K k, MetaData metadata) {
+  public void unlockedRemoveNoReturn(Object k, MetaData metadata) {
     lock.readLock().lock();
     try {
       activeDelegate.unlockedRemoveNoReturn(k, metadata);

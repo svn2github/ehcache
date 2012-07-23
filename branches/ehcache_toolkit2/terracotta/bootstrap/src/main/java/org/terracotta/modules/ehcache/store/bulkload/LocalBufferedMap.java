@@ -74,7 +74,7 @@ public class LocalBufferedMap<K, V> {
   }
 
   // this method is called under read-lock from BulkLoadClusteredCache
-  public V get(K key) {
+  public V get(Object key) {
     // get from collectingBuffer or flushBuffer
     ValueWithMetaData<V> v = collectBuffer.get(key);
     if (v != null && v.isRemove()) { return null; }
@@ -97,7 +97,7 @@ public class LocalBufferedMap<K, V> {
   }
 
   // this method is called under read-lock from BulkLoadClusteredCache
-  public boolean containsKey(K key) {
+  public boolean containsKey(Object key) {
     ValueWithMetaData<V> v = collectBuffer.get(key);
     if (v != null) { return !v.isRemove(); }
     v = flushBuffer.get(key);
