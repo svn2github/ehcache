@@ -20,8 +20,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CachePeer;
 import org.jgroups.Address;
 import org.jgroups.Channel;
-import org.jgroups.ChannelClosedException;
-import org.jgroups.ChannelNotConnectedException;
 import org.jgroups.Message;
 import org.jgroups.View;
 import org.jgroups.util.Util;
@@ -210,10 +208,10 @@ public class JGroupsCachePeer implements CachePeer {
         final Message msg = new Message(dest, null, data);
         try {
             this.channel.send(msg);
-        } catch (ChannelNotConnectedException e) {
-            LOG.error("Failed to send message(s) due to the channel being disconnected: " + toSend, e);
-        } catch (ChannelClosedException e) {
-            LOG.error("Failed to send message(s) due to the channel being closed: " + toSend, e);
+        } catch (IllegalStateException e) {
+            LOG.error("Failed to send message(s) due to the channel being disconnected or closed: " + toSend, e);
+        } catch (Exception e) {
+            LOG.error("Failed to send message(s) : " + toSend, e);
         }
     }
 
