@@ -266,7 +266,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             CacheManager manager = cluster.get(0);
             Cache cache = manager.getCache(DEFAULT_TEST_CACHE);
             CacheManagerPeerProvider provider = manager.getCacheManagerPeerProvider("RMI");
-            assertThat(provider.listRemoteCachePeers(cache), hasSize(4));
+            assertThat((List<?>) provider.listRemoteCachePeers(cache), hasSize(4));
 
             MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(2000);
             try {
@@ -276,7 +276,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
                 cluster.remove(4).shutdown();
 
                 //Insufficient time for it to timeout
-                assertThat(provider.listRemoteCachePeers(cache), hasSize(4));
+                assertThat((List<?>) provider.listRemoteCachePeers(cache), hasSize(4));
             } finally {
                 MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
                 Thread.sleep(2000);
