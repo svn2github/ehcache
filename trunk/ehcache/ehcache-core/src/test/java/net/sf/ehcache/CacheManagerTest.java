@@ -68,14 +68,8 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.MemorySizeParser;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.CustomTypeSafeMatcher;
-import org.hamcrest.Description;
 import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsMapContainingKey;
 import org.hamcrest.core.CombinableMatcher;
-import org.hamcrest.core.DescribedAs;
-import org.hamcrest.core.Is;
 
 import org.junit.After;
 import org.junit.Assert;

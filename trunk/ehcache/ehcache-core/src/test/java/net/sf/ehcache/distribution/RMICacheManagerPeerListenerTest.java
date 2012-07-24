@@ -23,9 +23,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
-import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 
 import org.hamcrest.core.DescribedAs;
