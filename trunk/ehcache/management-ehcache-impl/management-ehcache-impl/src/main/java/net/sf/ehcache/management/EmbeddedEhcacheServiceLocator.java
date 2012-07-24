@@ -6,6 +6,7 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.management.service.AgentService;
 import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
@@ -18,7 +19,7 @@ import org.terracotta.management.resource.services.validator.RequestValidator;
  */
 public class EmbeddedEhcacheServiceLocator extends ServiceLocator
     implements CacheManagerService.Locator, CacheService.Locator, EntityResourceFactory.Locator,
-    SamplerRepositoryService.Locator {
+    SamplerRepositoryService.Locator, AgentService.Locator {
   protected final boolean licensedLocator;
 
   private final CacheManagerService cacheMgrSvc;
@@ -29,7 +30,7 @@ public class EmbeddedEhcacheServiceLocator extends ServiceLocator
 
   private final SamplerRepositoryService samplerRepoSvc;
 
-  private final ManagementRESTServiceConfiguration mgmtRESTSvcConfig;
+  private final AgentService agentService;
 
   public static EmbeddedEhcacheServiceLocator locator() {
     return (EmbeddedEhcacheServiceLocator) ServiceLocator.locator();
@@ -41,14 +42,14 @@ public class EmbeddedEhcacheServiceLocator extends ServiceLocator
                                        CacheService cacheSvc,
                                        EntityResourceFactory entityRsrcFactory,
                                        SamplerRepositoryService samplerRepoSvc,
-                                       ManagementRESTServiceConfiguration mgmtRESTSvcConfig) {
+                                       AgentService agentService) {
     super(requestValidator);
     this.licensedLocator = licensedLocator;
     this.cacheMgrSvc = cacheMgrSvc;
     this.cacheSvc = cacheSvc;
     this.entityRsrcFactory = entityRsrcFactory;
     this.samplerRepoSvc = samplerRepoSvc;
-    this.mgmtRESTSvcConfig = mgmtRESTSvcConfig;
+    this.agentService = agentService;
   }
 
   @Override
@@ -66,10 +67,6 @@ public class EmbeddedEhcacheServiceLocator extends ServiceLocator
     return samplerRepoSvc;
   }
 
-  public ManagementRESTServiceConfiguration locateRESTConfiguration() {
-    return mgmtRESTSvcConfig;
-  }
-
   public boolean isLicensedLocator() {
     return licensedLocator;
   }
@@ -77,5 +74,10 @@ public class EmbeddedEhcacheServiceLocator extends ServiceLocator
   @Override
   public CacheManagerService locateCacheManagerService() {
     return cacheMgrSvc;
+  }
+
+  @Override
+  public AgentService locateAgentService() {
+    return agentService;
   }
 }

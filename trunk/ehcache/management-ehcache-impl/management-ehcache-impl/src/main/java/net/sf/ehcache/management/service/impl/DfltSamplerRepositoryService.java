@@ -8,7 +8,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.resource.CacheConfigEntity;
 import net.sf.ehcache.management.resource.CacheEntity;
 import net.sf.ehcache.management.resource.CacheManagerConfigEntity;
@@ -18,13 +20,28 @@ import net.sf.ehcache.management.sampled.CacheManagerSampler;
 import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
 import net.sf.ehcache.management.sampled.ComprehensiveCacheSampler;
 import net.sf.ehcache.management.sampled.ComprehensiveCacheSamplerImpl;
+import net.sf.ehcache.management.service.AgentService;
 import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.resource.AgentEntity;
+import org.terracotta.management.resource.AgentMetadataEntity;
+import org.terracotta.management.resource.Representable;
+import org.terracotta.management.resource.services.Utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,6 +49,8 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -44,13 +63,73 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author brandony
  */
 public final class DfltSamplerRepositoryService
-    implements SamplerRepositoryService, EntityResourceFactory, CacheManagerService, CacheService {
+    implements SamplerRepositoryService, EntityResourceFactory, CacheManagerService, CacheService, AgentService,
+    DfltSamplerRepositoryServiceMBean {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryService.class);
+
+  private final static Set<String> DFLT_ATTRS = new HashSet<String>(Arrays.asList(new String[] { "Name" }));
+
   /**
    * Guarded By cacheManagerSamplerRepoLock
    */
   private final Map<String, SamplerRepoEntry> cacheManagerSamplerRepo = new HashMap<String, SamplerRepoEntry>();
 
   private final ReadWriteLock cacheManagerSamplerRepoLock = new ReentrantReadWriteLock();
+  private final ObjectName objectName;
+  private final ManagementRESTServiceConfiguration configuration;
+
+  public DfltSamplerRepositoryService(ObjectName objectName, ManagementRESTServiceConfiguration configuration) {
+    this.configuration = configuration;
+    if (objectName != null) {
+      try {
+        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+        platformMBeanServer.registerMBean(this, objectName);
+      } catch (Exception e) {
+        LOG.warn("Error registering SamplerRepositoryService MBean: " + objectName, e);
+      }
+    }
+    this.objectName = objectName;
+  }
+
+  /**
+   *
+   */
+  public void dispose() {
+    if (objectName != null) {
+      try {
+        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+        platformMBeanServer.unregisterMBean(objectName);
+      } catch (Exception e) {
+        LOG.warn("Error unregistering SamplerRepositoryService MBean: " + objectName, e);
+      }
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public byte[] invoke(String methodName, Class<?>[] argsTypes, Object[] args) {
+    try {
+      Method method = getClass().getMethod(methodName, argsTypes);
+      Object res = method.invoke(this, args);
+      return serialize(res);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private byte[] serialize(Object obj) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    try {
+      oos.writeObject(obj);
+    } finally {
+      oos.close();
+    }
+    return baos.toByteArray();
+  }
 
   /**
    * {@inheritDoc}
@@ -343,6 +422,70 @@ public final class DfltSamplerRepositoryService
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
   }
+
+  @Override
+  public Collection<AgentEntity> getAgents(Set<String> ids) throws ServiceExecutionException {
+    if (ids.isEmpty()) {
+      return Collections.singleton(buildAgentEntity());
+    }
+
+    Collection<AgentEntity> result = new ArrayList<AgentEntity>();
+
+    for (String id : ids) {
+      if (!id.equals(AgentEntity.EMBEDDED_AGENT_ID)) {
+        throw new ServiceExecutionException("Unknown agent ID : " + id);
+      }
+      result.add(buildAgentEntity());
+    }
+
+    return result;
+  }
+
+  private AgentEntity buildAgentEntity() {
+    AgentEntity e = new AgentEntity();
+    e.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+
+    Collection<Representable> reps = new HashSet<Representable>();
+    reps.addAll(createCacheManagerEntities(null, DFLT_ATTRS));
+    e.setRootRepresentables(reps);
+    return e;
+  }
+
+  @Override
+  public Collection<AgentMetadataEntity> getAgentsMetadata(Set<String> ids) throws ServiceExecutionException {
+    if (ids.isEmpty()) {
+      return Collections.singleton(buildAgentMetadata());
+    }
+
+    Collection<AgentMetadataEntity> result = new ArrayList<AgentMetadataEntity>();
+
+    for (String id : ids) {
+      if (!id.equals(AgentEntity.EMBEDDED_AGENT_ID)) {
+        throw new ServiceExecutionException("Unknown agent ID : " + id);
+      }
+      result.add(buildAgentMetadata());
+    }
+
+    return result;
+  }
+
+  private AgentMetadataEntity buildAgentMetadata() {
+    AgentMetadataEntity ame = new AgentMetadataEntity();
+
+    ame.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+    ame.setAgencyOf("Ehcache");
+    ame.setVersion(this.getClass().getPackage().getImplementationVersion());
+    ame.setAvailable(true);
+
+    ame.setSecured(Utils.trimToNull(configuration.getSecurityServiceLocation()) != null);
+    ame.setLicensed(EmbeddedEhcacheServiceLocator.locator().isLicensedLocator());
+    ame.setNeedClientAuth(configuration.isNeedClientAuth());
+    ame.setSampleHistorySize(configuration.getSampleHistorySize());
+    ame.setSampleIntervalSeconds(configuration.getSampleIntervalSeconds());
+
+    return ame;
+  }
+
 
   /**
    * The repository entry class that is also a {@link CacheManagerEventListener}.
