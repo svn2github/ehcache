@@ -33,6 +33,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
@@ -198,17 +202,39 @@ public abstract class AbstractRMITest {
     protected static void emptyCaches(int time, TimeUnit unit, List<CacheManager> members) {
         emptyCaches(time, unit, getAllReplicatedCacheNames(members.get(0)), members);
     }
-    
-    protected static void emptyCaches(int time, TimeUnit unit, Collection<String> required, List<CacheManager> members) {
-        for (String cache : required) {
-            for (CacheManager manager : members) {
-                manager.getCache(cache).put(new Element("setup", "setup"), true);
-            }
 
-            members.get(0).getCache(cache).removeAll();
-            for (CacheManager manager : members.subList(1, members.size())) {
-                assertBy(time, unit, sizeOf(manager.getCache(cache)), is(0));
+    protected static void emptyCaches(final int time, final TimeUnit unit, Collection<String> required, final List<CacheManager> members) {
+        List<Callable<Void>> cacheEmptyTasks = new ArrayList<Callable<Void>>();
+        for (String cache : required) {
+            final String cacheName = cache;
+            cacheEmptyTasks.add(new Callable<Void>() {
+
+                @Override
+                public Void call() throws Exception {
+                    for (CacheManager manager : members) {
+                        manager.getCache(cacheName).put(new Element("setup", "setup"), true);
+                    }
+
+                    members.get(0).getCache(cacheName).removeAll();
+                    for (CacheManager manager : members.subList(1, members.size())) {
+                        assertBy(time, unit, sizeOf(manager.getCache(cacheName)), is(0));
+                    }
+                    return null;
+                }
+            });
+        }
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        try {
+            for (Future<Void> result : executor.invokeAll(cacheEmptyTasks)) {
+                result.get();
             }
+        } catch (InterruptedException e) {
+            throw new AssertionError();
+        } catch (ExecutionException e) {
+            throw new AssertionError();
+        } finally {
+            executor.shutdown();
         }
     }
 
@@ -221,5 +247,35 @@ public abstract class AbstractRMITest {
             }
         }
         return replicatedCaches;
+    }
+
+    protected static List<CacheManager> startupManagers(List<Configuration> configurations) {
+        List<Callable<CacheManager>> nodeStartupTasks = new ArrayList<Callable<CacheManager>>();
+        for (Configuration config : configurations) {
+            final Configuration configuration = config;
+            nodeStartupTasks.add(new Callable<CacheManager>() {
+                @Override
+                public CacheManager call() throws Exception {
+                    return new CacheManager(configuration);
+                }
+            });
+        }
+
+        ExecutorService clusterStarter = Executors.newCachedThreadPool();
+        try {
+            List<CacheManager> managers = new ArrayList<CacheManager>();
+            try {
+                for (Future<CacheManager> result : clusterStarter.invokeAll(nodeStartupTasks)) {
+                    managers.add(result.get());
+                }
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            } catch (ExecutionException e) {
+                throw new AssertionError(e);
+            }
+            return managers;
+        } finally {
+            clusterStarter.shutdown();
+        }
     }
 }
