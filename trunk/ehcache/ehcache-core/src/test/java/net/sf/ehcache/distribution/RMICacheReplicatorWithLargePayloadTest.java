@@ -88,7 +88,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
         List<Configuration> configurations = new ArrayList<Configuration>();
         configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-1.xml")).name("cm1"));
         configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-2.xml")).name("cm2"));
-        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml")).name("cm2"));
+        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml")).name("cm3"));
         List<CacheManager> managers = startupManagers(configurations);
         manager1 = managers.get(0);
         manager2 = managers.get(1);
