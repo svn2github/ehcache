@@ -468,7 +468,9 @@ public class CacheManager {
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
              */
             synchronized (CacheManager.class) {
-                ManagementServerLoader.register(this, managementRESTService);
+                ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+                String clientUUID = clusteredInstanceFactory == null ? null : clusteredInstanceFactory.getUUID();
+                ManagementServerLoader.register(this, clientUUID, managementRESTService);
                 registeredMgmtSvrBind = managementRESTService.getBind();
             }
         }
