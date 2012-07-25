@@ -12,7 +12,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Alex Snaps
  */
-public class ShutdownRMICacheManagerPeerListenerTestImpl extends RMICacheManagerPeerListenerTest {
+public class ShutdownRMICacheManagerPeerListenerTest {
+
     /**
      * Does the RMI listener stop?
      * <p/>
