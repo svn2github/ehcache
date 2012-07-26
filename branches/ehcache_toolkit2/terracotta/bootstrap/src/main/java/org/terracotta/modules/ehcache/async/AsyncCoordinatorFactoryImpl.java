@@ -9,26 +9,22 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.Callback;
 import org.terracotta.toolkit.cache.ToolkitCache;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
   private final ToolkitInstanceFactory                          toolkitInstanceFactory;
-  private final ConcurrentHashMap<String, AsyncCoordinatorImpl> localMap;
+  private final Map<String, AsyncCoordinatorImpl> localMap;
 
   public AsyncCoordinatorFactoryImpl(ToolkitInstanceFactory toolkitInstanceFactory) {
     this.toolkitInstanceFactory = toolkitInstanceFactory;
-    this.localMap = new ConcurrentHashMap<String, AsyncCoordinatorImpl>();
+    this.localMap = new HashMap<String, AsyncCoordinatorImpl>();
   }
 
   @Override
-  public AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config) {
+  public synchronized AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config) {
     final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache);
     final ToolkitCache<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
-    Lock localMapLock = new ReentrantLock();
-    localMapLock.lock();
-    try {
       AsyncConfig oldConfig = configMap.putIfAbsent(fullAsyncName, config);
       if (oldConfig != null && !oldConfig.equals(config)) { throw new IllegalArgumentException(
                                                                                                "can not get AsyncCoordinator "
@@ -47,15 +43,14 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
         Callback stopCallable = new Callback() {
           @Override
           public void callback() {
+          synchronized (AsyncCoordinatorFactoryImpl.this) {
             localMap.remove(fullAsyncName);
+          }
           }
         };
         async = new AsyncCoordinatorImpl(fullAsyncName, config, toolkitInstanceFactory, stopCallable);
         localMap.put(fullAsyncName, async);
       }
       return async;
-    } finally {
-      localMapLock.unlock();
-    }
   }
 }
