@@ -126,5 +126,15 @@
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
     </pluginRepository>
+    <pluginRepository>
+      <id>evgenyg.artifactoryonline.com</id>
+      <url>http://evgenyg.artifactoryonline.com/evgenyg/repo/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>     
   </pluginRepositories>    
 </project>
