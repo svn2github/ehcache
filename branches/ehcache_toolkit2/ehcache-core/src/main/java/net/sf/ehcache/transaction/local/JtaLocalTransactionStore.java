@@ -118,7 +118,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
 
                     JtaLocalEhcacheXAResource xaRes = new JtaLocalEhcacheXAResource(transactionController,
                             transactionController.getCurrentTransactionContext().getTransactionId(), transactionManagerLookup);
-                    transactionManagerLookup.register(xaRes);
+                    transactionManagerLookup.register(xaRes, false);
                     tx.enlistResource(xaRes);
                 } else {
                     tx.registerSynchronization(new JtaLocalEhcacheSynchronization(transactionController,
@@ -192,7 +192,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
         public void commit(Xid xid, boolean onePhase) throws XAException {
             transactionController.commit(true);
             JtaLocalTransactionStore.BOUND_JTA_TRANSACTIONS.remove();
-            transactionManagerLookup.unregister(this);
+            transactionManagerLookup.unregister(this, false);
         }
 
         public void end(Xid xid, int flag) throws XAException {
@@ -222,7 +222,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
         public void rollback(Xid xid) throws XAException {
             transactionController.rollback();
             JtaLocalTransactionStore.BOUND_JTA_TRANSACTIONS.remove();
-            transactionManagerLookup.unregister(this);
+            transactionManagerLookup.unregister(this, false);
         }
 
         public boolean setTransactionTimeout(int timeout) throws XAException {

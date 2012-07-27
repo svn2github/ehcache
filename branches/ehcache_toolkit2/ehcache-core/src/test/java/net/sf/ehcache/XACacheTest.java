@@ -16,12 +16,14 @@
 
 package net.sf.ehcache;
 
+import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import net.sf.ehcache.config.CacheConfiguration;
 
 import java.util.concurrent.CyclicBarrier;
 
 import javax.transaction.*;
+import javax.transaction.Status;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
@@ -34,7 +36,6 @@ public class XACacheTest extends TestCase {
     private DefaultTransactionManagerLookup getTransactionManagerLookup() {
         if (transactionManagerLookup == null) {
             this.transactionManagerLookup = new DefaultTransactionManagerLookup();
-            TransactionManagerServices.getConfiguration().setJournal("null");
         }
         return this.transactionManagerLookup;
     }
@@ -146,9 +147,23 @@ public class XACacheTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        TransactionManagerServices.getConfiguration().setJournal("null");
+        TransactionManagerServices.getTransactionManager();
+
         final CacheManager manager = CacheManager.create();
         cache = new Cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
         cache.setTransactionManagerLookup(getTransactionManagerLookup());
         manager.addCache(cache);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        if (TransactionManagerServices.isTransactionManagerRunning()) {
+            BitronixTransactionManager transactionManager = TransactionManagerServices.getTransactionManager();
+            if (transactionManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
+                transactionManager.rollback();
+            }
+            transactionManager.shutdown();
+        }
     }
 }

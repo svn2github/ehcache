@@ -230,6 +230,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getAverageGetTimeNanos()
+     */
+    public long getAverageGetTimeNanos() {
+        return delegate.getAverageGetTimeNanos();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheHitCount()
      */
     public long getCacheHitCount() {
@@ -279,6 +288,15 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public long getCacheMissCountExpired() {
         return delegate.getCacheMissCountExpired();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getCacheHitRatio()
+     */
+    public int getCacheHitRatio() {
+        return delegate.getCacheHitRatio();
     }
 
     /**
@@ -369,10 +387,50 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
     /**
      * {@inheritDoc}
      *
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
+     * @see net.sf.ehcache.statistics.LiveCacheStatisticsData#addGetTimeNanos(long)
      */
+    public void addGetTimeNanos(long nanos) {
+        getDelegateAsLiveStatisticsData().addGetTimeNanos(nanos);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
+     * @deprecated
+     */
+    @Deprecated
     public long getMaxGetTimeMillis() {
         return delegate.getMaxGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
+     * @deprecated
+     */
+    @Deprecated
+    public long getMinGetTimeMillis() {
+        return delegate.getMinGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeNanos()
+     */
+    public long getMaxGetTimeNanos() {
+        return delegate.getMaxGetTimeNanos();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeNanos()
+     */
+    public long getMinGetTimeNanos() {
+        return delegate.getMinGetTimeNanos();
     }
 
     /**
@@ -407,15 +465,6 @@ public class LiveCacheStatisticsWrapper implements LiveCacheStatistics, LiveCach
      */
     public long getWriterQueueLength() {
         return delegate.getWriterQueueLength();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
-     */
-    public long getMinGetTimeMillis() {
-        return delegate.getMinGetTimeMillis();
     }
 
     /**

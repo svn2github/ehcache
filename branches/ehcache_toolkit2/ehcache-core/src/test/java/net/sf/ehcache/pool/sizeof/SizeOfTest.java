@@ -267,11 +267,11 @@ public class SizeOfTest extends AbstractSizeOfTest {
 
       long used = measureMemoryUse() - usedBefore;
       float percentage = 1 - (mem / (float) used);
-      System.err.println("Run # " + (j + 1) + ": Deviation of " + (int)(percentage * -100) +
+      System.err.println("Run # " + (j + 1) + ": Deviation of " + String.format("%.3f", percentage * -100) +
                  "%\n" + used +
                  " bytes are actually being used, while we believe " + mem + " are");
       if (j > 1) {
-        assertThat("Run # " + (j + 1) + ": Deviation of " + (int)(percentage * -100) +
+        assertThat("Run # " + (j + 1) + ": Deviation of " + String.format("%.3f", percentage * -100) +
                    "% was above the +/-1.5% delta threshold \n" + used +
                    " bytes are actually being used, while we believe " + mem + " are (" +
                    (used - mem) / size + ")",

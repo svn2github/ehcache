@@ -46,9 +46,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.store.FrontEndCacheTier;
@@ -125,20 +123,17 @@ public class DiskStorageFactory {
     public DiskStorageFactory(Ehcache cache, RegisteredEventListeners cacheEventNotificationService) {
         this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
         this.file = diskStorePathManager.getFile(cache.getName(), ".data");
-        // if diskpath contains auto generated string
-        if (file.getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-            LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories" + " (they start with "
-                    + DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX + ").\n"
+
+        this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
+        this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
+        this.diskPersistent = cache.getCacheConfiguration().isDiskPersistent();
+
+        if (diskPersistent && diskStorePathManager.isAutoCreated()) {
+            LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories.\n"
                     + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n" + "Deleting data file "
                     + file.getAbsolutePath());
             deleteFile(file);
-        }
-        this.indexFile = diskStorePathManager.getFile(cache.getName(), ".index");
-        this.pinningEnabled = determineCachePinned(cache.getCacheConfiguration());
-
-        PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
-        diskPersistent = persistence != null && Strategy.LOCALTEMPSWAP.equals(persistence.getStrategy());
-        if (!diskPersistent) {
+        } else if (!diskPersistent) {
             deleteFile(file);
             deleteFile(indexFile);
         }
@@ -955,7 +950,7 @@ public class DiskStorageFactory {
 
         try {
             shutdown();
-            if (getDataFile().getParentFile().getName().startsWith(DiskStorePathManager.AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
+            if (diskStorePathManager.isAutoCreated()) {
                 deleteFile(indexFile);
                 delete();
             }

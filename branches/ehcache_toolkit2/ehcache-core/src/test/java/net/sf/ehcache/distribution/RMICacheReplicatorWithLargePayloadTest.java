@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,7 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.util.RetryAssert;
 
@@ -83,9 +85,14 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
 
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
-        manager1 = new CacheManager(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-1.xml")).name("cm1"));
-        manager2 = new CacheManager(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-2.xml")).name("cm2"));
-        manager3 = new CacheManager(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml")).name("cm3"));
+        List<Configuration> configurations = new ArrayList<Configuration>();
+        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-1.xml")).name("cm1"));
+        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-2.xml")).name("cm2"));
+        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml")).name("cm3"));
+        List<CacheManager> managers = startupManagers(configurations);
+        manager1 = managers.get(0);
+        manager2 = managers.get(1);
+        manager3 = managers.get(2);
         // allow cluster to be established
         waitForClusterMembership(10, TimeUnit.SECONDS, Arrays.asList(manager1.getCacheNames()), manager1, manager2, manager3);
     }

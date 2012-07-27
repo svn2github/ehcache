@@ -57,7 +57,7 @@ public class ManagementServerLoader {
      * @param cacheManager
      * @param managementRESTServiceConfiguration
      */
-    public static void register(CacheManager cacheManager, ManagementRESTServiceConfiguration managementRESTServiceConfiguration) {
+    public static void register(CacheManager cacheManager, String clientUUID, ManagementRESTServiceConfiguration managementRESTServiceConfiguration) {
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -68,8 +68,9 @@ public class ManagementServerLoader {
             Object managementServerImpl = null;
             if (!MGMT_SVR_BY_BIND.containsKey(managementRESTServiceConfiguration.getBind())) {
                 Constructor<?> managementServerImplClassConstructor = managementServerImplClass
-                        .getConstructor(new Class[] {managementRESTServiceConfiguration.getClass()});
-                managementServerImpl = managementServerImplClassConstructor.newInstance(new Object[] {managementRESTServiceConfiguration});
+                        .getConstructor(new Class[] {String.class, managementRESTServiceConfiguration.getClass()});
+                managementServerImpl = managementServerImplClassConstructor.newInstance(
+                        new Object[] {clientUUID, managementRESTServiceConfiguration});
                 Method startMethod = managementServerImplClass.getMethod("start", new Class[] {});
                 startMethod.invoke(managementServerImpl, new Object[] {});
                 MGMT_SVR_BY_BIND.put(managementRESTServiceConfiguration.getBind(), managementServerImpl);

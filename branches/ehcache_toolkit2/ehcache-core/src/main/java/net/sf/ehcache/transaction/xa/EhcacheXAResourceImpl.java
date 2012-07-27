@@ -22,6 +22,7 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.transaction.TransactionIDNotFoundException;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
@@ -44,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -181,9 +181,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public boolean isSameRM(XAResource xaResource) throws XAException {
-        boolean b = xaResource == this;
-        LOG.debug("{} isSameRm {} -> " + b, this, xaResource);
-        return b;
+        boolean same;
+        if (xaResource == this) {
+            same = true;
+        } else if (xaResource instanceof EhcacheXAResourceImpl) {
+            same = (cache == ((EhcacheXAResourceImpl) xaResource).cache);
+        } else {
+            same = false;
+        }
+        LOG.debug("{} isSameRm {} -> " + same, this, xaResource);
+        return same;
     }
 
     /**
@@ -290,6 +297,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
             try {
                 transactionIDFactory.markForCommit(xidTransactionID);
+            } catch (TransactionIDNotFoundException tnfe) {
+                throw new EhcacheXAException("cannot find XID, it might have been duplicated and cleaned up earlier on: " + xid,
+                    XAException.XAER_NOTA, tnfe);
             } catch (IllegalStateException ise) {
                 throw new EhcacheXAException("XID already was rolling back: " + xid, XAException.XAER_RMERR);
             }
@@ -335,19 +345,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         Thread t = new Thread("ehcache [" + cache.getName() + "] XA recovery thread") {
             @Override
             public void run() {
-                Set<XidTransactionID> allOurTransactionIDs = transactionIDFactory.getAllXidTransactionIDsFor(cache);
-
-                Set<XidTransactionID> recoveryRequired = new HashSet<XidTransactionID>(allOurTransactionIDs);
-                Iterator<XidTransactionID> iterator = recoveryRequired.iterator();
-                while (iterator.hasNext()) {
-                    XidTransactionID xidTransactionId = iterator.next();
-                    if (!transactionIDFactory.isExpired(xidTransactionId)) {
-                        iterator.remove();
+                for (XidTransactionID xidTransactionID : transactionIDFactory.getAllXidTransactionIDsFor(cache)) {
+                    if (transactionIDFactory.isExpired(xidTransactionID)) {
+                        xids.add(xidTransactionID.getXid());
                     }
-                }
-
-                for (XidTransactionID xidTransactionID : recoveryRequired) {
-                    xids.add(xidTransactionID.getXid());
                 }
             }
         };
@@ -398,6 +399,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
             try {
                 transactionIDFactory.markForRollback(xidTransactionID);
+            } catch (TransactionIDNotFoundException tnfe) {
+                throw new EhcacheXAException("cannot find XID, it might have been duplicated an cleaned up earlier on: " + xid,
+                    XAException.XAER_NOTA, tnfe);
             } catch (IllegalStateException ise) {
                 throw new EhcacheXAException("XID already was committing: " + xid, XAException.XAER_RMERR);
             }

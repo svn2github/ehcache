@@ -79,7 +79,11 @@ public class ResourceClassLoader extends ClassLoader {
 
     @Override
     public synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        // changing the order of delegation to prefer the resourceClassLoader over its parents
+      if (name.startsWith("java.")) {
+        return getParent().loadClass(name);
+      }
+
+      // changing the order of delegation to prefer the resourceClassLoader over its parents
         Class c = findLoadedClass(name);
         if (c == null) {
             try {

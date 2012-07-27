@@ -32,7 +32,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
@@ -262,7 +261,10 @@ public class CacheConfiguration implements Cloneable {
     /**
      * whether elements can overflow to disk when the in-memory cache
      * has reached the set limit.
+     *
+     * @deprecated The {@code overflowToDisk} attribute has been replaced with {@link Strategy#LOCALTEMPSWAP}.
      */
+    @Deprecated
     protected volatile Boolean overflowToDisk;
 
     /**
@@ -271,7 +273,7 @@ public class CacheConfiguration implements Cloneable {
      * @deprecated The {@code diskPersistent} attribute has been replaced with {@link #persistence(PersistenceConfiguration)}.
      */
     @Deprecated
-    protected volatile boolean diskPersistent = DEFAULT_DISK_PERSISTENT;
+    protected volatile Boolean diskPersistent;
 
     /**
      * The size of the disk spool used to buffer writes
@@ -589,6 +591,12 @@ public class CacheConfiguration implements Cloneable {
      * @param persistenceConfiguration the Persistence Configuration
      */
     public void addPersistence(PersistenceConfiguration persistenceConfiguration) {
+        if (diskPersistent != null) {
+            throw new InvalidConfigurationException("Cannot use both <persistence ...> and diskPersistent in a single cache configuration.");
+        }
+        if (Boolean.TRUE.equals(overflowToDisk)) {
+            throw new InvalidConfigurationException("Cannot use both <persistence ...> and overflowToDisk in a single cache configuration.");
+        }
         this.persistenceConfiguration = persistenceConfiguration;
     }
 
@@ -913,9 +921,14 @@ public class CacheConfiguration implements Cloneable {
      * Sets whether elements can overflow to disk when the in-memory cache has reached the set limit.
      *
      * @param overflowToDisk whether to use the disk store
+     * @deprecated The {@code overflowToDisk} attribute has been replaced with {@link Strategy#LOCALTEMPSWAP}.
      */
+    @Deprecated
     public final void setOverflowToDisk(boolean overflowToDisk) {
         checkDynamicChange();
+        if (persistenceConfiguration != null && Boolean.TRUE.equals(overflowToDisk)) {
+            throw new InvalidConfigurationException("Cannot use both <persistence ...> and overflowToDisk in a single cache configuration.");
+        }
         this.overflowToDisk = overflowToDisk;
         validateConfiguration();
     }
@@ -926,7 +939,9 @@ public class CacheConfiguration implements Cloneable {
      * @param overflowToDisk whether to use the disk store
      * @return this configuration instance
      * @see #setOverflowToDisk(boolean)
+     * @deprecated The {@code overflowToDisk} attribute has been replaced with {@link Strategy#LOCALTEMPSWAP}.
      */
+    @Deprecated
     public final CacheConfiguration overflowToDisk(boolean overflowToDisk) {
         setOverflowToDisk(overflowToDisk);
         return this;
@@ -941,6 +956,9 @@ public class CacheConfiguration implements Cloneable {
     @Deprecated
     public final void setDiskPersistent(boolean diskPersistent) {
         checkDynamicChange();
+        if (persistenceConfiguration != null) {
+            throw new InvalidConfigurationException("Cannot use both <persistence ...> and diskPersistent in a single cache configuration.");
+        }
         this.diskPersistent = diskPersistent;
         validateConfiguration();
     }
@@ -1574,9 +1592,15 @@ public class CacheConfiguration implements Cloneable {
         if (overflowToOffHeap == null && (cacheManager.getConfiguration().isMaxBytesLocalOffHeapSet() || getMaxBytesLocalOffHeap() > 0)) {
             overflowToOffHeap = true;
         }
-        if ((persistenceConfiguration != null && Strategy.LOCALTEMPSWAP.equals(persistenceConfiguration.getStrategy())) ||
-                (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0)) {
+        if ((persistenceConfiguration != null && Strategy.LOCALTEMPSWAP.equals(persistenceConfiguration.getStrategy()))) {
             overflowToDisk = true;
+        }
+        if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
+            if (persistenceConfiguration != null && Strategy.LOCALRESTARTABLE.equals(persistenceConfiguration.getStrategy())) {
+                throw new InvalidConfigurationException("Cannot use localRestartable persistence and disk overflow in the same cache");
+            } else {
+                overflowToDisk = true;
+            }
         }
         warnMaxEntriesLocalHeap(register, cacheManager);
         warnMaxEntriesForOverflowToOffHeap(register);
@@ -1586,22 +1610,22 @@ public class CacheConfiguration implements Cloneable {
 
     private void consolidatePersistenceSettings(CacheManager manager) {
         if (persistenceConfiguration == null) {
-            if (diskPersistent) {
-                if (manager.getFeaturesManager() == null) {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
-                } else {
-                    addPersistence(new PersistenceConfiguration().strategy(Strategy.LOCALRESTARTABLE));
-                }
+            if (diskPersistent == Boolean.TRUE) {
+                persistenceConfiguration = new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP);
             }
         } else {
             switch (persistenceConfiguration.getStrategy()) {
                 case DISTRIBUTED:
                 case NONE:
-                    setDiskPersistent(false);
+                    diskPersistent = Boolean.FALSE;
                     break;
                 case LOCALTEMPSWAP:
+                    if (diskPersistent == null) {
+                        diskPersistent = Boolean.FALSE;
+                    }
+                    break;
                 case LOCALRESTARTABLE:
-                    setDiskPersistent(true);
+                    diskPersistent = Boolean.TRUE;
                     break;
                 default:
                     break;
@@ -2233,7 +2257,7 @@ public class CacheConfiguration implements Cloneable {
             if (overflowToDisk != null && overflowToDisk) {
                 throw new InvalidConfigurationException("overflowToDisk isn't supported for a clustered Terracotta cache");
             }
-            if (diskPersistent) {
+            if (diskPersistent == Boolean.TRUE) {
                 throw new InvalidConfigurationException("diskPersistent isn't supported for a clustered Terracotta cache");
             }
             if (persistenceConfiguration != null && !Strategy.DISTRIBUTED.equals(persistenceConfiguration.getStrategy())) {
@@ -2359,7 +2383,10 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
+     *
+     * @deprecated The {@code overflowToDisk} attribute has been replaced with {@link Strategy#LOCALTEMPSWAP}.
      */
+    @Deprecated
     public boolean isOverflowToDisk() {
         return overflowToDisk == null ? false : overflowToDisk;
     }
@@ -2371,7 +2398,8 @@ public class CacheConfiguration implements Cloneable {
      */
     @Deprecated
     public boolean isDiskPersistent() {
-        return diskPersistent;
+        Boolean persistent = diskPersistent;
+        return diskPersistent == null ? DEFAULT_DISK_PERSISTENT : persistent;
     }
 
     /**
@@ -2552,17 +2580,6 @@ public class CacheConfiguration implements Cloneable {
      */
     public Consistency getTerracottaConsistency() {
         return terracottaConfiguration != null ? terracottaConfiguration.getConsistency() : null;
-    }
-
-    /**
-     * Accessor
-     *
-     * @return the StorageStrategy if Terracotta-clustered or null
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     */
-    @Deprecated
-    public StorageStrategy getTerracottaStorageStrategy() {
-        return terracottaConfiguration != null ? terracottaConfiguration.getStorageStrategy() : null;
     }
 
     /**

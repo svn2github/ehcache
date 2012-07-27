@@ -1223,7 +1223,7 @@ public class Cache implements InternalEhcache, StoreListener {
             // this xaresource is for initial registration and recovery
             xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
                     softLockManager, transactionIDFactory, copyStrategy);
-            transactionManagerLookup.register(xaResource);
+            transactionManagerLookup.register(xaResource, true);
 
             wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, clusteredStore,
                     copyStrategy);
@@ -1584,11 +1584,11 @@ public class Cache implements InternalEhcache, StoreListener {
         }
 
         if (isStatisticsEnabled()) {
-            long start = System.currentTimeMillis();
+            long start = System.nanoTime();
             Element element = searchInStoreWithStats(key);
             //todo is this expensive. Maybe ditch.
-            long end = System.currentTimeMillis();
-            liveCacheStatisticsData.addGetTimeMillis(end - start);
+            long end = System.nanoTime();
+            liveCacheStatisticsData.addGetTimeNanos(end - start);
             return element;
         } else {
             return searchInStoreWithoutStats(key, false, true);
@@ -2479,8 +2479,9 @@ public class Cache implements InternalEhcache, StoreListener {
             compoundStore = null;
         }
 
+        // unregister xa resource from recovery
         if (xaResource != null) {
-            transactionManagerLookup.unregister(xaResource);
+            transactionManagerLookup.unregister(xaResource, true);
             xaResource = null;
         }
 
@@ -3830,7 +3831,7 @@ public class Cache implements InternalEhcache, StoreListener {
     public Element putIfAbsent(Element element, boolean doNotNotifyCacheReplicators) throws NullPointerException {
         checkStatus();
 
-        checkCASOperationSupported();
+        checkCASOperationSupported(doNotNotifyCacheReplicators);
 
         if (element.getObjectKey() == null) {
             throw new NullPointerException();
@@ -3945,7 +3946,11 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     private void checkCASOperationSupported() {
-        if (registeredEventListeners.hasCacheReplicators()) {
+        checkCASOperationSupported(false);
+    }
+
+    private void checkCASOperationSupported(boolean doNotNotifyCacheReplicators) {
+        if (!doNotNotifyCacheReplicators && registeredEventListeners.hasCacheReplicators()) {
             throw new CacheException(
                     "You have configured the cache with a replication scheme that cannot properly support CAS operation guarantees.");
         }

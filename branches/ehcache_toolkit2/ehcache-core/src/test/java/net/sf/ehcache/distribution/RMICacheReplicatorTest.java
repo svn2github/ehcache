@@ -134,8 +134,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     }
 
     private static List<CacheManager> createCluster(int size, String ... caches){
+        LOG.info("Creating Cluster");
         Collection<String> required = Arrays.asList(caches);
-        List<CacheManager> members = new ArrayList<CacheManager>(size);
+        List<Configuration> configurations = new ArrayList<Configuration>(size);
         for (int i = 1; i <= size; i++) {
             Configuration config = getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed" + i + ".xml").name("cm" + i);
             if (!required.isEmpty()) {
@@ -145,17 +146,22 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
                     }
                 }
             }
-            members.add(new CacheManager(config));
+            configurations.add(config);
         }
+        LOG.info("Created Configurations");
 
+        List<CacheManager> members = startupManagers(configurations);
+        LOG.info("Created Managers");
         if (required.isEmpty()) {
             waitForClusterMembership(10, TimeUnit.SECONDS, members);
+            LOG.info("Cluster Membership Complete");
             emptyCaches(10, TimeUnit.SECONDS, members);
+            LOG.info("Caches Emptied");
         } else {
             waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
             emptyCaches(10, TimeUnit.SECONDS, required, members);
         }
-        
+
         return members;
     }
 
@@ -166,7 +172,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             }
         }
     }
-    
+
     @Test
     public void testCASOperationsNotSupported() throws Exception {
         List<CacheManager> cluster = createCluster(4, DEFAULT_TEST_CACHE);
@@ -203,6 +209,13 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             } catch (CacheException ce) {
                 assertThat(ce.getMessage(), containsString("CAS"));
             }
+
+            try {
+                cache1.putIfAbsent(new Element("foo", "poo"), true);
+            } catch (CacheException ce) {
+                ce.printStackTrace();
+                throw new AssertionError("CAS operation should have succeeded.");
+            }
         } finally {
             destroyCluster(cluster);
         }
@@ -235,7 +248,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             //Drop a CacheManager from the cluster
             cluster.remove(4).shutdown();
             assertThat(cluster, hasSize(4));
-            
+
             //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
             waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
         } finally {
@@ -571,12 +584,12 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         try {
             Cache cache0 = cluster.get(0).getCache(DEFAULT_TEST_CACHE);
             Cache cache1 = cluster.get(1).getCache(DEFAULT_TEST_CACHE);
-            
+
             final CountingCacheEventListener listener0 = CountingCacheEventListener.getCountingCacheEventListener(cache0);
             final CountingCacheEventListener listener1 = CountingCacheEventListener.getCountingCacheEventListener(cache1);
             listener0.resetCounters();
             listener1.resetCounters();
-            
+
             //Put
             cache0.put(new Element("1", new Date()));
             cache0.put(new Element("2", new Date()));
@@ -703,7 +716,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         } else {
             assertThat(toCache.get(key), equalTo(element1));
         }
-        
+
         //Remove
         fromCache.remove(key);
         if (asynchronous) {
@@ -759,7 +772,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         } else {
             assertThat(toCache.get(key), equalTo(element1));
         }
-        
+
         //Remove
         fromCache.removeAll();
         if (asynchronous) {
@@ -831,7 +844,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         } else {
             assertThat(toCache.get(key), equalTo(element1));
         }
-        
+
         //Update
         Element updatedElement1 = new Element(key, new Date());
 
@@ -977,7 +990,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         try {
             Cache cache0 = cluster.get(0).getCache(DEFAULT_TEST_CACHE);
             Cache cache1 = cluster.get(1).getCache(DEFAULT_TEST_CACHE);
-            
+
             Serializable key = "1";
             Serializable value = new Date();
             Element element = new Element(key, value);
@@ -1008,7 +1021,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     private static void waitForPropagate() throws InterruptedException {
         Thread.sleep(1500);
     }
-    
+
     protected static <T> void assertAfterPropagation(Callable<T> callable, Matcher<? super T> matcher) {
         assertBy(1500, TimeUnit.MILLISECONDS, callable, matcher);
     }

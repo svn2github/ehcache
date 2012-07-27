@@ -36,7 +36,7 @@ public class XATransactionSizeOfTest {
     public void setUp() throws Exception {
         CacheConfiguration txCache1Cfg = new CacheConfiguration().name("txCache1")
             .transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT)
-            .sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(14)
+            .sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(15)
                 .maxDepthExceededBehavior(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
         CopyStrategyConfiguration copyStrategyConfiguration = new CopyStrategyConfiguration();
         copyStrategyConfiguration.setClass(SerializationCopyStrategy.class.getName());
@@ -63,6 +63,9 @@ public class XATransactionSizeOfTest {
         cacheManager.shutdown();
     }
 
+    /**
+     * Make sure the sizeof engine detects that there are too many objects to be walked.
+     */
     @Test
     public void testHasAbortedSizeOf() throws Exception {
         transactionManager.begin();
@@ -77,6 +80,28 @@ public class XATransactionSizeOfTest {
         assertTrue(cache1.hasAbortedSizeOf());
     }
 
+    /**
+     * Make sure XA doesn't store stuff that makes the sizeof engine mistakenly walk the whole heap.
+     *
+     * Here's what is walked when storing elements with integers both as key and value:
+     *
+     *   40b		net.sf.ehcache.store.chm.SelectableConcurrentHashMap$HashEntry@1205901244
+     *   72b		net.sf.ehcache.Element@1942996580
+     *   32b		net.sf.ehcache.DefaultElementEvictionData@1928680974
+     *   32b		net.sf.ehcache.transaction.SoftLockID@1216216770
+     *   72b		net.sf.ehcache.Element@350784291
+     *   32b		net.sf.ehcache.DefaultElementEvictionData@788967822
+     *   16b		java.lang.Integer@1618147776
+     *   ignored	java.lang.Integer@1897411861
+     *   24b		net.sf.ehcache.transaction.xa.XidTransactionIDImpl@738355611
+     *   32b		java.lang.String@739090040
+     *   32b		[C@840888032
+     *   24b		net.sf.ehcache.transaction.xa.SerializableXid@215272917
+     *   56b		[B@750131952
+     *   56b		[B@1738709374
+     *
+     * That's 14 objects, so make sure SizeOfPolicyConfiguration's maxDepth is >= 15.
+     */
     @Test
     public void testSizeOf() throws Exception {
         transactionManager.begin();

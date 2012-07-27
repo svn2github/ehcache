@@ -85,13 +85,6 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     String getTerracottaConsistency();
 
     /**
-     * Returns a textual description of a Terracotta-clustered cache's storage-strategy.
-     *
-     * @return "CDV2", "CLASSIC", or "na" if the cache is not Terracotta-clustered
-     */
-    String getTerracottaStorageStrategy();
-
-    /**
      * Clear both sampled and cumulative statistics
      */
     void clearStatistics();
@@ -492,7 +485,7 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     long getCacheExpirationRate();
 
     /**
-     * @return average get time (ms.)
+     * @return average get time (nanos.)
      */
-    float getCacheAverageGetTime();
+    long getCacheAverageGetTime();
 }

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
@@ -237,6 +238,162 @@ public final class BlockingCacheTest {
 
             // Put the entry
             blockingCache.put(element);
+            secondThread.join();
+            assertEquals(1, threadResults.size());
+            assertEquals(element, threadResults.get(0));
+
+            // Check the entry is in the cache
+            assertEquals(1, blockingCache.getKeys().size());
+            assertEquals(element, blockingCache.get("key"));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    /**
+     * Does a second tread block until the first thread puts the entry?
+     */
+    @Test
+    public void testSecondThreadActuallyBlocksUntilPutBoolean() throws Exception {
+        final String cacheName = "testSecondThreadActuallyBlocksUntilPutBoolean";
+        CacheManager manager = createCacheManager(cacheName);
+        try {
+            final BlockingCache blockingCache = new BlockingCache(manager.getEhcache(cacheName));
+            blockingCache.setTimeoutMillis((int)TimeUnit.SECONDS.toMillis(5));
+            Element element = new Element("key", "value");
+            final List threadResults = new ArrayList();
+
+            // Make sure the entry does not exist
+            assertNull(blockingCache.get("key"));
+
+            Thread secondThread = new Thread() {
+                @Override
+                public void run() {
+                    threadResults.add(blockingCache.get("key"));
+                }
+            };
+            secondThread.start();
+            assertEquals(0, threadResults.size());
+
+            // Put the entry
+            blockingCache.put(element, true);
+            secondThread.join();
+            assertEquals(1, threadResults.size());
+            assertEquals(element, threadResults.get(0));
+
+            // Check the entry is in the cache
+            assertEquals(1, blockingCache.getKeys().size());
+            assertEquals(element, blockingCache.get("key"));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    /**
+     * Does a second tread block until the first thread puts the entry?
+     */
+    @Test
+    public void testSecondThreadActuallyBlocksUntilPutIfAbsent() throws Exception {
+        final String cacheName = "testSecondThreadActuallyBlocksUntilPutIfAbsent";
+        CacheManager manager = createCacheManager(cacheName);
+        try {
+            final BlockingCache blockingCache = new BlockingCache(manager.getEhcache(cacheName));
+            blockingCache.setTimeoutMillis((int)TimeUnit.SECONDS.toMillis(5));
+            Element element = new Element("key", "value");
+            final List threadResults = new ArrayList();
+
+            // Make sure the entry does not exist
+            assertNull(blockingCache.get("key"));
+
+            Thread secondThread = new Thread() {
+                @Override
+                public void run() {
+                    threadResults.add(blockingCache.get("key"));
+                }
+            };
+            secondThread.start();
+            assertEquals(0, threadResults.size());
+
+            // Put the entry
+            blockingCache.putIfAbsent(element);
+            secondThread.join();
+            assertEquals(1, threadResults.size());
+            assertEquals(element, threadResults.get(0));
+
+            // Check the entry is in the cache
+            assertEquals(1, blockingCache.getKeys().size());
+            assertEquals(element, blockingCache.get("key"));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    /**
+     * Does a second tread block until the first thread puts the entry?
+     */
+    @Test
+    public void testSecondThreadActuallyBlocksUntilPutIfAbsentBoolean() throws Exception {
+        final String cacheName = "testSecondThreadActuallyBlocksUntilPutIfAbsentBoolean";
+        CacheManager manager = createCacheManager(cacheName);
+        try {
+            final BlockingCache blockingCache = new BlockingCache(manager.getEhcache(cacheName));
+            blockingCache.setTimeoutMillis((int)TimeUnit.SECONDS.toMillis(5));
+            Element element = new Element("key", "value");
+            final List threadResults = new ArrayList();
+
+            // Make sure the entry does not exist
+            assertNull(blockingCache.get("key"));
+
+            Thread secondThread = new Thread() {
+                @Override
+                public void run() {
+                    threadResults.add(blockingCache.get("key"));
+                }
+            };
+            secondThread.start();
+            assertEquals(0, threadResults.size());
+
+            // Put the entry
+            blockingCache.putIfAbsent(element, true);
+            secondThread.join();
+            assertEquals(1, threadResults.size());
+            assertEquals(element, threadResults.get(0));
+
+            // Check the entry is in the cache
+            assertEquals(1, blockingCache.getKeys().size());
+            assertEquals(element, blockingCache.get("key"));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    /**
+     * Does a second tread block until the first thread puts the entry?
+     */
+    @Test
+    public void testSecondThreadActuallyBlocksUntilPutQuiet() throws Exception {
+        final String cacheName = "testSecondThreadActuallyBlocksUntilPutQuiet";
+        CacheManager manager = createCacheManager(cacheName);
+        try {
+            final BlockingCache blockingCache = new BlockingCache(manager.getEhcache(cacheName));
+            blockingCache.setTimeoutMillis((int)TimeUnit.SECONDS.toMillis(5));
+            Element element = new Element("key", "value");
+            final List threadResults = new ArrayList();
+
+            // Make sure the entry does not exist
+            assertNull(blockingCache.get("key"));
+
+            Thread secondThread = new Thread() {
+                @Override
+                public void run() {
+                    threadResults.add(blockingCache.get("key"));
+                }
+            };
+            secondThread.start();
+            assertEquals(0, threadResults.size());
+
+            // Put the entry
+            blockingCache.putQuiet(element);
             secondThread.join();
             assertEquals(1, threadResults.size());
             assertEquals(element, threadResults.get(0));

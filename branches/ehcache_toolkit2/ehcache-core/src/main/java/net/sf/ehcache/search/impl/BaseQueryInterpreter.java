@@ -41,6 +41,7 @@ import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.LessThanOrEqual;
 import net.sf.ehcache.search.expression.Not;
 import net.sf.ehcache.search.expression.NotEqualTo;
+import net.sf.ehcache.search.expression.NotILike;
 import net.sf.ehcache.search.expression.Or;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
@@ -140,6 +141,8 @@ public abstract class BaseQueryInterpreter {
             processNotCriteria(Not.class.cast(criteria));
         } else if (criteria instanceof NotEqualTo) {
             processNotEqualCriteria(NotEqualTo.class.cast(criteria));
+        } else if (criteria instanceof NotILike) {
+            processNotLikeCriteria(NotILike.class.cast(criteria));
         } else if (criteria instanceof Between) {
             processBetweenCriteria(Between.class.cast(criteria));
         } else if (criteria instanceof EqualTo) {
@@ -163,6 +166,10 @@ public abstract class BaseQueryInterpreter {
 
     private void processLikeCriteria(ILike criteria) {
         ilike(criteria.getAttributeName(), criteria.getRegex());
+    }
+
+    private void processNotLikeCriteria(NotILike criteria) {
+        notIlike(criteria.getAttributeName(), criteria.getRegex());
     }
 
     private void processAlwaysCriteria(AlwaysMatch cast) {
@@ -199,12 +206,7 @@ public abstract class BaseQueryInterpreter {
     private void processNotCriteria(Not not) {
         Criteria negated = not.getCriteria();
 
-        if (negated instanceof ILike) {
-            ILike ilike = (ILike) negated;
-            notIlike(ilike.getAttributeName(), ilike.getRegex());
-        } else {
-            processCriteria(notOf(negated));
-        }
+        processCriteria(notOf(negated));
     }
 
     private static Criteria notOf(Criteria c) {
@@ -242,6 +244,9 @@ public abstract class BaseQueryInterpreter {
             return new GreaterThan(((LessThanOrEqual) c).getAttributeName(), ((LessThanOrEqual) c).getComparableValue());
         } else if (c instanceof Not) {
             return ((Not) c).getCriteria();
+        } else if (c instanceof ILike) {
+            ILike ilike = (ILike) c;
+            return new NotILike(ilike.getAttributeName(), ilike.getRegex());
         } else if (c instanceof InCollection) {
             InCollection in = (InCollection) c;
             String name = in.getAttributeName();

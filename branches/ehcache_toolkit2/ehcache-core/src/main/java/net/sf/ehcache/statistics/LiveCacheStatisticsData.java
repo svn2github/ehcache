@@ -96,8 +96,17 @@ public interface LiveCacheStatisticsData extends CacheEventListener {
      * Adds time taken for a get operation in the cache
      *
      * @param millis
+     * @deprecated
      */
+    @Deprecated
     void addGetTimeMillis(final long millis);
+
+    /**
+     * Adds time taken for a get operation in the cache
+     *
+     * @param nanos
+     */
+    void addGetTimeNanos(final long nanos);
 
     /**
      * Sets the statistics accuracy.

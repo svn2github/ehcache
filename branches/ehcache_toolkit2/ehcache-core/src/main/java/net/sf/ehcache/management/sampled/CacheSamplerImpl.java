@@ -21,7 +21,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.util.CacheTransactionHelper;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import org.slf4j.Logger;
@@ -35,6 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListener {
     private static final int PERCENTAGE_DIVISOR = 100;
+    private static final int MILLIS_PER_SECOND = 1000;
+    private static final int NANOS_PER_MILLI = MILLIS_PER_SECOND * MILLIS_PER_SECOND;
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheSamplerImpl.class);
 
@@ -145,6 +146,13 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     public long getAverageGetTimeMostRecentSample() {
         return cache.getSampledCacheStatistics().getAverageGetTimeMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageGetTimeNanosMostRecentSample() {
+        return cache.getSampledCacheStatistics().getAverageGetTimeNanosMostRecentSample();
     }
 
     /**
@@ -407,14 +415,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
-    public String getTerracottaStorageStrategy() {
-        StorageStrategy storageStrategy = this.cache.getCacheConfiguration().getTerracottaStorageStrategy();
-        return storageStrategy != null ? storageStrategy.name() : "na";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void enableStatistics() {
         if (!cache.isStatisticsEnabled()) {
             try {
@@ -483,8 +483,8 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
-    public float getCacheAverageGetTime() {
-        return getAverageGetTimeMillis();
+    public long getCacheAverageGetTime() {
+        return getAverageGetTimeNanos();
     }
 
     /**
@@ -492,7 +492,18 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     public float getAverageGetTimeMillis() {
         try {
-            return cache.getAverageGetTime();
+            return getAverageGetTimeNanos() / (float) NANOS_PER_MILLI;
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getAverageGetTimeNanos() {
+        try {
+            return getAverageGetTimeNanosMostRecentSample();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -504,6 +515,39 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     public long getMaxGetTimeMillis() {
         try {
             return cache.getLiveCacheStatistics().getMaxGetTimeMillis();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMinGetTimeMillis() {
+        try {
+            return cache.getLiveCacheStatistics().getMinGetTimeMillis();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMaxGetTimeNanos() {
+        try {
+            return cache.getLiveCacheStatistics().getMaxGetTimeNanos();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getMinGetTimeNanos() {
+        try {
+            return cache.getLiveCacheStatistics().getMinGetTimeNanos();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -574,18 +618,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     public int getWriterConcurrency() {
         return cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindConcurrency();
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getMinGetTimeMillis() {
-        try {
-            return cache.getLiveCacheStatistics().getMinGetTimeMillis();
-        } catch (RuntimeException e) {
-            throw Utils.newPlainException(e);
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -1351,6 +1383,20 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     Ehcache getCache() {
         return cache;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getCacheHitRatio() {
+        return getCacheHitRatioMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getCacheHitRatioMostRecentSample() {
+        return cache.getSampledCacheStatistics().getCacheHitRatioMostRecentSample();
     }
 }
 

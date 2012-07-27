@@ -32,8 +32,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class WeakIdentityConcurrentMap<K, V> {
 
-    private ConcurrentMap<WeakReference<K>, V> map = new ConcurrentHashMap<WeakReference<K>, V>();
-    private ReferenceQueue<K> queue = new ReferenceQueue<K>();
+    private final ConcurrentMap<WeakReference<K>, V> map = new ConcurrentHashMap<WeakReference<K>, V>();
+    private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
 
     private final CleanUpTask<V> cleanUpTask;
 
@@ -43,7 +43,7 @@ public final class WeakIdentityConcurrentMap<K, V> {
     public WeakIdentityConcurrentMap() {
       this(null);
     }
-    
+
     /**
      * Constructor
      * @param cleanUpTask
@@ -62,7 +62,26 @@ public final class WeakIdentityConcurrentMap<K, V> {
         cleanUp();
         return map.put(new IdentityWeakReference<K>(key, queue), value);
     }
-    
+
+    /**
+     * Remove from the underlying
+     * @param key
+     * @return
+     */
+    public V remove(K key) {
+        cleanUp();
+        return map.remove(new IdentityWeakReference<K>(key, queue));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        cleanUp();
+        return map.toString();
+    }
+
     /**
      * Puts into the underlying
      * @param key
@@ -141,6 +160,14 @@ public final class WeakIdentityConcurrentMap<K, V> {
          * {@inheritDoc}
          */
         @Override
+        public String toString() {
+            return String.valueOf(get());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -173,4 +200,6 @@ public final class WeakIdentityConcurrentMap<K, V> {
          */
         void cleanUp(T object);
     }
+
+
 }

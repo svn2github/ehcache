@@ -16,6 +16,9 @@
 
 package net.sf.ehcache;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.lang.reflect.Field;
 
@@ -39,10 +42,33 @@ public class DiskStorePathManagerTest {
     }
 
     @Test
+    public void testDefault() throws Exception {
+        dspm1 = new DiskStorePathManager();
+        dspm1.getFile("foo");
+        assertFalse(dspm1.isAutoCreated());
+        assertTrue(dspm1.isDefault());
+
+        dspm2 = new DiskStorePathManager();
+        dspm2.getFile("foo");
+        assertTrue(dspm2.isAutoCreated());
+        assertFalse(dspm2.isDefault());
+
+        Assert.assertFalse(getDiskStorePath(dspm1).equals(getDiskStorePath(dspm2)));
+    }
+
+    @Test
     public void testCollisionSameThread() throws Exception {
         String diskStorePath = getTempDir("testCollisionSameThread") + "/a/b/c";
-        dspm1 = DiskStorePathManager.createInstance(diskStorePath);
-        dspm2 = DiskStorePathManager.createInstance(diskStorePath);
+
+        dspm1 = new DiskStorePathManager(diskStorePath);
+        dspm1.getFile("foo");
+        assertFalse(dspm1.isAutoCreated());
+        assertFalse(dspm1.isDefault());
+
+        dspm2 = new DiskStorePathManager(diskStorePath);
+        dspm2.getFile("foo");
+        assertTrue(dspm2.isAutoCreated());
+        assertFalse(dspm2.isDefault());
 
         Assert.assertFalse(getDiskStorePath(dspm1).equals(getDiskStorePath(dspm2)));
     }
@@ -50,11 +76,13 @@ public class DiskStorePathManagerTest {
     @Test
     public void testCollisionDifferentThread() throws Exception {
         final String diskStorePath = getTempDir("testCollisionDifferentThread");
-        dspm1 = DiskStorePathManager.createInstance(diskStorePath);
+        dspm1 = new DiskStorePathManager(diskStorePath);
+        dspm1.getFile("foo");
         Thread newThread = new Thread() {
             @Override
             public void run() {
-                dspm2 = DiskStorePathManager.createInstance(diskStorePath);
+                dspm2 = new DiskStorePathManager(diskStorePath);
+                dspm2.getFile("foo");
             }
         };
         newThread.start();
@@ -63,11 +91,12 @@ public class DiskStorePathManagerTest {
         Assert.assertFalse(getDiskStorePath(dspm1).equals(getDiskStorePath(dspm2)));
     }
 
-    @Test(expected=CacheException.class)
+    @Test(expected = CacheException.class)
     public void testIllegalPath() {
         Assume.assumeTrue(System.getProperty("os.name").contains("Windows"));
         String diskStorePath = getTempDir("testIllegalPath") + "/com1";
-        dspm1 = DiskStorePathManager.createInstance(diskStorePath);
+        dspm1 = new DiskStorePathManager(diskStorePath);
+        dspm1.getFile("foo");
     }
 
     private String getTempDir(String dirname) {
@@ -80,11 +109,16 @@ public class DiskStorePathManagerTest {
         return tempDir.getAbsolutePath();
     }
 
-    private File getDiskStorePath(DiskStorePathManager manager) throws Exception {
-        Field diskStorePathField = DiskStorePathManager.class.getDeclaredField("diskStorePath");
-        diskStorePathField.setAccessible(true);
-        return (File)diskStorePathField.get(manager);
-    }
+    public static File getDiskStorePath(DiskStorePathManager manager) throws Exception {
+        Field pathField = DiskStorePathManager.class.getDeclaredField("path");
+        pathField.setAccessible(true);
 
+        Object pathObject = pathField.get(manager);
+
+        Field diskStorePathField = pathObject.getClass().getDeclaredField("diskStorePath");
+        diskStorePathField.setAccessible(true);
+
+        return (File) diskStorePathField.get(pathObject);
+    }
 
 }

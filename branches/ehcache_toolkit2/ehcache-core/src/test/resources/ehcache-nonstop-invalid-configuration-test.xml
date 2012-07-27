@@ -8,21 +8,21 @@
 	<cache name="cache1" maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false">
 
-		<terracotta clustered="true" storageStrategy="classic" consistency="eventual">
+		<terracotta clustered="true" consistency="eventual">
 			<nonstop enabled="true" />
 		</terracotta>
 	</cache>
 
 	<cache name="cache2" maxElementsInMemory="10000"
 		eternal="true" overflowToDisk="false">
-		<terracotta clustered="true" storageStrategy="classic" consistency="eventual">
+		<terracotta clustered="true" consistency="eventual">
 			<nonstop enabled="true" />
 		</terracotta>
 	</cache>
 
 	<cache name="cache3" maxElementsInMemory="10000"
 		eternal="true" overflowToDisk="false">
-		<terracotta clustered="true" concurrency="123" storageStrategy="classic" consistency="eventual">
+		<terracotta clustered="true" concurrency="123" consistency="eventual">
 			<nonstop enabled="false" />
 		</terracotta>
 	</cache>

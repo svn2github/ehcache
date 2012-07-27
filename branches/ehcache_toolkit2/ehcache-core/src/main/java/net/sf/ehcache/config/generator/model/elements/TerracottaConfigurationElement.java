@@ -70,8 +70,6 @@ public class TerracottaConfigurationElement extends SimpleNodeElement {
                 .defaultValue(TerracottaConfiguration.DEFAULT_ORPHAN_EVICTION_PERIOD));
         addAttribute(new SimpleNodeAttribute("coherentReads", tcConfiguration.getCoherentReads()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_COHERENT_READS));
-        addAttribute(new SimpleNodeAttribute("storageStrategy", tcConfiguration.getStorageStrategy()).optional(true).defaultValue(
-                TerracottaConfiguration.DEFAULT_STORAGE_STRATEGY));
         addAttribute(new SimpleNodeAttribute("concurrency", tcConfiguration.getConcurrency()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_CONCURRENCY));
         addAttribute(new SimpleNodeAttribute("localCacheEnabled", tcConfiguration.isLocalCacheEnabled()).optional(true).defaultValue(

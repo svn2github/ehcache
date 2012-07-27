@@ -5,6 +5,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 
+import org.hamcrest.core.StringContains;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -172,6 +174,35 @@ public class CacheConfigurationTest {
             assertThat(e.getMessage(), containsString("enterprise"));
         } finally {
             cacheManager.removeCache("Test");
+        }
+    }
+
+    @Test
+    public void testPersistenceConfigMixing() {
+        CacheConfiguration persistence = new CacheConfiguration().persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+        try {
+            persistence.diskPersistent(true);
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
+        }
+        try {
+            persistence.overflowToDisk(true);
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and overflowToDisk"));
+        }
+
+        CacheConfiguration diskPersistent = new CacheConfiguration().diskPersistent(true);
+        try {
+            diskPersistent.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
+        }
+
+        CacheConfiguration overflowToDisk = new CacheConfiguration().overflowToDisk(true);
+        try {
+            overflowToDisk.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and overflowToDisk"));
         }
     }
 

@@ -22,10 +22,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -261,8 +259,7 @@ public class LruMemoryStore extends AbstractStore {
      * Flush to disk only if the cache is diskPersistent.
      */
     public final void flush() {
-        PersistenceConfiguration persistence = cache.getCacheConfiguration().getPersistenceConfiguration();
-        if ((persistence != null && Strategy.LOCALTEMPSWAP.equals(persistence.getStrategy()))) {
+        if (cache.getCacheConfiguration().isDiskPersistent()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(cache.getName() + " is persistent. Spooling " + map.size() + " elements to the disk store.");
             }

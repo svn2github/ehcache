@@ -57,7 +57,8 @@ public class StandaloneEntryBasedConfigAttributesValueFactory implements XSDAttr
             // these are deprecated
             if ("maxElementsInMemory".equals(attribute.getName()) ||
                     "maxMemoryOffHeap".equals(attribute.getName()) ||
-                    "diskPersistent".equals(attribute.getName())) {
+                    "diskPersistent".equals(attribute.getName()) ||
+                    "overflowToDisk".equals(attribute.getName())) {
                 return null;
             }
             if ("maxElementsOnDisk".equals(attribute.getName()) ||

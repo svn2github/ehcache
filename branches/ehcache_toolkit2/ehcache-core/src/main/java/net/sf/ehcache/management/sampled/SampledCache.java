@@ -149,6 +149,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return sampledCacheDelegate.getAverageGetTimeMostRecentSample();
     }
 
+    @Override
+    public long getAverageGetTimeNanosMostRecentSample() {
+        return sampledCacheDelegate.getAverageGetTimeNanosMostRecentSample();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -397,13 +402,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     */
-    public String getTerracottaStorageStrategy() {
-        return sampledCacheDelegate.getTerracottaStorageStrategy();
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableStatistics()
      */
@@ -495,7 +493,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
-    public float getCacheAverageGetTime() {
+    public long getCacheAverageGetTime() {
         return sampledCacheDelegate.getCacheAverageGetTime();
     }
 
@@ -511,10 +509,46 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeNanos()
+     */
+    public long getAverageGetTimeNanos() {
+        return sampledCacheDelegate.getAverageGetTimeNanos();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
      */
     public long getMaxGetTimeMillis() {
         return sampledCacheDelegate.getMaxGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
+     */
+    public long getMinGetTimeMillis() {
+        return sampledCacheDelegate.getMinGetTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeNanos()
+     */
+    public long getMaxGetTimeNanos() {
+        return sampledCacheDelegate.getMaxGetTimeNanos();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeNanos()
+     */
+    public long getMinGetTimeNanos() {
+        return sampledCacheDelegate.getMinGetTimeNanos();
     }
 
     /**
@@ -572,15 +606,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public int getWriterConcurrency() {
         return sampledCacheDelegate.getWriterConcurrency();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
-     */
-    public long getMinGetTimeMillis() {
-        return sampledCacheDelegate.getMinGetTimeMillis();
     }
 
     /**
@@ -1275,5 +1300,19 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public long getCacheXaRollbacksMostRecentSample() {
         return sampledCacheDelegate.getCacheXaRollbacksMostRecentSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getCacheHitRatio() {
+        return sampledCacheDelegate.getCacheHitRatio();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getCacheHitRatioMostRecentSample() {
+        return sampledCacheDelegate.getCacheHitRatioMostRecentSample();
     }
 }

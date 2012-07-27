@@ -23,8 +23,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 
+import org.hamcrest.core.DescribedAs;
 import org.junit.After;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
@@ -35,14 +37,21 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Unit tests for the RMICacheManagerPeerListener
@@ -53,6 +62,40 @@ import java.util.concurrent.TimeUnit;
  * @version $Id$
  */
 public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
+
+    private static final Logger LOGGER = Logger.getLogger(RMICacheManagerPeerListenerTest.class.getName());
+
+    private static final Logger[] RMI_LOGGERS = new Logger[] {
+        Logger.getLogger(MulticastRMICacheManagerPeerProvider.class.getName()),
+        Logger.getLogger(MulticastKeepaliveHeartbeatSender.class.getName()),
+        Logger.getLogger(MulticastKeepaliveHeartbeatReceiver.class.getName()),
+        Logger.getLogger(RMIAsynchronousCacheReplicator.class.getName()),
+        //Logger.getLogger(RMICacheManagerPeerListener.class.getName()),
+        //Logger.getLogger(RMICacheManagerPeerProvider.class.getName()),
+        Logger.getLogger(RMICacheManagerPeerProviderFactory.class.getName()),
+        Logger.getLogger(RMICachePeer.class.getName()),
+        Logger.getLogger(RMICacheReplicatorFactory.class.getName()),
+        Logger.getLogger(RMISynchronousCacheReplicator.class.getName())};
+
+    @BeforeClass
+    public static void setupLogging() {
+        Handler rmiHandler = new ConsoleHandler();
+        rmiHandler.setLevel(Level.ALL);
+        for (Logger logger : RMI_LOGGERS) {
+            logger.setLevel(Level.ALL);
+            logger.addHandler(rmiHandler);
+        }
+    }
+
+    @AfterClass
+    public static void revertLogging() {
+        for (Logger logger : RMI_LOGGERS) {
+            logger.setLevel(Level.INFO);
+            for (Handler handler : logger.getHandlers()) {
+                logger.removeHandler(handler);
+            }
+        }
+    }
 
     /**
      * CacheManager 1 in the cluster
@@ -101,23 +144,41 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-        manager1 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
-        manager2 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
-        manager3 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml").name("cm3"));
-        manager4 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml").name("cm4"));
-        manager5 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml").name("cm5"));
+        List<Configuration> configurations = new ArrayList<Configuration>();
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml").name("cm3"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml").name("cm4"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml").name("cm5"));
+
+        List<CacheManager> managers = startupManagers(configurations);
+        manager1 = managers.get(0);
+        manager2 = managers.get(1);
+        manager3 = managers.get(2);
+        manager4 = managers.get(3);
+        manager5 = managers.get(4);
 
         //allow cluster to be established
+        LOGGER.info("Validating Cluster Membership");
         waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
+        LOGGER.info("Validated Cluster Membership");
 
+        LOGGER.info("Putting Setup Value");
         manager1.getCache(cacheName).put(new Element("setup", "setup"));
+        LOGGER.info("Put Setup Value");
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
-            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), notNullValue());
+            LOGGER.info("Validating Setup Value Propagation To " + manager);
+            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), DescribedAs.describedAs("Failed to propagate setup value to {}", notNullValue(), manager));
+            LOGGER.info("Validated Setup Value Propagation To " + manager);
         }
 
+        LOGGER.info("Performing RemoveAll");
         manager1.getCache(cacheName).removeAll();
+        LOGGER.info("Performed RemoveAll");
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
-            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), is(0));
+            LOGGER.info("Validating RemoveAll Propagation To " + manager);
+            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), DescribedAs.describedAs("Failed to propagate removeAll to {}" , is(0), manager));
+            LOGGER.info("Validated RemoveAll Propagation To " + manager);
         }
 
         cache1 = manager1.getCache(cacheName);

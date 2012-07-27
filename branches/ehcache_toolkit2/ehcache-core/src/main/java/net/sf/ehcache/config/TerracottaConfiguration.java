@@ -94,13 +94,6 @@ public class TerracottaConfiguration implements Cloneable {
     public static final boolean DEFAULT_SYNCHRONOUS_WRITES = false;
 
     /**
-     * Default setting for storageStrategy
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     */
-    @Deprecated
-    public static final StorageStrategy DEFAULT_STORAGE_STRATEGY = StorageStrategy.DCV2;
-
-    /**
      * Default value for concurrency of the internal Store.
      */
     public static final int DEFAULT_CONCURRENCY = 0;
@@ -129,28 +122,6 @@ public class TerracottaConfiguration implements Cloneable {
         IDENTITY,
     }
 
-    /**
-     * Represents whether keys/values are to be stored in the local vm or the Terracotta server
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     *
-     * @author Abhishek Sanoujam
-     */
-    public static enum StorageStrategy {
-        /**
-         * Store the key/values in the local vm
-         * @deprecated
-         * @see StorageStrategy
-         */
-        CLASSIC,
-
-        /**
-         * Store the key/values in the Terracotta Server
-         * @deprecated
-         * @see StorageStrategy
-         */
-        DCV2,
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());
 
     private boolean clustered = DEFAULT_CLUSTERED;
@@ -167,7 +138,6 @@ public class TerracottaConfiguration implements Cloneable {
     private NonstopConfiguration nonStopConfiguration = DEFAULT_NON_STOP_CONFIGURATION;
 
     private boolean copyOnReadSet;
-    private volatile boolean storageStrategySet;
     private Consistency consistency = DEFAULT_CONSISTENCY_TYPE;
     private volatile boolean localCacheEnabled = DEFAULT_LOCAL_CACHE_ENABLED;
     private volatile boolean compressionEnabled = DEFAULT_COMPRESSION_ENABLED;
@@ -547,62 +517,6 @@ public class TerracottaConfiguration implements Cloneable {
     public TerracottaConfiguration synchronousWrites(boolean synchronousWrites) {
         setSynchronousWrites(synchronousWrites);
         return this;
-    }
-
-    /**
-     * Converts the {@code storageStrategy} string argument to uppercase and looks up enum constant in StorageStrategy.
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     */
-    @Deprecated
-    public void setStorageStrategy(String storageStrategy) {
-        assertArgumentNotNull("Cache storageStrategy", storageStrategy);
-        this.storageStrategy(StorageStrategy.valueOf(StorageStrategy.class, storageStrategy.toUpperCase()));
-    }
-
-    /**
-     * @return this configuration instance
-     * @see #setStorageStrategy(String)
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     */
-    @Deprecated
-    public TerracottaConfiguration storageStrategy(String storageStrategy) {
-        setStorageStrategy(storageStrategy);
-        return this;
-    }
-
-    /**
-     * @return this configuration instance
-     * @see #setStorageStrategy(String)
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     */
-    @Deprecated
-    public TerracottaConfiguration storageStrategy(StorageStrategy storageStrategy) {
-        if (storageStrategy == null) {
-            throw new IllegalArgumentException("Storage Strategy must be non-null");
-        }
-        if (storageStrategy == StorageStrategy.CLASSIC) {
-            LOG.warn("Setting StorageStrategy to CLASSIC has no effect, and will be DCV2 by default implicitly");
-        }
-        this.storageStrategySet = true;
-        return this;
-    }
-
-    /**
-     * Returns true is storageStrategy is set explicitly
-     *
-     * @return true is storageStrategy is set explicitly
-     */
-    public boolean isStorageStrategySet() {
-        return storageStrategySet;
-    }
-
-    /**
-     * Get the value mode in terms of the mode enum
-     * @deprecated Storage strategy is always DCV2 implicitly from 2.6 onwards
-     */
-    @Deprecated
-    public StorageStrategy getStorageStrategy() {
-        return StorageStrategy.DCV2;
     }
 
     /**

@@ -25,6 +25,8 @@ import java.nio.channels.OverlappingFileLockException;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.ehcache.config.DiskStoreConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,7 @@ public final class DiskStorePathManager {
      * name is used to determined whether it makes sense for a persistent DiskStore to be loaded. Loading
      * persistent DiskStores will only have useful semantics where the diskStore path has not changed.
      */
-    public static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
+    private static final String AUTO_DISK_PATH_DIRECTORY_PREFIX = "ehcache_auto_created";
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorePathManager.class);
     private static final String LOCK_FILE_NAME = ".ehcache-diskstore.lock";
 
@@ -49,9 +51,10 @@ public final class DiskStorePathManager {
     private static final char ESCAPE = '%';
     private static final Set<Character> ILLEGALS = new HashSet<Character>();
 
-    private final File diskStorePath;
-    private final FileLock thisDirectoryLock;
-    private final File lockFile;
+    private final File initialPath;
+    private final boolean defaultPath;
+
+    private volatile DiskStorePath path;
 
     static {
         ILLEGALS.add('/');
@@ -67,74 +70,105 @@ public final class DiskStorePathManager {
     }
 
     /**
-     * private constructor
+     * Create a diskstore path manager with provided initial path.
      *
-     * @param diskStorePath
-     * @throws DiskstoreNotExclusiveException
+     * @param path
      */
-    private DiskStorePathManager(File path) throws DiskstoreNotExclusiveException {
-        FileLock directoryLock;
-
-        // ensure disk store path exists
-        if (!path.isDirectory() && !path.mkdirs()) {
-            throw new CacheException("Disk store path can't be created: " + path);
-        }
-
-        lockFile = new File(path.getAbsoluteFile(), LOCK_FILE_NAME);
-        lockFile.deleteOnExit();
-        try {
-            lockFile.createNewFile();
-            if (!lockFile.exists()) {
-                throw new AssertionError("Failed to create lock file " + lockFile);
-            }
-            FileChannel lockFileChannel = new RandomAccessFile(lockFile, "rw").getChannel();
-            directoryLock = lockFileChannel.tryLock();
-        } catch (OverlappingFileLockException ofle) {
-            directoryLock = null;
-        } catch (IOException ioe) {
-            throw new CacheException(ioe);
-        }
-
-        if (directoryLock == null) {
-            throw new DiskstoreNotExclusiveException(path.getAbsolutePath() + " is not exclusive.");
-        }
-
-        thisDirectoryLock = directoryLock;
-        diskStorePath = path;
-        LOG.debug("Using diskstore path {}", diskStorePath);
-        LOG.debug("Holding exclusive lock on {}", lockFile);
+    public DiskStorePathManager(String initialPath) {
+        this.initialPath = new File(initialPath);
+        this.defaultPath = false;
     }
 
     /**
-     * Create a diskstore path manager with provided path with exclusive access
-     *
-     * @param path
-     * @return diskstore manager instance
+     * Create a diskstore path manager using the default path.
      */
-    public static final DiskStorePathManager createInstance(String path) {
-        DiskStorePathManager manager = null;
-        File candidate = new File(path);
-        do {
-            try {
-                manager = new DiskStorePathManager(candidate);
-            } catch (DiskstoreNotExclusiveException e) {
+    public DiskStorePathManager() {
+        this.initialPath = new File(DiskStoreConfiguration.getDefaultPath());
+        this.defaultPath = true;
+    }
+
+    /**
+     * Resolve and lock this disk store path if the resultant path contains the supplied file.
+     *
+     * @param file file to check for
+     * @return {@code true} if the file existed and the path was successfully locked
+     */
+    public boolean resolveAndLockIfExists(String file) {
+        if (path != null) {
+            return getFile(file).exists();
+        }
+
+        synchronized (this) {
+            if (path != null) {
+                return getFile(file).exists();
+            }
+
+            // ensure disk store path exists
+            if (!initialPath.isDirectory()) {
+                return false;
+            } else if (!new File(initialPath, file).exists()) {
+                return false;
+            } else {
                 try {
-                    candidate = File.createTempFile(AUTO_DISK_PATH_DIRECTORY_PREFIX, "diskstore", new File(path));
-                    // we want to create a directory with this temp name so deleting the file first
-                    candidate.delete();
-                } catch (IOException ioe) {
-                    throw new RuntimeException(ioe);
+                    path = new DiskStorePath(initialPath, false, defaultPath);
+                } catch (DiskstoreNotExclusiveException e) {
+                    throw new CacheException(e);
+                }
+
+                LOG.debug("Using diskstore path {}", path.getDiskStorePath());
+                LOG.debug("Holding exclusive lock on {}", path.getLockFile());
+                return true;
+            }
+        }
+    }
+
+    private void resolveAndLockIfNeeded(boolean allowAutoCreate) throws DiskstoreNotExclusiveException {
+        if (path != null) {
+            return;
+        }
+
+        synchronized (this) {
+            if (path != null) {
+                return;
+            }
+
+            File candidate = initialPath;
+
+            boolean autoCreated = false;
+            while (true) {
+                // ensure disk store path exists
+                if (!candidate.isDirectory() && !candidate.mkdirs()) {
+                    throw new CacheException("Disk store path can't be created: " + candidate);
+                }
+
+                try {
+                    path = new DiskStorePath(candidate, autoCreated, !autoCreated && defaultPath);
+                    break;
+                } catch (DiskstoreNotExclusiveException e) {
+                    if (!allowAutoCreate) { throw e; }
+
+                    autoCreated = true;
+                    try {
+                        candidate = File.createTempFile(AUTO_DISK_PATH_DIRECTORY_PREFIX, "diskstore", initialPath);
+                        // we want to create a directory with this temp name so deleting the file first
+                        candidate.delete();
+                    } catch (IOException ioe) {
+                        throw new CacheException(ioe);
+                    }
                 }
             }
-        } while (manager == null);
-        if (candidate.getName().startsWith(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-            LOG.warn("diskStorePath '" + path
-                    + "' is already used by an existing CacheManager either in the same VM or in a different process.\n"
-                    + "The diskStore path for this CacheManager will be set to " + candidate + ".\nTo avoid this"
-                    + " warning consider using the CacheManager factory methods to create a singleton CacheManager "
-                    + "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
+
+            if (autoCreated) {
+                LOG.warn("diskStorePath '" + initialPath
+                        + "' is already used by an existing CacheManager either in the same VM or in a different process.\n"
+                        + "The diskStore path for this CacheManager will be set to " + candidate + ".\nTo avoid this"
+                        + " warning consider using the CacheManager factory methods to create a singleton CacheManager "
+                        + "or specifying a separate ehcache configuration (ehcache.xml) for each CacheManager instance.");
+            }
+
+            LOG.debug("Using diskstore path {}", path.getDiskStorePath());
+            LOG.debug("Holding exclusive lock on {}", path.getLockFile());
         }
-        return manager;
     }
 
     /**
@@ -165,23 +199,44 @@ public final class DiskStorePathManager {
     }
 
     /**
+     * Was this path auto-created (ie. the result of a collision)
+     *
+     * @return true if path is auto created
+     */
+    public boolean isAutoCreated() {
+        DiskStorePath diskStorePath = path;
+        if (diskStorePath == null) {
+            throw new IllegalStateException();
+        }
+
+        return diskStorePath.isAutoCreated();
+    }
+
+    /**
+     * Was this path sourced from the default value.
+     *
+     * @return true if path is the default
+     */
+    public boolean isDefault() {
+        DiskStorePath diskStorePath = path;
+        if (diskStorePath == null) {
+            throw new IllegalStateException();
+        }
+
+        return diskStorePath.isDefault();
+    }
+
+    /**
      * release the lock file used for collision detection
      * should be called when cache manager shutdowns
      */
     public synchronized void releaseLock() {
-        if (thisDirectoryLock != null && thisDirectoryLock.isValid()) {
-            try {
-                thisDirectoryLock.release();
-                thisDirectoryLock.channel().close();
-                deleteFile(lockFile);
-            } catch (IOException e) {
-                throw new CacheException("Failed to release disk store path's lock file:" + lockFile, e);
+        try {
+            if (path != null) {
+                path.unlock();
             }
-        }
-        if (diskStorePath.getName().startsWith(AUTO_DISK_PATH_DIRECTORY_PREFIX)) {
-            if (diskStorePath.delete()) {
-                LOG.debug("Deleted directory " + diskStorePath.getName());
-            }
+        } finally {
+            path = null;
         }
     }
 
@@ -203,12 +258,21 @@ public final class DiskStorePathManager {
      * @return a file object
      */
     public File getFile(String name) {
+        try {
+            resolveAndLockIfNeeded(true);
+        } catch (DiskstoreNotExclusiveException e) {
+            throw new CacheException(e);
+        }
+
+        File diskStorePath = path.getDiskStorePath();
+
         File file = new File(diskStorePath, name);
         for (File parent = file.getParentFile(); parent != null; parent = parent.getParentFile()) {
             if (diskStorePath.equals(parent)) {
                 return file;
             }
         }
+
         throw new IllegalArgumentException("Attempted to access file outside the disk-store path");
     }
 
@@ -232,6 +296,86 @@ public final class DiskStorePathManager {
          */
         public DiskstoreNotExclusiveException(String message) {
             super(message);
+        }
+    }
+
+    /**
+     * Resolved path and lock details
+     */
+    private static class DiskStorePath {
+        private final FileLock directoryLock;
+        private final File lockFile;
+        private final File diskStorePath;
+        private final boolean autoCreated;
+        private final boolean defaultPath;
+
+        DiskStorePath(File path, boolean autoCreated, boolean defaultPath) throws DiskstoreNotExclusiveException {
+            this.diskStorePath = path;
+            this.autoCreated = autoCreated;
+            this.defaultPath = defaultPath;
+
+            lockFile = new File(path.getAbsoluteFile(), LOCK_FILE_NAME);
+            lockFile.deleteOnExit();
+
+            FileLock dirLock;
+            try {
+                lockFile.createNewFile();
+                if (!lockFile.exists()) {
+                    throw new AssertionError("Failed to create lock file " + lockFile);
+                }
+                FileChannel lockFileChannel = new RandomAccessFile(lockFile, "rw").getChannel();
+                dirLock = lockFileChannel.tryLock();
+            } catch (OverlappingFileLockException ofle) {
+                dirLock = null;
+            } catch (IOException ioe) {
+                throw new CacheException(ioe);
+            }
+
+            if (dirLock == null) {
+                throw new DiskstoreNotExclusiveException(path.getAbsolutePath() + " is not exclusive.");
+            }
+
+            this.directoryLock = dirLock;
+        }
+
+        boolean isAutoCreated() {
+            return autoCreated;
+        }
+
+        boolean isDefault() {
+            return defaultPath;
+        }
+
+        File getDiskStorePath() {
+            return diskStorePath;
+        }
+
+        File getLockFile() {
+            return lockFile;
+        }
+
+        void unlock() {
+            if (directoryLock != null && directoryLock.isValid()) {
+                try {
+                    directoryLock.release();
+                    directoryLock.channel().close();
+                    deleteFile(lockFile);
+                } catch (IOException e) {
+                    throw new CacheException("Failed to release disk store path's lock file:" + lockFile, e);
+                }
+            }
+
+
+            if (autoCreated) {
+                if (diskStorePath.delete()) {
+                    LOG.debug("Deleted directory " + diskStorePath.getName());
+                }
+            }
+        }
+
+        @Override
+        public String toString() {
+            return diskStorePath.getAbsolutePath();
         }
     }
 

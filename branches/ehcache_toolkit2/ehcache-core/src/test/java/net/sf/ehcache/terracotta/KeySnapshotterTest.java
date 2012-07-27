@@ -104,7 +104,7 @@ public class KeySnapshotterTest {
     @Test
     public void testDisposesProperlyImmediately() throws BrokenBarrierException, InterruptedException, IOException {
         deleteFolder(new File(DUMPS_DIRECTORY));
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DUMPS_DIRECTORY), "testingInterruptImmediate");
+        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptImmediate");
         final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
         KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(mockedTcStore), 1, true, rotatingSnapshotFile);
         final CyclicBarrier barrier = new CyclicBarrier(2);
@@ -147,7 +147,7 @@ public class KeySnapshotterTest {
     @Test
     public void testDisposesProperlyButFinishes() throws BrokenBarrierException, InterruptedException, IOException {
         deleteFolder(new File(DUMPS_DIRECTORY));
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(DiskStorePathManager.createInstance(DUMPS_DIRECTORY), "testingInterruptFinishes");
+        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptFinishes");
         final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
         final CyclicBarrier barrier = new CyclicBarrier(2);
         final Set mockedSet = mock(Set.class);

@@ -157,7 +157,11 @@ public class CacheManager {
 
     private static final IdentityHashMap<CacheManager, String> CACHE_MANAGERS_REVERSE_MAP = new IdentityHashMap<CacheManager, String>();
 
+    private static final Map<String, CacheManager> INITIALIZING_CACHE_MANAGERS_MAP = new ConcurrentHashMap<String, CacheManager>();
+
     private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
+
+    private static final long LOCAL_TX_RECOVERY_THREAD_JOIN_TIMEOUT = 1000L;
 
     /**
      * Status of the Cache Manager
@@ -215,6 +219,8 @@ public class CacheManager {
     private volatile TransactionManagerLookup transactionManagerLookup;
 
     private volatile TransactionController transactionController;
+
+    private volatile Thread localTransactionsRecoveryThread;
 
     private final ConcurrentMap<String, SoftLockManager> softLockManagers = new ConcurrentHashMap<String, SoftLockManager>();
 
@@ -372,7 +378,7 @@ public class CacheManager {
             if (featuresManager != null) {
                 featuresManager.dispose();
             }
-            
+
             if (diskStorePathManager != null) {
                 diskStorePathManager.releaseLock();
             }
@@ -443,7 +449,12 @@ public class CacheManager {
         mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(configuration);
 
         // do this last
-        addConfiguredCaches(configurationHelper);
+        INITIALIZING_CACHE_MANAGERS_MAP.put(runtimeCfg.getCacheManagerName(), this);
+        try {
+            addConfiguredCaches(configurationHelper);
+        } finally {
+          INITIALIZING_CACHE_MANAGERS_MAP.remove(runtimeCfg.getCacheManagerName());
+        }
 
         try {
             mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
@@ -457,7 +468,9 @@ public class CacheManager {
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
              */
             synchronized (CacheManager.class) {
-                ManagementServerLoader.register(this, managementRESTService);
+                ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+                String clientUUID = clusteredInstanceFactory == null ? null : clusteredInstanceFactory.getUUID();
+                ManagementServerLoader.register(this, clientUUID, managementRESTService);
                 registeredMgmtSvrBind = managementRESTService.getBind();
             }
         }
@@ -470,10 +483,17 @@ public class CacheManager {
         transactionManagerLookup.init();
 
         // start local tx recovery
-        Thread localTransactionsRecoveryThread = new Thread() {
+        localTransactionsRecoveryThread = new Thread() {
             @Override
             public void run() {
-                transactionController.getRecoveryManager().recover();
+                TransactionController ctrl = transactionController;
+                if (ctrl != null) {
+                    try {
+                        ctrl.getRecoveryManager().recover();
+                    } catch (Exception e) {
+                        LOG.warn("local transactions recovery thread failed", e);
+                    }
+                }
             }
         };
         localTransactionsRecoveryThread.setName("ehcache local transactions recovery");
@@ -673,14 +693,14 @@ public class CacheManager {
         String diskStorePath = configurationHelper.getDiskStorePath();
 
         if (diskStorePath == null) {
-            diskStorePathManager = DiskStorePathManager.createInstance(DiskStoreConfiguration.getDefaultPath());
+            diskStorePathManager = new DiskStorePathManager();
             if (configurationHelper.numberOfCachesThatUseDiskStorage() > 0) {
                 LOG.warn("One or more caches require a DiskStore but there is no diskStore element configured."
                         + " Using the default disk store path of " + DiskStoreConfiguration.getDefaultPath()
                         + ". Please explicitly configure the diskStore element in ehcache.xml.");
             }
         } else {
-            diskStorePathManager = DiskStorePathManager.createInstance(diskStorePath);
+            diskStorePathManager = new DiskStorePathManager(diskStorePath);
         }
 
         this.featuresManager = retrieveFeaturesManager();
@@ -1394,6 +1414,16 @@ public class CacheManager {
      */
     public void shutdown() {
         synchronized (CacheManager.class) {
+            if (localTransactionsRecoveryThread != null && localTransactionsRecoveryThread.isAlive()) {
+                localTransactionsRecoveryThread.interrupt();
+                try {
+                    localTransactionsRecoveryThread.join(LOCAL_TX_RECOVERY_THREAD_JOIN_TIMEOUT);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            localTransactionsRecoveryThread = null;
+
             if (status.equals(Status.STATUS_SHUTDOWN)) {
                 LOG.debug("CacheManager already shutdown");
                 return;
@@ -2090,14 +2120,8 @@ public class CacheManager {
             Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
             for (final WeakReference<Cache> cacheRef : caches) {
                 Cache c = cacheRef.get();
-                if (c == null) {
+                if (c == null || c == cache) {
                     toRemove.add(cacheRef);
-                    continue;
-                }
-
-                if (c == cache) {
-                    toRemove.add(cacheRef);
-                    return;
                 }
             }
             caches.removeAll(toRemove);
@@ -2143,5 +2167,16 @@ public class CacheManager {
         } catch (ClassNotFoundException e) {
             return null;
         }
+    }
+
+
+    /**
+     * Get a currently initializing {@link CacheManager}.
+     *
+     * @param name name of the {@link CacheManager}; can be null
+     * @return the {@link CacheManager} if it exists.
+     */
+    static CacheManager getInitializingCacheManager(String name) {
+      return INITIALIZING_CACHE_MANAGERS_MAP.get(name);
     }
 }
