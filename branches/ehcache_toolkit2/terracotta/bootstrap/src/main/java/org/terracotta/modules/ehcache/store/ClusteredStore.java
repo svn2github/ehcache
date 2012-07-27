@@ -15,7 +15,6 @@ import net.sf.ehcache.config.ConfigError;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.search.Attribute;
@@ -176,9 +175,6 @@ public class ClusteredStore implements TerracottaStore {
       errors.add(new ConfigError("Cache pinning is not supported with maxElementsOnDisk"));
     }
 
-    if (terracottaConfiguration.getStorageStrategy() == StorageStrategy.CLASSIC) {
-      errors.add(new ConfigError("Classic storage strategy is no longer supported"));
-    }
 
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
