@@ -17,7 +17,7 @@
   <properties>
     <slf4j.version>1.6.4</slf4j.version>
     <sizeof-agent.version>1.0.2-SNAPSHOT</sizeof-agent.version>
-    <maven-forge-plugin.version>1.0.5-SNAPSHOT</maven-forge-plugin.version>
+    <maven-forge-plugin.version>1.0.6-SNAPSHOT</maven-forge-plugin.version>
   </properties>  
 
   <modules>
