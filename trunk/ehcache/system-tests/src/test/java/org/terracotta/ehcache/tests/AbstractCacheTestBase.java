@@ -96,7 +96,8 @@ public class AbstractCacheTestBase extends AbstractTestBase {
   }
 
   @SuppressWarnings("unchecked")
-  protected String writeXmlFileWithPort(String resourcePath, String outputName, String nameSuffix) throws IOException {
+  protected synchronized String writeXmlFileWithPort(String resourcePath, String outputName, String nameSuffix)
+      throws IOException {
     if (nameSuffix != null && outputName.indexOf(".xml") > 0) {
       outputName = outputName.substring(0, outputName.indexOf(".xml")) + "-" + nameSuffix + ".xml";
     }
