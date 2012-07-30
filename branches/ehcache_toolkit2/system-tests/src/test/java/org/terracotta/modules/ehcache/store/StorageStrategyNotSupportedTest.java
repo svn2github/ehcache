@@ -8,11 +8,10 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -51,7 +50,7 @@ public class StorageStrategyNotSupportedTest extends AbstractCacheTestBase {
       setupCacheManager();
       cm = getCacheManager();
       CacheConfiguration cacheConfiguration = new CacheConfiguration("testCache", 100);
-      TerracottaConfiguration tc = new TerracottaConfiguration().storageStrategy(StorageStrategy.DCV2).clustered(true);
+      TerracottaConfiguration tc = new TerracottaConfiguration().clustered(true);
       cacheConfiguration.addTerracotta(tc);
       cache = new Cache(cacheConfiguration);
 

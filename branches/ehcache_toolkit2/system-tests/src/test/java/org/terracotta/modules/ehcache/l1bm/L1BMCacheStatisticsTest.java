@@ -12,9 +12,9 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.junit.Assert;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.CallableWaiter;
@@ -200,7 +200,6 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       }
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy("DCV2");
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode.name());
       cacheConfiguration.addTerracotta(tcConfiguration);

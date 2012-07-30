@@ -170,7 +170,6 @@ public class GetAllTest extends AbstractCacheTestBase {
       cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy(storageStrategy);
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode.name());
       cacheConfiguration.addTerracotta(tcConfiguration);

@@ -9,10 +9,10 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -106,7 +106,6 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
       cacheConfiguration.setMaxBytesLocalHeap(10485760L);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy("DCV2");
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode("SERIALIZATION");
       cacheConfiguration.addTerracotta(tcConfiguration);
@@ -129,6 +128,7 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
         this.clientIndex = clientIndex;
       }
 
+      @Override
       public void run() {
         System.out.println("XXXXX client[" + clientIndex + "] started thread " + threadIndex);
         long start = System.currentTimeMillis();

@@ -13,10 +13,10 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.junit.Assert;
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.CallableWaiter;
@@ -87,6 +87,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
       }
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
 
+        @Override
         public Boolean call() throws Exception {
           long cacheSize = cache.calculateInMemorySize();
           double minSize = sizeInBytes * (1.0 - SIZE_TEST_TOLERANCE);
@@ -174,7 +175,6 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
       }
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy("DCV2");
       tcConfiguration.setConsistency(Consistency.EVENTUAL);
       tcConfiguration.setValueMode(ValueMode.SERIALIZATION.toString());
       cacheConfiguration.addTerracotta(tcConfiguration);

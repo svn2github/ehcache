@@ -10,7 +10,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
@@ -269,7 +268,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
     private void testMemoryCapacityChange(CacheManager cm) throws Exception {
       final Cache cache = createCache("testMemoryCapacityChange", 100, true, 0, 0);
-      cache.getCacheConfiguration().getTerracottaConfiguration().storageStrategy(StorageStrategy.DCV2)
+      cache.getCacheConfiguration().getTerracottaConfiguration()
           .consistency(TerracottaConfiguration.Consistency.STRONG);
       cm.addCache(cache);
 
@@ -302,6 +301,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       final int min = (int) ((1 - TOLERANCE) * lowerBound);
       final int max = (int) ((1 + TOLERANCE) * upperBound);
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
           if (cache.getMemoryStoreSize() <= max && cache.getMemoryStoreSize() >= min) { return true; }
           System.out.println("Still waiting for memory store size to fall in bounds [" + lowerBound + ", " + upperBound
@@ -318,7 +318,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
     public void testDiskCapacityChange(CacheManager cm) throws Exception {
       final Cache cache = createCache("testDiskCapacityChange", 10, true, 0, 0);
       cache.getCacheConfiguration().maxElementsOnDisk(100).getTerracottaConfiguration()
-          .storageStrategy(StorageStrategy.DCV2).consistency(TerracottaConfiguration.Consistency.STRONG).concurrency(1);
+          .consistency(TerracottaConfiguration.Consistency.STRONG).concurrency(1);
       cm.addCache(cache);
 
       testCacheDiskCapacity(cache, 100);
@@ -342,6 +342,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       SECONDS.sleep(30);
 
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
           // Initiate capacity eviction with a new put
           cache.put(new Element("overflow" + r.nextInt(), new byte[0]));

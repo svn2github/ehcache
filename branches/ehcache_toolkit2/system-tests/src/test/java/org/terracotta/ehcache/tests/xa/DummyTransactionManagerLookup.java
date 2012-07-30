@@ -24,15 +24,15 @@ public class DummyTransactionManagerLookup implements TransactionManagerLookup {
         }
     }
 
-    @Override
-    public synchronized void register(EhcacheXAResource resource) {
-      //
-    }
+  @Override
+  public synchronized void register(EhcacheXAResource resource, boolean forRecovery) {
+    //
+  }
 
-    @Override
-    public synchronized void unregister(EhcacheXAResource resource) {
-      //
-    }
+  @Override
+  public synchronized void unregister(EhcacheXAResource resource, boolean forRecovery) {
+    //
+  }
 
     @Override
     public void setProperties(Properties properties) {

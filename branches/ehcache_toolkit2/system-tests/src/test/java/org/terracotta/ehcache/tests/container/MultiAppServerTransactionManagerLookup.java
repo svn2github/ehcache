@@ -54,12 +54,12 @@ public class MultiAppServerTransactionManagerLookup implements TransactionManage
     }
 
     @Override
-    public void register(EhcacheXAResource resource) {
+  public void register(EhcacheXAResource resource, boolean forRecovery) {
         // no-op
     }
 
     @Override
-    public void unregister(EhcacheXAResource resource) {
+  public void unregister(EhcacheXAResource resource, boolean forRecovery) {
         // no-op
     }
 

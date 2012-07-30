@@ -132,7 +132,6 @@ public class L1BMOnHeapBasicSanityTestApp extends ClientBase {
     cacheConfiguration.setMaxBytesLocalHeap(409600L);
 
     TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-    tcConfiguration.setStorageStrategy(storageStrategy);
     tcConfiguration.setConsistency(consistency);
     tcConfiguration.setValueMode(valueMode.name());
     cacheConfiguration.addTerracotta(tcConfiguration);

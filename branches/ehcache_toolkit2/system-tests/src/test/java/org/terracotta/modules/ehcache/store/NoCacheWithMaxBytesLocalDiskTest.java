@@ -9,9 +9,9 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -56,7 +56,6 @@ public class NoCacheWithMaxBytesLocalDiskTest extends AbstractCacheTestBase {
       cacheConfiguration.setOverflowToOffHeap(false);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
-      tcConfiguration.setStorageStrategy(storageStrategy);
       tcConfiguration.setConsistency(consistency);
       tcConfiguration.setValueMode(valueMode);
       cacheConfiguration.addTerracotta(tcConfiguration);

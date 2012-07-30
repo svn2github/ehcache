@@ -5,12 +5,11 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.config.TerracottaConfiguration.StorageStrategy;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -39,15 +38,8 @@ public class ServerMapBasicCacheTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = this.barrier.await();
 
-      Assert.assertEquals(StorageStrategy.DCV2, cache.getCacheConfiguration().getTerracottaConfiguration()
-          .getStorageStrategy());
-
-      System.out.println("Asserted different default/explicit storage strategys.");
 
       cache = cacheManager.getCache("test");
-      // assert correct storageStrategy is used
-      Assert.assertEquals(StorageStrategy.DCV2, cache.getCacheConfiguration().getTerracottaConfiguration()
-          .getStorageStrategy());
 
       // XXX: assert that the cache is clustered via methods on cache
       // config (when methods exist)
