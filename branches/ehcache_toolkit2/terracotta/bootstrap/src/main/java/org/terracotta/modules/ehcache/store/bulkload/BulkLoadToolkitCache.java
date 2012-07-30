@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.store.bulkload;
 
+import org.terracotta.toolkit.cache.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheConfigFields;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
@@ -132,7 +133,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   private void setLocalCacheEnabled(boolean enabled) {
-    toolkitInternal.getConfigBuilderFactory().newToolkitCacheConfigBuilder().localCacheEnabled(enabled)
+    new ToolkitCacheConfigBuilder().localCacheEnabled(enabled)
         .apply(toolkitCache);
   }
 

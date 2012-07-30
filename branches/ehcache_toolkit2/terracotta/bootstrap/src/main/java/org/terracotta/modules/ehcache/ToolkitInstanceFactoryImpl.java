@@ -29,8 +29,9 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
-import org.terracotta.toolkit.internal.store.ToolkitStoreConfigBuilderInternal;
+import org.terracotta.toolkit.internal.store.ToolkitCacheConfigBuilderInternal;
 import org.terracotta.toolkit.store.ToolkitStore;
+import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;
@@ -93,8 +94,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitCacheWithMetadata<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
-    final Configuration clusteredCacheConfig = createClusteredMapConfig(toolkit.getConfigBuilderFactory()
-        .newToolkitCacheConfigBuilder(), cache);
+    final Configuration clusteredCacheConfig = createClusteredMapConfig(new ToolkitCacheConfigBuilder(), cache);
     return (ToolkitCacheWithMetadata) toolkit.getCache(getFullyQualifiedCacheName(cache), clusteredCacheConfig);
   }
 
@@ -133,7 +133,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String cmName = cache.getCacheManager().isNamed() ? cache.getCacheManager().getName()
         : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
-    ((ToolkitStoreConfigBuilderInternal) builder).localStoreManagerName(cmName);
+    ((ToolkitCacheConfigBuilderInternal) builder).localStoreManagerName(cmName);
     if (ehcacheConfig.getPinningConfiguration() != null) {
       builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
     }
@@ -216,7 +216,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
                                                                                                                             String cacheName) {
     // TODO: what should be the local cache config for the map?
-    Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
+    Configuration config = new ToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
         .getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
@@ -239,7 +239,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitStore<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
-    Configuration configuration = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
+    Configuration configuration = new ToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
     return toolkit.getStore(fullAsyncName, configuration);
   }
@@ -267,7 +267,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public SerializedToolkitCache<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
     // TODO: what should be the local cache config for the map?
-    Configuration config = toolkit.getConfigBuilderFactory().newToolkitStoreConfigBuilder()
+    Configuration config = new ToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
                                                           + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config);
