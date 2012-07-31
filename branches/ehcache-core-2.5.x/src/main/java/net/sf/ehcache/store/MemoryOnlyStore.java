@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
 
 /**
  * A memory-only store with support for all caching features.
@@ -71,7 +72,43 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
     }
 
     /**
-     * {inheritDoc}
+     * {@inheritDoc}
+     */
+    @Override
+    public Element get(Object key) {
+        if (key == null) {
+            return null;
+        }
+
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
+        try {
+            return copyElementForReadIfNeeded(authority.get(key));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Element getQuiet(Object key) {
+        if (key == null) {
+            return null;
+        }
+
+        Lock lock = getLockFor(key).readLock();
+        lock.lock();
+        try {
+            return copyElementForReadIfNeeded(authority.getQuiet(key));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void setInMemoryEvictionPolicy(final Policy policy) {
@@ -79,7 +116,7 @@ public final class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemorySt
     }
 
     /**
-     * {inheritDoc}
+     * {@inheritDoc}
      */
     @Override
     public Policy getInMemoryEvictionPolicy() {
