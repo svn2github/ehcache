@@ -37,11 +37,15 @@ public abstract class ClientBase extends AbstractClientBase {
   @Override
   public void doTest() throws Throwable {
     setupCacheManager();
-    if (getTestControlMbean().isStandAloneTest()) {
+    if (isStandaloneCfg()) {
       runTest(getCache(), null);
     } else {
       runTest(getCache(), getClusteringToolkit());
     }
+  }
+
+  protected boolean isStandaloneCfg() {
+    return getTestControlMbean().isStandAloneTest();
   }
 
   protected synchronized final ToolkitBarrier getBarrierForAllClients() {
@@ -52,7 +56,7 @@ public abstract class ClientBase extends AbstractClientBase {
   }
 
   protected final int waitForAllClients() throws InterruptedException, BrokenBarrierException {
-    if (getTestControlMbean().isStandAloneTest()) return 0;
+    if (isStandaloneCfg()) return 0;
     return getBarrierForAllClients().await();
   }
 
@@ -92,6 +96,7 @@ public abstract class ClientBase extends AbstractClientBase {
 
   // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
   public void waitForAllCurrentTransactionsToComplete() {
+    if (isStandaloneCfg()) return;
     try {
       ClassLoader cl = getClusteringToolkit().getList("testList").getClass().getClassLoader();
       Class managerUtil = cl.loadClass(MANAGER_UTIL_CLASS_NAME);
@@ -103,6 +108,7 @@ public abstract class ClientBase extends AbstractClientBase {
 
   // work around for ManagerUtil.getClientID
   public String getClientID() {
+    if (isStandaloneCfg()) return null;
     try {
       ClassLoader cl = getClusteringToolkit().getMap("testMap").getClass().getClassLoader();
       Class managerUtil = cl.loadClass(MANAGER_UTIL_CLASS_NAME);
