@@ -9,7 +9,7 @@
   <cache name="test"
          maxElementsInMemory="0"
          eternal="true">
-      <terracotta clustered="true" storageStrategy="DCV2"/>
+      <terracotta clustered="true"/>
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

@@ -4,21 +4,18 @@
 
   <defaultCache
       maxElementsInMemory="0"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="test"
          maxElementsInMemory="0"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
-         <terracotta clustered="true" storageStrategy="DCV2"/>
+         <terracotta clustered="true"/>
   </cache>
   
   <cache name="defaultStorageStrategyCache"
        maxElementsInMemory="0"
-       eternal="true"
-       overflowToDisk="false">
+       eternal="true">
 
        <terracotta clustered="true"/>
   </cache>

@@ -10,7 +10,7 @@
          maxElementsInMemory="0"
          maxElementsOnDisk="7000"
          eternal="true">
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
 
   <cache name="testWithMaxElementsInMemory"
@@ -18,7 +18,7 @@
          maxElementsOnDisk="7000"
          eternal="true">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
 
   <cache name="testWithMaxElementsInMemoryExpiration"
@@ -27,7 +27,7 @@
          timeToLiveSeconds="30"
          eternal="false">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1"/>
+      <terracotta clustered="true" concurrency="1"/>
   </cache>
   <terracottaConfig url="localhost:PORT"/>
 

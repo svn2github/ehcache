@@ -11,7 +11,7 @@
          eternal="false"
          maxElementsOnDisk="100">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="1" />
+      <terracotta clustered="true" concurrency="1" />
   </cache>
   
   <cache name="testWithConcurrency"
@@ -19,7 +19,7 @@
          eternal="false"
          maxElementsOnDisk="100">
 
-      <terracotta clustered="true" storageStrategy="DCV2" concurrency="50" />
+      <terracotta clustered="true" concurrency="50" />
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

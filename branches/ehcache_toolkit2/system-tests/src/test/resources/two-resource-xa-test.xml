@@ -7,10 +7,7 @@
         eternal="false"
         timeToIdleSeconds="120"
         timeToLiveSeconds="120"
-        overflowToDisk="false"
         maxElementsOnDisk="10000000"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="120"
         memoryStoreEvictionPolicy="LRU"
         />
 
@@ -19,9 +16,6 @@
         eternal="false"
         timeToIdleSeconds="300"
         timeToLiveSeconds="600"
-        overflowToDisk="false"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="1"
         transactionalMode="xa_strict">
         <terracotta clustered="true" consistency="strong">
             <nonstop enabled="false"/>
@@ -33,9 +27,6 @@
         eternal="false"
         timeToIdleSeconds="300"
         timeToLiveSeconds="600"
-        overflowToDisk="false"
-        diskPersistent="false"
-        diskExpiryThreadIntervalSeconds="1"
         transactionalMode="xa_strict">
            <terracotta clustered="true" consistency="strong">
                <nonstop enabled="false"/>

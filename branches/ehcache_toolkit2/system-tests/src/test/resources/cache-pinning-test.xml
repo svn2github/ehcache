@@ -4,14 +4,12 @@
 
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="pinned"
          maxElementsInMemory="10"
          eternal="true"
-         statistics="true"
-         overflowToDisk="false">
+         statistics="true">
          <pinning store="localHeap"/>
          <terracotta clustered="true" consistency="strong"/>
   </cache>

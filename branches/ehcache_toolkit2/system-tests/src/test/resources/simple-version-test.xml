@@ -2,9 +2,9 @@
 
 <ehcache>
 
-  <cache name="serialized" maxEntriesLocalHeap="1000" eternal="true" overflowToDisk="false">
+  <cache name="serialized" maxEntriesLocalHeap="1000" eternal="true">
     <terracotta clustered="true" valueMode="serialization"
-      consistency="strong" storageStrategy="dcv2" />
+      consistency="strong" />
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

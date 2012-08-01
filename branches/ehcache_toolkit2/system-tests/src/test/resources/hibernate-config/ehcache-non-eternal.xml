@@ -5,7 +5,7 @@
 <ehcache name="test" updateCheck="false">
 
   <defaultCache maxElementsInMemory="1000" eternal="false"
-    timeToIdleSeconds="10" overflowToDisk="false">
+    timeToIdleSeconds="10">
 
     <terracotta clustered="true" localKeyCache="true"
       localKeyCacheSize="1000">

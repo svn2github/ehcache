@@ -2,8 +2,7 @@
 
     <defaultCache
             maxElementsInMemory="1000"
-            eternal="true"
-            overflowToDisk="false">
+            eternal="true">
             <terracotta localKeyCache="true" localKeyCacheSize="1000" valueMode="identity">
             	<nonstop enabled="false"/>
             </terracotta>

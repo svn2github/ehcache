@@ -4,13 +4,11 @@
 
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="strongConsistencyCache"
          maxElementsInMemory="10000"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
       <terracotta clustered="true" consistency="strong"/>
       
@@ -18,8 +16,7 @@
   
   <cache name="eventualConsistencyCache"
          maxElementsInMemory="10000"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
          <terracotta clustered="true" consistency="eventual"/>
   </cache>
 

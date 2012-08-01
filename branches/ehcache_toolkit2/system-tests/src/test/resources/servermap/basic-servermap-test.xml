@@ -4,26 +4,23 @@
 
   <cache name="test"
          maxElementsInMemory="10000"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
-      <terracotta clustered="true" consistency="strong" storageStrategy="dcv2"/>
+      <terracotta clustered="true" consistency="strong"/>
   </cache>
   
     <cache name="eventualConsistencyCache"
          maxElementsInMemory="10000"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
-      <terracotta clustered="true" consistency="eventual" storageStrategy="dcv2"/>
+      <terracotta clustered="true" consistency="eventual"/>
   </cache>
   
   <cache name="testLocalSizeCache"
          maxElementsInMemory="1000"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
-      <terracotta clustered="true" consistency="eventual" storageStrategy="dcv2"/>
+      <terracotta clustered="true" consistency="eventual"/>
   </cache>
   
   <terracottaConfig url="localhost:PORT"/>

@@ -4,13 +4,11 @@
 
     <defaultCache
             maxElementsInMemory="10000"
-            eternal="true"
-            overflowToDisk="false"/>
+            eternal="true"/>
 
     <cache name="test1"
            maxElementsInMemory="10000"
-           eternal="true"
-           overflowToDisk="false">
+           eternal="true">
 
         <cacheWriter writeMode="write_behind"/>
         <terracotta clustered="true"/>
@@ -18,8 +16,7 @@
 
     <cache name="test2"
            maxElementsInMemory="10000"
-           eternal="true"
-           overflowToDisk="false">
+           eternal="true">
 
         <cacheWriter writeMode="write_behind"/>
         <terracotta clustered="true"/>

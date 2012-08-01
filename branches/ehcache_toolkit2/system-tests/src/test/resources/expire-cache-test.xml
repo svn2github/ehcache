@@ -4,16 +4,14 @@
 
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="test"
          maxElementsInMemory="10000"
          eternal="false"
-         overflowToDisk="false"
          timeToLiveSeconds="3">
 
-         <terracotta clustered="true" storageStrategy="DCV2" consistency="strong" />
+         <terracotta clustered="true" consistency="strong" />
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

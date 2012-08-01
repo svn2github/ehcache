@@ -2,11 +2,9 @@
 
 <ehcache name="test">
 
-	<defaultCache maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false" />
+	<defaultCache maxElementsInMemory="10000" eternal="true"/>
 
-	<cache name="testAll" maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false">
+	<cache name="testAll" maxElementsInMemory="10000" eternal="true">
 
 		<cacheEventListenerFactory
 			class="org.terracotta.ehcache.tests.EhcacheTerracottaEventListenerFactory"
@@ -20,8 +18,7 @@
 		</terracotta>
 	</cache>
 
-	<cache name="testLocal" maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false">
+	<cache name="testLocal" maxElementsInMemory="10000" eternal="true">
 
 		<cacheEventListenerFactory
 			class="org.terracotta.ehcache.tests.EhcacheTerracottaEventListenerFactory"
@@ -35,8 +32,7 @@
 		</terracotta>
 	</cache>
 
-	<cache name="testRemote" maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false">
+	<cache name="testRemote" maxElementsInMemory="10000" eternal="true">
 
 		<cacheEventListenerFactory
 			class="org.terracotta.ehcache.tests.EhcacheTerracottaEventListenerFactory"

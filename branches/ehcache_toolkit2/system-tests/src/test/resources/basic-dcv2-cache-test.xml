@@ -4,15 +4,13 @@
 
   <defaultCache
       maxElementsInMemory="10000"
-      eternal="true"
-      overflowToDisk="false"/>
+      eternal="true"/>
 
   <cache name="dcv2Cache"
          maxElementsInMemory="10000"
-         eternal="true"
-         overflowToDisk="false">
+         eternal="true">
 
-         <terracotta clustered="true" consistency="strong" storageStrategy="dcv2"/>
+         <terracotta clustered="true" consistency="strong"/>
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>

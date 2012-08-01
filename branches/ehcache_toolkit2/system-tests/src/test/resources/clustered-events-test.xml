@@ -4,35 +4,31 @@
 
     <defaultCache
             maxElementsInMemory="10000"
-            eternal="true"
-            overflowToDisk="false"/>
+            eternal="true"/>
 
     <cache name="testAll"
            maxElementsInMemory="10000"
-           eternal="true"
-           overflowToDisk="false">
+           eternal="true">
 
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="all" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" storageStrategy="dcv2" consistency="strong"/>
+        <terracotta clustered="true" consistency="strong"/>
     </cache>
 
     <cache name="testLocal"
            maxElementsInMemory="10000"
-           eternal="true"
-           overflowToDisk="false">
+           eternal="true">
 
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="local" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" storageStrategy="dcv2" consistency="strong"/>
+        <terracotta clustered="true" consistency="strong"/>
     </cache>
 
     <cache name="testRemote"
            maxElementsInMemory="10000"
-           eternal="true"
-           overflowToDisk="false">
+           eternal="true">
 
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="remote" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
@@ -41,24 +37,22 @@
     </cache>
       <cache name="testSerialization"
            maxElementsInMemory="10000"
-           eternal="true"
-           overflowToDisk="false">
+           eternal="true">
 
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="all" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" valueMode="serialization" storageStrategy="dcv2" consistency="strong" />
+        <terracotta clustered="true" valueMode="serialization" consistency="strong" />
     </cache>
 
     <cache name="testSerializationExpiry"
            maxElementsInMemory="10"
-           eternal="false"
-           overflowToDisk="false">
+           eternal="false">
 
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="all" />
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory" listenFor="all" />
 
-        <terracotta clustered="true" valueMode="serialization" storageStrategy="dcv2" consistency="strong" />
+        <terracotta clustered="true" valueMode="serialization" consistency="strong" />
     </cache>
     
 
