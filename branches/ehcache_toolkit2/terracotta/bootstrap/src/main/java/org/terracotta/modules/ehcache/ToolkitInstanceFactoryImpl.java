@@ -21,7 +21,6 @@ import org.terracotta.modules.ehcache.txn.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.txn.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.cache.ToolkitCache;
-import org.terracotta.toolkit.cache.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheConfigFields.PinningStore;
 import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
@@ -94,7 +93,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitCacheWithMetadata<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
-    final Configuration clusteredCacheConfig = createClusteredMapConfig(new ToolkitCacheConfigBuilder(), cache);
+    final Configuration clusteredCacheConfig = createClusteredMapConfig(new ToolkitCacheConfigBuilderInternal(), cache);
     return (ToolkitCacheWithMetadata) toolkit.getCache(getFullyQualifiedCacheName(cache), clusteredCacheConfig);
   }
 
@@ -108,7 +107,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + EVENT_NOTIFIER_SUFFIX);
   }
 
-  private static Configuration createClusteredMapConfig(ToolkitCacheConfigBuilder builder, Ehcache cache) {
+  private static Configuration createClusteredMapConfig(ToolkitCacheConfigBuilderInternal builder, Ehcache cache) {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
@@ -133,7 +132,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String cmName = cache.getCacheManager().isNamed() ? cache.getCacheManager().getName()
         : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
-    ((ToolkitCacheConfigBuilderInternal) builder).localStoreManagerName(cmName);
+    builder.localStoreManagerName(cmName);
     if (ehcacheConfig.getPinningConfiguration() != null) {
       builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
     }

@@ -59,7 +59,7 @@ public class TerracottaToolkitBuilder {
 
   private Toolkit createToolkit(String url, Properties props) {
     try {
-      return ToolkitFactory.createToolkit("toolkit:terracotta://" + url, props);
+      return ToolkitFactory.createToolkit(url, props);
     } catch (ToolkitInstantiationException e) {
       throw new RuntimeException(e);
     }
