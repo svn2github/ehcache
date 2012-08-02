@@ -8,12 +8,6 @@ import net.sf.ehcache.CacheManager;
  * @author brandony
  */
 public interface SamplerRepositoryService {
-  /**
-   * A locator interface for this interface.
-   */
-  interface Locator {
-    SamplerRepositoryService locateSamplerRepositoryService();
-  }
 
   /**
    * Register a {@link CacheManager} for sampling.

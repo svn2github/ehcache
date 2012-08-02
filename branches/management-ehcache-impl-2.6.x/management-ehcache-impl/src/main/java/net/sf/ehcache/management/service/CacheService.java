@@ -9,12 +9,6 @@ import org.terracotta.management.ServiceExecutionException;
  * @author brandony
  */
 public interface CacheService {
-  /**
-   * A locator interface for this service.
-   */
-  interface Locator {
-    CacheService locateCacheService();
-  }
 
   /**
    * Clears the stats for the specified cache.

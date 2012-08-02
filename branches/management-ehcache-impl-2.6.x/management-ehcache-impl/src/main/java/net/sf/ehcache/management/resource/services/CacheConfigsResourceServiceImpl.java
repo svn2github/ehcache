@@ -1,11 +1,11 @@
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.resource.CacheConfigEntity;
 import net.sf.ehcache.management.resource.ConfigContainerEntity;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
@@ -29,10 +29,8 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
   private final RequestValidator validator;
 
   public CacheConfigsResourceServiceImpl() {
-    EntityResourceFactory.Locator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.entityResourceFactory = entityRsrcFactoryLocator.locateEntityResourceFactory();
-    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.validator = reqValidatorLocator.locateRequestValidator();
+    this.entityResourceFactory = ServiceLocator.locate(EntityResourceFactory.class);
+    this.validator = ServiceLocator.locate(RequestValidator.class);
   }
 
   @Override

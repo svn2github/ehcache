@@ -1,11 +1,11 @@
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
@@ -36,12 +36,9 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
   private final CacheManagerService cacheMgrSvc;
 
   public CacheManagersResourceServiceImpl() {
-    EntityResourceFactory.Locator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.entityResourceFactory = entityRsrcFactoryLocator.locateEntityResourceFactory();
-    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.validator = reqValidatorLocator.locateRequestValidator();
-    CacheManagerService.Locator cacheMgrSvcLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.cacheMgrSvc = cacheMgrSvcLocator.locateCacheManagerService();
+    this.entityResourceFactory = ServiceLocator.locate(EntityResourceFactory.class);
+    this.validator = ServiceLocator.locate(RequestValidator.class);
+    this.cacheMgrSvc = ServiceLocator.locate(CacheManagerService.class);
   }
 
   /**

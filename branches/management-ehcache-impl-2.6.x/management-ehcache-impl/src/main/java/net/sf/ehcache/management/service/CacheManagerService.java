@@ -14,12 +14,6 @@ import org.terracotta.management.ServiceExecutionException;
  * @author brandony
  */
 public interface CacheManagerService {
-  /**
-   * A locator interface for this service.
-   */
-  interface Locator {
-    CacheManagerService locateCacheManagerService();
-  }
 
   /**
    * Update a cache manager represented by the submitted entity.

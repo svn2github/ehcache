@@ -4,10 +4,17 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
+import net.sf.ehcache.management.service.CacheManagerService;
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
 import net.sf.ehcache.management.service.impl.DfltSamplerRepositoryService;
+
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.embedded.StandaloneServer;
+import org.terracotta.management.resource.services.LicenseService;
+import org.terracotta.management.resource.services.LicenseServiceImpl;
+import org.terracotta.management.resource.services.validator.RequestValidator;
 
 /**
  * @author brandony
@@ -22,8 +29,7 @@ public final class ManagementServerImpl implements ManagementServer {
     standaloneServer = new StandaloneServer();
     setupContainer(configuration);
     loadEmbeddedAgentServiceLocator(configuration);
-    SamplerRepositoryService.Locator locator = EmbeddedEhcacheServiceLocator.locator();
-    this.samplerRepoSvc = locator.locateSamplerRepositoryService();
+    this.samplerRepoSvc = ServiceLocator.locate(SamplerRepositoryService.class);
   }
 
   /**
@@ -64,6 +70,7 @@ public final class ManagementServerImpl implements ManagementServer {
   @Override
   public void unregister(CacheManager managedResource) {
     samplerRepoSvc.unregister(managedResource);
+    ServiceLocator.unload();
   }
 
   /**
@@ -88,8 +95,18 @@ public final class ManagementServerImpl implements ManagementServer {
     configuration.setSecurityServiceTimeout(0);
 
     DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService();
-    ServiceLocator.load(
-        new EmbeddedEhcacheServiceLocator(true, new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
-            samplerRepoSvc, samplerRepoSvc, configuration));
+    LicenseService licenseService = new LicenseServiceImpl(false);
+
+    ServiceLocator locator = new ServiceLocator()
+                                    .loadService(LicenseService.class, licenseService)
+                                    .loadService(RequestValidator.class, new EmbeddedEhcacheRequestValidator())
+                                    .loadService(CacheManagerService.class, samplerRepoSvc)
+                                    .loadService(CacheService.class, samplerRepoSvc)
+                                    .loadService(EntityResourceFactory.class, samplerRepoSvc)
+                                    .loadService(SamplerRepositoryService.class, samplerRepoSvc)
+                                    .loadService(ManagementRESTServiceConfiguration.class, configuration);
+
+    ServiceLocator.load(locator);
+
   }
 }

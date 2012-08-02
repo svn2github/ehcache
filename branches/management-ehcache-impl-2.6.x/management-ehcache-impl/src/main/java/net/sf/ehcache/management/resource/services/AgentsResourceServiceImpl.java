@@ -3,14 +3,15 @@
 package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
-import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.Representable;
 import org.terracotta.management.resource.services.AgentsResourceService;
+import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
@@ -41,11 +42,9 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
   private final ManagementRESTServiceConfiguration mgmtRESTSvcConfig;
 
   public AgentsResourceServiceImpl() {
-    EntityResourceFactory.Locator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.entityResourceFactory = entityRsrcFactoryLocator.locateEntityResourceFactory();
-    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.validator = reqValidatorLocator.locateRequestValidator();
-    this.mgmtRESTSvcConfig = EmbeddedEhcacheServiceLocator.locator().locateRESTConfiguration();
+    this.entityResourceFactory = ServiceLocator.locate(EntityResourceFactory.class);
+    this.validator = ServiceLocator.locate(RequestValidator.class);
+    this.mgmtRESTSvcConfig = ServiceLocator.locate(ManagementRESTServiceConfiguration.class);
   }
 
   /**
@@ -74,7 +73,7 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
     ame.setSecured(Utils.trimToNull(mgmtRESTSvcConfig.getSecurityServiceLocation()) != null);
-    ame.setLicensed(EmbeddedEhcacheServiceLocator.locator().isLicensedLocator());
+    ame.setLicensed(ServiceLocator.locate(LicenseService.class).isLicensed());
     ame.setNeedClientAuth(mgmtRESTSvcConfig.isNeedClientAuth());
     ame.setSampleHistorySize(mgmtRESTSvcConfig.getSampleHistorySize());
     ame.setSampleIntervalSeconds(mgmtRESTSvcConfig.getSampleIntervalSeconds());
