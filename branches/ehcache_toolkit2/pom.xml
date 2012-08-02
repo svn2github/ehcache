@@ -24,6 +24,8 @@
     <module>terracotta</module>
     <module>ehcache</module>
     <module>system-tests</module>
+    <module>management-ehcache</module>
+    <module>management-ehcache-impl</module>
   </modules>
 
   <profiles>

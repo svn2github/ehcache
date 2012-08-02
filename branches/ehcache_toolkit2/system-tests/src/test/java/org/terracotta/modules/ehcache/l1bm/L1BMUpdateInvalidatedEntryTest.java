@@ -68,14 +68,18 @@ public class L1BMUpdateInvalidatedEntryTest extends AbstractTerracottaActivePass
       if (nodeId == 1) {
         info(nodeId, "Removing elements.");
         for (int i = 0; i < 100; i++) {
-          Assert.assertTrue(c.remove("key-" + i));
+          // On slow machines, it's possible that the elements could have been expired
+          // already. That means we can't actually assert true for this remove.
+          c.remove("key-" + i);
         }
       }
 
       barrier.await();
       if (nodeId == 0) {
+        Thread.sleep(10 * 1000); // Give the invalidations a bit of time to show up.
         info(nodeId, "Accessing elements until invalidations come in.");
         CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+          @Override
           public Boolean call() throws Exception {
             for (int i = 0; i < 100; i++) {
               if (c.get("key-" + i) != null) { return false; }

@@ -46,22 +46,22 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
 
-      Cache dcv2EventualSerializationWithStats = crerateCache("dcv2EventualSerializationWithStats", cacheManager,
-                                                              "DCV2", Consistency.EVENTUAL, ValueMode.SERIALIZATION);
+      Cache dcv2EventualSerializationWithStats = createCache("dcv2EventualSerializationWithStats", cacheManager,
+                                                              Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualSerializationWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2EventualSerializationWithStats, true);
 
-      Cache dcv2EventualSerializationWithoutStats = crerateCache("dcv2EventualSerializationWithoutStats", cacheManager,
-                                                                 "DCV2", Consistency.EVENTUAL, ValueMode.SERIALIZATION);
+      Cache dcv2EventualSerializationWithoutStats = createCache("dcv2EventualSerializationWithoutStats", cacheManager,
+                                                                 Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualSerializationWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2EventualSerializationWithoutStats, true);
 
-      Cache dcv2StrongSerializationWithStats = crerateCache("dcv2StrongSerializationWithStats", cacheManager, "DCV2",
+      Cache dcv2StrongSerializationWithStats = createCache("dcv2StrongSerializationWithStats", cacheManager,
                                                             Consistency.STRONG, ValueMode.SERIALIZATION);
       dcv2StrongSerializationWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2StrongSerializationWithStats, false);
 
-      Cache dcv2StrongWithoutStats = crerateCache("dcv2StrongWithoutStats", cacheManager, "DCV2", Consistency.STRONG,
+      Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
                                                   ValueMode.SERIALIZATION);
       dcv2StrongWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2StrongWithoutStats, false);
@@ -142,7 +142,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
       System.out.println("XXXXXX done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
                                ValueMode valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setTimeToLiveSeconds(30);

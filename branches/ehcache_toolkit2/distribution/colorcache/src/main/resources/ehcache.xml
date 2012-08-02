@@ -6,11 +6,11 @@
       eternal="false"
       timeToIdleSeconds="120"
       timeToLiveSeconds="120"
-      overflowToDisk="true"
       diskSpoolBufferSizeMB="30"
       maxElementsOnDisk="10000000"
-      diskPersistent="false"
-      diskExpiryThreadIntervalSeconds="120"/>
+      diskExpiryThreadIntervalSeconds="120">
+      <persistence strategy="localTempSwap"/>
+  </defaultCache>
   <cache name="colors"
          maxElementsInMemory="100"
          maxElementsOnDisk="0"

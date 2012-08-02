@@ -26,7 +26,7 @@ public class ServerMapCapacityEvictionExpressTestClient extends ServerMapClientB
     assertEquals(0, size);
     System.out.println("Client populating cache.");
     for (int i = 0; i < 8000; i++) {
-      cache.put(new Element("key-" + i, "value-" + i));
+      cache.put(new Element(i, "value-" + i));
     }
 
     System.out.println("Cache populated. size: " + cache.getSize());

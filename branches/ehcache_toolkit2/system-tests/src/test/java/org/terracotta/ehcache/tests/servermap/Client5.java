@@ -20,7 +20,7 @@ public class Client5 extends ServerMapClientBase {
     BasicServerMapExpressTestHelper.populateCache(cache);
     cache.put(new Element("client1-exited", "true"));
 
-    Cache storageCache = cache.getCacheManager().getCache("defaultStorageStrategyCache");
+    cache.getCacheManager().getCache("defaultStorageStrategyCache");
 
     System.out.println("Asserted different/explicit storage strategys");
   }

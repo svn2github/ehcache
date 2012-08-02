@@ -48,12 +48,12 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-      Cache dcv2StrongSerialization = crerateCache("dcv2StrongSerialization", cacheManager, "DCV2", Consistency.STRONG,
+      Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
                                                    "SERIALIZATION");
       testBulkOpsSanity(dcv2StrongSerialization);
       barrier.await();
 
-      Cache dcv2EventualSerialization = crerateCache("dcv2EventualSerialization", cacheManager, "DCV2",
+      Cache dcv2EventualSerialization = createCache("dcv2EventualSerialization", cacheManager,
                                                      Consistency.EVENTUAL, "SERIALIZATION");
       testBulkOpsSanity(dcv2EventualSerialization);
       barrier.await();
@@ -137,17 +137,14 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       System.out.println("client " + index + " done with " + cache.getName());
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
                                String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsInMemory(100000);
-      cacheConfiguration.setOverflowToDisk(false);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setTimeToLiveSeconds(100000);
       cacheConfiguration.setTimeToIdleSeconds(200000);
-      cacheConfiguration.setDiskPersistent(false);
-      cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);
@@ -156,8 +153,7 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
 
       Cache cache = new Cache(cacheConfiguration);
       cm.addCache(cache);
-      System.out.println("\n\ncache " + cacheName + " created with consistency " + consistency + " storageStrategy "
-                         + storageStrategy);
+      System.out.println("\n\ncache " + cacheName + " created with consistency " + consistency);
       return cache;
     }
   }

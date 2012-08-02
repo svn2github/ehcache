@@ -6,6 +6,7 @@ package org.terracotta.ehcache.tests.container;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class BasicJTATestServlet extends HttpServlet {
     resp.setContentType("text/plain");
     PrintWriter out = resp.getWriter();
     try {
-    final TransactionManagerLookup lookup = new MultiAppServerTransactionManagerLookup();
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
     final TransactionManager txManager = lookup.getTransactionManager();
     if(txManager == null) {
       throw new AssertionError("txnManager is null, this test container test requires a txnManager");

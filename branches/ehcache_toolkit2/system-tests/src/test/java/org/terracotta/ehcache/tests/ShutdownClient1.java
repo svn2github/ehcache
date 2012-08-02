@@ -145,8 +145,6 @@ public class ShutdownClient1 extends ClientBase {
 
   protected void testCache(Cache cache, Toolkit toolkit) throws Throwable {
     cache.put(new Element("key", "value"));
-
-    System.out.println("Asserted default storageStrategy");
   }
 
   private void assertThreadShutdown(Set<SimpleThreadInfo> dump) throws Exception {

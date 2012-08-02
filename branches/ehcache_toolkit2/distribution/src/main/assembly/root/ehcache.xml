@@ -70,13 +70,14 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     The diskStore element is optional. To turn off disk store path creation, comment out the diskStore
     element below.
 
-    Configure it if you have overflowToDisk or diskPersistent enabled for any cache.
+    Configure it if you have disk persistence enabled for any cache or if you use
+    unclustered indexed search.
 
     If it is not configured, and a cache is created which requires a disk store, a warning will be
      issued and java.io.tmpdir will automatically be used.
 
     diskStore has only one attribute - "path". It is the path to the directory where
-    .data and .index files will be created.
+    any required disk files will be created.
 
     If the path is one of the following Java System Property it is replaced by its value in the
     running VM. For backward compatibility these should be specified without being enclosed in the ${token}
@@ -225,10 +226,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     The following attributes and elements are optional.
 
-    overflowToDisk:
-    Sets whether elements can overflow to disk when the memory store
-    has reached the maxInMemory limit.
-
     overflowToOffHeap:
     (boolean) This feature is available only in enterprise versions of Ehcache.
     When set to true, enables the cache to utilize off-heap memory
@@ -241,7 +238,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     subtracted from the CacheManager. Other caches will share the remainder.
     This attribute's values are given as <number>k|K|m|M|g|G for
     kilobytes (k|K), megabytes (m|M), or gigabytes (g|G).
-    For example, maxMemoryOffHeap="2g" allots 2 gigabytes to off-heap memory.
+    For example, maxBytesLocalHeap="2g" allots 2 gigabytes of heap memory.
     If you specify a maxBytesLocalHeap, you can't use the maxEntriesLocalHeap attribute.
     maxEntriesLocalHeap can't be used if a CacheManager maxBytesLocalHeap is set.
 
@@ -277,10 +274,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     Optional attribute. A value of 0 means that and Element can live for infinity.
     The default value is 0.
 
-    diskPersistent:
-    Whether the disk store persists between restarts of the Virtual Machine.
-    The default value is false.
-
     diskExpiryThreadIntervalSeconds:
     The number of seconds between runs of the disk expiry thread. The default value
     is 120 seconds.
@@ -314,6 +307,36 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     copyOnWrite:
     Whether an Element is copied when being added to the cache.
     By default this is false.
+
+    Cache persistence is configured through the persistence sub-element.  The attributes of the
+    persistence element are:
+
+    strategy:
+    Configures the type of persistence provided by the configured cache.  This must be one of the
+    following values:
+
+    * localRestartable - Enables the RestartStore and copies all cache entries (on-heap and/or off-heap)
+    to disk. This option provides fast restartability with fault tolerant cache persistence on disk.
+    It is available for Enterprise Ehcache users only.
+
+    * localTempSwap - Swaps cache entries (on-heap and/or off-heap) to disk when the cache is full.
+    "localTempSwap" is not persistent.
+
+    * none - Does not persist cache entries.
+
+    * distributed - Defers to the <terracotta> configuration for persistence settings. This option
+    is not applicable for standalone.
+    
+    synchronousWrites:
+    When set to true write operations on the cache do not return until after the operations data has been
+    successfully flushed to the disk storage.  This option is only valid when used with the "localRestartable"
+    strategy, and defaults to false.
+
+    The following example configuration shows a cache configured for localTempSwap restartability.
+
+    <cache name="persistentCache" maxEntriesLocalHeap="1000">
+        <persistence strategy="localTempSwap"/>
+    </cache>
 
     Cache elements can also contain sub elements which take the same format of a factory class
     and properties. Defined sub-elements are:
@@ -617,10 +640,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
       This value cannot be changed programmatically once a cache is initialized.
 
-    * storageStrategy=classic|DCV2 - What storage implementation to use. From Ehcache 2.4, the default is DCV2
-      ("Distributed Cache Version 2"). The key functional difference is that DCV2 does not consume local memory
-      for key storage.
-
     The <terracotta> sub-element also has a <nonstop> sub-element to allow configuration of cache behaviour if a distributed
     cache operation cannot be completed within a set time or in the event of a clusterOffline message. If this element does not appear, nonstop behavior is off.
 
@@ -664,7 +683,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     <defaultCache
            maxEntriesLocalHeap="0"
            eternal="false"
-           overflowToDisk="true"
            timeToIdleSeconds="1200"
            timeToLiveSeconds="1200">
       <terracotta/>
@@ -688,13 +706,13 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxEntriesLocalHeap="10000"
            maxEntriesLocalDisk="1000"
            eternal="false"
-           overflowToDisk="true"
            diskSpoolBufferSizeMB="20"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
            memoryStoreEvictionPolicy="LFU"
-           transactionalMode="off"
-            />
+           transactionalMode="off">
+        <persistence strategy="localTempSwap"/>
+    </cache>
 
 
     <!--
@@ -706,9 +724,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     <cache name="sampleCache2"
            maxEntriesLocalHeap="1000"
            eternal="true"
-           overflowToDisk="false"
-           memoryStoreEvictionPolicy="FIFO"
-            />
+           memoryStoreEvictionPolicy="FIFO"/>
 
 
     <!--
@@ -720,12 +736,12 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxEntriesLocalHeap="500"
            eternal="false"
            overflowToDisk="true"
+           diskPersistent="true"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
-           diskPersistent="true"
            diskExpiryThreadIntervalSeconds="1"
-           memoryStoreEvictionPolicy="LFU"
-            />
+           memoryStoreEvictionPolicy="LFU">
+    </cache>
 
     <!--
     Sample Terracotta clustered cache named sampleTerracottaCache.
@@ -735,8 +751,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            maxBytesLocalHeap="10m"
            eternal="false"
            timeToIdleSeconds="3600"
-           timeToLiveSeconds="1800"
-           overflowToDisk="false">
+           timeToLiveSeconds="1800">
         <terracotta/>
     </cache>
 
@@ -747,8 +762,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
-           overflowToDisk="false"
-           diskPersistent="false"
            diskExpiryThreadIntervalSeconds="1"
            transactionalMode="xa_strict">
     </cache>
@@ -763,8 +776,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="600"
-           overflowToDisk="false"
-           diskPersistent="false"
            diskExpiryThreadIntervalSeconds="1"
            copyOnRead="true"
            copyOnWrite="true">
@@ -778,10 +789,19 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            eternal="false"
            timeToLiveSeconds="600"
            overflowToOffHeap="true"
-           maxMemoryOffHeap="4g"
-           overflowToDisk="true"
-           diskPersistent="false"
-           diskExpiryThreadIntervalSeconds="1"
+           maxBytesLocalOffHeap="4g"
+           diskExpiryThreadIntervalSeconds="1">
+        <persistence strategy="localTempSwap"/>
      </cache>
--->
+    -->
+    <!--
+      Sample, for Enterprise Ehcache only, demonstrating a restartable cache with in-memory and off-heap stores.
+    <cache name="restartableCache"
+           maxEntriesLocalHeap="10000"
+           eternal="true"
+           overflowToOffHeap="true"
+           maxBytesLocalOffHeap="4g"
+         <persistence strategy="localRestartable"/>
+     </cache>
+     -->
 </ehcache>

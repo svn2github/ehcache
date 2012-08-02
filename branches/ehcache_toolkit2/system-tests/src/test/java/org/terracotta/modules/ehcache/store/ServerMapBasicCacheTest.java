@@ -38,7 +38,6 @@ public class ServerMapBasicCacheTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = this.barrier.await();
 
-
       cache = cacheManager.getCache("test");
 
       // XXX: assert that the cache is clustered via methods on cache

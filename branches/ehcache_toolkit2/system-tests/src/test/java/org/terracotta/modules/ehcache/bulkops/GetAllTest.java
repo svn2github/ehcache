@@ -47,25 +47,20 @@ public class GetAllTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-      Cache dcv2EventualWithStats = crerateCache("dcv2EventualWithStats", cacheManager, "DCV2", Consistency.EVENTUAL,
+      Cache dcv2EventualWithStats = createCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL,
                                                  ValueMode.SERIALIZATION);
       dcv2EventualWithStats.setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2EventualWithStats, true);
 
-      Cache dcv2EventualWithoutStats = crerateCache("dcv2EventualWithoutStats", cacheManager, "DCV2",
+      Cache dcv2EventualWithoutStats = createCache("dcv2EventualWithoutStats", cacheManager,
                                                     Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualWithoutStats.setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2EventualWithoutStats, true);
 
-      Cache dcv2StrongWithStats = crerateCache("dcv2StrongWithStats", cacheManager, "DCV2", Consistency.STRONG,
+      Cache dcv2StrongWithStats = createCache("dcv2StrongWithStats", cacheManager, Consistency.STRONG,
                                                ValueMode.SERIALIZATION);
       dcv2StrongWithStats.setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2StrongWithStats, false);
-
-      Cache dcv2StrongWithoutStats = crerateCache("dcv2StrongWithoutStats", cacheManager, "DCV2", Consistency.STRONG,
-                                                  ValueMode.SERIALIZATION);
-      dcv2StrongWithoutStats.setStatisticsEnabled(false);
-      testBulkOpsSanity(dcv2StrongWithoutStats, false);
 
     }
 
@@ -156,18 +151,15 @@ public class GetAllTest extends AbstractCacheTestBase {
       }
     }
 
-    private Cache crerateCache(String cacheName, CacheManager cm, String storageStrategy, Consistency consistency,
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
                                ValueMode valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsOnDisk(10000);
       cacheConfiguration.setMaxElementsInMemory(10000);
-      cacheConfiguration.setOverflowToDisk(false);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setTimeToLiveSeconds(100000);
       cacheConfiguration.setTimeToIdleSeconds(200000);
-      cacheConfiguration.setDiskPersistent(false);
-      cacheConfiguration.setDiskExpiryThreadIntervalSeconds(1);
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);
