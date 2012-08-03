@@ -52,15 +52,7 @@
         <artifactId>slf4j-simple</artifactId>
         <version>1.6.4</version>
       </dependency>
-    -->    
-    
-    <!-- provided scope, used for packaging purpose only>    
-    <dependency>
-      <groupId>org.terracotta.modules</groupId>
-      <artifactId>tim-ehcache</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency-->
+    -->
     
     <!-- internal components used for shading which will be removed in final pom -->
     <dependency>
