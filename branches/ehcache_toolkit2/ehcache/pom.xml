@@ -54,13 +54,13 @@
       </dependency>
     -->    
     
-    <!-- provided scope, used for packaging purpose only -->    
+    <!-- provided scope, used for packaging purpose only>    
     <dependency>
       <groupId>org.terracotta.modules</groupId>
       <artifactId>tim-ehcache</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>
+    </dependency-->
     
     <!-- internal components used for shading which will be removed in final pom -->
     <dependency>
