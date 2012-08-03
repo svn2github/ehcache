@@ -2069,9 +2069,9 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private Element searchInStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
         Element element = null;
-        if(quiet){
+        if (quiet) {
             element = compoundStore.getQuiet(key);
-        } else{
+        } else {
             element = compoundStore.get(key);
         }
         return elementStatsHelper(key, quiet, notifyListeners, element);
