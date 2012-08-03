@@ -92,7 +92,7 @@ public abstract class ClientBase extends AbstractClientBase {
     barrier = null;
   }
 
-  protected abstract void runTest(Cache cache, Toolkit toolkit) throws Throwable;
+  protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
 
   // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
   public void waitForAllCurrentTransactionsToComplete() {
