@@ -8,6 +8,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
+import net.sf.ehcache.management.service.AgentService;
 import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
@@ -123,6 +124,7 @@ public final class ManagementServerImpl implements ManagementServer {
                                     .loadService(CacheService.class, samplerRepoSvc)
                                     .loadService(EntityResourceFactory.class, samplerRepoSvc)
                                     .loadService(SamplerRepositoryService.class, samplerRepoSvc)
+                                    .loadService(AgentService.class, samplerRepoSvc)
                                     .loadService(ManagementRESTServiceConfiguration.class, configuration);
 
     ServiceLocator.load(locator);

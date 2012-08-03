@@ -75,7 +75,12 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
 
     validator.validateSafe(info);
     String ids = info.getPathSegments().get(0).getMatrixParameters().getFirst("ids");
-    HashSet<String> idSet = new HashSet<String>(Arrays.asList(ids.split(",")));
+    Set<String> idSet;
+    if (ids == null) {
+      idSet = Collections.emptySet();
+    } else {
+      idSet = new HashSet<String>(Arrays.asList(ids.split(",")));
+    }
 
     try {
       return agentService.getAgentsMetadata(idSet);
