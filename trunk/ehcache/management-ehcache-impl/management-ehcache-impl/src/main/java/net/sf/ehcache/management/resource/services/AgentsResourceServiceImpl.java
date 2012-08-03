@@ -2,16 +2,6 @@
 
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
-import net.sf.ehcache.management.service.AgentService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.management.ServiceExecutionException;
-import org.terracotta.management.resource.AgentEntity;
-import org.terracotta.management.resource.AgentMetadataEntity;
-import org.terracotta.management.resource.services.AgentsResourceService;
-import org.terracotta.management.resource.services.validator.RequestValidator;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +12,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import net.sf.ehcache.management.service.AgentService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.AgentEntity;
+import org.terracotta.management.resource.AgentMetadataEntity;
+import org.terracotta.management.resource.services.AgentsResourceService;
+import org.terracotta.management.resource.services.validator.RequestValidator;
 
 /**
  * An embedded implementation of {@link AgentsResourceService}.
@@ -38,10 +39,8 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
   private final RequestValidator validator;
 
   public AgentsResourceServiceImpl() {
-    EmbeddedEhcacheServiceLocator entityRsrcFactoryLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.agentService = entityRsrcFactoryLocator.locateAgentService();
-    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.validator = reqValidatorLocator.locateRequestValidator();
+    this.agentService = ServiceLocator.locate(AgentService.class);
+    this.validator = ServiceLocator.locate(RequestValidator.class);
   }
 
   /**

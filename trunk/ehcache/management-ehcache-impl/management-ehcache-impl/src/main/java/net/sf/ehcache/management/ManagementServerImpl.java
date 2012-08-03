@@ -8,12 +8,18 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
+import net.sf.ehcache.management.service.CacheManagerService;
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
 import net.sf.ehcache.management.service.impl.DfltSamplerRepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.embedded.StandaloneServer;
+import org.terracotta.management.resource.services.LicenseService;
+import org.terracotta.management.resource.services.LicenseServiceImpl;
+import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -42,8 +48,7 @@ public final class ManagementServerImpl implements ManagementServer {
   public void start() {
     try {
       standaloneServer.start();
-      SamplerRepositoryService.Locator locator = EmbeddedEhcacheServiceLocator.locator();
-      this.samplerRepoSvc = (DfltSamplerRepositoryService)locator.locateSamplerRepositoryService();
+      this.samplerRepoSvc = (DfltSamplerRepositoryService) ServiceLocator.locate(SamplerRepositoryService.class);
     } catch (Exception e) {
       throw new CacheException("error starting management server", e);
     }
@@ -76,6 +81,7 @@ public final class ManagementServerImpl implements ManagementServer {
   @Override
   public void unregister(CacheManager managedResource) {
     samplerRepoSvc.unregister(managedResource);
+    ServiceLocator.unload();
   }
 
   /**
@@ -108,8 +114,17 @@ public final class ManagementServerImpl implements ManagementServer {
     }
 
     DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService(objectName, configuration);
-    ServiceLocator.load(
-        new EmbeddedEhcacheServiceLocator(true, new EmbeddedEhcacheRequestValidator(), samplerRepoSvc, samplerRepoSvc,
-            samplerRepoSvc, samplerRepoSvc, samplerRepoSvc));
+    LicenseService licenseService = new LicenseServiceImpl(false);
+
+    ServiceLocator locator = new ServiceLocator()
+                                    .loadService(LicenseService.class, licenseService)
+                                    .loadService(RequestValidator.class, new EmbeddedEhcacheRequestValidator())
+                                    .loadService(CacheManagerService.class, samplerRepoSvc)
+                                    .loadService(CacheService.class, samplerRepoSvc)
+                                    .loadService(EntityResourceFactory.class, samplerRepoSvc)
+                                    .loadService(SamplerRepositoryService.class, samplerRepoSvc)
+                                    .loadService(ManagementRESTServiceConfiguration.class, configuration);
+
+    ServiceLocator.load(locator);
   }
 }

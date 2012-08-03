@@ -5,10 +5,10 @@
 
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.EmbeddedEhcacheServiceLocator;
 import net.sf.ehcache.management.service.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
@@ -21,15 +21,13 @@ import javax.ws.rs.core.UriInfo;
 public final class ElementsResourceServiceImpl implements ElementsResourceService {
   private static final Logger LOG = LoggerFactory.getLogger(ElementsResourceServiceImpl.class);
 
-  private CacheService cacheSvc;
+  private final CacheService cacheSvc;
 
-  private RequestValidator validator;
+  private final RequestValidator validator;
 
   public ElementsResourceServiceImpl() {
-    CacheService.Locator cacheSvcLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.cacheSvc = cacheSvcLocator.locateCacheService();
-    RequestValidator.Locator reqValidatorLocator = EmbeddedEhcacheServiceLocator.locator();
-    this.validator = reqValidatorLocator.locateRequestValidator();
+    this.validator = ServiceLocator.locate(RequestValidator.class);
+    this.cacheSvc = ServiceLocator.locate(CacheService.class);
   }
 
   /**
