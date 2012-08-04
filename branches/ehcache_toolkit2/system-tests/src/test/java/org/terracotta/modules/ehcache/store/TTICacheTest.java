@@ -53,6 +53,8 @@ public class TTICacheTest extends AbstractCacheTestBase {
       cache1.removeAll();
       cache2.removeAll();
       cache1.setStatisticsEnabled(statisticsEnabled);
+      cache2.setStatisticsEnabled(statisticsEnabled);
+      barrier.await();
 
       if (index == 0) {
         cache1.put(new Element("key", "value"));
