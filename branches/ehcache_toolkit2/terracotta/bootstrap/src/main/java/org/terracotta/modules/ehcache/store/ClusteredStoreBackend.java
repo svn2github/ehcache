@@ -721,29 +721,14 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   public void waitUntilBulkLoadCompleteInCluster() throws InterruptedException {
-    lock.readLock().lock();
-    try {
-      bulkloadCache.waitUntilBulkLoadCompleteInCluster();
-    } finally {
-      lock.readLock().unlock();
-    }
+    bulkloadCache.waitUntilBulkLoadCompleteInCluster();
   }
 
   public boolean isBulkLoadEnabledInCluster() {
-    lock.readLock().lock();
-    try {
-      return bulkloadCache.isBulkLoadEnabledInCluster();
-    } finally {
-      lock.readLock().unlock();
-    }
+    return bulkloadCache.isBulkLoadEnabledInCluster();
   }
 
   public boolean isBulkLoadEnabledInCurrentNode() {
-    lock.readLock().lock();
-    try {
-      return bulkloadCache.isBulkLoadEnabledInCurrentNode();
-    } finally {
-      lock.readLock().unlock();
-    }
+    return bulkloadCache.isBulkLoadEnabledInCurrentNode();
   }
 }
