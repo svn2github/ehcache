@@ -64,7 +64,7 @@ public class ClusteredStore implements TerracottaStore {
   private static final Logger                                 LOG                                     = LoggerFactory
                                                                                                           .getLogger(ClusteredStore.class
                                                                                                               .getName());
-  private static final String                                 CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
+  private static final String                                 CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "com.tc.ehcache.clusteredStore.checkContainsKeyOnPut";
   private static final String                                 TRANSACTIONAL_MODE                      = "trasactionalMode";
 
   // final protected fields

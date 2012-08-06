@@ -7,9 +7,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -21,7 +21,7 @@ public class ClusteredEventsLocalTest extends AbstractCacheTestBase {
 
   public ClusteredEventsLocalTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
-    testConfig.addTcProperty("ehcache.clusteredStore.checkContainsKeyOnPut", "true");
+    testConfig.getClientConfig().addExtraClientJvmArg("-Dcom.tc.ehcache.clusteredStore.checkContainsKeyOnPut=true");
   }
 
   public static class App extends ClientBase {
