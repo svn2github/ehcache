@@ -395,25 +395,15 @@ public class DiskStorageFactory {
     }
 
     private MemoryEfficientByteArrayOutputStream serializeElement(Element element) throws IOException {
-        // try two times to Serialize. A ConcurrentModificationException can occur because Java's serialization
+        // A ConcurrentModificationException can occur because Java's serialization
         // mechanism is not threadsafe and POJOs are seldom implemented in a threadsafe way.
         // e.g. we are serializing an ArrayList field while another thread somewhere in the application is appending to it.
-        // The best we can do is try again and then give up.
-        ConcurrentModificationException exception = null;
-        for (int retryCount = 0; retryCount < 2; retryCount++) {
-            try {
-                return MemoryEfficientByteArrayOutputStream.serialize(element);
-            } catch (ConcurrentModificationException e) {
-                exception = e;
-                try {
-                    // wait for the other thread(s) to finish
-                    MILLISECONDS.sleep(SERIALIZATION_CONCURRENCY_DELAY);
-                } catch (InterruptedException e1) {
-                    //no-op
-                }
-            }
+        try {
+            return MemoryEfficientByteArrayOutputStream.serialize(element);
+        } catch (ConcurrentModificationException e) {
+            throw new CacheException("Failed to serialize element due to ConcurrentModificationException. "
+                    + "This is frequently the result of inappropriately sharing thread unsafe object (eg. ArrayList, HashMap, etc) between threads", e);
         }
-        throw exception;
     }
 
     private DiskMarker alloc(Element element, int size) throws IOException {
