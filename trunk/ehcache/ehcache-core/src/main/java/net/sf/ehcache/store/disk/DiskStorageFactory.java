@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.store.disk;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -401,8 +399,9 @@ public class DiskStorageFactory {
         try {
             return MemoryEfficientByteArrayOutputStream.serialize(element);
         } catch (ConcurrentModificationException e) {
-            throw new CacheException("Failed to serialize element due to ConcurrentModificationException. "
-                    + "This is frequently the result of inappropriately sharing thread unsafe object (eg. ArrayList, HashMap, etc) between threads", e);
+            throw new CacheException("Failed to serialize element due to ConcurrentModificationException. " +
+                                     "This is frequently the result of inappropriately sharing thread unsafe object " +
+                                     "(eg. ArrayList, HashMap, etc) between threads", e);
         }
     }
 
