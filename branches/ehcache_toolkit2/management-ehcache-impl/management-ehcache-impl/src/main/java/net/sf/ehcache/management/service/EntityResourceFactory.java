@@ -15,12 +15,6 @@ import java.util.Set;
  * @author brandony
  */
 public interface EntityResourceFactory {
-  /**
-   * A locator interface for this factory.
-   */
-  interface Locator {
-    EntityResourceFactory locateEntityResourceFactory();
-  }
 
   /**
    * A factory method for {@link CacheManagerEntity} objects.
