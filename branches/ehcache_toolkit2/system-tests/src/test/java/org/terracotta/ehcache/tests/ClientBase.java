@@ -90,6 +90,7 @@ public abstract class ClientBase extends AbstractClientBase {
   public synchronized void clearTerracottaClient() {
     cacheManager = null;
     barrier = null;
+    toolkit = null;
   }
 
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;

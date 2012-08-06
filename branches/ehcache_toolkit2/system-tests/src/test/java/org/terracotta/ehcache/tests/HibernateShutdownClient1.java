@@ -39,6 +39,7 @@ public class HibernateShutdownClient1 extends ClientBase {
   @Override
   public void doTest() throws Throwable {
     Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
+    storeL1ClassLoaderWeakReferences();
 
     testClusteredCache();
 
@@ -49,7 +50,6 @@ public class HibernateShutdownClient1 extends ClientBase {
         HibernateUtil.closeSessionFactory();
       }
 
-      storeL1ClassLoaderWeakReferences();
 
       shutdownExpressClient();
       clearTerracottaClient();
