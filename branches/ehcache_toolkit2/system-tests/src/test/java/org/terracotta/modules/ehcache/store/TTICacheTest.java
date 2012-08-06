@@ -35,10 +35,6 @@ public class TTICacheTest extends AbstractCacheTestBase {
       this.barrier = getClusteringToolkit().getBarrier("test", NODE_COUNT);
     }
 
-    public static void main(String[] args) {
-      new App(args).run();
-    }
-
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       testWithCache(false);
@@ -113,6 +109,13 @@ public class TTICacheTest extends AbstractCacheTestBase {
       // (key, value) in cache2 should expire
       Assert.assertNull(cache1.get("key"));
       Assert.assertNull(cache2.get("key"));
+
+      cache1.put(new Element("key-1", "value-1"));
+      // Check that last access time is being updated on each get.
+      for (int i = 0; i < 40; i++) {
+        TimeUnit.SECONDS.sleep(2);
+        Assert.assertNotNull(cache1.get("key-1"));
+      }
     }
 
   }
