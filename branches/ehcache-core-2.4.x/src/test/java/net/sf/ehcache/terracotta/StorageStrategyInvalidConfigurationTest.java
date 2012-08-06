@@ -48,16 +48,16 @@ public class StorageStrategyInvalidConfigurationTest extends TestCase {
             fail("Trying to run rejoin without nonstop terracotta caches should fail");
         } catch (InvalidConfigurationException e) {
             LOG.info("Caught expected exception: " + e);
-            String expectedError = "Errors:" + "\nNONSTOP can't be enabled with CLASSIC strategy. Invalid Cache: cache2"
-                    + "\nREJOIN can't be enabled with CLASSIC strategy. Invalid Cache: cache2"
-                    + "\nEVENTUAL consistency can't be enabled with CLASSIC strategy. Invalid Cache: cache2"
-                    + "\nNONSTOP can't be enabled with CLASSIC strategy. Invalid Cache: cache1"
-                    + "\nREJOIN can't be enabled with CLASSIC strategy. Invalid Cache: cache1"
-                    + "\nEVENTUAL consistency can't be enabled with CLASSIC strategy. Invalid Cache: cache1"
-                    + "\nREJOIN can't be enabled with CLASSIC strategy. Invalid Cache: cache3"
-                    + "\nEVENTUAL consistency can't be enabled with CLASSIC strategy. Invalid Cache: cache3"
-                    + "\nTerracotta clustered caches must be nonstop when rejoin is enabled. Invalid cache: cache3";
-            Assert.assertEquals(expectedError, e.getMessage());
+            String emsg = e.getMessage();
+            Assert.assertTrue(emsg.indexOf("NONSTOP can't be enabled with CLASSIC strategy. Invalid Cache: cache2") > 0);
+            Assert.assertTrue(emsg.indexOf("REJOIN can't be enabled with CLASSIC strategy. Invalid Cache: cache2") > 0);
+            Assert.assertTrue(emsg.indexOf("EVENTUAL consistency can't be enabled with CLASSIC strategy. Invalid Cache: cache2") > 0);
+            Assert.assertTrue(emsg.indexOf("NONSTOP can't be enabled with CLASSIC strategy. Invalid Cache: cache1") > 0);
+            Assert.assertTrue(emsg.indexOf("REJOIN can't be enabled with CLASSIC strategy. Invalid Cache: cache1") > 0);
+            Assert.assertTrue(emsg.indexOf("EVENTUAL consistency can't be enabled with CLASSIC strategy. Invalid Cache: cache1") > 0);
+            Assert.assertTrue(emsg.indexOf("REJOIN can't be enabled with CLASSIC strategy. Invalid Cache: cache3") > 0);
+            Assert.assertTrue(emsg.indexOf("EVENTUAL consistency can't be enabled with CLASSIC strategy. Invalid Cache: cache3") > 0);
+            Assert.assertTrue(emsg.indexOf("Terracotta clustered caches must be nonstop when rejoin is enabled. Invalid cache: cache3") > 0);
         }
     }
 }
