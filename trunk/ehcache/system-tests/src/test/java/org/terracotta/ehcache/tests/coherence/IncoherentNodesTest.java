@@ -7,7 +7,7 @@ package org.terracotta.ehcache.tests.coherence;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -33,11 +33,11 @@ public class IncoherentNodesTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       doTest(cache, toolkit, true);
     }
 
-    public void doTest(Cache cache, ClusteringToolkit toolkit, final boolean killInBetween) {
+    public void doTest(Cache cache, Toolkit toolkit, final boolean killInBetween) {
       log("Running test. killInBetween: " + killInBetween);
       cache.setNodeCoherent(false);
       log(" node set to incoherent");
@@ -106,7 +106,7 @@ public class IncoherentNodesTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       doTest(cache, toolkit, false);
     }
 

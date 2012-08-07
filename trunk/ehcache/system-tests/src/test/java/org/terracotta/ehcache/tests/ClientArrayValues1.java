@@ -3,7 +3,7 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 public class ClientArrayValues1 extends ClientBase {
 
@@ -16,7 +16,7 @@ public class ClientArrayValues1 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     cache.put(new Element("key", new String[] { "a", "b", "c" }));
 //    } else {
 //      Element elem = cache.get("key");

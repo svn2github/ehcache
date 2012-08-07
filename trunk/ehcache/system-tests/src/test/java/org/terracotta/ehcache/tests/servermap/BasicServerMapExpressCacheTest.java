@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests.servermap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -34,7 +34,7 @@ public class BasicServerMapExpressCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       int index = getBarrierForAllClients().await();
       if (index == 0) {
         System.out.println("Client-" + index + ": populating cache");

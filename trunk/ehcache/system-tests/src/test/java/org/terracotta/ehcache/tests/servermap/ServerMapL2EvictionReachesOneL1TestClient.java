@@ -3,7 +3,7 @@ package org.terracotta.ehcache.tests.servermap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.Date;
 import java.util.concurrent.BrokenBarrierException;
@@ -20,7 +20,7 @@ public class ServerMapL2EvictionReachesOneL1TestClient extends ServerMapClientBa
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     System.out.println("Running test with concurrency=1");
     testWith(cache, 3000, EXPECTED_EVICTION_COUNT, clusteringToolkit);
 
@@ -30,7 +30,7 @@ public class ServerMapL2EvictionReachesOneL1TestClient extends ServerMapClientBa
   }
 
   private void testWith(final Cache cache, final int maxElements, final long expectedEvictionCount,
-                        ClusteringToolkit clusteringToolkit) throws InterruptedException, BrokenBarrierException {
+                        Toolkit clusteringToolkit) throws InterruptedException, BrokenBarrierException {
     EvictionCountingEventListener countingListener = new EvictionCountingEventListener(
                                                                                        clusteringToolkit
                                                                                            .getAtomicLong("EvictionCounter"));

@@ -8,8 +8,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 
-import org.terracotta.api.ClusteringToolkit;
-
+import org.terracotta.toolkit.Toolkit;
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 
@@ -36,7 +35,7 @@ public class CacheEventEvictionExceptionTest extends AbstractCacheTestBase {
 
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       cache.getCacheEventNotificationService().registerListener(new ThrowingListener());
       for (int i = 0; i < 5000; i++) {
         cache.put(new Element(i, i));

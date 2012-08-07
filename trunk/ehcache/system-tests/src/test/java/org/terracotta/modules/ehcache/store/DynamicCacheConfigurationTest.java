@@ -12,9 +12,9 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
@@ -45,7 +45,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       testTTIChange(cacheManager);
       testTTLChange(cacheManager);
       testDiskCapacityChange(cacheManager);
@@ -301,6 +301,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       final int min = (int) ((1 - TOLERANCE) * lowerBound);
       final int max = (int) ((1 + TOLERANCE) * upperBound);
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
           if (cache.getMemoryStoreSize() <= max && cache.getMemoryStoreSize() >= min) { return true; }
           System.out.println("Still waiting for memory store size to fall in bounds [" + lowerBound + ", " + upperBound
@@ -341,6 +342,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       SECONDS.sleep(30);
 
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
           // Initiate capacity eviction with a new put
           cache.put(new Element("overflow" + r.nextInt(), new byte[0]));

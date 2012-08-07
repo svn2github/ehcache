@@ -8,7 +8,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.ClientBase;
 
 import com.tc.objectserver.core.api.ServerConfigurationContext;
@@ -34,7 +34,7 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       getTestControlMbean().crashAllPassiveServers(0);
       for (int i = 0; i < 20000; i++) {
         cache.put(new Element("key-" + i, new byte[1024]));

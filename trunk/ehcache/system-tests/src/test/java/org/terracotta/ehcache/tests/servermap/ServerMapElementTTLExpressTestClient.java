@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests.servermap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.Date;
 
@@ -23,7 +23,7 @@ public class ServerMapElementTTLExpressTestClient extends ServerMapClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     int size = cache.getSize();
     assertEquals(0, size);
     System.out.println("Client populating cache.");

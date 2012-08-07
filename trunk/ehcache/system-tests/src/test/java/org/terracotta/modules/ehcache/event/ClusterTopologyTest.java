@@ -9,9 +9,9 @@ import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterScheme;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -30,7 +30,7 @@ public class ClusterTopologyTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       getBarrierForAllClients().await();
 
       CacheCluster cluster = cacheManager.getCluster(ClusterScheme.TERRACOTTA);
@@ -38,7 +38,8 @@ public class ClusterTopologyTest extends AbstractCacheTestBase {
       Assert.assertTrue(cluster.getScheme().equals(ClusterScheme.TERRACOTTA));
       getBarrierForAllClients().await();
       Collection<ClusterNode> nodes = cluster.getNodes();
-      Assert.assertEquals(getParticipantCount(), nodes.size());
+      // There will be 2 clients per node. ( 1 for cache+ 1 for toolkit)
+      Assert.assertEquals(2 * getParticipantCount(), nodes.size());
       getBarrierForAllClients().await();
     }
 

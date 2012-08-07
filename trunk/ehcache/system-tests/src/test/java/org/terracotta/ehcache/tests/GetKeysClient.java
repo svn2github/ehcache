@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.Date;
 import java.util.List;
@@ -26,7 +26,7 @@ public class GetKeysClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) {
+  protected void runTest(Cache cache, Toolkit toolkit) {
     cache.put(new Element(new Date(), "now"));
 
     List keys = cache.getKeys();

@@ -31,7 +31,7 @@ import java.io.Serializable;
  *
  * @author Ludovic Orban
  */
-public final class XidTransactionIDSerializedForm implements Serializable {
+public class XidTransactionIDSerializedForm implements Serializable {
     private final String cacheManagerName;
     private final String cacheName;
     private final String ownerID;

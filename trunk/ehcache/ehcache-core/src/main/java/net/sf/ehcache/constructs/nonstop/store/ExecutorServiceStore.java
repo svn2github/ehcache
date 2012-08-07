@@ -1139,36 +1139,6 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
     /**
      * {@inheritDoc}
      */
-    public Element unlockedGet(final Object key) {
-        try {
-            return executeWithExecutor(new Callable<Element>() {
-                public Element call() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGet(key);
-                }
-            });
-        } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unlockedGet(key);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(final Object key) {
-        try {
-            return executeWithExecutor(new Callable<Element>() {
-                public Element call() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGetQuiet(key);
-                }
-            });
-        } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unlockedGetQuiet(key);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Element unsafeGet(final Object key) {
         try {
             return executeWithExecutor(new Callable<Element>() {
@@ -1178,21 +1148,6 @@ public class ExecutorServiceStore implements RejoinAwareNonstopStore {
             });
         } catch (TimeoutException e) {
             return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unsafeGet(key);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGetQuiet(final Object key) {
-        try {
-            return executeWithExecutor(new Callable<Element>() {
-                public Element call() throws Exception {
-                    return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
-                }
-            });
-        } catch (TimeoutException e) {
-            return timeoutBehaviorResolver.resolveTimeoutBehaviorStore().unsafeGetQuiet(key);
         }
     }
 

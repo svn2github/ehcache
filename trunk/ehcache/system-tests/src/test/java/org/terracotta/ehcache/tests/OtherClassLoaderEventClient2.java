@@ -2,7 +2,7 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.Cache;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import com.otherclassloader.Client;
 import com.otherclassloader.Value;
@@ -25,7 +25,7 @@ public class OtherClassLoaderEventClient2 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
 
     String config = cache.getCacheManager().getActiveConfigurationText();
 

@@ -6,10 +6,11 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.api.TerracottaClient;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.tests.base.AbstractClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.ToolkitFactory;
+import org.terracotta.toolkit.ToolkitInstantiationException;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import java.util.concurrent.BrokenBarrierException;
 
@@ -21,8 +22,8 @@ public abstract class ClientBase extends AbstractClientBase {
   private final String        name;
 
   protected CacheManager      cacheManager;
-  private TerracottaClient    terracottaClient;
-  private Barrier             barrier;
+  private ToolkitBarrier      barrier;
+  private Toolkit             toolkit;
 
   public ClientBase(String[] args) {
     this("test", args);
@@ -43,15 +44,15 @@ public abstract class ClientBase extends AbstractClientBase {
     }
   }
 
-  protected synchronized final Barrier getBarrierForAllClients() {
+  protected boolean isStandaloneCfg() {
+    return getTestControlMbean().isStandAloneTest();
+  }
+
+  protected synchronized final ToolkitBarrier getBarrierForAllClients() {
     if (barrier == null) {
       barrier = getClusteringToolkit().getBarrier("barrier with all clients", getParticipantCount());
     }
     return barrier;
-  }
-
-  protected boolean isStandaloneCfg() {
-    return getTestControlMbean().isStandAloneTest();
   }
 
   protected final int waitForAllClients() throws InterruptedException, BrokenBarrierException {
@@ -71,24 +72,28 @@ public abstract class ClientBase extends AbstractClientBase {
     return cacheManager;
   }
 
-  protected ClusteringToolkit getClusteringToolkit() {
-    return getTerracottaClient().getToolkit();
+  protected synchronized Toolkit getClusteringToolkit() {
+    if (toolkit == null) {
+      toolkit = createToolkit();
+    }
+    return toolkit;
   }
 
-  public synchronized TerracottaClient getTerracottaClient() {
-    if (terracottaClient == null) {
-      terracottaClient = new TerracottaClient(getTerracottaUrl());
+  private Toolkit createToolkit() {
+    try {
+      return ToolkitFactory.createToolkit("toolkit:terracotta://" + getTerracottaUrl());
+    } catch (ToolkitInstantiationException e) {
+      throw new RuntimeException(e);
     }
-    return terracottaClient;
   }
 
   public synchronized void clearTerracottaClient() {
-    terracottaClient = null;
     cacheManager = null;
     barrier = null;
+    toolkit = null;
   }
 
-  protected abstract void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable;
+  protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
 
   // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
   public void waitForAllCurrentTransactionsToComplete() {

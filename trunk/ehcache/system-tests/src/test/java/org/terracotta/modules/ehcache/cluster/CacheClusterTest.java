@@ -8,9 +8,9 @@ import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterScheme;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.collections.ClusteredMap;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.TestBaseUtil;
@@ -36,8 +36,8 @@ public class CacheClusterTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier                barrier;
-    private ClusteredMap<String, String> nodes;
+    private final ToolkitBarrier                barrier;
+    private ToolkitMap<String, String> nodes;
 
     public App(String[] args) {
       super(args);
@@ -45,7 +45,7 @@ public class CacheClusterTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       barrier.await();
       this.nodes = getClusteringToolkit().getMap("testMap");
 

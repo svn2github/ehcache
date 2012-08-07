@@ -11,7 +11,7 @@ import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 import net.sf.ehcache.event.TerracottaCacheEventReplicationFactory;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.test.util.WaitUtil;
 
 import java.util.concurrent.Callable;
@@ -36,7 +36,7 @@ public class ClusterCacheEventsRejoinEnabledClient extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     final int nodeId = getBarrierForAllClients().await();
 
     final CacheCluster cluster = cache.getCacheManager().getCluster(ClusterScheme.TERRACOTTA);

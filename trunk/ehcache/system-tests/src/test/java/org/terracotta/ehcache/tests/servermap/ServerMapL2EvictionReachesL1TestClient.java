@@ -6,7 +6,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,7 +22,7 @@ public class ServerMapL2EvictionReachesL1TestClient extends ServerMapClientBase 
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     System.out.println("Running test with concurrency=1");
     testWith(cache, 3000, 100);
 

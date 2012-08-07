@@ -11,10 +11,10 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -27,7 +27,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
   }
 
   public static class PinnedCacheTestApp extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public PinnedCacheTestApp(String[] args) {
       super(args);
@@ -39,7 +39,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       int nodeId = barrier.await();
       Thread.currentThread().setName("Node[" + nodeId + "]");
       Cache pinnedInCache = new Cache(new CacheConfiguration().name("pinnedInCache")
@@ -61,7 +61,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
         for (int i = 0; i < 200; i++) {
           pinnedInCache.put(new Element("key" + i, "value"));
         }
-        pinnedInCache.getSize(); // Force transactions to complete first.
+        Assert.assertEquals(pinnedInCache.getSize(), 200); // Force transactions to complete first.
       }
       barrier.await();
       Assert.assertEquals(pinnedInCache.getSize(), 200);
@@ -71,7 +71,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
         for (int i = 200; i < 400; i++) {
           pinnedInCache.put(new Element("key" + i, "value"));
         }
-        pinnedInCache.getSize(); // Force transactions to complete first.
+        Assert.assertEquals(pinnedInCache.getSize(), 400); // Force transactions to complete first.
       }
       barrier.await();
       Assert.assertEquals(pinnedInCache.getSize(), 400);

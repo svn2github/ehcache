@@ -9,8 +9,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -29,7 +29,7 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase implements CacheEventListener {
 
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
@@ -41,7 +41,7 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       cache.getCacheEventNotificationService().registerListener(this);

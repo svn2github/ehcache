@@ -8,8 +8,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
 import org.apache.log4j.Logger;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.modules.ehcache.cluster.TopologyListenerImpl;
@@ -33,7 +33,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super("testSerializationExpiry", args);
@@ -45,7 +45,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       testCache(cacheManager.getCache("testSerializationExpiry"));
       testCache(cacheManager.getCache("testIdentityExpiry"));
 

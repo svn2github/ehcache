@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public class EventManager {
+  @SuppressWarnings("rawtypes")
   public static void main(String[] args) {
     EventManager mgr = new EventManager();
 
@@ -36,6 +37,7 @@ public class EventManager {
     session.getTransaction().commit();
   }
 
+  @SuppressWarnings("rawtypes")
   private List listEvents() {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();

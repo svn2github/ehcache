@@ -11,10 +11,10 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -33,7 +33,7 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
   }
 
   public static class BulkOpsGenericSanityTestClient extends ClientBase {
-    private Barrier barrier;
+    private ToolkitBarrier barrier;
 
     public BulkOpsGenericSanityTestClient(String[] args) {
       super(args);
@@ -44,7 +44,7 @@ public class BulkOpsGenericSanityTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       this.barrier = clusteringToolkit.getBarrier("test-barrier", NODE_COUNT);
 
       Cache dcv2StrongIdentity = createCache("dcv2StrongIdentity", cacheManager, Consistency.STRONG,

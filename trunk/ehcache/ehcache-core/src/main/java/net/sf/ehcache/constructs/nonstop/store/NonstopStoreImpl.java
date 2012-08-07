@@ -649,44 +649,11 @@ public class NonstopStoreImpl implements NonstopTimeoutBehaviorStoreResolver, Re
     /**
      * {@inheritDoc}
      */
-    public Element unlockedGet(Object key) {
-        if (isCurrentThreadNonstopThread()) {
-            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGet(key);
-        } else {
-            return executorServiceStore.unlockedGet(key);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(Object key) {
-        if (isCurrentThreadNonstopThread()) {
-            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unlockedGetQuiet(key);
-        } else {
-            return executorServiceStore.unlockedGetQuiet(key);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Element unsafeGet(Object key) {
         if (isCurrentThreadNonstopThread()) {
             return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
         } else {
             return executorServiceStore.unsafeGet(key);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGetQuiet(Object key) {
-        if (isCurrentThreadNonstopThread()) {
-            return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
-        } else {
-            return executorServiceStore.unsafeGetQuiet(key);
         }
     }
 

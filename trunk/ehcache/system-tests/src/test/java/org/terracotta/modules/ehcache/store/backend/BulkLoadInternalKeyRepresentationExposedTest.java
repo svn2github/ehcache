@@ -6,8 +6,8 @@ package org.terracotta.modules.ehcache.store.backend;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -34,8 +34,8 @@ public class BulkLoadInternalKeyRepresentationExposedTest extends AbstractCacheT
     private static final int NUM_OF_WRITERS = 1;
     private static final int NUM_OF_READERS = 1;
 
-    private final Barrier    barrier;
-    Barrier                  tBarrier;
+    private final ToolkitBarrier    barrier;
+    ToolkitBarrier                  tBarrier;
 
     public App(String[] args) {
       super(args);
@@ -48,7 +48,7 @@ public class BulkLoadInternalKeyRepresentationExposedTest extends AbstractCacheT
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = this.barrier.await();
 
       cache.setNodeBulkLoadEnabled(true);
@@ -121,9 +121,9 @@ public class BulkLoadInternalKeyRepresentationExposedTest extends AbstractCacheT
     private final int            threadNo;
     private final int            participantIndex;
     private final Set<Exception> exceptions      = new HashSet<Exception>();
-    private final Barrier        tBarrier;
+    private final ToolkitBarrier        tBarrier;
 
-    public WriterThread(int num, int participantIndex, Cache cache, Barrier tBarrier) {
+    public WriterThread(int num, int participantIndex, Cache cache, ToolkitBarrier tBarrier) {
       super("WriterThread-" + num);
       this.threadNo = num;
       this.participantIndex = participantIndex;
@@ -170,9 +170,9 @@ public class BulkLoadInternalKeyRepresentationExposedTest extends AbstractCacheT
     private final int            threadNo;
     private final int            participantIndex;
     private final Set<Exception> exceptions = new HashSet<Exception>();
-    private final Barrier        tBarrier;
+    private final ToolkitBarrier        tBarrier;
 
-    public ReaderThread(int num, int participantIndex, Cache cache, Barrier tBarrier) {
+    public ReaderThread(int num, int participantIndex, Cache cache, ToolkitBarrier tBarrier) {
       super("ReaderThread-" + num);
       this.threadNo = num;
       this.participantIndex = participantIndex;

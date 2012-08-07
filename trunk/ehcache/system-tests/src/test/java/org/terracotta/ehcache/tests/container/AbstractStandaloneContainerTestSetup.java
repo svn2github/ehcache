@@ -10,7 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
-import org.terracotta.express.ClientFactory;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest.StandaloneTwoServerTestSetup;
@@ -45,7 +45,7 @@ public class AbstractStandaloneContainerTestSetup extends StandaloneTwoServerTes
     builder.addDirectoryOrJARContainingClass(LoggerFactory.class); // slf4j-api
     builder.addDirectoryOrJARContainingClass(StaticLoggerBinder.class); // slf4j-log4j
     builder.addDirectoryOrJARContainingClass(org.apache.log4j.LogManager.class); // log4j
-    builder.addDirectoryOrJARContainingClass(ClientFactory.class); // toolkit-runtime
+    builder.addDirectoryOrJARContainingClass(Toolkit.class); // toolkit-runtime
   }
 
   private File getTempEhcacheConfigFile() {

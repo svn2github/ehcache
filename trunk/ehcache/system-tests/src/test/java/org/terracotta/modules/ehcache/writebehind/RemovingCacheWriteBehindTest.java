@@ -10,7 +10,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -38,7 +38,7 @@ public class RemovingCacheWriteBehindTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(final Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(final Cache cache, Toolkit clusteringToolkit) throws Throwable {
 
       final CyclicBarrier localBarrier = new CyclicBarrier(2);
 

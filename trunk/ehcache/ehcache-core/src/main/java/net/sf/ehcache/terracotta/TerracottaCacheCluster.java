@@ -172,4 +172,12 @@ public class TerracottaCacheCluster implements CacheCluster {
         return this.listeners;
     }
 
+    @Override
+    public void removeAllListeners() {
+        checkIfInitialized();
+        realCacheCluster.removeAllListeners();
+        listeners.clear();
+
+    }
+
 }

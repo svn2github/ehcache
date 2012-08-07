@@ -5,10 +5,11 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -27,13 +28,13 @@ public class MemoryStoreEvictionPolicyTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       Cache fifo = new Cache(new CacheConfiguration("fifo", 1000)
           .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.FIFO).terracotta(new TerracottaConfiguration()));
       try {
         cacheManager.addCache(fifo);
         fail();
-      } catch (IllegalArgumentException e) {
+      } catch (InvalidConfigurationException e) {
         // expected exception
       }
 
@@ -42,7 +43,7 @@ public class MemoryStoreEvictionPolicyTest extends AbstractCacheTestBase {
       try {
         cacheManager.addCache(lfu);
         fail();
-      } catch (IllegalArgumentException e) {
+      } catch (InvalidConfigurationException e) {
         // expected exception
       }
 

@@ -6,13 +6,14 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
@@ -27,23 +28,29 @@ public class TTICacheTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
 
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
       this.barrier = getClusteringToolkit().getBarrier("test", NODE_COUNT);
     }
 
-    public static void main(String[] args) {
-      new App(args).run();
+    @Override
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
+      testWithCache(false);
+      testWithCache(true);
     }
 
-    @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    private void testWithCache(boolean statisticsEnabled) throws InterruptedException, BrokenBarrierException {
       final int index = barrier.await();
 
       Cache cache1 = cacheManager.getCache("test1"); // TTI = 10s
       Cache cache2 = cacheManager.getCache("test2"); // TTI = 20s
+      cache1.removeAll();
+      cache2.removeAll();
+      cache1.setStatisticsEnabled(statisticsEnabled);
+      cache2.setStatisticsEnabled(statisticsEnabled);
+      barrier.await();
 
       if (index == 0) {
         cache1.put(new Element("key", "value"));
@@ -102,6 +109,13 @@ public class TTICacheTest extends AbstractCacheTestBase {
       // (key, value) in cache2 should expire
       Assert.assertNull(cache1.get("key"));
       Assert.assertNull(cache2.get("key"));
+
+      cache1.put(new Element("key-1", "value-1"));
+      // Check that last access time is being updated on each get.
+      for (int i = 0; i < 40; i++) {
+        TimeUnit.SECONDS.sleep(2);
+        Assert.assertNotNull(cache1.get("key-1"));
+      }
     }
 
   }

@@ -4,6 +4,7 @@
  */
 package org.terracotta.ehcache.tests;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.derby.drda.NetworkServerControl;
 import org.terracotta.test.util.TestBaseUtil;
 
@@ -17,6 +18,11 @@ import java.util.List;
 
 public class HibernateExpressShutdownTest extends AbstractCacheTestBase {
   private NetworkServerControl derbyServer;
+
+  @Override
+  protected String getTestDependencies() {
+    return TestBaseUtil.jarFor(LRUMap.class);
+  }
 
   public HibernateExpressShutdownTest(TestConfig testConfig) {
     super("hibernate-shutdown-test.xml", testConfig, HibernateShutdownClient1.class, HibernateShutdownClient2.class);

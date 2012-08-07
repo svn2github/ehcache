@@ -5,7 +5,7 @@ package org.terracotta.ehcache.tests.servermap;
 
 import net.sf.ehcache.Cache;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.ClientBase;
 
 import junit.framework.Assert;
@@ -21,7 +21,7 @@ public class ServerMapL2EvictionReachesOneL1Verifier extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     System.out.println("in the verifier");
 
     EvictionCountingEventListener countingListener = new EvictionCountingEventListener(

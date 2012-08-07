@@ -18,6 +18,8 @@ public class UrlConfigStandaloneCacheTest extends AbstractCacheTestBase {
 
   public UrlConfigStandaloneCacheTest(TestConfig testConfig) {
     super("url-config-cache-test.xml", testConfig);
+    // disabled until DEV-7940
+    disableTest();
   }
 
   @Override

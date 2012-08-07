@@ -9,15 +9,15 @@ import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.ClientBase;
 
 import junit.framework.Assert;
 
 public class TopologyL1Client extends ClientBase {
 
-  private final Barrier barrier;
+  private final ToolkitBarrier barrier;
 
   public TopologyL1Client(String[] args) {
     super(args);
@@ -29,7 +29,7 @@ public class TopologyL1Client extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     CacheConfiguration cacheConfig = new CacheConfiguration("cache", 1000);
     cacheConfig.addTerracotta(new TerracottaConfiguration());
     cache = new Cache(cacheConfig);

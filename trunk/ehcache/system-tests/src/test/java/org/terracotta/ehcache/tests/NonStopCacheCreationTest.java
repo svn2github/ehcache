@@ -7,8 +7,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-
+import org.terracotta.toolkit.Toolkit;
 import com.tc.test.config.model.TestConfig;
 
 public class NonStopCacheCreationTest extends AbstractCacheTestBase {
@@ -26,7 +25,7 @@ public class NonStopCacheCreationTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       cache.getCacheManager().shutdown();
       
       CacheManager cm = new CacheManager(ClientBase.class.getResourceAsStream(XML));

@@ -11,10 +11,10 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -34,7 +34,7 @@ public class GetAllTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
@@ -46,7 +46,7 @@ public class GetAllTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache dcv2EventualWithStats = createCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL,
                                                  ValueMode.SERIALIZATION);
       dcv2EventualWithStats.setStatisticsEnabled(true);
@@ -62,20 +62,6 @@ public class GetAllTest extends AbstractCacheTestBase {
       dcv2StrongWithStats.setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2StrongWithStats, false);
 
-      Cache dcv2StrongIdentityWithStats = createCache("dcv2StrongIdentityWithStats", cacheManager,
-                                                       Consistency.STRONG, ValueMode.IDENTITY);
-      dcv2StrongIdentityWithStats.setStatisticsEnabled(true);
-      testBulkOpsSanity(dcv2StrongIdentityWithStats, false);
-
-      Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
-                                                  ValueMode.SERIALIZATION);
-      dcv2StrongWithoutStats.setStatisticsEnabled(false);
-      testBulkOpsSanity(dcv2StrongWithoutStats, false);
-
-      Cache dcv2StrongIdentityWithoutStats = createCache("dcv2StrongIdentityWithoutStats", cacheManager,
-                                                          Consistency.STRONG, ValueMode.IDENTITY);
-      dcv2StrongIdentityWithoutStats.setStatisticsEnabled(false);
-      testBulkOpsSanity(dcv2StrongIdentityWithoutStats, false);
     }
 
     private void testBulkOpsSanity(Cache cache, boolean shouldWait) throws InterruptedException, BrokenBarrierException {

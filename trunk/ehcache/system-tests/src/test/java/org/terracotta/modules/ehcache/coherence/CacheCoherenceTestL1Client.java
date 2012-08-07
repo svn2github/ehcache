@@ -7,16 +7,16 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import junit.framework.Assert;
 
 public class CacheCoherenceTestL1Client extends ClientBase {
 
-  private final Barrier barrier;
-  private String        id;
+  private final ToolkitBarrier barrier;
+  private String               id;
 
   public CacheCoherenceTestL1Client(String[] args) {
     super(args);
@@ -34,7 +34,7 @@ public class CacheCoherenceTestL1Client extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
     final int index = barrier.await();
     id = "" + index;
 

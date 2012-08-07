@@ -3,7 +3,9 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
+
+import java.util.concurrent.TimeUnit;
 
 public class WriteBehindClient2 extends AbstractWriteBehindClient {
   public WriteBehindClient2(String[] args) {
@@ -25,10 +27,10 @@ public class WriteBehindClient2 extends AbstractWriteBehindClient {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     cache.putWithWriter(new Element("key", "value"));
     cache.removeWithWriter("key");
-    Thread.sleep(60000);
+    TimeUnit.MINUTES.sleep(1);
   }
 }

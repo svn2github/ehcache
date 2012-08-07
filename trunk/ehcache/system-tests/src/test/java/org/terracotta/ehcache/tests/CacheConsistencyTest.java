@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -29,7 +29,7 @@ public class CacheConsistencyTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
       Cache strongConsistencyCache = cache.getCacheManager().getCache("strongConsistencyCache");
       Cache eventualConsistencyCache = cache.getCacheManager().getCache("eventualConsistencyCache");
 

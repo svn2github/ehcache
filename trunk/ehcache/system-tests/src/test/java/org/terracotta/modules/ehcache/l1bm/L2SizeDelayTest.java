@@ -6,8 +6,7 @@ package org.terracotta.modules.ehcache.l1bm;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
-
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.ClientBase;
 
 import com.tc.test.config.model.PersistenceMode;
@@ -32,7 +31,7 @@ public class L2SizeDelayTest extends AbstractTerracottaActivePassiveTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       cache = cacheManager.getCache("testEventual");
 
       int size = 40 * 1024 * 1024;

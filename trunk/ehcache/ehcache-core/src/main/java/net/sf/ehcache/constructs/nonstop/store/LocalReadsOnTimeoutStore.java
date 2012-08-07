@@ -127,7 +127,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Doing getQuiet() for key: " + key);
         }
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
     }
 
     /**
@@ -136,7 +136,7 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
     public Map<Object, Element> getAllQuiet(Collection<?> keys) {
         Map<Object, Element> rv = new HashMap<Object, Element>();
         for (Object key : keys) {
-            rv.put(key, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key));
+            rv.put(key, nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key));
         }
         return rv;
     }
@@ -566,32 +566,12 @@ public class LocalReadsOnTimeoutStore implements NonstopStore {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGet(Object key) {
-        return unlockedGetQuiet(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(Object key) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
-    }
 
     /**
      * {@inheritDoc}
      */
     public Element unsafeGet(Object key) {
-        return unsafeGetQuiet(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unsafeGetQuiet(Object key) {
-        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGetQuiet(key);
+        return nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().unsafeGet(key);
     }
 
     /**

@@ -5,8 +5,8 @@ package org.terracotta.ehcache.tests.coherence;
 
 import net.sf.ehcache.Cache;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.ClientBase;
 
 import junit.framework.Assert;
@@ -14,7 +14,7 @@ import junit.framework.Assert;
 public class RestartingL1ExpressClient extends ClientBase {
 
   public static final String PASS_OUTPUT  = "Restarting express client PASS output";
-  private Barrier            barrier;
+  private ToolkitBarrier            barrier;
   private boolean            afterRestart = false;
   private boolean            shouldCrash  = false;
 
@@ -38,7 +38,7 @@ public class RestartingL1ExpressClient extends ClientBase {
   // n-1 nodes assert coherent
   // 1 node restarts, asserts cache coherent
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     barrier = toolkit.getBarrier("CacheCoherenceExpressClient", RestartingL1ExpressTest.CLIENT_COUNT);
     Assert.assertEquals(true, cache.isClusterCoherent());
     Assert.assertEquals(true, cache.isNodeCoherent());

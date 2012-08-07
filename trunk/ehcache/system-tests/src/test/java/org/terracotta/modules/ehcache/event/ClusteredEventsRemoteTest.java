@@ -7,10 +7,10 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -24,11 +24,11 @@ public class ClusteredEventsRemoteTest extends AbstractCacheTestBase {
 
   public ClusteredEventsRemoteTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
-    testConfig.addTcProperty("ehcache.clusteredStore.checkContainsKeyOnPut", "true");
+    testConfig.getClientConfig().addExtraClientJvmArg("-Dcom.tc.ehcache.clusteredStore.checkContainsKeyOnPut=true");
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super("testRemote", args);
@@ -36,7 +36,7 @@ public class ClusteredEventsRemoteTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       Assert.assertEquals(0, cache.getSize());

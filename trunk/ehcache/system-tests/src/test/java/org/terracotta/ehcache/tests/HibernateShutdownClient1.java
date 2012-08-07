@@ -6,12 +6,12 @@ import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.stat.Statistics;
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.container.hibernate.domain.Event;
 import org.terracotta.ehcache.tests.container.hibernate.domain.EventManager;
 import org.terracotta.ehcache.tests.container.hibernate.domain.Person;
 import org.terracotta.ehcache.tests.container.hibernate.domain.PhoneNumber;
 import org.terracotta.ehcache.tests.container.hibernate.nontransactional.HibernateUtil;
+import org.terracotta.toolkit.Toolkit;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -39,6 +39,7 @@ public class HibernateShutdownClient1 extends ClientBase {
   @Override
   public void doTest() throws Throwable {
     Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
+    storeL1ClassLoaderWeakReferences();
 
     testClusteredCache();
 
@@ -49,7 +50,6 @@ public class HibernateShutdownClient1 extends ClientBase {
         HibernateUtil.closeSessionFactory();
       }
 
-      storeL1ClassLoaderWeakReferences();
 
       shutdownExpressClient();
       clearTerracottaClient();
@@ -141,16 +141,19 @@ public class HibernateShutdownClient1 extends ClientBase {
   public void testClusteredCache() {
     try {
       runTest(null, getClusteringToolkit());
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(5 * 60)); // wait for client2 to assert clustered cache
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(5 * 60)); // line up for client2 to wait for client1
-                                                                          // shutdown
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS); // wait for client2 to
+                                                                                                 // assert clustered
+                                                                                                 // cache
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS); // line up for client2
+                                                                                                 // to wait for client1
+      // shutdown
     } catch (Throwable e) {
       e.printStackTrace();
     }
   }
 
   public void shutdownExpressClient() {
-    getTerracottaClient().shutdown();
+    getClusteringToolkit().shutdown();
   }
 
   private void assertThreadShutdown(Set<SimpleThreadInfo> dump) throws Exception {
@@ -159,7 +162,7 @@ public class HibernateShutdownClient1 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     HibernateUtil.configure("/hibernate-config/shutdowntest/hibernate.cfg.xml");
     HibernateUtil.dropAndCreateDatabaseSchema();
 

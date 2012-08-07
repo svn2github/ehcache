@@ -927,9 +927,8 @@ public class BasicSearchTest {
                 ageSum += p.getAge();
                 try {
                     result.getKey();
-                    fail();
                 } catch (SearchException se) {
-                    // expected since keys not included
+                  // expected since keys not included
                 }
             }
 

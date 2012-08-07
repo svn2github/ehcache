@@ -8,13 +8,13 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.terracotta.util.ClusteredAtomicLong;
+import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 public class EvictionCountingEventListener implements CacheEventListener {
 
-  private final ClusteredAtomicLong count;
+  private final ToolkitAtomicLong count;
 
-  public EvictionCountingEventListener(ClusteredAtomicLong clusteredAtomicLong) {
+  public EvictionCountingEventListener(ToolkitAtomicLong clusteredAtomicLong) {
     this.count = clusteredAtomicLong;
   }
 

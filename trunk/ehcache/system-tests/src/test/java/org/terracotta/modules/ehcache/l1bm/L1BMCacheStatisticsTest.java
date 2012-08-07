@@ -12,9 +12,9 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.CallableWaiter;
@@ -42,7 +42,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache strongCache = createCache(cacheManager, "strong-count-cache", Consistency.STRONG, ValueMode.SERIALIZATION,
                                       1000, 0);
       testCache(strongCache);

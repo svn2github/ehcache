@@ -6,9 +6,11 @@ package org.terracotta.ehcache.tests.servermap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.mbean.DSOMBean;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
+
+import com.tc.util.concurrent.ThreadUtil;
 
 import junit.framework.Assert;
 
@@ -18,14 +20,14 @@ import junit.framework.Assert;
  */
 public abstract class ServerMapClearTestHelper {
 
-  public static void doTest(Cache cache, ClusteringToolkit clusteringToolkit, DSOMBean dsoMBean) throws Throwable {
+  public static void doTest(Cache cache, Toolkit clusteringToolkit, DSOMBean dsoMBean) throws Throwable {
     // node 1 populates cache
     // both nodes asserts cache populated
     // node 2 clears cache
     // cache + localCache on both nodes are cleared
 
     int numElements = 10;
-    Barrier barrier = clusteringToolkit.getBarrier("clearTestBarrier", 2);
+    ToolkitBarrier barrier = clusteringToolkit.getBarrier("clearTestBarrier", 2);
     int index = barrier.await();
     if (index == 0) {
       debug(index, "Populating cache");
@@ -37,9 +39,10 @@ public abstract class ServerMapClearTestHelper {
     }
     barrier.await();
 
-    long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
     debug(index, "Asserting cache is populated");
     if (index == 0) {
+      ThreadUtil.reallySleep(10000); // Allow other client to hit the barrier
+      long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
       debug(index, "should hit local cache for this node");
       checkElements(index, dsoMBean, cache, numElements, initialGetValueReqCount, 0);
 
@@ -47,6 +50,8 @@ public abstract class ServerMapClearTestHelper {
     barrier.await();
 
     if (index != 0) {
+      ThreadUtil.reallySleep(10000); // Allow other client to hit the barrier
+      long initialGetValueReqCount = getGlobalServerMapGetValueRequestsCount(dsoMBean);
       debug(index, "should NOT hit local cache for this node");
       checkElements(index, dsoMBean, cache, numElements, initialGetValueReqCount, numElements);
     }

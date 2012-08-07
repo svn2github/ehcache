@@ -11,10 +11,10 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
-import org.terracotta.api.ClusteringToolkit;
-import org.terracotta.coordination.Barrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -32,7 +32,7 @@ public class L1BMOnHeapWithTTISanityTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
-    private final Barrier barrier;
+    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
@@ -44,46 +44,26 @@ public class L1BMOnHeapWithTTISanityTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache dcv2EventualSerializationWithStats = createCache("dcv2EventualSerializationWithStats", cacheManager,
                                                              Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualSerializationWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2EventualSerializationWithStats, true);
-
-      Cache dcv2EventualIdentityWithStats = createCache("dcv2EventualIdentityWithStats", cacheManager,
-                                                        Consistency.EVENTUAL, ValueMode.IDENTITY);
-      dcv2EventualIdentityWithStats.setStatisticsEnabled(true);
-      testL1BigMemorySanity(dcv2EventualIdentityWithStats, true);
 
       Cache dcv2EventualSerializationWithoutStats = createCache("dcv2EventualSerializationWithoutStats", cacheManager,
                                                                 Consistency.EVENTUAL, ValueMode.SERIALIZATION);
       dcv2EventualSerializationWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2EventualSerializationWithoutStats, true);
 
-      Cache dcv2EventualIdentityWithoutStats = createCache("dcv2EventualIdentityWithoutStats", cacheManager,
-                                                           Consistency.EVENTUAL, ValueMode.IDENTITY);
-      dcv2EventualIdentityWithoutStats.setStatisticsEnabled(false);
-      testL1BigMemorySanity(dcv2EventualIdentityWithoutStats, true);
-
       Cache dcv2StrongSerializationWithStats = createCache("dcv2StrongSerializationWithStats", cacheManager,
                                                            Consistency.STRONG, ValueMode.SERIALIZATION);
       dcv2StrongSerializationWithStats.setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2StrongSerializationWithStats, false);
 
-      Cache dcv2StrongIdentityWithStats = createCache("dcv2StrongIdentityWithStats", cacheManager,
-                                                      Consistency.STRONG, ValueMode.IDENTITY);
-      dcv2StrongIdentityWithStats.setStatisticsEnabled(true);
-      testL1BigMemorySanity(dcv2StrongIdentityWithStats, false);
-
       Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
                                                  ValueMode.SERIALIZATION);
       dcv2StrongWithoutStats.setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2StrongWithoutStats, false);
-
-      Cache dcv2StrongIdentityWithoutStats = createCache("dcv2StrongIdentityWithoutStats", cacheManager,
-                                                         Consistency.STRONG, ValueMode.IDENTITY);
-      dcv2StrongIdentityWithoutStats.setStatisticsEnabled(false);
-      testL1BigMemorySanity(dcv2StrongIdentityWithoutStats, false);
     }
 
     private void testL1BigMemorySanity(Cache cache, boolean shouldWait) throws InterruptedException,

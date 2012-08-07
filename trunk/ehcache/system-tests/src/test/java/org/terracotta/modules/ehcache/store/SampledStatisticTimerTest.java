@@ -5,7 +5,7 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Cache;
 
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
@@ -32,7 +32,7 @@ public class SampledStatisticTimerTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, ClusteringToolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       for (int i = 0; i < 10; i++) {
         String cacheName = "cache-" + i;
         cacheManager.addCache(cacheName);

@@ -4,14 +4,13 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.junit.Assert;
-import org.terracotta.api.ClusteringToolkit;
+import org.terracotta.toolkit.Toolkit;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -30,7 +29,7 @@ public class ShutdownClient1 extends ClientBase {
   }
 
   @Override
-  protected void runTest(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
 
     testClusteredCache(cache, toolkit);
@@ -51,7 +50,20 @@ public class ShutdownClient1 extends ClientBase {
 
     waitUntilLastChanceThreadsAreGone(6 * 60);
     new PermStress().stress(10000);
-    assertClassloadersGCed();
+    boolean failed = true;
+    for (int i = 0; i < 10; i++) {
+      failed = assertClassloadersGCed();
+      for (int j = 0; j < 10; j++) {
+        System.gc();
+      }
+      if (failed) {
+        System.out.println("Sleeping for 5 seconds...");
+        TimeUnit.SECONDS.sleep(5);
+      } else {
+        break;
+      }
+    }
+    if (failed) { throw new AssertionError("Some classloader were not gced"); }
 
     Set<SimpleThreadInfo> afterShutdownThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
     afterShutdownThreads.removeAll(baseLineThreads);
@@ -85,7 +97,7 @@ public class ShutdownClient1 extends ClientBase {
   }
 
   // if only a single L1 loader got GC'ed, we can consider the test passed
-  private void assertClassloadersGCed() {
+  private boolean assertClassloadersGCed() {
     boolean failed = true;
     StringBuilder sb = new StringBuilder();
     for (WeakReference<ClassLoader> wr : CLASS_LOADER_LIST) {
@@ -100,8 +112,10 @@ public class ShutdownClient1 extends ClientBase {
       sb.deleteCharAt(sb.length() - 1);
       sb.deleteCharAt(sb.length() - 1);
       dumpHeap(ShutdownClient1.class.getSimpleName());
-      throw new AssertionError("Classloader(s) " + sb + " not GC'ed");
+      // throw new AssertionError("Classloader(s) " + sb + " not GC'ed");
+      System.out.println("Classloaders not gc'ed yet: " + sb.toString());
     }
+    return failed;
   }
 
   public static void printThreads(Set<SimpleThreadInfo> threads) {
@@ -110,12 +124,15 @@ public class ShutdownClient1 extends ClientBase {
     }
   }
 
-  public void testClusteredCache(Cache cache, ClusteringToolkit toolkit) {
+  public void testClusteredCache(Cache cache, Toolkit toolkit) {
     try {
       testCache(cache, toolkit);
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // wait for client2 to assert clustered cache
-      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60)); // line up for client2 to wait for client1
-                                                                          // shutdown
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS); // wait for client2 to
+                                                                                                 // assert clustered
+                                                                                                 // cache
+      getBarrierForAllClients().await(TimeUnit.SECONDS.toMillis(3 * 60), TimeUnit.MILLISECONDS); // line up for client2
+                                                                                                 // to wait for client1
+      // shutdown
     } catch (Throwable e) {
       e.printStackTrace();
     }
@@ -123,10 +140,10 @@ public class ShutdownClient1 extends ClientBase {
 
   public void shutdownExpressClient() {
     getCacheManager().shutdown();
-    getTerracottaClient().shutdown();
+    getClusteringToolkit().shutdown();
   }
 
-  protected void testCache(Cache cache, ClusteringToolkit toolkit) throws Throwable {
+  protected void testCache(Cache cache, Toolkit toolkit) throws Throwable {
     cache.put(new Element("key", "value"));
   }
 
@@ -170,11 +187,7 @@ public class ShutdownClient1 extends ClientBase {
   }
 
   private void storeL1ClassLoaderWeakReferences(Cache cache) throws Exception {
-    Method getStoreMethod = Cache.class.getDeclaredMethod("getStore", (Class[]) null);
-    getStoreMethod.setAccessible(true);
-
-    Object clusteredStore = getStoreMethod.invoke(cache, (Object[]) null);
-    ClassLoader clusteredStateLoader = clusteredStore.getClass().getClassLoader();
+    ClassLoader clusteredStateLoader = getBarrierForAllClients().getClass().getClassLoader();
 
     System.out.println("XXX: clusteredStateLoader: " + clusteredStateLoader);
     Assert.assertNotNull(clusteredStateLoader);

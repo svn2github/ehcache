@@ -341,36 +341,6 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
     /**
      * {@inheritDoc}
      */
-    public Element unsafeGetQuiet(Object key) {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).unsafeGetQuiet(key);
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGet(Object key) {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).unlockedGet(key);
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Element unlockedGetQuiet(Object key) {
-        if (underlyingStore instanceof TerracottaStore) {
-            return ((TerracottaStore) underlyingStore).unlockedGetQuiet(key);
-        }
-        throw new CacheException("underlying store is not an instance of TerracottaStore");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public Set getLocalKeys() {
         if (underlyingStore instanceof TerracottaStore) {
             return ((TerracottaStore) underlyingStore).getLocalKeys();
