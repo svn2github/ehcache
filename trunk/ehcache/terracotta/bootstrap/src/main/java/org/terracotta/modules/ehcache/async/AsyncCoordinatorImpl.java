@@ -225,7 +225,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     try {
       status.checkRunning();
       status = Status.STOPPED;
-
       stopBuckets(localBuckets);
       stopDeadBuckets();
 

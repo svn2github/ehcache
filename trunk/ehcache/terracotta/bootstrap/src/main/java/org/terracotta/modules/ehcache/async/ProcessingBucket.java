@@ -20,9 +20,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class ProcessingBucket<E extends Serializable> {
+  private enum STOP_STATE {
+    NORMAL, STOP_REQUESTED, STOPPED
+  }
   private static final Logger     LOGGER                   = LoggerFactory.getLogger(ProcessingBucket.class.getName());
   private static final int        UNLIMITED_QUEUE_SIZE     = 0;
-
   private final String            bucketName;
   private final AsyncConfig       config;
   private final ClusterInfo       cluster;
@@ -37,7 +39,7 @@ class ProcessingBucket<E extends Serializable> {
   private final ToolkitList<E>    toolkitList;
   private long                    lastProcessingTimeMillis = -1;
   private long                    lastWorkDoneMillis       = -1;
-  private volatile boolean        cancelled                = false;
+  private volatile STOP_STATE     stopState                = STOP_STATE.NORMAL;
   private final AtomicLong        workDelay;
   private final ProcessingWorker  processingWorkerRunnable;
   private volatile Thread         processingWorkerThread;
@@ -108,7 +110,7 @@ class ProcessingBucket<E extends Serializable> {
     try {
       bucketReadLock.lock();
       try {
-        return cancelled || (workingOnDeadBucket && toolkitList.isEmpty());
+        return (stopState == STOP_STATE.STOPPED) || (workingOnDeadBucket && toolkitList.isEmpty());
       } finally {
         bucketReadLock.unlock();
       }
@@ -134,10 +136,11 @@ class ProcessingBucket<E extends Serializable> {
     bucketWriteLock.lock();
     try {
       workDelay.set(0);
+      stopState = STOP_STATE.STOP_REQUESTED;
       while (!toolkitList.isEmpty()) {
         stoppedButBucketNotEmpty.await();
       }
-      cancelled = true;
+      stopState = STOP_STATE.STOPPED;
       bucketNotEmpty.signalAll();
       processingWorkerThread.interrupt();
     } catch (InterruptedException e) {
@@ -226,7 +229,7 @@ class ProcessingBucket<E extends Serializable> {
     final int workSize;
     bucketReadLock.lock();
     try {
-      if (cancelled) { return; }
+      if (stopState == STOP_STATE.STOPPED) { return; }
       workSize = toolkitList.size();
       // if there's no work that needs to be done, stop the processing
       if (0 == workSize) {
@@ -295,7 +298,7 @@ class ProcessingBucket<E extends Serializable> {
         processSingleItem();
       }
 
-      if (toolkitList.isEmpty() && cancelled) {
+      if (toolkitList.isEmpty() && stopState == STOP_STATE.STOP_REQUESTED) {
         signalStop();
       }
     }
@@ -454,7 +457,7 @@ class ProcessingBucket<E extends Serializable> {
                   }
                 } while (tmpWorkDelay > 0);
               } else {
-                while (toolkitList.isEmpty() && !workingOnDeadBucket) {
+                while (!workingOnDeadBucket && stopState == STOP_STATE.NORMAL && toolkitList.isEmpty()) {
                   bucketNotEmpty.await();
                 }
               }
