@@ -47,7 +47,7 @@
     properties  - Properties to be interpreted by the factory
     -->
     <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
-                                     properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=0"/>
+                                     properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4447, timeToLive=0"/>
 
 
     <!--
@@ -76,7 +76,7 @@
 
     -->
     <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
-                                     properties="hostName=localhost, port=40006, socketTimeoutMillis=120000"/>
+                                     properties="hostName=localhost, port=40007, socketTimeoutMillis=120000"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
