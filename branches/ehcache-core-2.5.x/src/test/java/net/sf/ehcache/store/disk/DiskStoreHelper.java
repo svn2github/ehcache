@@ -18,10 +18,14 @@ public class DiskStoreHelper {
         final Store store = cacheStoreHelper.getStore();
         if(store instanceof DiskBackedMemoryStore) {
             final DiskStore authority = getField("authority", store);
-            final DiskStorageFactory factory = getField("disk", authority);
-            return factory.flush();
+            return flushAllEntriesToDisk(authority);
         }
         return null;
+    }
+
+    public static Future<Void> flushAllEntriesToDisk(final DiskStore store) {
+        final DiskStorageFactory factory = getField("disk", store);
+        return factory.flush();
     }
 
     private static <T> T getField(final String fieldName, final Object obj) {

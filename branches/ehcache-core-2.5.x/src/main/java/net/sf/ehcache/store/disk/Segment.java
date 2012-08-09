@@ -813,32 +813,6 @@ public class Segment extends ReentrantReadWriteLock {
     }
 
     /**
-     * Count the number of elements which have been added to the store but haven't been written to disk yet
-     *
-     * @return the number of elements which have been added to the store but haven't been written to disk yet
-     */
-    int countOnHeap() {
-        readLock().lock();
-        try {
-            int result = 0;
-
-            if (count != 0) {
-                for (HashEntry hashEntry : table) {
-                    for (HashEntry e = hashEntry; e != null; e = e.next) {
-                        if (e.element instanceof DiskStorageFactory.Placeholder) {
-                            result++;
-                        }
-                    }
-                }
-            }
-
-            return result;
-        } finally {
-            readLock().unlock();
-        }
-    }
-
-    /**
      * Remove the matching mapping.  Unlike the {@link net.sf.ehcache.store.disk.Segment#remove(Object, int, net.sf.ehcache.Element, net.sf.ehcache.store.ElementValueComparator)} method
      * evict does referential comparison of the unretrieved substitute against the argument value.
      *
