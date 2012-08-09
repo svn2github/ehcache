@@ -16,8 +16,8 @@
 
 package net.sf.ehcache;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.core.Is.*;
+import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.assertThat;
 
 import junit.framework.Assert;
@@ -27,7 +27,6 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -185,7 +184,7 @@ public class CachePinningTest {
         Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
 
         for (int i = 0; i < ELEMENT_COUNT; i++) {
-            assertNotNull(cache.get(i));
+            assertThat(cache.get(i), notNullValue());
         }
 
         Assert.assertEquals(expectedMemoryHits, cache.getStatistics().getInMemoryHits());
@@ -246,10 +245,10 @@ public class CachePinningTest {
             .eternal(true));
         cacheManager.addCache(cache);
         final Object key = new Object();
-        assertThat(cache.isKeyInCache(key), Matchers.is(false));
+        assertThat(cache.isKeyInCache(key), is(false));
         cache.setPinned(key, true);
         assertThat(cache.get(key), nullValue());
-        assertThat(cache.isKeyInCache(key), Matchers.is(false));
+        assertThat(cache.isKeyInCache(key), is(false));
     }
 
     @Test
@@ -342,18 +341,18 @@ public class CachePinningTest {
         final List cacheKeys = cache.getKeys();
         // We can't use cacheKeys.size() here, as this will not account for duplicated keys
         for (Object o : cacheKeys) {
-            assertThat(o + " isn't in keySet!", cacheKeys.contains(o), Matchers.is(true));
+            assertThat(o + " isn't in keySet!", cacheKeys.contains(o), is(true));
             assertThat(o + " is null!", cache.get(o), notNullValue());
             ++count;
         }
         for(int i = 0; i < maxElements; i++) {
             final Element element = cache.get(i);
             if(element != null) {
-                assertThat(cacheKeys.contains(element.getKey()), Matchers.is(true));
+                assertThat(cacheKeys.contains(element.getKey()), is(true));
             }
         }
-        assertThat(cache.getSize(), Matchers.is(count));
-        assertThat("We have " + count + " keys", count > cache.getCacheConfiguration().getMaxEntriesLocalDisk(), Matchers.is(true));
+        assertThat(cache.getSize(), is(count));
+        assertThat("We have " + count + " keys", count > cache.getCacheConfiguration().getMaxEntriesLocalDisk(), is(true));
     }
 
     private void flushDisk(final Cache cache) throws InterruptedException, ExecutionException {
