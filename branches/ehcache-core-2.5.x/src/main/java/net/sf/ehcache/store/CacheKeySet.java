@@ -118,7 +118,11 @@ public class CacheKeySet<E> implements Set<E> {
      * {@inheritDoc}
      */
     public <T> T[] toArray(final T[] a) {
-        throw new UnsupportedOperationException();
+        List<E> list = new ArrayList<E>();
+        for (E e : this) {
+            list.add(e);
+        }
+        return list.toArray(a);
     }
 
     /**
