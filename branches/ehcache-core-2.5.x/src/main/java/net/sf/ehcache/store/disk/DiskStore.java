@@ -18,7 +18,6 @@ package net.sf.ehcache.store.disk;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
