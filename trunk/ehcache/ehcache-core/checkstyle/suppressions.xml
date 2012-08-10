@@ -69,6 +69,7 @@
     <suppress checks="IllegalImport" files="UnsafeSizeOf.java" />
     <suppress checks="MutableExceptionCheck" files="MaxDepthExceededException.java"/>
     <suppress checks="BooleanExpressionComplexity" files="DiskStorePathManager.java"/>
+    <suppress checks="BooleanExpressionComplexity" files="FlyweightType.java"/>
 
     <!-- Candidates for refactoring -->
     <suppress checks="CyclomaticComplexity" files="ObjectGraphWalker.java"/>
