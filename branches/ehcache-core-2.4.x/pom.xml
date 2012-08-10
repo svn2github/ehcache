@@ -366,7 +366,7 @@
         <version>${surefire.version}</version>
         <configuration>
           <forkMode>pertest</forkMode>
-          <argLine>${tests.supplemental.args} -Xmx64m</argLine>
+          <argLine>${tests.supplemental.args} -Xmx128m</argLine>
           <childDelegation>false</childDelegation>
           <disableXmlReport>false</disableXmlReport>
           <printSummary>true</printSummary>
