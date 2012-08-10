@@ -17,8 +17,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
-import junit.framework.Assert;
 
+import javax.xml.datatype.DatatypeConstants;
+
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -92,7 +94,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
       } else {
         verify32bitSizes(sizeOf);
         assertThat(deepSizeOf(sizeOf, new ReentrantReadWriteLock()), is(112L));
-      }        
+      }
     } else {
         Assert.fail();
     }
@@ -245,6 +247,8 @@ public class SizeOfTest extends AbstractSizeOfTest {
     assertThat(deepSizeOf(sizeOf, System.err), is(0L));
     assertThat(deepSizeOf(sizeOf, Proxy.NO_PROXY), is(0L));
     assertThat(deepSizeOf(sizeOf, CodingErrorAction.REPORT), is(0L));
+    assertThat(deepSizeOf(sizeOf, DatatypeConstants.DAYS), is(0L));
+    assertThat(deepSizeOf(sizeOf, DatatypeConstants.TIME), is(0L));
   }
 
   @Test

@@ -33,6 +33,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.namespace.QName;
+
 /**
  * Enum with all the flyweight types that we check for sizeOf measurements
  *
@@ -173,6 +176,32 @@ enum FlyweightType {
     CODINGERRORACTION(CodingErrorAction.class) {
         @Override
         boolean isShared(final Object obj) { return true; }
+    },
+    /**
+     * javax.xml.datatype.DatatypeConstants.Field
+     */
+    DATATYPECONSTANTS_FIELD(DatatypeConstants.Field.class) {
+        @Override
+        boolean isShared(final Object obj) { return true; }
+    },
+    /**
+     * javax.xml.namespace.QName
+     */
+    QNAME(QName.class) {
+        @Override
+        boolean isShared(final Object obj) {
+            return obj == DatatypeConstants.DATETIME
+                    || obj == DatatypeConstants.TIME
+                    || obj == DatatypeConstants.DATE
+                    || obj == DatatypeConstants.GYEARMONTH
+                    || obj == DatatypeConstants.GMONTHDAY
+                    || obj == DatatypeConstants.GYEAR
+                    || obj == DatatypeConstants.GMONTH
+                    || obj == DatatypeConstants.GDAY
+                    || obj == DatatypeConstants.DURATION
+                    || obj == DatatypeConstants.DURATION_DAYTIME
+                    || obj == DatatypeConstants.DURATION_YEARMONTH;
+        }
     },
     /**
      * misc comparisons that can not rely on the object's class.
