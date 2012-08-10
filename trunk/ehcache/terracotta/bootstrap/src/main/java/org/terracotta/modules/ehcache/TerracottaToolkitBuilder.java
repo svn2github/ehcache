@@ -30,6 +30,8 @@ public class TerracottaToolkitBuilder {
 
   private static final String      TC_TUNNELLED_MBEAN_DOMAINS_KEY = "tunnelledMBeanDomains";
   private static final String      TC_CONFIG_SNIPPET_KEY          = "tcConfigSnippet";
+  private static final String      REJOIN_KEY                     = "rejoin";
+  private boolean                  rejoin;
   private final TCConfigTypeStatus tcConfigTypeStatus            = new TCConfigTypeStatus();
   private final Set<String>        tunnelledMBeanDomains         = Collections.synchronizedSet(new HashSet<String>());
 
@@ -71,6 +73,7 @@ public class TerracottaToolkitBuilder {
     if (!isUrl) {
       properties.setProperty(TC_CONFIG_SNIPPET_KEY, tcConfigOrUrl);
     }
+    properties.setProperty(REJOIN_KEY, String.valueOf(rejoin));
     return properties;
   }
 
@@ -167,6 +170,10 @@ public class TerracottaToolkitBuilder {
       return state;
     }
 
+  }
+
+  public void setRejoinEnabled(boolean rejoin) {
+    this.rejoin = rejoin;
   }
 
 }
