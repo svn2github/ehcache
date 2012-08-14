@@ -99,7 +99,7 @@ public abstract class ClientBase extends AbstractClientBase {
   public void waitForAllCurrentTransactionsToComplete() {
     if (isStandaloneCfg()) return;
     try {
-      ClassLoader cl = getClusteringToolkit().getList("testList").getClass().getClassLoader();
+      ClassLoader cl = getClusteringToolkit().getList("testList", null).getClass().getClassLoader();
       Class managerUtil = cl.loadClass(MANAGER_UTIL_CLASS_NAME);
       managerUtil.getMethod(MANAGER_UTIL_WAITFORALLCURRENTTRANSACTIONTOCOMPLETE_METHOD).invoke(null);
     } catch (Exception e) {
@@ -111,7 +111,7 @@ public abstract class ClientBase extends AbstractClientBase {
   public String getClientID() {
     if (isStandaloneCfg()) return null;
     try {
-      ClassLoader cl = getClusteringToolkit().getMap("testMap").getClass().getClassLoader();
+      ClassLoader cl = getClusteringToolkit().getMap("testMap", null, null).getClass().getClassLoader();
       Class managerUtil = cl.loadClass(MANAGER_UTIL_CLASS_NAME);
       return (String) managerUtil.getMethod(MANAGER_UTIL_GETCLIENTID_METHOD).invoke(null);
     } catch (Exception e) {

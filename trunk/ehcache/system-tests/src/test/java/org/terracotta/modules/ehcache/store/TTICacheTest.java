@@ -112,10 +112,18 @@ public class TTICacheTest extends AbstractCacheTestBase {
 
       cache1.put(new Element("key-1", "value-1"));
       // Check that last access time is being updated on each get.
-      for (int i = 0; i < 40; i++) {
-        TimeUnit.SECONDS.sleep(2);
+      for (int i = 0; i < 10; i++) {
+        TimeUnit.SECONDS.sleep(6); // Sleep for TTI/2 + 1
         Assert.assertNotNull(cache1.get("key-1"));
       }
+
+      // Check that lastAccessTime is only Updated if time diff > TTI/2
+      cache2.put(new Element("key-1", "value-1"));
+      TimeUnit.SECONDS.sleep(5); // SLEEP for TTI/4
+      Assert.assertNotNull(cache2.get("key-1"));
+      TimeUnit.SECONDS.sleep(15); // SLEEP for 3/4 * TTI
+      Assert.assertNull(cache2.get("key-1"));
+
     }
 
   }

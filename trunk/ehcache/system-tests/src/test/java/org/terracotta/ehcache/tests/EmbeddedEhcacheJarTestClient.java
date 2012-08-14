@@ -17,7 +17,7 @@ public class EmbeddedEhcacheJarTestClient extends ClientBase {
 
   @Override
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
-    ToolkitMap<String, String> map = toolkit.getMap("testMap");
+    ToolkitMap<String, String> map = toolkit.getMap("testMap", null, null);
     Class ehcacheClass = map.getClass().getClassLoader().loadClass("net.sf.ehcache.Ehcache");
     // Verify that the Ehcache.class loaded from the ClusteredStateLoader is the same as that loaded from the app. Since
     // Ehcache will be on the classpath for this test, we want to verify that the app class loader version is used

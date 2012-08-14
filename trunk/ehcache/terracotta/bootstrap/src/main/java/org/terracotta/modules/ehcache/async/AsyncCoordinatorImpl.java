@@ -165,7 +165,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   }
 
   private ProcessingBucket<E> createBucket(String bucketName, AsyncConfig processingConfig, boolean workingOnDeadBucket) {
-    ToolkitList<E> toolkitList = toolkit.getList(bucketName);
+    ToolkitList<E> toolkitList = toolkit.getList(bucketName, null);
     if (!workingOnDeadBucket && toolkitList.size() > 0) { throw new AssertionError(
                                                                                    "List created should not have size greater than 0"); }
 

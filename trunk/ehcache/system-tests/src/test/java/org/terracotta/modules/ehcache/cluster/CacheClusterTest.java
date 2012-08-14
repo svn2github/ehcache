@@ -47,7 +47,7 @@ public class CacheClusterTest extends AbstractCacheTestBase {
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       barrier.await();
-      this.nodes = getClusteringToolkit().getMap("testMap");
+      this.nodes = getClusteringToolkit().getMap("testMap", null, null);
 
       cacheManager.getCache("test");
 
