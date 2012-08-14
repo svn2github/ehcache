@@ -8,11 +8,11 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
 import org.apache.log4j.Logger;
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.modules.ehcache.cluster.TopologyListenerImpl;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -23,16 +23,14 @@ import junit.framework.Assert;
 
 public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
 
-  private static Logger    LOG        = Logger.getLogger(TopologyListenerImpl.class);
   private static final int NODE_COUNT = 5;
 
   public ClusteredEventsEvictionExpiryTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
-    // FORGE-582
-    timebombTest("2013-01-15");
   }
 
   public static class App extends ClientBase {
+    private static final Logger  LOG = Logger.getLogger(TopologyListenerImpl.class);
     private final ToolkitBarrier barrier;
 
     public App(String[] args) {
@@ -47,8 +45,6 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       testCache(cacheManager.getCache("testSerializationExpiry"));
-      testCache(cacheManager.getCache("testIdentityExpiry"));
-
     }
 
     private void testCache(Cache cache) throws Throwable {
@@ -129,14 +125,21 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       barrier.await();
 
       LOG.info("Testing element in-memory eviction.");
-      for (int i = 0; i < 10; i++)
-        cache.put(new Element(new NonPortable("key_" + index), new NonPortable("value_" + index)));
 
-      for (int i = 0; i < 10; i++)
-        cache.get(new NonPortable("key_" + index));
+      if (index == 0) {
+        for (int i = 0; i < 100; i++) {
+          cache.put(new Element(new NonPortable("key_" + index + "_" + i), new NonPortable("value_" + index)));
+          Thread.sleep(1000); // slow this down to let capacity eviction take effect. Also gives enough time for the
+                              // removed set to propagate to the server
+        }
+        LOG.info("Cache size is now " + cache.getSize());
+      }
 
       barrier.await();
-      Assert.assertEquals(NODE_COUNT, listener.getEvicted().size());
+
+      Assert.assertTrue("Expecting at least some evictions.", listener.getEvicted().size() > 1);
+      Assert
+          .assertEquals("Number of eviction events don't match.", 100 - cache.getSize(), listener.getEvicted().size());
     }
 
   }
