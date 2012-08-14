@@ -32,7 +32,7 @@ public class BulkLoadEnabledNodesSet {
   protected BulkLoadEnabledNodesSet(Toolkit toolkit, String name) {
     this.name = name;
     this.clusterInfo = toolkit.getClusterInfo();
-    bulkLoadEnabledNodesSet = toolkit.getSet(BULK_LOAD_NODES_SET_PREFIX + name, null);
+    bulkLoadEnabledNodesSet = toolkit.getSet(BULK_LOAD_NODES_SET_PREFIX + name, String.class);
     clusteredLock = bulkLoadEnabledNodesSet.getReadWriteLock().writeLock();
     
     if (LOGGER == null) {

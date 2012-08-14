@@ -95,17 +95,20 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public ToolkitCacheWithMetadata<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
     final Configuration clusteredCacheConfig = createClusteredMapConfig(new ToolkitCacheConfigBuilderInternal(), cache);
-    return (ToolkitCacheWithMetadata) toolkit.getCache(getFullyQualifiedCacheName(cache), clusteredCacheConfig, null);
+    return (ToolkitCacheWithMetadata<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cache),
+                                                                             clusteredCacheConfig, Serializable.class);
   }
 
   @Override
   public ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(Ehcache cache) {
-    return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + CONFIG_NOTIFIER_SUFFIX, null);
+    return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
+                               CacheConfigChangeNotificationMsg.class);
   }
 
   @Override
   public ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache) {
-    return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + EVENT_NOTIFIER_SUFFIX, null);
+    return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + EVENT_NOTIFIER_SUFFIX,
+                               CacheEventNotificationMsg.class);
   }
 
   private static Configuration createClusteredMapConfig(ToolkitCacheConfigBuilderInternal builder, Ehcache cache) {
@@ -220,7 +223,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
         .getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
-                  config, null);
+                  config, SerializedReadCommittedClusteredSoftLock.class);
     return new SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
 
   }
@@ -229,12 +232,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitList<SerializedReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
                                                                                           String cacheName) {
     return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
-                           + NEW_SOFT_LOCKS_LIST_SUFFIX, null);
+                           + NEW_SOFT_LOCKS_LIST_SUFFIX, SerializedReadCommittedClusteredSoftLock.class);
   }
 
   @Override
   public ToolkitCache<String, AsyncConfig> getOrCreateAsyncConfigMap() {
-    return toolkit.getCache(ASYNC_CONFIG_MAP, null);
+    return toolkit.getCache(ASYNC_CONFIG_MAP, AsyncConfig.class);
   }
 
   @Override
@@ -261,7 +264,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitCache<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
     return toolkit.getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
-                            + CLUSTERED_STORE_CONFIG_MAP, null);
+                            + CLUSTERED_STORE_CONFIG_MAP, Serializable.class);
   }
 
   @Override
@@ -270,7 +273,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     Configuration config = new ToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
-                                                          + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config, null);
+                                                              + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config,
+                                                          Decision.class);
     return new SerializedToolkitCache<TransactionID, Decision>(map);
   }
 
