@@ -16,7 +16,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
@@ -35,7 +38,7 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
     int nonDaemonThreadCountA = tbean.getThreadCount() - tbean.getDaemonThreadCount();
     int daemonThreadCountA = tbean.getDaemonThreadCount();
     long[] listA = tbean.getAllThreadIds();
-    for (int loopNumber = 0; loopNumber < 4; loopNumber++) {
+    for (int loopNumber = 0; loopNumber < 10; loopNumber++) {
       cacheManager = new CacheManager(WriteBehindThreadsTestClient.class.getResourceAsStream("/ehcache-config.xml"));
       int daemonThreadCountB = tbean.getDaemonThreadCount();
       Assert.assertTrue(daemonThreadCountA < daemonThreadCountB);
@@ -49,9 +52,10 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
       while (getWriteCount() < 10) {
         Thread.sleep(200);
       }
+      resetWriteCount();
       cacheManager.shutdown();
     }
-    Thread.sleep(60000);
+    TimeUnit.MINUTES.sleep(1L);
     long[] listC = tbean.getAllThreadIds();
     int daemonThreadCountC = tbean.getDaemonThreadCount();
     int nonDaemonThreadCountC = tbean.getThreadCount() - tbean.getDaemonThreadCount();
@@ -64,19 +68,33 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
       listIntC.add(new Long(listAItrator));
     }
     listIntC.removeAll(listIntA);
-    System.out.println("\n\n\n\n\nStart Printing Stack Trace--------------------");
+    Set<String> knownThreads = getKnownThreads();
+    int skipThreadCount = 0;
+    StringBuffer threadsInfo = new StringBuffer();
+    System.out.println("\n\n" + listIntC.size() + " Start Printing Stack Trace--------------------");
     for (int i = 0; i < listIntC.size(); i++) {
       ThreadInfo tinfo = tbean.getThreadInfo(listIntC.get(i));
-      System.out.println(tinfo.getThreadName());
-      System.out.println("Thread name: " + tinfo.getThreadName() + "-" + tinfo.getThreadId());
-      for (StackTraceElement e : tinfo.getStackTrace()) {
-        System.out.println("    at " + e);
+      if (knownThreads.contains(tinfo.getThreadName().trim())) {
+        ++skipThreadCount;
+        continue;
       }
-      System.out.println();
+      String info = "Thread name: " + tinfo.getThreadName() + " | " + tinfo.getThreadId();
+      System.out.println(info);
+      threadsInfo.append(info);
+      for (StackTraceElement e : tinfo.getStackTrace()) {
+        threadsInfo.append(e + "\n\n");
+      }
     }
-    System.out.println("End-----------------------\n\n\n\n\n");
-    Assert.assertEquals(daemonThreadCountA, daemonThreadCountC);
+    System.out.println(threadsInfo + "\n\nEnd-----------------------\n\n");
+    Assert.assertEquals(threadsInfo.toString(), daemonThreadCountA, daemonThreadCountC - skipThreadCount);
     Assert.assertEquals(nonDaemonThreadCountA, nonDaemonThreadCountC);
+  }
+
+  private Set<String> getKnownThreads() {
+    Set<String> skipThreads = new HashSet<String>();
+    skipThreads.add("Attach Listener");
+
+    return skipThreads;
   }
 
   @Override
