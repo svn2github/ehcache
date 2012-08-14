@@ -25,6 +25,7 @@ class ProcessingBucket<E extends Serializable> {
   }
   private static final Logger     LOGGER                   = LoggerFactory.getLogger(ProcessingBucket.class.getName());
   private static final int        UNLIMITED_QUEUE_SIZE     = 0;
+  private static final String     threadNamePrefix         = "ProcessingWorker|";
   private final String            bucketName;
   private final AsyncConfig       config;
   private final ClusterInfo       cluster;
@@ -62,7 +63,7 @@ class ProcessingBucket<E extends Serializable> {
     this.stoppedButBucketNotEmpty = bucketWriteLock.newCondition();
     this.workDelay = new AtomicLong(config.getWorkDelay());
     this.workingOnDeadBucket = workingOnDeadBucket;
-    this.processingWorkerRunnable = new ProcessingWorker("ProcessingWorker-" + bucketName);
+    this.processingWorkerRunnable = new ProcessingWorker(threadNamePrefix + bucketName);
   }
 
   public String getBucketName() {
@@ -206,7 +207,15 @@ class ProcessingBucket<E extends Serializable> {
     try {
       ItemsFilter<E> itemsFilter = this.filter;
       if (itemsFilter != null) {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(getThreadName() + " : filterQuarantined(): filtering " + toolkitList.size()
+                       + " quarantined items");
+        }
         itemsFilter.filter(toolkitList);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(getThreadName() + " : filterQuarantined(): retained " + toolkitList.size()
+                       + " quarantined items");
+        }
       }
     } finally {
       bucketWriteLock.unlock();
@@ -218,29 +227,25 @@ class ProcessingBucket<E extends Serializable> {
    * bucket will be processed.
    */
   private void processItems() throws ProcessingException {
+    final int workSize;
+
     bucketWriteLock.lock();
     try {
+      // set some state related to this processing run
       lastProcessingTimeMillis = baselinedCurrentTimeMillis();
-    } finally {
-      bucketWriteLock.unlock();
-    }
 
-    // set some state related to this processing run
-    final int workSize;
-    bucketReadLock.lock();
-    try {
-      if (stopState == STOP_STATE.STOPPED) { return; }
       workSize = toolkitList.size();
       // if there's no work that needs to be done, stop the processing
       if (0 == workSize) {
         LOGGER.warn(getThreadName() + " : processItems() : nothing to process");
         return;
       }
+      // filter might remove items from list, so this should be with-in writeLock
+      filterQuarantined();
     } finally {
-      bucketReadLock.unlock();
+      bucketWriteLock.unlock();
     }
 
-    filterQuarantined();
     // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
     // max allowed fall behind delay hasn't expired
     final int batchSize = config.getBatchSize();
@@ -446,7 +451,7 @@ class ProcessingBucket<E extends Serializable> {
           try {
             try {
               long tmpWorkDelay = workDelay.get();
-              if (workDelay.get() != 0) {
+              if (tmpWorkDelay != 0) {
                 do {
                   bucketNotEmpty.await(tmpWorkDelay, TimeUnit.MILLISECONDS);
                   long actualWorkDelay = baselinedCurrentTimeMillis() - currentLastProcessing;

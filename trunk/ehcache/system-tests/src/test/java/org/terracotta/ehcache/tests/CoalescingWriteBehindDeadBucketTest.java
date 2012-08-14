@@ -18,12 +18,13 @@ public class CoalescingWriteBehindDeadBucketTest extends AbstractCacheTestBase {
 
   public CoalescingWriteBehindDeadBucketTest(TestConfig testConfig) {
     super("coalescing-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
+    testConfig.getClientConfig().setParallelClients(false);
   }
 
   @Override
   protected void postClientVerification() {
     System.out.println("[Clients processed a total of " + totalWriteCount + " writes]");
-    if (totalWriteCount < 201 || totalWriteCount > 1000) { throw new AssertionError(totalWriteCount); }
+    if (totalWriteCount < 180 || totalWriteCount > 1000) { throw new AssertionError(totalWriteCount); }
 
     System.out.println("[Clients processed a total of " + totalDeleteCount + " deletes]");
     if (totalDeleteCount < 21 || totalDeleteCount > 100) { throw new AssertionError(totalDeleteCount); }

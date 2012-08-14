@@ -34,7 +34,7 @@ public class WriteBehindClient1 extends AbstractWriteBehindClient {
       }
     }
 
-    while (getWriteCount() < 1000) {
+    while (getWriteCount() < 100) {
       Thread.sleep(200);
     }
 

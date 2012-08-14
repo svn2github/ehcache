@@ -14,6 +14,10 @@ public abstract class AbstractWriteBehindClient extends ClientBase {
     writeCount.incrementAndGet();
   }
 
+  public void resetWriteCount() {
+    writeCount.set(0);
+  }
+
   public long getWriteCount() {
     return writeCount.longValue();
   }
