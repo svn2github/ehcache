@@ -30,7 +30,6 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
-import net.sf.ehcache.store.DefaultElementValueComparator;
 
 /**
  * Element representing the {@link CacheConfiguration}
