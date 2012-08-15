@@ -211,8 +211,7 @@ public class CacheConfigurationElement extends SimpleNodeElement {
     private static void addElementValueComparatorConfigurationElement(NodeElement element, CacheConfiguration cacheConfiguration) {
         ElementValueComparatorConfiguration elementValueComparatorConfiguration = cacheConfiguration
                 .getElementValueComparatorConfiguration();
-        if (elementValueComparatorConfiguration != null &&
-                !elementValueComparatorConfiguration.getClassName().equals(DefaultElementValueComparator.class.getName())) {
+        if (elementValueComparatorConfiguration != null) {
             element.addChildElement(new ElementValueComparatorConfigurationElement(element, elementValueComparatorConfiguration));
         }
     }

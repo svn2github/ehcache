@@ -16,6 +16,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
@@ -24,8 +25,7 @@ import net.sf.ehcache.util.ClassLoaderUtil;
  */
 public class ElementValueComparatorConfiguration {
 
-    private volatile String className = "net.sf.ehcache.store.DefaultElementValueComparator";
-    private ElementValueComparator comparator;
+    private volatile String className = DefaultElementValueComparator.class.getName();
 
     /**
      * Returns the fully qualified class name for the ElementValueComparator to use
@@ -52,21 +52,16 @@ public class ElementValueComparatorConfiguration {
      * @param cacheConfiguration the cache configuration
      * @return the instance
      */
-    public synchronized ElementValueComparator getElementComparatorInstance(CacheConfiguration cacheConfiguration) {
-        if (comparator == null) {
-            Class elementComparator = null;
-            try {
-                comparator = (ElementValueComparator) ClassLoaderUtil.createNewInstance(
-                    className,
-                    new Class[] {CacheConfiguration.class},
-                    new Object[] {cacheConfiguration}
-                );
-            } catch (ClassCastException cce) {
-                throw new CacheException(elementComparator != null ? elementComparator.getSimpleName()
-                        + " doesn't implement " + ElementValueComparator.class.getName() : "Error loading ElementValueComparator", cce);
-            }
+    public ElementValueComparator createElementComparatorInstance(CacheConfiguration cacheConfiguration) {
+        try {
+            return (ElementValueComparator) ClassLoaderUtil.createNewInstance(
+                className,
+                new Class[] {CacheConfiguration.class},
+                new Object[] {cacheConfiguration}
+            );
+        } catch (ClassCastException cce) {
+            throw new CacheException(className + " must implement " + ElementValueComparator.class.getName(), cce);
         }
-        return comparator;
     }
 
     /**

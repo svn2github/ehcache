@@ -1147,11 +1147,11 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
         Ehcache cache = configurationHelper.createCacheFromName("cache");
-        assertTrue(cache.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance(cache.getCacheConfiguration())
+        assertTrue(cache.getCacheConfiguration().getElementValueComparatorConfiguration().createElementComparatorInstance(cache.getCacheConfiguration())
                 instanceof DefaultElementValueComparator);
 
         Ehcache cache2 = configurationHelper.createCacheFromName("cache2");
-        assertTrue(cache2.getCacheConfiguration().getElementValueComparatorConfiguration().getElementComparatorInstance(cache.getCacheConfiguration())
+        assertTrue(cache2.getCacheConfiguration().getElementValueComparatorConfiguration().createElementComparatorInstance(cache.getCacheConfiguration())
                 .getClass().equals(FakeElementValueComparator.class));
     }
 

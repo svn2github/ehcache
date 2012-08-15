@@ -25,6 +25,7 @@ import net.sf.ehcache.config.MemoryUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class CacheCopyOnRwTest {
@@ -74,6 +75,7 @@ public class CacheCopyOnRwTest {
     }
 
     @Test
+    @Ignore("DEV-6967")
     public void testCopyOnReadWriteCache() throws Exception {
         cacheManager.addCache(new Cache(new CacheConfiguration().statistics(true).name("copyOnReadWriteCache").copyOnRead(true)
                 .copyOnWrite(true)));
