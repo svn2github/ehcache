@@ -38,7 +38,7 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
     int nonDaemonThreadCountA = tbean.getThreadCount() - tbean.getDaemonThreadCount();
     int daemonThreadCountA = tbean.getDaemonThreadCount();
     long[] listA = tbean.getAllThreadIds();
-    for (int loopNumber = 0; loopNumber < 10; loopNumber++) {
+    for (int loopNumber = 0; loopNumber < 4; loopNumber++) {
       cacheManager = new CacheManager(WriteBehindThreadsTestClient.class.getResourceAsStream("/ehcache-config.xml"));
       int daemonThreadCountB = tbean.getDaemonThreadCount();
       Assert.assertTrue(daemonThreadCountA < daemonThreadCountB);
@@ -54,6 +54,7 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
       }
       resetWriteCount();
       cacheManager.shutdown();
+      System.out.println("done with iteration "+loopNumber);
     }
     TimeUnit.MINUTES.sleep(1L);
     long[] listC = tbean.getAllThreadIds();
