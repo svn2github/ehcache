@@ -32,14 +32,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Check for new Ehcache updates and alert users if an update is available
- * 
+ *
  * @author Hung Huynh
  */
 public class UpdateChecker extends TimerTask {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateChecker.class.getName());
     private static final long MILLIS_PER_SECOND = 1000L;
     private static final int CONNECT_TIMEOUT = 3000;
-    private static final String NOT_AVAILABLE = "UNKNOWN";
+    private static final String UNKNOWN = "UNKNOWN";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
     private static final long START_TIME = System.currentTimeMillis();
 
@@ -65,7 +65,6 @@ public class UpdateChecker extends TimerTask {
     }
 
     private void doCheck() throws IOException {
-        LOG.debug("Checking for update...");
         URL updateUrl = buildUpdateCheckUrl();
         Properties updateProps = getUpdateProperties(updateUrl);
         String currentVersion = new ProductInfo().getVersion();
@@ -97,7 +96,7 @@ public class UpdateChecker extends TimerTask {
             if (sb.length() > 0) {
                 LOG.info("New update(s) found: " + sb.toString() + ". Please check http://ehcache.org for the latest version.");
             }
-        } 
+        }
     }
 
     private Properties getUpdateProperties(URL updateUrl) throws IOException {
@@ -121,7 +120,13 @@ public class UpdateChecker extends TimerTask {
         return new URL(url + connector + buildParamsString());
     }
 
-    private String buildParamsString() throws UnsupportedEncodingException {
+    /**
+     * construct update url parameters
+     *
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    protected String buildParamsString() throws UnsupportedEncodingException {
         ProductInfo productInfo = new ProductInfo();
         StringBuilder sb = new StringBuilder();
         sb.append("id=");
@@ -135,7 +140,7 @@ public class UpdateChecker extends TimerTask {
         sb.append("&platform=");
         sb.append(urlEncode(getProperty("os.arch")));
         sb.append("&tc-version=");
-        sb.append(NOT_AVAILABLE);
+        sb.append(UNKNOWN);
         sb.append("&tc-product=");
         sb.append(urlEncode(productInfo.getName() + " " + productInfo.getVersion()));
         sb.append("&source=");
@@ -160,12 +165,18 @@ public class UpdateChecker extends TimerTask {
         }
     }
 
-    private String urlEncode(String param) throws UnsupportedEncodingException {
+    /**
+     * URL safe encoding
+     * @param param
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    protected String urlEncode(String param) throws UnsupportedEncodingException {
         return URLEncoder.encode(param, "UTF-8");
     }
 
     private String getProperty(String prop) {
-        return System.getProperty(prop, NOT_AVAILABLE);
+        return System.getProperty(prop, UNKNOWN);
     }
 
     private boolean notBlank(String s) {
