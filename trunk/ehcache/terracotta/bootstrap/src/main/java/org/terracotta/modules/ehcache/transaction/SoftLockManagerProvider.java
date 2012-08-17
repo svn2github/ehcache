@@ -10,7 +10,6 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.transaction.SoftLockManager;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
-import org.terracotta.modules.ehcache.txn.ReadCommittedClusteredSoftLockFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

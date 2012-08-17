@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.modules.ehcache.txn.xa;
+package org.terracotta.modules.ehcache.transaction.xa;
 
 import java.io.Serializable;
 import java.util.Arrays;

@@ -9,23 +9,21 @@ import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
+import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
-import org.terracotta.ehcache.tests.ClientBase;
 
 import junit.framework.Assert;
 
 public class TopologyL1Client extends ClientBase {
+  private static final String  MANAGER_UTIL_CLASS_NAME         = "com.tc.object.bytecode.ManagerUtil";
+  private static final String  MANAGER_UTIL_GETCLIENTID_METHOD = "getClientID";
 
   private final ToolkitBarrier barrier;
 
   public TopologyL1Client(String[] args) {
     super(args);
     this.barrier = getClusteringToolkit().getBarrier("testBarrier", getParticipantCount());
-  }
-
-  public static void main(String[] args) {
-    new TopologyL1Client(args).run();
   }
 
   @Override
@@ -55,6 +53,7 @@ public class TopologyL1Client extends ClientBase {
     if (index == 0) {
       Thread serverRestartThread = new Thread(new Runnable() {
 
+        @Override
         public void run() {
           try {
             Thread.sleep(180 * 1000);
@@ -110,6 +109,18 @@ public class TopologyL1Client extends ClientBase {
     Assert.assertEquals("Cluster Offline times", 1, topoListener.getClusterOffline());
     Assert.assertEquals("Cluster Online times", 2, topoListener.getClusterOnline());
 
+  }
+
+  // work around for ManagerUtil.getClientID
+  public String getClientID() {
+    if (isStandaloneCfg()) return null;
+    try {
+      ClassLoader cl = getClusteringToolkit().getMap("testMap", null, null).getClass().getClassLoader();
+      Class managerUtil = cl.loadClass(MANAGER_UTIL_CLASS_NAME);
+      return (String) managerUtil.getMethod(MANAGER_UTIL_GETCLIENTID_METHOD).invoke(null);
+    } catch (Exception e) {
+      throw new AssertionError(e);
+    }
   }
 
 }

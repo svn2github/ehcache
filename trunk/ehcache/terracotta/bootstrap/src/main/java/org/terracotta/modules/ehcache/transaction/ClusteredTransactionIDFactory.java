@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.modules.ehcache.txn;
+package org.terracotta.modules.ehcache.transaction;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
-import org.terracotta.modules.ehcache.txn.xa.ClusteredXidTransactionID;
+import org.terracotta.modules.ehcache.transaction.xa.ClusteredXidTransactionID;
 
 import java.util.concurrent.ConcurrentMap;
 

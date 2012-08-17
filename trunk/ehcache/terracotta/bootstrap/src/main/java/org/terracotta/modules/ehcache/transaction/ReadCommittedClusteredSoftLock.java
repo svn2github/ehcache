@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.modules.ehcache.txn;
+package org.terracotta.modules.ehcache.transaction;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.SoftLock;

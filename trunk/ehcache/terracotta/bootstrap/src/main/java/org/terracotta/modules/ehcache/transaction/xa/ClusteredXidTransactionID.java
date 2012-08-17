@@ -1,12 +1,12 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.modules.ehcache.txn.xa;
+package org.terracotta.modules.ehcache.transaction.xa;
 
 import net.sf.ehcache.transaction.XidTransactionIDSerializedForm;
 import net.sf.ehcache.transaction.xa.XidTransactionID;
 
-import org.terracotta.modules.ehcache.txn.ClusteredID;
+import org.terracotta.modules.ehcache.transaction.ClusteredID;
 
 import javax.transaction.xa.Xid;
 
