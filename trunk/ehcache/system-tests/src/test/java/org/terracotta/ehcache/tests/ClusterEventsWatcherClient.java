@@ -29,12 +29,9 @@ public class ClusterEventsWatcherClient extends ClientBase {
     try {
       final long end = System.currentTimeMillis() + 20000L;
       while (System.currentTimeMillis() < end) {
-        /*
-         * Expect 4 clients, two per client ( 1 toolkit + 1 ehcache client)
-         */
         int count = cluster.getNodes().size();
-        if (count == 4) return;
-        if (count > 4) throw new AssertionError(count + " nodes observed!");
+        if (count == 2) return;
+        if (count > 2) throw new AssertionError(count + " nodes observed!");
         System.err.println("nodes.size() = " + count);
         Thread.sleep(1000L);
       }
