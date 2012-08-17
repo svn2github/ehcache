@@ -1690,6 +1690,8 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         cacheConfiguration = configuration.getCacheConfigurations().get("offheap2");
         assertEquals(2147483648L, cacheConfiguration.getMaxMemoryOffHeapInBytes());
         assertEquals(false, cacheConfiguration.isOverflowToOffHeap());
+
+        assertEquals(2164260864L, configuration.getTotalConfiguredOffheap());
     }
 
 }
