@@ -179,10 +179,8 @@ class ProcessingBucket<E extends Serializable> {
           }
         }
       }
-      boolean signalNotEmpty = toolkitList.size() == 0;
-
+      boolean signalNotEmpty = toolkitList.isEmpty();
       toolkitList.add(item);
-
       if (signalNotEmpty) {
         bucketNotEmpty.signalAll();
       }
@@ -300,7 +298,7 @@ class ProcessingBucket<E extends Serializable> {
       if (config.isBatchingEnabled() && config.getBatchSize() > 0) {
         processBatchedItems();
       } else {
-        processSingleItem();
+        processListSnapshot();
       }
 
       if (toolkitList.isEmpty() && stopState == STOP_STATE.STOP_REQUESTED) {
@@ -315,6 +313,13 @@ class ProcessingBucket<E extends Serializable> {
       stoppedButBucketNotEmpty.signalAll();
     } finally {
       bucketWriteLock.unlock();
+    }
+  }
+
+  private void processListSnapshot() throws ProcessingException {
+    int size = toolkitList.size();
+    while (size-- > 0) {
+      processSingleItem();
     }
   }
 
