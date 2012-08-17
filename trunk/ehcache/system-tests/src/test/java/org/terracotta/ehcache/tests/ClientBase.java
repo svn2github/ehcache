@@ -91,11 +91,4 @@ public abstract class ClientBase extends AbstractClientBase {
 
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
 
-  // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
-  public void waitForAllCurrentTransactionsToComplete() {
-    if (isStandaloneCfg()) return;
-    getCache().getSize();
-    getClusteringToolkit().getCache("wait-for-all-txns", null).size();
-  }
-
 }

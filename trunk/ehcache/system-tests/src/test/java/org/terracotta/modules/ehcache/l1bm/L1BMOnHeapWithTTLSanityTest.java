@@ -118,7 +118,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
 
       barrier.await();
       if (shouldWait) {
-        waitForAllCurrentTransactionsToComplete();
+        cache.getSize();
       }
       barrier.await();
 

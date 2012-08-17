@@ -6,10 +6,10 @@ package org.terracotta.modules.ehcache.store.backend;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -96,7 +96,7 @@ public class BulkLoadInternalKeyRepresentationExposedTest extends AbstractCacheT
       }
 
       this.barrier.await();
-      waitForAllCurrentTransactionsToComplete();
+      cache.getSize();
       Assert.assertEquals(0, cache.getSize());
     }
 
