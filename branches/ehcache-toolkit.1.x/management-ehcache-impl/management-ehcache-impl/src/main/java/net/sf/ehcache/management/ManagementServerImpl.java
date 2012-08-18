@@ -37,9 +37,19 @@ public final class ManagementServerImpl implements ManagementServer {
   private volatile DfltSamplerRepositoryService samplerRepoSvc;
 
   public ManagementServerImpl(String clientUUID, ManagementRESTServiceConfiguration configuration) {
-    standaloneServer = new StandaloneServer();
-    setupContainer(configuration);
+
+    // Clear settings that are invalid for non-ee management servers
+    configuration.setNeedClientAuth(false);
+    configuration.setSecurityServiceLocation(null);
+    configuration.setSslEnabled(false);
+    configuration.setSecurityServiceTimeout(0);
+
+    String basePackage = "net.sf.ehcache.management";
+    String host = configuration.getHost();
+    int port = configuration.getPort();
+
     loadEmbeddedAgentServiceLocator(clientUUID, configuration);
+    standaloneServer = new StandaloneServer(null, null, basePackage, host, port, null, false);
   }
 
   /**
@@ -93,18 +103,8 @@ public final class ManagementServerImpl implements ManagementServer {
     return samplerRepoSvc.hasRegistered();
   }
 
-  private void setupContainer(ManagementRESTServiceConfiguration configuration) {
-    standaloneServer.setBasePackage("net.sf.ehcache.management");
-    standaloneServer.setHost(configuration.getHost());
-    standaloneServer.setPort(configuration.getPort());
-  }
-
   private void loadEmbeddedAgentServiceLocator(String clientUUID, ManagementRESTServiceConfiguration configuration) {
-    //Clear settings that are invalid for non-ee management servers
-    configuration.setNeedClientAuth(false);
-    configuration.setSecurityServiceLocation(null);
-    configuration.setSslEnabled(false);
-    configuration.setSecurityServiceTimeout(0);
+
 
     ObjectName objectName = null;
     try {
