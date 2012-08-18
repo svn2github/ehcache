@@ -563,6 +563,18 @@ public final class Configuration {
         return maxBytesLocalOffHeapInput != null ? maxBytesLocalOffHeapInput : Long.toString(getMaxBytesLocalOffHeap());
     }
 
+    /**
+     * @return Total amount offheap configured by current caches
+     */
+    public long getTotalConfiguredOffheap() {
+        long total = getMaxBytesLocalOffHeap();
+        for (String cacheName : getCacheConfigurationsKeySet()) {
+            CacheConfiguration config = getCacheConfigurations().get(cacheName);
+            total += config.getMaxBytesLocalOffHeap();
+        }
+        return total;
+    }
+
     private long getOffHeapLimit() {
         try {
             Class<Store> enterpriseFmClass = ClassLoaderUtil.loadClass(FeaturesManager.ENTERPRISE_FM_CLASSNAME);

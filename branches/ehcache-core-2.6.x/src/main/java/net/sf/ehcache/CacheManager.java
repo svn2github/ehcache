@@ -636,7 +636,7 @@ public class CacheManager {
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
         try {
             if (updateCheckNeeded) {
-                UpdateChecker updateChecker = new UpdateChecker();
+                UpdateChecker updateChecker = featuresManager != null ? featuresManager.createUpdateChecker() : new UpdateChecker();
                 cacheManagerTimer.scheduleAtFixedRate(updateChecker, DELAY_UPDATE_CHECK, EVERY_WEEK);
             }
         } catch (Throwable t) {
