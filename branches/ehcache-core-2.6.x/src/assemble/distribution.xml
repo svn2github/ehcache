@@ -55,13 +55,13 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
     </fileSets>
-    <files>
+    <!--files>
       <file>
-        <source>${project.build.directory}/changes.txt</source>
+        <source>changes.txt</source>
         <outputDirectory>/</outputDirectory>
         <destName>CHANGELOG.txt</destName>
       </file>
-    </files>
+    </files-->
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
@@ -86,14 +86,6 @@
             <includes>
               <include>net.sf.ehcache:sizeof-agent</include>
             </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <unpack>false</unpack>
-            <scope>provided</scope>
-            <includes>
-              <include>net.sf.ehcache:ehcache-rest-agent</include>
-            </includes>
-        </dependencySet>         
+        </dependencySet>        
     </dependencySets>
 </assembly>
