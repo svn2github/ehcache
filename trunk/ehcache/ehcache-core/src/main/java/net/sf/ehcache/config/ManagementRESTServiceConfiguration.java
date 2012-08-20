@@ -32,6 +32,11 @@ public class ManagementRESTServiceConfiguration {
     public static final String DEFAULT_BIND = "0.0.0.0:9888";
 
     /**
+     * Synthetic bind value used when no server must be bound.
+     */
+    public static final String NO_BIND = "";
+
+    /**
      * Default timeout for the connection to the configured security service
      */
     public static final int DEFAULT_SECURITY_SVC_TIMEOUT = 5 * 1000;
@@ -138,7 +143,7 @@ public class ManagementRESTServiceConfiguration {
         }
         String[] split = bind.split("\\:");
         if (split.length != 2) {
-            throw new IllegalArgumentException("invalid bind format (should be IP:port)");
+            return -1;
         }
         return Integer.parseInt(split[1]);
     }

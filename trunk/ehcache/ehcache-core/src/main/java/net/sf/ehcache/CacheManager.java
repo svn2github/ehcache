@@ -415,14 +415,17 @@ public class CacheManager {
 
         terracottaClient = new TerracottaClient(this, cacheRejoinAction, configuration.getTerracottaConfiguration());
 
+        boolean clustered = false;
         Map<String, CacheConfiguration> cacheConfigs = configuration.getCacheConfigurations();
         if (configuration.getDefaultCacheConfiguration() != null
                 && configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
             terracottaClient.createClusteredInstanceFactory(cacheConfigs);
+            clustered = true;
         } else {
             for (CacheConfiguration config : cacheConfigs.values()) {
                 if (config.isTerracottaClustered()) {
                     terracottaClient.createClusteredInstanceFactory(cacheConfigs);
+                    clustered = true;
                     break;
                 }
             }
@@ -463,6 +466,11 @@ public class CacheManager {
         }
 
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
+        if (managementRESTService == null && clustered) {
+            managementRESTService = new ManagementRESTServiceConfiguration();
+            managementRESTService.setEnabled(true);
+            managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
+        }
         if (managementRESTService != null && managementRESTService.isEnabled()) {
             /**
              * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
