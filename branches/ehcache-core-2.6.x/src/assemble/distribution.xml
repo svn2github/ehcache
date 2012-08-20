@@ -7,13 +7,8 @@
         <fileSet>
             <directory>target</directory>
             <includes>
-                <include>*.jar</include>
+                <include>${project.artifactId}-${project.version}.jar</include>
             </includes>            
-            <excludes>
-              <exclude>*sources.jar</exclude>
-              <exclude>*javadoc.jar</exclude>
-              <exclude>*-tests.jar</exclude>
-            </excludes>
             <outputDirectory>/lib</outputDirectory>
         </fileSet>
         <fileSet>
@@ -55,13 +50,13 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
     </fileSets>
-    <!--files>
+    <files>
       <file>
-        <source>changes.txt</source>
+        <source>${project.build.directory}/changes.txt</source>
         <outputDirectory>/</outputDirectory>
         <destName>CHANGELOG.txt</destName>
       </file>
-    </files-->
+    </files>
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
