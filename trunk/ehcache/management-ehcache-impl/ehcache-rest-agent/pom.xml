@@ -9,6 +9,7 @@
     <relativePath>..</relativePath>
   </parent>  
   
+  <groupId>net.sf.ehcache.internal</groupId>
   <artifactId>ehcache-rest-agent</artifactId>
   <name>ehcache-rest-agent</name>
   
