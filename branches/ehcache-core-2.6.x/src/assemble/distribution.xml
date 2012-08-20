@@ -1,3 +1,6 @@
+<!-- there's a bug with maven-shade-plugin that messed up ${basedir} variable
+     the workaround is to use ${project.build.directory} instead and use relative paths from there -->
+
 <assembly>
     <id>distribution</id>
     <formats>
@@ -5,24 +8,24 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>target</directory>
+            <directory>${project.build.directory}</directory>
             <includes>
                 <include>${project.artifactId}-${project.version}.jar</include>
             </includes>            
             <outputDirectory>/lib</outputDirectory>
         </fileSet>
         <fileSet>
-          <directory>${basedir}/src/main/java</directory>
+          <directory>${project.build.directory}/../src/main/java</directory>
           <useDefaultExcludes>true</useDefaultExcludes>
           <outputDirectory>/src</outputDirectory>
         </fileSet>
         <fileSet>
-          <directory>target/apidocs</directory>
+          <directory>${project.build.directory}/apidocs</directory>
           <useDefaultExcludes>true</useDefaultExcludes>
           <outputDirectory>/javadoc</outputDirectory>
         </fileSet>        
         <fileSet>
-            <directory>${basedir}/src/assemble</directory>
+            <directory>${project.build.directory}/../src/assemble</directory>
             <includes>
                 <include>*.txt</include>
                 <include>*.TXT</include>
@@ -35,14 +38,14 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${basedir}/src/assemble</directory>
+            <directory>${project.build.directory}/../src/assemble</directory>
             <includes>
                 <include>*LICENSE*</include>
             </includes>
             <outputDirectory>/licenses</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${basedir}/src/main/config</directory>
+            <directory>${project.build.directory}/../src/main/config</directory>
             <includes>
                 <include>ehcache.xml</include>
                 <include>ehcache.xsd</include>
