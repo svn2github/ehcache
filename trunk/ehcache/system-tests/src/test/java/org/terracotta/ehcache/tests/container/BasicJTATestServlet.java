@@ -42,7 +42,7 @@ public class BasicJTATestServlet extends HttpServlet {
       return;
     }
     } catch(Exception e) {
-      throw new IOException(e.getMessage());
+      throw new IOException(e);
     }
     out.println("OK");
   }
@@ -51,7 +51,7 @@ public class BasicJTATestServlet extends HttpServlet {
     CacheManager mgr = CacheManager.getInstance();
     Cache cache = mgr.getCache("test");
    
-    try { 
+    try {
   
       txnManager.begin();
   
