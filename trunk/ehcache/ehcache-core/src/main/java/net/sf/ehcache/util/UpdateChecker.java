@@ -66,6 +66,9 @@ public class UpdateChecker extends TimerTask {
 
     private void doCheck() throws IOException {
         URL updateUrl = buildUpdateCheckUrl();
+        if (Boolean.getBoolean("net.sf.ehcache.debug.updatecheck")) {
+          LOG.info("Update check url: {}", updateUrl);
+        }
         Properties updateProps = getUpdateProperties(updateUrl);
         String currentVersion = new ProductInfo().getVersion();
         String propVal = updateProps.getProperty("general.notice");
