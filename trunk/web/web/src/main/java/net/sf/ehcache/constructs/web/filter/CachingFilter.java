@@ -215,7 +215,7 @@ public abstract class CachingFilter extends Filter {
         logRequestHeaders(request);
         PageInfo pageInfo = buildPageInfo(request, response, chain);
 
-        if (pageInfo.isOk()) {
+        if (shouldWriteResponse(pageInfo)) {
             if (response.isCommitted()) {
                 throw new AlreadyCommittedException(
                         "Response already committed after doing buildPage"
@@ -223,6 +223,10 @@ public abstract class CachingFilter extends Filter {
             }
             writeResponse(request, response, pageInfo);
         }
+    }
+
+    protected boolean shouldWriteResponse(PageInfo pageInfo) {
+        return pageInfo != null && pageInfo.isOk();
     }
 
     /**
