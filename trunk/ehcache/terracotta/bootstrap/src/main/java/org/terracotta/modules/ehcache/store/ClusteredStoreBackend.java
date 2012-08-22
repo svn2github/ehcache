@@ -515,12 +515,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void disposeLocally() {
-    lock.readLock().lock();
-    try {
-      activeDelegate.disposeLocally();
-    } finally {
-      lock.readLock().unlock();
-    }
+    bulkloadCache.disposeLocally();
   }
 
   @Override
@@ -635,12 +630,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void destroy() {
-    lock.readLock().lock();
-    try {
-      activeDelegate.destroy();
-    } finally {
-      lock.readLock().unlock();
-    }
+    bulkloadCache.destroy();
   }
 
   @Override
