@@ -166,10 +166,13 @@ public class LocalTransactionContext {
             }
             LOG.debug("committed transaction {}", transactionId);
         } finally {
-            unfreezeAndUnlock();
-            softLockMap.clear();
-            storeMap.clear();
-            fireAfterCommitEvent();
+            try {
+                unfreezeAndUnlock();
+            } finally {
+                softLockMap.clear();
+                storeMap.clear();
+                fireAfterCommitEvent();
+            }
         }
     }
 
@@ -193,10 +196,13 @@ public class LocalTransactionContext {
             }
             LOG.debug("rolled back transaction {}", transactionId);
         } finally {
-            unfreezeAndUnlock();
-            softLockMap.clear();
-            storeMap.clear();
-            fireAfterRollbackEvent();
+            try {
+                unfreezeAndUnlock();
+            } finally {
+                softLockMap.clear();
+                storeMap.clear();
+                fireAfterRollbackEvent();
+            }
         }
     }
 
@@ -248,6 +254,7 @@ public class LocalTransactionContext {
 
     private void unfreezeAndUnlock() {
         LOG.debug("unfreezing and unlocking {} soft lock(s)", softLockMap.size());
+        boolean success = true;
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             List<SoftLock> softLocks = stringListEntry.getValue();
 
@@ -256,15 +263,20 @@ public class LocalTransactionContext {
                     softLock.unfreeze();
                     LOG.debug("unfroze {}", softLock);
                 } catch (Exception e) {
+                    success = false;
                     LOG.error("error unfreezing " + softLock, e);
                 }
                 try {
                     softLock.unlock();
                     LOG.debug("unlocked {}", softLock);
                 } catch (Exception e) {
-                    LOG.error("error unlocking " + softLock, e);
+                  success = false;
+                  LOG.error("error unlocking " + softLock, e);
                 }
             }
+        }
+        if (!success) {
+            throw new TransactionException("Error unfreezing/unlocking transaction with ID " + transactionId);
         }
     }
 
