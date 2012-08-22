@@ -15,7 +15,7 @@ import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.cache.ToolkitCache;
-import org.terracotta.toolkit.collections.ToolkitList;
+import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
@@ -94,10 +94,10 @@ public interface ToolkitInstanceFactory {
   SerializedToolkitCache<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName);
 
   SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> getOrCreateAllSoftLockMap(String cacheManagerName,
-                                                                                               String cacheName);
+                                                                                                                     String cacheName);
 
-  ToolkitList<SerializedReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
-                                                                                   String cacheName);
+  ToolkitMap<SerializedReadCommittedClusteredSoftLock, Integer> getOrCreateNewSoftLocksSet(String cacheManagerName,
+                                                                                  String cacheName);
 
   ToolkitCache<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
 

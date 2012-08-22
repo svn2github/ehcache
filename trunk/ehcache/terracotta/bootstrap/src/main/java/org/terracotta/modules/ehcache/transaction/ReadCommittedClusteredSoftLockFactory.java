@@ -13,7 +13,7 @@ import net.sf.ehcache.transaction.local.LocalTransactionContext;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
-import org.terracotta.toolkit.collections.ToolkitList;
+import org.terracotta.toolkit.collections.ToolkitMap;
 
 import java.util.HashSet;
 import java.util.List;
@@ -24,13 +24,15 @@ import java.util.Set;
  * @author Ludovic Orban
  */
 public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
-  private final String                                                                       cacheName;
-  private final String                                                                       cacheManagerName;
+  private static final Integer                                                                           DEFAULT_DUMMY_VALUE = Integer
+                                                                                                                                 .valueOf(0);
+  private final String                                                                                   cacheName;
+  private final String                                                                                   cacheManagerName;
 
-  private final ToolkitInstanceFactory                                                       toolkitInstanceFactory;
+  private final ToolkitInstanceFactory                                                                   toolkitInstanceFactory;
 
   // actually all we need would be a ConcurrentSet...
-  private final ToolkitList<SerializedReadCommittedClusteredSoftLock>                        newKeyLocks;
+  private final ToolkitMap<SerializedReadCommittedClusteredSoftLock, Integer>                            newKeyLocks;
 
   // locks must be inserted in a clustered collection b/c they must be managed by the L1 before they are returned
   private final SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> allLocks;
@@ -65,7 +67,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
         throw new AssertionError();
       } else {
         if (oldElement == null) {
-          newKeyLocks.add(softLock);
+          newKeyLocks.put(softLock, DEFAULT_DUMMY_VALUE);
         }
         return lockId;
       }
@@ -83,9 +85,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
     for (Map.Entry<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
       SerializedReadCommittedClusteredSoftLock serialized = allLocks.get(entry.getKey()); // workaround for DEV-5390
       ReadCommittedClusteredSoftLock readCommittedSoftLock = serialized.getSoftLock(toolkitInstanceFactory, this);
-      if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) {
-        return readCommittedSoftLock;
-      }
+      if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) { return readCommittedSoftLock; }
     }
     return null;
   }
@@ -133,7 +133,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
 
   @Override
   public void clearSoftLock(SoftLock softLock) {
-    for (SerializedReadCommittedClusteredSoftLock serializedSoftLock : newKeyLocks) {
+    for (SerializedReadCommittedClusteredSoftLock serializedSoftLock : newKeyLocks.keySet()) {
       if (serializedSoftLock.getSoftLock(toolkitInstanceFactory, this).equals(softLock)) {
         newKeyLocks.remove(serializedSoftLock);
         break;
@@ -151,7 +151,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   private Set<Object> getNewKeys() {
     Set<Object> result = new HashSet<Object>();
     int i = 0;
-    for (SerializedReadCommittedClusteredSoftLock serialized : newKeyLocks) {
+    for (SerializedReadCommittedClusteredSoftLock serialized : newKeyLocks.keySet()) {
       newKeyLocks.get(i); // workaround for DEV-5390
       result.add(serialized.getSoftLock(toolkitInstanceFactory, this).getKey());
     }

@@ -22,7 +22,7 @@ import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedCluster
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheConfigFields.PinningStore;
-import org.terracotta.toolkit.collections.ToolkitList;
+import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
@@ -229,10 +229,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitList<SerializedReadCommittedClusteredSoftLock> getOrCreateNewSoftLocksSet(String cacheManagerName,
-                                                                                          String cacheName) {
-    return toolkit.getList(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
-                           + NEW_SOFT_LOCKS_LIST_SUFFIX, SerializedReadCommittedClusteredSoftLock.class);
+  public ToolkitMap<SerializedReadCommittedClusteredSoftLock, Integer> getOrCreateNewSoftLocksSet(String cacheManagerName,
+                                                                                                  String cacheName) {
+    return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                          + NEW_SOFT_LOCKS_LIST_SUFFIX, SerializedReadCommittedClusteredSoftLock.class, Integer.class);
   }
 
   @Override
