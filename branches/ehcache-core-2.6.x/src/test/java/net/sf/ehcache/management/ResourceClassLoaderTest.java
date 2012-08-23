@@ -102,4 +102,11 @@ public class ResourceClassLoaderTest {
         Assert.assertEquals("Congratulations ! You could read a file from a hidden resource location !", message);
     }
 
+//
+//    @Test
+//    public void parentClassLoaderIsNull(){
+//        ResourceClassLoader resourceClassLoader = new ResourceClassLoader("pof", null);
+//
+//    }
+
 }
