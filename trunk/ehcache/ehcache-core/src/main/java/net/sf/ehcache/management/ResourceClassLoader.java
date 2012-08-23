@@ -64,7 +64,7 @@ public class ResourceClassLoader extends ClassLoader {
             Attributes attributes = man.getMainAttributes();
             temporaryImplementationVersion = attributes.getValue(Name.IMPLEMENTATION_VERSION);
         } catch (Exception e) {
-            LOG.warn("Could not read the Manifest", e);
+            LOG.debug("Could not read the Manifest", e);
         } finally {
             try {
                 if (in != null) {
