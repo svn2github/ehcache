@@ -1,0 +1,24 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="false" monitoring="autodetect"
+         dynamicConfig="true"
+         name="cacheManagerCompleteExample" maxBytesLocalHeap="1G"
+         maxBytesLocalOffHeap="5G"
+    >
+
+  <terracottaConfig url="localhost:9510"/>
+
+  <defaultCache
+      timeToIdleSeconds="30"
+      timeToLiveSeconds="60">
+    <terracotta clustered="true" consistency="strong"></terracotta>
+  </defaultCache>
+
+  <cache name="sample-offheap-cache"
+         timeToIdleSeconds="20"
+         timeToLiveSeconds="40">
+    <terracotta clustered="true" consistency="strong"></terracotta>
+  </cache>
+
+
+</ehcache>

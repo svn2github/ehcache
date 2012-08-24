@@ -1,0 +1,31 @@
+<ehcache updateCheck="false" monitoring="off" dynamicConfig="false">
+  <defaultCache maxEntriesLocalHeap="10000"
+                eternal="true"
+                memoryStoreEvictionPolicy="LRU"
+                statistics="false"/>
+  <!--overflowToOffHeap to enabled big memory-->
+  <!--maxBytesLocalOffHeap amount of off-heap memory available to the cache -->
+
+  <cache name="sample-offheap-cache"
+         maxEntriesLocalHeap="10000"
+         eternal="true"
+         memoryStoreEvictionPolicy="LRU"
+         overflowToOffHeap="true"
+         maxBytesLocalOffHeap="1G"/>
+
+  <!--add diskstore cache-->
+
+
+  <!--create this cache -->
+  <!--Cache testCache =ation("sample-offheap-cache", 1000)-->
+  <!--.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)-->
+  <!--.persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.LOCALTEMPSWAP))-->
+  <!--.eternal(false)-->
+  <!--.timeToLiveSeconds(60)-->
+  <!--.timeToIdleSeconds(30)-->
+  <!--.overflowToOffHeap(true)  //enabled big memory-->
+  <!--.maxBytesLocalHeap(2, MemoryUnit.GIGABYTES) //define the size of the local heap-->
+  <!--.diskExpiryThreadInt new Cache(-->
+  <!--new CacheConfigurervalSeconds(0));-->
+
+</ehcache>
