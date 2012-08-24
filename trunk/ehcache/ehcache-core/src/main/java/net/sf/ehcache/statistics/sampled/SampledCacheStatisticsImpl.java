@@ -30,6 +30,7 @@ import net.sf.ehcache.util.counter.sampled.SampledCounterConfig;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterImpl;
+import net.sf.ehcache.util.counter.sampled.SummedSampledCounter;
 
 /**
  * An implementation of {@link SampledCacheStatistics} This also implements {@link CacheUsageListener} and depends on the notification
@@ -46,18 +47,17 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
     private static final int HIT_RATIO_MULTIPLIER = 100;
 
     private static final SampledCounterConfig DEFAULT_SAMPLED_COUNTER_CONFIG = new SampledCounterConfig(DEFAULT_INTERVAL_SECS,
-        DEFAULT_HISTORY_SIZE, true, 0L);
-    private static final SampledRateCounterConfig DEFAULT_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(
-        DEFAULT_INTERVAL_SECS, DEFAULT_HISTORY_SIZE, true);
+            DEFAULT_HISTORY_SIZE, true, 0L);
+    private static final SampledRateCounterConfig DEFAULT_RATE_COUNTER_CONFIG = new SampledRateCounterConfig(DEFAULT_INTERVAL_SECS,
+            DEFAULT_HISTORY_SIZE, true);
     private static final SampledRateCounterConfig DEFAULT_AVG_SEARCH_COUNTER_CONFIG = new SampledRateCounterConfig(
-        DEFAULT_SEARCH_INTERVAL_SEC, DEFAULT_HISTORY_SIZE, true);
+            DEFAULT_SEARCH_INTERVAL_SEC, DEFAULT_HISTORY_SIZE, true);
 
     private volatile CounterManager counterManager;
     private final SampledCounter cacheHitCount;
     private final SampledCounter cacheHitInMemoryCount;
     private final SampledCounter cacheHitOffHeapCount;
     private final SampledCounter cacheHitOnDiskCount;
-    private final SampledCounter cacheMissCount;
     private final SampledCounter cacheMissInMemoryCount;
     private final SampledCounter cacheMissOffHeapCount;
     private final SampledCounter cacheMissOnDiskCount;
@@ -75,6 +75,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
     private final SampledRateCounter averageGetTime;
     private final SampledRateCounter averageGetTimeNanos;
     private final SampledRateCounter averageSearchTime;
+    private final SummedSampledCounter cacheMissCount;
 
     private final AtomicBoolean sampledStatisticsEnabled;
     private final AtomicInteger statisticsAccuracy;
@@ -100,16 +101,13 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * Constructor that accepts a timer which will be used to schedule the
      * sampled counters
      */
-    public SampledCacheStatisticsImpl(FailSafeTimer timer,
-                                      SampledCounterConfig config,
-                                      SampledRateCounterConfig rateGetConfig,
-                                      SampledRateCounterConfig rateSearchConfig) {
+    public SampledCacheStatisticsImpl(FailSafeTimer timer, SampledCounterConfig config, SampledRateCounterConfig rateGetConfig,
+            SampledRateCounterConfig rateSearchConfig) {
         counterManager = new CounterManagerImpl(timer);
-        cacheHitCount = createSampledCounter(config);
         cacheHitInMemoryCount = createSampledCounter(config);
         cacheHitOffHeapCount = createSampledCounter(config);
         cacheHitOnDiskCount = createSampledCounter(config);
-        cacheMissCount = createSampledCounter(config);
+        cacheHitCount = createSummedCounter(config, cacheHitInMemoryCount, cacheHitOffHeapCount, cacheHitOnDiskCount);
         cacheMissInMemoryCount = createSampledCounter(config);
         cacheMissOffHeapCount = createSampledCounter(config);
         cacheMissOnDiskCount = createSampledCounter(config);
@@ -123,10 +121,10 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         cacheSearchCount = createSampledCounter(config);
         cacheXaCommitCount = createSampledCounter(config);
         cacheXaRollbackCount = createSampledCounter(config);
-
-        averageGetTime = (SampledRateCounter)createSampledCounter(rateGetConfig);
-        averageGetTimeNanos = (SampledRateCounter)createSampledCounter(rateGetConfig);
-        averageSearchTime = (SampledRateCounter)createSampledCounter(rateSearchConfig);
+        cacheMissCount = createSummedCounter(config, cacheMissExpiredCount, cacheMissNotFoundCount);
+        averageGetTime = (SampledRateCounter) createSampledCounter(rateGetConfig);
+        averageGetTimeNanos = (SampledRateCounter) createSampledCounter(rateGetConfig);
+        averageSearchTime = (SampledRateCounter) createSampledCounter(rateSearchConfig);
         cacheHitRatio = createCacheHitRatio(rateGetConfig);
 
         this.sampledStatisticsEnabled = new AtomicBoolean(true);
@@ -148,7 +146,13 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
     }
 
     private SampledCounter createSampledCounter(CounterConfig defaultCounterConfig) {
-        return (SampledCounter)counterManager.createCounter(defaultCounterConfig);
+        return (SampledCounter) counterManager.createCounter(defaultCounterConfig);
+    }
+
+    private SummedSampledCounter createSummedCounter(SampledCounterConfig config, SampledCounter... sampleCounters) {
+        SummedSampledCounter derivedCounter = new SummedSampledCounter(config, sampleCounters);
+        counterManager.addCounter(derivedCounter);
+        return derivedCounter;
     }
 
     private void incrementIfStatsEnabled(SampledCounter... counters) {
@@ -164,11 +168,9 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * Clears the collected statistics. Resets all counters to zero
      */
     public void clearStatistics() {
-        cacheHitCount.getAndReset();
         cacheHitInMemoryCount.getAndReset();
         cacheHitOffHeapCount.getAndReset();
         cacheHitOnDiskCount.getAndReset();
-        cacheMissCount.getAndReset();
         cacheMissInMemoryCount.getAndReset();
         cacheMissOffHeapCount.getAndReset();
         cacheMissOnDiskCount.getAndReset();
@@ -199,56 +201,56 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * {@inheritDoc}
      */
     public void notifyCacheHitInMemory() {
-        incrementIfStatsEnabled(cacheHitCount, cacheHitInMemoryCount);
+        incrementIfStatsEnabled(cacheHitInMemoryCount);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheHitOffHeap() {
-        incrementIfStatsEnabled(cacheHitCount, cacheHitOffHeapCount);
+        incrementIfStatsEnabled(cacheHitOffHeapCount);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheHitOnDisk() {
-        incrementIfStatsEnabled(cacheHitCount, cacheHitOnDiskCount);
+        incrementIfStatsEnabled(cacheHitOnDiskCount);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheMissedWithExpired() {
-        incrementIfStatsEnabled(cacheMissCount, cacheMissExpiredCount);
+        incrementIfStatsEnabled(cacheMissExpiredCount);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheMissedWithNotFound() {
-        incrementIfStatsEnabled(cacheMissCount, cacheMissNotFoundCount);
+        incrementIfStatsEnabled(cacheMissNotFoundCount);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheMissInMemory() {
-        incrementIfStatsEnabled(cacheMissCount, cacheMissInMemoryCount);
+        incrementIfStatsEnabled(cacheMissInMemoryCount);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheMissOffHeap() {
-        incrementIfStatsEnabled(cacheMissCount, cacheMissOffHeapCount);
+        incrementIfStatsEnabled(cacheMissOffHeapCount);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheMissOnDisk() {
-        incrementIfStatsEnabled(cacheMissCount, cacheMissOnDiskCount);
+        incrementIfStatsEnabled(cacheMissOnDiskCount);
     }
 
     /**
@@ -346,7 +348,6 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         cacheHitInMemoryCount.getAndReset();
         cacheHitOffHeapCount.getAndReset();
         cacheHitOnDiskCount.getAndReset();
-        cacheMissCount.getAndReset();
         cacheMissInMemoryCount.getAndReset();
         cacheMissOffHeapCount.getAndReset();
         cacheMissOnDiskCount.getAndReset();

@@ -23,10 +23,10 @@ import net.sf.ehcache.util.counter.CounterImpl;
 
 /**
  * An implementation of {@link SampledCounter}
- * 
+ *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
- * 
+ *
  */
 public class SampledCounterImpl extends CounterImpl implements SampledCounter {
     private static final int MILLIS_PER_SEC = 1000;
@@ -46,15 +46,28 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
     /**
      * todo GL how many threads is this creating?
      * Constructor accepting a {@link SampledCounterConfig}
-     * 
+     *
      * @param config
      */
     public SampledCounterImpl(SampledCounterConfig config) {
-        super(config.getInitialValue());
+        this(config.getIntervalSecs(), config.getHistorySize(), config.isResetOnSample(), config.getInitialValue(), true);
+    }
 
-        this.intervalMillis = config.getIntervalSecs() * MILLIS_PER_SEC;
-        this.history = new CircularLossyQueue<TimeStampedCounterValue>(config.getHistorySize());
-        this.resetOnSample = config.isResetOnSample();
+    /**
+     * Constructor accepting raw config values.
+     *
+     * @param intervalInSeconds sampling interval in seconds
+     * @param historySize size of history sample
+     * @param resetOnSample true to reset value on sample
+     * @param initValue initial value
+     * @param sampleNow true to record smaple immediately
+     */
+    public SampledCounterImpl(long intervalInSeconds, int historySize, boolean resetOnSample, long initValue, boolean sampleNow) {
+        super(initValue);
+
+        this.intervalMillis = intervalInSeconds * MILLIS_PER_SEC;
+        this.history = new CircularLossyQueue<TimeStampedCounterValue>(historySize);
+        this.resetOnSample = resetOnSample;
 
         this.samplerTask = new TimerTask() {
             @Override
@@ -63,7 +76,9 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
             }
         };
 
-        recordSample();
+        if (sampleNow) {
+            recordSample();
+        }
     }
 
     /**
@@ -91,7 +106,7 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
 
     /**
      * Returns the timer task for this sampled counter
-     * 
+     *
      * @return the timer task for this sampled counter
      */
     public TimerTask getTimerTask() {
@@ -100,7 +115,7 @@ public class SampledCounterImpl extends CounterImpl implements SampledCounter {
 
     /**
      * Returns the sampling thread interval in millis
-     * 
+     *
      * @return the sampling thread interval in millis
      */
     public long getIntervalMillis() {
