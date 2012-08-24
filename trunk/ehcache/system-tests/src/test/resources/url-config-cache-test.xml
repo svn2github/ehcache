@@ -13,6 +13,6 @@
          <terracotta clustered="true"/>
   </cache>
 
-  <terracottaConfig url="TEMP/tc-config.xml"/>
+  <terracottaConfig url="TEMP/tc-config-client.xml"/>
 
 </ehcache>

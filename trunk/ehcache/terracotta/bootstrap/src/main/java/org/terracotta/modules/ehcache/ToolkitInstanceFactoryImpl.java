@@ -33,6 +33,11 @@ import org.terracotta.toolkit.store.ToolkitStore;
 import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -69,17 +74,16 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
-    String config = null;
-    if (!terracottaClientConfiguration.isUrlConfig()) {
-      config = terracottaClientConfiguration.getEmbeddedConfig();
-    } else {
-      config = terracottaClientConfiguration.getUrl();
-    }
     TerracottaToolkitBuilder terracottaClientBuilder = new TerracottaToolkitBuilder();
-    if (terracottaClientConfiguration.isUrlConfig()) {
-      terracottaClientBuilder.setTCConfigUrl(config);
-    } else {
-      terracottaClientBuilder.setTCConfigSnippet(config);
+    EhcacheTcConfig ehcacheTcConfig = EhcacheTcConfig.create(terracottaClientConfiguration);
+    switch (ehcacheTcConfig.type) {
+      case URL:
+        terracottaClientBuilder.setTCConfigUrl(ehcacheTcConfig.tcConfigUrlOrSnippet);
+        break;
+      case EMBEDDED_TC_CONFIG:
+      case FILE:
+        terracottaClientBuilder.setTCConfigSnippet(ehcacheTcConfig.tcConfigUrlOrSnippet);
+        break;
     }
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache");
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache.hibernate");
@@ -96,7 +100,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
     final Configuration clusteredCacheConfig = createClusteredMapConfig(new ToolkitCacheConfigBuilderInternal(), cache);
     return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cache),
-                                                                             clusteredCacheConfig, Serializable.class);
+                                                                         clusteredCacheConfig, Serializable.class);
   }
 
   @Override
@@ -311,5 +315,52 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return toolkit.getReadWriteLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                                     + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
                                     + EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME);
+  }
+
+  private static class EhcacheTcConfig {
+    private enum Type {
+      URL, EMBEDDED_TC_CONFIG, FILE
+    }
+
+    private final Type   type;
+    private final String tcConfigUrlOrSnippet;
+
+    private EhcacheTcConfig(Type type, String config) {
+      this.type = type;
+      this.tcConfigUrlOrSnippet = config;
+    }
+
+    public static EhcacheTcConfig create(TerracottaClientConfiguration config) {
+      if (config.isUrlConfig()) {
+        String urlOrFilePath = config.getUrl();
+        if (isFile(urlOrFilePath)) {
+          return new EhcacheTcConfig(Type.FILE, slurpFile(urlOrFilePath));
+        } else {
+          return new EhcacheTcConfig(Type.URL, urlOrFilePath);
+        }
+      } else {
+        return new EhcacheTcConfig(Type.EMBEDDED_TC_CONFIG, config.getEmbeddedConfig());
+      }
+    }
+
+    private static String slurpFile(String urlOrFilePath) {
+      try {
+        StringBuilder builder = new StringBuilder();
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(urlOrFilePath)));
+        String line = null;
+        while ((line = br.readLine()) != null) {
+          builder.append(line);
+        }
+        return builder.toString();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    private static boolean isFile(String urlOrFilePath) {
+      File file = new File(urlOrFilePath);
+      return file.exists() && file.isFile();
+    }
+
   }
 }
