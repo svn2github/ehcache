@@ -1,10 +1,11 @@
-package com.bigmemory.samples.cache;
+package com.bigmemory.samples.search;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Attribute;
@@ -28,27 +29,28 @@ import java.io.IOException;
  *
  * @author steve
  */
-public class EhcacheSearchPlaying {
-  private CacheManager cacheManager;
-  private Ehcache cache;
+public class BigMemorySearchPlaying {
+  private CacheManager manager;
+  private Ehcache bigMemory;
 
-  public EhcacheSearchPlaying() {
+  public BigMemorySearchPlaying() {
 
-    /*
+    /* TODO TEST IT !
     * If you want to initialize it via ehcache.xml it would look like this:
     *
     * <cache name="test" maxElementsInMemory="0" eternal="true"
     * overflowToDisk="false"> <searchable> <searchAttribute name="age"/>
     * <searchAttribute name="name"
-    * class="org.sharrissf.sample.EhcacheSearchPlaying$NameAttributeExtractor"
+    * class="com.bigmemory.samples.search$NameAttributeExtractor"
     * /> <searchAttribute name="gender" expression="value.getGender()"/>
     * <searchAttribute name="state" expression="value.getState()"/>
     * </searchable> </cache>
     */
 
     // Create Cache
-    Configuration cacheManagerConfig = new Configuration()
-        .cache(new CacheConfiguration().name("test").eternal(true)
+    Configuration managerConfig = new Configuration()
+        .cache(new CacheConfiguration().name("bigMemory-sample").eternal(true).maxBytesLocalHeap(32, MemoryUnit.MEGABYTES)
+            .maxBytesLocalOffHeap(32, MemoryUnit.MEGABYTES)
             .searchable(new Searchable()
                 .searchAttribute(new SearchAttribute().name("age"))
                 .searchAttribute(new SearchAttribute().name("gender").expression("value.getGender()"))
@@ -57,19 +59,19 @@ public class EhcacheSearchPlaying {
             )
         );
 
-    cacheManager = new CacheManager(cacheManagerConfig);
-    cache = cacheManager.getEhcache("test");
+    manager = new CacheManager(managerConfig);
+    bigMemory = manager.getEhcache("bigMemory-sample");
   }
 
   public void runTests() throws IOException {
     loadCache();
 
-    Attribute<Integer> age = cache.getSearchAttribute("age");
-    Attribute<Gender> gender = cache.getSearchAttribute("gender");
-    Attribute<String> name = cache.getSearchAttribute("name");
-    Attribute<String> state = cache.getSearchAttribute("state");
+    Attribute<Integer> age = bigMemory.getSearchAttribute("age");
+    Attribute<Gender> gender = bigMemory.getSearchAttribute("gender");
+    Attribute<String> name = bigMemory.getSearchAttribute("name");
+    Attribute<String> state = bigMemory.getSearchAttribute("state");
 
-    Query query = cache.createQuery();
+    Query query = bigMemory.createQuery();
     query.includeKeys();
     query.includeValues();
     query.addCriteria(name.ilike("Ari*").and(gender.eq(Gender.MALE)))
@@ -91,7 +93,7 @@ public class EhcacheSearchPlaying {
 
     System.out.println("Adding another Ari");
 
-    cache.put(new Element(1, new Person("Ari Eck", 36, Gender.MALE,
+    bigMemory.put(new Element(1, new Person("Ari Eck", 36, Gender.MALE,
         "eck street", "San Mateo", "CA")));
 
     System.out
@@ -102,9 +104,9 @@ public class EhcacheSearchPlaying {
     read();
 
     System.out
-        .println("Find the average age of all the entries in the cache");
+        .println("Find the average age of all the entries in the bigMemory");
 
-    Query averageAgeQuery = cache.createQuery();
+    Query averageAgeQuery = bigMemory.createQuery();
     averageAgeQuery.includeAggregator(Aggregators.average(age));
     System.out.println("Average age: "
                        + averageAgeQuery.execute().all().iterator().next()
@@ -115,7 +117,7 @@ public class EhcacheSearchPlaying {
     System.out
         .println("Find the average age of all people between 30 and 40");
 
-    Query agesBetween = cache.createQuery();
+    Query agesBetween = bigMemory.createQuery();
     agesBetween.addCriteria(age.between(30, 40));
     agesBetween.includeAggregator(Aggregators.average(age));
     System.out.println("Average age between 30 and 40: "
@@ -126,29 +128,29 @@ public class EhcacheSearchPlaying {
 
     System.out.println("Find the count of people from NJ");
 
-    Query newJerseyCountQuery = cache.createQuery().addCriteria(
+    Query newJerseyCountQuery = bigMemory.createQuery().addCriteria(
         state.eq("NJ"));
     newJerseyCountQuery.includeAggregator(Aggregators.count());
     System.out.println("Count of people from NJ: "
                        + newJerseyCountQuery.execute().all().iterator().next()
         .getAggregatorResults());
-    cacheManager.shutdown();
+    manager.shutdown();
 
   }
 
   private void loadCache() {
-    cache.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE,
+    bigMemory.put(new Element(1, new Person("Tim Eck", 35, Gender.MALE,
         "eck street", "San Mateo", "CA")));
-    cache.put(new Element(2, new Person("Pamela Jones", 23, Gender.FEMALE,
+    bigMemory.put(new Element(2, new Person("Pamela Jones", 23, Gender.FEMALE,
         "berry st", "Parsippany", "LA")));
-    cache.put(new Element(3, new Person("Ari Zilka", 25, Gender.MALE,
+    bigMemory.put(new Element(3, new Person("Ari Zilka", 25, Gender.MALE,
         "big wig", "Beverly Hills", "NJ")));
-    cache.put(new Element(4, new Person("Ari gold", 45, Gender.MALE,
+    bigMemory.put(new Element(4, new Person("Ari gold", 45, Gender.MALE,
         "cool agent", "Madison", "WI")));
-    cache.put(new Element(5, new Person("Nabib El-Rahman", 30, Gender.MALE,
+    bigMemory.put(new Element(5, new Person("Nabib El-Rahman", 30, Gender.MALE,
         "dah man", "Bangladesh", "MN")));
     for (int i = 5; i < 1000; i++) {
-      cache.put(new Element(i, new Person("Nabib El-Rahman" + i, 30,
+      bigMemory.put(new Element(i, new Person("Nabib El-Rahman" + i, 30,
           Person.Gender.MALE, "dah man", "Bangladesh", "NJ")));
     }
   }
@@ -159,7 +161,7 @@ public class EhcacheSearchPlaying {
   }
 
   public static void main(String[] args) throws IOException {
-    new EhcacheSearchPlaying().runTests();
+    new BigMemorySearchPlaying().runTests();
   }
 
   public static class NameAttributeExtractor implements AttributeExtractor {

@@ -17,17 +17,55 @@
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <artifactId>ehcache-ee</artifactId>
       <version>${ehcache.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>terracotta-ee</artifactId>
       <version>${terracotta.version}</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>search</id>
+      <properties>
+        <mainClass>com.bigmemory.samples.search.BigMemorySearchPlaying</mainClass>
+      </properties>
+    </profile>
+    <profile>
+      <id>crud</id>
+      <properties>
+        <mainClass>com.bigmemory.samples.crud.BigMemoryCrudPlaying</mainClass>
+      </properties>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2</version>
+        <configuration>
+          <executable>${java.home}/bin/java</executable>
+          <arguments>
+            <argument>-Dlog4j.configuration=file:${project.build.outputDirectory}/log4j.xml</argument>
+            <argument>-Dorg.quartz.scheduler.skipUpdateCheck=true</argument>
+            <argument>-cp</argument>
+            <classpath/>
+            <argument>${mainClass}</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
