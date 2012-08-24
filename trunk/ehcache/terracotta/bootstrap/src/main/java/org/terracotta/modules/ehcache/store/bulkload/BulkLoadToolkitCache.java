@@ -28,7 +28,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   private final ToolkitLogger              logger;
-  private final static boolean             LOGGING_ENABLED            = BulkLoadConstants.isLoggingEnabled();
 
   private final ReentrantReadWriteLock     readWriteLock              = new ReentrantReadWriteLock();
   private final ToolkitCacheInternal<K, V> toolkitCache;
@@ -40,6 +39,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   private final String                     name;
   private final BulkLoadShutdownHook       bulkLoadShutdownHook;
+  private final boolean                    loggingEnabled;
 
   public BulkLoadToolkitCache(ToolkitInternal toolkit, String name, ToolkitCacheInternal<K, V> aggregateServerMap) {
     this.toolkitInternal = toolkit;
@@ -49,6 +49,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     this.bulkLoadEnabledNodesSet = new BulkLoadEnabledNodesSet(toolkit, name);
     this.localBufferedMap = new LocalBufferedMap(name, this, aggregateServerMap, toolkit);
     this.bulkLoadShutdownHook = BulkLoadShutdownHook.getInstance(toolkit);
+    this.loggingEnabled = BulkLoadConstants.isLoggingEnabled(toolkit.getProperties());
   }
 
   public void debug(String msg) {
@@ -77,7 +78,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
       if (enableBulkLoad) {
         // turning on bulk-load
         if (currentNodeBulkLoadEnabled.compareAndSet(false, true)) {
-          if (LOGGING_ENABLED) {
+          if (loggingEnabled) {
             debug("Enabling bulk-load");
           }
           localCacheEnabledBeforeBulkloadEnabled = toolkitCache.getConfiguration()
@@ -95,14 +96,14 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
           bulkLoadShutdownHook.registerCache(this);
         } else {
-          if (LOGGING_ENABLED) {
+          if (loggingEnabled) {
             debug("Trying to enable bulk-load mode when already bulk-loading.");
           }
         }
       } else {
         // turning off bulk-load
         if (currentNodeBulkLoadEnabled.compareAndSet(true, false)) {
-          if (LOGGING_ENABLED) {
+          if (loggingEnabled) {
             debug("Turning off bulk-load");
           }
           // flush and stop local buffering
@@ -122,7 +123,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
           bulkLoadShutdownHook.unregisterCache(this);
         } else {
-          if (LOGGING_ENABLED) {
+          if (loggingEnabled) {
             debug("Trying to disable bulk-load mode when not bulk-loading.");
           }
         }
@@ -133,8 +134,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   private void setLocalCacheEnabled(boolean enabled) {
-    new ToolkitCacheConfigBuilder().localCacheEnabled(enabled)
-        .apply(toolkitCache);
+    new ToolkitCacheConfigBuilder().localCacheEnabled(enabled).apply(toolkitCache);
   }
 
   public void waitUntilBulkLoadCompleteInCluster() throws InterruptedException {

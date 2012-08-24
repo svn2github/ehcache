@@ -3,7 +3,6 @@
  */
 package org.terracotta.modules.ehcache.store.bulkload;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.cluster.ClusterListener;
@@ -21,27 +20,28 @@ import java.util.concurrent.TimeUnit;
 public class BulkLoadEnabledNodesSet {
 
   private static volatile ToolkitLogger   LOGGER;
-  private static final boolean            LOGGING_ENABLED            = BulkLoadConstants.isLoggingEnabled();
   private static final String             BULK_LOAD_NODES_SET_PREFIX = "__tc_bulk-load-nodes-set_for_cache_";
   private final ClusterInfo               clusterInfo;
   private final ToolkitSet<String>        bulkLoadEnabledNodesSet;
   private final ToolkitLock               clusteredLock;
   private final String                    name;
   private final CleanupOnNodeLeftListener cleanupOnNodeLeftListener;
+  private final boolean                   loggingEnabled;
 
-  protected BulkLoadEnabledNodesSet(Toolkit toolkit, String name) {
+  protected BulkLoadEnabledNodesSet(ToolkitInternal toolkit, String name) {
     this.name = name;
     this.clusterInfo = toolkit.getClusterInfo();
     bulkLoadEnabledNodesSet = toolkit.getSet(BULK_LOAD_NODES_SET_PREFIX + name, String.class);
     clusteredLock = bulkLoadEnabledNodesSet.getReadWriteLock().writeLock();
     
     if (LOGGER == null) {
-      LOGGER = ((ToolkitInternal) toolkit).getLogger(BulkLoadEnabledNodesSet.class.getName());
+      LOGGER = toolkit.getLogger(BulkLoadEnabledNodesSet.class.getName());
     }
 
     cleanupOfflineNodes();
     cleanupOnNodeLeftListener = new CleanupOnNodeLeftListener(this, clusterInfo, toolkit);
     clusterInfo.addClusterListener(cleanupOnNodeLeftListener);
+    this.loggingEnabled = BulkLoadConstants.isLoggingEnabled(toolkit.getProperties());
   }
 
   private static final String getIdForNode(ClusterNode node) {
@@ -63,7 +63,7 @@ public class BulkLoadEnabledNodesSet {
       Collection<ClusterNode> liveNodes = clusterInfo.getNodes();
       ArrayList<String> defunctNodes = new ArrayList<String>(bulkLoadEnabledNodesSet);
 
-      if (LOGGING_ENABLED) {
+      if (loggingEnabled) {
         debug("Cleaning up offline nodes. Live nodes: " + liveNodes);
       }
       // remove live nodes
@@ -76,7 +76,7 @@ public class BulkLoadEnabledNodesSet {
         bulkLoadEnabledNodesSet.remove(nodeId);
       }
 
-      if (LOGGING_ENABLED) {
+      if (loggingEnabled) {
         debug("Offline nodes cleanup complete");
       }
     } finally {
@@ -92,7 +92,7 @@ public class BulkLoadEnabledNodesSet {
     try {
       String currentNodeId = getIdForNode(clusterInfo.getCurrentNode());
       bulkLoadEnabledNodesSet.add(currentNodeId);
-      if (LOGGING_ENABLED) {
+      if (loggingEnabled) {
         debug("Added current node ('" + currentNodeId + "')");
       }
     } finally {
@@ -118,7 +118,7 @@ public class BulkLoadEnabledNodesSet {
   private void removeNodeIdAndNotifyAll(String nodeId) {
     bulkLoadEnabledNodesSet.remove(nodeId);
 
-    if (LOGGING_ENABLED) {
+    if (loggingEnabled) {
       debug("Removed node ('" + nodeId + "'), going to signal all.");
     }
     // notify all waiters
@@ -136,7 +136,7 @@ public class BulkLoadEnabledNodesSet {
           break;
         }
 
-        if (LOGGING_ENABLED) {
+        if (loggingEnabled) {
           debug("Waiting until bulk-load enabled nodes list is empty");
         }
         // wait until somebody removes from the nodes set
@@ -154,7 +154,7 @@ public class BulkLoadEnabledNodesSet {
     clusteredLock.lock();
     try {
       boolean rv = (bulkLoadEnabledNodesSet.size() != 0);
-      if (LOGGING_ENABLED) {
+      if (loggingEnabled) {
         debug("Is bulk-load enabled in cluster? " + rv);
       }
       return rv;
@@ -172,12 +172,12 @@ public class BulkLoadEnabledNodesSet {
 
     private final ClusterInfo             clusterInfo;
 
-    public CleanupOnNodeLeftListener(BulkLoadEnabledNodesSet nodesSet, ClusterInfo clusterInfo, Toolkit toolkit) {
+    public CleanupOnNodeLeftListener(BulkLoadEnabledNodesSet nodesSet, ClusterInfo clusterInfo, ToolkitInternal toolkit) {
       this.nodesSet = nodesSet;
       this.clusterInfo = clusterInfo;
       this.currentNode = clusterInfo.getCurrentNode();
       if (LOG == null) {
-        LOG = ((ToolkitInternal) toolkit).getLogger(CleanupOnNodeLeftListener.class.getName());
+        LOG = toolkit.getLogger(CleanupOnNodeLeftListener.class.getName());
       }
     }
 
@@ -198,7 +198,7 @@ public class BulkLoadEnabledNodesSet {
       LOGGER.info("Received node left event for: " + offlineNode);
       if (getIdForNode(currentNode).equals(offlineNode)) {
         // nothing to do on "this" node left
-        if (LOGGING_ENABLED) {
+        if (nodesSet.loggingEnabled) {
           LOGGER.info("Ignoring node left of current node itself - " + offlineNode);
         }
         return;

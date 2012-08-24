@@ -19,7 +19,7 @@ import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.store.ToolkitStore;
 
 import java.io.Serializable;
@@ -41,9 +41,9 @@ public interface ToolkitInstanceFactory {
   String getFullyQualifiedCacheName(Ehcache cache);
 
   /**
-   * Returns the backend {@link ToolkitCacheWithMetadata} to be used for the cache
+   * Returns the backend {@link ToolkitCacheInternal} to be used for the cache
    */
-  ToolkitCacheWithMetadata<String, Serializable> getOrCreateToolkitCache(Ehcache cache);
+  ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache);
 
   /**
    * Returns a {@link ToolkitNotifier} for the cache for notifying {@link CacheConfigChangeNotificationMsg} across the

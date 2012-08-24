@@ -28,12 +28,6 @@ public class LocalBufferedMap<K, V> {
 
   private static final String                   CONCURRENT_TXN_LOCK_ID                  = "local-buffer-static-concurrent-txn-lock-id";
 
-  private static final int                      PUTS_BATCH_BYTE_SIZE                    = BulkLoadConstants
-                                                                                            .getBatchedPutsBatchBytes();
-  private static final long                     BATCH_TIME_MILLISECS                    = BulkLoadConstants
-                                                                                            .getBatchedPutsBatchTimeMillis();
-  private static final long                     THROTTLE_PUTS_BYTE_SIZE                 = BulkLoadConstants
-                                                                                            .getBatchedPutsThrottlePutsAtByteSize();
   private static final Map                      EMPTY_MAP                               = Collections.EMPTY_MAP;
 
   private static final int                      LOCAL_MAP_INITIAL_CAPACITY              = 128;
@@ -46,6 +40,9 @@ public class LocalBufferedMap<K, V> {
   private final FlushToServerThread             flushToServerThread;
   private final BulkLoadToolkitCache<K, V>      bulkLoadClusteredCache;
   private final ToolkitCacheInternal<K, V>      backend;
+  private final int                             putsBatchByteSize;
+  private final long                            batchTimeMillis;
+  private final long                            throttlePutsByteSize;
 
   private volatile Map<K, ValueWithMetaData<V>> collectBuffer;
   private volatile Map<K, ValueWithMetaData<V>> flushBuffer;
@@ -66,6 +63,9 @@ public class LocalBufferedMap<K, V> {
     this.flushToServerThread = new FlushToServerThread("BulkLoad Flush Thread [" + name + "]", this);
     flushToServerThread.setDaemon(true);
     sizeOfEngine = new DefaultSizeOfEngine(MAX_SIZEOF_DEPTH, true);
+    putsBatchByteSize = BulkLoadConstants.getBatchedPutsBatchBytes(toolkit.getProperties());
+    batchTimeMillis = BulkLoadConstants.getBatchedPutsBatchTimeMillis(toolkit.getProperties());
+    throttlePutsByteSize = BulkLoadConstants.getBatchedPutsThrottlePutsAtByteSize(toolkit.getProperties());
   }
 
   private Map<K, ValueWithMetaData<V>> newMap() {
@@ -195,10 +195,10 @@ public class LocalBufferedMap<K, V> {
   }
 
   private void throttleIfNecessary(long currentPendingSize) {
-    if (currentPendingSize <= THROTTLE_PUTS_BYTE_SIZE) { return; }
+    if (currentPendingSize <= throttlePutsByteSize) { return; }
     bulkLoadClusteredCache.releaseLocalReadLock();
     try {
-      while (currentPendingSize > THROTTLE_PUTS_BYTE_SIZE) {
+      while (currentPendingSize > throttlePutsByteSize) {
         sleepMillis(100);
         currentPendingSize = pendingOpsSize.get();
       }
@@ -371,9 +371,9 @@ public class LocalBufferedMap<K, V> {
     public void run() {
       while (!isFinished()) {
         waitUntilNotPaused();
-        if (this.localBufferedMap.pendingOpsSize.get() < PUTS_BATCH_BYTE_SIZE) {
+        if (this.localBufferedMap.pendingOpsSize.get() < localBufferedMap.putsBatchByteSize) {
           // do not go to sleep if we've got enough work to do
-          sleepFor(BATCH_TIME_MILLISECS);
+          sleepFor(localBufferedMap.batchTimeMillis);
         }
         this.localBufferedMap.doPeriodicFlush(this);
       }

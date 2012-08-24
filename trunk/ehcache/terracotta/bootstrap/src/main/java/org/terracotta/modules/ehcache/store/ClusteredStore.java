@@ -39,7 +39,6 @@ import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData;
 import org.terracotta.toolkit.internal.meta.MetaData;
@@ -64,7 +63,7 @@ public class ClusteredStore implements TerracottaStore {
   private static final Logger                                 LOG                                     = LoggerFactory
                                                                                                           .getLogger(ClusteredStore.class
                                                                                                               .getName());
-  private static final String                                 CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "com.tc.ehcache.clusteredStore.checkContainsKeyOnPut";
+  private static final String                                 CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
   private static final String                                 TRANSACTIONAL_MODE                      = "trasactionalMode";
 
   // final protected fields
@@ -82,11 +81,11 @@ public class ClusteredStore implements TerracottaStore {
   private final CacheConfigChangeBridge                       cacheConfigChangeBridge;
   private final RegisteredEventListeners                      registeredEventListeners;
   private final TCCacheLockProvider                           cacheLockProvider;
+  private final CacheEventListener                            evictionListener;
+  private final ToolkitCache<String, Serializable>            configMap;
 
   // non-final private fields
   private EventListenerList                                   listenerList;
-  private final CacheEventListener                            evictionListener;
-  private final ToolkitCache<String, Serializable>            configMap;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     validateConfig(cache);
@@ -115,9 +114,11 @@ public class ClusteredStore implements TerracottaStore {
       keyLookupCache = null;
     }
 
-    checkContainsKeyOnPut = isCheckContainsKeyOnPut();
-    backend = new ClusteredStoreBackend<String, Serializable>((ToolkitInternal) toolkitInstanceFactory.getToolkit(),
-                                                              (ToolkitCacheInternal) toolkitInstanceFactory
+    ToolkitInternal toolkitInternal = (ToolkitInternal) toolkitInstanceFactory.getToolkit();
+    checkContainsKeyOnPut = toolkitInternal.getProperties()
+        .getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
+    backend = new ClusteredStoreBackend<String, Serializable>(toolkitInternal,
+                                                              toolkitInstanceFactory
                                                                   .getOrCreateToolkitCache(cache));
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
                                        backend.getConfiguration()
@@ -175,12 +176,7 @@ public class ClusteredStore implements TerracottaStore {
       errors.add(new ConfigError("Cache pinning is not supported with maxElementsOnDisk"));
     }
 
-
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
-  }
-
-  private static boolean isCheckContainsKeyOnPut() {
-    return Boolean.getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
   }
 
   @Override
