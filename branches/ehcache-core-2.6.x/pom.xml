@@ -48,12 +48,12 @@
       <scope>compile</scope>
     </dependency>
     
-    <!-- packaged into the main jar using shade plugin. Its dependency is removed in the final pom -->
+    <!-- packaged into the main jar using shade plugin. Its dependency is removed in the final pom 
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-rest-agent</artifactId>
       <version>${project.version}</version>
-    </dependency>    
+    </dependency-->    
 
     <!-- With slf4j, users must choose a concrete logging implementation
       at deploy time, which they provide The maven dependency declarations are
@@ -296,7 +296,7 @@
         </executions>
       </plugin>
 
-      <plugin>
+      <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>1.7.1</version>
@@ -327,7 +327,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin> 
+      </plugin--> 
       
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
