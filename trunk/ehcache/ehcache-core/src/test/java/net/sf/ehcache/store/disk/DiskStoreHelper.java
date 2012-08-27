@@ -15,17 +15,19 @@ public class DiskStoreHelper {
 
     public static Future<Void> flushAllEntriesToDisk(final Cache cache) {
         CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(cache);
-        final Store store = cacheStoreHelper.getStore();
+        return flushAllEntriesToDisk(cacheStoreHelper.getStore());
+    }
+
+    public static Future<Void> flushAllEntriesToDisk(final Store store) {
         if(store instanceof DiskBackedMemoryStore) {
             final DiskStore authority = getField("authority", store);
             return flushAllEntriesToDisk(authority);
+        } else if (store instanceof DiskStore) {
+            final DiskStorageFactory factory = getField("disk", store);
+            return factory.flush();
+        } else {
+            return null;
         }
-        return null;
-    }
-
-    public static Future<Void> flushAllEntriesToDisk(final DiskStore store) {
-        final DiskStorageFactory factory = getField("disk", store);
-        return factory.flush();
     }
 
     private static <T> T getField(final String fieldName, final Object obj) {
