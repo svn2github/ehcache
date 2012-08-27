@@ -28,7 +28,7 @@ public class AbstractCacheTestBase extends AbstractTestBase {
   protected final String    ehcacheConfigPath;
   private final Set<String> writtenXmls = new HashSet<String>();
 
-  public AbstractCacheTestBase(TestConfig testConfig, Class<? extends ClientBase>... c) {
+  public AbstractCacheTestBase(TestConfig testConfig, Class<? extends AbstractClientBase>... c) {
     this("basic-cache-test.xml", testConfig, c);
   }
 
