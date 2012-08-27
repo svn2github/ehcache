@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -39,6 +40,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -50,10 +53,12 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.disk.DiskStore;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.core.Is;
+import org.hamcrest.number.OrderingComparison;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -178,13 +183,12 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
         }
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         assertEquals(ELEMENT_ON_DISK_SIZE * 101, diskStore.getOnDiskSizeInBytes());
 
         assertEquals(101, diskStore.getOnDiskSize());
         assertEquals(101, diskStore.getSize());
         diskStore.dispose();
-        Thread.sleep(1);
         assertFalse("File exists", dataFile.exists());
     }
 
@@ -242,7 +246,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             store.put(new Element("key" + (i + 100), data));
         }
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
         assertEquals(100, store.getSize());
         store.dispose();
 
@@ -344,7 +348,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         String cacheName = "testLoadPersistent";
         Store store = createPersistentDiskStore(cacheName);
         store.removeAll();
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
 
 
         for (int i = 0; i < 100; i++) {
@@ -352,11 +356,10 @@ public class DiskStoreTest extends AbstractCacheTest {
             store.put(new Element("key" + (i + 100), data));
         }
         store.flush();
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
         assertEquals(ELEMENT_ON_DISK_SIZE * 100, store.getOnDiskSizeInBytes());
         assertEquals(100, store.getSize());
         manager.removeCache(cacheName);
-        Thread.sleep(3000);
         //check that we can create and dispose several times with no problems and no lost data
         for (int i = 0; i < 10; i++) {
             store = getDiskStore(createPersistentDiskStore(cacheName));
@@ -387,11 +390,11 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
         }
-        waitLonger();
+
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
         assertEquals(100, diskStore.getSize());
         manager2.removeCache(cacheName);
-        Thread.sleep(1000);
 
         Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
         manager2.addCache(cache);
@@ -421,7 +424,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             byte[] data = new byte[1024];
             diskStore.put(new Element("key" + (i + 100), data));
         }
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
         assertEquals(100, diskStore.getSize());
         manager.removeCache(cacheName);
@@ -445,7 +448,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         diskStore.put(new Element("key100", new byte[1024]));
         diskStore.flush();
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(100, diskStore.getSize());
     }
@@ -500,7 +503,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         for (int i = 0; i < 100; i++) {
             diskStore.put(new Element("key" + (i + 100), data));
         }
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
         assertEquals(100, diskStore.getSize());
         manager.removeCache(cacheName);
@@ -519,7 +522,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         diskStore.put(new Element("key100", data));
         diskStore.put(new Element("key101", data));
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         //The file does not shrink.
         assertEquals(100 * ELEMENT_ON_DISK_SIZE, dataFile.length());
@@ -530,7 +533,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key104", data));
         diskStore.put(new Element("key201", data));
         diskStore.put(new Element("key202", data));
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         assertEquals(102 * ELEMENT_ON_DISK_SIZE, dataFile.length());
         assertEquals(102, diskStore.getSize());
         manager.removeCache(cacheName);
@@ -580,7 +583,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key1", value));
         diskStore.put(new Element("key2", value));
 
-        Thread.sleep(1000);
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         // Get the element
         assertEquals(2, diskStore.getSize());
@@ -599,7 +602,7 @@ public class DiskStoreTest extends AbstractCacheTest {
      *
      */
     @Test
-    public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException {
+    public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException, ExecutionException {
         Cache cache = new Cache("testNonPersistent", 1, MemoryStoreEvictionPolicy.LFU, true,
                 null, false, 2000, 1000, false, 1, null, null, 10);
         manager.addCache(cache);
@@ -627,7 +630,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         store.put(element);
 
         //allow to get out of spool
-        Thread.sleep(220);
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
         assertEquals(10, store.getOnDiskSize());
         //check new element not evicted
         assertNotNull(store.get(element.getObjectKey()));
@@ -637,10 +640,10 @@ public class DiskStoreTest extends AbstractCacheTest {
         for (int i = 0; i < 2000; i++) {
             store.put(new Element("" + i, new Date()));
         }
-        //wait for spool to empty
-        waitLonger();
 
-        assertBy(1, SECONDS, sizeOnDiskOf(store), Is.is(10));
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
+
+        assertThat(store.getOnDiskSize(), Is.is(10));
     }
 
     /**
@@ -653,7 +656,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         Long value = Long.valueOf(123L);
         diskStore.put(new Element("key1", value));
         diskStore.put(new Element("key2", value));
-        Thread.sleep(1000);
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         Element element1 = diskStore.get("key1");
         Element element2 = diskStore.get("key2");
         assertEquals(value, element1.getObjectValue());
@@ -676,7 +679,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         diskStore.put(new Element("primitive1", primitive));
         diskStore.put(new Element("primitive2", primitive));
-        Thread.sleep(1000);
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         Element primitive1 = diskStore.get("primitive1");
         Element primitive2 = diskStore.get("primitive2");
         assertEquals(primitive, primitive1.getObjectValue());
@@ -701,7 +704,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key2", value));
 
         // Wait
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         // Get the element
         assertEquals(2, diskStore.getOnDiskSize());
@@ -727,7 +730,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key1", value));
         diskStore.put(new Element("key2", value));
 
-        Thread.sleep(1000);
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         // Check the entry is there
         assertEquals(2, diskStore.getOnDiskSize());
@@ -740,7 +743,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.remove("key1");
         diskStore.remove("key2");
 
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         // Check the entry is not there
         assertEquals(0, diskStore.getOnDiskSize());
@@ -808,7 +811,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key2", value));
 
         // Wait for the entry
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         // Check the entry is there
         assertEquals(2, diskStore.getOnDiskSize());
@@ -864,7 +867,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key2", value));
 
         // Wait
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         // Remove it
         diskStore.removeAll();
@@ -898,7 +901,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             assertNotNull(element);
 
             // Chuck in a delay, to give the spool thread a chance to catch up
-            Thread.sleep(2);
+            DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
             // Remove the element
             diskStore.remove(key);
@@ -910,8 +913,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             element = diskStore.get(key);
             assertNotNull(element);
 
-            // Chuck in a delay
-            Thread.sleep(2);
+            DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
         }
     }
 
@@ -928,7 +930,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key2", "value", false, 1, 1));
 
         //allow disk writer to finish
-        Thread.sleep(200);
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         assertEquals(2, diskStore.getSize());
         assertEquals(2, diskStore.getOnDiskSize());
@@ -956,10 +958,11 @@ public class DiskStoreTest extends AbstractCacheTest {
      * Using a key of Integer.valueOf(i * outer) the size stays constant at 140800.
      *
      * @throws InterruptedException
+     * @throws ExecutionException
      */
     @Test
-    public void testExpiryWithSize() throws InterruptedException {
-        Store diskStore = createDiskStore();
+    public void testExpiryWithSize() throws InterruptedException, ExecutionException {
+        final Store diskStore = createDiskStore();
         diskStore.removeAll();
 
         byte[] data = new byte[1024];
@@ -969,20 +972,15 @@ public class DiskStoreTest extends AbstractCacheTest {
                 element.setTimeToLive(1);
                 diskStore.put(element);
             }
-            waitLonger();
-            int predictedSize = (ELEMENT_ON_DISK_SIZE + 82) * 100;
-            long actualSize = diskStore.getOnDiskSizeInBytes();
-            LOG.info("Predicted Size: " + predictedSize + " Actual Size: " + actualSize);
-            assertTrue(actualSize <= predictedSize);
-            LOG.info("Memory Use: " + measureMemoryUse());
-        }
-    }
+            DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
-    /**
-     * Waits for all spooled elements to be written to disk.
-     */
-    private static void waitShorter() throws InterruptedException {
-        Thread.sleep((long) (300 + 100 * getSpeedAdjustmentFactor()));
+            assertBy(4, TimeUnit.SECONDS, new Callable<Long>() {
+                @Override
+                public Long call() throws Exception {
+                    return diskStore.getOnDiskSizeInBytes();
+                }
+            }, OrderingComparison.lessThanOrEqualTo((ELEMENT_ON_DISK_SIZE + 82L) * 100));
+        }
     }
 
     private static float getSpeedAdjustmentFactor() {
@@ -993,15 +991,6 @@ public class DiskStoreTest extends AbstractCacheTest {
             return 1;
         }
     }
-
-
-    /**
-     * Waits for all spooled elements to be written to disk.
-     */
-    private static void waitLonger() throws InterruptedException {
-        Thread.sleep((long) (300 + 500 * getSpeedAdjustmentFactor()));
-    }
-
 
     /**
      * Multi-thread read-only test. Will fail on memory constrained VMs
@@ -1017,7 +1006,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         diskStore.put(new Element("key3", "value"));
 
         // Wait for the elements to be written
-        waitShorter();
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
         // Run a set of threads, that attempt to fetch the elements
         final List executables = new ArrayList();
@@ -1073,7 +1062,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     @Test
     public void testReadRemoveMultipleThreadsMultipleStripes() throws Exception {
-        for (int stripes = 0; stripes < 10; stripes++) {
+        for (int stripes = 1; stripes <= 2; stripes++) {
             final Random random = new Random();
             final Cache cache = createStripedDiskCache(stripes);
             try {
@@ -1175,8 +1164,6 @@ public class DiskStoreTest extends AbstractCacheTest {
         //Ignore single separators
         translatedPath = new DiskStoreConfiguration().path(translatedPath).getPath();
         assertEquals("c:" + File.separator + "temp" + File.separator + "greg", translatedPath);
-
-        Thread.sleep(500);
     }
 
     @Test
@@ -1189,7 +1176,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         while (true) {
             int beforeSize = store.getOnDiskSize();
             store.put(new Element(Integer.valueOf(i++), new byte[100]));
-            MILLISECONDS.sleep(500);
+            DiskStoreHelper.flushAllEntriesToDisk(store).get();
             int afterSize = store.getOnDiskSize();
             LOG.info(beforeSize + " ==> " + afterSize);
             if (afterSize <= beforeSize) {
@@ -1199,7 +1186,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
 
         LOG.info("Wait For Spool Thread To Finish");
-        SECONDS.sleep(2);
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
 
         final int initialSize = store.getOnDiskSize();
         final int shrinkSize = initialSize / 2;
@@ -1207,12 +1194,12 @@ public class DiskStoreTest extends AbstractCacheTest {
         LOG.info("Resized : " + initialSize + " ==> " + shrinkSize);
 
         LOG.info("Wait For Spool Thread To Finish");
-        SECONDS.sleep(2);
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
 
         for (; ; i++) {
             int beforeSize = store.getOnDiskSize();
             store.put(new Element(Integer.valueOf(i), new byte[100]));
-            MILLISECONDS.sleep(500);
+            DiskStoreHelper.flushAllEntriesToDisk(store).get();
             int afterSize = store.getOnDiskSize();
             LOG.info(beforeSize + " ==> " + afterSize);
             if (afterSize >= beforeSize && afterSize <= shrinkSize * 1.1) {
@@ -1222,7 +1209,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
 
         LOG.info("Wait For Spool Thread To Finish");
-        SECONDS.sleep(2);
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
 
         {
             int size = store.getOnDiskSize();
@@ -1235,12 +1222,12 @@ public class DiskStoreTest extends AbstractCacheTest {
         LOG.info("Resized : " + shrinkSize + " ==> " + growSize);
 
         LOG.info("Wait For Spool Thread To Finish");
-        SECONDS.sleep(2);
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
 
         for (; ; i++) {
             int beforeSize = store.getOnDiskSize();
             store.put(new Element(Integer.valueOf(i), new byte[100]));
-            MILLISECONDS.sleep(500);
+            DiskStoreHelper.flushAllEntriesToDisk(store).get();
             int afterSize = store.getOnDiskSize();
             LOG.info(beforeSize + " ==> " + afterSize);
             if (afterSize <= beforeSize && afterSize > 0.9 * growSize) {
@@ -1250,7 +1237,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
 
         LOG.info("Wait For Spool Thread To Finish");
-        SECONDS.sleep(2);
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
 
         {
             int size = store.getOnDiskSize();
