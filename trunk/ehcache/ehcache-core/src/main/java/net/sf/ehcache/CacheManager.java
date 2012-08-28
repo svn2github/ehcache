@@ -466,7 +466,7 @@ public class CacheManager {
         }
 
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
-        if (managementRESTService == null && clustered) {
+        if (managementRESTService == null && clustered && ManagementServerLoader.isManagementAvailable()) {
             managementRESTService = new ManagementRESTServiceConfiguration();
             managementRESTService.setEnabled(true);
             managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);

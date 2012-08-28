@@ -51,6 +51,20 @@ public class ManagementServerLoader {
     }
 
     /**
+     * Check if the ehcache-rest-agent jar is on the classpath
+     *
+     * @return true if ehcache-rest-agent is available, false otherwise.
+     */
+    public static boolean isManagementAvailable() {
+        try {
+            RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServerImpl");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
      * Register a cacheManager to management rest server.
      * If the server does not exist, starts it.
      *
