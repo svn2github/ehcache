@@ -92,7 +92,7 @@ public abstract class ClientBase extends AbstractClientBase {
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
 
   // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
-  public void waitForAllCurrentTransactionsToComplete(Cache cache) throws Exception {
+  public void waitForAllCurrentTransactionsToComplete(Cache cache) {
     // Use getSize() until DEV-8034
     cache.getSize();
   }
