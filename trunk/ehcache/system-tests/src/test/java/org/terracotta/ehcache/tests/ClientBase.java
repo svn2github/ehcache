@@ -16,10 +16,10 @@ import java.util.concurrent.BrokenBarrierException;
 
 public abstract class ClientBase extends AbstractClientBase {
 
-  private final String        name;
-  protected CacheManager      cacheManager;
-  private ToolkitBarrier      barrier;
-  private Toolkit             toolkit;
+  private final String   name;
+  protected CacheManager cacheManager;
+  private ToolkitBarrier barrier;
+  private Toolkit        toolkit;
 
   public ClientBase(String[] args) {
     this("test", args);
@@ -90,5 +90,11 @@ public abstract class ClientBase extends AbstractClientBase {
   }
 
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
+
+  // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
+  public void waitForAllCurrentTransactionsToComplete(Cache cache) throws Exception {
+    // Use getSize() until DEV-8034
+    cache.getSize();
+  }
 
 }

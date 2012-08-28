@@ -20,7 +20,6 @@ import com.tc.test.config.model.TestConfig;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.BrokenBarrierException;
 
 import junit.framework.Assert;
 
@@ -70,8 +69,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
 
     }
 
-    private void testL1BigMemorySanity(Cache cache, boolean shouldWait) throws InterruptedException,
-        BrokenBarrierException {
+    private void testL1BigMemorySanity(Cache cache, boolean shouldWait) throws Exception {
       index = barrier.await();
       int numOfElements = 500;
       if (index == 0) {
@@ -118,7 +116,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
 
       barrier.await();
       if (shouldWait) {
-        cache.getSize();
+        waitForAllCurrentTransactionsToComplete(cache);
       }
       barrier.await();
 
