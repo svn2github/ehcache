@@ -975,7 +975,6 @@ public class DiskStoreTest extends AbstractCacheTest {
             DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
 
             assertBy(4, TimeUnit.SECONDS, new Callable<Long>() {
-                @Override
                 public Long call() throws Exception {
                     return diskStore.getOnDiskSizeInBytes();
                 }
