@@ -4,13 +4,15 @@
  */
 package net.sf.ehcache;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.core.CombinableMatcher.both;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -264,36 +266,36 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testDiskCapacityChange() throws InterruptedException {
+    public void testDiskCapacityChange() throws Exception {
+        final int DISK_WIGGLE = 2;
+
         Cache cache = new Cache("testDiskCapacityChange", 10, true, true, 0, 0);
         cache.getCacheConfiguration().setMaxElementsOnDisk(10);
         manager.addCache(cache);
 
         for (int i = 0; i < 40; i++) {
             cache.put(new Element("key" + i, new byte[0]));
-            MILLISECONDS.sleep(400);
-            Assert.assertTrue(cache.getSize() <= 20);
-            Assert.assertTrue(cache.getMemoryStoreSize() <= 10);
-            Assert.assertTrue(cache.getDiskStoreSize() <= 10);
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+            assertThat(cache.getSize(), lessThanOrEqualTo(20));
+            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10L));
+            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(10 + DISK_WIGGLE));
         }
 
         cache.getCacheConfiguration().setMaxElementsOnDisk(20);
 
         for (int i = 40; i < 80; i++) {
             cache.put(new Element("key" + i, new byte[0]));
-            MILLISECONDS.sleep(400);
-            Assert.assertTrue(cache.getSize() <= 30);
-            Assert.assertTrue(cache.getSize() > 10);
-            Assert.assertTrue(cache.getMemoryStoreSize() <= 10);
-            Assert.assertTrue(cache.getDiskStoreSize() <= 20);
-            Assert.assertTrue(cache.getDiskStoreSize() > 10);
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+            assertThat(cache.getSize(), both(lessThanOrEqualTo(30)).and(greaterThan(10)));
+            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10L));
+            assertThat(cache.getDiskStoreSize(), both(lessThanOrEqualTo(20 + DISK_WIGGLE)).and(greaterThan(10)));
         }
 
         cache.getCacheConfiguration().setMaxElementsOnDisk(5);
 
         for (int i = 80; i < 120; i++) {
             cache.put(new Element("key" + i, new byte[0]));
-            MILLISECONDS.sleep(400);
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
         }
 
         assertThat(cache.getSize(), lessThanOrEqualTo(10));
