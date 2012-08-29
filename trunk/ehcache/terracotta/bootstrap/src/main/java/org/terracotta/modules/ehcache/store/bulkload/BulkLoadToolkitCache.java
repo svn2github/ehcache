@@ -28,7 +28,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   private final ToolkitLogger              logger;
-
   private final ReentrantReadWriteLock     readWriteLock              = new ReentrantReadWriteLock();
   private final ToolkitCacheInternal<K, V> toolkitCache;
   private final BulkLoadEnabledNodesSet    bulkLoadEnabledNodesSet;
@@ -41,14 +40,15 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   private final BulkLoadShutdownHook       bulkLoadShutdownHook;
   private final boolean                    loggingEnabled;
 
-  public BulkLoadToolkitCache(ToolkitInternal toolkit, String name, ToolkitCacheInternal<K, V> aggregateServerMap) {
+  public BulkLoadToolkitCache(ToolkitInternal toolkit, String name, ToolkitCacheInternal<K, V> aggregateServerMap,
+                              BulkLoadShutdownHook bulkLoadShutdownHook) {
     this.toolkitInternal = toolkit;
     this.name = name;
     this.logger = toolkit.getLogger(BulkLoadToolkitCache.class.getName());
     this.toolkitCache = aggregateServerMap;
     this.bulkLoadEnabledNodesSet = new BulkLoadEnabledNodesSet(toolkit, name);
     this.localBufferedMap = new LocalBufferedMap(name, this, aggregateServerMap, toolkit);
-    this.bulkLoadShutdownHook = BulkLoadShutdownHook.getInstance(toolkit);
+    this.bulkLoadShutdownHook = bulkLoadShutdownHook;
     this.loggingEnabled = BulkLoadConstants.isLoggingEnabled(toolkit.getProperties());
   }
 

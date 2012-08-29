@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
+import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
 import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -87,7 +88,8 @@ public class ClusteredStore implements TerracottaStore {
   // non-final private fields
   private EventListenerList                                   listenerList;
 
-  public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
+  public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache,
+                        BulkLoadShutdownHook bulkLoadShutdownHook) {
     validateConfig(cache);
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.cache = cache;
@@ -115,11 +117,10 @@ public class ClusteredStore implements TerracottaStore {
     }
 
     ToolkitInternal toolkitInternal = (ToolkitInternal) toolkitInstanceFactory.getToolkit();
-    checkContainsKeyOnPut = toolkitInternal.getProperties()
-        .getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
+    checkContainsKeyOnPut = toolkitInternal.getProperties().getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
     backend = new ClusteredStoreBackend<String, Serializable>(toolkitInternal,
-                                                              toolkitInstanceFactory
-                                                                  .getOrCreateToolkitCache(cache));
+                                                              toolkitInstanceFactory.getOrCreateToolkitCache(cache),
+                                                              bulkLoadShutdownHook);
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
                                        backend.getConfiguration()
                                            .getInt(ToolkitStoreConfigFields.CONCURRENCY_FIELD_NAME)));

@@ -18,35 +18,20 @@ import java.util.Set;
  */
 public class BulkLoadShutdownHook implements Runnable {
 
-  private volatile static ToolkitLogger        LOGGER;
+  private final ToolkitLogger                  logger;
   private final Set<BulkLoadToolkitCache>      registeredCaches = new HashSet<BulkLoadToolkitCache>();
   private final ClusterInfo                    terracottaClusterInfo;
   private final static boolean                 DEBUG            = false;
 
-  private volatile static BulkLoadShutdownHook instance;
-
-  private BulkLoadShutdownHook(ToolkitInternal toolkit) {
+  public BulkLoadShutdownHook(ToolkitInternal toolkit) {
     terracottaClusterInfo = toolkit.getClusterInfo();
-    if (LOGGER == null) {
-      LOGGER = toolkit.getLogger(BulkLoadShutdownHook.class.getName());
-    }
+    logger = toolkit.getLogger(BulkLoadShutdownHook.class.getName());
     toolkit.registerBeforeShutdownHook(new Runnable() {
       @Override
       public void run() {
         shutdownRegisteredCaches();
       }
     });
-  }
-
-  public static BulkLoadShutdownHook getInstance(ToolkitInternal toolkit) {
-    if (instance != null) { return instance; }
-
-    synchronized (BulkLoadShutdownHook.class) {
-      if (instance != null) { return instance; }
-      instance = new BulkLoadShutdownHook(toolkit);
-
-      return instance;
-    }
   }
 
   @Override
@@ -92,7 +77,7 @@ public class BulkLoadShutdownHook implements Runnable {
   }
 
   private void debug(String msg) {
-    if (DEBUG) LOGGER.info(msg);
+    if (DEBUG) logger.info(msg);
   }
 
 }

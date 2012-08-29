@@ -19,8 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 public class BulkLoadEnabledNodesSet {
 
-  private static volatile ToolkitLogger   LOGGER;
   private static final String             BULK_LOAD_NODES_SET_PREFIX = "__tc_bulk-load-nodes-set_for_cache_";
+
+  private final ToolkitLogger             logger;
   private final ClusterInfo               clusterInfo;
   private final ToolkitSet<String>        bulkLoadEnabledNodesSet;
   private final ToolkitLock               clusteredLock;
@@ -33,10 +34,8 @@ public class BulkLoadEnabledNodesSet {
     this.clusterInfo = toolkit.getClusterInfo();
     bulkLoadEnabledNodesSet = toolkit.getSet(BULK_LOAD_NODES_SET_PREFIX + name, String.class);
     clusteredLock = bulkLoadEnabledNodesSet.getReadWriteLock().writeLock();
-    
-    if (LOGGER == null) {
-      LOGGER = toolkit.getLogger(BulkLoadEnabledNodesSet.class.getName());
-    }
+
+    logger = toolkit.getLogger(BulkLoadEnabledNodesSet.class.getName());
 
     cleanupOfflineNodes();
     cleanupOnNodeLeftListener = new CleanupOnNodeLeftListener(this, clusterInfo, toolkit);
@@ -50,7 +49,7 @@ public class BulkLoadEnabledNodesSet {
 
   private void debug(String msg) {
     List<String> nodes = new ArrayList(bulkLoadEnabledNodesSet);
-    LOGGER.info("['" + name + "'] " + msg + " [bulk-load enabled nodes: " + nodes + "]");
+    logger.info("['" + name + "'] " + msg + " [bulk-load enabled nodes: " + nodes + "]");
   }
 
   /**
@@ -165,8 +164,6 @@ public class BulkLoadEnabledNodesSet {
 
   private static class CleanupOnNodeLeftListener implements ClusterListener {
 
-    private volatile static ToolkitLogger LOG;
-
     private final BulkLoadEnabledNodesSet nodesSet;
     private final ClusterNode             currentNode;
 
@@ -176,9 +173,6 @@ public class BulkLoadEnabledNodesSet {
       this.nodesSet = nodesSet;
       this.clusterInfo = clusterInfo;
       this.currentNode = clusterInfo.getCurrentNode();
-      if (LOG == null) {
-        LOG = toolkit.getLogger(CleanupOnNodeLeftListener.class.getName());
-      }
     }
 
     @Override
@@ -195,17 +189,17 @@ public class BulkLoadEnabledNodesSet {
 
     private void handleNodeLeft(ClusterEvent event) {
       String offlineNode = getIdForNode(event.getNode());
-      LOGGER.info("Received node left event for: " + offlineNode);
+      nodesSet.logger.info("Received node left event for: " + offlineNode);
       if (getIdForNode(currentNode).equals(offlineNode)) {
         // nothing to do on "this" node left
         if (nodesSet.loggingEnabled) {
-          LOGGER.info("Ignoring node left of current node itself - " + offlineNode);
+          nodesSet.logger.info("Ignoring node left of current node itself - " + offlineNode);
         }
         return;
       }
       if (!clusterInfo.areOperationsEnabled()) {
         // no-op when current node is offline already
-        LOG.warn("Ignoring node left of node: " + offlineNode + ", as current node is offline.");
+        nodesSet.logger.warn("Ignoring node left of node: " + offlineNode + ", as current node is offline.");
         return;
       }
       nodesSet.clusteredLock.lock();

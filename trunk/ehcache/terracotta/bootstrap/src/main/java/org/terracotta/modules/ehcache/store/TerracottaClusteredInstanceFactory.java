@@ -26,6 +26,7 @@ import org.terracotta.modules.ehcache.async.AsyncCoordinatorFactoryImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.FireRejoinOperatorEventClusterListener;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
+import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
 import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
@@ -46,6 +47,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
   private final SoftLockManagerProvider         softLockManagerProvider;
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
+  private final BulkLoadShutdownHook            bulkLoadShutdownHook;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
@@ -53,6 +55,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
     softLockManagerProvider = new SoftLockManagerProvider(toolkitInstanceFactory);
     asyncCoordinatorFactory = createAsyncCoordinatorFactory();
+    bulkLoadShutdownHook = new BulkLoadShutdownHook((ToolkitInternal) toolkitInstanceFactory.getToolkit());
     logEhcacheBuildInfo();
   }
 
@@ -90,7 +93,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
    * Override to use different implementations
    */
   protected ClusteredStore newStore(Ehcache cache) {
-    return new ClusteredStore(toolkitInstanceFactory, cache);
+    return new ClusteredStore(toolkitInstanceFactory, cache, bulkLoadShutdownHook);
   }
 
   @Override
