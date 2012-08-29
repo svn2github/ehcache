@@ -5,7 +5,6 @@
 package net.sf.ehcache;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.core.CombinableMatcher.both;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
@@ -14,6 +13,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
+import org.hamcrest.core.CombinableMatcher;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -286,9 +286,9 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         for (int i = 40; i < 80; i++) {
             cache.put(new Element("key" + i, new byte[0]));
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
-            assertThat(cache.getSize(), both(lessThanOrEqualTo(30)).and(greaterThan(10)));
+            assertThat(cache.getSize(), CombinableMatcher.<Integer>both(lessThanOrEqualTo(30)).and(greaterThan(10)));
             assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10L));
-            assertThat(cache.getDiskStoreSize(), both(lessThanOrEqualTo(20 + DISK_WIGGLE)).and(greaterThan(10)));
+            assertThat(cache.getDiskStoreSize(), CombinableMatcher.<Integer>both(lessThanOrEqualTo(20 + DISK_WIGGLE)).and(greaterThan(10)));
         }
 
         cache.getCacheConfiguration().setMaxElementsOnDisk(5);
