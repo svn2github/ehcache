@@ -254,7 +254,8 @@ public interface Ehcache extends Cloneable {
     Element get(Object key) throws IllegalStateException, CacheException;
 
     /**
-     * Gets all the elements from the cache for the keys provided. Updates Element Statistics
+     * Gets all the elements from the cache for the keys provided. Updates Element Statistics.
+     * Returned Map may contain less or more keys if collection is modified before call completes.
      * Throws a NullPointerException if any key in the collection is null
      * <p/>
      * Note that the Element's lastAccessTime is always the time of this get.

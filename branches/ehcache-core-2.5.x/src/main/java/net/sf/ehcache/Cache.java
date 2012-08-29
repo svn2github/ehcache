@@ -1635,7 +1635,7 @@ public class Cache implements InternalEhcache, StoreListener {
             return null;
         }
 
-        keys = Collections.unmodifiableCollection(new HashSet(keys));
+        keys = Collections.unmodifiableCollection(keys);
         if (keys.isEmpty()) {
             return Collections.EMPTY_MAP;
         }
