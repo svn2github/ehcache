@@ -47,7 +47,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
   private final SoftLockManagerProvider         softLockManagerProvider;
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
-  private final BulkLoadShutdownHook            bulkLoadShutdownHook;
+  protected final BulkLoadShutdownHook          bulkLoadShutdownHook;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
