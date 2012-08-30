@@ -35,7 +35,7 @@ import java.util.Random;
 
 import net.sf.ehcache.config.CacheConfiguration;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 /**
