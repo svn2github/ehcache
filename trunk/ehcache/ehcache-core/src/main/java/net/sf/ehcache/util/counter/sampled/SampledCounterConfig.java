@@ -40,6 +40,8 @@ public class SampledCounterConfig extends CounterConfig {
      *            number of counter samples that will be retained in memory
      * @param isResetOnSample
      *            true if the counter should be reset to 0 upon each sample
+     * @param initialValue
+     *            the initial value given to this counter
      */
     public SampledCounterConfig(int intervalSecs, int historySize, boolean isResetOnSample, long initialValue) {
         super(initialValue);
