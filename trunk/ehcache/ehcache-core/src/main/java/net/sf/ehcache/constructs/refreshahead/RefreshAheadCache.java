@@ -244,7 +244,6 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
         if (checkForRefresh(elem, System.currentTimeMillis(), timeToRefreshMillis)) {
             // now add the key to the queue. smallest overhead we could get.
             refreshWorkQueue.offer(elem.getObjectKey());
-
         }
     }
 
