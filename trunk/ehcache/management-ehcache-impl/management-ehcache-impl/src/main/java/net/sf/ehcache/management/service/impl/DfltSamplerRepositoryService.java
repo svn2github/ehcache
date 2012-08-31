@@ -63,13 +63,15 @@ import javax.management.ObjectName;
  *
  * @author brandony
  */
-public final class DfltSamplerRepositoryService
+public class DfltSamplerRepositoryService
     implements SamplerRepositoryService, EntityResourceFactory, CacheManagerService, CacheService, AgentService,
     DfltSamplerRepositoryServiceMBean {
 
   private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryService.class);
 
   private final static Set<String> DFLT_ATTRS = new HashSet<String>(Arrays.asList(new String[] { "Name" }));
+
+  public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=RepositoryService";
 
   /**
    * Guarded By cacheManagerSamplerRepoLock
@@ -80,14 +82,17 @@ public final class DfltSamplerRepositoryService
   private final ObjectName objectName;
   private final ManagementRESTServiceConfiguration configuration;
 
-  public DfltSamplerRepositoryService(ObjectName objectName, ManagementRESTServiceConfiguration configuration) {
+  public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration) {
     this.configuration = configuration;
-    if (objectName != null) {
+    ObjectName objectName = null;
+    if (clientUUID != null) {
       try {
+        objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
         MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
         platformMBeanServer.registerMBean(this, objectName);
       } catch (Exception e) {
-        LOG.warn("Error registering SamplerRepositoryService MBean: " + objectName, e);
+        objectName = null;
+        LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
       }
     }
     this.objectName = objectName;
@@ -111,7 +116,7 @@ public final class DfltSamplerRepositoryService
    * {@inheritDoc}
    */
   @Override
-  public byte[] invoke(String methodName, Class<?>[] argsTypes, Object[] args) {
+  public byte[] invoke(String ticket, String token, String methodName, Class<?>[] argsTypes, Object[] args) {
     try {
       Method method = getClass().getMethod(methodName, argsTypes);
       Object res = method.invoke(this, args);

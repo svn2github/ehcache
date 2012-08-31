@@ -104,17 +104,7 @@ public final class ManagementServerImpl implements ManagementServer {
   }
 
   private void loadEmbeddedAgentServiceLocator(String clientUUID, ManagementRESTServiceConfiguration configuration) {
-
-
-    ObjectName objectName = null;
-    try {
-      objectName = new ObjectName("net.sf.ehcache:type=RepositoryService,bind=" + configuration.getBind()
-          .replace(":", "_") + ",node=" + clientUUID);
-    } catch (MalformedObjectNameException me) {
-      LOG.warn("Error creating MBean name", me);
-    }
-
-    DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService(objectName, configuration);
+    DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService(clientUUID, configuration);
     LicenseService licenseService = new LicenseServiceImpl(false);
 
     ServiceLocator locator = new ServiceLocator()

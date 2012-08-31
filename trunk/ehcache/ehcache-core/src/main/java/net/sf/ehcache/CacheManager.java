@@ -468,6 +468,15 @@ public class CacheManager {
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
         if (managementRESTService == null && clustered && ManagementServerLoader.isManagementAvailable()) {
             managementRESTService = new ManagementRESTServiceConfiguration();
+
+            String tcUrl = configuration.getTerracottaConfiguration().getUrl();
+            if (tcUrl.contains("@")) {
+                managementRESTService.setSslEnabled(true);
+                // only keep the 1st L2 address, in case multiple are configured in AA (eg: node1:9510,node2:9510)
+                String firstTcUrl = tcUrl.split("\\,")[0];
+                managementRESTService.setSecurityServiceLocation("https://" + firstTcUrl + "/tc-management-api/assertIdentity");
+            }
+
             managementRESTService.setEnabled(true);
             managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
         }
