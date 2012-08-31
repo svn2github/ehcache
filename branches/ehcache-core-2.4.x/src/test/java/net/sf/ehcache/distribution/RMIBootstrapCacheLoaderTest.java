@@ -22,19 +22,22 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.event.CountingCacheEventListener;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -73,23 +76,6 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
      * CacheManager 3 in the cluster
      */
     protected CacheManager manager3;
-    /**
-     * CacheManager 4 in the cluster
-     */
-    protected CacheManager manager4;
-    /**
-     * CacheManager 5 in the cluster
-     */
-    protected CacheManager manager5;
-    /**
-     * CacheManager 6 in the cluster
-     */
-    protected CacheManager manager6;
-
-    /**
-     * The name of the cache under test
-     */
-    protected String cacheName = "sampleCache1";
 
     /**
      * {@inheritDoc}
@@ -102,12 +88,16 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
 
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
-        CountingCacheEventListener.resetCounters();
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
-        manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
+        List<Configuration> configurations = new ArrayList<Configuration>();
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
+
+        List<CacheManager> managers = startupManagers(configurations);
+        manager1 = managers.get(0);
+        manager2 = managers.get(1);
 
         //allow cluster to be established
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager1, manager2);
+        waitForClusterMembership(10, TimeUnit.SECONDS, Arrays.asList("sampleCache1", "sampleCache2"), manager1, manager2);
     }
 
     /**
@@ -138,15 +128,6 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
         }
         if (manager3 != null) {
             manager3.shutdown();
-        }
-        if (manager4 != null) {
-            manager4.shutdown();
-        }
-        if (manager5 != null) {
-            manager5.shutdown();
-        }
-        if (manager6 != null) {
-            manager6.shutdown();
         }
 
         RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
@@ -180,14 +161,10 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
         }
         assertEquals(2000, manager2.getCache("sampleCache1").getSize());
 
-        Thread.sleep(8000);
-        assertEquals(2000, manager1.getCache("sampleCache1").getSize());
+        RetryAssert.assertBy(16, TimeUnit.SECONDS, RetryAssert.sizeOf(manager1.getCache("sampleCache1")), equalTo(2000));
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
-        Thread.sleep(5000);
-        assertEquals(2000, manager3.getCache("sampleCache1").getSize());
-
-
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, RetryAssert.sizeOf(manager3.getCache("sampleCache1")), equalTo(2000));
     }
 
     /**
@@ -215,8 +192,7 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
 
         assertEquals(2000, manager2.getCache("sampleCache2").getSize());
 
-        Thread.sleep(8000);
-        assertEquals(2000, manager1.getCache("sampleCache2").getSize());
+        RetryAssert.assertBy(16, TimeUnit.SECONDS, RetryAssert.sizeOf(manager1.getCache("sampleCache2")), equalTo(2000));
 
         manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
         //Should not need to wait because the load is synchronous
@@ -243,8 +219,7 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
         manager2.addCache("testBootstrap1");
         Cache testBootstrap2 = manager2.getCache("testBootstrap1");
         //wait for async bootstrap
-        Thread.sleep(3000);
-        assertEquals(1000, testBootstrap2.getSize());
+        RetryAssert.assertBy(6, TimeUnit.SECONDS, RetryAssert.sizeOf(testBootstrap2), equalTo(1000));
 
 
     }

@@ -23,9 +23,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.event.CountingCacheEventListener;
 
+import org.hamcrest.core.DescribedAs;
 import org.junit.After;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
@@ -41,6 +42,7 @@ import org.junit.Test;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -102,26 +104,33 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
-        manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml");
-        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml");
-        manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml");
-        manager5 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml");
+        List<Configuration> configurations = new ArrayList<Configuration>();
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml").name("cm3"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml").name("cm4"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml").name("cm5"));
+
+        List<CacheManager> managers = startupManagers(configurations);
+        manager1 = managers.get(0);
+        manager2 = managers.get(1);
+        manager3 = managers.get(2);
+        manager4 = managers.get(3);
+        manager5 = managers.get(4);
 
         //allow cluster to be established
         waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
 
         manager1.getCache(cacheName).put(new Element("setup", "setup"));
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
-            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), notNullValue());
+            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), DescribedAs.describedAs("Failed to propagate setup value to {}", notNullValue(), manager));
         }
 
         manager1.getCache(cacheName).removeAll();
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
-            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), is(0));
+            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), DescribedAs.describedAs("Failed to propagate removeAll to {}" , is(0), manager));
         }
 
-        CountingCacheEventListener.resetCounters();
         cache1 = manager1.getCache(cacheName);
         cache2 = manager2.getCache(cacheName);
     }
@@ -298,26 +307,4 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
     }
 
-    /**
-     * Does the RMI listener stop?
-     * <p/>
-     * This test does not actually do test the shutdown hook automatically. But you should be able to
-     * see "VM shutting down with the RMICacheManagerPeerListener for localhost still active. Calling dispose..."
-     * in the log with FINE level when this test is run individually or as the last test in the run. i.e. on VM shutdown.
-     */
-    @Test
-    public void testListenerShutsdownFromShutdownHook() {
-        CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
-        try {
-            CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener("RMI");
-            List cachePeers1 = cachePeerListener.getBoundCachePeers();
-            assertEquals(55, cachePeers1.size());
-            assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
-        } finally {
-            /*
-             * This test intentionally doesn't call shutdown - the VM should do it for us.
-             */
-            //manager.shutdown();
-        }
-    }
 }

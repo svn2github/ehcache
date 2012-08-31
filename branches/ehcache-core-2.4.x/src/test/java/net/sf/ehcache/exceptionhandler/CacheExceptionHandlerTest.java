@@ -21,7 +21,6 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import org.junit.After;
@@ -61,7 +60,6 @@ public class CacheExceptionHandlerTest {
      */
     @Before
     public void setUp() throws Exception {
-        CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         cache = manager.getEhcache(cacheName);
         cache.removeAll();

@@ -20,7 +20,6 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.event.CountingCacheEventListener;
 import org.junit.After;
 
 import static org.junit.Assert.assertEquals;
@@ -48,7 +47,6 @@ public class CacheExtensionTest {
      */
     @Before
     public void setUp() throws Exception {
-        CountingCacheEventListener.resetCounters();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-cacheextension.xml");
     }
 

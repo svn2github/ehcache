@@ -17,24 +17,38 @@
 package net.sf.ehcache.distribution;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.sizeOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.rmi.server.RMISocketFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import net.sf.ehcache.Cache;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.RegisteredEventListeners;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
@@ -45,6 +59,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRMITest.class);
+
+    protected static Configuration getConfiguration(String fileName) {
+        return ConfigurationFactory.parseConfiguration(new File(fileName));
+    }
 
     @BeforeClass
     public static void installRMISocketFactory() {
@@ -137,7 +155,30 @@ public abstract class AbstractRMITest {
         return errors;
     }
 
+    /**
+     * Wait for all caches to have a full set of peers in each manager.
+     * <p>
+     * This method will hang if all managers don't share a common set of replicated caches.
+     */
+    protected static void waitForClusterMembership(int time, TimeUnit unit, final List<CacheManager> managers) {
+        waitForClusterMembership(time, unit, getAllReplicatedCacheNames(managers.get(0)), managers);
+    }
+
+    /**
+     * Wait for the given caches to have a full set of peers in each manager.
+     * <p>
+     * Any other caches in these managers may or may not be fully announced throughout the cluster.
+     */
     protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final CacheManager ... managers) {
+        waitForClusterMembership(time, unit, cacheNames, Arrays.asList(managers));
+    }
+
+    /**
+     * Wait for the given caches to have a full set of peers in each manager.
+     * <p>
+     * Any other caches in these managers may or may not be fully announced throughout the cluster.
+     */
+    protected static void waitForClusterMembership(int time, TimeUnit unit, final Collection<String> cacheNames, final List<CacheManager> managers) {
         assertBy(time, unit, new Callable<Integer>() {
 
             public Integer call() throws Exception {
@@ -157,6 +198,93 @@ public abstract class AbstractRMITest {
                     return minimumPeers + 1;
                 }
             }
-        }, is(managers.length));
+        }, is(managers.size()));
+    }
+
+    protected static void emptyCaches(int time, TimeUnit unit, List<CacheManager> members) {
+        emptyCaches(time, unit, getAllReplicatedCacheNames(members.get(0)), members);
+    }
+
+    protected static void emptyCaches(final int time, final TimeUnit unit, Collection<String> required, final List<CacheManager> members) {
+        List<Callable<Void>> cacheEmptyTasks = new ArrayList<Callable<Void>>();
+        for (String cache : required) {
+            final String cacheName = cache;
+            cacheEmptyTasks.add(new Callable<Void>() {
+
+                public Void call() throws Exception {
+                    for (CacheManager manager : members) {
+                        manager.getCache(cacheName).put(new Element("setup", "setup"), true);
+                    }
+
+                    members.get(0).getCache(cacheName).removeAll();
+                    for (CacheManager manager : members.subList(1, members.size())) {
+                        assertBy(time, unit, sizeOf(manager.getCache(cacheName)), is(0));
+                    }
+                    return null;
+                }
+            });
+        }
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        try {
+            for (Future<Void> result : executor.invokeAll(cacheEmptyTasks)) {
+                result.get();
+            }
+        } catch (InterruptedException e) {
+            throw new AssertionError();
+        } catch (ExecutionException e) {
+            throw new AssertionError();
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    private static Collection<String> getAllReplicatedCacheNames(CacheManager manager) {
+        Collection<String> replicatedCaches = new ArrayList<String>();
+        for (String name : manager.getCacheNames()) {
+            Cache cache = manager.getCache(name);
+            if (hasCacheReplicators(cache.getCacheEventNotificationService())) {
+                replicatedCaches.add(name);
+            }
+        }
+        return replicatedCaches;
+    }
+
+    protected static List<CacheManager> startupManagers(List<Configuration> configurations) {
+        List<Callable<CacheManager>> nodeStartupTasks = new ArrayList<Callable<CacheManager>>();
+        for (Configuration config : configurations) {
+            final Configuration configuration = config;
+            nodeStartupTasks.add(new Callable<CacheManager>() {
+                public CacheManager call() throws Exception {
+                    return new CacheManager(configuration);
+                }
+            });
+        }
+
+        ExecutorService clusterStarter = Executors.newCachedThreadPool();
+        try {
+            List<CacheManager> managers = new ArrayList<CacheManager>();
+            try {
+                for (Future<CacheManager> result : clusterStarter.invokeAll(nodeStartupTasks)) {
+                    managers.add(result.get());
+                }
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            } catch (ExecutionException e) {
+                throw new AssertionError(e);
+            }
+            return managers;
+        } finally {
+            clusterStarter.shutdown();
+        }
+    }
+
+    private static boolean hasCacheReplicators(RegisteredEventListeners eventListeners) {
+        for (CacheEventListener listener : eventListeners.getCacheEventListeners()) {
+            if (listener instanceof CacheReplicator) {
+                return true;
+            }
+        }
+        return false;
     }
 }

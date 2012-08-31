@@ -17,21 +17,30 @@
 package net.sf.ehcache.event;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.junit.After;
+import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 
+import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
 import static net.sf.ehcache.util.RetryAssert.assertBy;
 import static net.sf.ehcache.util.RetryAssert.elementAt;
+
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,7 +49,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +86,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        CountingCacheEventListener.resetCounters();
         manager.shutdown();
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
         cache = manager.getCache(cacheName);
@@ -91,7 +101,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     @Override
     @After
     public void tearDown() throws Exception {
-        CountingCacheEventListener.resetCounters();
         super.tearDown();
     }
 
@@ -118,7 +127,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testPutNotifications() {
-
         Serializable key = new Date();
         Serializable value = new Date();
         Element element = new Element(key, value);
@@ -126,16 +134,16 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         //Put
         cache.put(element);
 
-        List notifications = CountingCacheEventListener.getCacheElementsPut(cache);
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        List<CacheEvent> notifications = listener.getCacheElementsPut();
 
-        assertTrue(notifications.size() == 1);
-        assertEquals(key, ((Element) notifications.get(0)).getObjectKey());
-        assertEquals(element.getObjectValue(), ((Element) notifications.get(0)).getObjectValue());
+        assertThat(notifications, hasSize(1));
+        assertEquals(key, notifications.get(0).getElement().getObjectKey());
+        assertEquals(element.getObjectValue(), notifications.get(0).getElement().getObjectValue());
 
         //A put which updates records as one put, because the second one is an update
         cache.put(element);
-        notifications = CountingCacheEventListener.getCacheElementsPut(cache);
-        assertTrue(notifications.size() == 1);
+        assertThat(listener.getCacheElementsPut(), hasSize(1));
 
     }
 
@@ -144,7 +152,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testUpdateNotifications() {
-
         //Put and update
         for (int i = 0; i < 11; i++) {
             cache.put(new Element("" + i, "" + i));
@@ -155,17 +162,16 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.put(new Element("20", "20"));
 
         //Should get 12 puts and 11 updates
-        List notifications = CountingCacheEventListener.getCacheElementsPut(cache);
-        assertTrue(notifications.size() == 12);
-        assertEquals("0", ((Element) notifications.get(0)).getObjectKey());
-        assertEquals("0", ((Element) notifications.get(0)).getObjectValue());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        List<CacheEvent> puts = listener.getCacheElementsPut();
+        assertThat(puts, hasSize(12));
+        assertEquals("0", puts.get(0).getElement().getObjectKey());
+        assertEquals("0", puts.get(0).getElement().getObjectValue());
 
-        notifications = CountingCacheEventListener.getCacheElementsUpdated(cache);
-        assertTrue(notifications.size() == 11);
-        assertEquals("0", ((Element) notifications.get(0)).getObjectKey());
-        assertEquals("0", ((Element) notifications.get(0)).getObjectValue());
-
-
+        List<CacheEvent> updates = listener.getCacheElementsUpdated();
+        assertThat(updates, hasSize(11));
+        assertEquals("0", updates.get(0).getElement().getObjectKey());
+        assertEquals("0", updates.get(0).getElement().getObjectValue());
     }
 
     /**
@@ -185,13 +191,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.remove(key);
 
 
-        List notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(element, notifications.get(0));
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertEquals(element, listener.getCacheElementsRemoved().get(0).getElement());
 
         //An unsuccessful remove should notify
         cache.remove(key);
-        notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(2, notifications.size());
+        assertThat(listener.getCacheElementsRemoved(), hasSize(2));
 
         //check for NPE
         cache.remove(null);
@@ -215,8 +220,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache2.put(element);
         }
 
-        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache2);
-        assertEquals(1, notifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache2);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
     }
 
     /**
@@ -225,18 +230,15 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testEvictNotificationsWhereOverflow() {
-
-        Ehcache cache1 = manager.getCache("sampleCache1");
-
         //Put 11. 1 should be evicted
         Element element = null;
         for (int i = 0; i < 11; i++) {
             element = new Element("" + i, new Date());
-            cache1.put(element);
+            cache.put(element);
         }
 
-        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache1);
-        assertEquals(0, notifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(0));
     }
 
     /**
@@ -254,13 +256,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache2.put(element);
         }
 
-        List notifications = CountingCacheEventListener.getCacheRemoveAlls(cache2);
-        assertEquals(0, notifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache2);
+        assertThat(listener.getCacheRemoveAlls(), hasSize(0));
 
         //Remove all
         cache2.removeAll();
-        notifications = CountingCacheEventListener.getCacheRemoveAlls(cache2);
-        assertEquals(1, notifications.size());
+        assertThat(listener.getCacheRemoveAlls(), hasSize(1));
     }
 
 
@@ -280,13 +281,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.remove(key);
 
 
-        List notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(key, ((Element) notifications.get(0)).getKey());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertEquals(key, listener.getCacheElementsRemoved().get(0).getElement().getKey());
 
         //An unsuccessful remove should notify
         cache.remove(key);
-        notifications = CountingCacheEventListener.getCacheElementsRemoved(cache);
-        assertEquals(2, notifications.size());
+        assertThat(listener.getCacheElementsRemoved(), hasSize(2));
 
         //check for NPE
         cache.remove(null);
@@ -302,7 +302,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         Serializable key = "1";
         Element element = new Element(key, new Date());
 
-        cache.getCacheEventNotificationService().registerListener(new TestCacheEventListener());
+        TestCacheEventListener cacheEventListener = new TestCacheEventListener();
+        cache.getCacheEventNotificationService().registerListener(cacheEventListener);
 
         //Put
         cache.put(element);
@@ -317,9 +318,10 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         assertEquals("set on notify", newElement.getValue());
 
         //Check counting listener
-        List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(1, notifications.size());
-        assertEquals(element, notifications.get(0));
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        List<CacheEvent> notifications = listener.getCacheElementsExpired();
+        assertThat(notifications, hasSize(1));
+        assertEquals(element, notifications.get(0).getElement());
 
         //check for NPE
         cache.remove(null);
@@ -329,6 +331,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * Used to do work on notifyRemoved for the above test.
      */
     class TestCacheEventListener implements CacheEventListener {
+
+        final AtomicInteger counter = new AtomicInteger();
 
         /**
          * {@inheritDoc}
@@ -394,6 +398,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         public void notifyElementExpired(final Ehcache cache, final Element element) {
             LOG.info("Element expired : " + element);
             cache.put(new Element(element.getKey(), "set on notify", Boolean.TRUE, 0, 0));
+            counter.incrementAndGet();
         }
 
         /**
@@ -495,11 +500,10 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Date()));
         }
         cache.put(new Element(11 + "", new Date()));
-        List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(1, evictionNotifications.size());
 
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(0, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
+        assertThat(listener.getCacheElementsExpired(), hasSize(0));
     }
 
     /**
@@ -508,10 +512,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * trigger an eviction notification.
      */
     @Test
-    public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException {
-        String sampleCache1 = "sampleCache1";
-        cache = manager.getCache(sampleCache1);
-        cache.removeAll();
+    public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException, ExecutionException {
+        RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
+        long elementsEvictedCounter = cacheEventNotificationService.getElementsEvictedCounter();
 
         //should trigger a removal notification because it is not Serializable when it is evicted
         cache.put(new Element(12 + "", new Object()));
@@ -521,12 +524,14 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
+        assertThat(cache.getMemoryStoreSize(), is(10L));
+        DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
+        assertThat(cache.getMemoryStoreSize(), is(10L));
 
-        List evictionNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(1, evictionNotifications.size());
-
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(0, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
+        assertEquals(cacheEventNotificationService.getElementsEvictedCounter(), elementsEvictedCounter + 1);
+        assertThat(listener.getCacheElementsExpired(), hasSize(0));
     }
 
     /**
@@ -548,11 +553,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         Thread.sleep(1999);
         cache.put(new Element(11 + "", new Date()));
 
-        List removalNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(0, removalNotifications.size());
-
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(1, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(0));
+        assertThat(listener.getCacheElementsExpired(), hasSize(1));
     }
 
     /**
@@ -571,11 +574,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         cache.put(new Element(11 + "", new Date()));
 
-        List removalNotifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(1, removalNotifications.size());
-
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(0, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
+        assertThat(listener.getCacheElementsExpired(), hasSize(0));
     }
 
     /**
@@ -597,11 +598,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         Thread.sleep(1999);
         cache.put(new Element(11 + "", new Date()));
 
-        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(0, notifications.size());
-
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(1, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(0));
+        assertThat(listener.getCacheElementsExpired(), hasSize(1));
     }
 
     /**
@@ -620,11 +619,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         cache.put(new Element(11 + "", new Date()));
 
-        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(1, notifications.size());
-
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(0, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
+        assertThat(listener.getCacheElementsExpired(), hasSize(0));
     }
 
     /**
@@ -646,11 +643,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         Thread.sleep(1999);
         cache.put(new Element(11 + "", new Date()));
 
-        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(0, notifications.size());
-
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(1, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(0));
+        assertThat(listener.getCacheElementsExpired(), hasSize(1));
     }
 
 
@@ -662,9 +657,10 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      */
     @Test
     public void testExpiryViaMemoryStoreCheckingOnGet() throws InterruptedException, CacheException, IOException {
-
+        cache = manager.getCache(sampleCache2);
         cache.removeAll();
-        CountingCacheEventListener.resetCounters();
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        listener.resetCounters();
 
         Serializable key = "1";
         Serializable value = new Date();
@@ -672,13 +668,20 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         //Check expiry from memory store in 1 second
         cache.put(element);
-        Thread.sleep(1999);
 
-        //Trigger expiry
-        cache.get(key);
-        List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(1, notifications.size());
-        assertEquals(element, notifications.get(0));
+        assertBy(5, TimeUnit.SECONDS, elementAt(cache, key), nullValue());
+        if (cache.getSize() != 0) {
+          assertThat(listener.getCacheElementsExpired(), hasSize(0));
+          cache.evictExpiredElements();
+          assertEquals(0, cache.getSize());
+          List<CacheEvent> notifications = listener.getCacheElementsExpired();
+          assertThat(notifications, hasSize(1));
+          assertEquals(element, notifications.get(0).getElement());
+        } else {
+          List<CacheEvent> notifications = listener.getCacheElementsExpired();
+          assertThat(notifications, hasSize(1));
+          assertEquals(element, notifications.get(0).getElement());
+        }
     }
 
     /**
@@ -697,19 +700,20 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         }
 
         //Wait for expiry
-        Thread.sleep(1999);
+        Thread.sleep(5999);
 
         //Trigger expiry
         for (int i = 0; i < 20; i++) {
             cache.get("" + i);
         }
 
-        List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        List<CacheEvent> notifications = listener.getCacheElementsExpired();
         for (int i = 0; i < notifications.size(); i++) {
-            Element element = (Element) notifications.get(i);
+            Element element = notifications.get(i).getElement();
             element.getObjectKey();
         }
-        assertTrue(notifications.size() >= 10);
+        assertThat(notifications, hasSize(greaterThanOrEqualTo(10)));
     }
 
 
@@ -722,20 +726,20 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     public void testExpiryViaDiskStoreExpiryThread() throws InterruptedException {
         //Overflow 10 elements to disk store
         for (int i = 0; i < 20; i++) {
-            Element element = new Element("" + i, new Date());
+            Element element = new Element(Integer.toString(i), new Date());
             cache.put(element);
         }
 
         // Wait for expiry and expiry thread
-        Thread.sleep(2999);
+        Thread.sleep(6999);
 
-        List notifications = CountingCacheEventListener.getCacheElementsExpired(cache);
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        List<CacheEvent> notifications = listener.getCacheElementsExpired();
         for (int i = 0; i < notifications.size(); i++) {
-            Element element = (Element) notifications.get(i);
+            Element element = notifications.get(i).getElement();
             element.getObjectKey();
         }
-        assertEquals(10, notifications.size());
-
+        assertThat(notifications, hasSize(10));
     }
 
 
@@ -754,11 +758,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         cache.put(new Element(21 + "", new Date()));
         Thread.sleep(2999);
 
-        List notifications = CountingCacheEventListener.getCacheElementsEvicted(cache);
-        assertEquals(1, notifications.size());
-
-        List expiryNotifications = CountingCacheEventListener.getCacheElementsExpired(cache);
-        assertEquals(10, expiryNotifications.size());
+        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
+        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
+        assertThat(listener.getCacheElementsExpired(), hasSize(10));
     }
 
 
@@ -789,6 +791,4 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         runThreads(executables);
     }
-
-
 }

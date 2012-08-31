@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.loader.CacheLoader;
@@ -60,6 +60,7 @@ import net.sf.ehcache.loader.DelayingLoader;
 import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.CompoundStore;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
@@ -1112,17 +1113,17 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("key" + i, "value1"));
         }
 
-        Thread.sleep(1000);
+        flushDiskStore(cache);
 
         assertEquals(10010, cache.getSize());
         assertEquals(10000, cache.getMemoryStoreSize());
         assertEquals(10, cache.getDiskStoreSize());
 
         //NonSerializable
-        Thread.sleep(15);
+        flushDiskStore(cache);
         cache.put(new Element(new Object(), Object.class));
 
-        Thread.sleep(1000);
+        flushDiskStore(cache);
 
         assertEquals(10011, cache.getSize());
         assertEquals(11, cache.getDiskStoreSize());
@@ -1135,17 +1136,39 @@ public class CacheTest extends AbstractCacheTest {
         cache.remove("key4");
         cache.remove("key3");
 
+        flushDiskStore(cache);
+
         assertEquals(10009, cache.getSize());
         //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
         //assertEquals(10000, cache.getMemoryStoreSize());
         //assertEquals(9, cache.getDiskStoreSize());
 
 
+        flushDiskStore(cache);
+
         cache.removeAll();
         assertEquals(0, cache.getSize());
         assertEquals(0, cache.getMemoryStoreSize());
         assertEquals(0, cache.getDiskStoreSize());
 
+    }
+
+    private void flushDiskStore(Ehcache cache)
+        throws InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+
+        while(cache instanceof EhcacheDecoratorAdapter) {
+            final Field underlyingCacheField = EhcacheDecoratorAdapter.class.getDeclaredField("underlyingCache");
+            underlyingCacheField.setAccessible(true);
+            cache = (Ehcache)underlyingCacheField.get(cache);
+        }
+
+        Future<Void> voidFuture;
+        if (cache instanceof Cache && (voidFuture = DiskStoreHelper.flushAllEntriesToDisk(((Cache)cache))) != null) {
+            voidFuture.get();
+        } else {
+            LOG.error("Can't flush to disk for cache " + cache.getName() + " in test " + this.getClass().getName());
+            Thread.sleep(1000);
+        }
     }
 
 
@@ -1289,40 +1312,6 @@ public class CacheTest extends AbstractCacheTest {
         cacheManager.shutdown();
     }
 
-
-    /**
-     * Shows the effect of jamming large amounts of puts into a cache that overflows to disk.
-     * The DiskStore should cause puts to back off and avoid an out of memory error.
-     */
-    @Test
-    public void testBehaviourOnDiskStoreBackUp() throws Exception {
-        Cache cache = new Cache(new CacheConfiguration().name("testBehaviourOnDiskStoreBackUp")
-                .maxElementsInMemory(1000)
-                .overflowToDisk(true)
-                .eternal(false)
-                .timeToLiveSeconds(100)
-                .timeToIdleSeconds(200)
-                .diskPersistent(false)
-                .diskExpiryThreadIntervalSeconds(0)
-                .diskSpoolBufferSizeMB(10));
-        manager.addCache(cache);
-
-        assertEquals(0, cache.getMemoryStoreSize());
-
-        Element a = null;
-        int i = 0;
-        try {
-            for (; i < 150000; i++) {
-                String key = i + "";
-                String value = key;
-                a = new Element(key, value + "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-                cache.put(a);
-            }
-        } catch (OutOfMemoryError e) {
-            LOG.info("OutOfMemoryError: " + e.getMessage() + " " + i);
-            fail();
-        }
-    }
 
 
     /**
@@ -1504,51 +1493,44 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getDiskStoreSize());
 
         cache.put(new Element("key1", "value1"));
-        Thread.sleep(100);
-        assertEquals(0, cache.getDiskStoreSize());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(0));
         assertEquals(1, cache.getSize());
 
         cache.put(new Element("key2", "value2"));
-        Thread.sleep(100);
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(1));
         assertEquals(2, cache.getSize());
-        assertEquals(1, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         cache.put(new Element("key3", "value3"));
         cache.put(new Element("key4", "value4"));
-        Thread.sleep(100);
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3));
         assertEquals(4, cache.getSize());
-        assertEquals(3, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove last element inserted (is in memory store)
         assertTrue(((CompoundStore) cache.getStore()).unretrievedGet("key4") instanceof Element);
         cache.remove("key4");
-        Thread.sleep(100);
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3));
         assertEquals(3, cache.getSize());
-        assertEquals(3, cache.getDiskStoreSize());
         assertEquals(0, cache.getMemoryStoreSize());
 
         // remove key1 element
         assertFalse(((CompoundStore) cache.getStore()).unretrievedGet("key1") instanceof Element);
         cache.remove("key1");
-        Thread.sleep(100);
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2));
         assertEquals(2, cache.getSize());
-        assertEquals(2, cache.getDiskStoreSize());
         assertEquals(0, cache.getMemoryStoreSize());
 
         // add another
         cache.put(new Element("key5", "value5"));
-        Thread.sleep(100);
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2));
         assertEquals(3, cache.getSize());
-        assertEquals(2, cache.getDiskStoreSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove all
         cache.removeAll();
-        Thread.sleep(100);
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(0));
         assertEquals(0, cache.getSize());
-        assertEquals(0, cache.getDiskStoreSize());
         assertEquals(0, cache.getMemoryStoreSize());
 
         //Check behaviour of NonSerializable objects
@@ -1600,13 +1582,14 @@ public class CacheTest extends AbstractCacheTest {
      * @throws InterruptedException
      */
     @Test
-    public void testEquals() throws CacheException, InterruptedException {
+    public void testEquals() throws CacheException, InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
 
         Element element1 = new Element("1", new Date());
         Element element2 = new Element("2", new Date());
         cache.put(element1);
+        flushDiskStore(cache);
         cache.put(element2);
 
         //Test equals and == from an Element retrieved from the MemoryStore
@@ -1615,7 +1598,7 @@ public class CacheTest extends AbstractCacheTest {
         assertTrue(element2 == elementFromStore);
 
         //Give the spool a chance to make sure it really got serialized to Disk
-        Thread.sleep(300);
+        flushDiskStore(cache);
 
         //Test equals and == from an Element retrieved from the MemoryStore
         Element elementFromDiskStore = cache.get("1");
@@ -1755,17 +1738,19 @@ public class CacheTest extends AbstractCacheTest {
 
 
         CacheManager cacheManager = new CacheManager(new ByteArrayInputStream(config));
-        Cache cache = new Cache("test3cache", 20000, false, false, 50, 30);
-        //assertTrue(cache.getCacheConfiguration().isOverflowToDisk());
-        cacheManager.addCache(cache);
 
-        //todo size is slow
-        for (int i = 0; i < 25000; i++) {
-            cache.put(new Element(i + "", "value"));
-//            assertEquals(i + 1, cache.getSize());
+        try {
+            Cache cache = new Cache("test3cache", 20000, false, false, 50, 30);
+            cacheManager.addCache(cache);
+
+            //todo size is slow
+            for (int i = 0; i < 25000; i++) {
+                cache.put(new Element(i + "", "value"));
+            }
+            assertEquals(20000, cache.getSize());
+        } finally {
+            cacheManager.shutdown();
         }
-        assertEquals(20000, cache.getSize());
-//        assertEquals(5000, cache.getDiskStoreSize());
     }
 
 

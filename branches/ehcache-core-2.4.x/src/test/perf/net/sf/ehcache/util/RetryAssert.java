@@ -21,11 +21,13 @@ import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.Store;
 
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 
 public class RetryAssert {
+    private static final long WAIT_TIME = 100L;
 
     protected RetryAssert() {
         // static only class
@@ -33,22 +35,26 @@ public class RetryAssert {
 
     public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<? super T> matcher) {
         boolean interrupted = false;
-        long end = System.nanoTime() + unit.toNanos(time);
+        long start = System.nanoTime();
+        long end = start + unit.toNanos(time);
+        long sleep = Math.max(50, unit.toMillis(time) / 10);
+        AssertionError latest;
         try {
-            for (long sleep = 10; ; sleep <<= 1L) {
+            while (true) {
                 try {
                     Assert.assertThat(value.call(), matcher);
                     return;
-                } catch (Throwable t) {
-                    //ignore - wait for timeout
+                } catch (AssertionError e) {
+                    latest = e;
+                } catch (Exception e) {
+                    latest = new AssertionError(e);
                 }
 
-                long remaining = end - System.nanoTime();
-                if (remaining <= 0) {
+                if (System.nanoTime() > end) {
                     break;
                 } else {
                     try {
-                        Thread.sleep(Math.min(sleep, TimeUnit.NANOSECONDS.toMillis(remaining) + 1));
+                        Thread.sleep(sleep);
                     } catch (InterruptedException e) {
                         interrupted = true;
                     }
@@ -59,13 +65,7 @@ public class RetryAssert {
                 Thread.currentThread().interrupt();
             }
         }
-        try {
-            Assert.assertThat(value.call(), matcher);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
+        throw latest;
     }
 
     public static Callable<Element> elementAt(final Ehcache cache, final Object key) {
@@ -84,10 +84,10 @@ public class RetryAssert {
         };
     }
 
-    public static Callable<Integer> sizeOnDiskOf(final Ehcache cache) {
+    public static Callable<Integer> sizeOnDiskOf(final Store store) {
         return new Callable<Integer>() {
             public Integer call() throws Exception {
-                return cache.getDiskStoreSize();
+                return store.getOnDiskSize();
             }
         };
     }

@@ -35,7 +35,6 @@ import java.util.Random;
 
 import net.sf.ehcache.config.CacheConfiguration;
 
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 /**
@@ -505,6 +504,12 @@ public class MemoryStoreTester extends AbstractCacheTest {
         runThreads(executables);
         long end = System.currentTimeMillis();
         LOG.info("Total time for the test: " + (end + start) + " ms");
+        tearDown();
+        System.gc();
+        System.gc();
+        Thread.sleep(1000);
+        System.gc();
+        System.gc();
     }
 
 

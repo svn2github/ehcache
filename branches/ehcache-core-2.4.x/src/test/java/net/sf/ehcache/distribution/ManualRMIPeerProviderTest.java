@@ -23,12 +23,15 @@ import net.sf.ehcache.Ehcache;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import org.junit.Before;
-import org.junit.Test;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import net.sf.ehcache.config.Configuration;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -43,9 +46,15 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
     @Override
     @Before
     public void setUp() throws Exception {
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed1.xml");
-        manager2 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed2.xml");
-        manager3 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml");
+        List<Configuration> configurations = new ArrayList<Configuration>();
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed1.xml").name("cm1"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed2.xml").name("cm2"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml").name("cm3"));
+
+        List<CacheManager> managers = startupManagers(configurations);
+        manager1 = managers.get(0);
+        manager2 = managers.get(1);
+        manager3 = managers.get(2);
 
         /* manager3 has an empty manual configuration, which is topped up by adding manual entries.
          * The sampleCache1 from manager3 is added to the rmiUrls list for manager1 and manager2
