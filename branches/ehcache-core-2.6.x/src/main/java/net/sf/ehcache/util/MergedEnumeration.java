@@ -28,10 +28,15 @@ import java.util.List;
  *
  * @param <E>
  */
-public class MergedEnumeration<E> implements Enumeration<E>{
+public class MergedEnumeration<E> implements Enumeration<E> {
 
     private final Enumeration<E> enumeration;
 
+    /**
+     * Merges all enumerations found as constructor arguments into a single one
+     *
+     * @param enumerations
+     */
     public MergedEnumeration(Enumeration<E>... enumerations) {
         List<E>  list = new ArrayList<E>();
         for (Enumeration<E> element : enumerations) {

@@ -52,9 +52,6 @@ public class MergedEnumerationTest {
         assertEquals("three",mergedStrings[2]);
         assertEquals("four",mergedStrings[3]);
 
-
-
-
     }
 
 }
