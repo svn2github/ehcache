@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes.Name;
@@ -133,7 +132,7 @@ public class ResourceClassLoader extends ClassLoader {
         Enumeration[] tmp = new Enumeration[2];
         tmp[0] = findResources(resourceName);
         tmp[1] = getParent().getResources(resourceName);
-        return new MergedEnumeration<URL>(tmp[0],tmp[1]);
+        return new MergedEnumeration<URL>(tmp[0], tmp[1]);
     };
 
 
