@@ -383,6 +383,11 @@ public class CacheManager {
                 diskStorePathManager.releaseLock();
             }
 
+            if (cacheManagerTimer != null) {
+                cacheManagerTimer.cancel();
+                cacheManagerTimer.purge();
+            }
+
             synchronized (CacheManager.class) {
                 final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
                 CACHE_MANAGERS_MAP.remove(name);
