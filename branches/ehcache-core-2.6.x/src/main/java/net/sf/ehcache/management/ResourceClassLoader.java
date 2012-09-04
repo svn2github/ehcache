@@ -32,8 +32,6 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes.Name;
 
-import net.sf.ehcache.util.MergedEnumeration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +127,7 @@ public class ResourceClassLoader extends ClassLoader {
         Enumeration[] tmp = new Enumeration[2];
         tmp[0] = findResources(resourceName);
         tmp[1] = getParent().getResources(resourceName);
-        return new MergedEnumeration<URL>(tmp[0],tmp[1]);
+        return new CompoundEnumeration(tmp);
     };
 
 
@@ -236,5 +234,51 @@ public class ResourceClassLoader extends ClassLoader {
         String physicalPath = physicalUrl.getFile() + "/../";
         recursiveCopy.invoke(null, vfsVirtualFile, new File(physicalPath));
     }
+
+    /**
+     * A useful utility class that will enumerate over an array of
+     * enumerations.
+     * from OracleJDK sun.misc
+     */
+    class CompoundEnumeration<E> implements Enumeration<E> {
+        private final Enumeration[] enums;
+        private int index = 0;
+
+        /**
+         *
+         * @param enums
+         */
+        public CompoundEnumeration(Enumeration[] enums) {
+            this.enums = enums;
+        }
+
+        private boolean next() {
+            while (index < enums.length) {
+                if (enums[index] != null && enums[index].hasMoreElements()) {
+                    return true;
+                }
+                index++;
+            }
+            return false;
+        }
+
+        /**
+         *
+         */
+        public boolean hasMoreElements() {
+            return next();
+        }
+
+        /**
+         *
+         */
+        public E nextElement() {
+            if (!next()) {
+                throw new NoSuchElementException();
+            }
+            return (E)enums[index].nextElement();
+        }
+    }
+
 
 }
