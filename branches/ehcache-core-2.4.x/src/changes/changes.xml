@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+    <release version="2.4.8" date="2012-09" description="Bug Fixes">
+        	<action dev="" type="update" issue="">
+             Distributed bug fixes
+             </action>
+           </release>
       <release version="2.4.7" date="2011-12" description="Bug Fixes">
         	<action dev="Hung Huynh" type="update" issue="EHC-887">
             Thread is spawn prematurely
