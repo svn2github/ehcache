@@ -9,7 +9,6 @@ import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
-import org.terracotta.toolkit.internal.meta.MetaData;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,12 +43,11 @@ public class LocalBufferedMap<K, V> {
   private final long                            batchTimeMillis;
   private final long                            throttlePutsByteSize;
 
-  private volatile Map<K, ValueWithMetaData<V>> collectBuffer;
-  private volatile Map<K, ValueWithMetaData<V>> flushBuffer;
+  private volatile Map<K, Value<V>>        collectBuffer;
+  private volatile Map<K, Value<V>>        flushBuffer;
   private volatile boolean                      clearMap                                = false;
   private volatile AtomicLong                   pendingOpsSize                          = new AtomicLong();
   private final SizeOfEngine                    sizeOfEngine;
-  private volatile MetaData                     clearMetaData;
 
   private final Lock                            concurrentTransactionLock;
 
@@ -68,15 +66,15 @@ public class LocalBufferedMap<K, V> {
     throttlePutsByteSize = BulkLoadConstants.getBatchedPutsThrottlePutsAtByteSize(toolkit.getProperties());
   }
 
-  private Map<K, ValueWithMetaData<V>> newMap() {
-    return new ConcurrentHashMap<K, ValueWithMetaData<V>>(LOCAL_MAP_INITIAL_CAPACITY, LOCAL_MAP_LOAD_FACTOR,
+  private Map<K, Value<V>> newMap() {
+    return new ConcurrentHashMap<K, Value<V>>(LOCAL_MAP_INITIAL_CAPACITY, LOCAL_MAP_LOAD_FACTOR,
                                                           LOCAL_MAP_INITIAL_SEGMENTS);
   }
 
   // this method is called under read-lock from BulkLoadClusteredCache
   public V get(Object key) {
     // get from collectingBuffer or flushBuffer
-    ValueWithMetaData<V> v = collectBuffer.get(key);
+    Value<V> v = collectBuffer.get(key);
     if (v != null && v.isRemove()) { return null; }
     if (v != null) { return v.getValue(); }
     v = flushBuffer.get(key);
@@ -85,11 +83,11 @@ public class LocalBufferedMap<K, V> {
   }
 
   // this method is called under read-lock from BulkLoadClusteredCache
-  public V remove(K key, MetaData metaData) {
-    RemoveValueWithMetaData removeVWMD = new RemoveValueWithMetaData(metaData);
-    ValueWithMetaData<V> old = collectBuffer.put(key, removeVWMD);
+  public V remove(K key) {
+    RemoveValue remove = new RemoveValue();
+    Value<V> old = collectBuffer.put(key, remove);
     if (old == null) {
-      pendingOpsSize.addAndGet(sizeOfEngine.sizeOf(key, removeVWMD, null).getCalculated());
+      pendingOpsSize.addAndGet(sizeOfEngine.sizeOf(key, remove, null).getCalculated());
       return null;
     } else {
       return old.isRemove() ? null : old.getValue();
@@ -98,7 +96,7 @@ public class LocalBufferedMap<K, V> {
 
   // this method is called under read-lock from BulkLoadClusteredCache
   public boolean containsKey(Object key) {
-    ValueWithMetaData<V> v = collectBuffer.get(key);
+    Value<V> v = collectBuffer.get(key);
     if (v != null) { return !v.isRemove(); }
     v = flushBuffer.get(key);
     if (v == null || v.isRemove()) {
@@ -111,14 +109,14 @@ public class LocalBufferedMap<K, V> {
   // this method is called under read-lock from BulkLoadClusteredCache
   public int getSize() {
     int size = 0;
-    Map<K, ValueWithMetaData<V>> localCollectingMap = collectBuffer;
-    Map<K, ValueWithMetaData<V>> localFlushMap = flushBuffer;
-    for (Entry<K, ValueWithMetaData<V>> e : localCollectingMap.entrySet()) {
+    Map<K, Value<V>> localCollectingMap = collectBuffer;
+    Map<K, Value<V>> localFlushMap = flushBuffer;
+    for (Entry<K, Value<V>> e : localCollectingMap.entrySet()) {
       if (e.getValue() != null && !e.getValue().isRemove()) {
         size++;
       }
     }
-    for (Entry<K, ValueWithMetaData<V>> e : localFlushMap.entrySet()) {
+    for (Entry<K, Value<V>> e : localFlushMap.entrySet()) {
       if (e.getValue() != null && !e.getValue().isRemove()) {
         size++;
       }
@@ -127,12 +125,11 @@ public class LocalBufferedMap<K, V> {
   }
 
   // this method is called under write-lock from BulkLoadClusteredCache
-  public void clear(MetaData metaData) {
+  public void clear() {
     collectBuffer.clear();
     flushBuffer.clear();
     // mark the backend to be cleared
     this.clearMap = true;
-    this.clearMetaData = metaData;
     pendingOpsSize.set(0);
   }
 
@@ -150,12 +147,12 @@ public class LocalBufferedMap<K, V> {
     return rv;
   }
 
-  private void addEntriesToSet(Set<Entry<K, V>> rv, Map<K, ValueWithMetaData<V>> map) {
-    for (Entry<K, ValueWithMetaData<V>> entry : map.entrySet()) {
+  private void addEntriesToSet(Set<Entry<K, V>> rv, Map<K, Value<V>> map) {
+    for (Entry<K, Value<V>> entry : map.entrySet()) {
       final K key = entry.getKey();
-      ValueWithMetaData<V> valueWithMetaData = entry.getValue();
-      final V value = valueWithMetaData.getValue();
-      if (!valueWithMetaData.isRemove()) {
+      Value<V> wrappedValue = entry.getValue();
+      final V value = wrappedValue.getValue();
+      if (!wrappedValue.isRemove()) {
         rv.add(new Map.Entry<K, V>() {
 
           @Override
@@ -179,13 +176,13 @@ public class LocalBufferedMap<K, V> {
   }
 
   // this method is called under read-lock from BulkLoadClusteredCache
-  public V put(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds, MetaData metaData) {
-    ValueWithMetaData<V> valueWMD = new ValueWithMetaData(metaData, value, createTimeInSecs, customMaxTTISeconds,
+  public V put(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
+    Value<V> wrappedValue = new Value(value, createTimeInSecs, customMaxTTISeconds,
                                                           customMaxTTLSeconds);
-    ValueWithMetaData<V> rv = collectBuffer.put(key, valueWMD);
+    Value<V> rv = collectBuffer.put(key, wrappedValue);
     if (rv == null) {
       // new put
-      throttleIfNecessary(pendingOpsSize.addAndGet(sizeOfEngine.sizeOf(key, valueWMD, null).getCalculated()));
+      throttleIfNecessary(pendingOpsSize.addAndGet(sizeOfEngine.sizeOf(key, wrappedValue, null).getCalculated()));
     }
     return rv == null ? null : rv.isRemove() ? null : rv.getValue();
   }
@@ -216,14 +213,13 @@ public class LocalBufferedMap<K, V> {
   }
 
   /* package-private method, should be used for tests only */
-  ValueWithMetaData<V> internalGetFromCollectingMap(K key) {
+  Value<V> internalGetFromCollectingMap(K key) {
     return collectBuffer.get(key);
   }
 
   /* package-private method, should be used for tests only */
-  void internalPutInFlushBuffer(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds,
-                                MetaData metaData) {
-    flushBuffer.put(key, new ValueWithMetaData(metaData, value, createTimeInSecs, customMaxTTISeconds,
+  void internalPutInFlushBuffer(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
+    flushBuffer.put(key, new Value(value, createTimeInSecs, customMaxTTISeconds,
                                                customMaxTTLSeconds));
   }
 
@@ -282,7 +278,7 @@ public class LocalBufferedMap<K, V> {
    * @param thread
    */
   private void doPeriodicFlush(FlushToServerThread thread) {
-    Map<K, ValueWithMetaData<V>> localMap = newMap();
+    Map<K, Value<V>> localMap = newMap();
     bulkLoadClusteredCache.acquireLocalWriteLock();
     try {
       // mark flush in progress, done under write-lock
@@ -300,15 +296,15 @@ public class LocalBufferedMap<K, V> {
   }
 
   // This method is always called under write lock.
-  private void switchBuffers(Map<K, ValueWithMetaData<V>> newBuffer) {
+  private void switchBuffers(Map<K, Value<V>> newBuffer) {
     flushBuffer = collectBuffer;
     collectBuffer = newBuffer;
     pendingOpsSize.set(0);
   }
 
-  private void drainBufferToServer(final Map<K, ValueWithMetaData<V>> buffer) {
+  private void drainBufferToServer(final Map<K, Value<V>> buffer) {
     clearIfNecessary();
-    Set<Entry<K, ValueWithMetaData<V>>> entrySet = buffer.entrySet();
+    Set<Entry<K, Value<V>>> entrySet = buffer.entrySet();
 
     // Workaround (hopefully temporary) for DEV-3814
     if (entrySet.isEmpty()) { return; }
@@ -316,17 +312,16 @@ public class LocalBufferedMap<K, V> {
     final Lock lock = concurrentTransactionLock;
     lock.lock();
     try {
-      for (Entry<K, ValueWithMetaData<V>> e : entrySet) {
-        ValueWithMetaData<V> value = e.getValue();
+      for (Entry<K, Value<V>> e : entrySet) {
+        Value<V> value = e.getValue();
         K key = e.getKey();
 
         if (value.isRemove()) {
-          backend.unlockedRemoveNoReturn(key, value.getMetaData());
+          backend.unlockedRemoveNoReturn(key);
         } else {
           // use incoherent put
           backend.unlockedPutNoReturn(key, value.getValue(), value.getCreateTimeInSecs(),
-                                      value.getCustomMaxTTISeconds(), value.getCustomMaxTTLSeconds(),
-                                      value.getMetaData());
+                                      value.getCustomMaxTTISeconds(), value.getCustomMaxTTLSeconds());
         }
       }
     } finally {
@@ -339,12 +334,11 @@ public class LocalBufferedMap<K, V> {
       final Lock lock = concurrentTransactionLock;
       lock.lock();
       try {
-        backend.clearWithMetaData(clearMetaData);
+        backend.clear();
       } finally {
         lock.unlock();
         // reset
         clearMap = false;
-        clearMetaData = null;
       }
     }
   }
@@ -444,25 +438,18 @@ public class LocalBufferedMap<K, V> {
     }
   }
 
-  static class ValueWithMetaData<T> {
+  static class Value<T> {
 
-    private final MetaData metaData;
     private final T        value;
     private final int      createTimeInSecs;
     private final int      customMaxTTISeconds;
     private final int      customMaxTTLSeconds;
 
-    ValueWithMetaData(MetaData metaData, T value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
-      super();
-      this.metaData = metaData;
+    Value(T value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
       this.value = value;
       this.createTimeInSecs = createTimeInSecs;
       this.customMaxTTISeconds = customMaxTTISeconds;
       this.customMaxTTLSeconds = customMaxTTLSeconds;
-    }
-
-    MetaData getMetaData() {
-      return metaData;
     }
 
     T getValue() {
@@ -487,10 +474,10 @@ public class LocalBufferedMap<K, V> {
 
   }
 
-  static class RemoveValueWithMetaData<T> extends ValueWithMetaData<T> {
+  static class RemoveValue<T> extends Value<T> {
 
-    public RemoveValueWithMetaData(MetaData metaData) {
-      super(metaData, null, -1, -1, -1);
+    public RemoveValue() {
+      super(null, -1, -1, -1);
     }
 
     @Override
@@ -500,7 +487,7 @@ public class LocalBufferedMap<K, V> {
   }
 
   public boolean isKeyBeingRemoved(Object obj) {
-    ValueWithMetaData<V> v = collectBuffer.get(obj);
+    Value<V> v = collectBuffer.get(obj);
     if (v != null && v.isRemove()) { return true; }
     return false;
   }

@@ -9,11 +9,12 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheConfigFields;
 import org.terracotta.toolkit.events.ToolkitNotificationEvent;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;
@@ -23,11 +24,11 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   private static final Logger            LOG = LoggerFactory.getLogger(CacheConfigChangeBridge.class);
 
   private final ToolkitNotifier          notifier;
-  private final ToolkitCacheWithMetadata backend;
+  private final ToolkitCache    backend;
   private final Ehcache                  cache;
   private final String                   fullyQualifiedEhcacheName;
 
-  public CacheConfigChangeBridge(Ehcache cache, String fullyQualifiedEhcacheName, ToolkitCacheWithMetadata backend,
+  public CacheConfigChangeBridge(Ehcache cache, String fullyQualifiedEhcacheName, ToolkitCacheInternal backend,
                                  ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier) {
     this.cache = cache;
     this.fullyQualifiedEhcacheName = fullyQualifiedEhcacheName;

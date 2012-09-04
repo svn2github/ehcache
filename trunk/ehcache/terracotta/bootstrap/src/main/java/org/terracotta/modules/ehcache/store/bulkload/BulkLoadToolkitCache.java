@@ -12,9 +12,8 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheMetaDataCallback;
-import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.internal.search.SearchBuilder;
+import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;
@@ -167,11 +166,6 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void removeNoReturn(Object key) {
-    removeWithMetaData(key, null);
-  }
-
-  @Override
   public V unsafeLocalGet(Object key) {
     V value = localBufferedMap.get(key);
     if (value == null) {
@@ -259,11 +253,6 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void clear() {
-    clearWithMetaData(null);
-  }
-
-  @Override
   public boolean containsKey(Object keyObj) {
     K key = (K) keyObj;
     return localBufferedMap.containsKey(key) || toolkitCache.containsKey(key);
@@ -305,12 +294,6 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     return new UnmodifiableMultiSetWrapper<K>(localBufferedMap.getKeys(), toolkitCache.keySet());
   }
 
-  @Override
-  public V put(K key, V value) {
-    return putWithMetaData(key, value, now(), ToolkitCacheConfigFields.NO_MAX_TTI_SECONDS,
-                           ToolkitCacheConfigFields.NO_MAX_TTL_SECONDS, null);
-  }
-
   private int now() {
     return (int) System.currentTimeMillis() / 1000;
   }
@@ -323,23 +306,10 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void putAllWithMetaData(Collection<EntryWithMetaData<K, V>> entries) {
-    for (EntryWithMetaData<K, V> e : entries) {
-      putWithMetaData(e.getKey(), e.getValue(), e.getMetaData());
+  public void removeAll(Set<K> keys) {
+    for (K key : keys) {
+      remove(key);
     }
-  }
-
-  @Override
-  public void removeAllWithMetaData(Collection<EntryWithMetaData<K, V>> entries) {
-    for (EntryWithMetaData<K, V> e : entries) {
-      removeWithMetaData(e.getKey(), e.getMetaData());
-    }
-  }
-
-  @Override
-  public V remove(Object obj) {
-    K key = (K) obj;
-    return removeWithMetaData(key, null);
   }
 
   @Override
@@ -395,67 +365,23 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public MetaData createMetaData(String category) {
-    return toolkitCache.createMetaData(category);
+  public void clear() {
+    localBufferedMap.clear();
+    toolkitCache.clear();
   }
 
   @Override
-  public EntryWithMetaData<K, V> createEntryWithMetaData(K key, V value, MetaData metaData) {
-    return toolkitCache.createEntryWithMetaData(key, value, metaData);
+  public void removeNoReturn(Object key) {
+    remove(key);
   }
 
   @Override
-  public void setMetaDataCallback(ToolkitCacheMetaDataCallback callback) {
-    toolkitCache.setMetaDataCallback(callback);
-  }
-
-  @Override
-  public void putNoReturnWithMetaData(K key, V value, MetaData metaData) {
-    putWithMetaData(key, value, now(), ToolkitCacheConfigFields.NO_MAX_TTI_SECONDS,
-                    ToolkitCacheConfigFields.NO_MAX_TTL_SECONDS, metaData);
-  }
-
-  @Override
-  public void putNoReturnWithMetaData(K key, V value, int createTimeInSecs, int customMaxTTISeconds,
-                                      int customMaxTTLSeconds, MetaData metaData) {
-    // custom tti/ttl not supported
-    putNoReturnWithMetaData(key, value, metaData);
-  }
-
-  @Override
-  public V putIfAbsentWithMetaData(K key, V value, MetaData metaData) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public V putIfAbsentWithMetaData(K key, V value, int createTimeInSecs, int customMaxTTISeconds,
-                                   int customMaxTTLSeconds, MetaData metaData) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void clearWithMetaData(MetaData metaData) {
-    localBufferedMap.clear(metaData);
-    toolkitCache.clearWithMetaData(metaData);
-  }
-
-  @Override
-  public void removeNoReturnWithMetaData(Object key, MetaData metaData) {
-    removeWithMetaData(key, metaData);
-  }
-
-  @Override
-  public V removeWithMetaData(Object key, MetaData metaData) {
-    V rv = localBufferedMap.remove((K) key, metaData);
+  public V remove(Object key) {
+    V rv = localBufferedMap.remove((K) key);
     if (rv == null) {
       rv = toolkitCache.get(key);
     }
     return rv;
-  }
-
-  @Override
-  public boolean removeWithMetaData(Object key, Object value, MetaData metaData) {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -494,15 +420,14 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V putWithMetaData(K key, V value, MetaData metaData) {
-    return putWithMetaData(key, value, now(), ToolkitCacheConfigFields.NO_MAX_TTI_SECONDS,
-                           ToolkitCacheConfigFields.NO_MAX_TTL_SECONDS, metaData);
+  public V put(K key, V value) {
+    return put(key, value, now(), ToolkitCacheConfigFields.NO_MAX_TTI_SECONDS,
+               ToolkitCacheConfigFields.NO_MAX_TTL_SECONDS);
   }
 
   @Override
-  public V putWithMetaData(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds,
-                           MetaData metaData) {
-    return localBufferedMap.put(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds, metaData);
+  public V put(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
+    return localBufferedMap.put(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
   }
 
   @Override
@@ -511,12 +436,12 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void unlockedPutNoReturn(K k, V v, int createTime, int customTTI, int customTTL, MetaData metadata) {
+  public void unlockedPutNoReturn(K k, V v, int createTime, int customTTI, int customTTL) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void unlockedRemoveNoReturn(Object k, MetaData metadata) {
+  public void unlockedRemoveNoReturn(Object k) {
     throw new UnsupportedOperationException();
   }
 
@@ -530,4 +455,8 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public void setAttributeExtractor(ToolkitAttributeExtractor extractor) {
+    toolkitCache.setAttributeExtractor(extractor);
+  }
 }

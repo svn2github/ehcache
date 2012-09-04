@@ -40,9 +40,7 @@ import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData;
-import org.terracotta.toolkit.internal.meta.MetaData;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
 import java.io.Serializable;
@@ -143,9 +141,9 @@ public class ClusteredStore implements TerracottaStore {
 
   private static CacheConfigChangeBridge createConfigChangeBridge(ToolkitInstanceFactory toolkitInstanceFactory,
                                                                   Ehcache ehcache,
-                                                                  ToolkitCacheWithMetadata<String, Serializable> cacheWithMetadata) {
+                                                                  ToolkitCacheInternal<String, Serializable> cache) {
     return new CacheConfigChangeBridge(ehcache, toolkitInstanceFactory.getFullyQualifiedCacheName(ehcache),
-                                       cacheWithMetadata,
+ cache,
                                        toolkitInstanceFactory.getOrCreateConfigChangeNotifier(ehcache));
   }
 
@@ -178,6 +176,10 @@ public class ClusteredStore implements TerracottaStore {
     }
 
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
+  }
+
+  protected void extractSearchAttributes(Element element) {
+    // implemented in EE subclass only
   }
 
   @Override
@@ -235,8 +237,8 @@ public class ClusteredStore implements TerracottaStore {
     if (element == null) { return true; }
 
     String pKey = generatePortableKeyFor(element.getObjectKey());
+    extractSearchAttributes(element);
 
-    MetaData searchMetaData = createPutSearchMetaData(pKey, element);
     // Keep this before the backend put to ensure that a write behind operation can never be lost.
     // This will be handled in the Terracotta L2 as an atomic operation right after the backend put since at that
     // time a lock commit is issued that splits up the transaction. It will not be visible before either since
@@ -245,26 +247,26 @@ public class ClusteredStore implements TerracottaStore {
       writerManager.put(element);
     }
     if (element.usesCacheDefaultLifespan()) {
-      return doPut(pKey, element, searchMetaData);
+      return doPut(pKey, element);
     } else {
-      return doPutWithCustomLifespan(pKey, element, searchMetaData);
+      return doPutWithCustomLifespan(pKey, element);
     }
   }
 
   @Override
   public void putAll(Collection<Element> elements) throws CacheException {
-    Set<EntryWithMetaData<String, Serializable>> entries = new HashSet<EntryWithMetaData<String, Serializable>>();
+    Map<String, Serializable> entries = new HashMap<String, Serializable>();
     for (Element element : elements) {
       if (!element.usesCacheDefaultLifespan()) {
         // TODO: support custom lifespan with putAll
         throw new UnsupportedOperationException("putAll() doesn't support custom lifespan");
       }
       String pKey = generatePortableKeyFor(element.getObjectKey());
+      extractSearchAttributes(element);
       ElementData elementData = valueModeHandler.createElementData(element);
-      MetaData metaData = createPutSearchMetaData(pKey, element);
-      entries.add(backend.createEntryWithMetaData(pKey, elementData, metaData));
+      entries.put(pKey, elementData);
     }
-    backend.putAllWithMetaData(entries);
+    backend.putAll(entries);
   }
 
   @Override
@@ -297,13 +299,12 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public void removeAll(Collection<?> keys) {
-    Set<EntryWithMetaData<String, Serializable>> entries = new HashSet<EntryWithMetaData<String, Serializable>>();
+    Set<String> entries = new HashSet<String>();
     for (Object key : keys) {
       String pKey = generatePortableKeyFor(key);
-      MetaData metaData = createRemoveSearchMetaData(pKey);
-      entries.add(backend.createEntryWithMetaData(pKey, null, metaData));
+      entries.add(pKey);
     }
-    backend.removeAllWithMetaData(entries);
+    backend.removeAll(entries);
   }
 
   @Override
@@ -319,7 +320,7 @@ public class ClusteredStore implements TerracottaStore {
     }
 
     String pKey = generatePortableKeyFor(key);
-    Serializable value = backend.removeWithMetaData(pKey, createRemoveSearchMetaData(pKey));
+    Serializable value = backend.remove(pKey);
     Element element = this.valueModeHandler.createElement(key, value);
     if (keyLookupCache != null) {
       keyLookupCache.remove(key);
@@ -338,7 +339,7 @@ public class ClusteredStore implements TerracottaStore {
 
   @Override
   public void removeAll() throws CacheException {
-    backend.clearWithMetaData(createClearSearchMetaData());
+    backend.clear();
     if (keyLookupCache != null) {
       keyLookupCache.clear();
     }
@@ -347,9 +348,9 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public Element putIfAbsent(Element element) throws NullPointerException {
     String pKey = generatePortableKeyFor(element.getObjectKey());
-    MetaData searchMetaData = createPutSearchMetaData(pKey, element);
+    extractSearchAttributes(element);
     ElementData value = valueModeHandler.createElementData(element);
-    Serializable data = backend.putIfAbsentWithMetaData(pKey, value, searchMetaData);
+    Serializable data = backend.putIfAbsent(pKey, value);
     return data == null ? null : this.valueModeHandler.createElement(element.getKey(), data);
   }
 
@@ -628,43 +629,28 @@ public class ClusteredStore implements TerracottaStore {
     return keyLookupCache != null && !(obj instanceof String);
   }
 
-  protected MetaData createPutSearchMetaData(Object portableKey, Element element) {
-    // implemented in EE subclass only
-    return null;
-  }
-
-  public MetaData createRemoveSearchMetaData(Object key) {
-    // implemented in EE subclass only
-    return null;
-  }
-
-  protected MetaData createClearSearchMetaData() {
-    // implemented in EE subclass only
-    return null;
-  }
-
-  private boolean doPut(String portableKey, Element element, MetaData searchMetaData) {
+  private boolean doPut(String portableKey, Element element) {
 
     ElementData value = valueModeHandler.createElementData(element);
     if (checkContainsKeyOnPut) {
-      return backend.putWithMetaData(portableKey, value, searchMetaData) == null ? true : false;
+      return backend.put(portableKey, value) == null ? true : false;
     } else {
-      backend.putNoReturnWithMetaData(portableKey, value, searchMetaData);
+      backend.putNoReturn(portableKey, value);
       return true;
     }
   }
 
-  private boolean doPutWithCustomLifespan(String portableKey, Element element, MetaData searchMetaData) {
+  private boolean doPutWithCustomLifespan(String portableKey, Element element) {
 
     ElementData value = valueModeHandler.createElementData(element);
     int creationTimeInSecs = (int) (element.getCreationTime() / 1000);
     int customTTI = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToIdle();
     int customTTL = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToLive();
     if (checkContainsKeyOnPut) {
-      return backend.putWithMetaData(portableKey, value, creationTimeInSecs, customTTI, customTTL, searchMetaData) == null ? true
+      return backend.put(portableKey, value, creationTimeInSecs, customTTI, customTTL) == null ? true
           : false;
     } else {
-      backend.putNoReturnWithMetaData(portableKey, value, creationTimeInSecs, customTTI, customTTL, searchMetaData);
+      backend.putNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
       return true;
     }
   }

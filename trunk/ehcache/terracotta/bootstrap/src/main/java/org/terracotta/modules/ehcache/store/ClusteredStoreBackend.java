@@ -11,9 +11,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheMetaDataCallback;
-import org.terracotta.toolkit.internal.meta.MetaData;
 import org.terracotta.toolkit.internal.search.SearchBuilder;
+import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -38,116 +37,12 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public MetaData createMetaData(String category) {
+  public V putIfAbsent(K key, V value, long createTimeInSecs, int customMaxTTISeconds,
+                                   int customMaxTTLSeconds) {
     lock.readLock().lock();
     try {
-      return activeDelegate.createMetaData(category);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData<K, V> createEntryWithMetaData(K key,
-                                                                                                                        V value,
-                                                                                                                        MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.createEntryWithMetaData(key, value, metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void setMetaDataCallback(ToolkitCacheMetaDataCallback callback) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.setMetaDataCallback(callback);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void putNoReturnWithMetaData(K key, V value, MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.putNoReturnWithMetaData(key, value, metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void putNoReturnWithMetaData(K key, V value, int createTimeInSecs, int customMaxTTISeconds,
-                                      int customMaxTTLSeconds, MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.putNoReturnWithMetaData(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds,
-                                             metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public V putIfAbsentWithMetaData(K key, V value, MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.putIfAbsentWithMetaData(key, value, metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public V putIfAbsentWithMetaData(K key, V value, int createTimeInSecs, int customMaxTTISeconds,
-                                   int customMaxTTLSeconds, MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.putIfAbsentWithMetaData(key, value, createTimeInSecs, customMaxTTISeconds,
-                                                    customMaxTTLSeconds, metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void clearWithMetaData(MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.clearWithMetaData(metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void removeNoReturnWithMetaData(Object key, MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.removeNoReturnWithMetaData(key, metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public V removeWithMetaData(Object key, MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.removeWithMetaData(key, metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public boolean removeWithMetaData(Object key, Object value, MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.removeWithMetaData(key, value, metaData);
+      return activeDelegate.putIfAbsent(key, value, createTimeInSecs, customMaxTTISeconds,
+                                                    customMaxTTLSeconds);
     } finally {
       lock.readLock().unlock();
     }
@@ -164,46 +59,15 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V putWithMetaData(K key, V value, MetaData metaData) {
+  public V put(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
     lock.readLock().lock();
     try {
-      return activeDelegate.putWithMetaData(key, value, metaData);
+      return activeDelegate.put(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
     } finally {
       lock.readLock().unlock();
     }
   }
 
-  @Override
-  public V putWithMetaData(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds,
-                           MetaData metaData) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.putWithMetaData(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds,
-                                            metaData);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void putAllWithMetaData(Collection<org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData<K, V>> entries) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.putAllWithMetaData(entries);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void removeAllWithMetaData(Collection<org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata.EntryWithMetaData<K, V>> entries) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.removeAllWithMetaData(entries);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
 
   @Override
   public V getQuiet(Object key) {
@@ -230,16 +94,6 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
     lock.readLock().lock();
     try {
       activeDelegate.putNoReturn(key, value, createTimeInSecs, maxTTISeconds, maxTTLSeconds);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public V putIfAbsent(K key, V value, long createTimeInSecs, int maxTTISeconds, int maxTTLSeconds) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.putIfAbsent(key, value, createTimeInSecs, maxTTISeconds, maxTTLSeconds);
     } finally {
       lock.readLock().unlock();
     }
@@ -656,20 +510,20 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void unlockedPutNoReturn(K k, V v, int createTime, int customTTI, int customTTL, MetaData metadata) {
+  public void unlockedPutNoReturn(K k, V v, int createTime, int customTTI, int customTTL) {
     lock.readLock().lock();
     try {
-      activeDelegate.unlockedPutNoReturn(k, v, createTime, customTTI, customTTL, metadata);
+      activeDelegate.unlockedPutNoReturn(k, v, createTime, customTTI, customTTL);
     } finally {
       lock.readLock().unlock();
     }
   }
 
   @Override
-  public void unlockedRemoveNoReturn(Object k, MetaData metadata) {
+  public void unlockedRemoveNoReturn(Object k) {
     lock.readLock().lock();
     try {
-      activeDelegate.unlockedRemoveNoReturn(k, metadata);
+      activeDelegate.unlockedRemoveNoReturn(k);
     } finally {
       lock.readLock().unlock();
     }
@@ -723,4 +577,26 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   public boolean isBulkLoadEnabledInCurrentNode() {
     return bulkloadCache.isBulkLoadEnabledInCurrentNode();
   }
+
+  @Override
+  public void setAttributeExtractor(ToolkitAttributeExtractor extractor) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.setAttributeExtractor(extractor);
+    } finally {
+      lock.readLock().unlock();
+    }
+
+  }
+
+  @Override
+  public void removeAll(Set<K> keys) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.removeAll(keys);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
 }

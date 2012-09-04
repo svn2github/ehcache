@@ -9,20 +9,20 @@ import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 
 import org.terracotta.modules.ehcache.store.ValueModeHandler;
+import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLockType;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheWithMetadata;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class TCCacheLockProvider implements CacheLockProvider {
 
-  private final ToolkitCacheWithMetadata backend;
+  private final ToolkitCache     backend;
   private final ValueModeHandler         valueModeHandler;
 
-  public TCCacheLockProvider(ToolkitCacheWithMetadata backend, ValueModeHandler valueModeHandler) {
+  public TCCacheLockProvider(ToolkitCache backend, ValueModeHandler valueModeHandler) {
     this.backend = backend;
     this.valueModeHandler = valueModeHandler;
   }
