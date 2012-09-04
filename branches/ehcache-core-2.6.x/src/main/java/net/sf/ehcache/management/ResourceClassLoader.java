@@ -16,10 +16,18 @@
 package net.sf.ehcache.management;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes.Name;
@@ -111,9 +119,34 @@ public class ResourceClassLoader extends ClassLoader {
     }
 
     @Override
+    /**
+     * very similar to what OracleJDK classloader does,
+     * except the first resources (more important) are the ones found with our ResourceClassLoader
+     */
+    public Enumeration<URL> getResources(String resourceName) throws IOException {
+        Enumeration[] tmp = new Enumeration[2];
+        tmp[0] = findResources(resourceName);
+        tmp[1] = getParent().getResources(resourceName);
+        return new CompoundEnumeration(tmp);
+    };
+
+
+    @Override
     protected Enumeration<URL> findResources(String name) throws IOException {
         Enumeration<URL> resources = getParent().getResources(prefix + "/" + name);
-        return resources;
+        // DEV-8100 add support for Jboss AS, translating vfs URLs
+        List<URL> urls = new ArrayList<URL>();
+        while (resources.hasMoreElements()) {
+            URL elementToAdd;
+            URL nextElement = resources.nextElement();
+            if (nextElement.toExternalForm().startsWith("vfs")) {
+                elementToAdd = translateFromVFSToPhysicalURL(nextElement);
+            } else {
+                elementToAdd = nextElement;
+            }
+            urls.add(elementToAdd);
+        }
+        return Collections.enumeration(urls);
     }
 
     @Override
@@ -159,5 +192,93 @@ public class ResourceClassLoader extends ClassLoader {
         throw new ClassNotFoundException(className);
 
     }
+
+    /**
+     *  DEV-8100 add support for Jboss AS
+     *  jersey does not understand Jboss VFS URLs , so we use Jboss VFS classes to translate those URLs to file: URLs
+     */
+    private URL translateFromVFSToPhysicalURL(URL vfsUrl) throws IOException {
+        URL physicalUrl = null;
+        URLConnection vfsURLConnection = vfsUrl.openConnection();
+        Object vfsVirtualFile = vfsURLConnection.getContent();
+        try {
+            Class vfsUtilsClass = Class.forName("org.jboss.vfs.VFSUtils");
+            Class virtualFileClass = Class.forName("org.jboss.vfs.VirtualFile");
+            Method getPathName = virtualFileClass.getDeclaredMethod("getPathName", new Class[0]);
+            Method getPhysicalURL = vfsUtilsClass.getDeclaredMethod("getPhysicalURL", virtualFileClass);
+            Method recursiveCopy = vfsUtilsClass.getDeclaredMethod("recursiveCopy", virtualFileClass, File.class);
+            String pathName = (String) getPathName.invoke(vfsVirtualFile, (Object[]) null);
+            physicalUrl = (URL) getPhysicalURL.invoke(null, vfsVirtualFile);
+            File physicalURLAsFile = new File(physicalUrl.getFile());
+            // https://issues.jboss.org/browse/JBAS-8786
+            if (physicalURLAsFile.isDirectory() && physicalURLAsFile.list().length == 0) {
+                // jboss does not unpack the libs in WEB-INF/lib, we have to unpack them (partially) ourselves
+                unpackVfsResourceToPhysicalURLLocation(physicalUrl, vfsVirtualFile, recursiveCopy);
+            }
+        } catch (ClassNotFoundException e) {
+            // ignore, jboss-5 and below doesn't have this class
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e.getCause());
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
+        return physicalUrl;
+    }
+
+    private void unpackVfsResourceToPhysicalURLLocation(URL physicalUrl, Object vfsVirtualFile, Method recursiveCopy)
+            throws IllegalAccessException, InvocationTargetException {
+        String physicalPath = physicalUrl.getFile() + "/../";
+        recursiveCopy.invoke(null, vfsVirtualFile, new File(physicalPath));
+    }
+
+    /**
+     * A useful utility class that will enumerate over an array of
+     * enumerations.
+     * from OracleJDK sun.misc
+     */
+    class CompoundEnumeration<E> implements Enumeration<E> {
+        private final Enumeration[] enums;
+        private int index = 0;
+
+        /**
+         *
+         * @param enums
+         */
+        public CompoundEnumeration(Enumeration[] enums) {
+            this.enums = enums;
+        }
+
+        private boolean next() {
+            while (index < enums.length) {
+                if (enums[index] != null && enums[index].hasMoreElements()) {
+                    return true;
+                }
+                index++;
+            }
+            return false;
+        }
+
+        /**
+         *
+         */
+        public boolean hasMoreElements() {
+            return next();
+        }
+
+        /**
+         *
+         */
+        public E nextElement() {
+            if (!next()) {
+                throw new NoSuchElementException();
+            }
+            return (E)enums[index].nextElement();
+        }
+    }
+
 
 }
