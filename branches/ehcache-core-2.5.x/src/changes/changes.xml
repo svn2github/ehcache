@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
-     <release version="2.5.2" date="2012-04" description="Bug Fix Release">
+    <release version="2.5.5" date="2012-09" description="Bug Fix Release">
+        	<action dev="" type="update" issue="">
+           </release>
+    <release version="2.5.4" date="2012-08" description="Bug Fix Release">
+        	<action dev="" type="update" issue="EHC-959">
+            getKeys() sometimes returns an incomplete list of keys
+             </action>
+             <action dev="" type="update" issue="EHC-747">
+				EHC-747 - eternal attribute is confusing             
+			</action>
+             </release>
+    <release version="2.5.3" date="2012-06" description="Bug Fix Release">
+        	<action dev="" type="update" issue="">
+            Overloaded putifAbsent API
+             </action>
+             </release>
+           <release version="2.5.2" date="2012-04" description="Bug Fix Release">
         	<action dev="" type="update" issue="EHC-898">
             net.sf.ehcache.configurationResourceName is ignored
              </action>
