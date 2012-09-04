@@ -244,17 +244,17 @@ public class Element implements Serializable, Cloneable {
     /**
      * Gets the key attribute of the Element object.
      *
-     * @return The key value. If the key is not Serializable, null is returned and an info log message emitted
-     * @see #getObjectKey()
+     * @return The key value.
+     * @throws CacheException if the key is not {@code Serializable}.
+     * @deprecated Please use {@link #getObjectKey()} instead.
      */
+    @Deprecated
     public final Serializable getKey() {
-        Serializable keyAsSerializable;
         try {
-            keyAsSerializable = (Serializable) key;
-        } catch (Exception e) {
-            throw new CacheException("The key " + key + " is not Serializable. Consider using Element#getObjectKey()");
+            return (Serializable) getObjectKey();
+        } catch (ClassCastException e) {
+            throw new CacheException("The key " + getObjectKey() + " is not Serializable. Consider using Element.getObjectKey()");
         }
-        return keyAsSerializable;
     }
 
     /**
@@ -273,18 +273,18 @@ public class Element implements Serializable, Cloneable {
     /**
      * Gets the value attribute of the Element object.
      *
-     * @return The value which must be Serializable. If not use {@link #getObjectValue}. If the value is not Serializable, null is returned and an info log message emitted
-     * @see #getObjectValue()
+     * @return The value which must be {@code Serializable}. If not use {@link #getObjectValue}.
+     * @throws CacheException if the value is not {@code Serializable}.
+     * @deprecated Please use {@link #getObjectValue()} instead.
      */
+    @Deprecated
     public final Serializable getValue() {
-        Serializable valueAsSerializable;
         try {
-            valueAsSerializable = (Serializable) value;
-        } catch (Exception e) {
-            throw new CacheException("The value " + value + " for key " + key +
-                    " is not Serializable. Consider using Element#getObjectValue()");
+            return (Serializable) getObjectValue();
+        } catch (ClassCastException e) {
+            throw new CacheException("The value " + getObjectValue() + " for key " + getObjectKey() +
+                    " is not Serializable. Consider using Element.getObjectValue()");
         }
-        return valueAsSerializable;
     }
 
     /**
