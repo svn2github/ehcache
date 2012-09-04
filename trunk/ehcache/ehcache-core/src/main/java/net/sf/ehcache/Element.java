@@ -249,7 +249,7 @@ public class Element implements Serializable, Cloneable {
      * @deprecated Please use {@link #getObjectKey()} instead.
      */
     @Deprecated
-    public final Serializable getKey() {
+    public final Serializable getKey() throws CacheException {
         try {
             return (Serializable) getObjectKey();
         } catch (ClassCastException e) {
@@ -278,7 +278,7 @@ public class Element implements Serializable, Cloneable {
      * @deprecated Please use {@link #getObjectValue()} instead.
      */
     @Deprecated
-    public final Serializable getValue() {
+    public final Serializable getValue() throws CacheException {
         try {
             return (Serializable) getObjectValue();
         } catch (ClassCastException e) {
