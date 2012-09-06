@@ -1,12 +1,12 @@
 package net.sf.ehcache.distribution.jms;
 
-import com.sun.messaging.ConnectionConfiguration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.ConfigurationFactory;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.ACTION_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
@@ -16,9 +16,24 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.Before;
+
+import com.sun.messaging.ConnectionConfiguration;
+import com.sun.messaging.jmq.admin.objstore.ObjStore;
+import com.sun.messaging.jmq.admin.objstore.ObjStoreAttrs;
+import com.sun.messaging.jmq.admin.objstore.ObjStoreManager;
+import com.sun.messaging.jmq.admin.util.JMSObjFactory;
+import com.sun.messaging.jmq.jmsclient.runtime.BrokerInstance;
+import com.sun.messaging.jmq.jmsclient.runtime.ClientRuntime;
+import com.sun.messaging.jmq.jmsserver.Globals;
+import com.sun.messaging.jmq.jmsserver.auth.file.JMQFileUserRepository;
+import com.sun.messaging.jmq.jmsserver.auth.usermgr.PasswdDB;
+import com.sun.messaging.jmq.jmsserver.auth.usermgr.UserInfo;
+import com.sun.messaging.jmq.jmsservice.BrokerEvent;
+import com.sun.messaging.jmq.jmsservice.BrokerEventListener;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -29,11 +44,14 @@ import javax.jms.Topic;
 import javax.jms.TopicConnection;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
+
+import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Date;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -43,14 +61,84 @@ import java.util.logging.Logger;
  *
  * @author Greg Luck
  */
-public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
+public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
     private static final Logger LOG = Logger.getLogger(OpenMqJMSReplicationTest.class.getName());
 
-    protected String getConfigurationFile() {
-        return "distribution/jms/ehcache-distributed-jms-openmq.xml";
+    @Override
+    protected URL getConfiguration() {
+        return OpenMqJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-jms-openmq.xml");
     }
 
+    private static BrokerInstance BROKER;
+    
+    @BeforeClass
+    public static void startOpenMQ() throws Exception {
+      ClientRuntime runtime = ClientRuntime.getRuntime();
+      BROKER = runtime.createBrokerInstance();
+      BrokerEventListener listener = new BrokerEventListener() {
+        
+        public boolean exitRequested(BrokerEvent arg0, Throwable arg1) {
+          return true;
+        }
+        
+        public void brokerEvent(BrokerEvent arg0) {
+          //no-op
+        }
+      };
+
+
+      BROKER.init(BROKER.parseArgs("-imqhome target/openmq/mq".split(" ")), listener);
+      BROKER.start();
+      
+      File passwdFile = JMQFileUserRepository.getPasswordFile(Globals.getConfig(), true);
+      PasswdDB.setPasswordFileName(passwdFile.getCanonicalPath());
+      PasswdDB pwdDb = new PasswdDB();
+      if (pwdDb.getUserInfo("test") == null) {
+        pwdDb.addUser("test", "test", UserInfo.ROLE_USER);
+      }
+
+      ObjStoreAttrs storeAttributes = new ObjStoreAttrs();
+      File jndiPath = new File("target/jndi");
+      jndiPath.mkdirs();
+      storeAttributes.put("java.naming.provider.url", "file://" + jndiPath.getCanonicalPath());
+      storeAttributes.put("java.naming.factory.initial", "com.sun.jndi.fscontext.RefFSContextFactory");
+      ObjStore objStore = ObjStoreManager.getObjStoreManager().createStore(storeAttributes);
+      objStore.open();
+
+      Properties tcfProps = new Properties();
+      tcfProps.setProperty("imqReconnect", "true");
+      tcfProps.setProperty("imqPingInterval", "5");
+      tcfProps.setProperty("imqDefaultUsername", "test");
+      tcfProps.setProperty("imqDefaultPassword", "test");
+      Object topicConnectionFactory = JMSObjFactory.createTopicConnectionFactory(tcfProps);
+      objStore.add("MyConnectionFactory", topicConnectionFactory, true);
+      
+      Properties qfProps = new Properties();
+      qfProps.setProperty("imqReconnect", "true");
+      qfProps.setProperty("imqPingInterval", "5");
+      qfProps.setProperty("imqDefaultUsername", "test");
+      qfProps.setProperty("imqDefaultPassword", "test");
+      Object queueConnectionFactory = JMSObjFactory.createQueueConnectionFactory(qfProps);
+      objStore.add("queueConnectionFactory", queueConnectionFactory, true);
+
+      Properties topicProps = new Properties();
+      topicProps.setProperty("imqDestinationName", "EhcacheTopicDest");
+      Object topic = JMSObjFactory.createTopic(topicProps);
+      objStore.add("ehcache", topic, true);
+
+      Properties queueProps = new Properties();
+      queueProps.setProperty("imqDestinationName", "EhcacheGetQueueDest");
+      Object queue = JMSObjFactory.createQueue(queueProps);
+      objStore.add("ehcacheGetQueue", queue, true);
+    }
+    
+    @AfterClass
+    public static void stopOpenMQ() throws Exception {
+      ObjStoreManager.getObjStoreManager().destroyStore("default");
+      BROKER.stop();
+      BROKER.shutdown();
+    }
 
     @Test
     public void testNonCachePublisherElementMessagePut() throws JMSException, InterruptedException {
@@ -686,7 +774,8 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
      * Run the test, stop the message queue and then start the message queue. load should throw exceptions but then
      * start loading again shortly after the message queue restarts.
      */
-    //@Test
+    @Ignore
+    @Test
     public void testGetMessageQueueFailure() throws InterruptedException {
         cacheName = SAMPLE_CACHE_SYNC;
         manager3.shutdown();
@@ -763,17 +852,12 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         //CacheManagers 1 - 4 just complicate this test. 
         tearDown();
 
-        CacheManager managerA, managerB, managerC;
+        URL nonListeningConfigurationFile = OpenMqJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-nonlistening-jms-openmq.xml");
+        URL listeningConfigurationFile = OpenMqJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-jms-openmq.xml");
 
-        String nonListeningConfigurationFile = "distribution/jms/ehcache-distributed-nonlistening-jms-openmq.xml";
-        String listeningConfigurationFile = "distribution/jms/ehcache-distributed-jms-openmq.xml";
-
-        managerA = new CacheManager(TestUtil.TEST_CONFIG_DIR + nonListeningConfigurationFile);
-        managerA.setName("managerA");
-        managerB = new CacheManager(TestUtil.TEST_CONFIG_DIR + listeningConfigurationFile);
-        managerB.setName("managerB");
-        managerC = new CacheManager(TestUtil.TEST_CONFIG_DIR + nonListeningConfigurationFile);
-        managerC.setName("managerC");
+        CacheManager managerA = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfigurationFile).name("managerA"));
+        CacheManager managerB = new CacheManager(ConfigurationFactory.parseConfiguration(listeningConfigurationFile).name("managerB"));
+        CacheManager managerC = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfigurationFile).name("managerC"));
 
         Thread.sleep(5000);
 
@@ -789,34 +873,5 @@ public class OpenMqJMSReplicationTest extends ActiveMQJMSReplicationTest {
         managerA.shutdown();
         managerB.shutdown();
         managerC.shutdown();
-    }
-
-
-    /**
-     * Tests the JMSCacheLoader.
-     * <p/>
-     * We put an item in cache1, which does not replicate.
-     * <p/>
-     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
-     * If a cache does not have an element it should leave the message on the queue for the next node to process.
-     */
-    @Override
-    @Test
-    public void testGet() throws InterruptedException {
-        super.testGet();
-    }
-
-    /**
-     * Tests the JMSCacheLoader.
-     * <p/>
-     * We put an item in cache1, which does not replicate.
-     * <p/>
-     * We then do a get on cache2, which has a JMSCacheLoader which should ask the cluster for the answer.
-     * If a cache does not have an element it should leave the message on the queue for the next node to process.
-     */
-    @Override
-    @Test
-    public void testGetAll() throws InterruptedException {
-        super.testGetAll();
     }
 }

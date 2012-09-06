@@ -307,21 +307,7 @@ public class JMSCachePeer implements CachePeer, MessageListener {
                 LOG.fine(jmsEventMessage.toString());
             }
 
-            Ehcache cache;
-            String cacheName;
-            try {
-                cacheName = jmsEventMessage.getCacheName();
-                if (cacheName == null) {
-                    throw new InvalidJMSMessageException("No cache name specified.");
-                }
-                cache = cacheManager.getEhcache(cacheName);
-                if (cache == null) {
-                    throw new InvalidJMSMessageException("No cache named " + cacheName + " exists in the target CacheManager.");
-                }
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, e.getMessage(), e);
-                return;
-            }
+            Ehcache cache = extractAndValidateCache(objectMessage);
             if (jmsEventMessage.getEvent() == Action.GET.toInt()) {
                 handleGetRequest(objectMessage, jmsEventMessage, cache);
             } else {
@@ -497,12 +483,16 @@ public class JMSCachePeer implements CachePeer, MessageListener {
     }
 
     private Ehcache extractAndValidateCache(Message message) throws JMSException {
-        Ehcache cache;
-        String cacheName = message.getStringProperty(CACHE_NAME_PROPERTY);
+        String cacheName;
+        if (message instanceof ObjectMessage && ((ObjectMessage) message).getObject() instanceof JMSEventMessage) {
+            cacheName = ((JMSEventMessage) ((ObjectMessage) message).getObject()).getCacheName();
+        } else {
+            cacheName = message.getStringProperty(CACHE_NAME_PROPERTY);
+        }
         if (cacheName == null) {
             throw new InvalidJMSMessageException("No cache name specified.");
         }
-        cache = cacheManager.getEhcache(cacheName);
+        Ehcache cache = cacheManager.getEhcache(cacheName);
         if (cache == null) {
             throw new InvalidJMSMessageException("No cache named " + cacheName + "exists in the target CacheManager.");
         }
