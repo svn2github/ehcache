@@ -1,0 +1,19 @@
+ ---
+ Architecture
+ ---
+ 
+{Architecture}
+
+
+    The following flash animation shows the Architecture Overview and the major APIs.
+    
+%{snippet|file=src/site/include/architecture.html|verbatim=false}
+
+
+
+
+
+
+
+     
+
