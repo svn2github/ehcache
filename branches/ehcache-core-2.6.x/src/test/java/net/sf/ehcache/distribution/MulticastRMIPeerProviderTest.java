@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.distribution;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,12 +31,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.IsSame;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,29 +123,16 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
     public void testProviderFromCacheManager() throws InterruptedException {
 
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
-        Thread.sleep(2000);
-
-        List peerUrls = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m1sampleCache1);
-        assertEquals(expectedPeers(), peerUrls.size());
-
         Ehcache m2sampleCache1 = manager2.getCache("sampleCache1");
-        assertFalse(m1sampleCache1.getGuid().equals(m2sampleCache1.getGuid()));
-
-        List peerUrls2 = manager2.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m2sampleCache1);
-        assertEquals(expectedPeers(), peerUrls2.size());
-
         Ehcache m3sampleCache1 = manager3.getCache("sampleCache1");
-        assertFalse(m1sampleCache1.getGuid().equals(m3sampleCache1.getGuid()));
 
-        List peerUrls3 = manager3.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m3sampleCache1);
-        assertEquals(expectedPeers(), peerUrls3.size());
+        assertThat(m1sampleCache1.getGuid(), not(is(m2sampleCache1.getGuid())));
+        assertThat(m1sampleCache1.getGuid(), not(is(m3sampleCache1.getGuid())));
 
         //Now remove a node, wait for the cluster to self-heal and then test
         manager1.shutdown();
-        Thread.sleep(5000);
-        peerUrls3 = manager3.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m3sampleCache1);
-        assertEquals(expectedPeers() - 1, peerUrls3.size());
 
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager2, manager3);
     }
 
     /**
@@ -152,72 +141,31 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
      */
     @Test
     public void testProviderCreatedFromDefaultCache() throws InterruptedException {
-
-
         //manual does not nor should it work this way
-        if (this.getClass() != MulticastRMIPeerProviderTest.class) {
-            return;
-        }
+        assumeThat(getClass(), IsSame.<Class<?>>sameInstance(MulticastRMIPeerProviderTest.class));
 
         manager1.addCache("fromDefaultCache");
-        RMICacheManagerPeerListener peerListener1 = (RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI");
-        //peerListener1.notifyCacheAdded("fromDefaultCache");
         manager2.addCache("fromDefaultCache");
-        RMICacheManagerPeerListener peerListener2 = (RMICacheManagerPeerListener) manager2.getCachePeerListener("RMI");
-        //peerListener2.notifyCacheAdded("fromDefaultCache");
         manager3.addCache("fromDefaultCache");
-        RMICacheManagerPeerListener peerListener3 = (RMICacheManagerPeerListener) manager3.getCachePeerListener("RMI");
-        //peerListener3.notifyCacheAdded("fromDefaultCache");
-        Thread.sleep(2000);
 
-        CacheManagerPeerProvider cachePeerProvider = manager1.getCacheManagerPeerProvider("RMI");
-
-        Cache cache = manager1.getCache("fromDefaultCache");
-        List peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
-        assertEquals(expectedPeers(), peerUrls.size());
-
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("fromDefaultCache"), manager1, manager2, manager3);
     }
 
-
-    /**
-     * The default caches for ehcache-dsitributed1-6.xml are set to replicate.
-     * We create a new cache from the default and expect it to be replicated.
-     */
     @Test
     public void testDeleteReplicatedCache() throws InterruptedException {
-
-
         //manual does not nor should it work this way
-        if (this.getClass() != MulticastRMIPeerProviderTest.class) {
-            return;
-        }
+        assumeThat(getClass(), IsSame.<Class<?>>sameInstance(MulticastRMIPeerProviderTest.class));
 
         manager1.addCache("fromDefaultCache");
         manager2.addCache("fromDefaultCache");
         manager3.addCache("fromDefaultCache");
-        Thread.sleep(2200);
 
-        CacheManagerPeerProvider cachePeerProvider = manager1.getCacheManagerPeerProvider("RMI");
-        Cache cache = manager1.getCache("fromDefaultCache");
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("fromDefaultCache"), manager1, manager2, manager3);
 
-        //Should be three
-        List peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
-        assertEquals(expectedPeers(), peerUrls.size());
-
-
+        final Ehcache cache = manager1.getCache("fromDefaultCache");
         manager1.removeCache("fromDefaultCache");
-        Thread.sleep(2200);
 
-        peerUrls = cachePeerProvider.listRemoteCachePeers(cache);
-        assertEquals(expectedPeers(), peerUrls.size());
-
-    }
-
-    /**
-     * There are 3 in the cluster, so there will be two others
-     */
-    protected int expectedPeers() {
-        return 2;
+        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("fromDefaultCache"), manager2, manager3);
     }
 
 
@@ -230,8 +178,11 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
         InetAddress groupAddress = InetAddress.getByName("230.0.0.1");
         MulticastSocket socket = new MulticastSocket();
         socket.joinGroup(groupAddress);
-        int ttl = socket.getTimeToLive();
-        assertEquals(1, ttl);
+        try {
+            assertThat(socket.getTimeToLive(), is(1));
+        } finally {
+            socket.leaveGroup(groupAddress);
+        }
     }
 
 }
