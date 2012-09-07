@@ -52,6 +52,11 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
     public static final String TIME_TO_REFRESH_SECONDS_KEY = "timeToRefreshSeconds";
 
     /**
+     * Properties key for the max backlog attribute
+     */
+    public static final String MAX_BACKLOG = "maximumBacklogItems";
+
+    /**
      * Properties key for the batch size attribute
      */
     public static final String NULL_REFRESH_EVICTS = "nullRefreshEvicts";
@@ -102,6 +107,8 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
                     setRefreshQuietly(Boolean.parseBoolean(stringValue));
                 } else if (NULL_REFRESH_EVICTS.equals(property)) {
                     setNullRefreshEvicts(Boolean.parseBoolean(stringValue));
+                } else if (MAX_BACKLOG.equals(property)) {
+                    setMaximumRefreshBacklogItems(Integer.parseInt(stringValue));
                 } else {
                     throw new IllegalArgumentException("Unrecognized RefreshAhead cache config key: " + property);
                 }
@@ -123,6 +130,7 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
         p.setProperty(TIME_TO_REFRESH_SECONDS_KEY, Long.toString(getTimeToRefreshSeconds()));
         p.setProperty(BATCH_SIZE_KEY, Long.toString(getBatchSize()));
         p.setProperty(NULL_REFRESH_EVICTS, Boolean.toString(isNullRefreshEvicts()));
+        p.setProperty(MAX_BACKLOG, Long.toString(getMaximumRefreshBacklogItems()));
         return p;
     }
 
