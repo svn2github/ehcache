@@ -56,7 +56,8 @@ public class ReadThroughCacheTest {
         CacheManager manager = new CacheManager();
         manager.removalAll();
 
-        CacheConfiguration config=new CacheConfiguration().name("sampleCacheReadThru").maxElementsInMemory(100).timeToIdleSeconds(10).timeToLiveSeconds(10).overflowToDisk(false);
+        CacheConfiguration config = new CacheConfiguration().name("sampleCacheReadThru").maxElementsInMemory(100).timeToIdleSeconds(8)
+                .timeToLiveSeconds(8).overflowToDisk(false);
         manager.addCache(new Cache(config));
 
 
