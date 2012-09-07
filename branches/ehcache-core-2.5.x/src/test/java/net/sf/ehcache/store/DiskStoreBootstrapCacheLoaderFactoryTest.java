@@ -7,6 +7,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -52,14 +53,10 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     }
 
     @Test
-    public void testLoadsFromDiskWithMaxElementsInMemorySet() throws InterruptedException {
+    public void testLoadsFromDiskWithMaxElementsInMemorySet() throws Exception {
         setUp(CacheUT.elementBased);
-        int waitCycles = 0;
-        while (cacheElementCountBound.getDiskStoreSize() != ELEMENTS_ON_DISK && waitCycles < 15) {
-            System.err.println("Not all entries have been spooled to disk, waiting a bit ... ");
-            Thread.sleep(250);
-            waitCycles++;
-        }
+        DiskStoreHelper.flushAllEntriesToDisk(cacheElementCountBound).get();
+        assertThat(cacheElementCountBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
         waitForBootstrapLoader(cacheElementCountBoundBootstrapCacheLoader);
         RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
                 public Integer call() throws Exception {
@@ -86,14 +83,10 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     }
 
     @Test
-    public void testLoadsFromDiskWithMaxBytesOnHeapSet() throws InterruptedException {
+    public void testLoadsFromDiskWithMaxBytesOnHeapSet() throws Exception {
         setUp(CacheUT.sizeBased);
-        int waitCycles = 0;
-        while (cacheSizeBound.getDiskStoreSize() != ELEMENTS_ON_DISK && waitCycles < 15) {
-            System.err.println("Not all entries have been spooled to disk, waiting a bit ... " + cacheSizeBound.getDiskStoreSize() + " in");
-            Thread.sleep(250);
-            waitCycles++;
-        }
+        DiskStoreHelper.flushAllEntriesToDisk(cacheSizeBound).get();
+        assertThat(cacheSizeBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
         waitForBootstrapLoader(cacheSizeBoundBootstrapCacheLoader);
         RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
                 public Integer call() throws Exception {
