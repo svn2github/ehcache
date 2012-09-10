@@ -24,6 +24,7 @@ public class TTICacheTest extends AbstractCacheTestBase {
 
   public TTICacheTest(TestConfig testConfig) {
     super("tti-cache-test.xml", testConfig, App.class, App.class, App.class);
+    disableTest();
   }
 
   public static class App extends ClientBase {
