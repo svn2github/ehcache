@@ -296,7 +296,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       if (status == Status.STARTED) {
         Set<String> oldListNames = bucketMetaInfoHandler.transferAllListsFromNode(deadNode);
         AsyncConfig deadNodeConfig = createDeadNodeConfig();
-        startProcessingDeadNodeBuckets(deadNodeConfig, oldListNames);
+        startProcessingDeadNodeBuckets(deadNodeConfig, oldListNames, deadNode);
       }
     } finally {
       commonAsyncLock.unlock();
@@ -319,11 +319,16 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     return deadNodeProcessingConfig;
   }
 
-  private void startProcessingDeadNodeBuckets(AsyncConfig deadNodeProcessingConfig, Set<String> oldListNames) {
+  private void startProcessingDeadNodeBuckets(AsyncConfig deadNodeProcessingConfig, Set<String> oldListNames, String deadNode) {
+    long totalItems = 0;
     for (String bucketName : oldListNames) {
       ProcessingBucket<E> bucket = createBucket(bucketName, deadNodeProcessingConfig, true);
       deadBuckets.add(bucket);
+      totalItems += bucket.getWaitCount();
       startBucket(bucket, true);
+    }
+    if(LOGGER.isDebugEnabled()) {
+      LOGGER.debug("taken " + totalItems + " items from deadNode " + deadNode);
     }
   }
 

@@ -2,6 +2,7 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 import org.terracotta.toolkit.Toolkit;
 
@@ -28,15 +29,16 @@ public class WriteBehindClient1 extends AbstractWriteBehindClient {
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     for (int i = 0; i < 1000; i++) {
-      cache.putWithWriter(new Element("key" + i % 200, "value" + i));
+      cache.putWithWriter(new Element("key" + i % 200, "value" + i)); // 200 different keys, write operation
       if (0 == i % 10) {
-        cache.removeWithWriter("key" + i % 200 / 10);
+        cache.removeWithWriter("key" + i % 200 / 10); // 10 different keys, delete operation
       }
     }
 
     while (getWriteCount() < 100) {
       Thread.sleep(200);
     }
-
+    WriteBehindManager wbManager = ((WriteBehindManager) cache.getWriterManager());
+    System.out.println("write behind queue size " + wbManager.getQueueSize());
   }
 }

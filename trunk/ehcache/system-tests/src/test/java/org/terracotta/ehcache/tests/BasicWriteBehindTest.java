@@ -35,10 +35,11 @@ public class BasicWriteBehindTest extends AbstractCacheTestBase {
     super.evaluateClientOutput(clientName, exitCode, output);
 
     FileReader fr = null;
+    BufferedReader reader = null;
     StringBuilder strBuilder = new StringBuilder();
     try {
       fr = new FileReader(output);
-      BufferedReader reader = new BufferedReader(fr);
+      reader = new BufferedReader(fr);
       String st = "";
       while ((st = reader.readLine()) != null) {
         strBuilder.append(st);
@@ -48,6 +49,7 @@ public class BasicWriteBehindTest extends AbstractCacheTestBase {
     } finally {
       try {
         fr.close();
+        reader.close();
       } catch (Exception e) {
         //
       }

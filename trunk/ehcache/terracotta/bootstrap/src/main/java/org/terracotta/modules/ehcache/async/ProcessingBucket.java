@@ -19,7 +19,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-class ProcessingBucket<E extends Serializable> {
+public class ProcessingBucket<E extends Serializable> {
   private enum STOP_STATE {
     NORMAL, STOP_REQUESTED, STOPPED
   }

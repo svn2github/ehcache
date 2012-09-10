@@ -12,11 +12,11 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SerializationWriteBehindDeadBucketTest extends AbstractCacheTestBase {
+public class SerializationDeadBucketWriteBehindTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
 
-  public SerializationWriteBehindDeadBucketTest(TestConfig testConfig) {
+  public SerializationDeadBucketWriteBehindTest(TestConfig testConfig) {
     super("basic-writebehind-test.xml", testConfig, SerializationWriteBehindClient1.class,
           SerializationWriteBehindClient2.class);
     testConfig.getClientConfig().setParallelClients(false);
@@ -35,12 +35,12 @@ public class SerializationWriteBehindDeadBucketTest extends AbstractCacheTestBas
   @Override
   protected void evaluateClientOutput(String clientName, int exitCode, File output) throws Throwable {
     super.evaluateClientOutput(clientName, exitCode, output);
-
+    BufferedReader reader = null;
     FileReader fr = null;
     StringBuilder strBuilder = new StringBuilder();
     try {
       fr = new FileReader(output);
-      BufferedReader reader = new BufferedReader(fr);
+      reader = new BufferedReader(fr);
       String st = "";
       while ((st = reader.readLine()) != null) {
         strBuilder.append(st);
@@ -50,6 +50,7 @@ public class SerializationWriteBehindDeadBucketTest extends AbstractCacheTestBas
     } finally {
       try {
         fr.close();
+        reader.close();
       } catch (Exception e) {
         //
       }

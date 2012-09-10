@@ -4,6 +4,10 @@
  */
 package org.terracotta.ehcache.tests;
 
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
+import org.terracotta.modules.ehcache.async.ProcessingBucket;
+
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
@@ -12,13 +16,15 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CoalescingWriteBehindDeadBucketTest extends AbstractCacheTestBase {
+public class CoalescingDeadBucketWriteBehindTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
 
-  public CoalescingWriteBehindDeadBucketTest(TestConfig testConfig) {
+  public CoalescingDeadBucketWriteBehindTest(TestConfig testConfig) {
     super("coalescing-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
     testConfig.getClientConfig().setParallelClients(false);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
+    configureTCLogging(ProcessingBucket.class.getName(), LogLevel.DEBUG);
   }
 
   @Override
@@ -33,12 +39,12 @@ public class CoalescingWriteBehindDeadBucketTest extends AbstractCacheTestBase {
   @Override
   protected void evaluateClientOutput(String clientName, int exitCode, File output) throws Throwable {
     super.evaluateClientOutput(clientName, exitCode, output);
-
+    BufferedReader reader = null;
     FileReader fr = null;
     StringBuilder strBuilder = new StringBuilder();
     try {
       fr = new FileReader(output);
-      BufferedReader reader = new BufferedReader(fr);
+      reader = new BufferedReader(fr);
       String st = "";
       while ((st = reader.readLine()) != null) {
         strBuilder.append(st);
@@ -48,6 +54,7 @@ public class CoalescingWriteBehindDeadBucketTest extends AbstractCacheTestBase {
     } finally {
       try {
         fr.close();
+        reader.close();
       } catch (Exception e) {
         //
       }
