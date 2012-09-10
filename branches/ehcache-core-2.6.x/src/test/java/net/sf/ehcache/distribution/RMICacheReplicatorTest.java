@@ -287,6 +287,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
+        RMICacheManagerPeerListenerTest.setupLogging();
         final List<CacheManager> cluster = createCluster(5);
         try {
             final CacheManager manager0 = cluster.get(0);
@@ -326,6 +327,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             }, is(Boolean.TRUE));
         } finally {
             destroyCluster(cluster);
+            RMICacheManagerPeerListenerTest.revertLogging();
         }
     }
 
