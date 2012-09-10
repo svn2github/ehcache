@@ -5,18 +5,23 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.event.CacheEventListenerAdapter;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
+
+import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
@@ -39,7 +44,7 @@ public class ProgrammaticConfigTest extends AbstractCacheTestBase {
     protected CacheManager getCacheManager() {
 
       Configuration configuration = new Configuration().defaultCache(new CacheConfiguration("defaultCache", 100))
-          .cache(new CacheConfiguration("example", 100).timeToIdleSeconds(5).timeToLiveSeconds(120)
+          .cache(new CacheConfiguration("example", 100).timeToIdleSeconds(30).timeToLiveSeconds(120)
                      .terracotta(new TerracottaConfiguration())); // defaults are all good
 
       TerracottaClientConfiguration tcClientConfiguration = new TerracottaClientConfiguration();
@@ -53,7 +58,11 @@ public class ProgrammaticConfigTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
-      Cache exampleCache = getCacheManager().getCache("example");
+      final Cache exampleCache = getCacheManager().getCache("example");
+
+      // Adding eviction listener for testing.
+      exampleCache.getCacheEventNotificationService().registerListener(new LoggingEvictionAdapter());
+
       Assert.assertNotNull(exampleCache);
 
       if (index == 0) {
@@ -63,9 +72,28 @@ public class ProgrammaticConfigTest extends AbstractCacheTestBase {
       barrier.await();
 
       Element got = exampleCache.get("abc");
+
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          return exampleCache.get("abc") != null;
+        }
+      });
+
       Assert.assertNotNull(got);
       Assert.assertEquals("def", got.getValue());
       Assert.assertEquals(1, exampleCache.getSize());
+    }
+
+
+    /**
+     * Eviction listener class for testing purposes.
+     */
+    private static class LoggingEvictionAdapter extends CacheEventListenerAdapter {
+      @Override
+      public void notifyElementExpired(Ehcache cache, Element element) {
+        System.err.println("Expiring element (" + element.getKey() + ", " + element.getValue() + ")");
+      }
     }
 
   }
