@@ -287,4 +287,12 @@ public class ManagementRESTServiceConfiguration {
     public SampledRateCounterConfig makeSampledSearchRateCounterConfig() {
         return new SampledRateCounterConfig(getSampleSearchIntervalSeconds(), getSampleHistorySize(), true);
     }
+
+    @Override
+    public String toString() {
+        return "ManagementRESTServiceConfiguration [enabled=" + enabled + ", securityServiceLocation=" + securityServiceLocation
+                + ", sslEnabled=" + sslEnabled + ", needClientAuth=" + needClientAuth + ", securityServiceTimeout="
+                + securityServiceTimeout + ", bind=" + bind + ", sampleHistorySize=" + sampleHistorySize + ", sampleIntervalSeconds="
+                + sampleIntervalSeconds + ", sampleSearchIntervalSeconds=" + sampleSearchIntervalSeconds + "]";
+    }
 }
