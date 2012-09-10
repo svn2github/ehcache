@@ -67,12 +67,18 @@ public class ManagementServerLoader {
             Class<?> managementServerImplClass = RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServerImpl");
             Object managementServerImpl = null;
             if (!MGMT_SVR_BY_BIND.containsKey(managementRESTServiceConfiguration.getBind())) {
-                Constructor<?> managementServerImplClassConstructor = managementServerImplClass
-                        .getConstructor(new Class[] {managementRESTServiceConfiguration.getClass()});
-                managementServerImpl = managementServerImplClassConstructor.newInstance(new Object[] {managementRESTServiceConfiguration});
-                Method startMethod = managementServerImplClass.getMethod("start", new Class[] {});
-                startMethod.invoke(managementServerImpl, new Object[] {});
-                MGMT_SVR_BY_BIND.put(managementRESTServiceConfiguration.getBind(), managementServerImpl);
+                if (!MGMT_SVR_BY_BIND.isEmpty()) {
+                    String alreadyBound = MGMT_SVR_BY_BIND.keySet().iterator().next();
+                    managementRESTServiceConfiguration.setBind(alreadyBound);
+                    LOG.warn("You can not have several Ehcache management rest agents running in the same ClassLoader; CacheManager "
+                          + cacheManager.getName() + " will be registered to the already running Ehcache management rest agent listening on port "
+                          + alreadyBound + ", the configuration will not be changed");
+                } else {
+                    startRestAgent(managementRESTServiceConfiguration, managementServerImplClass);
+                }
+            } else {
+                LOG.warn("A previous CacheManager already instanciated the Ehcache Management rest agent, on port "
+                        + managementRESTServiceConfiguration.getBind() + ", the configuration will not be changed for " + cacheManager.getName());
             }
             managementServerImpl = MGMT_SVR_BY_BIND.get(managementRESTServiceConfiguration.getBind());
             Method registerMethod = managementServerImplClass.getMethod("register", new Class[] {cacheManager.getClass()});
@@ -89,6 +95,17 @@ public class ManagementServerLoader {
             // setting back the appClassLoader as the TCCL
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
+    }
+
+    private static void startRestAgent(ManagementRESTServiceConfiguration managementRESTServiceConfiguration,
+            Class<?> managementServerImplClass) throws Exception {
+        Object managementServerImpl;
+        Constructor<?> managementServerImplClassConstructor = managementServerImplClass
+                .getConstructor(new Class[] {managementRESTServiceConfiguration.getClass()});
+        managementServerImpl = managementServerImplClassConstructor.newInstance(new Object[] {managementRESTServiceConfiguration});
+        Method startMethod = managementServerImplClass.getMethod("start", new Class[] {});
+        startMethod.invoke(managementServerImpl, new Object[] {});
+        MGMT_SVR_BY_BIND.put(managementRESTServiceConfiguration.getBind(), managementServerImpl);
     }
 
     /**
