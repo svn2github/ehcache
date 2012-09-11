@@ -69,8 +69,6 @@ public interface ToolkitInstanceFactory {
 
   String getFullAsyncName(Ehcache cache);
 
-  // ToolkitLock getAsyncWriteLock();
-
   /**
    * Returns a {@link ToolkitNotifier} for the cachse to notify {@link CacheEventNotificationMsg} across the cluster
    */

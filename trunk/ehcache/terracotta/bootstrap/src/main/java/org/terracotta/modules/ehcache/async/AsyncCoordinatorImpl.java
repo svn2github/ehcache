@@ -35,7 +35,9 @@ import java.util.Set;
  */
 
 public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordinator<E> {
-  private static final Logger             LOGGER    = LoggerFactory.getLogger(AsyncCoordinatorImpl.class.getName());
+  private static final Logger             LOGGER                                               = LoggerFactory
+                                                                                                   .getLogger(AsyncCoordinatorImpl.class
+                                                                                                       .getName());
   private static final String             DELIMITER                                            = ToolkitInstanceFactoryImpl.DELIMITER;
   private final String                    name;
   private final AsyncConfig               config;
