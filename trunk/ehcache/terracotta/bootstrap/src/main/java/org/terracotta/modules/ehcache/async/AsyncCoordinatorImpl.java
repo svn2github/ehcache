@@ -35,10 +35,7 @@ import java.util.Set;
  */
 
 public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordinator<E> {
-  private static final Logger             LOGGER                                               = LoggerFactory
-                                                                                                   .getLogger(AsyncCoordinatorImpl.class
-                                                                                                       .getName());
-  private static final String             BUCKET                                               = "bucket";
+  private static final Logger             LOGGER    = LoggerFactory.getLogger(AsyncCoordinatorImpl.class.getName());
   private static final String             DELIMITER                                            = ToolkitInstanceFactoryImpl.DELIMITER;
   private final String                    name;
   private final AsyncConfig               config;
@@ -144,7 +141,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     // add meta info first
     Set<String> nameList = new HashSet();
     for (int i = 0; i < processingConcurrency; i++) {
-      String bucketName = nodeName + DELIMITER + BUCKET + DELIMITER + i;
+      String bucketName = nodeName + DELIMITER + i;
       nameList.add(bucketName);
     }
     bucketMetaInfoHandler.bucketsCreated(nameList);
@@ -307,7 +304,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       startBucket(bucket, true);
     }
     if(LOGGER.isDebugEnabled()) {
-      LOGGER.debug("taken " + totalItems + " items from deadNode " + deadNode);
+      LOGGER.debug("startProcessingDeadNodeBuckets(): taken " + totalItems + " items from deadNode " + deadNode);
     }
   }
 

@@ -53,9 +53,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private static final String ALL_SOFT_LOCKS_MAP_SUFFIX                = "softLocks";
   private static final String NEW_SOFT_LOCKS_LIST_SUFFIX               = "newSoftLocks";
 
-  private static final String DEFAULT_ASYNC_LOCK                       = "__DEFAULT__ASYNC__LOCK__";
-  private static final String ASYNC                                    = "async";
-  private static final String ASYNC_CONFIG_MAP                         = ASYNC + DELIMITER + "asyncConfigMap";
+  private static final String ASYNC_CONFIG_MAP                         = "asyncConfigMap";
   private static final String CLUSTERED_STORE_CONFIG_MAP               = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
 
   private static final String EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME    = EHCACHE_NAME_PREFIX + DELIMITER
@@ -255,13 +253,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public String getFullAsyncName(Ehcache cache) {
     String cacheMgrName = getCacheManagerName(cache);
     String cacheName = cache.getName();
-    String fullAsyncName = cacheMgrName + DELIMITER + cacheName + DELIMITER + ASYNC;
+    String fullAsyncName = cacheMgrName + DELIMITER + cacheName;
     return fullAsyncName;
-  }
-
-  @Override
-  public ToolkitLock getAsyncWriteLock() {
-    return toolkit.getLock(DEFAULT_ASYNC_LOCK);
   }
 
   @Override
