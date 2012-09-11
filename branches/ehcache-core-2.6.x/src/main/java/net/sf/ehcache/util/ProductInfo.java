@@ -16,33 +16,38 @@
 
 package net.sf.ehcache.util;
 
-import net.sf.ehcache.CacheException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import net.sf.ehcache.CacheException;
+
 /**
  * Build properties of the product
- * 
+ *
  * @author hhuynh
- * 
+ *
  */
 public class ProductInfo {
-    private static final String VERSION_RESOURCE = "/ehcache-version.properties";
-    private static final String UNKNOWN = "unknown";
-    private Properties props = new Properties();
+    private static final String BIGMEMORY_VERSION_RESOURCE = "/org/terracotta/bigmemory/version.properties";
+    private static final String EHCACHE_VERSION_RESOURCE = "/net/sf/ehcache/version.properties";
+    private static final String UNKNOWN = "UNKNOWN";
+    private final Properties props = new Properties();
 
     /**
      * Construct a default product info
      */
     public ProductInfo() {
-        this(VERSION_RESOURCE);
+        if (ProductInfo.class.getResource(BIGMEMORY_VERSION_RESOURCE) != null) {
+            parseProductInfo(BIGMEMORY_VERSION_RESOURCE);
+        } else {
+            parseProductInfo(EHCACHE_VERSION_RESOURCE);
+        }
     }
 
     /**
      * Construct product info object from a resource name
-     * 
+     *
      * @param resource
      */
     public ProductInfo(String resource) {
@@ -60,6 +65,14 @@ public class ProductInfo {
             props.load(resource);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (resource != null) {
+                try {
+                    resource.close();
+                } catch (IOException e) {
+                    //
+                }
+            }
         }
     }
 
@@ -74,16 +87,16 @@ public class ProductInfo {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-          try {
-            in.close();
-          } catch (IOException e2) {
-            // ignore
-          }
-        } 
+            try {
+                in.close();
+            } catch (IOException e2) {
+                // ignore
+            }
+        }
     }
 
     /**
-     * 
+     *
      * @return product name
      */
     public String getName() {
@@ -91,7 +104,7 @@ public class ProductInfo {
     }
 
     /**
-     * 
+     *
      * @return version
      */
     public String getVersion() {
@@ -99,23 +112,23 @@ public class ProductInfo {
     }
 
     /**
-     * 
+     *
      * @return the person who built
      */
     public String getBuiltBy() {
         return props.getProperty("built-by", UNKNOWN);
     }
-    
+
     /**
-     * 
+     *
      * @return the hostname
      */
     public String getBuildHostname() {
         return props.getProperty("build-hostname", UNKNOWN);
-    } 
+    }
 
     /**
-     * 
+     *
      * @return jdk that was used
      */
     public String getBuildJdk() {
@@ -123,7 +136,7 @@ public class ProductInfo {
     }
 
     /**
-     * 
+     *
      * @return build timestamp
      */
     public String getBuildTime() {
@@ -131,7 +144,7 @@ public class ProductInfo {
     }
 
     /**
-     * 
+     *
      * @return revision
      */
     public String getBuildRevision() {
@@ -139,7 +152,7 @@ public class ProductInfo {
     }
 
     /**
-     * 
+     *
      * @return patch number
      */
     public String getPatchLevel() {
@@ -177,24 +190,19 @@ public class ProductInfo {
 
         String coreVersion = coreProductInfo.getVersion();
         if (!coreVersion.equals(requiredCoreVersion)) {
-            String msg = getName() + " version [" + getVersion() + "] only works with ehcache-core version [" +
-                    requiredCoreVersion + "] (found version [" + coreVersion + "] on the classpath). " +
-                    " Please make sure both versions are compatible!";
+            String msg = getName() + " version [" + getVersion() + "] only works with ehcache-core version [" + requiredCoreVersion
+                    + "] (found version [" + coreVersion + "] on the classpath). " + " Please make sure both versions are compatible!";
             throw new CacheException(msg);
         }
     }
-
 
     /**
      * returns long version of the build string
      */
     @Override
     public String toString() {
-        String versionString = String
-                .format(
-                        "%s version %s was built on %s, at revision %s, with jdk %s by %s@%s",
-                        getName(), getVersion(), getBuildTime(),
-                        getBuildRevision(), getBuildJdk(), getBuiltBy(), getBuildHostname());
+        String versionString = String.format("%s version %s was built on %s, at revision %s, with jdk %s by %s@%s", getName(),
+                getVersion(), getBuildTime(), getBuildRevision(), getBuildJdk(), getBuiltBy(), getBuildHostname());
         if (!UNKNOWN.equals(getPatchLevel())) {
             versionString = versionString + ". Patch level " + getPatchLevel();
         }

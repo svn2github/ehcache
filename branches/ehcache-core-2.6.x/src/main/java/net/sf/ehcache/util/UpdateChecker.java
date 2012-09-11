@@ -143,7 +143,7 @@ public class UpdateChecker extends TimerTask {
         sb.append("&platform=");
         sb.append(urlEncode(getProperty("os.arch")));
         sb.append("&tc-version=");
-        sb.append(UNKNOWN);
+        sb.append(productInfo.getVersion());
         sb.append("&tc-product=");
         sb.append(urlEncode(productInfo.getName() + " " + productInfo.getVersion()));
         sb.append("&source=");
