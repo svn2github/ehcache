@@ -1,5 +1,6 @@
 /*
- * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
+ * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
+ * notice. All rights reserved.
  */
 package org.terracotta.ehcache.tests;
 
@@ -11,21 +12,22 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BasicWriteBehindTest extends AbstractCacheTestBase {
+public class BasicWriteBehindDeadBucketTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
 
-  public BasicWriteBehindTest(TestConfig testConfig) {
-    super("basic-writebehind-test.xml", testConfig, BasicWriteBehindTestClient.class);
+  public BasicWriteBehindDeadBucketTest(TestConfig testConfig) {
+    super("basic-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
+    testConfig.getClientConfig().setParallelClients(false);
   }
 
   @Override
   protected void postClientVerification() {
     System.out.println("[Clients processed a total of " + totalWriteCount + " writes]");
-    if (totalWriteCount < 1000) { throw new AssertionError(totalWriteCount); }
+    if (totalWriteCount < 1001 || totalWriteCount > 1900) { throw new AssertionError(totalWriteCount); }
 
     System.out.println("[Clients processed a total of " + totalDeleteCount + " deletes]");
-    if (totalDeleteCount < 100) { throw new AssertionError(totalDeleteCount); }
+    if (totalDeleteCount < 101 || totalDeleteCount > 190) { throw new AssertionError(totalDeleteCount); }
   }
 
   @Override
