@@ -11,7 +11,11 @@
             <param name="ConversionPattern" value="%d{ABSOLUTE} {%8.8t} [%-5p,%-10c{1}] %m%n"/>
         </layout>
     </appender>
-
+    
+    <category name="org.terracotta.modules.ehcache.async">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </category>
 
     <category name="bitronix">
         <level value="INFO"/>

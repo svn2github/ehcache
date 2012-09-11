@@ -4,10 +4,6 @@
  */
 package org.terracotta.ehcache.tests;
 
-import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
-import org.terracotta.modules.ehcache.async.ProcessingBucket;
-
-import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
@@ -23,8 +19,6 @@ public class CoalescingDeadBucketWriteBehindTest extends AbstractCacheTestBase {
   public CoalescingDeadBucketWriteBehindTest(TestConfig testConfig) {
     super("coalescing-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
     testConfig.getClientConfig().setParallelClients(false);
-    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
-    configureTCLogging(ProcessingBucket.class.getName(), LogLevel.DEBUG);
   }
 
   @Override
