@@ -300,7 +300,6 @@ public class ProcessingBucket<E extends Serializable> {
       } else {
         processListSnapshot();
       }
-
       if (toolkitList.isEmpty() && stopState == STOP_STATE.STOP_REQUESTED) {
         signalStop();
       }
@@ -318,6 +317,9 @@ public class ProcessingBucket<E extends Serializable> {
 
   private void processListSnapshot() throws ProcessingException {
     int size = toolkitList.size();
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(getThreadName() + " : processListSnapshot(): size " + size + " quarantined items");
+    }
     while (size-- > 0) {
       processSingleItem();
     }

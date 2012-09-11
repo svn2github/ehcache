@@ -38,10 +38,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private static final Logger             LOGGER                                               = LoggerFactory
                                                                                                    .getLogger(AsyncCoordinatorImpl.class
                                                                                                        .getName());
-  private static final String             HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME = "com.tc.async.honorWorkDelayForProcessingDeadNodes";
-  // will be false by default
-  private static final boolean            HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES           = Boolean
-                                                                                                   .getBoolean(HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES_PROP_NAME);
   private static final String             BUCKET                                               = "bucket";
   private static final String             DELIMITER                                            = ToolkitInstanceFactoryImpl.DELIMITER;
   private final String                    name;
@@ -295,34 +291,17 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     try {
       if (status == Status.STARTED) {
         Set<String> oldListNames = bucketMetaInfoHandler.transferAllListsFromNode(deadNode);
-        AsyncConfig deadNodeConfig = createDeadNodeConfig();
-        startProcessingDeadNodeBuckets(deadNodeConfig, oldListNames, deadNode);
+        startProcessingDeadNodeBuckets(oldListNames, deadNode);
       }
     } finally {
       commonAsyncLock.unlock();
     }
   }
 
-  private AsyncConfig createDeadNodeConfig() {
-    AsyncConfig deadNodeProcessingConfig = new AsyncConfigAdapter(config) {
-
-      @Override
-      public long getWorkDelay() {
-        if (HONOR_WORK_DELAY_FOR_PROCESSING_DEAD_NODES) {
-          return super.getWorkDelay();
-        } else {
-          return 0;
-        }
-      }
-
-    };
-    return deadNodeProcessingConfig;
-  }
-
-  private void startProcessingDeadNodeBuckets(AsyncConfig deadNodeProcessingConfig, Set<String> oldListNames, String deadNode) {
+  private void startProcessingDeadNodeBuckets(Set<String> oldListNames, String deadNode) {
     long totalItems = 0;
     for (String bucketName : oldListNames) {
-      ProcessingBucket<E> bucket = createBucket(bucketName, deadNodeProcessingConfig, true);
+      ProcessingBucket<E> bucket = createBucket(bucketName, this.config, true);
       deadBuckets.add(bucket);
       totalItems += bucket.getWaitCount();
       startBucket(bucket, true);
