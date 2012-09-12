@@ -48,45 +48,6 @@
       <scope>test</scope>
     </dependency> 
   </dependencies>
-  
-  <build>
-    <plugins>
-      <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.9.1</version>
-          <dependencies>
-            <dependency>
-              <groupId>${checkstyle-groupId}</groupId>
-              <artifactId>${checkstyle-artifactId}</artifactId>
-              <version>${checkstyle-version}</version>
-            </dependency>
-          </dependencies>
-          <configuration>
-            <configLocation>${checkstyle-config-file}</configLocation>
-            <headerLocation>${checkstyle-header-file}</headerLocation>
-            <encoding>UTF-8</encoding>
-            <suppressionsLocation>${checkstyle-suppressions-file}</suppressionsLocation>
-            <consoleOutput>true</consoleOutput>
-            <failsOnError>true</failsOnError>
-            <failOnViolation>true</failOnViolation>
-            <includeTestSourceDirectory>false</includeTestSourceDirectory>
-            <enableRulesSummary>true</enableRulesSummary>
-            <linkXRef>false</linkXRef>
-            <skip>${skipCheckstyle}</skip>
-          </configuration>
-          <executions>
-            <execution>
-              <id>run-checkstyle</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>checkstyle</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-    </plugins>
-  </build>
 
   <repositories>
     <repository>
