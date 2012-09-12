@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -697,6 +698,11 @@ public class ClusteredStore implements TerracottaStore {
   // tests assert on the log msg printed
   private static String getConcurrencyValueLogMsg(String name, int concurrency) {
     return "Cache [" + name + "] using concurrency: " + concurrency;
+  }
+
+  // used in tests
+  Toolkit getInternalToolkit() {
+    return toolkitInstanceFactory.getToolkit();
   }
 
 }

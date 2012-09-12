@@ -6,11 +6,13 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
+import org.terracotta.modules.ehcache.store.ToolkitClientAccessor;
 import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFactory;
 import org.terracotta.toolkit.ToolkitInstantiationException;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
+import org.terracotta.toolkit.internal.ToolkitInternal;
 
 import java.util.concurrent.BrokenBarrierException;
 
@@ -91,10 +93,15 @@ public abstract class ClientBase extends AbstractClientBase {
 
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
 
-  // work around for ManagerUtil.waitForAllCurrentTransactionsToComplete()
   public void waitForAllCurrentTransactionsToComplete(Cache cache) {
-    // Use getSize() until DEV-8034
-    cache.getSize();
+    Toolkit internalToolkit = ToolkitClientAccessor.getInternalToolkitClient(cache);
+    if (internalToolkit != null) {
+      waitForAllCurrentTransactionsToComplete(internalToolkit);
+    }
+  }
+
+  public void waitForAllCurrentTransactionsToComplete(Toolkit toolkitParam) {
+    ((ToolkitInternal) toolkitParam).waitUntilAllTransactionsComplete();
   }
 
 }
