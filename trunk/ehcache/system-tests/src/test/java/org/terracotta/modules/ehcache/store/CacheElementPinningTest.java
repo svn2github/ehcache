@@ -14,11 +14,11 @@ import com.tc.test.config.model.TestConfig;
 
 import junit.framework.Assert;
 
-public class CachePinningTest extends AbstractCacheTestBase {
+public class CacheElementPinningTest extends AbstractCacheTestBase {
 
   private static final int ELEMENT_COUNT = 1000;
 
-  public CachePinningTest(TestConfig testConfig) {
+  public CacheElementPinningTest(TestConfig testConfig) {
     super("cache-pinning-test.xml", testConfig, App.class);
   }
 
@@ -29,14 +29,16 @@ public class CachePinningTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-
-      System.out.println("Testing with Strong tier pinned cache");
-      runBasicPinningTest(cacheManager.getCache("pinned"));
-      System.out.println("Testing with Eventual tier pinned cache");
-      runBasicPinningTest(cacheManager.getCache("pinnedEventual"));
+      System.out.println("Testing element pinning with Strong cache");
+      runBasicElementPinningTest(cacheManager.getCache("pinnedElementStrong"));
+      System.out.println("Testing element with Eventual cache");
+      runBasicElementPinningTest(cacheManager.getCache("pinnedElementEventual"));
     }
 
-    private void runBasicPinningTest(Cache cache) {
+    private void runBasicElementPinningTest(Cache cache) {
+      for (int i = 0; i < ELEMENT_COUNT; i++) {
+        cache.setPinned(i, true);
+      }
       for (int i = 0; i < ELEMENT_COUNT; i++) {
         cache.put(new Element(i, i));
       }
@@ -44,7 +46,7 @@ public class CachePinningTest extends AbstractCacheTestBase {
       Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
 
       for (int i = 0; i < ELEMENT_COUNT; i++) {
-        Assert.assertNotNull(cache.get(i));
+        assertNotNull(cache.get(i));
       }
 
       Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
@@ -52,7 +54,20 @@ public class CachePinningTest extends AbstractCacheTestBase {
       Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
       Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
       Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
-    }
 
+      for (int i = 0; i < ELEMENT_COUNT; i++) {
+        cache.setPinned(i, false);
+      }
+      // Elements will be evicted from cache. doing gets now will go to L2.
+      for (int i = 1001; i < 1010; i++) {
+        cache.put(new Element(i, i));
+      }
+      for (int i = 0; i < ELEMENT_COUNT; i++) {
+        assertNotNull(cache.get(i));
+      }
+      Assert.assertTrue(2 * ELEMENT_COUNT > cache.getStatistics().getInMemoryHits());
+      Assert.assertTrue(0 < cache.getStatistics().getInMemoryMisses());
+      Assert.assertTrue(0 < cache.getStatistics().getOnDiskHits());
+    }
   }
 }

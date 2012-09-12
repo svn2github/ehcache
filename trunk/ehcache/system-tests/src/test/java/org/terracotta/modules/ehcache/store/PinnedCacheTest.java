@@ -16,6 +16,9 @@ import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
+import com.tc.l2.L2DebugLogging.LogLevel;
+import com.tc.object.servermap.localcache.impl.ServerMapLocalCacheImpl;
+import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 
 public class PinnedCacheTest extends AbstractCacheTestBase {
@@ -24,6 +27,8 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
   public PinnedCacheTest(TestConfig testConfig) {
     super(testConfig, PinnedCacheTestApp.class, PinnedCacheTestApp.class);
     testConfig.addTcProperty("l2.servermap.eviction.clientObjectReferences.refresh.interval", "1");
+    testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
+    configureTCLogging(ServerMapLocalCacheImpl.class.getName(), LogLevel.DEBUG);
   }
 
   public static class PinnedCacheTestApp extends ClientBase {
@@ -43,7 +48,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       int nodeId = barrier.await();
       Thread.currentThread().setName("Node[" + nodeId + "]");
       Cache pinnedInCache = new Cache(new CacheConfiguration().name("pinnedInCache")
-          .terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(100)
+          .terracotta(new TerracottaConfiguration().concurrency(256)).maxEntriesLocalHeap(1)
           .pinning(new PinningConfiguration().store("inCache")));
 
       // Do this to establish an order, node0 will add to cache first.

@@ -2,17 +2,29 @@
 
 <ehcache name="test">
 
-  <defaultCache
-      maxElementsInMemory="10000"
-      eternal="true"/>
+  	<defaultCache maxElementsInMemory="10000" eternal="true" />
 
-  <cache name="pinned"
-         maxElementsInMemory="10"
-         eternal="true"
-         statistics="true">
-         <pinning store="localHeap"/>
-         <terracotta clustered="true" consistency="strong"/>
-  </cache>
+	<cache name="pinned" maxElementsInMemory="10" maxElementsOnDisk="100"
+		eternal="true" statistics="true">
+		<pinning store="localHeap" />
+		<terracotta clustered="true" consistency="strong" />
+	</cache>
+
+	<cache name="pinnedEventual" maxElementsInMemory="10"
+		maxElementsOnDisk="100" eternal="true" statistics="true">
+		<pinning store="localHeap" />
+		<terracotta clustered="true" consistency="eventual" />
+	</cache>
+
+	<cache name="pinnedElementEventual" maxElementsInMemory="10"
+		maxElementsOnDisk="100" eternal="true" statistics="true">
+		<terracotta clustered="true" consistency="eventual" />
+	</cache>
+
+	<cache name="pinnedElementStrong" maxElementsInMemory="10"
+		maxElementsOnDisk="100" eternal="true" statistics="true">
+		<terracotta clustered="true" consistency="strong" />
+	</cache>
   
   <terracottaConfig url="localhost:PORT"/>  
 </ehcache>
