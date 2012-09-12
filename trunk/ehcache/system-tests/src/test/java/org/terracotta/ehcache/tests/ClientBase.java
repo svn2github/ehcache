@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import org.terracotta.modules.ehcache.store.ToolkitClientAccessor;
+import org.terracotta.modules.ehcache.ToolkitClientAccessor;
 import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFactory;
@@ -94,8 +94,9 @@ public abstract class ClientBase extends AbstractClientBase {
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
 
   public void waitForAllCurrentTransactionsToComplete(Cache cache) {
-    Toolkit internalToolkit = ToolkitClientAccessor.getInternalToolkitClient(cache);
-    if (internalToolkit != null) {
+    // Only do waitFor All Txn for Clustered Caches
+    if (cache.getCacheConfiguration().isTerracottaClustered()) {
+      Toolkit internalToolkit = ToolkitClientAccessor.getInternalToolkitClient(cache);
       waitForAllCurrentTransactionsToComplete(internalToolkit);
     }
   }

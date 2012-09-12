@@ -1,7 +1,7 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.modules.ehcache.store;
+package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheStoreAccessor;
@@ -14,12 +14,11 @@ public class ToolkitClientAccessor {
   public static Toolkit getInternalToolkitClient(Cache cache) {
     CacheStoreAccessor storeAccessor = CacheStoreAccessor.newCacheStoreAccessor(cache);
     Store store = storeAccessor.getStore();
-    if (store instanceof ClusteredStore) {
-      return ((ClusteredStore) store).getInternalToolkit();
-    } else {
-      // Return null for non-clustered stores
-      return null;
-    }
+    Object internalContext = store.getInternalContext();
+    if (!(internalContext instanceof ToolkitLookup)) throw new AssertionError(
+                                                                              "Toolkit can only be looked up for Clustered Caches");
+    return ((ToolkitLookup) internalContext).getToolkit();
+
   }
 
 }
