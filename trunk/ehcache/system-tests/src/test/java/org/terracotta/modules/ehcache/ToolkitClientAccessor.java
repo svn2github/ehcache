@@ -4,20 +4,27 @@
 package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheStoreAccessor;
-import net.sf.ehcache.store.Store;
+import net.sf.ehcache.CacheAccessor;
+import net.sf.ehcache.store.TerracottaStore;
 
 import org.terracotta.toolkit.Toolkit;
 
 public class ToolkitClientAccessor {
 
   public static Toolkit getInternalToolkitClient(Cache cache) {
-    CacheStoreAccessor storeAccessor = CacheStoreAccessor.newCacheStoreAccessor(cache);
-    Store store = storeAccessor.getStore();
-    Object internalContext = store.getInternalContext();
-    if (!(internalContext instanceof ToolkitLookup)) throw new AssertionError(
-                                                                              "Toolkit can only be looked up for Clustered Caches");
-    return ((ToolkitLookup) internalContext).getToolkit();
+    if (cache.getCacheConfiguration().isTerracottaClustered()) {
+      CacheAccessor storeAccessor = CacheAccessor.newCacheAccessor(cache);
+      TerracottaStore store = storeAccessor.getNonstopActiveDelegateHolder().getUnderlyingTerracottaStore();
+      Object internalContext = store.getInternalContext();
+      if (internalContext instanceof ToolkitLookup) {
+        return ((ToolkitLookup) internalContext).getToolkit();
+      } else {
+        throw new AssertionError("Internal context of cache '" + cache.getName() + "' is not of type ToolkitLookup");
+      }
+    } else {
+      throw new AssertionError("Toolkit can only be looked up for Clustered Caches - unclustered ehcache name: "
+                               + cache.getName());
+    }
 
   }
 
