@@ -27,11 +27,6 @@ import java.util.concurrent.TimeUnit;
 public class RefreshAheadCacheConfiguration implements Cloneable {
 
     /**
-     * Properties key for the refresh quietly attribute
-     */
-    public static final String REFRESH_QUIETLY_KEY = "refreshQuietly";
-
-    /**
      * Properties key for the batch size attribute
      */
     public static final String BATCH_SIZE_KEY = "batchSize";
@@ -68,7 +63,6 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
     private long timeToRefreshSeconds = Long.MAX_VALUE;
     private long timeToRefreshMillis = 0L;
     private int maximumRefreshBacklogItems = DEFAULT_BACKLOG_MAX;
-    private boolean refreshQuietly = false;
     private int batchSize = DEFAULT_BATCHSIZE;
     private boolean nullRefreshEvicts = false;
     private int numberOfThreads = DEFAULT_NUMBER_THREADS;
@@ -103,8 +97,6 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
                     setNumberOfThreads(Integer.parseInt(stringValue));
                 } else if (BATCH_SIZE_KEY.equals(property)) {
                     setBatchSize(Integer.parseInt(stringValue));
-                } else if (REFRESH_QUIETLY_KEY.equals(property)) {
-                    setRefreshQuietly(Boolean.parseBoolean(stringValue));
                 } else if (NULL_REFRESH_EVICTS.equals(property)) {
                     setNullRefreshEvicts(Boolean.parseBoolean(stringValue));
                 } else if (MAX_BACKLOG.equals(property)) {
@@ -126,7 +118,6 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
         Properties p = new Properties();
         p.setProperty(NAME_KEY, getName());
         p.setProperty(NUMBER_OF_THREADS_KEY, Long.toString(getNumberOfThreads()));
-        p.setProperty(REFRESH_QUIETLY_KEY, Boolean.toString(isRefreshQuietly()));
         p.setProperty(TIME_TO_REFRESH_SECONDS_KEY, Long.toString(getTimeToRefreshSeconds()));
         p.setProperty(BATCH_SIZE_KEY, Long.toString(getBatchSize()));
         p.setProperty(NULL_REFRESH_EVICTS, Boolean.toString(isNullRefreshEvicts()));
@@ -287,35 +278,6 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
      */
     public RefreshAheadCacheConfiguration batchSize(int batchSize) {
         setBatchSize(batchSize);
-        return this;
-    }
-
-    /**
-     * Get whether the refreshing operation will be done via
-     * {@link Ehcache#putQuiet(net.sf.ehcache.Element)} or not.
-     * @return true if putQuiet() is to be used.
-     */
-    public boolean isRefreshQuietly() {
-        return refreshQuietly;
-    }
-
-    /**
-     * Set whether the refreshing operation will be done via
-     * {@link Ehcache#putQuiet(net.sf.ehcache.Element)} or not.
-     * @param refreshQuietly true to use putQuiet()
-     */
-    public void setRefreshQuietly(boolean refreshQuietly) {
-        valid = false;
-        this.refreshQuietly = refreshQuietly;
-    }
-
-    /**
-     * Fluently set whether the refreshing operation will be done via
-     * {@link Ehcache#putQuiet(net.sf.ehcache.Element)} or not.
-     * @param refreshQuietly true to use putQuiet()
-     */
-    public RefreshAheadCacheConfiguration refreshQuietly(boolean refreshQuietly) {
-        setRefreshQuietly(refreshQuietly);
         return this;
     }
 
