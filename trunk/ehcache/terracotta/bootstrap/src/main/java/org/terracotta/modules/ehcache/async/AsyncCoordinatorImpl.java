@@ -178,7 +178,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     // checking if there are any dead nodes and starting threads for those buckets also
     Set<String> deadNodes = bucketMetaInfoHandler.deadNodesWithListsToProcess(name, cluster, toolkitInstanceFactory);
     for (String otherNodeNameListKey : deadNodes) {
-      processOtherNode(otherNodeNameListKey);
+      processDeadNode(otherNodeNameListKey);
     }
   }
 
@@ -276,7 +276,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       switch (event.getType()) {
         case NODE_LEFT:
           String otherNodeNameListKey = getAsyncNodeName(name, event.getNode());
-          processOtherNode(otherNodeNameListKey);
+          processDeadNode(otherNodeNameListKey);
           break;
         default:
           break;
@@ -285,7 +285,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   }
 
-  private void processOtherNode(String deadNode) {
+  private void processDeadNode(String deadNode) {
     commonAsyncLock.lock();
     try {
       if (status == Status.STARTED) {
@@ -305,8 +305,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       totalItems += bucket.getWaitCount();
       startBucket(bucket, true);
     }
-    if(LOGGER.isDebugEnabled()) {
-      LOGGER.debug("startProcessingDeadNodeBuckets(): taken " + totalItems + " items from deadNode " + deadNode);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("startProcessingDeadNodeBuckets():" + nodeName + " taken " + totalItems + " items from " + deadNode);
     }
   }
 
@@ -325,16 +325,25 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   @Override
   public long getQueueSize() {
+    long size = 0;
     nodeReadLock.lock();
     try {
       status.checkRunning();
-      long size = 0;
       for (ProcessingBucket<E> bucket : localBuckets) {
+        size += bucket.getWaitCount();
+      }
+    } finally {
+      nodeReadLock.unlock();
+    }
+
+    commonAsyncLock.lock();
+    try {
+      for (ProcessingBucket<E> bucket : deadBuckets) {
         size += bucket.getWaitCount();
       }
       return size;
     } finally {
-      nodeReadLock.unlock();
+      commonAsyncLock.unlock();
     }
   }
 

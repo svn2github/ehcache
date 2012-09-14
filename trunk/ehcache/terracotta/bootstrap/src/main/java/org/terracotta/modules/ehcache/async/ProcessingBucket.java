@@ -198,6 +198,12 @@ public class ProcessingBucket<E extends Serializable> {
     return batchSize;
   }
 
+  private void debug(String string) {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(string);
+    }
+  }
+
   private void filterQuarantined() {
     if (null == filter) { return; }
 
@@ -205,15 +211,11 @@ public class ProcessingBucket<E extends Serializable> {
     try {
       ItemsFilter<E> itemsFilter = this.filter;
       if (itemsFilter != null) {
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug(getThreadName() + " : filterQuarantined(): filtering " + toolkitList.size()
+        debug(getThreadName() + " : filterQuarantined(): filtering " + toolkitList.size()
                        + " quarantined items");
-        }
         itemsFilter.filter(toolkitList);
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug(getThreadName() + " : filterQuarantined(): retained " + toolkitList.size()
+        debug(getThreadName() + " : filterQuarantined(): retained " + toolkitList.size()
                        + " quarantined items");
-        }
       }
     } finally {
       bucketWriteLock.unlock();
@@ -317,9 +319,7 @@ public class ProcessingBucket<E extends Serializable> {
 
   private void processListSnapshot() throws ProcessingException {
     int size = toolkitList.size();
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(getThreadName() + " : processListSnapshot(): size " + size + " quarantined items");
-    }
+    debug(getThreadName() + " : processListSnapshot(): size " + size + " quarantined items");
     while (size-- > 0) {
       processSingleItem();
     }
@@ -438,7 +438,9 @@ public class ProcessingBucket<E extends Serializable> {
               processItems();
             } catch (final Throwable e) {
               if (cluster.areOperationsEnabled()) {
-                LOGGER.error(bucketName + " " + e);
+                if (!e.getClass().getName().equals("com.tc.exception.TCNotRunningException")) {
+                  LOGGER.error(bucketName + " " + e);
+                }
               } else {
                 LOGGER.warn("Caught error on processing items, but looks like we were shut down. "
                             + "This can probably be safely ignored", e);
