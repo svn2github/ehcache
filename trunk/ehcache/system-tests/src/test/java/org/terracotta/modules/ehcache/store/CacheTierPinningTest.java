@@ -14,11 +14,11 @@ import com.tc.test.config.model.TestConfig;
 
 import junit.framework.Assert;
 
-public class CachePinningTest extends AbstractCacheTestBase {
+public class CacheTierPinningTest extends AbstractCacheTestBase {
 
   private static final int ELEMENT_COUNT = 1000;
 
-  public CachePinningTest(TestConfig testConfig) {
+  public CacheTierPinningTest(TestConfig testConfig) {
     super("cache-pinning-test.xml", testConfig, App.class);
   }
 

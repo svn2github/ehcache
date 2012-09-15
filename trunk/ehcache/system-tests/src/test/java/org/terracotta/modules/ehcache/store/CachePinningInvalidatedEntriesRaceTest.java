@@ -35,11 +35,11 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
       basicTestInvalidatedEntries(cacheManager.getCache("pinned"), true);
       System.out.println("Testing with Eventual tier pinned cache");
       basicTestInvalidatedEntries(cacheManager.getCache("pinnedEventual"), true);
-      // Commented until DEV-8106
-      // System.out.println("Testing with Eventual element pinned cache");
-      // basicTestInvalidatedEntries(cacheManager.getCache("pinnedElementEventual"), false);
-      // System.out.println("Testing with Strong element pinned cache");
-      // basicTestInvalidatedEntries(cacheManager.getCache("pinnedElementStrong"), false);
+
+      System.out.println("Testing with Eventual element pinned cache");
+      basicTestInvalidatedEntries(cacheManager.getCache("pinnedElementEventual"), false);
+      System.out.println("Testing with Strong element pinned cache");
+      basicTestInvalidatedEntries(cacheManager.getCache("pinnedElementStrong"), false);
 
     }
 
@@ -61,13 +61,11 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
           assertEquals(cache.get(getKey(i)).getValue(), getValue(i));
         }
         // All the gets on both the clients should be local as the pinned entries would have been faulted.
-        if (index == 0) {
-          Assert.assertEquals(ELEMENT_COUNT * 2, cache.getStatistics().getInMemoryHits());
-          Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-          Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
-          Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
-          Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
-        }
+        Assert.assertEquals(ELEMENT_COUNT * 2, cache.getStatistics().getInMemoryHits());
+        Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
+        Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
+        Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
+        Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
       }
       getBarrierForAllClients().await();
       if (index == 1) {
