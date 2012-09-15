@@ -105,7 +105,7 @@ public class InCollection extends BaseCriteria {
             return false;
         }
 
-        Object attrValue = attributeExtractors.get(attributeName).attributeFor(e, attributeName);
+        Object attrValue = getExtractor(attributeName, attributeExtractors).attributeFor(e, attributeName);
         if (attrValue == null) {
             return false;
         } else {
