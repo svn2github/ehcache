@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>management-ehcache-impl-parent</artifactId>
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
-  
+
   <groupId>net.sf.ehcache.internal</groupId>
   <artifactId>ehcache-rest-agent</artifactId>
   <name>ehcache-rest-agent</name>
-  
+
   <description>Ehcache REST implementation</description>
 
   <properties>
@@ -31,7 +31,7 @@
       <version>7.6.4.v20120524</version>
     </dependency>
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -39,13 +39,22 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>1.6</version>
         <configuration>
-        <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+          <shadedArtifactAttached>false</shadedArtifactAttached>
+          <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
           <artifactSet>
             <excludes>
               <!-- excludes already existing classes in the main classpath -->
               <exclude>org.slf4j:*</exclude>
             </excludes>
           </artifactSet>
+          <filters>
+            <filter>
+              <artifact>org.eclipse.jetty:*</artifact>
+              <excludes>
+                <exclude>org/eclipse/jetty/continuation/**</exclude>
+              </excludes>
+            </filter>
+          </filters>          
           <transformers>
             <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
           </transformers>
@@ -60,42 +69,27 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.github.goldin</groupId>
-        <artifactId>copy-maven-plugin</artifactId>
-        <version>0.2.3.8</version>
-        <executions>
-          <!-- assemble kit content -->
+        <groupId>org.codehaus.gmaven</groupId>
+        <artifactId>gmaven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>       
           <execution>
-            <id>orig</id>
+            <id>fix-content</id>
             <phase>package</phase>
             <goals>
-              <goal>copy</goal>
+              <goal>execute</goal>
             </goals>
             <configuration>
-              <verbose>true</verbose>
-              <resources>
-                <resource>
-                  <targetPath>${project.build.outputDirectory}/${private-classpath}</targetPath>
-                  <file>${project.build.directory}/${project.build.finalName}.jar</file>
-                  <unpack>true</unpack>
-                </resource>
-                <resource>
-                  <targetPath>${project.build.outputDirectory}/META-INF/</targetPath>
-                  <file>${project.build.outputDirectory}/${private-classpath}/META-INF/MANIFEST.MF</file>
-                </resource>
-                <resource>
-                  <!-- special step for jboss as, DEV-8100 : jboss will log errors if it finds jetty continuation classes  -->
-				  <targetPath>${project.build.directory}/filtered</targetPath>
-				  <directory>${project.build.outputDirectory}</directory>
-				  <exclude>${private-classpath}/org/eclipse/jetty/continuation/Jetty6Continuation.class, ${private-classpath}/org/eclipse/jetty/continuation/Servlet3Continuation*.class, ${private-classpath}/org/eclipse/jetty/continuation/FauxContinuation.class</exclude>
-				  <preservePath>true</preservePath>
-				</resource>
-                <resource>
-                  <targetPath>${project.build.directory}/${project.build.finalName}.jar</targetPath>
-                  <directory>${project.build.directory}/filtered</directory>
-                  <pack>true</pack>
-                </resource>
-              </resources>
+              <source>
+                def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
+                def dest = new File(project.build.outputDirectory, "${private-classpath}")
+                ant.unzip(src : jarFile, dest: dest)
+                ant.copy(todir: new File(project.build.outputDirectory, "META-INF")) {
+                  fileset(dir: new File(dest, "META-INF")) {
+                    exclude(name: "**/maven/**")
+                  }
+                }
+              </source>
             </configuration>
           </execution>
         </executions>
@@ -111,10 +105,18 @@
             </manifest>
           </archive>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
-  
+
   <repositories>
     <repository>
       <id>terracotta-snapshots</id>
