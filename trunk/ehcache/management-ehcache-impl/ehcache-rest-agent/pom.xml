@@ -74,6 +74,20 @@
         <version>1.4</version>
         <executions>       
           <execution>
+            <id>cleanup</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <source>
+                ant.delete() {
+                  fileset(dir: project.build.directory, includes: "**/*.jar, **/classes/**")
+                }
+              </source>
+            </configuration>
+          </execution>
+          <execution>
             <id>fix-content</id>
             <phase>package</phase>
             <goals>
