@@ -2,22 +2,25 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-import net.sf.ehcache.util.RetryAssert;
-import org.hamcrest.core.Is;
+
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.CoreMatchers.is;
+import static net.sf.ehcache.config.MemoryUnit.KILOBYTES;
+import static net.sf.ehcache.config.MemoryUnit.MEGABYTES;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -26,12 +29,11 @@ import static org.junit.Assert.assertThat;
 public class DiskStoreBootstrapCacheLoaderFactoryTest {
 
     private static final int ELEMENTS_ON_DISK = 500;
-    private static final int LOADER_DELAY = 500;
     private CacheManager manager;
     private Cache cacheElementCountBound;
     private Cache cacheSizeBound;
-    private DiskStoreBootstrapCacheLoader cacheElementCountBoundBootstrapCacheLoader;
-    private DiskStoreBootstrapCacheLoader cacheSizeBoundBootstrapCacheLoader;
+    private TestDiskStoreBootstrapCacheLoader cacheElementCountBoundBootstrapCacheLoader;
+    private TestDiskStoreBootstrapCacheLoader cacheSizeBoundBootstrapCacheLoader;
 
     public void setUp(CacheUT cut) {
         initCacheManager(cut);
@@ -57,75 +59,41 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
     public void testLoadsFromDiskWithMaxElementsInMemorySet() throws Exception {
         setUp(CacheUT.elementBased);
         DiskStoreHelper.flushAllEntriesToDisk(cacheElementCountBound).get();
-        assertThat(cacheElementCountBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
-        waitForBootstrapLoader(cacheElementCountBoundBootstrapCacheLoader);
-        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cacheElementCountBound.getDiskStoreSize();
-                }
-            }, Is.is(ELEMENTS_ON_DISK));
+        int onDiskElements = cacheElementCountBound.getDiskStoreSize();
+        cacheElementCountBoundBootstrapCacheLoader.triggerLoad();
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(100L));
         manager.shutdown();
         initCacheManager(CacheUT.elementBased);
-        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cacheElementCountBound.getDiskStoreSize();
-                }
-            }, Is.is(ELEMENTS_ON_DISK));
+        assertThat(cacheElementCountBound.getDiskStoreSize(), is(onDiskElements));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(0L));
-        waitForBootstrapLoader(cacheElementCountBoundBootstrapCacheLoader);
-        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cacheElementCountBound.getDiskStoreSize();
-                }
-            }, Is.is(ELEMENTS_ON_DISK));
+        cacheElementCountBoundBootstrapCacheLoader.triggerLoad();
+        assertThat(cacheElementCountBound.getDiskStoreSize(), is(onDiskElements));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(100L));
-        assertThat(cacheElementCountBoundBootstrapCacheLoader.getLoadedElements(), is(100));
     }
 
     @Test
     public void testLoadsFromDiskWithMaxBytesOnHeapSet() throws Exception {
         setUp(CacheUT.sizeBased);
         DiskStoreHelper.flushAllEntriesToDisk(cacheSizeBound).get();
-        assertThat(cacheSizeBound.getDiskStoreSize(), is(ELEMENTS_ON_DISK));
-        waitForBootstrapLoader(cacheSizeBoundBootstrapCacheLoader);
-        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cacheSizeBound.getDiskStoreSize();
-                }
-            }, Is.is(ELEMENTS_ON_DISK));
-        assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes() <= MemoryUnit.KILOBYTES.toBytes(220), is(true));
+        cacheSizeBoundBootstrapCacheLoader.triggerLoad();
+        int onDiskSize = cacheSizeBound.getDiskStoreSize();
+        assertThat(cacheSizeBound.getMemoryStoreSize(), greaterThan(0L));
+        assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes(), lessThanOrEqualTo(KILOBYTES.toBytes(220L)));
+        assertThat(cacheSizeBound.getDiskStoreSize(), is(onDiskSize));
         manager.shutdown();
         initCacheManager(CacheUT.sizeBased);
-        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cacheSizeBound.getDiskStoreSize();
-                }
-            }, Is.is(ELEMENTS_ON_DISK));
+        assertThat(cacheSizeBound.getDiskStoreSize(), is(onDiskSize));
         assertThat(cacheSizeBound.getMemoryStoreSize(), is(0L));
-        waitForBootstrapLoader(cacheSizeBoundBootstrapCacheLoader);
-        RetryAssert.assertBy(10, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cacheSizeBound.getDiskStoreSize();
-                }
-            }, Is.is(ELEMENTS_ON_DISK));
-        assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes() <= MemoryUnit.KILOBYTES.toBytes(220), is(true));
-    }
-
-    private int waitForBootstrapLoader(DiskStoreBootstrapCacheLoader bootstrapCacheLoader) throws InterruptedException {
-        while (!bootstrapCacheLoader.isDoneLoading()) {
-            System.err.println("Waiting for the loader to be done... Loaded " + bootstrapCacheLoader.getLoadedElements()
-                               + " elements so far");
-            Thread.sleep(LOADER_DELAY);
-        }
-        return bootstrapCacheLoader.getLoadedElements();
+        cacheSizeBoundBootstrapCacheLoader.triggerLoad();
+        assertThat(cacheSizeBound.getMemoryStoreSize(), greaterThan(0L));
+        assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes(), lessThanOrEqualTo(KILOBYTES.toBytes(220L)));
     }
 
     private void initCacheManager(CacheUT cut) {
         switch (cut) {
             case elementBased:
                 manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistent")));
-                cacheElementCountBoundBootstrapCacheLoader = new DiskStoreBootstrapCacheLoader(LOADER_DELAY);
+                cacheElementCountBoundBootstrapCacheLoader = new TestDiskStoreBootstrapCacheLoader();
                 cacheElementCountBound = new Cache(new CacheConfiguration("maxElementsInMemory", 100)
                     .eternal(true)
                     .diskPersistent(true)
@@ -135,13 +103,13 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
                 break;
             case sizeBased:
                 manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistentSize")));
-                cacheSizeBoundBootstrapCacheLoader = new DiskStoreBootstrapCacheLoader(LOADER_DELAY);
+                cacheSizeBoundBootstrapCacheLoader = new TestDiskStoreBootstrapCacheLoader();
                 cacheSizeBound = new Cache(new CacheConfiguration("maxOnHeap", 0)
                     .eternal(true)
                     .diskPersistent(true)
                     .overflowToDisk(true)
-                    .maxBytesLocalHeap(220, MemoryUnit.KILOBYTES)
-                    .maxBytesLocalDisk(300, MemoryUnit.MEGABYTES), null, cacheSizeBoundBootstrapCacheLoader);
+                    .maxBytesLocalHeap(220, KILOBYTES)
+                    .maxBytesLocalDisk(300, MEGABYTES), null, cacheSizeBoundBootstrapCacheLoader);
                 manager.addCache(cacheSizeBound);
                 cacheSizeBound.setSampledStatisticsEnabled(true);
                 break;
@@ -157,5 +125,42 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
 
     private static enum CacheUT {
         elementBased, sizeBased
+    }
+
+    static class TestDiskStoreBootstrapCacheLoader extends DiskStoreBootstrapCacheLoader {
+
+        private final CyclicBarrier before = new CyclicBarrier(2);
+        private final CyclicBarrier after = new CyclicBarrier(2);
+
+        public TestDiskStoreBootstrapCacheLoader() {
+            super(true);
+        }
+
+        @Override
+        protected void doLoad(Ehcache cache) {
+            try {
+                before.await();
+                try {
+                    super.doLoad(cache);
+                } finally {
+                    after.await();
+                }
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            } catch (BrokenBarrierException e) {
+                throw new AssertionError(e);
+            }
+        }
+
+        public void triggerLoad() {
+            try {
+                before.await();
+                after.await();
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            } catch (BrokenBarrierException e) {
+                throw new AssertionError(e);
+            }
+        }
     }
 }
