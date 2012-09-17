@@ -32,19 +32,6 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreBootstrapCacheLoader.class);
 
     private final boolean asynchronous;
-    private final long delay;
-    private volatile boolean doneLoading;
-    private volatile int loadedElements;
-
-    /**
-     * Constructor for testing purposes
-     * Will delay before starting the asynchronous load process
-     * @param delay in milliseconds
-     */
-    DiskStoreBootstrapCacheLoader(final long delay) {
-        asynchronous = true;
-        this.delay = delay;
-    }
 
     /**
      * Constructor for loader
@@ -52,7 +39,6 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
      */
     public DiskStoreBootstrapCacheLoader(final boolean asynchronous) {
         this.asynchronous = asynchronous;
-        delay = 0;
     }
 
     /**
@@ -71,17 +57,16 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
         }
     }
 
-    private void doLoad(Ehcache cache) {
-        loadedElements = 0;
-        try {
-            final Iterator iterator = cache.getKeys().iterator();
-            while (iterator.hasNext() && !isInMemoryLimitReached(cache, loadedElements)) {
-                if (cache.get(iterator.next()) != null) {
-                    ++loadedElements;
-                }
+    /**
+     * Performs bootstrap loading.  May be executed on a independent thread.
+     */
+    protected void doLoad(Ehcache cache) {
+        int loadedElements = 0;
+        final Iterator iterator = cache.getKeys().iterator();
+        while (iterator.hasNext() && !isInMemoryLimitReached(cache, loadedElements)) {
+            if (cache.get(iterator.next()) != null) {
+                ++loadedElements;
             }
-        } finally {
-            doneLoading = true;
         }
         LOG.debug("Loaded {} elements from disk into heap for cache {}", loadedElements, cache.getName());
     }
@@ -91,22 +76,6 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
      */
     public boolean isAsynchronous() {
         return asynchronous;
-    }
-
-    /**
-     * Checks whether we're done loading yet
-     * @return true if done, false if still loading
-     */
-    boolean isDoneLoading() {
-        return doneLoading;
-    }
-
-    /**
-     * Amount of elements loaded by the instance
-     * @return elements loaded
-     */
-    int getLoadedElements() {
-        return loadedElements;
     }
 
     /**
@@ -121,7 +90,7 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
      * A background daemon thread that asynchronously calls doLoad
      */
     private final class BootstrapThread extends Thread {
-        private Ehcache cache;
+        private final Ehcache cache;
 
         public BootstrapThread(Ehcache cache) {
             super("Bootstrap Thread for cache " + cache.getName());
@@ -131,21 +100,14 @@ public class DiskStoreBootstrapCacheLoader extends MemoryLimitedCacheLoader {
         }
 
         /**
-         * RemoteDebugger thread method.
+         * {@inheritDoc}
          */
         @Override
         public final void run() {
             try {
-                sleep(delay);
-                try {
-                    doLoad(cache);
-                } catch (RemoteCacheException e) {
-                    LOG.warn("Error asynchronously performing bootstrap. The cause was: " + e.getMessage(), e);
-                }
-            } catch (InterruptedException e) {
-                interrupted();
-            } finally {
-                cache = null;
+                doLoad(cache);
+            } catch (RemoteCacheException e) {
+                LOG.warn("Error asynchronously performing bootstrap. The cause was: " + e.getMessage(), e);
             }
         }
     }
