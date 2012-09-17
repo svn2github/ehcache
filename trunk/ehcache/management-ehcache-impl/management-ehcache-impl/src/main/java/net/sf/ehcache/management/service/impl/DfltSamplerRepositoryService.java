@@ -80,7 +80,7 @@ public class DfltSamplerRepositoryService
 
   private final ReadWriteLock cacheManagerSamplerRepoLock = new ReentrantReadWriteLock();
   private final ObjectName objectName;
-  private final ManagementRESTServiceConfiguration configuration;
+  protected final ManagementRESTServiceConfiguration configuration;
 
   public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration) {
     this.configuration = configuration;
@@ -116,7 +116,7 @@ public class DfltSamplerRepositoryService
    * {@inheritDoc}
    */
   @Override
-  public byte[] invoke(String ticket, String token, String methodName, Class<?>[] argsTypes, Object[] args) {
+  public byte[] invoke(String ticket, String token, String iaCallbackUrl, String methodName, Class<?>[] argsTypes, Object[] args) {
     try {
       Method method = getClass().getMethod(methodName, argsTypes);
       Object res = method.invoke(this, args);
