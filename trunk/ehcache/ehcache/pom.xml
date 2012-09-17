@@ -220,6 +220,9 @@
                 <exclude>**/META-INF/maven/net.sf.ehcache.internal/**</exclude>
                 <exclude>**/license.txt</exclude>
                 <exclude>**/thirdpartylicenses.txt</exclude>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>                  
               </excludes>
             </filter>		  
           </filters>    

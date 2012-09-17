@@ -54,6 +54,14 @@
                 <exclude>org/eclipse/jetty/continuation/**</exclude>
               </excludes>
             </filter>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>                                       
+              </excludes>
+            </filter>            
           </filters>          
           <transformers>
             <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
@@ -72,21 +80,7 @@
         <groupId>org.codehaus.gmaven</groupId>
         <artifactId>gmaven-plugin</artifactId>
         <version>1.4</version>
-        <executions>       
-          <execution>
-            <id>cleanup</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <source>
-                ant.delete() {
-                  fileset(dir: project.build.directory, includes: "**/*.jar, **/classes/**")
-                }
-              </source>
-            </configuration>
-          </execution>
+        <executions>
           <execution>
             <id>fix-content</id>
             <phase>package</phase>
@@ -96,13 +90,25 @@
             <configuration>
               <source>
                 def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
-                def dest = new File(project.build.outputDirectory, "${private-classpath}")
-                ant.unzip(src : jarFile, dest: dest)
-                ant.copy(todir: new File(project.build.outputDirectory, "META-INF")) {
-                  fileset(dir: new File(dest, "META-INF")) {
+                def packagingDir = new File(project.build.directory, "packaging")
+                def privateClasspath = new File(packagingDir, "${private-classpath}")
+                ant.delete(includeEmptyDirs: "true") {
+                  fileset(dir: packagingDir, includes: "**/*")
+                }
+                ant.mkdir(dir: privateClasspath)
+                ant.unzip(src : jarFile, dest: privateClasspath)
+                ant.copy(todir: new File(packagingDir, "META-INF")) {
+                  fileset(dir: new File(privateClasspath, "META-INF")) {
                     exclude(name: "**/maven/**")
                   }
+                  fileset(dir: new File(privateClasspath, "META-INF")) {
+                    include(name: "**/maven/${project.Id}/**")
+                  }                                
                 }
+                ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),
+                         tofile: new File(packagingDir, "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml"),
+                         overwrite: "true")
+                ant.jar(file: jarFile, basedir: packagingDir, manifest: new File(packagingDir, "META-INF/MANIFEST.MF"))
               </source>
             </configuration>
           </execution>
@@ -119,14 +125,6 @@
             </manifest>
           </archive>
         </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <phase>package</phase>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
