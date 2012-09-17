@@ -92,8 +92,10 @@
                 def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
                 def packagingDir = new File(project.build.directory, "packaging")
                 def privateClasspath = new File(packagingDir, "${private-classpath}")
-                ant.delete(includeEmptyDirs: "true") {
-                  fileset(dir: packagingDir, includes: "**/*")
+                if (packagingDir.exists()) {
+                  ant.delete(includeEmptyDirs: "true") {
+                    fileset(dir: packagingDir, includes: "**/*")
+                  }
                 }
                 ant.mkdir(dir: privateClasspath)
                 ant.unzip(src : jarFile, dest: privateClasspath)
