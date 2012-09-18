@@ -595,7 +595,17 @@ public class SelectableConcurrentHashMap {
                         postInstall(e.key, e.value, true);
                     } else if (!pinned && e.pinned) {
                         pinnedCount--;
-                        e.pinned = false;
+                        if(!e.checkAndAssertDummyPinnedEntry()) {
+                            e.pinned = false;
+                        } else {
+                            HashEntry[] tab = table;
+                            int index = hash & (tab.length - 1);
+                            HashEntry first = tab[index];
+                            tab[index] = removeAndGetFirst(e, first);
+                            --count;
+                            --numDummyPinnedKeys;
+                            ++modCount;
+                        }
                         postInstall(e.key, e.value, false);
                     }
                 } else if (pinned) {
@@ -606,6 +616,17 @@ public class SelectableConcurrentHashMap {
             } finally {
                 writeLock().unlock();
             }
+        }
+
+        private HashEntry removeAndGetFirst(HashEntry e, HashEntry first) {
+            preRemove(e);
+            // All entries following removed node can stay
+            // in list, but all preceding ones need to be
+            // cloned.
+            HashEntry newFirst = e.next;
+            for (HashEntry p = first; p != e; p = p.next)
+                newFirst = relinkHashEntry(p, newFirst);
+            return newFirst;
         }
 
         public boolean isPinned(Object key, int hash) {
@@ -630,19 +651,34 @@ public class SelectableConcurrentHashMap {
                     clear();
                     return;
                 }
-                Iterator<HashEntry> itr = iterator();
+
                 // using clock iterator here so maintaining number of visited entries
                 int numVisited = 0;
                 int dummyPinnedKeys = 0;
-                while(itr.hasNext() && numVisited < count) {
-                    HashEntry mshe = itr.next();
-                    if(mshe.pinned && mshe.value == DUMMY_PINNED_ELEMENT) {
-                        ++dummyPinnedKeys;
+                for(int i=0; i < table.length && numVisited < count; ++i) {
+                    HashEntry newFirst = null;
+                    HashEntry current = table[i];
+                    while(current != null && numVisited < count) {
+                        if(!current.checkAndAssertDummyPinnedEntry()) {
+                            current.pinned = false;
+                            newFirst = newFirst == null ? current : relinkHashEntry(current, newFirst);
+                        } else {
+                            preRemove(current);
+                            ++dummyPinnedKeys;
+                        }
+                        ++numVisited;
+                        current = current.next;
                     }
-                    mshe.pinned = false;
-                    ++numVisited;
+                    table[i] = newFirst;
                 }
-                pinnedCount = numDummyPinnedKeys = dummyPinnedKeys;
+                if(numDummyPinnedKeys != dummyPinnedKeys) {
+                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys"+dummyPinnedKeys);
+                }
+                if(dummyPinnedKeys > 0) {
+                    count -= dummyPinnedKeys;
+                    ++modCount;
+                }
+                pinnedCount = numDummyPinnedKeys = 0;
             } finally {
                 writeLock().unlock();
             }
@@ -691,14 +727,7 @@ public class SelectableConcurrentHashMap {
                         oldValue = v;
                         ++modCount;
                         if(!e.pinned) {
-                            preRemove(e);
-                            // All entries following removed node can stay
-                            // in list, but all preceding ones need to be
-                            // cloned.
-                            HashEntry newFirst = e.next;
-                            for (HashEntry p = first; p != e; p = p.next)
-                                newFirst = relinkHashEntry(p, newFirst);
-                            tab[index] = newFirst;
+                            tab[index] = removeAndGetFirst(e, first);
                         } else {
                             ++c;
                             if (oldValue == DUMMY_PINNED_ELEMENT) {
@@ -1021,6 +1050,13 @@ public class SelectableConcurrentHashMap {
             this.value = value;
             this.sizeOf = sizeOf;
             this.pinned = pinned;
+        }
+
+        boolean checkAndAssertDummyPinnedEntry() {
+            if(value == DUMMY_PINNED_ELEMENT && !pinned) {
+                throw new IllegalStateException("HashEntry value is DUMMY_PINNED_ELEMENT but pinned "+pinned);
+            }
+            return value == DUMMY_PINNED_ELEMENT;
         }
     }
 
