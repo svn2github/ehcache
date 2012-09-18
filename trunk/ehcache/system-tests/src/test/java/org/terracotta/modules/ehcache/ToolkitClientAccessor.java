@@ -5,6 +5,7 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheAccessor;
+import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
 import net.sf.ehcache.store.TerracottaStore;
 
 import org.terracotta.toolkit.Toolkit;
@@ -14,7 +15,10 @@ public class ToolkitClientAccessor {
   public static Toolkit getInternalToolkitClient(Cache cache) {
     if (cache.getCacheConfiguration().isTerracottaClustered()) {
       CacheAccessor storeAccessor = CacheAccessor.newCacheAccessor(cache);
-      TerracottaStore store = storeAccessor.getNonstopActiveDelegateHolder().getUnderlyingTerracottaStore();
+      TerracottaStore store = (TerracottaStore) storeAccessor.getStore();
+      if (store instanceof NonstopStore) {
+        store = storeAccessor.getNonstopActiveDelegateHolder().getUnderlyingTerracottaStore();
+      }
       Object internalContext = store.getInternalContext();
       if (internalContext instanceof ToolkitLookup) {
         return ((ToolkitLookup) internalContext).getToolkit();
