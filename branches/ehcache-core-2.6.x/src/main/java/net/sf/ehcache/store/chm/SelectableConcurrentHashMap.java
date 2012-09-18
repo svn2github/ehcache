@@ -160,7 +160,7 @@ public class SelectableConcurrentHashMap {
             do {
                 for (HashEntry e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
-                    if (value != null && (value.isExpired() || !(e.pinned && elementPinningEnabled))) {
+                    if (value != null && (!(e.pinned && elementPinningEnabled) || value.isExpired())) {
                         sampled.add(value);
                     }
                 }
