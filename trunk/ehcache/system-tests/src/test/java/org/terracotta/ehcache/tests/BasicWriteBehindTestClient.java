@@ -9,6 +9,13 @@ import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 import org.terracotta.toolkit.Toolkit;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import junit.framework.Assert;
+
 public class BasicWriteBehindTestClient extends AbstractWriteBehindClient {
 
   public BasicWriteBehindTestClient(String[] args) {
@@ -30,7 +37,7 @@ public class BasicWriteBehindTestClient extends AbstractWriteBehindClient {
   }
 
   @Override
-  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
+  protected void runTest(final Cache cache, Toolkit toolkit) throws Throwable {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     for (int i = 0; i < 1000; i++) {
       cache.putWithWriter(new Element("key" + i % 200, "value" + i)); // 200 different keys, write operation
@@ -39,11 +46,31 @@ public class BasicWriteBehindTestClient extends AbstractWriteBehindClient {
       }
     }
 
-    WriteBehindManager wbManager = ((WriteBehindManager) cache.getWriterManager());
+    final WriteBehindManager wbManager = ((WriteBehindManager) cache.getWriterManager());
     System.out.println("write behind queue size " + wbManager.getQueueSize());
+    final AtomicLong counter = new AtomicLong();
+    final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
+    executor.scheduleAtFixedRate(new Runnable() {
+      @Override
+      public void run() {
+        long count = counter.get();
+        cache.putWithWriter(new Element("key-" + count, "value-" + count));
+        System.out.println("write behind queue size " + wbManager.getQueueSize() + " counter " + count);
+        counter.incrementAndGet();
+      }
+    }, 500L, 1L, TimeUnit.MILLISECONDS);
 
     // done with put now shutdown cache manager
     // this call should wait write behind queue get empty
+    Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
+    System.out.println("calling cacheManager shutdown");
     cache.getCacheManager().shutdown();
+    
+    try {
+      wbManager.getQueueSize();
+      Assert.fail("should have failed because cacheManager.shutdown is called before");
+    } catch (IllegalStateException e) {
+      // expected exception
+    }
   }
 }

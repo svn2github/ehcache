@@ -332,11 +332,15 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       for (ProcessingBucket<E> bucket : localBuckets) {
         size += bucket.getWaitCount();
       }
+      return size + getDeadBucketsSize();
     } finally {
       nodeReadLock.unlock();
     }
+  }
 
+  private long getDeadBucketsSize() {
     commonAsyncLock.lock();
+    long size = 0;
     try {
       for (ProcessingBucket<E> bucket : deadBuckets) {
         size += bucket.getWaitCount();
