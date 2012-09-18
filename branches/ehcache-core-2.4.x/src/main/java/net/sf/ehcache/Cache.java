@@ -2233,11 +2233,16 @@ public class Cache implements Ehcache, StoreListener {
         if (compoundStore != null) {
             compoundStore.removeStoreListener(this);
             compoundStore.dispose();
+            // null compoundStore explicitly to help gc (particularly for offheap)
+            compoundStore = null;
         }
 
         if (cacheManager != null) {
             cacheManager.getCacheRejoinAction().unregister(this);
         }
+        // null the lockProvider too explicitly to help gc
+        lockProvider = null;
+
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 
@@ -3698,7 +3703,7 @@ public class Cache implements Ehcache, StoreListener {
         try {
             nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().dispose();
         } catch (Exception e) {
-            LOG.info("Ignoring exception while disposing old store on rejoin - " + e.getMessage());
+            LOG.debug("Ignoring exception while disposing old store on rejoin - " + e.getMessage(), e);
         }
         cacheStatus.clusterRejoinInProgress();
     }
