@@ -84,7 +84,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                 for (HashEntry<Object, Element> e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
                     MemoryStoreHashEntry mshe = (MemoryStoreHashEntry) e;
-                    if (value != null && (value.isExpired() || !(mshe.pinned && elementPinningEnabled))) {
+                    if (value != null && (!(mshe.pinned && elementPinningEnabled) || value.isExpired())) {
                         sampled.add(value);
                     }
                 }
