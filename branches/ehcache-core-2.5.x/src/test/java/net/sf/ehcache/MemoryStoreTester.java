@@ -23,6 +23,8 @@ import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
+
+import org.hamcrest.number.OrderingComparison;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -35,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import net.sf.ehcache.config.CacheConfiguration;
@@ -401,10 +404,15 @@ public class MemoryStoreTester extends AbstractCacheTest {
      */
     @Test
     public void testMemoryLeak() throws Exception {
-        long differenceMemoryCache = thrashCache();
-        LOG.info("Difference is : " + differenceMemoryCache);
-        //Sometimes this can be higher but a three hour run confirms no memory leak. Consider increasing.
-        assertTrue("Memory difference was expected to be less than 500000, but was " + differenceMemoryCache, differenceMemoryCache < 500000);
+        try {
+            //Sometimes this can be higher but a three hour run confirms no memory leak. Consider increasing.
+            assertThat(thrashCache(), OrderingComparison.lessThan(500000L));
+        } catch (AssertionError e) {
+            for (Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
+                new ThreadDumpException(entry.getKey(), entry.getValue()).printStackTrace(System.out);
+            }
+            throw e;
+        }
     }
 
 
@@ -621,4 +629,18 @@ public class MemoryStoreTester extends AbstractCacheTest {
         Assert.assertEquals(20, store.getSize());
     }
 
+    static class ThreadDumpException extends Throwable {
+
+        private final Thread thread;
+
+        ThreadDumpException(Thread t, StackTraceElement[] trace) {
+            thread = t;
+            setStackTrace(trace);
+        }
+
+        @Override
+        public String toString() {
+            return thread.toString();
+        }
+    }
 }
