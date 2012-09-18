@@ -51,7 +51,9 @@
             <filter>
               <artifact>org.eclipse.jetty:*</artifact>
               <excludes>
-                <exclude>org/eclipse/jetty/continuation/**</exclude>
+                <exclude>org/eclipse/jetty/continuation/Jetty6Continuation.class</exclude>
+                <exclude>org/eclipse/jetty/continuation/Servlet3Continuation*.class</exclude>
+                <exclude>org/eclipse/jetty/continuation/FauxContinuation.class</exclude>
               </excludes>
             </filter>
             <filter>
@@ -101,10 +103,8 @@
                 ant.unzip(src : jarFile, dest: privateClasspath)
                 ant.copy(todir: new File(packagingDir, "META-INF")) {
                   fileset(dir: new File(privateClasspath, "META-INF")) {
-                    exclude(name: "**/maven/**")
-                  }
-                  fileset(dir: new File(privateClasspath, "META-INF")) {
                     include(name: "**/maven/${project.Id}/**")
+                    include(name: "MANIFEST.MF")
                   }                                
                 }
                 ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),
