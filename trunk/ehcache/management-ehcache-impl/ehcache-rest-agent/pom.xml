@@ -94,11 +94,15 @@
                 def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
                 def packagingDir = new File(project.build.directory, "packaging")
                 def privateClasspath = new File(packagingDir, "${private-classpath}")
+                
+                // clean up
                 if (packagingDir.exists()) {
                   ant.delete(includeEmptyDirs: "true") {
                     fileset(dir: packagingDir, includes: "**/*")
                   }
                 }
+                
+                // unzip and copy needed stuff to private classpath and META-INF
                 ant.mkdir(dir: privateClasspath)
                 ant.unzip(src : jarFile, dest: privateClasspath)
                 ant.copy(todir: new File(packagingDir, "META-INF")) {
@@ -107,9 +111,21 @@
                     include(name: "MANIFEST.MF")
                   }                                
                 }
+                
+                // convert .class files under private classpath to have ending .clazz
+                ant.move(todir: privateClasspath, includeemptydirs: "false") {
+                  fileset(dir: privateClasspath) {
+                    include(name: "**/*.class")
+                  }
+                  mapper(type: "glob", from: "*.class", to: "*.clazz")
+                }
+                
+                // inject correct pom.xml produced by shade plugin
                 ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),
                          tofile: new File(packagingDir, "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml"),
                          overwrite: "true")
+                
+                // rejar the artifact
                 ant.jar(file: jarFile, basedir: packagingDir, manifest: new File(packagingDir, "META-INF/MANIFEST.MF"))
               </source>
             </configuration>
