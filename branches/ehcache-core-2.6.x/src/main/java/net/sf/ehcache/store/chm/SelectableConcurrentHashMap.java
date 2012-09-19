@@ -671,9 +671,9 @@ public class SelectableConcurrentHashMap {
                     }
                     table[i] = newFirst;
                 }
-                if(numDummyPinnedKeys != dummyPinnedKeys) {
-                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
-                }
+//                if(numDummyPinnedKeys != dummyPinnedKeys) {
+//                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
+//                }
                 if(dummyPinnedKeys > 0) {
                     count -= dummyPinnedKeys;
                     ++modCount;
