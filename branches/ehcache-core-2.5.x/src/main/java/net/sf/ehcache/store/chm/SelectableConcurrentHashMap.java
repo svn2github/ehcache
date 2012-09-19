@@ -444,7 +444,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         MemoryStoreHashEntry mshe = (MemoryStoreHashEntry)current;
                         if(!mshe.checkAndAssertDummyPinnedEntry()) {
                             mshe.pinned = false;
-                            newFirst = newFirst == null ? current : relinkHashEntry(current, newFirst);
+                            newFirst = relinkHashEntry(current, newFirst);
                         } else {
                             ++dummyPinnedKeys;
                         }
@@ -454,7 +454,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     table[i] = newFirst;
                 }
                 if(numDummyPinnedKeys != dummyPinnedKeys) {
-                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys"+dummyPinnedKeys);
+                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
                 }
                 if(dummyPinnedKeys > 0) {
                     count -= dummyPinnedKeys;
