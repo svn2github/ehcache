@@ -16,9 +16,14 @@
 
 package net.sf.ehcache;
 
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.core.IsNull.*;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import junit.framework.Assert;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -30,10 +35,6 @@ import net.sf.ehcache.store.disk.DiskStoreHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.List;
 
 /**
  * Tests for Cache pinning
@@ -237,6 +238,66 @@ public class CachePinningTest {
     }
 
     @Test
+    public void testUnpinRemoveDummyvalue() {
+        int maxElementsInMemory = 2000;
+        Cache cache = new Cache(new CacheConfiguration("testUnpinRemoveDummyvalue", maxElementsInMemory));
+        cacheManager.addCache(cache);
+        final Object unpinnedValue = new Object();
+
+        // pin elements but do not put any value
+        for (int i = 0; i < maxElementsInMemory; i++) {
+            Element element = new Element("Kp-" + i, new Object());
+            cache.setPinned(element.getObjectKey(), true);
+        }
+
+        // set pinned false
+        for (int i = 0; i < maxElementsInMemory; i++) {
+            Element element = new Element("Kp-" + i, new Object());
+            Assert.assertTrue(cache.isPinned(element.getObjectKey()));
+            cache.setPinned(element.getObjectKey(), false);
+        }
+
+        for (int i = 0; i < maxElementsInMemory; i++) {
+            Element element = new Element("Kp-" + i, new Object());
+            Assert.assertFalse(cache.isPinned(element.getObjectKey()));
+            Assert.assertEquals(null, cache.get(element.getObjectKey()));
+            Assert.assertFalse(cache.remove(element.getObjectKey()));
+        }
+
+        Assert.assertEquals(0, cache.getSize());
+
+        for (int i = 0; i < maxElementsInMemory/2; i++) {
+            Element element = new Element("Ku-" + i, unpinnedValue);
+            cache.put(element);
+        }
+        Assert.assertEquals(maxElementsInMemory/2, cache.getSize());
+
+        // pin elements again but do not put any value
+        for (int i = 0; i < maxElementsInMemory/2; i++) {
+            Element element = new Element("Kp-" + i, new Object());
+            cache.setPinned(element.getObjectKey(), true);
+            Assert.assertTrue(cache.isPinned(element.getObjectKey()));
+        }
+
+        Assert.assertEquals(maxElementsInMemory/2, cache.getSize());
+
+        // set pinned false using unpinAll
+        cache.unpinAll();
+
+        for (int i = 0; i < maxElementsInMemory/2; i++) {
+            Element element = new Element("Kp-" + i, new Object());
+            Assert.assertFalse(cache.isPinned(element.getObjectKey()));
+            Assert.assertEquals(null, cache.get(element.getObjectKey()));
+            Assert.assertFalse(cache.remove(element.getObjectKey()));
+
+            element = new Element("Ku-" + i, unpinnedValue);
+            Assert.assertFalse(cache.isPinned(element.getObjectKey()));
+            Assert.assertEquals(unpinnedValue, cache.get(element.getObjectKey()).getObjectValue());
+        }
+        Assert.assertEquals(maxElementsInMemory/2, cache.getSize());
+    }
+
+    @Test
     public void testNonPresentPinnedKeysAreNotInCache()  {
         final Cache cache = new Cache(new CacheConfiguration().name("nonPresentPinned")
             .diskPersistent(false)
@@ -306,7 +367,7 @@ public class CachePinningTest {
             assertThat(i + " should be in the keySet", allKeys.contains(i), is(true));
         }
     }
-    
+
     @Test
     public void testGetKeysAlsoIncludesPersistedKeys() throws ExecutionException, InterruptedException {
         CacheManager cm = new CacheManager(new Configuration().name("persisted")
