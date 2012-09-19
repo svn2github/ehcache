@@ -100,6 +100,17 @@ public class ResourceClassLoaderTest {
         Method getMessageInTextFileMethod = simpleClass.getMethod("getMessageInTextFile", new Class[] {});
         Object message = getMessageInTextFileMethod.invoke(simpleObject, new Object[] {});
         Assert.assertEquals("Congratulations ! You could read a file from a hidden resource location !", message);
+
+
+        // load a normal resource
+        URL url = resourceClassLoader.getResource("toto.txt");
+        Assert.assertNotNull(url);
+
+        // loading a class under private classpath as a resource
+        url = resourceClassLoader.getResource("pof/Simple.class");
+        Assert.assertNotNull(url);
+
+
     }
 
 //
