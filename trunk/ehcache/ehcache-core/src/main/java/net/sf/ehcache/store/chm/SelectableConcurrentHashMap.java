@@ -597,6 +597,7 @@ public class SelectableConcurrentHashMap {
                         pinnedCount--;
                         if(!e.checkAndAssertDummyPinnedEntry()) {
                             e.pinned = false;
+                            postInstall(e.key, e.value, false);
                         } else {
                             HashEntry[] tab = table;
                             int index = hash & (tab.length - 1);
@@ -606,7 +607,6 @@ public class SelectableConcurrentHashMap {
                             --numDummyPinnedKeys;
                             ++modCount;
                         }
-                        postInstall(e.key, e.value, false);
                     }
                 } else if (pinned) {
                     put(key, hash, DUMMY_PINNED_ELEMENT, 0, false, true, true);
