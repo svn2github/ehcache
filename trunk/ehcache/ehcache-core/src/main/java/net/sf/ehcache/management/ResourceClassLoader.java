@@ -79,20 +79,20 @@ public class ResourceClassLoader extends ClassLoader {
                 if (in != null) {
                     in.close();
                 }
-              } catch (Exception e) {
-                  /* Ignore */
-              }
+            } catch (Exception e) {
+                /* Ignore */
+            }
         }
         this.implementationVersion = temporaryImplementationVersion;
     }
 
     @Override
     public synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-      if (name.startsWith("java.")) {
-        return getParent().loadClass(name);
-      }
+        if (name.startsWith("java.")) {
+            return getParent().loadClass(name);
+        }
 
-      // changing the order of delegation to prefer the resourceClassLoader over its parents
+        // changing the order of delegation to prefer the resourceClassLoader over its parents
         Class c = findLoadedClass(name);
         if (c == null) {
             try {
@@ -135,7 +135,6 @@ public class ResourceClassLoader extends ClassLoader {
         return new MergedEnumeration<URL>(tmp[0], tmp[1]);
     };
 
-
     @Override
     protected Enumeration<URL> findResources(String name) throws IOException {
         Enumeration<URL> resources = getParent().getResources(prefix + "/" + name);
@@ -156,7 +155,6 @@ public class ResourceClassLoader extends ClassLoader {
 
     @Override
     protected Class<?> findClass(String className) throws ClassNotFoundException {
-
 
         String classRealName = prefix + "/" + className.replace('.', '/') + ".class";
         URL classResource = getParent().getResource(classRealName);
@@ -189,9 +187,9 @@ public class ResourceClassLoader extends ClassLoader {
                     if (in != null) {
                         in.close();
                     }
-                  } catch (Exception e) {
-                      /* Ignore */
-                  }
+                } catch (Exception e) {
+                    /* Ignore */
+                }
             }
         }
         throw new ClassNotFoundException(className);
@@ -199,8 +197,8 @@ public class ResourceClassLoader extends ClassLoader {
     }
 
     /**
-     *  DEV-8100 add support for Jboss AS
-     *  jersey does not understand Jboss VFS URLs , so we use Jboss VFS classes to translate those URLs to file: URLs
+     * DEV-8100 add support for Jboss AS
+     * jersey does not understand Jboss VFS URLs , so we use Jboss VFS classes to translate those URLs to file: URLs
      */
     private URL translateFromVFSToPhysicalURL(URL vfsUrl) throws IOException {
         URL physicalUrl = null;
