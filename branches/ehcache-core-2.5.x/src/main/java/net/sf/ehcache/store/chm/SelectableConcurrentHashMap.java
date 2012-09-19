@@ -453,9 +453,9 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     }
                     table[i] = newFirst;
                 }
-                if(numDummyPinnedKeys != dummyPinnedKeys) {
-                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
-                }
+//                if(numDummyPinnedKeys != dummyPinnedKeys) {
+//                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
+//                }
                 if(dummyPinnedKeys > 0) {
                     count -= dummyPinnedKeys;
                     ++modCount;
