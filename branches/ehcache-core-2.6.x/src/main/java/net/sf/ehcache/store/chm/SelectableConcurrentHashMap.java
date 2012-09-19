@@ -597,6 +597,7 @@ public class SelectableConcurrentHashMap {
                         pinnedCount--;
                         if(!e.checkAndAssertDummyPinnedEntry()) {
                             e.pinned = false;
+                            postInstall(e.key, e.value, false);
                         } else {
                             HashEntry[] tab = table;
                             int index = hash & (tab.length - 1);
@@ -606,7 +607,6 @@ public class SelectableConcurrentHashMap {
                             --numDummyPinnedKeys;
                             ++modCount;
                         }
-                        postInstall(e.key, e.value, false);
                     }
                 } else if (pinned) {
                     put(key, hash, DUMMY_PINNED_ELEMENT, 0, false, true, true);
@@ -661,7 +661,7 @@ public class SelectableConcurrentHashMap {
                     while(current != null && numVisited < count) {
                         if(!current.checkAndAssertDummyPinnedEntry()) {
                             current.pinned = false;
-                            newFirst = newFirst == null ? current : relinkHashEntry(current, newFirst);
+                            newFirst = relinkHashEntry(current, newFirst);
                         } else {
                             preRemove(current);
                             ++dummyPinnedKeys;
@@ -672,7 +672,7 @@ public class SelectableConcurrentHashMap {
                     table[i] = newFirst;
                 }
                 if(numDummyPinnedKeys != dummyPinnedKeys) {
-                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys"+dummyPinnedKeys);
+                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
                 }
                 if(dummyPinnedKeys > 0) {
                     count -= dummyPinnedKeys;
