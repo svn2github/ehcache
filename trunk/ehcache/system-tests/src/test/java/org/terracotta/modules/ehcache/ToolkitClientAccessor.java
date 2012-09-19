@@ -5,19 +5,23 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheAccessor;
-import net.sf.ehcache.constructs.nonstop.store.NonstopStore;
-import net.sf.ehcache.store.TerracottaStore;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.store.Store;
 
 import org.terracotta.toolkit.Toolkit;
 
 public class ToolkitClientAccessor {
 
   public static Toolkit getInternalToolkitClient(Cache cache) {
-    if (cache.getCacheConfiguration().isTerracottaClustered()) {
+    CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+    if (cacheConfiguration.isTerracottaClustered()) {
       CacheAccessor storeAccessor = CacheAccessor.newCacheAccessor(cache);
-      TerracottaStore store = (TerracottaStore) storeAccessor.getStore();
-      if (store instanceof NonstopStore) {
+      Store store = null;
+      if (isNonStopEnabled(cacheConfiguration)) {
         store = storeAccessor.getNonstopActiveDelegateHolder().getUnderlyingTerracottaStore();
+      } else {
+        store = storeAccessor.getStore();
       }
       Object internalContext = store.getInternalContext();
       if (internalContext instanceof ToolkitLookup) {
@@ -29,6 +33,11 @@ public class ToolkitClientAccessor {
       throw new AssertionError("Toolkit can only be looked up for Clustered Caches - unclustered ehcache name: "
                                + cache.getName());
     }
+  }
+
+  private static boolean isNonStopEnabled(CacheConfiguration cacheConfiguration) {
+    TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
+    return terracottaConfiguration == null || terracottaConfiguration.isNonstopEnabled();
 
   }
 
