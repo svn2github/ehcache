@@ -29,8 +29,8 @@ in-memory capacity changed at runtime through the cache's configuration object.
 automatically register the SampledCacheMBean with the system MBean server.
 
 Currently, this monitoring is only useful when using Terracotta clustering and using the
-Terracotta Developer Console. With the "autodetect" value, the presence of Terracotta clustering
-will be detected and monitoring, via the Developer Console, will be enabled. Other allowed values
+Terracotta Developer Console or the Terracotta Monitoring Console. With the "autodetect" value, the presence of Terracotta clustering
+will be detected and monitoring, via the Developer Console or Monitoring Console, will be enabled. Other allowed values
 are "on" and "off".  The default is "autodetect". This setting does not perform any function when
 used with JMX monitors.
 
@@ -200,7 +200,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     For more information on the Terracotta configuration, see the Terracotta documentation.
     -->
-    <terracottaConfig url="localhost:9510"/>
 
     <!--
     Cache configuration
@@ -275,11 +274,11 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     The default value is 0.
 
     diskExpiryThreadIntervalSeconds:
-    The number of seconds between runs of the disk expiry thread. The default value
+    The number of seconds between runs of the disk expiry thread for the DiskStore (does not apply to RestartableStore). The default value
     is 120 seconds.
 
     diskSpoolBufferSizeMB:
-    This is the size to allocate the DiskStore for a spool buffer. Writes are made
+    This is the size to allocate the DiskStore (does not apply to RestartableStore) for a spool buffer. Writes are made
     to this area and then asynchronously written to disk. The default size is 30MB.
     Each spool buffer is used only by its cache. If you get OutOfMemory errors consider
     lowering this value. To improve DiskStore performance consider increasing it. Trace level
@@ -317,7 +316,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     * localRestartable - Enables the RestartStore and copies all cache entries (on-heap and/or off-heap)
     to disk. This option provides fast restartability with fault tolerant cache persistence on disk.
-    It is available for Enterprise Ehcache users only.
+    It is available for BigMemory and Enterprise Ehcache users only.
 
     * localTempSwap - Swaps cache entries (on-heap and/or off-heap) to disk when the cache is full.
     "localTempSwap" is not persistent.
@@ -673,22 +672,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     -->
 
     <!--
-    Default Cache configuration. These settings will be applied to caches
-    created programmatically using CacheManager.add(String cacheName).
-    This element is optional, and using CacheManager.add(String cacheName) when
-    its not present will throw CacheException
-
-    The defaultCache has an implicit name "default" which is a reserved cache name.
-    -->
-    <defaultCache
-           maxEntriesLocalHeap="0"
-           eternal="false"
-           timeToIdleSeconds="1200"
-           timeToLiveSeconds="1200">
-      <terracotta/>
-    </defaultCache>
-
-    <!--
     Sample caches. Following are some example caches. Remove these before use.
     -->
 
@@ -701,7 +684,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     If there are more than 10000 elements it will overflow to the
     disk cache, which in this configuration will go to wherever java.io.tmp is
     defined on your system. On a standard Linux system this will be /tmp"
-    -->
+    
     <cache name="sampleCache1"
            maxEntriesLocalHeap="10000"
            maxEntriesLocalDisk="1000"
@@ -713,6 +696,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            transactionalMode="off">
         <persistence strategy="localTempSwap"/>
     </cache>
+    -->
 
 
     <!--
@@ -720,33 +704,17 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     This cache has a maximum of 1000 elements in memory. There is no overflow to disk, so 1000
     is also the maximum cache size. Note that when a cache is eternal, timeToLive and
     timeToIdle are not used and do not need to be specified.
-    -->
+    
     <cache name="sampleCache2"
            maxEntriesLocalHeap="1000"
            eternal="true"
            memoryStoreEvictionPolicy="FIFO"/>
-
-
-    <!--
-    Sample cache named sampleCache3. This cache overflows to disk. The disk store is
-    persistent between cache and VM restarts. The disk expiry thread interval is set to 10
-    minutes, overriding the default of 2 minutes.
     -->
-    <cache name="sampleCache3"
-           maxEntriesLocalHeap="500"
-           eternal="false"
-           overflowToDisk="true"
-           diskPersistent="true"
-           timeToIdleSeconds="300"
-           timeToLiveSeconds="600"
-           diskExpiryThreadIntervalSeconds="1"
-           memoryStoreEvictionPolicy="LFU">
-    </cache>
 
     <!--
     Sample Terracotta clustered cache named sampleTerracottaCache.
     This cache uses Terracotta to cluster the contents of the cache.
-    -->
+    
     <cache name="sampleTerracottaCache"
            maxBytesLocalHeap="10m"
            eternal="false"
@@ -754,6 +722,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            timeToLiveSeconds="1800">
         <terracotta/>
     </cache>
+    -->
 
     <!--
       Sample xa enabled cache named xaCache
@@ -782,26 +751,41 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
         <copyStrategy class="net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy" />
     </cache>
     -->
+
     <!--
-      Sample, for Enterprise Ehcache only, demonstrating a tiered cache with in-memory, off-heap and disk stores. In this example the in-memory (on-heap) store is limited to 10,000 items ... which for example for 1k items would use 10MB of memory, the off-heap store is limited to 4GB and the disk store is unlimited in size.
-    <cache name="tieredCache"
-           maxEntriesLocalHeap="10000"
-           eternal="false"
-           timeToLiveSeconds="600"
-           overflowToOffHeap="true"
-           maxBytesLocalOffHeap="4g"
-           diskExpiryThreadIntervalSeconds="1">
-        <persistence strategy="localTempSwap"/>
-     </cache>
+    Default Cache configuration. These settings will be applied to caches
+    created programmatically using CacheManager.add(String cacheName).
+    This element is optional, and using CacheManager.add(String cacheName) when
+    its not present will throw CacheException
+
+    The defaultCache has an implicit name "default" which is a reserved cache name.
     -->
+    <defaultCache
+           maxEntriesLocalHeap="0"
+           eternal="false"
+           timeToIdleSeconds="1200"
+           timeToLiveSeconds="1200">
+    </defaultCache>
+    
     <!--
-      Sample, for Enterprise Ehcache only, demonstrating a restartable cache with in-memory and off-heap stores.
-    <cache name="restartableCache"
+      Sample, for BigMemory and Enterprise Ehcache only, demonstrating a tiered cache with in-memory, off-heap and disk stores. 
+      In this example the in-memory (on-heap) store is limited to 10,000 items ... which for example for 1k items would use 10MB of memory, 
+      the off-heap store is limited to 4GB and the disk store is unlimited in size.
+    -->
+    <cache name="sampleBigMemory"
+        eternal="true"
+        maxBytesLocalHeap="100M"
+        maxBytesLocalOffHeap="2G"
+     </cache>
+     
+    <!--
+      Sample, for BigMemory and Enterprise Ehcache only, demonstrating a restartable cache with in-memory and off-heap stores.
+     -->
+    <cache name="restartableBigMemory"
            maxEntriesLocalHeap="10000"
            eternal="true"
            overflowToOffHeap="true"
            maxBytesLocalOffHeap="4g"
          <persistence strategy="localRestartable"/>
      </cache>
-     -->
 </ehcache>
