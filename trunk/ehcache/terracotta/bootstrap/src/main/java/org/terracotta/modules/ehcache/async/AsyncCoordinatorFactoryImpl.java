@@ -7,7 +7,7 @@ import net.sf.ehcache.Ehcache;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.Callback;
-import org.terracotta.toolkit.cache.ToolkitCache;
+import org.terracotta.toolkit.collections.ToolkitMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
   @Override
   public synchronized AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config) {
     final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache);
-    final ToolkitCache<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
+    final ToolkitMap<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
       AsyncConfig oldConfig = configMap.putIfAbsent(fullAsyncName, config);
       if (oldConfig != null && !oldConfig.equals(config)) { throw new IllegalArgumentException(
                                                                                                "can not get AsyncCoordinator "

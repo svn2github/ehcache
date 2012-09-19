@@ -20,7 +20,6 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.store.ToolkitStore;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -63,9 +62,9 @@ public interface ToolkitInstanceFactory {
    */
   ToolkitReadWriteLock getOrCreateStoreLock(Ehcache cache);
 
-  ToolkitCache<String, AsyncConfig> getOrCreateAsyncConfigMap();
+  ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap();
 
-  ToolkitStore<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
+  ToolkitMap<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
 
   String getFullAsyncName(Ehcache cache);
 

@@ -16,10 +16,10 @@ import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.cluster.ClusterListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.collections.ToolkitList;
+import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
-import org.terracotta.toolkit.store.ToolkitStore;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -176,6 +176,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   private void processDeadNodes() {
     // checking if there are any dead nodes and starting threads for those buckets also
+    debug("processDeadNodes(): at " + nodeName);
     Set<String> deadNodes = bucketMetaInfoHandler.deadNodesWithListsToProcess(name, cluster, toolkitInstanceFactory);
     for (String otherNodeNameListKey : deadNodes) {
       processDeadNode(otherNodeNameListKey);
@@ -275,6 +276,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     public void onClusterEvent(ClusterEvent event) {
       switch (event.getType()) {
         case NODE_LEFT:
+          debug("onClusterEvent(): NODE_LEFT " + event.getNode() + " received at " + nodeName);
           String otherNodeNameListKey = getAsyncNodeName(name, event.getNode());
           processDeadNode(otherNodeNameListKey);
           break;
@@ -305,9 +307,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       totalItems += bucket.getWaitCount();
       startBucket(bucket, true);
     }
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("startProcessingDeadNodeBuckets():" + nodeName + " taken " + totalItems + " items from " + deadNode);
-    }
+    debug("startProcessingDeadNodeBuckets():" + nodeName + " taken " + totalItems + " items from " + deadNode);
   }
 
   private static enum Status {
@@ -320,6 +320,12 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
     void checkRunning() {
       // All good
+    }
+  }
+
+  private void debug(String string) {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(string);
     }
   }
 
@@ -367,22 +373,22 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
      * this ToolkitMap map contains keys based on asyncName-nodeId and value will be linked list of bucketNames (or name
      * of ToolkitList)
      */
-    private final ToolkitStore<String, Set<String>> nodeToListNamesMap;
+    private final ToolkitMap<String, Set<String>> nodeToListNames;
     private final String                            nodeName;
 
-    public BucketMetaInfoHandler(String nodeName, ToolkitStore<String, Set<String>> nodeToListNamesMap) {
+    public BucketMetaInfoHandler(String nodeName, ToolkitMap<String, Set<String>> nodeToListNamesMap) {
       this.nodeName = nodeName;
-      this.nodeToListNamesMap = nodeToListNamesMap;
+      this.nodeToListNames = nodeToListNamesMap;
     }
 
     public void bucketsCreated(Collection<String> bucketNames) {
       Set<String> set = getSetForThisNode();
       set.addAll(bucketNames);
-      this.nodeToListNamesMap.put(nodeName, set);
+      this.nodeToListNames.put(nodeName, set);
     }
 
     private Set<String> getSetForThisNode() {
-      Set<String> set = this.nodeToListNamesMap.get(nodeName);
+      Set<String> set = this.nodeToListNames.get(nodeName);
       if (set == null) {
         set = addSetForNode();
       }
@@ -391,23 +397,23 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
     private Set<String> addSetForNode() {
       Set<String> tmpList = new HashSet<String>();
-      Set<String> rvList = this.nodeToListNamesMap.putIfAbsent(nodeName, tmpList);
+      Set<String> rvList = this.nodeToListNames.putIfAbsent(nodeName, tmpList);
       return rvList == null ? tmpList : rvList;
     }
 
     public void clear() {
-      this.nodeToListNamesMap.remove(nodeName);
+      this.nodeToListNames.remove(nodeName);
     }
 
     public Set<String> transferAllListsFromNode(String node) {
-      Set<String> oldNameList = nodeToListNamesMap.get(node);
+      Set<String> oldNameList = nodeToListNames.get(node);
 
       if (oldNameList != null) {
         Set<String> newOwner = getSetForThisNode();
 
         newOwner.addAll(oldNameList);
-        nodeToListNamesMap.put(nodeName, newOwner); // transferring bucket ownership to new node
-        nodeToListNamesMap.remove(node); // removing buckets from old node
+        nodeToListNames.put(nodeName, newOwner); // transferring bucket ownership to new node
+        nodeToListNames.remove(node); // removing buckets from old node
         return oldNameList;
       } else {
         return Collections.EMPTY_SET;
@@ -417,7 +423,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     private Set<String> deadNodesWithListsToProcess(String name, ClusterInfo cluster,
                                                     ToolkitInstanceFactory toolkitInstanceFactory) {
       // check if the all the known nodes still exist in the cluster
-      Set<String> deadNodes = new HashSet<String>(nodeToListNamesMap.keySet());
+      Set<String> deadNodes = new HashSet<String>(nodeToListNames.keySet());
       for (ClusterNode node : cluster.getNodes()) {
         deadNodes.remove(getAsyncNodeName(name, node));
       }

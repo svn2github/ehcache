@@ -29,7 +29,6 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ToolkitCacheConfigBuilderInternal;
-import org.terracotta.toolkit.store.ToolkitStore;
 import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
@@ -238,15 +237,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCache<String, AsyncConfig> getOrCreateAsyncConfigMap() {
-    return toolkit.getCache(ASYNC_CONFIG_MAP, AsyncConfig.class);
+  public ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap() {
+    return toolkit.getMap(ASYNC_CONFIG_MAP, String.class, AsyncConfig.class);
   }
 
   @Override
-  public ToolkitStore<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
-    Configuration configuration = new ToolkitStoreConfigBuilder()
-        .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
-    return toolkit.getStore(fullAsyncName, configuration, null);
+  public ToolkitMap<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
+    ToolkitMap asyncListNames = toolkit.getMap(fullAsyncName, String.class, Set.class);
+    return asyncListNames;
   }
 
   @Override
