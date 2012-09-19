@@ -112,14 +112,6 @@
                   }                                
                 }
                 
-                // convert .class files under private classpath to have ending .clazz
-                ant.move(todir: privateClasspath, includeemptydirs: "false") {
-                  fileset(dir: privateClasspath) {
-                    include(name: "**/*.class")
-                  }
-                  mapper(type: "glob", from: "*.class", to: "*.clazz")
-                }
-                
                 // inject correct pom.xml produced by shade plugin
                 ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),
                          tofile: new File(packagingDir, "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml"),
