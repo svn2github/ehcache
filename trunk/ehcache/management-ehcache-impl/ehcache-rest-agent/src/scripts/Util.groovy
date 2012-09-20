@@ -16,7 +16,13 @@ class Util {
     
     // unzip and copy needed stuff to private classpath and META-INF
     ant.mkdir(dir: privateClasspath)
-    ant.unzip(src : jarFile, dest: privateClasspath)
+    ant.unzip(src : jarFile, dest: privateClasspath) {
+      patternset() {
+        exclude(name: "**/org/eclipse/jetty/continuation/Jetty6Continuation.class")
+        exclude(name: "**/org/eclipse/jetty/continuation/Servlet3Continuation*.class")
+        exclude(name: "**/org/eclipse/jetty/continuation/FauxContinuation.class")
+      }
+    }
     ant.copy(todir: new File(packagingDir, "META-INF")) {
       fileset(dir: new File(privateClasspath, "META-INF")) {
         include(name: "**/maven/${project.groupId}/**")

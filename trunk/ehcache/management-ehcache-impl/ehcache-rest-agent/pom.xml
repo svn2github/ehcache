@@ -50,14 +50,6 @@
           </artifactSet>
           <filters>
             <filter>
-              <artifact>org.eclipse.jetty:*</artifact>
-              <excludes>
-                <exclude>org/eclipse/jetty/continuation/Jetty6Continuation.class</exclude>
-                <exclude>org/eclipse/jetty/continuation/Servlet3Continuation*.class</exclude>
-                <exclude>org/eclipse/jetty/continuation/FauxContinuation.class</exclude>
-              </excludes>
-            </filter>
-            <filter>
               <artifact>*:*</artifact>
               <excludes>
                 <exclude>META-INF/*.SF</exclude>
