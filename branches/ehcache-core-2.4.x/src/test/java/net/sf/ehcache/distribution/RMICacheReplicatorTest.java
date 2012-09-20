@@ -176,6 +176,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
+        RMICacheManagerPeerListenerTest.setupLogging();
         List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
         try {
             //Add new CacheManager to cluster
@@ -185,6 +186,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             waitForClusterMembership(10020, TimeUnit.MILLISECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
         } finally {
             destroyCluster(cluster);
+            RMICacheManagerPeerListenerTest.revertLogging();
         }
     }
 
