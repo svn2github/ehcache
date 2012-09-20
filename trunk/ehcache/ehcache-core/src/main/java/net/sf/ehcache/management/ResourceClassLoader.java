@@ -42,11 +42,13 @@ import org.slf4j.LoggerFactory;
  * ehcache.jar!/net/sf/ehcache/CacheManager is in the "normal" classpath and will be loaded by any typical classloader
  * ehcache.jar!/subdirectory/net/sf/ehcache/CacheManager can only be loaded by the ResourceClassLoader, with prefix "subdirectory"
  *
+ * Assumes classes under prefix directory to have ending .clazz
+ *
  * @author Anthony Dahanne
  *
  */
 public class ResourceClassLoader extends ClassLoader {
-
+    private static final String PRIVATE_CLASS_SUFFIX = ".class_terracotta";
     private static final int BUFFER_SIZE = 1024;
     private static final Logger LOG = LoggerFactory.getLogger(ResourceClassLoader.class);
     private final String prefix;
@@ -119,8 +121,8 @@ public class ResourceClassLoader extends ClassLoader {
 
     @Override
     protected URL findResource(String name) {
-        URL resource = getParent().getResource(prefix + "/" + name);
-        return resource;
+        String resource = replaceWithPrivateSuffix(name);
+        return getParent().getResource(prefix + "/" + resource);
     }
 
     @Override
@@ -137,7 +139,8 @@ public class ResourceClassLoader extends ClassLoader {
 
     @Override
     protected Enumeration<URL> findResources(String name) throws IOException {
-        Enumeration<URL> resources = getParent().getResources(prefix + "/" + name);
+        String resource = replaceWithPrivateSuffix(name);
+        Enumeration<URL> resources = getParent().getResources(prefix + "/" + resource);
         // DEV-8100 add support for Jboss AS, translating vfs URLs
         List<URL> urls = new ArrayList<URL>();
         while (resources.hasMoreElements()) {
@@ -156,7 +159,7 @@ public class ResourceClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String className) throws ClassNotFoundException {
 
-        String classRealName = prefix + "/" + className.replace('.', '/') + ".class";
+        String classRealName = prefix + "/" + className.replace('.', '/') + PRIVATE_CLASS_SUFFIX;
         URL classResource = getParent().getResource(classRealName);
 
         if (classResource != null) {
@@ -236,6 +239,10 @@ public class ResourceClassLoader extends ClassLoader {
             throws IllegalAccessException, InvocationTargetException {
         String physicalPath = physicalUrl.getFile() + "/../";
         recursiveCopy.invoke(null, vfsVirtualFile, new File(physicalPath));
+    }
+
+    private String replaceWithPrivateSuffix(String name) {
+        return name.endsWith(".class") ? name.substring(0, name.lastIndexOf(".class")) + PRIVATE_CLASS_SUFFIX : name;
     }
 
 }

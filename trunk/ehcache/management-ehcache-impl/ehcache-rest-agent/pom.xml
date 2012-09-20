@@ -17,6 +17,7 @@
 
   <properties>
     <private-classpath>rest-management-private-classpath</private-classpath>
+    <private-class-suffix>.class_terracotta</private-class-suffix>
   </properties>
 
   <dependencies>
@@ -110,6 +111,14 @@
                     include(name: "**/maven/${project.Id}/**")
                     include(name: "MANIFEST.MF")
                   }                                
+                }
+                
+                // convert .class files under private classpath to have private-class-suffix
+                ant.move(todir: privateClasspath, includeemptydirs: "false") {
+                  fileset(dir: privateClasspath) {
+                    include(name: "**/*.class")
+                  }
+                  mapper(type: "glob", from: "*.class", to: "*${private-class-suffix}")
                 }
                 
                 // inject correct pom.xml produced by shade plugin
