@@ -34,10 +34,7 @@ public class WriteBehindClient2 extends AbstractWriteBehindClient {
     cache.removeWithWriter("key");
     WriteBehindManager wbManager = ((WriteBehindManager) cache.getWriterManager());
     long size = wbManager.getQueueSize();
-    while (size > 0) {
-      System.out.println("sleeping 10 sec because write behind queue size " + size);
-      TimeUnit.SECONDS.sleep(10L);
-      size = wbManager.getQueueSize();
-    }
+    System.out.println("sleeping 1 min write behind queue size " + size);
+    TimeUnit.MINUTES.sleep(1L);
   }
 }
