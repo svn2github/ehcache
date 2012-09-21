@@ -339,36 +339,6 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
             super(initialCapacity, lf);
         }
 
-        private void calculateEmptyPinnedKeySize(boolean pinned, MemoryStoreHashEntry mshe) {
-            writeLock().lock();
-            try {
-                if(mshe == null && pinned) {//want to pin first time
-                    ++pinnedCount;
-                    ++numDummyPinnedKeys;
-                    return;
-                }
-                if(pinned && !mshe.pinned) {
-                    ++pinnedCount;
-                    return;
-                }
-                if(mshe == null || (!mshe.pinned && !pinned)) {
-                  // 1. want to unpin which is not present
-                  // 2. want to pin/unpin again (same operation)
-                  // 3. want to unpin which was never pinned
-                    return;
-                }
-                if(pinned) {//want to pin
-                    ++pinnedCount;
-                    ++numDummyPinnedKeys;
-                } else {//want to unpin
-                    --pinnedCount;
-                    --numDummyPinnedKeys;
-                }
-            } finally {
-                writeLock().unlock();
-            }
-        }
-
         public void setPinned(Object key, boolean pinned, int hash) {
             writeLock().lock();
             try {
@@ -385,7 +355,15 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         tab[index] = removeAndGetFirst(mshe, first);
                         --count;
                         ++modCount;
+                        --pinnedCount;
+                        --numDummyPinnedKeys;
                     } else {
+                        if(pinned && !mshe.pinned) {
+                            ++pinnedCount;
+                        }
+                        if(!pinned && mshe.pinned) {
+                            --pinnedCount;
+                        }
                         mshe.setPinned(pinned);
                     }
                 } else {
@@ -393,7 +371,6 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                         putInternal(key, hash, DUMMY_PINNED_ELEMENT, 0, false, true);
                     }
                 }
-                calculateEmptyPinnedKeySize(pinned, mshe);
             } finally {
                 writeLock().unlock();
             }
@@ -453,10 +430,10 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     }
                     table[i] = newFirst;
                 }
-//                if(numDummyPinnedKeys != dummyPinnedKeys) {
-//                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
-//                }
-                if(dummyPinnedKeys > 0) {
+                if (numDummyPinnedKeys != dummyPinnedKeys) {
+                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
+                }
+                if (dummyPinnedKeys > 0) {
                     count -= dummyPinnedKeys;
                     ++modCount;
                 }
@@ -604,6 +581,10 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
                     ++modCount;
                     tab[index] = new MemoryStoreHashEntry(key, hash, first, value, sizeOf, pinned);
                     count = c; // write-volatile
+                    if (pinned) {
+                        ++numDummyPinnedKeys;
+                        ++pinnedCount;
+                    }
                 }
                 if(!pinned && (onlyIfAbsent && oldValue != null || !onlyIfAbsent)) {
                     if (!isPinned(key, hash)) {
@@ -745,7 +726,7 @@ public class SelectableConcurrentHashMap extends ConcurrentHashMap<Object, Eleme
         }
 
         boolean checkAndAssertDummyPinnedEntry() {
-            if(value == DUMMY_PINNED_ELEMENT && !pinned) {
+            if (value == DUMMY_PINNED_ELEMENT && !pinned) {
                 throw new IllegalStateException("HashEntry value is DUMMY_PINNED_ELEMENT but pinned "+pinned);
             }
             return value == DUMMY_PINNED_ELEMENT;
