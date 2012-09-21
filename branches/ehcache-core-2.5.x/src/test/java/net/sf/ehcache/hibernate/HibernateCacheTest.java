@@ -21,7 +21,6 @@ import net.sf.ehcache.hibernate.domain.Person;
 import net.sf.ehcache.hibernate.domain.PhoneNumber;
 import net.sf.ehcache.hibernate.domain.VersionedItem;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -37,7 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsMapContainingKey.hasKey;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -108,7 +107,9 @@ public class HibernateCacheTest {
 
         assertEquals(slcs.getPutCount(), 2);
 
-        Object entry = slcs.getEntries().get(i.getId());
+        final Map<Long, ?> entries = slcs.getEntries();
+        assertThat(entries, hasKey(i.getId()));
+        Object entry = entries.get(i.getId());
         Map map;
         if (entry instanceof Map) {
             map = (Map) entry;
