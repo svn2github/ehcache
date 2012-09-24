@@ -651,7 +651,6 @@ public class SelectableConcurrentHashMap {
                     clear();
                     return;
                 }
-
                 // using clock iterator here so maintaining number of visited entries
                 int numVisited = 0;
                 int dummyPinnedKeys = 0;
@@ -671,9 +670,9 @@ public class SelectableConcurrentHashMap {
                     }
                     table[i] = newFirst;
                 }
-//                if(numDummyPinnedKeys != dummyPinnedKeys) {
-//                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
-//                }
+                if (numDummyPinnedKeys != dummyPinnedKeys) {
+                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
+                }
                 if(dummyPinnedKeys > 0) {
                     count -= dummyPinnedKeys;
                     ++modCount;

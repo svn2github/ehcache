@@ -312,6 +312,15 @@ public class CachePinningTest {
         cache.setPinned(key, true);
         assertThat(cache.get(key), nullValue());
         assertThat(cache.isKeyInCache(key), Matchers.is(false));
+        cache.setPinned(key, false);
+        assertThat(cache.get(key), nullValue());
+        assertThat(cache.isKeyInCache(key), Matchers.is(false));
+        cache.setPinned(key, true);
+        assertThat(cache.get(key), nullValue());
+        assertThat(cache.isKeyInCache(key), is(false));
+        cache.unpinAll();
+        assertThat(cache.get(key), nullValue());
+        assertThat(cache.isKeyInCache(key), Matchers.is(false));
     }
 
     @Test
