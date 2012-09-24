@@ -731,6 +731,7 @@ public class DiskStorageFactory {
             this.key = key;
             this.hitCount = hits;
             hitCount++;
+            hitCount++;
         }
 
         /**
