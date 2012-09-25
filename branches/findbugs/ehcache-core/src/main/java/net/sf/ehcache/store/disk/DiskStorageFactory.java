@@ -740,6 +740,7 @@ public class DiskStorageFactory {
          */
         @Override
         Object getKey() {
+            hitCount++;
             return key;
         }
 
