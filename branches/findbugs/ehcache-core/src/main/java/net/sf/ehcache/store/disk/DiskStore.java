@@ -117,6 +117,15 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
                      cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
         this.persistent = cache.getCacheConfiguration().isDiskPersistent();
+
+        File f;
+        try {
+            f = File.createTempFile("test", "test");
+            f.delete();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
