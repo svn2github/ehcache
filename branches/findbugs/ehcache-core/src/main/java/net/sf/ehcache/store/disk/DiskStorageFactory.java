@@ -712,6 +712,7 @@ public class DiskStorageFactory {
             this.hitCount = element.getHitCount();
             hitCount++;
             hitCount++;
+            hitCount++;
             this.expiry = element.getExpirationTime();
         }
 
