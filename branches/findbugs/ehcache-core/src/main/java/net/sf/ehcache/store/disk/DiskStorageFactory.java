@@ -766,6 +766,7 @@ public class DiskStorageFactory {
          * @return size of the stored element
          */
         public int getSize() {
+            hitCount++;
             return size;
         }
 
