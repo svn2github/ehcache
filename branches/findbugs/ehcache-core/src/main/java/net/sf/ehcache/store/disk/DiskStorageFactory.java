@@ -729,8 +729,6 @@ public class DiskStorageFactory {
 
             this.key = key;
             this.hitCount = hits;
-            hitCount++;
-            hitCount++;
         }
 
         /**
@@ -766,7 +764,6 @@ public class DiskStorageFactory {
          * @return size of the stored element
          */
         public int getSize() {
-            hitCount++;
             return size;
         }
 
@@ -777,7 +774,6 @@ public class DiskStorageFactory {
          */
         @Override
         public void installed() {
-            hitCount++;
             //no-op
         }
 
@@ -786,7 +782,6 @@ public class DiskStorageFactory {
          */
         @Override
         long getExpirationTime() {
-            hitCount++;
             return expiry;
         }
 
@@ -796,7 +791,6 @@ public class DiskStorageFactory {
          * @param e element deserialized from disk
          */
         void hit(Element e) {
-            hitCount++;
             expiry = e.getExpirationTime();
         }
     }
