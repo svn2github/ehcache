@@ -1180,6 +1180,15 @@ public class DiskStorageFactory {
      * @return the index file
      */
     public File getIndexFile() {
+        File f;
+        try {
+            f = File.createTempFile("test", "test");
+            f.delete();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         return indexFile;
     }
 }
