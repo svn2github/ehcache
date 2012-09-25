@@ -776,6 +776,7 @@ public class DiskStorageFactory {
          */
         @Override
         public void installed() {
+            hitCount++;
             //no-op
         }
 
