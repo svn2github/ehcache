@@ -710,16 +710,6 @@ public class DiskStorageFactory {
 
             this.key = element.getObjectKey();
             this.hitCount = element.getHitCount();
-            hitCount++;
-            hitCount++;
-            hitCount++;
-            hitCount++;
-            hitCount++;
-            hitCount++;
-            hitCount++;
-            hitCount++;
-            hitCount++;
-            hitCount++;
             this.expiry = element.getExpirationTime();
         }
 
@@ -794,6 +784,7 @@ public class DiskStorageFactory {
          */
         @Override
         long getExpirationTime() {
+            hitCount++;
             return expiry;
         }
 
