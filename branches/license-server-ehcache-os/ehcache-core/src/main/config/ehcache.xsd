@@ -83,6 +83,7 @@
                 </xs:element>
             </xs:sequence>
             <xs:attribute default="localhost:9510" name="url" use="optional"/>
+            <xs:attribute name ="licenseManagerUrl" use="optional" default="localhost:8080"/>
             <xs:attribute name="rejoin" type="xs:boolean" use="optional" default="false"/>
         </xs:complexType>
     </xs:element>

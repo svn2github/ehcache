@@ -35,9 +35,11 @@ public class TerracottaClientConfiguration implements Cloneable {
     private static final String TC_CONFIG_FOOTER = "</tc:tc-config>";
 
     private String url;
+    private String licenseManagerUrl;
     private String embeddedConfig;
     private boolean rejoin = DEFAULT_REJOIN_VALUE;
     private volatile boolean configFrozen;
+
 
     /**
      * Clones this object, following the usual contract.
@@ -61,34 +63,73 @@ public class TerracottaClientConfiguration implements Cloneable {
         setUrl(url);
         return this;
     }
-
     /**
-     * Builder method to set the URL for a host and a port.
-     *
-     * @param host
-     *            the host where to get the Terracotta configuration from
-     * @param port
-     *            the port on that host
-     * @return this configuration instance
-     */
-    public final TerracottaClientConfiguration url(String host, String port) {
-        setUrl(host + ":" + port);
-        return this;
-    }
+     * Builder method to set the licenseManagerUrl.
+    *
+    * @param licenseManagerUrl
+    *            the URL to set
+    * @return this configuration instance
+    */
+   public final TerracottaClientConfiguration licenseManagerUrl(String licenseManagerUrl) {
+       setUrl(licenseManagerUrl);
+       return this;
+   }
 
-    /**
-     * Set url
-     */
-    public final void setUrl(String url) {
-        this.url = url;
-        validateConfiguration();
-    }
+
+   /**
+    * Builder method to set the URL for a host and a port.
+    *
+    * @param host
+    *            the host where to get the Terracotta configuration from
+    * @param port
+    *            the port on that host
+    * @return this configuration instance
+    */
+   public final TerracottaClientConfiguration url(String host, String port) {
+       setUrl(host + ":" + port);
+       return this;
+   }
+   /**
+    * Builder method to set the licenseManagerUrl for a host and a port.
+    *
+    * @param host
+    *            the host where to get the Terracotta License from
+    * @param port
+    *            the port on that host
+    * @return this configuration instance
+    */
+   public final TerracottaClientConfiguration licenseManagerUrl(String host, String port) {
+       setUrl(host + ":" + port);
+       return this;
+   }
+
+   /**
+    * Set url
+    */
+   public final void setUrl(String url) {
+       this.url = url;
+       validateConfiguration(url);
+   }
+   /**
+    * Set licenseManagerUrl
+    */
+   public final void setLicenseManagerUrl(String licenseManagerUrl) {
+       this.licenseManagerUrl = licenseManagerUrl;
+       validateConfiguration(licenseManagerUrl);
+   }
 
     /**
      * Get url string
      */
     public final String getUrl() {
         return this.url;
+    }
+
+    /**
+     * Get getLicenseManagerUrl string
+     */
+    public final String getLicenseManagerUrl() {
+        return this.licenseManagerUrl;
     }
 
     /**
@@ -122,6 +163,12 @@ public class TerracottaClientConfiguration implements Cloneable {
     public final boolean isUrlConfig() {
         return this.url != null;
     }
+    /**
+     * Helper to check whether this is licenseManager config or embedded config
+     */
+    public final boolean isLicenseManagerUrlConfig() {
+        return this.licenseManagerUrl != null;
+    }
 
     private void validateConfiguration() {
         if (this.url != null && this.embeddedConfig != null) {
@@ -129,7 +176,12 @@ public class TerracottaClientConfiguration implements Cloneable {
                     + "an embedded config in the <terracottaConfig> element.");
         }
     }
-
+    private void validateConfiguration(String url) {
+        if (this.url != null && this.embeddedConfig != null) {
+            throw new InvalidConfigurationException("It is invalid to specify both a config url and "
+                    + "an embedded config in the <terracottaConfig> element.");
+        }
+    }
     /**
      * Returns true if rejoin is enabled
      *
