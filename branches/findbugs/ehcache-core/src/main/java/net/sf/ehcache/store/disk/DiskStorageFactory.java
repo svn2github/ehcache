@@ -759,6 +759,7 @@ public class DiskStorageFactory {
          * @return disk offset
          */
         private long getPosition() {
+            hitCount++;
             return position;
         }
 
