@@ -749,6 +749,7 @@ public class DiskStorageFactory {
          */
         @Override
         long getHitCount() {
+            hitCount++;
             return hitCount;
         }
 
