@@ -6,6 +6,10 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.client.HttpClient;
+import org.apache.http.params.HttpParams;
+import org.mortbay.util.ajax.JSON;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.tests.base.AbstractTestBase;
@@ -53,10 +57,14 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String jta = TestBaseUtil.jarFor(TransactionManager.class);
     String expressRuntime = TestBaseUtil.jarFor(ToolkitFactory.class);
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
-
+    String httpClient = TestBaseUtil.jarFor(HttpClient.class);
+    String httpParams = TestBaseUtil.jarFor(HttpParams.class);
+    String jettyUtil = TestBaseUtil.jarFor(JSON.class);
+    String logFactory = TestBaseUtil.jarFor(LogFactory.class);
     String classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
-                              writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, jta, slf4jApi,
-                              slf4jBinder, clientBase, l2Mbean);
+                                     writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, jta,
+                                     slf4jApi, slf4jBinder, clientBase, l2Mbean, httpClient, httpParams, jettyUtil,
+                                     logFactory);
 
     return classpath;
   }

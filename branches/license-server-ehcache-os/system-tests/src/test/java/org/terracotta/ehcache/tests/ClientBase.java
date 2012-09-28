@@ -29,6 +29,7 @@ public abstract class ClientBase extends AbstractClientBase {
 
   public ClientBase(String cacheName, String args[]) {
     super(args);
+    System.setProperty("licenseServerUrl", getTerracottaUrl());
     this.name = cacheName;
   }
 
