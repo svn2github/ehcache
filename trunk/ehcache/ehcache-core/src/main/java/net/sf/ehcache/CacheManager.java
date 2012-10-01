@@ -361,7 +361,7 @@ public class CacheManager {
     /**
      * initialises the CacheManager
      */
-    protected void init(Configuration initialConfiguration, String configurationFileName, URL configurationURL,
+    protected synchronized void init(Configuration initialConfiguration, String configurationFileName, URL configurationURL,
             InputStream configurationInputStream) {
         Configuration configuration;
         if (initialConfiguration == null) {
@@ -1178,7 +1178,7 @@ public class CacheManager {
      * @throws CacheException
      *             if there was an error creating the cache.
      */
-    public void addCache(String cacheName) throws IllegalStateException, ObjectExistsException, CacheException {
+    public synchronized void addCache(String cacheName) throws IllegalStateException, ObjectExistsException, CacheException {
         checkStatus();
 
         // NPE guard
@@ -1235,7 +1235,7 @@ public class CacheManager {
      * @throws CacheException
      *             if there was an error adding the cache to the CacheManager
      */
-    public void addCache(Ehcache cache) throws IllegalStateException, ObjectExistsException, CacheException {
+    public synchronized void addCache(Ehcache cache) throws IllegalStateException, ObjectExistsException, CacheException {
         checkStatus();
         if (cache == null) {
             return;
@@ -1273,7 +1273,7 @@ public class CacheManager {
      * @throws ObjectExistsException
      *             if another cache with the same name already exists.
      */
-    public void addDecoratedCache(Ehcache decoratedCache) throws ObjectExistsException {
+    public synchronized void addDecoratedCache(Ehcache decoratedCache) throws ObjectExistsException {
         internalAddDecoratedCache(decoratedCache, true);
     }
 
@@ -1283,7 +1283,7 @@ public class CacheManager {
      * @param decoratedCache
      * @throws ObjectExistsException
      */
-    public void addDecoratedCacheIfAbsent(Ehcache decoratedCache) throws ObjectExistsException {
+    public synchronized void addDecoratedCacheIfAbsent(Ehcache decoratedCache) throws ObjectExistsException {
         internalAddDecoratedCache(decoratedCache, false);
     }
 
@@ -1357,11 +1357,7 @@ public class CacheManager {
 
         ehcache = ehcaches.putIfAbsent(cache.getName(), cache);
         if (ehcache != null) {
-            if (strict) {
-                throw new ObjectExistsException("Cache " + cache.getName() + " already exists");
-            } else {
-                return ehcache;
-            }
+            throw new AssertionError();
         }
 
         // Don't notify initial config. The init method of each listener should take care of this.
@@ -1405,7 +1401,7 @@ public class CacheManager {
      * @throws IllegalStateException
      *             if the cache is not {@link Status#STATUS_ALIVE}
      */
-    public void removeCache(String cacheName) throws IllegalStateException {
+    public synchronized void removeCache(String cacheName) throws IllegalStateException {
         checkStatus();
 
         // NPE guard
@@ -1670,7 +1666,7 @@ public class CacheManager {
      * @throws CacheException
      *             if the two caches do not equal each other.
      */
-    public void replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache) throws CacheException {
+    public synchronized void replaceCacheWithDecoratedCache(Ehcache ehcache, Ehcache decoratedCache) throws CacheException {
         if (!ehcache.equals(decoratedCache)) {
             throw new CacheException("Cannot replace " + decoratedCache.getName() + " It does not equal the incumbent cache.");
         }
@@ -1855,7 +1851,7 @@ public class CacheManager {
      * @param cache The Ehcache to be added
      * @return the instance registered with the CacheManager, the cache instance passed in if it was added; or null if Ehcache is null
      */
-    public Ehcache addCacheIfAbsent(final Ehcache cache) {
+    public synchronized Ehcache addCacheIfAbsent(final Ehcache cache) {
         checkStatus();
         return cache == null ? null : addCacheNoCheck(cache, false);
     }
@@ -1866,7 +1862,7 @@ public class CacheManager {
      * @param cacheName the name of the Cache to be created
      * @return the Ehcache instance created and registered; null if cacheName was null or of length 0
      */
-    public Ehcache addCacheIfAbsent(final String cacheName) {
+    public synchronized Ehcache addCacheIfAbsent(final String cacheName) {
         checkStatus();
 
         // NPE guard
