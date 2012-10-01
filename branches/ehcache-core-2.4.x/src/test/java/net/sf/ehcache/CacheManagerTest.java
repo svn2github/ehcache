@@ -57,6 +57,10 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 
@@ -735,6 +739,35 @@ public class CacheManagerTest {
 
             assertThat(manager.addCacheIfAbsent(new Cache(new CacheConfiguration(actual.getName(), 1000))), sameInstance(actual));
             assertThat(manager.addCacheIfAbsent((Ehcache) null), nullValue());
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    @Test
+    public void testMultiThreadedAddCacheIfAbsent() throws InterruptedException, ExecutionException {
+        final CacheManager manager = new CacheManager(new Configuration().name("testMultiThreadedAddCacheIfAbsent"));
+        try {
+            int parallelism = Runtime.getRuntime().availableProcessors();
+
+            ExecutorService executor = Executors.newFixedThreadPool(parallelism);
+            try {
+                List<Future<Ehcache>> results = executor.invokeAll(Collections.nCopies(parallelism, new Callable<Ehcache>() {
+
+                    @Override
+                    public Ehcache call() throws Exception {
+                        return manager.addCacheIfAbsent(new Cache(new CacheConfiguration().name("present").maxElementsInMemory(1000)));
+                    }
+                }));
+
+                for (Future<Ehcache> result : results) {
+                    Ehcache cache = result.get();
+                    assertThat(cache, notNullValue());
+                    assertThat(cache, sameInstance(results.get(0).get()));
+                }
+            } finally {
+                executor.shutdown();
+            }
         } finally {
             manager.shutdown();
         }
