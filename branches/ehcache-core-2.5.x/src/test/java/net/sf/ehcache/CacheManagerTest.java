@@ -16,10 +16,11 @@
 
 package net.sf.ehcache;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -33,10 +34,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
@@ -912,6 +920,35 @@ public class CacheManagerTest {
                 == actualCacheRegisteredWithManager);
 
         assertNull(singletonManager.addCacheIfAbsent((Ehcache) null));
+    }
+
+    @Test
+    public void testMultiThreadedAddCacheIfAbsent() throws InterruptedException, ExecutionException {
+        final CacheManager manager = new CacheManager(new Configuration().name("testMultiThreadedAddCacheIfAbsent"));
+        try {
+            int parallelism = Runtime.getRuntime().availableProcessors();
+
+            ExecutorService executor = Executors.newFixedThreadPool(parallelism);
+            try {
+                List<Future<Ehcache>> results = executor.invokeAll(Collections.nCopies(parallelism, new Callable<Ehcache>() {
+
+                    @Override
+                    public Ehcache call() throws Exception {
+                        return manager.addCacheIfAbsent(new Cache(new CacheConfiguration().name("present").maxElementsInMemory(1000)));
+                    }
+                }));
+
+                for (Future<Ehcache> result : results) {
+                    Ehcache cache = result.get();
+                    assertThat(cache, notNullValue());
+                    assertThat(cache, sameInstance(results.get(0).get()));
+                }
+            } finally {
+                executor.shutdown();
+            }
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test
