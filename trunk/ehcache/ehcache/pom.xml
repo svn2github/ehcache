@@ -30,6 +30,7 @@
     <terracotta.kit.path>${project.build.directory}/tmp/terracotta</terracotta.kit.path>
     <ehcache.sample.version>3.7.0-SNAPSHOT</ehcache.sample.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
+    <skipJavadoc>false</skipJavadoc>
   </properties>
 
   <dependencies>  
@@ -84,7 +85,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.4</version>
+        <version>2.5.1</version>
         <executions>
           <execution>
             <id>copy-TIMs</id>
@@ -100,8 +101,8 @@
           </execution>
 
           <execution>
-            <id>copy-javadoc-sources</id>
-            <phase>process-resources</phase>
+            <id>copy-sources</id>
+            <phase>package</phase>
             <goals>
               <goal>copy</goal>
             </goals>
@@ -115,6 +116,20 @@
                   <overWrite>true</overWrite>
                   <destFileName>${project.artifactId}-${project.version}-sources.jar</destFileName>
                 </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+            </configuration>
+          </execution>      
+
+          <execution>
+            <id>copy-javadoc</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <skip>${skipJavadoc}</skip>
+              <artifactItems>
                 <artifactItem>
                   <groupId>net.sf.ehcache.internal</groupId>
                   <artifactId>ehcache-core</artifactId>
@@ -132,7 +147,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.5</version>
+        <version>1.7</version>
         <executions>
           <execution>
             <id>attach-javadoc</id>
@@ -141,6 +156,7 @@
               <goal>attach-artifact</goal>
             </goals>
             <configuration>
+              <skipAttach>${skipJavadoc}</skipAttach>
               <artifacts>
                 <!-- sources artifact attached by default -->
                 <artifact>
@@ -273,6 +289,20 @@
       </plugin>             
     </plugins>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>skipJavadoc</id>
+      <properties>
+        <skipJavadoc>true</skipJavadoc>
+      </properties>
+      <activation>
+        <file>
+          <exists>${user.home}/.skipJavadoc</exists>
+        </file>
+      </activation>
+    </profile>
+  </profiles>  
 
   <repositories>
     <repository>
