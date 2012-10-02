@@ -1,7 +1,5 @@
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
 import net.sf.ehcache.management.service.CacheManagerService;
@@ -19,11 +17,7 @@ import org.terracotta.management.resource.services.validator.RequestValidator;
 /**
  * @author brandony
  */
-public final class ManagementServerImpl implements ManagementServer {
-
-  private final StandaloneServer standaloneServer;
-
-  private final SamplerRepositoryService samplerRepoSvc;
+public final class ManagementServerImpl extends AbstractManagementServer {
 
   public ManagementServerImpl(ManagementRESTServiceConfiguration configuration) {
 
@@ -39,56 +33,8 @@ public final class ManagementServerImpl implements ManagementServer {
 
     loadEmbeddedAgentServiceLocator(configuration);
     this.samplerRepoSvc = ServiceLocator.locate(SamplerRepositoryService.class);
+    samplerRepoSvc = ServiceLocator.locate(SamplerRepositoryService.class);
     standaloneServer = new StandaloneServer(null, null, basePackage, host, port, null, false);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void start() {
-    try {
-      standaloneServer.start();
-    } catch (Exception e) {
-      throw new CacheException("error starting management server", e);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void stop() {
-    try {
-      standaloneServer.stop();
-    } catch (Exception e) {
-      throw new CacheException("error stopping management server", e);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void register(CacheManager managedResource) {
-    samplerRepoSvc.register(managedResource);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void unregister(CacheManager managedResource) {
-    samplerRepoSvc.unregister(managedResource);
-    ServiceLocator.unload();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasRegistered() {
-    return samplerRepoSvc.hasRegistered();
   }
 
   private void loadEmbeddedAgentServiceLocator(ManagementRESTServiceConfiguration configuration) {
