@@ -930,9 +930,8 @@ public class CacheManagerTest {
 
             ExecutorService executor = Executors.newFixedThreadPool(parallelism);
             try {
-                List<Future<Ehcache>> results = executor.invokeAll(Collections.nCopies(parallelism, new Callable<Ehcache>() {
+                List<Future<Ehcache>> results = executor.invokeAll(Collections.<Callable<Ehcache>>nCopies(parallelism, new Callable<Ehcache>() {
 
-                    @Override
                     public Ehcache call() throws Exception {
                         return manager.addCacheIfAbsent(new Cache(new CacheConfiguration().name("present").maxElementsInMemory(1000)));
                     }
