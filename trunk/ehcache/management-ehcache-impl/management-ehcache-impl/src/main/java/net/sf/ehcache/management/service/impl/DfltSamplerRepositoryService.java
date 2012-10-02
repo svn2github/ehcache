@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
@@ -90,9 +91,12 @@ public class DfltSamplerRepositoryService
         objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
         MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
         platformMBeanServer.registerMBean(this, objectName);
-      } catch (Exception e) {
+      } catch (InstanceAlreadyExistsException iaee) {
+        // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
         objectName = null;
+      } catch (Exception e) {
         LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
+        objectName = null;
       }
     }
     this.objectName = objectName;
