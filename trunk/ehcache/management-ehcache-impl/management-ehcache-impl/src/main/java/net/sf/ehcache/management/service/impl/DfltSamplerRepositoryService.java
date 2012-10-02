@@ -102,9 +102,7 @@ public class DfltSamplerRepositoryService
     this.objectName = objectName;
   }
 
-  /**
-   *
-   */
+  @Override
   public void dispose() {
     if (objectName != null) {
       try {

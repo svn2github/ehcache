@@ -45,6 +45,31 @@
       <version>2.5.0.v201103041518</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <version>3.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>7.6.3.v20120416</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-easymock</artifactId>
+      <version>1.4.10</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-easymock-release-full</artifactId>
+      <version>1.4.10</version>
+      <classifier>full</classifier>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

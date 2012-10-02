@@ -144,6 +144,7 @@ public class ManagementServerLoader {
             Method hasRegisteredMethod = managementServerImplClass.getMethod("hasRegistered", new Class[] {});
             Boolean hasRegistered = (Boolean) hasRegisteredMethod.invoke(managementServerImpl, new Object[] {});
 
+            //there are no more cacheManagers registered to the rest agent, we can now stop it
             if (!hasRegistered) {
                 removeMgmtSvr = true;
                 Method stopMethod = managementServerImplClass.getMethod("stop", new Class[] {});

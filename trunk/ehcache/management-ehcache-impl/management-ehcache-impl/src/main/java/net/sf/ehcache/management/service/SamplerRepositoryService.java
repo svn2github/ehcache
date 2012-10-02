@@ -28,4 +28,9 @@ public interface SamplerRepositoryService {
    * @return
    */
   boolean hasRegistered();
+
+  /**
+   * Dispose of the repository service mbean
+   */
+  void dispose();
 }

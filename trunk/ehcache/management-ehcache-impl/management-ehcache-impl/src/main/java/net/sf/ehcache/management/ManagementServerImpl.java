@@ -4,8 +4,6 @@
  */
 package net.sf.ehcache.management;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
 import net.sf.ehcache.management.service.AgentService;
@@ -14,27 +12,17 @@ import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
 import net.sf.ehcache.management.service.impl.DfltSamplerRepositoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.embedded.StandaloneServer;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.LicenseServiceImpl;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 /**
  * @author brandony
  */
-public final class ManagementServerImpl implements ManagementServer {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ManagementServerImpl.class);
-
-  private final StandaloneServer standaloneServer;
-
-  private volatile DfltSamplerRepositoryService samplerRepoSvc;
+public final class ManagementServerImpl extends AbstractManagementServer {
 
   public ManagementServerImpl(String clientUUID, ManagementRESTServiceConfiguration configuration) {
 
@@ -49,59 +37,10 @@ public final class ManagementServerImpl implements ManagementServer {
     int port = configuration.getPort();
 
     loadEmbeddedAgentServiceLocator(clientUUID, configuration);
+    samplerRepoSvc = ServiceLocator.locate(SamplerRepositoryService.class);
     standaloneServer = new StandaloneServer(null, null, basePackage, host, port, null, false);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void start() {
-    try {
-      standaloneServer.start();
-      this.samplerRepoSvc = (DfltSamplerRepositoryService) ServiceLocator.locate(SamplerRepositoryService.class);
-    } catch (Exception e) {
-      throw new CacheException("error starting management server", e);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void stop() {
-    try {
-      samplerRepoSvc.dispose();
-      standaloneServer.stop();
-    } catch (Exception e) {
-      throw new CacheException("error stopping management server", e);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void register(CacheManager managedResource) {
-    samplerRepoSvc.register(managedResource);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void unregister(CacheManager managedResource) {
-    samplerRepoSvc.unregister(managedResource);
-    ServiceLocator.unload();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasRegistered() {
-    return samplerRepoSvc.hasRegistered();
-  }
 
   private void loadEmbeddedAgentServiceLocator(String clientUUID, ManagementRESTServiceConfiguration configuration) {
     DfltSamplerRepositoryService samplerRepoSvc = new DfltSamplerRepositoryService(clientUUID, configuration);
