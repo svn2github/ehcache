@@ -33,6 +33,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -822,6 +823,13 @@ public interface Ehcache extends Cloneable {
      * @since 1.7
      */
     LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException;
+
+    /**
+     * An access for the {@link CacheStatisticsSampler} associated to this {@code Ehcache}
+     *
+     * @return the {@code CacheStatisticsSampler}
+     */
+    CacheStatisticsSampler getCacheStatisticsSampler();
 
     /**
      * Registers a {@link CacheUsageListener} which will be notified of the

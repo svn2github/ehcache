@@ -38,6 +38,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
@@ -404,6 +405,13 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      */
     public LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException {
         return underlyingCache.getLiveCacheStatistics();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CacheStatisticsSampler getCacheStatisticsSampler() {
+        return underlyingCache.getCacheStatisticsSampler();
     }
 
     /**

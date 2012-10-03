@@ -547,8 +547,9 @@ public class DfltSamplerRepositoryService
       String[] cNames = cacheManager.getCacheNames();
       this.cacheSamplersByName = new HashMap<String, ComprehensiveCacheSampler>(cNames.length);
 
-      for (String cName : cNames)
-        cacheSamplersByName.put(cName, new ComprehensiveCacheSamplerImpl(cacheManager.getCache(cName)));
+      for (String cName : cNames) {
+        cacheSamplersByName.put(cName, new ComprehensiveCacheSamplerImpl(cacheManager.getEhcache(cName)));
+      }
     }
 
     public CacheManagerSampler getCacheManagerSampler() {

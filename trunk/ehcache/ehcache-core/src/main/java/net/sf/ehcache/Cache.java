@@ -3687,9 +3687,7 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
-     * An access for the {@link CacheStatisticsSampler} associated to this {@code Cache}
-     *
-     * @return the {@code CacheStatisticsSampler}
+     * {@inheritDoc}
      */
     public CacheStatisticsSampler getCacheStatisticsSampler() {
         return sampledCacheStatistics;

@@ -43,6 +43,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -642,6 +643,21 @@ public class ClassLoaderAwareCache implements Ehcache {
         t.setContextClassLoader(this.classLoader);
         try {
             return this.cache.getLiveCacheStatistics();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public CacheStatisticsSampler getCacheStatisticsSampler() {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.getCacheStatisticsSampler();
         } finally {
             t.setContextClassLoader(prev);
         }

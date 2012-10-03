@@ -15,7 +15,7 @@
  */
 package net.sf.ehcache.management.sampled;
 
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 
@@ -25,14 +25,14 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
  */
 public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements ComprehensiveCacheSampler {
-    private final Cache cache;
+    private final Ehcache cache;
 
     /**
-     * Constructor that takes a {@link Cache}
+     * Constructor that takes a {@link Ehcache}
      *
      * @param cache the {@code Cache} that backs this sampler
      */
-    public ComprehensiveCacheSamplerImpl(Cache cache) {
+    public ComprehensiveCacheSamplerImpl(Ehcache cache) {
         super(cache);
         this.cache = cache;
     }
