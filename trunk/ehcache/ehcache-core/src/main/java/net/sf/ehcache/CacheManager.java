@@ -474,7 +474,8 @@ public class CacheManager {
         if (managementRESTService == null && clustered && ManagementServerLoader.isManagementAvailable()) {
             managementRESTService = new ManagementRESTServiceConfiguration();
 
-            if (configuration.getTerracottaConfiguration().getUrl().contains("@")) {
+            String url = configuration.getTerracottaConfiguration().getUrl();
+            if (url != null && url.contains("@")) {
                 managementRESTService.setSslEnabled(true);
             }
 
