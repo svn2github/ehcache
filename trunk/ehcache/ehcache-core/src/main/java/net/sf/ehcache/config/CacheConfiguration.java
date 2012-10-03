@@ -1851,6 +1851,10 @@ public class CacheConfiguration implements Cloneable {
         //    errors.add(new CacheConfigError("\"overFlowToOffHeap\" is set, but \"maxBytesLocalOffHeap\" is not set.", getName()));
         //}
 
+        if (persistenceConfiguration != null && persistenceConfiguration.getStrategy() == null) {
+            errors.add(new ConfigError("Persistence configuration found with no strategy set."));
+        }
+
         errors.addAll(validateCachePools(configuration));
 
         return errors;
