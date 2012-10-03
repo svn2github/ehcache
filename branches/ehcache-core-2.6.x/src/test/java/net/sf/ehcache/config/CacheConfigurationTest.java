@@ -195,6 +195,16 @@ public class CacheConfigurationTest {
         }
     }
 
+    @Test
+    public void testNoPersistenceStrategySet() {
+        CacheConfiguration config = new CacheConfiguration().name("foo").persistence(new PersistenceConfiguration()).maxBytesLocalHeap(1, MemoryUnit.MEGABYTES);
+        try {
+            cacheManager.addCache(new Cache(config));
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("Persistence configuration found with no strategy set."));
+        }
+    }
+
     private String getDiskStorePath(final Cache cache) {
         try {
             Field declaredField = Cache.class.getDeclaredField("diskStorePath");
