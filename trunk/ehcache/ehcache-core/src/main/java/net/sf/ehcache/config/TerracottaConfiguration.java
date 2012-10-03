@@ -73,7 +73,8 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Default value for {@link NonstopConfiguration}
      */
-    public static final NonstopConfiguration DEFAULT_NON_STOP_CONFIGURATION = new NonstopConfiguration().enabled(false);
+    public static final NonstopConfiguration DEFAULT_NON_STOP_CONFIGURATION = makeDefaultNonstopConfiguration();
+
 
     /**
      * Default cache coherence setting
@@ -135,7 +136,7 @@ public class TerracottaConfiguration implements Cloneable {
     private boolean cacheXA = DEFAULT_CACHE_XA;
     private boolean synchronousWrites = DEFAULT_SYNCHRONOUS_WRITES;
     private int concurrency = DEFAULT_CONCURRENCY;
-    private NonstopConfiguration nonStopConfiguration = DEFAULT_NON_STOP_CONFIGURATION;
+    private NonstopConfiguration nonStopConfiguration = makeDefaultNonstopConfiguration();
 
     private boolean copyOnReadSet;
     private Consistency consistency = DEFAULT_CONSISTENCY_TYPE;
@@ -668,5 +669,14 @@ public class TerracottaConfiguration implements Cloneable {
          * Eventual consistency
          */
         EVENTUAL;
+    }
+
+    /*
+     * It is important that each instance of TerracottaConfiguration gets it's own, initial, default
+     * NonstopConfiguration. Otherwise, getNonstopConfiguration().blah(...) calls can change the
+     * default instance, leading to weirdness in writing out the xml and other places.
+     */
+    private static NonstopConfiguration makeDefaultNonstopConfiguration() {
+        return new NonstopConfiguration().enabled(false);
     }
 }

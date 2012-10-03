@@ -16,13 +16,28 @@
 
 package net.sf.ehcache.config.nonstop;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.Collection;
+
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.ConfigError;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.generator.ConfigurationUtil;
+
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +70,39 @@ public class NonStopConfigTest extends TestCase {
                 .getType());
         assertNonstopConfig(cacheManager.getCache("four"), false, false, 12345, "localReads");
         cacheManager.shutdown();
+    }
+
+    public void testNonStopDefaultConfigWrites() {
+        // DEV-8234
+        NonstopConfiguration ns=new NonstopConfiguration().enabled(true);
+
+        TerracottaConfiguration tcConf = new TerracottaConfiguration().clustered(true).coherent(true).consistency(Consistency.STRONG);
+        tcConf.getNonstopConfiguration().enabled(true).timeoutMillis(10000);
+
+        TerracottaConfiguration tcConf2 = new TerracottaConfiguration().clustered(true).coherent(true).consistency(Consistency.STRONG);
+        tcConf2.getNonstopConfiguration().enabled(false).timeoutMillis(10000);
+
+        // now, these two condifgs should be different, with only the first being enabled.
+
+        Assert.assertTrue(tcConf.getNonstopConfiguration().isEnabled()!=tcConf2.getNonstopConfiguration().isEnabled());
+
+        // now, send it full trip
+        CacheConfiguration cconf=new CacheConfiguration().name("foo").terracotta(tcConf);
+        Configuration conf=new Configuration().cache(cconf);
+        conf.terracotta(new TerracottaClientConfiguration().url("localhost","10000").rejoin(true));
+        String asText=ConfigurationUtil.generateCacheManagerConfigurationText(conf);
+
+        Assert.assertTrue(asText.contains("nonstop"));
+
+        // finally parse it back in, make sure it all hangs together.
+        Configuration parsedConfig = ConfigurationFactory.parseConfiguration(new BufferedInputStream(new ByteArrayInputStream(asText.getBytes())));
+
+        Assert.assertTrue(parsedConfig.getCacheConfigurations().get("foo").getTerracottaConfiguration().getNonstopConfiguration().isEnabled());
+
+        // no errors
+        Collection<ConfigError> errors = parsedConfig.validate();
+        Assert.assertEquals(errors.size(),0);
+
     }
 
     private void assertNonstopConfig(Cache cache, boolean nonstop, boolean immediateTimeout, int timeoutMillis, String timeoutBehavior) {
