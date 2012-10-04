@@ -23,10 +23,13 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import net.sf.ehcache.Cache;
@@ -41,6 +44,9 @@ import net.sf.ehcache.search.Person.Gender;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
+import net.sf.ehcache.search.aggregator.Aggregators;
+import net.sf.ehcache.search.expression.Criteria;
+import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.Or;
 import net.sf.ehcache.search.impl.GroupedResultImpl;
 
@@ -952,6 +958,118 @@ public class BasicSearchTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void testSearchUnknownAttribute() {
+        Ehcache cache = cacheManager.getEhcache("cache1");
+        SearchTestUtil.populateData(cache);
+
+        Attribute<String> address = new Attribute<String>("address");
+
+        try {
+            cache.getSearchAttribute(address.getAttributeName());
+            fail(address.getAttributeName() + " not expected in cache search config");
+        }
+        catch (CacheException e) {
+            // expected
+        }
+
+        Query query = cache.createQuery().includeAttribute(address);
+        query.end();
+
+        try {
+            query.execute();
+            fail("Expected to fail due to unknown attribute");
+        }
+        catch (SearchException ex) {
+            // expected
+        }
+
+        Aggregator[] aggs = new Aggregator[] { Aggregators.average(address), Aggregators.min(address), Aggregators.max(address),
+                Aggregators.sum(address) } ;
+        for (Aggregator a: aggs) {
+            Query q = cache.createQuery().includeAggregator(a);
+            try {
+                q.execute();
+                fail("Expected to fail due to bad attribute used in aggregator");
+            }
+            catch (SearchException e) {
+                // expected
+            }
+        }
+    }
+
+    @Test
+    public void testBadAttributeInCriteria() {
+        Ehcache cache = cacheManager.getEhcache("cache1");
+        SearchTestUtil.populateData(cache);
+
+        Attribute<String> address = new Attribute<String>("address");
+        try {
+            cache.getSearchAttribute(address.getAttributeName());
+            fail(address.getAttributeName() + " not expected in cache search config");
+        }
+        catch (CacheException e) {
+            // expected
+        }
+
+        Collection<Criteria> expr = new ArrayList<Criteria>();
+        expr.add(address.between("aaa", "zzz"));
+        expr.add(new LessThan("address", "Elm St"));
+        expr.add(address.eq("ehcache"));
+        expr.add(address.ge("rocks"));
+        expr.add(address.gt("FOO"));
+        expr.add(address.ne("bAr"));
+        expr.add(address.ilike("likethis*"));
+        expr.add(address.le("1000"));
+        expr.add(address.in(Collections.singleton("XYZ")));
+
+        for (Criteria c: expr) {
+            Query q = cache.createQuery().addCriteria(c);
+
+            try {
+                q.execute();
+                fail("Expected to fail due to unknown attribute in search criteria");
+            }
+            catch (SearchException e) {
+                // expected
+            }
+        }
+
+        Criteria bool = null;
+        Random r = new Random();
+        for (Criteria c: expr) {
+            if (bool == null) {
+                bool = c;
+                continue;
+            }
+            switch (r.nextInt(2)) {
+                case 0:
+                    bool = bool.and(c);
+                    break;
+                case 1:
+                    bool = bool.or(c);
+                    break;
+                case 2:
+                    bool = bool.not();
+                    break;
+                default:
+                    throw new AssertionError();
+            }
+        }
+
+        Query q = cache.createQuery().addCriteria(bool);
+
+        try {
+            q.execute();
+            fail("Expected to fail due to unknown attribute in search criteria chain");
+        }
+        catch (SearchException e) {
+            // expected
+        }
+
+
     }
 
     @Test
