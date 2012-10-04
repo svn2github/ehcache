@@ -142,7 +142,7 @@ public class ILike extends BaseCriteria {
      * {@inheritDoc}
      */
     public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
-        Object value = attributeExtractors.get(attributeName).attributeFor(e, attributeName);
+        Object value = getExtractor(attributeName, attributeExtractors).attributeFor(e, attributeName);
         if (value == null) {
             return false;
         }

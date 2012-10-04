@@ -16,6 +16,11 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Map;
+
+import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
+
 /**
  * Base class for all criteria types
  *
@@ -42,6 +47,23 @@ public abstract class BaseCriteria implements Criteria {
      */
     public Criteria or(Criteria other) {
         return new Or(this, other);
+    }
+
+    /**
+     * For given attribute name, return its corresponding extractors from supplied map, if it exists. Otherwise, throw an exception.
+     * @param attrName
+     * @param knownExtractors
+     * @return
+     * @throws SearchException
+     */
+    public static AttributeExtractor getExtractor(String attrName,
+            Map<String, AttributeExtractor> knownExtractors) throws SearchException
+    {
+        AttributeExtractor extr = knownExtractors.get(attrName);
+        if (extr != null) {
+            return extr;
+        }
+        throw new SearchException("Unknown search attribute " + attrName);
     }
 
 }

@@ -34,6 +34,8 @@ import net.sf.ehcache.search.impl.ResultsImpl;
 import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.transaction.SoftLockID;
 
+import static net.sf.ehcache.search.expression.BaseCriteria.getExtractor;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -287,7 +289,7 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
                 values = new HashMap<String, Object>();
                 for (Attribute attribute : attributes) {
                     String name = attribute.getAttributeName();
-                    values.put(name, extractors.get(name).attributeFor(element, name));
+                    values.put(name, getExtractor(name, extractors).attributeFor(element, name));
                 }
             }
             return values;
@@ -299,7 +301,7 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
                 if (attribute == null) {
                     aggregator.accept(null);
                 } else {
-                    Object val = extractors.get(attribute.getAttributeName()).attributeFor(element, attribute.getAttributeName());
+                    Object val = getExtractor(attribute.getAttributeName(), extractors).attributeFor(element, attribute.getAttributeName());
                     aggregator.accept(val);
                 }
             }
@@ -314,7 +316,7 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
                 sortAttributes = new Object[orderings.size()];
                 for (int i = 0; i < sortAttributes.length; i++) {
                     String name = orderings.get(i).getAttribute().getAttributeName();
-                    sortAttributes[i] = extractors.get(name).attributeFor(element, name);
+                    sortAttributes[i] = getExtractor(name, extractors).attributeFor(element, name);
                 }
             }
 
