@@ -195,7 +195,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         selfPopulatingCache = new SelfPopulatingCache(cache, factory);
 
         // Check the value
-        assertSame(value, selfPopulatingCache.get("key").getObjectValue());
+        assertEquals(value, selfPopulatingCache.get("key").getObjectValue());
         assertEquals(1, factory.getCount());
 
         // Refresh
@@ -203,7 +203,7 @@ public class SelfPopulatingCacheTest extends CacheTest {
         assertEquals(2, factory.getCount());
 
         // Check the value
-        assertSame(value, selfPopulatingCache.get("key").getObjectValue());
+        assertEquals(value, selfPopulatingCache.get("key").getObjectValue());
         assertEquals(2, factory.getCount());
 
     }
