@@ -44,6 +44,7 @@ import net.sf.ehcache.search.Person.Gender;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
+import net.sf.ehcache.search.aggregator.Aggregators;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.Or;
@@ -965,6 +966,14 @@ public class BasicSearchTest {
 
         Attribute<String> address = new Attribute<String>("address");
 
+        try {
+            cache.getSearchAttribute(address.getAttributeName());
+            fail(address.getAttributeName() + " not expected in cache search config");
+        }
+        catch (CacheException e) {
+            // expected
+        }
+
         Query query = cache.createQuery().includeAttribute(address);
         query.end();
 
@@ -974,6 +983,19 @@ public class BasicSearchTest {
         }
         catch (SearchException ex) {
             // expected
+        }
+
+        Aggregator[] aggs = new Aggregator[] { Aggregators.average(address), Aggregators.min(address), Aggregators.max(address),
+                Aggregators.sum(address) } ;
+        for (Aggregator a: aggs) {
+            Query q = cache.createQuery().includeAggregator(a);
+            try {
+                q.execute();
+                fail("Expected to fail due to bad attribute used in aggregator");
+            }
+            catch (SearchException e) {
+                // expected
+            }
         }
     }
 
