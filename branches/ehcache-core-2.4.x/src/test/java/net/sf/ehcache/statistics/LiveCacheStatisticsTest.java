@@ -29,6 +29,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Statistics;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.junit.Test;
 
@@ -84,7 +85,7 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
      * @throws InterruptedException
      */
     @Test
-    public void testCacheUsageStatistics() throws InterruptedException {
+    public void testCacheUsageStatistics() throws Exception {
         // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
@@ -116,12 +117,12 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
      * - average get time
      */
     public void doTestCacheUsageStatistics(Cache cache,
-                                           boolean statisticsEnabled) throws InterruptedException {
+                                           boolean statisticsEnabled) throws Exception {
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         // allow disk writer thread time to perform the write
-        Thread.sleep(100);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
         // key1 should be in the Disk Store
         cache.get("key1");
 
