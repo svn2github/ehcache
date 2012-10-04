@@ -4045,6 +4045,9 @@ public class Cache implements InternalEhcache, StoreListener {
     void clusterRejoinComplete() {
         // initialize again
         initialise();
+        if(cacheWriterManagerInitFlag.compareAndSet(true, false)) {
+            initialiseCacheWriterManager(registeredCacheWriter != null);
+        }
         cacheStatus.clusterRejoinComplete();
         if (compoundStore instanceof RejoinAwareNonstopStore) {
             ((RejoinAwareNonstopStore) compoundStore).clusterRejoined();
