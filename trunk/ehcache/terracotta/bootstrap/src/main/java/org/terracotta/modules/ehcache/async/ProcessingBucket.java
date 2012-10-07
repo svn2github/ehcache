@@ -44,7 +44,7 @@ public class ProcessingBucket<E extends Serializable> {
   private final AtomicLong        workDelay;
   private final ProcessingWorker  processingWorkerRunnable;
   private volatile Thread         processingWorkerThread;
-  private Callback                destroyCallback;
+  private Callback                cleanupCallback;
   private final boolean           workingOnDeadBucket;
 
   public ProcessingBucket(String bucketName, AsyncConfig config, ToolkitList toolkitList, ClusterInfo cluster,
@@ -152,9 +152,17 @@ public class ProcessingBucket<E extends Serializable> {
   }
 
   private void destroyToolkitList() {
-    toolkitList.destroy();
-    if (destroyCallback != null) {
-      destroyCallback.callback();
+    try {
+      toolkitList.destroy();
+    } catch (Throwable t) {
+      if (t.getClass().getName().equals("com.tc.exception.TCNotRunningException") && !cluster.areOperationsEnabled()) {
+        LOGGER
+            .warn("destroyToolkitList caught TCNotRunningException on processing thread, but looks like we were shut down. "
+                    + "This can safely be ignored!", t);
+      }
+    }
+    if (cleanupCallback != null) {
+      cleanupCallback.callback();
     }
   }
 
@@ -413,8 +421,8 @@ public class ProcessingBucket<E extends Serializable> {
     }
   }
 
-  void setDestroyCallback(Callback removeOnDestroy) {
-    this.destroyCallback = removeOnDestroy;
+  void setCleanupCallback(Callback cleanupDeadBucket) {
+    this.cleanupCallback = cleanupDeadBucket;
   }
 
   private final class ProcessingWorker implements Runnable {

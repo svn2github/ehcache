@@ -12,11 +12,11 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BasicWriteBehindDeadBucketTest extends AbstractCacheTestBase {
+public class BasicDeadBucketWriteBehindTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
 
-  public BasicWriteBehindDeadBucketTest(TestConfig testConfig) {
+  public BasicDeadBucketWriteBehindTest(TestConfig testConfig) {
     super("basic-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
     testConfig.getClientConfig().setParallelClients(false);
   }

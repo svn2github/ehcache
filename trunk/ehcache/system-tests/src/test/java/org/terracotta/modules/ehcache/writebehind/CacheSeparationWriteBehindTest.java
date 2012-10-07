@@ -89,7 +89,7 @@ public class CacheSeparationWriteBehindTest extends AbstractCacheTestBase {
         cache2.removeWithWriter("key");
       }
 
-      TimeUnit.MINUTES.sleep(20);
+      TimeUnit.MINUTES.sleep(1);
       barrier.await();
 
       System.out.println("[Client " + index + " processed " + writer1.getWriteCount() + " writes for writer 1]");

@@ -61,7 +61,7 @@ public class BasicWriteBehindTestClient extends AbstractWriteBehindClient {
     }, 500L, 1L, TimeUnit.MILLISECONDS);
 
     // done with put now shutdown cache manager
-    // this call should wait write behind queue get empty
+    // this call should wait write behind queue to get empty
     Thread.sleep(TimeUnit.SECONDS.toMillis(1L));
     System.out.println("calling cacheManager shutdown");
     cache.getCacheManager().shutdown();

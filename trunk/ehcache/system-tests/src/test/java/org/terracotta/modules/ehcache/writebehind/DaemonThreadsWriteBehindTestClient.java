@@ -23,9 +23,9 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
-public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
+public class DaemonThreadsWriteBehindTestClient extends AbstractWriteBehindClient {
 
-  public WriteBehindThreadsTestClient(String[] args) {
+  public DaemonThreadsWriteBehindTestClient(String[] args) {
     super(args);
 
   }
@@ -39,7 +39,7 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
     int daemonThreadCountA = tbean.getDaemonThreadCount();
     long[] listA = tbean.getAllThreadIds();
     for (int loopNumber = 0; loopNumber < 4; loopNumber++) {
-      cacheManager = new CacheManager(WriteBehindThreadsTestClient.class.getResourceAsStream("/ehcache-config.xml"));
+      cacheManager = new CacheManager(DaemonThreadsWriteBehindTestClient.class.getResourceAsStream("/ehcache-config.xml"));
       int daemonThreadCountB = tbean.getDaemonThreadCount();
       Assert.assertTrue(daemonThreadCountA < daemonThreadCountB);
       Cache cache = cacheManager.getCache("test");
@@ -72,7 +72,7 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
     Set<String> knownThreads = getKnownThreads();
     int skipThreadCount = 0;
     StringBuffer threadsInfo = new StringBuffer();
-    System.out.println("\n\n" + listIntC.size() + " Start Printing Stack Trace--------------------");
+    System.out.println("\n\n" + listIntC.size() + " Start Printing Stack Trace\n--------------------");
     for (int i = 0; i < listIntC.size(); i++) {
       ThreadInfo tinfo = tbean.getThreadInfo(listIntC.get(i));
       if (knownThreads.contains(tinfo.getThreadName().trim())) {
@@ -80,13 +80,12 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
         continue;
       }
       String info = "Thread name: " + tinfo.getThreadName() + " | " + tinfo.getThreadId();
-      System.out.println(info);
       threadsInfo.append(info);
       for (StackTraceElement e : tinfo.getStackTrace()) {
         threadsInfo.append(e + "\n\n");
       }
     }
-    System.out.println(threadsInfo + "\n\nEnd-----------------------\n\n");
+    System.out.println(threadsInfo + "\n\n-----------------------\n\n");
     Assert.assertEquals(threadsInfo.toString(), daemonThreadCountA, daemonThreadCountC - skipThreadCount);
     Assert.assertEquals(nonDaemonThreadCountA, nonDaemonThreadCountC);
   }
@@ -94,7 +93,7 @@ public class WriteBehindThreadsTestClient extends AbstractWriteBehindClient {
   private Set<String> getKnownThreads() {
     Set<String> skipThreads = new HashSet<String>();
     skipThreads.add("Attach Listener");
-
+    skipThreads.add("Poller SunPKCS11-Darwin");
     return skipThreads;
   }
 
