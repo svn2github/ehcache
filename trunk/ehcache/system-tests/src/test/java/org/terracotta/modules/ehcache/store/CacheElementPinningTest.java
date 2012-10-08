@@ -46,6 +46,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
     private void runBasicElementPinningTest(Cache cache) throws InterruptedException, BrokenBarrierException {
       final ToolkitBarrier barrier = getBarrierForAllClients();
       int index = barrier.await();
+      debug(" Client Index = " + index);
       if (index == 0) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.setPinned(i, true);
@@ -86,8 +87,8 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
 
       if (index == 1) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
-          cache.put(new Element(i, i + 1));
           cache.setPinned(i, true);
+          cache.put(new Element(i, i + 1));
         }
         waitForAllCurrentTransactionsToComplete(cache);
         Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
@@ -101,8 +102,8 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
 
       if (index == 0) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
-          cache.put(new Element(i, i + 2));
           cache.setPinned(i, true);
+          cache.put(new Element(i, i + 2));
         }
       }
 

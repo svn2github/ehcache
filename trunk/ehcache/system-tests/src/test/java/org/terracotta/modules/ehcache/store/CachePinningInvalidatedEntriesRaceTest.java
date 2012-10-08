@@ -85,9 +85,9 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
       }
       // All the gets on both the clients should be local as the pinned entries would have been faulted.
       if (index == 0) {
-        Assert.assertEquals(ELEMENT_COUNT * 3, cache.getStatistics().getInMemoryHits());
-        Assert.assertTrue(0 < cache.getStatistics().getInMemoryMisses());
-        Assert.assertTrue(0 < cache.getStatistics().getOnDiskHits());
+        Assert.assertEquals(ELEMENT_COUNT * 4, cache.getStatistics().getInMemoryHits());
+        Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
+        Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
       }
       getBarrierForAllClients().await();
     }
