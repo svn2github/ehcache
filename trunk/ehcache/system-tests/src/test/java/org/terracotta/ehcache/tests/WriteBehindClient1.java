@@ -29,9 +29,9 @@ public class WriteBehindClient1 extends AbstractWriteBehindClient {
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     for (int i = 0; i < 1000; i++) {
-      cache.putWithWriter(new Element("key" + i % 200, "value" + i)); // 200 different keys, write operation
+      cache.putWithWriter(new Element("key" + i % 200, "value" + i)); // 200 different keys, 1000 write operation
       if (0 == i % 10) {
-        cache.removeWithWriter("key" + i % 200 / 10); // 10 different keys, delete operation
+        cache.removeWithWriter("key" + i % 200 / 10); // 20 different keys, 100 delete operation
       }
     }
 

@@ -14,6 +14,8 @@ import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
 
+import java.util.concurrent.TimeUnit;
+
 public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
 
   private static final int NODE_COUNT = 2;
@@ -50,9 +52,9 @@ public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
         cache.registerCacheWriter(writer);
 
         for (int i = 0; i < 1000; i++) {
-          cache.putWithWriter(new Element("key" + i % 200, "value" + i));
+          cache.putWithWriter(new Element("key" + i % 200, "value" + i)); // 200 different keys, 1000 write operation
           if (0 == i % 10) {
-            cache.removeWithWriter("key" + i % 200 / 10);
+            cache.removeWithWriter("key" + i % 200 / 10); // 20 different keys, 100 delete operation
           }
         }
       } else {
@@ -63,7 +65,7 @@ public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
         cache.removeWithWriter("key");
       }
 
-      Thread.sleep(60000);
+      TimeUnit.MINUTES.sleep(1L);
       barrier.await();
 
       System.out.println("[Client " + index + " processed " + writer.getWriteCount() + " writes for writer 1]");
@@ -78,11 +80,11 @@ public class CoalescingWriteBehindTest extends AbstractCacheTestBase {
         System.out.println("[Clients processed a total of " + totalWriteCount.get() + " writes]");
         System.out.println("[Clients processed a total of " + totalDeleteCount.get() + " deletes]");
 
-        if (totalWriteCount.get() < 201 || totalWriteCount.get() > 1001) { throw new AssertionError(
+        if (totalWriteCount.get() < 180 || totalWriteCount.get() > 1001) { throw new AssertionError(
                                                                                                     totalWriteCount
                                                                                                         .get()); }
 
-        if (totalDeleteCount.get() < 21 || totalDeleteCount.get() > 101) { throw new AssertionError(
+        if (totalDeleteCount.get() < 20 || totalDeleteCount.get() > 101) { throw new AssertionError(
                                                                                                     totalDeleteCount
                                                                                                         .get()); }
       }
