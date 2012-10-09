@@ -25,6 +25,16 @@
 		maxElementsOnDisk="100" eternal="true" statistics="true">
 		<terracotta clustered="true" consistency="strong" />
 	</cache>
+	
+	<cache name="pinnedElementEventualNoServerEviction" maxElementsInMemory="10"
+		maxElementsOnDisk="10000" eternal="true" statistics="true">
+		<terracotta clustered="true" consistency="eventual" />
+	</cache>
+
+	<cache name="pinnedElementStrongNoServerEviction" maxElementsInMemory="10"
+		maxElementsOnDisk="10000" eternal="true" statistics="true">
+		<terracotta clustered="true" consistency="strong" />
+	</cache>
   
   <terracottaConfig url="localhost:PORT"/>  
 </ehcache>
