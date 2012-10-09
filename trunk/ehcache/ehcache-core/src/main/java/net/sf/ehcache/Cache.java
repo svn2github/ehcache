@@ -1125,13 +1125,14 @@ public class Cache implements InternalEhcache, StoreListener {
 
             if (isSearchable()) {
                 this.compoundStore = new ElementIdAssigningStore(compoundStore);
-            }
 
-            Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
-            for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
-                extractors.put(sa.getName(), sa.constructExtractor());
+                Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
+                for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
+                    extractors.put(sa.getName(), sa.constructExtractor());
+                }
+
+                compoundStore.setAttributeExtractors(extractors);
             }
-            compoundStore.setAttributeExtractors(extractors);
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
             cacheStatus.changeState(Status.STATUS_ALIVE);
             initialiseRegisteredCacheWriter();
