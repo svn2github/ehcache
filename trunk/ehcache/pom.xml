@@ -26,6 +26,7 @@
     <module>ehcache</module>
     <module>management-ehcache</module>
     <module>management-ehcache-impl</module>
+    <module>ehcache-scheduled-refresh</module>
   </modules>
 
   <profiles>

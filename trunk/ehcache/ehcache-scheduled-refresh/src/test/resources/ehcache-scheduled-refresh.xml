@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+	<!-- Disable for test ehcache.xml. Should go to the same place. -->
+	<diskStore path="java.io.tmpdir" />
+
+	<defaultCache maxElementsInMemory="10" eternal="false"
+		timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false" />
+
+	<cache name="sr-test" eternal="true"
+		maxElementsInMemory="5000" overflowToDisk="false" >
+		<cacheLoaderFactory class="net.sf.ehcache.constructs.scheduledrefresh.OddClassLoaderFactory"/>
+		<cacheLoaderFactory class="net.sf.ehcache.constructs.scheduledrefresh.EvenClassLoaderFactory"/>
+		<cacheExtensionFactory class="net.sf.ehcache.constructs.scheduledrefresh.TestScheduledRefreshFactory"
+		properties="batchSize=100,quartzJobCount=2,cronExpression=0/5 * * * * ?" />
+	</cache>
+
+</ehcache>
