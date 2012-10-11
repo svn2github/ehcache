@@ -29,6 +29,8 @@ public abstract class AbstractManagementServer implements ManagementServer {
     try {
       standaloneServer.start();
     } catch (Exception e) {
+      samplerRepoSvc.dispose();
+      ServiceLocator.unload();
       throw new CacheException("error starting management server", e);
     }
   }

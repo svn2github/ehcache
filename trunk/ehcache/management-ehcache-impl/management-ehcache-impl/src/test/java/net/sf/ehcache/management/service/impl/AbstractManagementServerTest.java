@@ -65,9 +65,12 @@ public class AbstractManagementServerTest {
    */
   public void startTestException() throws Exception {
     StandaloneServer serverMock = PowerMock.createMock(StandaloneServer.class);
-    ManagementServer managementServer = new ManagementServer(serverMock, null);
+    SamplerRepositoryService sampleRepositoryServiceMock = createMock(SamplerRepositoryService.class);
+    ManagementServer managementServer = new ManagementServer(serverMock, sampleRepositoryServiceMock);
     serverMock.start();
     PowerMock.expectLastCall().andAnswer(new ExceptionAnswer<Object>());
+    sampleRepositoryServiceMock.dispose();
+    expectLastCall().andAnswer(new NullAnswer<Object>());
     PowerMock.replay(serverMock);
     managementServer.start();
     PowerMock.verify(serverMock);
