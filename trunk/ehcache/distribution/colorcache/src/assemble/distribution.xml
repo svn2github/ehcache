@@ -20,7 +20,7 @@
       <directory>${project.build.directory}/${project.name}</directory>
       <excludes>
         <exclude>**/ehcache*.jar</exclude>
-        <exclude>**/terracotta-toolkit-*-runtime*.jar</exclude>
+        <exclude>**/terracotta-toolkit*-runtime*.jar</exclude>
       </excludes>
       <outputDirectory>/webapps/${project.name}</outputDirectory>
     </fileSet>
