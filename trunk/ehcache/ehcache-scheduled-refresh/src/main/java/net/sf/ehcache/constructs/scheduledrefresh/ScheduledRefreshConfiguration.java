@@ -23,9 +23,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Configuration for a {@link ScheduledRefreshCacheExtension}. Can be
  * initialized from a {@link Properties} object.
- * 
+ *
  * @author cschanck
- * 
  */
 public class ScheduledRefreshConfiguration implements Serializable {
 
@@ -73,7 +72,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Properties key for evictions on refresh fail
      */
-    public static final String PROP_NULL_REFRESH_EVICTS = "nullRefreshEvicts";
+    public static final String PROP_LOAD_MISS_EVICTS = "loadMissEvicts";
 
     /**
      * Default setting for null eviction.
@@ -98,8 +97,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Default polling timeout for monitoring refresh jobs.
      */
-    public static final int DEFAULT_POLL_TIME_MS = (int) TimeUnit.MILLISECONDS
-            .convert(2, TimeUnit.SECONDS);
+    public static final int DEFAULT_POLL_TIME_MS = (int) TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS);
 
     private static final long serialVersionUID = -6877036694574988955L;
 
@@ -108,11 +106,10 @@ public class ScheduledRefreshConfiguration implements Serializable {
     private String cronExpression = null;
     private int quartzThreadCount = DEFAULT_QUARTZ_THREADCOUNT;
     private String terracottaConfigUrl = null;
-    private String keyGeneratorClass = SimpleScheduledRefreshKeyGenerator.class
-            .getName();
+    private String keyGeneratorClass = SimpleScheduledRefreshKeyGenerator.class.getName();
     private String uniqueNamePart = null;
     private int pollTimeMs = DEFAULT_POLL_TIME_MS;
-    private boolean nullRefreshEvicts = DEFAULT_NULL_EVICTS;
+    private boolean loadMissEvicts = DEFAULT_NULL_EVICTS;
 
     private volatile boolean valid = false;
 
@@ -125,7 +122,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Initialize this configuration from a {@link Properties} object. Will be
      * validated before returning.
-     * 
+     *
      * @param properties
      * @return this configuration
      */
@@ -146,14 +143,12 @@ public class ScheduledRefreshConfiguration implements Serializable {
                     setPollTimeMs(Integer.parseInt(stringValue));
                 } else if (PROP_TC_CONFIG_URL.equals(property)) {
                     setTerracottaConfigUrl(stringValue);
-                } else if (PROP_NULL_REFRESH_EVICTS.equals(property)) {
-                    setNullRefreshEvicts(Boolean.parseBoolean(stringValue));
+                } else if (PROP_LOAD_MISS_EVICTS.equals(property)) {
+                    setLoadMissEvicts(Boolean.parseBoolean(stringValue));
                 } else if (PROP_KEY_GENERATOR_CLASS.equals(property)) {
                     setKeyGeneratorClass(stringValue);
                 } else {
-                    throw new IllegalArgumentException(
-                            "Unrecognized Schedule Refresh cache config key: "
-                                    + property);
+                    throw new IllegalArgumentException("Unrecognized Schedule Refresh cache config key: " + property);
                 }
             }
         }
@@ -162,18 +157,16 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Express this configuration as a {@link Properties} object.
-     * 
+     *
      * @return properties version of this config
      */
     public Properties toProperties() {
         Properties p = new Properties();
         p.setProperty(PROP_BATCH_SIZE_KEY, Long.toString(getBatchSize()));
         p.setProperty(PROP_USE_BULKLOAD, Boolean.toString(isUseBulkload()));
-        p.setProperty(PROP_NULL_REFRESH_EVICTS,
-                Boolean.toString(isNullRefreshEvicts()));
+        p.setProperty(PROP_LOAD_MISS_EVICTS, Boolean.toString(isLoadMissEvicts()));
         p.setProperty(PROP_CRON_SCHEDULE, getCronExpression());
-        p.setProperty(PROP_LOCAL_QUARTZ_JOB_COUNT,
-                Integer.toString(getQuartzThreadCount()));
+        p.setProperty(PROP_LOCAL_QUARTZ_JOB_COUNT, Integer.toString(getQuartzThreadCount()));
         p.setProperty(PROP_POLL_TIME_MS, Integer.toString(getPollTimeMs()));
         p.setProperty(PROP_KEY_GENERATOR_CLASS, getKeyGeneratorClass());
         if (getTerracottaConfigUrl() != null) {
@@ -184,7 +177,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Validate and mark this configuration good to use.
-     * 
+     *
      * @return validated configuration
      * @throws IllegalStateException
      */
@@ -198,15 +191,14 @@ public class ScheduledRefreshConfiguration implements Serializable {
      */
     public void validate() {
         if (cronExpression == null) {
-            throw new IllegalArgumentException(
-                    "Cron Schedule cannot be unspecified");
+            throw new IllegalArgumentException("Cron Schedule cannot be unspecified");
         }
         valid = true;
     }
 
     /**
      * is this configuration valid to use?
-     * 
+     *
      * @return
      */
     public boolean isValid() {
@@ -215,7 +207,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Get the batch size with which refresh requests will be processed.
-     * 
+     *
      * @return batch size
      */
     public int getBatchSize() {
@@ -225,9 +217,8 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Set the batch size for processing refresh requests. This is the number of
      * keys will be processed in a batch.
-     * 
-     * @param batchSize
-     *            maximum batch size
+     *
+     * @param batchSize maximum batch size
      */
     public void setBatchSize(int batchSize) {
         valid = false;
@@ -236,9 +227,8 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Fluently set the batch size for processing refresh requests.
-     * 
-     * @param batchSize
-     *            maximum batch size
+     *
+     * @param batchSize maximum batch size
      * @return this configuration object
      */
     public ScheduledRefreshConfiguration batchSize(int batchSize) {
@@ -248,7 +238,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Get whether the cache will be put in bulk load mode prior to refresh.
-     * 
+     *
      * @return
      */
     public boolean isUseBulkload() {
@@ -259,7 +249,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
      * Set the flag to use bulk load for refreshing the keys. If true, the cache
      * will be put in bulkLoade mode prior to running the refresh, and after all
      * the jobs are finished, it will be restored to it's prior state.
-     * 
+     *
      * @param useBulkload
      */
     public void setUseBulkload(boolean useBulkload) {
@@ -269,7 +259,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Fluently set the bulk load flag.
-     * 
+     *
      * @param yes
      * @return
      */
@@ -281,7 +271,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Return the string cron expression which will be passed to Quartz to
      * schedule the refresh.
-     * 
+     *
      * @return
      */
     public String getCronExpression() {
@@ -291,7 +281,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Set the cron expression Quartz will use for scheduling this refresh job.
      * See Quartz documentation for a further explanation.
-     * 
+     *
      * @param cronExpression
      */
     public void setCronExpression(String cronExpression) {
@@ -302,7 +292,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Fluently set the cron expression Quartz will use for scheduling this
      * refresh job
-     * 
+     *
      * @param cronExpression
      * @return
      */
@@ -313,7 +303,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Get the quartz thread count.
-     * 
+     *
      * @return
      */
     public int getQuartzThreadCount() {
@@ -324,7 +314,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
      * Set the Quartz thread count. This is the number of concurrent refresh
      * batches which can be processed at one time. The overseeing job will poll
      * and not schedule more than this many jobs at one time.
-     * 
+     *
      * @param quartzThreadCount
      */
     public void setQuartzThreadCount(int quartzThreadCount) {
@@ -334,7 +324,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Fluently set the Quartz thread count.
-     * 
+     *
      * @param quartzThreadCount
      * @return
      */
@@ -345,7 +335,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
 
     /**
      * Get the key generator class used to generate the list of keys to refresh.
-     * 
+     *
      * @return
      */
     public String getKeyGeneratorClass() {
@@ -356,7 +346,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
      * Set the key generator class used to generate the list of keys to refresh.
      * This is the class used to generate keys from the target cache. A simple
      * implementation of the naive getKeys() approach is supplied.
-     * 
+     *
      * @param keyGeneratorClass
      */
     public void setKeyGeneratorClass(String keyGeneratorClass) {
@@ -366,12 +356,11 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Fluently set the key generator class used to generate the list of keys to
      * refresh.
-     * 
+     *
      * @param keyGeneratorClass
      * @return
      */
-    public ScheduledRefreshConfiguration keyGeneratorClass(
-            String keyGeneratorClass) {
+    public ScheduledRefreshConfiguration keyGeneratorClass(String keyGeneratorClass) {
         setKeyGeneratorClass(keyGeneratorClass);
         return this;
     }
@@ -379,7 +368,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Get the Terracotta configuration url, to use a TerracottaJobStore. If
      * this is not set, a RamJobStore will be used.
-     * 
+     *
      * @return
      */
     public String getTerracottaConfigUrl() {
@@ -398,8 +387,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
      * Fluently, set the Terracotta configuration url, to use a
      * TerracottaJobStore. If this is not set, a RamJobStore will be used.
      */
-    public ScheduledRefreshConfiguration terracottaConfigUrl(
-            String terracottaClusterURL) {
+    public ScheduledRefreshConfiguration terracottaConfigUrl(String terracottaClusterURL) {
         setTerracottaConfigUrl(terracottaClusterURL);
         return this;
     }
@@ -409,7 +397,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
      * cache name for this extension, and for the job scheduler, and job group.
      * If you are going to have multiple scheduled refresh extensions on the
      * same cache, this is necessary.
-     * 
+     *
      * @return
      */
     public String getUniqueNamePart() {
@@ -421,7 +409,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
      * cache name for this extension, and for the job scheduler, and job group.
      * If you are going to have multiple scheduled refresh extensions on the
      * same cache, this is necessary.
-     * 
+     *
      * @return
      */
     public void setUniqueNamePart(String part) {
@@ -433,7 +421,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
      * manager and cache name for this extension, and for the job scheduler, and
      * job group. If you are going to have multiple scheduled refresh extensions
      * on the same cache, this is necessary.
-     * 
+     *
      * @return
      */
     public ScheduledRefreshConfiguration uniqueNamePart(String part) {
@@ -442,43 +430,40 @@ public class ScheduledRefreshConfiguration implements Serializable {
     }
 
     /**
-     * Get whether a null return from all CacheLoaders will force an eviction
+     * Get whether now value found in all CacheLoaders will force an eviction
      * prematurely from the underlying cache.
      */
-    public boolean isNullRefreshEvicts() {
-        return nullRefreshEvicts;
+    public boolean isLoadMissEvicts() {
+        return loadMissEvicts;
     }
 
     /**
-     * Set whether a null return from all CacheLoaders should force an eviction
+     * Set whether now value found in all CacheLoaders will force an eviction
      * prematurely from the underlying cache.
-     * 
-     * @param nullRefreshEvicts
-     *            true to evict
+     *
+     * @param loadMissEvicts true to evict
      */
-    public void setNullRefreshEvicts(boolean nullRefreshEvicts) {
+    public void setLoadMissEvicts(boolean loadMissEvicts) {
         valid = false;
-        this.nullRefreshEvicts = nullRefreshEvicts;
+        this.loadMissEvicts = loadMissEvicts;
     }
 
     /**
-     * Fluently set whether a null return from all CacheLoaders should force an
+     * Fluently set whether now value found in all CacheLoaders will force an eviction
      * eviction prematurely from the underlying cache.
-     * 
-     * @param nullRefreshEvicts
-     *            true to evict
+     *
+     * @param loadMissEvicts true to evict
      * @return this config
      */
-    public ScheduledRefreshConfiguration nullRefreshEvicts(
-            boolean nullRefreshEvicts) {
-        setNullRefreshEvicts(nullRefreshEvicts);
+    public ScheduledRefreshConfiguration loadMissEvicts(boolean loadMissEvicts) {
+        setLoadMissEvicts(loadMissEvicts);
         return this;
     }
 
     /**
      * Get the time interval the {@link OverseerJob} will use to poll for job
      * completion.
-     * 
+     *
      * @return
      */
     public int getPollTimeMs() {
@@ -488,7 +473,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Set the time interval the {@link OverseerJob} will use to poll for job
      * completion.
-     * 
+     *
      * @return
      */
     public void setPollTimeMs(int pollTimeMs) {
@@ -499,7 +484,7 @@ public class ScheduledRefreshConfiguration implements Serializable {
     /**
      * Fluently set the time interval the {@link OverseerJob} will use to poll
      * for job completion.
-     * 
+     *
      * @return
      */
     public ScheduledRefreshConfiguration pollTimeMs(int pollTimeMs) {

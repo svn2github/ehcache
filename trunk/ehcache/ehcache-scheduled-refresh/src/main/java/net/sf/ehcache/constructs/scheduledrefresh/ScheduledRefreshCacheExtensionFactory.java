@@ -15,24 +15,22 @@
  */
 package net.sf.ehcache.constructs.scheduledrefresh;
 
-import java.util.Properties;
-
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.extension.CacheExtensionFactory;
+
+import java.util.Properties;
 
 /**
  * Factory class for generating instances of
  * {@link ScheduledRefreshCacheExtension}. This is the class used in the
  * ehcache.xml file to add and extension to a cache.
- * 
+ *
  * @author cschanck
- * 
  */
-public class ScheduledRefreshCacheExtensionFactory extends
-        CacheExtensionFactory {
+public class ScheduledRefreshCacheExtensionFactory extends CacheExtensionFactory {
     /**
-     * No arg constructor.  
+     * No arg constructor.
      */
     public ScheduledRefreshCacheExtensionFactory() {
         super();
@@ -42,10 +40,8 @@ public class ScheduledRefreshCacheExtensionFactory extends
      * {@inheritDoc}
      */
     @Override
-    public CacheExtension createCacheExtension(Ehcache cache,
-            Properties properties) {
-        ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration()
-                .fromProperties(properties).build();
+    public CacheExtension createCacheExtension(Ehcache cache, Properties properties) {
+        ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().fromProperties(properties).build();
         return new ScheduledRefreshCacheExtension(config, cache);
     }
 

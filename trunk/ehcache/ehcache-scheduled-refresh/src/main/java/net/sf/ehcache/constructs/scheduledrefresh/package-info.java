@@ -13,27 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.constructs.scheduledrefresh;
-
-import net.sf.ehcache.Ehcache;
-
-import java.io.Serializable;
 
 /**
- * Interface for generating keys from a cache.
+ * Ehcache scheduled refresh cache extension package.
+ * <p>This package contains a scheduled refresh cache extension,
+ * reliant on the Quartz Job scheduler for its scheduling.
  *
- * @param <K>
- * @author cschanck
  */
-public interface ScheduledRefreshKeyGenerator<K extends Serializable> {
 
-    /**
-     * Return an {@link Iterable} of all the keys to be refreshed.
-     * Note that the cache will almost certainly be modified while this Iterable is
-     * being traversed if the cache is of any size at all.
-     *
-     * @param cache
-     * @return
-     */
-    public Iterable<K> generateKeys(Ehcache cache);
-}
+package net.sf.ehcache.constructs.scheduledrefresh;
+

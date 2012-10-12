@@ -15,14 +15,10 @@
  */
 package net.sf.ehcache.constructs.scheduledrefresh;
 
-import java.util.Properties;
-import java.util.logging.Logger;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.extension.CacheExtension;
-
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
@@ -33,23 +29,26 @@ import org.quartz.SchedulerException;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.simpl.RAMJobStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.quartz.TerracottaJobStore;
 
+import java.util.Properties;
+
 /**
- * This is class provides a cache extension which allows for the scheduled
+ * This class provides a cache extension which allows for the scheduled
  * refresh of all keys currently in the cache, using whichever CacheLoader's are
- * defined. It uses Quartz to do the job scheduling.
- * 
+ * defined. It uses Quartz to do the job scheduling. One extension should be active for
+ * a single clustered cache, as multiple extensions will run independently of each other.
+ *
  * @author cschanck
- * 
  */
 public class ScheduledRefreshCacheExtension implements CacheExtension {
 
     /**
      * Logger this package uses.
      */
-    static final Logger LOG = Logger
-            .getLogger(ScheduledRefreshCacheExtension.class.getName());
+    static final Logger LOG = LoggerFactory.getLogger(ScheduledRefreshCacheExtension.class);
 
     /**
      * Job Property key for Terracotta Job Store to use.
@@ -91,11 +90,12 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
 
     /**
      * Constructor. Create an extension with the specified config object against the specified cache.
+     *
      * @param config Configuration to use.
-     * @param cache Cache to process against.
+     * @param cache  Cache to process against.
      */
     public ScheduledRefreshCacheExtension(ScheduledRefreshConfiguration config,
-            Ehcache cache) {
+                                          Ehcache cache) {
         this.underlyingCache = cache;
         this.config = config;
         this.status = Status.STATUS_UNINITIALISED;
@@ -174,7 +174,6 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
     @Override
     public CacheExtension clone(Ehcache cache)
             throws CloneNotSupportedException {
-        // TODO Auto-generated method stub
         return null;
     }
 

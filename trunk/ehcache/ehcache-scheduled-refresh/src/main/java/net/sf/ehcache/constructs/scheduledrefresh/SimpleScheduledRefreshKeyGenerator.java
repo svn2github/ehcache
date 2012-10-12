@@ -15,21 +15,19 @@
  */
 package net.sf.ehcache.constructs.scheduledrefresh;
 
-import java.io.Serializable;
-
 import net.sf.ehcache.Ehcache;
+
+import java.io.Serializable;
 
 /**
  * This is a simple, naive implementation of the
  * {@link ScheduledRefreshKeyGenerator} interface. It merely returns an Iterable
  * over all the keys in the cache.
- * 
- * @author cschanck
- * 
+ *
  * @param <K>
+ * @author cschanck
  */
-public class SimpleScheduledRefreshKeyGenerator<K extends Serializable>
-        implements ScheduledRefreshKeyGenerator<K> {
+public class SimpleScheduledRefreshKeyGenerator<K extends Serializable> implements ScheduledRefreshKeyGenerator<K> {
 
     @SuppressWarnings("unchecked")
     @Override

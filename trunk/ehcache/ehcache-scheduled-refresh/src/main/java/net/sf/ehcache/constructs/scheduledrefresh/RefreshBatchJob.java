@@ -16,49 +16,88 @@
 
 package net.sf.ehcache.constructs.scheduledrefresh;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.loader.CacheLoader;
-
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * This class is used to actually process a batch of keys for refreshing.
  * Instances of this job are scheduled by the {@link OverseerJob} class.
- * 
+ *
  * @author cschanck
- * 
  */
 public class RefreshBatchJob implements Job {
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static HashMap<String, AtomicInteger> bulkLoadTrackingMap = new HashMap<String, AtomicInteger>(1);
+    private static ReentrantLock bulkloadLock = new ReentrantLock();
+
+    private static void requestBulkLoadEnabled(Ehcache cache) {
+        bulkloadLock.lock();
+        try {
+            boolean prior = cache.isNodeBulkLoadEnabled();
+            // yes, this is racy. we can do no better until we have per-thread bulk loading
+            if (prior) {
+                String key = cache.getCacheManager().getName() + "/" + cache.getName();
+                AtomicInteger permits = bulkLoadTrackingMap.get(key);
+                if (permits == null) {
+                    // first time in. actually switch it
+                    permits = new AtomicInteger(1);
+                    bulkLoadTrackingMap.put(key, permits);
+                    cache.setNodeBulkLoadEnabled(true);
+                } else {
+                    permits.incrementAndGet();
+                }
+            }
+        } finally {
+            bulkloadLock.unlock();
+        }
+    }
+
+    private static void requestBulkLoadRestored(Ehcache cache) {
+        bulkloadLock.lock();
+        try {
+            String key = cache.getCacheManager().getName() + "/" + cache.getName();
+            AtomicInteger permits = bulkLoadTrackingMap.get(key);
+            if (permits != null) {
+                if (permits.decrementAndGet() == 0) {
+                    // last one out. reset it to true
+                    bulkLoadTrackingMap.remove(key);
+                    cache.setNodeBulkLoadEnabled(true);
+                }
+            }
+        } finally {
+            bulkloadLock.unlock();
+        }
+    }
+
     @Override
-    public void execute(JobExecutionContext context)
-            throws JobExecutionException {
+    public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap jdm = context.getMergedJobDataMap();
-        ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm
-                .get(ScheduledRefreshCacheExtension.PROP_CONFIG_OBJECT);
-        String cacheManagerName = jdm
-                .getString(ScheduledRefreshCacheExtension.PROP_CACHE_MGR_NAME);
-        String cacheName = jdm
-                .getString(ScheduledRefreshCacheExtension.PROP_CACHE_NAME);
+        ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm.get(ScheduledRefreshCacheExtension
+                .PROP_CONFIG_OBJECT);
+        String cacheManagerName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_MGR_NAME);
+        String cacheName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_NAME);
 
-        CacheManager cacheManager = CacheManager
-                .getCacheManager(cacheManagerName);
-        Cache underlyingCache = cacheManager.getCache(cacheName);
+        CacheManager cacheManager = CacheManager.getCacheManager(cacheManagerName);
+        Ehcache underlyingCache = cacheManager.getEhcache(cacheName);
 
-        HashSet<? extends Object> keysToProcess = new HashSet(
-                (Collection<? extends Object>) jdm
-                        .get(ScheduledRefreshCacheExtension.PROP_KEYS_TO_PROCESS));
-
+        HashSet<? extends Object> keysToProcess = new HashSet((Collection<? extends Object>) jdm.get(
+                ScheduledRefreshCacheExtension.PROP_KEYS_TO_PROCESS));
+        if (config.isUseBulkload()) {
+            requestBulkLoadEnabled(underlyingCache);
+        }
         // iterate through the loaders
         for (CacheLoader loader : underlyingCache.getRegisteredCacheLoaders()) {
             // if we are out of keys, punt
@@ -67,19 +106,16 @@ public class RefreshBatchJob implements Job {
             }
 
             // try and load them all
-            Map<? extends Object, ? extends Object> values = loader
-                    .loadAll(keysToProcess);
+            Map<? extends Object, ? extends Object> values = loader.loadAll(keysToProcess);
             // subtract the ones that were loaded
             keysToProcess.removeAll(values.keySet());
-            for (Map.Entry<? extends Object, ? extends Object> entry : values
-                    .entrySet()) {
-                Element newElement = new Element(entry.getKey(),
-                        entry.getValue());
+            for (Map.Entry<? extends Object, ? extends Object> entry : values.entrySet()) {
+                Element newElement = new Element(entry.getKey(), entry.getValue());
                 underlyingCache.put(newElement);
             }
         }
         // assume we got here ok, now evict any that don't evict
-        if (config.isNullRefreshEvicts() && !keysToProcess.isEmpty()) {
+        if (config.isLoadMissEvicts() && !keysToProcess.isEmpty()) {
             underlyingCache.removeAll(keysToProcess);
         }
 

@@ -11,8 +11,8 @@
 
 	<cache name="sr-test" eternal="true"
 		maxElementsInMemory="5000" overflowToDisk="false" >
-		<cacheLoaderFactory class="net.sf.ehcache.constructs.scheduledrefresh.OddClassLoaderFactory"/>
-		<cacheLoaderFactory class="net.sf.ehcache.constructs.scheduledrefresh.EvenClassLoaderFactory"/>
+		<cacheLoaderFactory class="net.sf.ehcache.constructs.scheduledrefresh.OddCacheLoaderFactory"/>
+		<cacheLoaderFactory class="net.sf.ehcache.constructs.scheduledrefresh.EvenCacheLoaderFactory"/>
 		<cacheExtensionFactory class="net.sf.ehcache.constructs.scheduledrefresh.TestScheduledRefreshFactory"
 		properties="batchSize=100,quartzJobCount=2,cronExpression=0/5 * * * * ?" />
 	</cache>
