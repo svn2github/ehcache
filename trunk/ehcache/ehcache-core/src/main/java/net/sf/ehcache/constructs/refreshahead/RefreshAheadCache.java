@@ -106,18 +106,18 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
         supportConfig = supportConfig.timeToLiveSeconds(Long.MAX_VALUE);
         // grab TC stuff
         if (underlyingCache.getCacheConfiguration().isTerracottaClustered()) {
-            TerracottaConfiguration underylyingTerracottaConfig = underlyingCache.getCacheConfiguration().getTerracottaConfiguration()
+            TerracottaConfiguration underlyingTerracottaConfig = underlyingCache.getCacheConfiguration().getTerracottaConfiguration()
                     .clone();
             // perhaps? Still experimenting with this
             // perhaps we really want to allow the user to specifically override matching
             // the base cache consistency with a param
             // e.g., terracottaConsistency=...
             // what about RMI Distributed EHCache?
-            underylyingTerracottaConfig.consistency(Consistency.STRONG);
+            underlyingTerracottaConfig.consistency(Consistency.STRONG);
 
             // is cacheXA false always going to work?
-            underylyingTerracottaConfig.cacheXA(false);
-            supportConfig.addTerracotta(underylyingTerracottaConfig);
+            underlyingTerracottaConfig.cacheXA(false);
+            supportConfig.addTerracotta(underlyingTerracottaConfig);
         }
 
         // here we try to create the support cache. Realize someone other
@@ -203,7 +203,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
                         }
                     }
                     // assume we got here ok, now evict any that don't evict
-                    if (refreshAheadConfig.isNullRefreshEvicts() && !keysToProcess.isEmpty()) {
+                    if (refreshAheadConfig.isLoadMissEvicts() && !keysToProcess.isEmpty()) {
                         underlyingCache.removeAll(keysToProcess);
                     }
                 } finally {
