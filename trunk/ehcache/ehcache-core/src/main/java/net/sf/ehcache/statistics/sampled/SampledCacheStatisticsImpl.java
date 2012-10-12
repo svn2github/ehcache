@@ -62,7 +62,6 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
     private final SampledCounter cacheMissOnDiskCount;
     private final SampledCounter cacheMissExpiredCount;
     private final SampledCounter cacheMissNotFoundCount;
-    private final SampledCounter cacheHitRatio;
     private final SampledCounter cacheElementEvictedCount;
     private final SampledCounter cacheElementRemoved;
     private final SampledCounter cacheElementExpired;
@@ -78,7 +77,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
 
     private final AtomicBoolean sampledStatisticsEnabled;
     private final AtomicInteger statisticsAccuracy;
-    private final SampledRateCounter cacheHitRatio2;
+    private final SampledRateCounter cacheHitRatio;
 
     /**
      * The default constructor
@@ -125,8 +124,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         averageGetTime = (SampledRateCounter) createSampledCounter(rateGetConfig);
         averageGetTimeNanos = (SampledRateCounter) createSampledCounter(rateGetConfig);
         averageSearchTime = (SampledRateCounter) createSampledCounter(rateSearchConfig);
-        cacheHitRatio = createCacheHitRatio(rateGetConfig);
-        cacheHitRatio2 = (SampledRateCounter) createSampledCounter(rateGetConfig);
+        cacheHitRatio = (SampledRateCounter) createSampledCounter(rateGetConfig);
 
         this.sampledStatisticsEnabled = new AtomicBoolean(true);
         this.statisticsAccuracy = new AtomicInteger(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
@@ -171,7 +169,6 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         cacheMissOnDiskCount.getAndReset();
         cacheMissExpiredCount.getAndReset();
         cacheMissNotFoundCount.getAndReset();
-        cacheHitRatio.getAndReset();
         cacheElementEvictedCount.getAndReset();
         cacheElementRemoved.getAndReset();
         cacheElementExpired.getAndReset();
@@ -185,6 +182,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         averageSearchTime.getAndReset();
         cacheHitCount.getAndReset();
         cacheMissCount.getAndReset();
+        cacheHitRatio.getAndReset();
     }
 
     /**
@@ -199,7 +197,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      */
     public void notifyCacheHitInMemory() {
         incrementIfStatsEnabled(cacheHitInMemoryCount, cacheHitCount);
-        cacheHitRatio2.increment(1 * HIT_RATIO_MULTIPLIER, 1);
+        cacheHitRatio.increment(1 * HIT_RATIO_MULTIPLIER, 1);
     }
 
     /**
@@ -207,7 +205,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      */
     public void notifyCacheHitOffHeap() {
         incrementIfStatsEnabled(cacheHitOffHeapCount, cacheHitCount);
-        cacheHitRatio2.increment(1 * HIT_RATIO_MULTIPLIER, 1);
+        cacheHitRatio.increment(1 * HIT_RATIO_MULTIPLIER, 1);
     }
 
     /**
@@ -215,7 +213,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      */
     public void notifyCacheHitOnDisk() {
         incrementIfStatsEnabled(cacheHitOnDiskCount, cacheHitCount);
-        cacheHitRatio2.increment(1 * HIT_RATIO_MULTIPLIER, 1);
+        cacheHitRatio.increment(1 * HIT_RATIO_MULTIPLIER, 1);
     }
 
     /**
@@ -223,7 +221,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      */
     public void notifyCacheMissedWithExpired() {
         incrementIfStatsEnabled(cacheMissExpiredCount, cacheMissCount);
-        cacheHitRatio2.increment(0, 1);
+        cacheHitRatio.increment(0, 1);
     }
 
     /**
@@ -231,7 +229,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      */
     public void notifyCacheMissedWithNotFound() {
         incrementIfStatsEnabled(cacheMissNotFoundCount, cacheMissCount);
-        cacheHitRatio2.increment(0, 1);
+        cacheHitRatio.increment(0, 1);
     }
 
     /**
@@ -463,7 +461,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      */
     public int getCacheHitRatioMostRecentSample() {
         //return (int) cacheHitRatio.getMostRecentSample().getCounterValue();
-        return (int) cacheHitRatio2.getMostRecentSample().getCounterValue();
+        return (int) cacheHitRatio.getMostRecentSample().getCounterValue();
     }
 
     /**
@@ -585,7 +583,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * {@inheritDoc}
      */
     public SampledCounter getCacheHitRatioSample() {
-        return cacheHitRatio2;
+        return cacheHitRatio;
     }
 
     /**
