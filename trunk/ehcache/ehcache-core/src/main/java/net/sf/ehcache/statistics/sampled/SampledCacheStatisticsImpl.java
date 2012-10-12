@@ -15,9 +15,6 @@
  */
 package net.sf.ehcache.statistics.sampled;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Statistics;
 import net.sf.ehcache.statistics.CacheUsageListener;
@@ -30,7 +27,9 @@ import net.sf.ehcache.util.counter.sampled.SampledCounterConfig;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterImpl;
-import net.sf.ehcache.util.counter.sampled.SummedSampledCounter;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An implementation of {@link SampledCacheStatistics} This also implements {@link CacheUsageListener} and depends on the notification
@@ -75,10 +74,11 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
     private final SampledRateCounter averageGetTime;
     private final SampledRateCounter averageGetTimeNanos;
     private final SampledRateCounter averageSearchTime;
-    private final SummedSampledCounter cacheMissCount;
+    private final SampledCounter cacheMissCount;
 
     private final AtomicBoolean sampledStatisticsEnabled;
     private final AtomicInteger statisticsAccuracy;
+    private final SampledRateCounter cacheHitRatio2;
 
     /**
      * The default constructor
@@ -102,12 +102,12 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * sampled counters
      */
     public SampledCacheStatisticsImpl(FailSafeTimer timer, SampledCounterConfig config, SampledRateCounterConfig rateGetConfig,
-            SampledRateCounterConfig rateSearchConfig) {
+                                      SampledRateCounterConfig rateSearchConfig) {
         counterManager = new CounterManagerImpl(timer);
         cacheHitInMemoryCount = createSampledCounter(config);
         cacheHitOffHeapCount = createSampledCounter(config);
         cacheHitOnDiskCount = createSampledCounter(config);
-        cacheHitCount = createSummedCounter(config, cacheHitInMemoryCount, cacheHitOffHeapCount, cacheHitOnDiskCount);
+        cacheHitCount = createSampledCounter(config);
         cacheMissInMemoryCount = createSampledCounter(config);
         cacheMissOffHeapCount = createSampledCounter(config);
         cacheMissOnDiskCount = createSampledCounter(config);
@@ -121,11 +121,12 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         cacheSearchCount = createSampledCounter(config);
         cacheXaCommitCount = createSampledCounter(config);
         cacheXaRollbackCount = createSampledCounter(config);
-        cacheMissCount = createSummedCounter(config, cacheMissExpiredCount, cacheMissNotFoundCount);
+        cacheMissCount = createSampledCounter(config);
         averageGetTime = (SampledRateCounter) createSampledCounter(rateGetConfig);
         averageGetTimeNanos = (SampledRateCounter) createSampledCounter(rateGetConfig);
         averageSearchTime = (SampledRateCounter) createSampledCounter(rateSearchConfig);
         cacheHitRatio = createCacheHitRatio(rateGetConfig);
+        cacheHitRatio2 = (SampledRateCounter) createSampledCounter(rateGetConfig);
 
         this.sampledStatisticsEnabled = new AtomicBoolean(true);
         this.statisticsAccuracy = new AtomicInteger(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
@@ -135,8 +136,8 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         SampledRateCounterImpl result = new SampledRateCounterImpl(rateGetConfig) {
             @Override
             public synchronized long getValue() {
-                long hits = cacheHitCount.getMostRecentSample().getCounterValue();
-                long accesses = hits + cacheMissCount.getMostRecentSample().getCounterValue();
+                long hits = cacheHitCount.getValue();
+                long accesses = hits + cacheMissCount.getValue();
 
                 return (int) (accesses == 0 ? 0 : ((hits / (double) accesses) * HIT_RATIO_MULTIPLIER));
             }
@@ -147,12 +148,6 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
 
     private SampledCounter createSampledCounter(CounterConfig defaultCounterConfig) {
         return (SampledCounter) counterManager.createCounter(defaultCounterConfig);
-    }
-
-    private SummedSampledCounter createSummedCounter(SampledCounterConfig config, SampledCounter... sampleCounters) {
-        SummedSampledCounter derivedCounter = new SummedSampledCounter(config, sampleCounters);
-        counterManager.addCounter(derivedCounter);
-        return derivedCounter;
     }
 
     private void incrementIfStatsEnabled(SampledCounter... counters) {
@@ -188,6 +183,8 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
         averageGetTime.getAndReset();
         averageGetTimeNanos.getAndReset();
         averageSearchTime.getAndReset();
+        cacheHitCount.getAndReset();
+        cacheMissCount.getAndReset();
     }
 
     /**
@@ -201,35 +198,40 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * {@inheritDoc}
      */
     public void notifyCacheHitInMemory() {
-        incrementIfStatsEnabled(cacheHitInMemoryCount);
+        incrementIfStatsEnabled(cacheHitInMemoryCount, cacheHitCount);
+        cacheHitRatio2.increment(1 * HIT_RATIO_MULTIPLIER, 1);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheHitOffHeap() {
-        incrementIfStatsEnabled(cacheHitOffHeapCount);
+        incrementIfStatsEnabled(cacheHitOffHeapCount, cacheHitCount);
+        cacheHitRatio2.increment(1 * HIT_RATIO_MULTIPLIER, 1);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheHitOnDisk() {
-        incrementIfStatsEnabled(cacheHitOnDiskCount);
+        incrementIfStatsEnabled(cacheHitOnDiskCount, cacheHitCount);
+        cacheHitRatio2.increment(1 * HIT_RATIO_MULTIPLIER, 1);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheMissedWithExpired() {
-        incrementIfStatsEnabled(cacheMissExpiredCount);
+        incrementIfStatsEnabled(cacheMissExpiredCount, cacheMissCount);
+        cacheHitRatio2.increment(0, 1);
     }
 
     /**
      * {@inheritDoc}
      */
     public void notifyCacheMissedWithNotFound() {
-        incrementIfStatsEnabled(cacheMissNotFoundCount);
+        incrementIfStatsEnabled(cacheMissNotFoundCount, cacheMissCount);
+        cacheHitRatio2.increment(0, 1);
     }
 
     /**
@@ -460,7 +462,8 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * {@inheritDoc}
      */
     public int getCacheHitRatioMostRecentSample() {
-        return (int) cacheHitRatio.getMostRecentSample().getCounterValue();
+        //return (int) cacheHitRatio.getMostRecentSample().getCounterValue();
+        return (int) cacheHitRatio2.getMostRecentSample().getCounterValue();
     }
 
     /**
@@ -582,7 +585,7 @@ public class SampledCacheStatisticsImpl implements CacheUsageListener, CacheStat
      * {@inheritDoc}
      */
     public SampledCounter getCacheHitRatioSample() {
-        return cacheHitRatio;
+        return cacheHitRatio2;
     }
 
     /**
