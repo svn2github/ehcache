@@ -1254,7 +1254,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testFlushWithoutClear() throws InterruptedException {
+    public void testFlushWithoutClear() throws Exception {
 
         CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         Cache cache = cacheManager.getCache("SimplePageCachingFilter");
@@ -1263,7 +1263,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element("" + i, new Date()));
         }
 
-        Thread.sleep(200);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
         for (int i = 0; i < 100; i++) {
             cache.get("" + i);
