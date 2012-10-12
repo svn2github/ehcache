@@ -29,6 +29,7 @@ start_jar=$jetty_home/start.jar
 stop_port=$((jetty_instance + 2))
 
 cd $jetty_work_dir
+mkdir -p logs
 if $cygwin; then
   tc_install_dir=`cygpath -w $tc_install_dir`
   jetty_work_dir=`cygpath -w $jetty_work_dir`

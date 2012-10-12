@@ -38,12 +38,12 @@ set webapp_lib=webapps\%appname%\WEB-INF\lib
 rem package ehcache-core and ehcache-terracotta
 xcopy /y /q %ehcache_jars_dir%\lib\ehcache*.jar %webapp_lib% 1> NUL
 
-if exist %tc_install_dir%\common\terracotta-toolkit-*-runtime*.jar (
-  set toolkit_runtime=%tc_install_dir%\common\terracotta-toolkit-*-runtime*.jar
+if exist %tc_install_dir%\common\terracotta-toolkit*-runtime*.jar (
+  set toolkit_runtime=%tc_install_dir%\common\terracotta-toolkit*-runtime*.jar
 )
 
-if exist %ehcache_jars_dir%\lib\terracotta-toolkit-*-runtime*.jar (
-  set toolkit_runtime=%ehcache_jars_dir%\lib\terracotta-toolkit-*-runtime*.jar
+if exist %ehcache_jars_dir%\lib\terracotta-toolkit*-runtime*.jar (
+  set toolkit_runtime=%ehcache_jars_dir%\lib\terracotta-toolkit*-runtime*.jar
 )
 
 if not exist %toolkit_runtime% (

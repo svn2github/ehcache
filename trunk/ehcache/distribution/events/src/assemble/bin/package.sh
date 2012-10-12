@@ -27,11 +27,11 @@ ehcache_jars_dir=$root/bin/`$root/bin/relative-paths.sh ehcache_jars_dir`
 cp $ehcache_jars_dir/lib/ehcache*.jar $webapp_lib
 
 # package toolkit runtime. It could be in 2 different places depending on which kit (ehcache vs tc)
-toolkit_runtime=$tc_install_dir/common/terracotta-toolkit-*-runtime*.jar
+toolkit_runtime=$tc_install_dir/common/terracotta-toolkit*-runtime*.jar
 
 if [ ! -f $toolkit_runtime ]; then
   # not found under 'common', try 'lib'
-  toolkit_runtime=$ehcache_jars_dir/lib/terracotta-toolkit-*-runtime*.jar
+  toolkit_runtime=$ehcache_jars_dir/lib/terracotta-toolkit*-runtime*.jar
   if [ ! -f $toolkit_runtime ]; then
     echo "Couldn't locate toolkit runtime jar"
     exit 1
