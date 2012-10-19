@@ -148,15 +148,22 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             members.add(new CacheManager(config));
         }
 
-        if (required.isEmpty()) {
-            waitForClusterMembership(10, TimeUnit.SECONDS, members);
-            emptyCaches(10, TimeUnit.SECONDS, members);
-        } else {
-            waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
-            emptyCaches(10, TimeUnit.SECONDS, required, members);
+        try {
+          if (required.isEmpty()) {
+              waitForClusterMembership(10, TimeUnit.SECONDS, members);
+              emptyCaches(10, TimeUnit.SECONDS, members);
+          } else {
+              waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
+              emptyCaches(10, TimeUnit.SECONDS, required, members);
+          }
+          return members;
+        } catch (RuntimeException e) {
+          destroyCluster(members);
+          throw e;
+        } catch (Error e) {
+          destroyCluster(members);
+          throw e;
         }
-        
-        return members;
     }
 
     private static void destroyCluster(List<CacheManager> members) {
