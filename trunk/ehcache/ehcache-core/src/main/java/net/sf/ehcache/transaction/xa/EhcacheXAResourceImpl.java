@@ -305,12 +305,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             for (SoftLock softLock : softLocks) {
-              Element e = underlyingStore.getQuiet(softLock.getKey());
-              if (e == null) {
-                // the element can be null if it was manually unpinned, see DEV-8308
-                continue;
-              }
-              SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+                Element e = underlyingStore.getQuiet(softLock.getKey());
+                if (e == null) {
+                    // the element can be null if it was manually unpinned, see DEV-8308
+                    continue;
+                }
+                SoftLockID softLockId = (SoftLockID)e.getObjectValue();
                 Element frozenElement = softLockId.getNewElement();
 
                 if (frozenElement != null) {
@@ -412,12 +412,12 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             for (SoftLock softLock : softLocks) {
-              Element e = underlyingStore.getQuiet(softLock.getKey());
-              if (e == null) {
-                // the element can be null if it was manually unpinned, see DEV-8308
-                continue;
-              }
-              SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+                Element e = underlyingStore.getQuiet(softLock.getKey());
+                if (e == null) {
+                    // the element can be null if it was manually unpinned, see DEV-8308
+                    continue;
+                }
+                SoftLockID softLockId = (SoftLockID)e.getObjectValue();
                 Element frozenElement = softLockId.getOldElement();
 
                 if (frozenElement != null) {

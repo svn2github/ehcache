@@ -1072,12 +1072,12 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     void commit(List<SoftLock> softLocks) {
         LOG.debug("committing {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
-          Element e = underlyingStore.getQuiet(softLock.getKey());
-          if (e == null) {
-            // the element can be null if it was manually unpinned, see DEV-8308
-            continue;
-          }
-          SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+            Element e = underlyingStore.getQuiet(softLock.getKey());
+            if (e == null) {
+                // the element can be null if it was manually unpinned, see DEV-8308
+                continue;
+            }
+            SoftLockID softLockId = (SoftLockID)e.getObjectValue();
 
             Element element = softLockId.getNewElement();
             if (element != null) {
@@ -1099,12 +1099,12 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     void rollback(List<SoftLock> softLocks) {
         LOG.debug("rolling back {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
-          Element e = underlyingStore.getQuiet(softLock.getKey());
-          if (e == null) {
-            // the element can be null if it was manually unpinned, see DEV-8308
-            continue;
-          }
-          SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+            Element e = underlyingStore.getQuiet(softLock.getKey());
+            if (e == null) {
+              // the element can be null if it was manually unpinned, see DEV-8308
+              continue;
+            }
+            SoftLockID softLockId = (SoftLockID)e.getObjectValue();
 
             Element element = softLockId.getOldElement();
             if (element != null) {
