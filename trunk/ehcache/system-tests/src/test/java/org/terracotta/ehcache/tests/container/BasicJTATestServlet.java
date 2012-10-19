@@ -52,7 +52,7 @@ public class BasicJTATestServlet extends HttpServlet {
     Cache cache = mgr.getCache("test");
    
     try {
-  
+      txnManager.setTransactionTimeout(120);
       txnManager.begin();
   
       cache.put(new Element("1", "one"));

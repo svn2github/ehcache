@@ -53,7 +53,7 @@ public class TwoResourceJTATestServlet extends HttpServlet {
     Cache cache2 = mgr.getCache("test2");
     
     try { 
-  
+      txnManager.setTransactionTimeout(120);
       txnManager.begin();
   
       cache.put(new Element("1", "one"));
