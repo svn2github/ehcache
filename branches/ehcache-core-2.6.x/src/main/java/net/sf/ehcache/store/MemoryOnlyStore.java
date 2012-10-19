@@ -82,6 +82,11 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
         return memoryOnlyStore;
     }
 
+    /**
+     * Get the underyling memory store element set
+     *
+     * @return element set
+     */
     Collection<Element> elementSet() {
         return authority.elementSet();
     }
@@ -162,6 +167,11 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
             //
         }
 
+        /**
+         * set the memory store
+         *
+         * @param memoryStore
+         */
         void setMemoryStore(MemoryOnlyStore memoryStore) {
             this.memoryStore = memoryStore;
         }
