@@ -75,9 +75,15 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
      */
     public static Store create(Ehcache cache, Pool onHeapPool) {
         final MemoryStore memoryStore = NotifyingMemoryStore.create(cache, onHeapPool);
-        final SearchManager searchManager = new BruteForceSearchManager(memoryStore);
+        final BruteForceSearchManager searchManager = new BruteForceSearchManager();
 
-        return new MemoryOnlyStore(cache.getCacheConfiguration(), memoryStore, searchManager);
+        MemoryOnlyStore memoryOnlyStore = new MemoryOnlyStore(cache.getCacheConfiguration(), memoryStore, searchManager);
+        searchManager.setMemoryStore(memoryOnlyStore);
+        return memoryOnlyStore;
+    }
+
+    Collection<Element> elementSet() {
+        return authority.elementSet();
     }
 
     /**
@@ -147,14 +153,16 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
      */
     protected static class BruteForceSearchManager implements SearchManager {
 
-        private final MemoryStore memoryStore;
+        private volatile MemoryOnlyStore memoryStore;
 
         /**
-         * Create a BruteForceSearchManager around the given memory store.
-         *
-         * @param memoryStore a MemoryStore to search
+         * Create a BruteForceSearchManager
          */
-        public BruteForceSearchManager(MemoryStore memoryStore) {
+        public BruteForceSearchManager() {
+            //
+        }
+
+        void setMemoryStore(MemoryOnlyStore memoryStore) {
             this.memoryStore = memoryStore;
         }
 
@@ -183,6 +191,8 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
             Collection<Element> matches = new LinkedList<Element>();
 
             for (Element element : memoryStore.elementSet()) {
+                element = memoryStore.copyElementForReadIfNeeded(element);
+
                 if (element.getObjectValue() instanceof SoftLockID) {
                     continue;
                 }

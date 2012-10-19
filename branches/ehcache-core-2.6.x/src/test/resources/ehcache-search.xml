@@ -12,7 +12,7 @@
             <searchAttribute name="gender" expression="value.getGender()"/>
             <searchAttribute name="name" expression="value.getName()"/>
             <searchAttribute name="dept" expression="value.getDepartment()"/>
-            
+
         </searchable>
 
         <!-- EHC-800 should be able to use JavaBeans conventions <searchAttribute name="name"/>-->
@@ -26,6 +26,17 @@
                              class="net.sf.ehcache.search.GenderAttributeExtractor"
                              properties="foo=1,bar=2"/>
             <searchAttribute name="name" expression="value.getName()"/>
+        </searchable>
+    </cache>
+
+
+     <cache name="cache3" maxElementsInMemory="0" eternal="true" overflowToDisk="false"
+            copyOnRead="true" copyOnWrite="true">
+        <searchable>
+            <searchAttribute name="age" expression="value.getAge()"/>
+            <searchAttribute name="gender" expression="value.getGender()"/>
+            <searchAttribute name="name" expression="value.getName()"/>
+            <searchAttribute name="dept" expression="value.getDepartment()"/>
         </searchable>
     </cache>
 
