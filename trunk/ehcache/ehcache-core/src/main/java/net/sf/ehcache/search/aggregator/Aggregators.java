@@ -19,7 +19,7 @@ package net.sf.ehcache.search.aggregator;
 import net.sf.ehcache.search.Attribute;
 
 /**
- * Helper class to construct the builtin aggregator types. These methods can be statically imported to make query building looker better in
+ * Helper class to construct the builtin aggregator types. These methods can be statically imported to make query building look better in
  * source code
  *
  * @author teck
