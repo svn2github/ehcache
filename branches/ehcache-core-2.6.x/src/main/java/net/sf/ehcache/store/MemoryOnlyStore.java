@@ -172,7 +172,7 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
          *
          * @param memoryStore
          */
-        void setMemoryStore(MemoryOnlyStore memoryStore) {
+        public void setMemoryStore(MemoryOnlyStore memoryStore) {
             this.memoryStore = memoryStore;
         }
 
