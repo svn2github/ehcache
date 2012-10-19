@@ -99,7 +99,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
       }
 
       ObjStoreAttrs storeAttributes = new ObjStoreAttrs();
-      File jndiPath = new File("target/jndi");
+      File jndiPath = new File("/tmp");
       jndiPath.mkdirs();
       storeAttributes.put("java.naming.provider.url", "file://" + jndiPath.getCanonicalPath());
       storeAttributes.put("java.naming.factory.initial", "com.sun.jndi.fscontext.RefFSContextFactory");
