@@ -8,10 +8,13 @@ import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +53,12 @@ public final class CacheStatisticSamplesResourceServiceImpl implements CacheStat
     String sampleNames = info.getPathSegments().get(4).getMatrixParameters().getFirst("names");
     Set<String> sNames = sampleNames == null ? null : new HashSet<String>(Arrays.asList(sampleNames.split(",")));
 
-    return entityResourceFactory.createCacheStatisticSampleEntity(cmNames, cNames, sNames);
+    try {
+      return entityResourceFactory.createCacheStatisticSampleEntity(cmNames, cNames, sNames);
+    } catch (ServiceExecutionException e) {
+      LOG.error("Failed to get cache statistics sample.", e.getCause());
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+    }
   }
 }

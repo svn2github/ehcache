@@ -6,6 +6,8 @@ import net.sf.ehcache.management.resource.CacheManagerConfigEntity;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
 
+import org.terracotta.management.ServiceExecutionException;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -26,7 +28,7 @@ public interface EntityResourceFactory {
    * @return a {@code Collection} of {@code CacheManagerEntity} objects
    */
   Collection<CacheManagerEntity> createCacheManagerEntities(Set<String> cacheManagerNames,
-                                                            Set<String> attributes);
+                                                            Set<String> attributes) throws ServiceExecutionException;
 
   /**
    * A factory method for {@link CacheManagerConfigEntity} objects.
@@ -35,7 +37,7 @@ public interface EntityResourceFactory {
    *                          returned resources
    * @return a {@code Collection} of {@code CacheManagerConfigEntity} objects
    */
-  Collection<CacheManagerConfigEntity> createCacheManagerConfigEntities(Set<String> cacheManagerNames);
+  Collection<CacheManagerConfigEntity> createCacheManagerConfigEntities(Set<String> cacheManagerNames) throws ServiceExecutionException;
 
   /**
    * A factory method for {@link CacheEntity} objects.
@@ -50,7 +52,7 @@ public interface EntityResourceFactory {
    */
   Collection<CacheEntity> createCacheEntities(Set<String> cacheManagerNames,
                                               Set<String> cacheNames,
-                                              Set<String> attributes);
+                                              Set<String> attributes) throws ServiceExecutionException;
 
   /**
    * A factory method for {@link CacheConfigEntity} objects.
@@ -62,7 +64,7 @@ public interface EntityResourceFactory {
    * @return a {@code Collection} of {@code CacheConfigEntity} objects
    */
   Collection<CacheConfigEntity> createCacheConfigEntities(Set<String> cacheManagerNames,
-                                                          Set<String> cacheNames);
+                                                          Set<String> cacheNames) throws ServiceExecutionException;
 
   /**
    * A factory method for {@link CacheStatisticSampleEntity} objects.
@@ -76,5 +78,5 @@ public interface EntityResourceFactory {
    */
   Collection<CacheStatisticSampleEntity> createCacheStatisticSampleEntity(Set<String> cacheManagerNames,
                                                                           Set<String> cacheNames,
-                                                                          Set<String> statNames);
+                                                                          Set<String> statNames) throws ServiceExecutionException;
 }

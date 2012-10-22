@@ -59,7 +59,13 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     List<String> attrs = qParams.get(ATTR_QUERY_KEY);
     Set<String> cAttrs = attrs == null || attrs.isEmpty() ? null : new HashSet<String>(attrs);
 
-    return entityResourceFactory.createCacheEntities(cmNames, cNames, cAttrs);
+    try {
+      return entityResourceFactory.createCacheEntities(cmNames, cNames, cAttrs);
+    } catch (ServiceExecutionException e) {
+      LOG.error("Failed to get caches.", e.getCause());
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+    }
   }
 
   /**
@@ -108,7 +114,13 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
     String cacheName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
 
-    cacheSvc.clearCacheStats(cacheManagerName, cacheName);
+    try {
+      cacheSvc.clearCacheStats(cacheManagerName, cacheName);
+    } catch (ServiceExecutionException e) {
+      LOG.error("Failed to wipe statistics.", e.getCause());
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+    }
   }
 
 }

@@ -5,11 +5,13 @@ import net.sf.ehcache.management.resource.ConfigContainerEntity;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
@@ -43,12 +45,18 @@ public final class CacheManagerConfigsResourceServiceImpl implements CacheManage
     String names = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
     Set<String> cmNames = names == null ? null : new HashSet<String>(Arrays.asList(names.split(",")));
 
-    Collection<CacheManagerConfigEntity> configs = entityResourceFactory.createCacheManagerConfigEntities(cmNames);
+    try {
+      Collection<CacheManagerConfigEntity> configs = entityResourceFactory.createCacheManagerConfigEntities(cmNames);
 
-    ConfigContainerEntity<CacheManagerConfigEntity> cc = new ConfigContainerEntity<CacheManagerConfigEntity>();
-    cc.setConfiguration(configs);
-    cc.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+      ConfigContainerEntity<CacheManagerConfigEntity> cc = new ConfigContainerEntity<CacheManagerConfigEntity>();
+      cc.setConfiguration(configs);
+      cc.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
 
-    return Response.ok(cc).build();
+      return Response.ok(cc).build();
+    } catch (ServiceExecutionException e) {
+      LOG.error("Failed to get xml cache manager configs.", e.getCause());
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+    }
   }
 }
