@@ -490,6 +490,7 @@ public class DfltSamplerRepositoryService
     ame.setNeedClientAuth(configuration.isNeedClientAuth());
     ame.setSampleHistorySize(configuration.getSampleHistorySize());
     ame.setSampleIntervalSeconds(configuration.getSampleIntervalSeconds());
+    ame.setEnabled(configuration.isEnabled());
 
     return ame;
   }
