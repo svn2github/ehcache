@@ -111,7 +111,7 @@ public interface Ehcache extends Cloneable {
      * For each element that is put the registered {@code CacheEventListener}s are notified of a newly put item
      * ({@link net.sf.ehcache.event.CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache, net.sf.ehcache.Element) notifyElementPut(...)})
      * regardless of whether the individual put is a new put or an update.
-     * 
+     *
      * @param elements the collection of elements to be put in the cache.
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws CacheException
@@ -216,7 +216,7 @@ public interface Ehcache extends Cloneable {
      *
      * @param old Element to be test against
      * @param element Element to be cached
-     * @return true is the Element was replaced
+     * @return true if the Element was replaced
      * @throws NullPointerException if the either Element is null or has a null key
      * @throws IllegalArgumentException if the two Element keys are non-null but not equal
      */
