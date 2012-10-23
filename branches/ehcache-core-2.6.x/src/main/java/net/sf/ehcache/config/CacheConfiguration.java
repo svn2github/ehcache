@@ -56,14 +56,14 @@ import org.slf4j.LoggerFactory;
  * e.g.
  * <pre>{@code
  * <cache name="testCache1"
- *   maxElementsInMemory="10000"
+ *   maxEntriesLocalHeap="10000"
  *   eternal="false"
  *   timeToIdleSeconds="3600"
  *   timeToLiveSeconds="10"
  *   overflowToDisk="true"
  *   diskPersistent="true"
  *   diskExpiryThreadIntervalSeconds="120"
- *   maxElementsOnDisk="10000"
+ *   maxEntriesLocalDisk="10000"
  * />
  * }</pre>
  * <p/>
@@ -74,8 +74,8 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>Time To Idle</li>
  * <li>Time To Live</li>
- * <li>Max Elements in Memory</li>
- * <li>Max Elements on Disk</li>
+ * <li>Max Entries in Local Heap</li>
+ * <li>Max Entries on Local Disk</li>
  * </ul>
  * Dynamic changes are however not persistent across cache restarts.  On restart
  * the cache configuration will be reloaded from its original source, erasing any
@@ -615,7 +615,9 @@ public class CacheConfiguration implements Cloneable {
      * Sets the max off heap memory size allocated for this cache.
      *
      * @param maxMemoryOffHeap the max off heap memory size allocated for this cache.
+     * @deprecated See {@link #setMaxBytesLocalOffHeap(java.lang.String)}
      */
+    @Deprecated
     public final void setMaxMemoryOffHeap(String maxMemoryOffHeap) {
         checkDynamicChange();
         assertArgumentNotNull("Cache maxMemoryOffHeap", maxMemoryOffHeap);
@@ -627,8 +629,9 @@ public class CacheConfiguration implements Cloneable {
      *
      * @param maxMemoryOffHeap the max off heap memory size allocated for this cache.
      * @return this configuration instance
-     * @see #setMaxMemoryOffHeap(String)
+     * @deprecated See {@link #maxBytesLocalOffHeap(long, net.sf.ehcache.config.MemoryUnit)}
      */
+    @Deprecated
     public CacheConfiguration maxMemoryOffHeap(String maxMemoryOffHeap) {
         setMaxMemoryOffHeap(maxMemoryOffHeap);
         return this;
@@ -2468,7 +2471,9 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      *
      * @return the max memory of the offheap store for this cache.
+     * @deprecated See {@link #getMaxBytesLocalOffHeapAsString()}
      */
+    @Deprecated
     public String getMaxMemoryOffHeap() {
         return maxBytesLocalOffHeapInput;
     }
@@ -2477,8 +2482,9 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      *
      * @return the max memory of the offheap store for this cache, in bytes.
-     * @see #getMaxMemoryOffHeap()
+     * @deprecated {@link #getMaxBytesLocalOffHeap()}
      */
+    @Deprecated
     public long getMaxMemoryOffHeapInBytes() {
         return getMaxBytesLocalOffHeap();
     }
