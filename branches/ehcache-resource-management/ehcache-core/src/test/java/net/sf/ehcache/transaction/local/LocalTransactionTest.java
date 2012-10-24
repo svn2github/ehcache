@@ -51,6 +51,23 @@ public class LocalTransactionTest extends TestCase {
         cacheManager.shutdown();
     }
 
+    // DEV-8308
+    public void testEvictionOfSoftLockIds() throws Exception {
+        transactionController.begin();
+        for (int i = 0; i < 15; i++) {
+            cache1.put(new Element(i, "value-" + i));
+            cache1.setPinned(i, false);
+        }
+        transactionController.commit();
+
+        transactionController.begin();
+        for (int i = 0; i < 15; i++) {
+            cache2.put(new Element(i, "value-" + i));
+            cache2.setPinned(i, false);
+        }
+        transactionController.rollback();
+    }
+
     public void testTransactionContextLifeCycle() throws Exception {
         assertNull(transactionController.getCurrentTransactionContext());
         transactionController.begin();

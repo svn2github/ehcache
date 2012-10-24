@@ -56,7 +56,13 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
     List<String> attrs = qParams.get(ATTR_QUERY_KEY);
     Set<String> cmAttrs = attrs == null || attrs.isEmpty() ? null : new HashSet<String>(attrs);
 
-    return entityResourceFactory.createCacheManagerEntities(cmNames, cmAttrs);
+    try {
+      return entityResourceFactory.createCacheManagerEntities(cmNames, cmAttrs);
+    } catch (ServiceExecutionException e) {
+      LOG.error("Failed to get cache managers.", e.getCause());
+      throw new WebApplicationException(
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+    }
   }
 
   /**

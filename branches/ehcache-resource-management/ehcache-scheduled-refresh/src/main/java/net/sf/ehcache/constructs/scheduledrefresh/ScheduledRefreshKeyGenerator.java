@@ -33,7 +33,9 @@ public interface ScheduledRefreshKeyGenerator<K extends Serializable> {
      * being traversed if the cache is of any size at all.
      *
      * @param cache
-     * @return
+     * @return Iterable of keys to refresh. This can be formed in any way, lazily, as a
+     * copy, it doesn't matter. No claims are made with respect to the visibility of other
+     * chages as this iteration is done; it merely must be best-effort at the time.
      */
     public Iterable<K> generateKeys(Ehcache cache);
 }

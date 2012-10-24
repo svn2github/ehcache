@@ -25,6 +25,7 @@ import java.util.Map;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;
@@ -103,18 +104,17 @@ public interface Ehcache extends Cloneable {
 
 
     /**
-     * Puts a collection of elements in the cache. Throws a NullPointerException if any element in the
-     * collection is null. Also notifies the CacheEventListener that:
-     * <ul>
-     * <li>the elements were put. The puts{@link net.sf.ehcache.Ehcache#put(net.sf.ehcache.Element)} happen in batches and the notifications are thrown for every put in the
-     * batch irrespective of whether the element is present in the cache or not i.e this method consider
-     * each element as new entry.
-     * </li>
-     * </ul>
-     * This operation is partially completed if any element or any key is null
-     * @param elements a collection of elements to be put in the cache.
-     *        If elements are Serializable it can fully participate in replication and the DiskStore.
-     * @throws IllegalStateException    if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     * Puts a collection of elements in to the cache.
+     * <p>
+     * This method will throw a {@code NullPointerException} if a null element or null key is encountered
+     * in the collection, and a partial completion may result (as only some of the elements may have been put).
+     * <p>
+     * For each element that is put the registered {@code CacheEventListener}s are notified of a newly put item
+     * ({@link net.sf.ehcache.event.CacheEventListener#notifyElementPut(net.sf.ehcache.Ehcache, net.sf.ehcache.Element) notifyElementPut(...)})
+     * regardless of whether the individual put is a new put or an update.
+     *
+     * @param elements the collection of elements to be put in the cache.
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      * @throws CacheException
      */
     void putAll(Collection<Element> elements) throws IllegalArgumentException, IllegalStateException,
@@ -213,7 +213,7 @@ public interface Ehcache extends Cloneable {
      *
      * @param old Element to be test against
      * @param element Element to be cached
-     * @return true is the Element was replaced
+     * @return true if the Element was replaced
      * @throws NullPointerException if the either Element is null or has a null key
      * @throws IllegalArgumentException if the two Element keys are non-null but not equal
      */

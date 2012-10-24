@@ -298,6 +298,9 @@ public class BasicSearchTest {
         // uses a "custom" attribute extractor too
         basicQueries(cacheManager.getEhcache("cache2"));
 
+        // uses copyOnRead / copyOnWrite
+        basicQueries(cacheManager.getEhcache("cache3"));
+
         // uses bean attributes
         basicQueries(cacheManager.getEhcache("bean-attributes"));
     }

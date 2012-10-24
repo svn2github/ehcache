@@ -317,7 +317,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         LOG.debug("cache {} getSize", cache.getName());
         XATransactionContext context = getOrCreateTransactionContext();
         int size = underlyingStore.getSize();
-        return size + context.getSizeModifier();
+        return Math.max(0, size + context.getSizeModifier());
     }
 
     /**

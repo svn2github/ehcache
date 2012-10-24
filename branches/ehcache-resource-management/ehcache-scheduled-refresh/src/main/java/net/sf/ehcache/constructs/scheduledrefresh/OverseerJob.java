@@ -79,6 +79,7 @@ public class OverseerJob implements Job {
 
         ScheduledRefreshKeyGenerator<Serializable> generator = makeGeneratorObject(config.getKeyGeneratorClass());
         if (generator != null) {
+            LOG.info("Starting Scheduled refresh: " + config.toString(cache));
             processKeys(context, config, cache, generator);
             Scheduler scheduler = context.getScheduler();
             if (config.isUseBulkload()) {
@@ -155,7 +156,7 @@ public class OverseerJob implements Job {
     private ScheduledRefreshKeyGenerator<Serializable> makeGeneratorObject(String keyGeneratorClass) {
         try {
             Class<?> gen = Class.forName(keyGeneratorClass);
-            @SuppressWarnings("unchecked") ScheduledRefreshKeyGenerator<Serializable> obj =
+            @SuppressWarnings ("unchecked") ScheduledRefreshKeyGenerator<Serializable> obj =
                     (ScheduledRefreshKeyGenerator<Serializable>) gen.newInstance();
             return obj;
         } catch (ClassNotFoundException e) {

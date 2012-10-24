@@ -17,7 +17,7 @@ public interface CacheService {
    * @param cacheName        the name of the {@link Cache} to have sampled statistics cleared
    */
   void clearCacheStats(String cacheManagerName,
-                       String cacheName);
+                       String cacheName) throws ServiceExecutionException;
 
   /**
    * Create or update a cache represented by the submitted entity.
@@ -38,5 +38,5 @@ public interface CacheService {
    * @param cacheName        the name of the {@link Cache} to be cleared
    */
   void clearCache(String cacheManagerName,
-                  String cacheName);
+                  String cacheName) throws ServiceExecutionException;
 }
