@@ -544,7 +544,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
 
         int sizeModifier = 0;
         sizeModifier -= softLockManager.getKeysInvisibleInContext(getCurrentTransactionContext(), underlyingStore).size();
-        return underlyingStore.getSize() + sizeModifier;
+        return Math.max(0, underlyingStore.getSize() + sizeModifier);
     }
 
     /**

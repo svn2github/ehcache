@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -87,5 +88,35 @@ public class LargeCollectionTest {
 
         AggregateIterator<String> iterator = new AggregateIterator<String>(removeSet, sources);
         return iterator;
+    }
+
+    @Test
+    public void testSize() throws Exception {
+        final Set<String> authority = new HashSet<String>();
+        authority.add("1");
+        authority.add("2");
+        authority.add("3");
+
+        Set<String> set = new LargeSet<String>() {
+            @Override
+            public Iterator<String> sourceIterator() {
+                return authority.iterator();
+            }
+
+            @Override
+            public int sourceSize() {
+                return authority.size();
+            }
+        };
+
+        Assert.assertEquals(3, set.size());
+        set.remove("1");
+        set.remove("2");
+        Assert.assertEquals(1, set.size());
+        authority.remove("2");
+        authority.remove("3");
+        Assert.assertEquals(0, set.size());
+
+
     }
 }
