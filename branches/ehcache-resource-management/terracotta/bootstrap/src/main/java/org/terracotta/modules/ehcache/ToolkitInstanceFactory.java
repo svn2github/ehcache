@@ -55,7 +55,7 @@ public interface ToolkitInstanceFactory {
    * 
    * @throws UnsupportedOperationException if search is not supported
    */
-  ToolkitCache<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache);
+  ToolkitMap<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache);
 
   /**
    * Returns a {@link ToolkitReadWriteLock} for protecting the cache's store cluster wide
@@ -78,7 +78,7 @@ public interface ToolkitInstanceFactory {
    * 
    * @throws UnsupportedOperationException if search is not supported
    */
-  ToolkitCache<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache);
+  ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache);
 
   /**
    * Shutdown

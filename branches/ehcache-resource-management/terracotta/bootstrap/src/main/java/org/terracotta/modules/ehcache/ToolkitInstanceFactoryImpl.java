@@ -200,13 +200,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCache<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache) {
+  public ToolkitMap<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache) {
     // implemented in ee version
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ToolkitCache<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache) {
+  public ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache) {
     // implemented in ee version
     throw new UnsupportedOperationException();
   }
