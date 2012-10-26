@@ -19,6 +19,9 @@ import net.sf.ehcache.util.lang.VicariousThreadLocal;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * SlewClock will return the current time in millis, but will never go back in time.
  * If it detects that a back movement in time, it will slew the results while keeping them incrementing until time has caught up
@@ -27,6 +30,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Alex Snaps
  */
 final class SlewClock {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SlewClock.class);
 
     private static final TimeProvider PROVIDER = TimeProviderLoader.getTimeProvider();
 
@@ -79,7 +84,9 @@ final class SlewClock {
                             }
                         } else {
                             try {
-                                Thread.sleep(sleepTime(delta, lastDelta));
+                                long sleep = sleepTime(delta, lastDelta);
+                                LOG.trace("{} sleeping for {}ms to adjust for wall-clock drift.", Thread.currentThread(), sleep);
+                                Thread.sleep(sleep);
                             } catch (InterruptedException e) {
                                 interrupted = true;
                             }

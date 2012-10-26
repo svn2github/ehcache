@@ -5,8 +5,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -20,6 +25,22 @@ public class TimestamperTest {
 
     public static final int TOTAL_RUNS = 750000;
 
+    private static final Logger slewClockLogger = Logger.getLogger(SlewClock.class.getName());
+    private static final ConsoleHandler slewClockHandler = new ConsoleHandler();
+    
+    @BeforeClass
+    public static void enableSlewClockDebugLogging() {
+      slewClockHandler.setLevel(Level.ALL);
+      slewClockLogger.setLevel(Level.ALL);
+      slewClockLogger.addHandler(slewClockHandler);
+    }
+    
+    @AfterClass
+    public static void disableSlewClockDebugLogging() {
+      slewClockLogger.setLevel(Level.INFO);
+      slewClockLogger.removeHandler(slewClockHandler);
+    }
+    
     @Test
     public void testCorrectness() throws Exception {
         final int THREADS = 8;
