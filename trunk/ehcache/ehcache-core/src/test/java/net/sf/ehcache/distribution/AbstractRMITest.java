@@ -230,9 +230,9 @@ public abstract class AbstractRMITest {
                 result.get();
             }
         } catch (InterruptedException e) {
-            throw new AssertionError();
+            throw new AssertionError(e);
         } catch (ExecutionException e) {
-            throw new AssertionError();
+            throw new AssertionError(e);
         } finally {
             executor.shutdown();
         }
