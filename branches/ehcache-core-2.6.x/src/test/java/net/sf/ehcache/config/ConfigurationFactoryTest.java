@@ -1625,7 +1625,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(5, config5.getCacheWriterConfiguration().getRateLimitPerSecond());
         assertEquals(true, config5.getCacheWriterConfiguration().getWriteCoalescing());
         assertEquals(false, config5.getCacheWriterConfiguration().getWriteBatching());
-        assertEquals(20, config5.getCacheWriterConfiguration().getWriteBatchSize());
+        assertEquals(1, config5.getCacheWriterConfiguration().getWriteBatchSize());
         assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttempts());
         assertEquals(2, config5.getCacheWriterConfiguration().getRetryAttemptDelaySeconds());
         Ehcache cache5 = configurationHelper.createCacheFromName("writeBehindCache5");

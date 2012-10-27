@@ -21,6 +21,8 @@ import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import net.sf.ehcache.writer.writethrough.WriteThroughManager;
 
+import java.util.Collection;
+
 /**
  * Class to hold the CacheWriterManager configuration
  *
@@ -682,6 +684,18 @@ public class CacheWriterConfiguration implements Cloneable {
         }
         return true;
     }
-    
-    
+
+
+    /**
+     * Check for errors/inconsistencies in this configuration. Add any erros  found as
+     * {@link ConfigError} in the errors collection.
+     * @param errors collection to add errors to.
+     */
+    public void validate(Collection<ConfigError> errors) {
+        if (writeMode.equals(WriteMode.WRITE_BEHIND)) {
+            if (!getWriteBatching() && getWriteBatchSize() != 1) {
+                errors.add(new ConfigError("Write Batch Size !=1 with Write Batching turned off."));
+            }
+        }
+    }
 }
