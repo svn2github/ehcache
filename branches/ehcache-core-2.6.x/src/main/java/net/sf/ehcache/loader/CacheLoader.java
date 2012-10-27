@@ -119,14 +119,13 @@ public interface CacheLoader {
     void init();
 
     /**
-     * Providers may be doing all sorts of exotic things and need to be able to clean up on
-     * dispose.
+     * CacheLoader instances may be doing all sorts of exotic things and need to be able to clean up
+     * on dispose. This method will be invoked when {@link net.sf.ehcache.Cache#dispose() Cache.dispose()} is invoked
+     * if this CacheLoader is registered with the cache at disposal time, allowing for any necessary cleanup.
      * <p/>
-     * Cache operations are illegal when this method is called. The cache itself is partly
-     * disposed when this method is called.
+     * No operations may be performed on the cache this CacheLoader is registered with. The
+     * cache itself is partly disposed when this method is called, and should not be accessed.
      * <p/>
-     * This method will be invoked when {@link net.sf.ehcache.Cache#dispose() Cache.dispose()} is invoked
-     * if this CacheLoader is registered with the cache at disposal time.
      *
      * @throws net.sf.ehcache.CacheException
      */
