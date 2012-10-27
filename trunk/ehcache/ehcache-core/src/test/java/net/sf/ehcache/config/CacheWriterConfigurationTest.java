@@ -16,9 +16,14 @@
 
 package net.sf.ehcache.config;
 
+import net.sf.ehcache.CacheManager;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -131,4 +136,29 @@ public class CacheWriterConfigurationTest {
         assertEquals(4, config.getWriteBehindConcurrency());
         assertEquals(125, config.getWriteBehindMaxQueueSize());
     }
+
+
+    @Test
+    public void testBatchSizeWithoutBatchingFail() {
+        CacheWriterConfiguration config=new CacheWriterConfiguration().writeBatching(false).writeBatchSize(10)
+                .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND);
+
+        Collection<ConfigError> errs=new ArrayList<ConfigError>();
+        config.validate(errs);
+        Assert.assertFalse(errs.isEmpty());
+        CacheConfiguration cacheConfig=new CacheConfiguration().name("foo").cacheWriter(config);
+        try {
+            cacheConfig.validateCompleteConfiguration();
+            Assert.fail();
+        } catch(InvalidConfigurationException ie) {
+        }
+
+        try {
+            CacheManager cm = new CacheManager(getClass().getResourceAsStream
+                    ("/ehcache-invalid-cachewriter-batching.xml"));
+        } catch(InvalidConfigurationException ie) {
+        }
+
+    }
+
 }

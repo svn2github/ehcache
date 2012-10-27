@@ -36,7 +36,7 @@
 
     <cache name="writeBehindCache5" eternal="false" maxElementsInMemory="1000" overflowToDisk="false">
         <cacheWriter writeMode="write-behind" notifyListenersOnException="true" maxWriteDelay="8" rateLimitPerSecond="5"
-                     writeCoalescing="true" writeBatching="false" writeBatchSize="20"
+                     writeCoalescing="true" writeBatching="false" writeBatchSize="1"
                      retryAttempts="2" retryAttemptDelaySeconds="2">
             <cacheWriterFactory class="net.sf.ehcache.writer.TestCacheWriterFactory"
                                 properties="just.some.property=test; another.property=test2" propertySeparator=";"/>

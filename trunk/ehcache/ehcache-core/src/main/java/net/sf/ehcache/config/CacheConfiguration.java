@@ -2285,6 +2285,12 @@ public class CacheConfiguration implements Cloneable {
                 }
             }
         }
+        if (cacheWriterConfiguration != null) {
+            if (!cacheWriterConfiguration.getWriteBatching() && cacheWriterConfiguration.getWriteBatchSize() != 1) {
+                throw new InvalidConfigurationException("CacheWriter Batch Size !=1 and CacheWriter Batching " +
+                        "turned off");
+            }
+        }
     }
 
     private void validateTransactionalSettings() {
