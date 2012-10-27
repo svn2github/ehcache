@@ -60,7 +60,7 @@ public class UpdateChecker extends TimerTask {
                 doCheck();
             }
         } catch (Throwable t) {
-            LOG.debug("Update check failed: " + t.toString());
+            LOG.debug("Update check failed: ", t);
         }
     }
 
