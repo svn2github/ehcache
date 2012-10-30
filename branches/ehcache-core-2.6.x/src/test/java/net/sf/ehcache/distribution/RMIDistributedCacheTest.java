@@ -77,9 +77,7 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-
         manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
         sampleCache1 = manager.getCache(cacheName1);
         sampleCache1.removeAll();
         element = new Element("key", new Date());

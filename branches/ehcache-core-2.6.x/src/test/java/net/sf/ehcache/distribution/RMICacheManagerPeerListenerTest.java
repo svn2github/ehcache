@@ -39,9 +39,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.rmi.Remote;
@@ -49,9 +47,6 @@ import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -65,38 +60,6 @@ import java.util.logging.Logger;
 public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
     private static final Logger LOGGER = Logger.getLogger(RMICacheManagerPeerListenerTest.class.getName());
-
-    private static final Logger[] RMI_LOGGERS = new Logger[] {
-        Logger.getLogger(MulticastRMICacheManagerPeerProvider.class.getName()),
-        Logger.getLogger(MulticastKeepaliveHeartbeatSender.class.getName()),
-        Logger.getLogger(MulticastKeepaliveHeartbeatReceiver.class.getName()),
-        Logger.getLogger(RMIAsynchronousCacheReplicator.class.getName()),
-        //Logger.getLogger(RMICacheManagerPeerListener.class.getName()),
-        //Logger.getLogger(RMICacheManagerPeerProvider.class.getName()),
-        Logger.getLogger(RMICacheManagerPeerProviderFactory.class.getName()),
-        Logger.getLogger(RMICachePeer.class.getName()),
-        Logger.getLogger(RMICacheReplicatorFactory.class.getName()),
-        Logger.getLogger(RMISynchronousCacheReplicator.class.getName())};
-
-    @BeforeClass
-    public static void setupLogging() {
-        Handler rmiHandler = new ConsoleHandler();
-        rmiHandler.setLevel(Level.ALL);
-        for (Logger logger : RMI_LOGGERS) {
-            logger.setLevel(Level.ALL);
-            logger.addHandler(rmiHandler);
-        }
-    }
-
-    @AfterClass
-    public static void revertLogging() {
-        for (Logger logger : RMI_LOGGERS) {
-            logger.setLevel(Level.INFO);
-            for (Handler handler : logger.getHandlers()) {
-                logger.removeHandler(handler);
-            }
-        }
-    }
 
     /**
      * CacheManager 1 in the cluster

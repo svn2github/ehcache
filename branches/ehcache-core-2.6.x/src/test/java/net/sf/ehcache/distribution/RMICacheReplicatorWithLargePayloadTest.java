@@ -81,8 +81,6 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
     public void setUp() throws Exception {
         failFastInsufficientMemory();
 
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-
         manager1 = new CacheManager(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-1.xml")).name("cm1"));
         manager2 = new CacheManager(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-2.xml")).name("cm2"));
         manager3 = new CacheManager(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml")).name("cm3"));

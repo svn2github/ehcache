@@ -115,7 +115,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     @Before
     public void setUp() throws Exception {
         assertThat(getActiveReplicationThreads(), IsEmptyCollection.<Thread>empty());
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
     }
 
     /**
@@ -244,6 +243,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
         List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
         try {
             //Drop a CacheManager from the cluster
@@ -269,19 +269,13 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             CacheManagerPeerProvider provider = manager.getCacheManagerPeerProvider("RMI");
             assertThat((List<?>) provider.listRemoteCachePeers(cache), hasSize(4));
 
-            MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(2000);
-            try {
-                Thread.sleep(2000);
+            Thread.sleep(2000);
 
-                //Drop a CacheManager from the cluster
-                cluster.remove(4).shutdown();
+            //Drop a CacheManager from the cluster
+            cluster.remove(4).shutdown();
 
-                //Insufficient time for it to timeout
-                assertThat((List<?>) provider.listRemoteCachePeers(cache), hasSize(4));
-            } finally {
-                MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-                Thread.sleep(2000);
-            }
+            //Insufficient time for it to timeout
+            assertThat((List<?>) provider.listRemoteCachePeers(cache), hasSize(4));
         } finally {
             destroyCluster(cluster);
         }
@@ -294,7 +288,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
-        RMICacheManagerPeerListenerTest.setupLogging();
         final List<CacheManager> cluster = createCluster(5);
         try {
             final CacheManager manager0 = cluster.get(0);
@@ -334,7 +327,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             }, is(Boolean.TRUE));
         } finally {
             destroyCluster(cluster);
-            RMICacheManagerPeerListenerTest.revertLogging();
         }
     }
 
@@ -344,7 +336,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
-        RMICacheManagerPeerListenerTest.setupLogging();
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
         final List<CacheManager> cluster = createCluster(5);
         try {
             cluster.remove(2).shutdown();
@@ -390,7 +382,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             }, is(Boolean.TRUE));
         } finally {
             destroyCluster(cluster);
-            RMICacheManagerPeerListenerTest.revertLogging();
         }
     }
 
