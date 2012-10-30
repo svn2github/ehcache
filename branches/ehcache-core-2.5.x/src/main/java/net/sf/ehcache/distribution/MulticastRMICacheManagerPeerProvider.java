@@ -193,14 +193,14 @@ public final class MulticastRMICacheManagerPeerProvider extends RMICacheManagerP
      * @return the time in ms, for a cluster to form
      */
     public long getTimeForClusterToForm() {
-        return getStaleTime();
+        return MulticastKeepaliveHeartbeatSender.getHeartBeatInterval() * 2 + SHORT_DELAY;
     }
 
     /**
      * The time after which an unrefreshed peer provider entry is considered stale.
      */
     protected long getStaleTime() {
-        return MulticastKeepaliveHeartbeatSender.getHeartBeatInterval() * 2 + SHORT_DELAY;
+        return MulticastKeepaliveHeartbeatSender.getHeartBeatStaleTime();
     }
 
     /**

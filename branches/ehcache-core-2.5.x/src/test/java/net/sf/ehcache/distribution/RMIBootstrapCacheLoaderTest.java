@@ -99,9 +99,6 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-
         manager1 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
         manager2 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));;
 

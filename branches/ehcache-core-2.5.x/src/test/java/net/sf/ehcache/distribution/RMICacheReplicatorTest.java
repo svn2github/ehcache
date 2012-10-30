@@ -155,7 +155,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         // memory to -Xmx!
 //        forceVMGrowth();
 //        System.gc();
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
         manager1 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
         manager2 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
@@ -282,6 +281,8 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
+
         //Drop a CacheManager from the cluster
         manager5.shutdown();
 
@@ -294,24 +295,18 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
-        try {
-            CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
-            List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-            assertEquals(4, remotePeersOfCache1.size());
+        CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
+        List remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
+        assertEquals(4, remotePeersOfCache1.size());
 
-            MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(2000);
-            Thread.sleep(2000);
+        Thread.sleep(2000);
 
-            //Drop a CacheManager from the cluster
-            manager5.shutdown();
+        //Drop a CacheManager from the cluster
+        manager5.shutdown();
 
-            //Insufficient time for it to timeout
-            remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
-            assertEquals(4, remotePeersOfCache1.size());
-        } finally {
-            MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-            Thread.sleep(2000);
-        }
+        //Insufficient time for it to timeout
+        remotePeersOfCache1 = provider.listRemoteCachePeers(cache1);
+        assertEquals(4, remotePeersOfCache1.size());
     }
 
     /**
@@ -364,6 +359,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
 
         manager3.shutdown();
         waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(cacheName), manager1, manager2, manager4, manager5);
