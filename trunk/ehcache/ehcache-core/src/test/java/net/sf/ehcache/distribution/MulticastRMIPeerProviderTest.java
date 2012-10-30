@@ -76,7 +76,6 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
         List<Configuration> configurations = new ArrayList<Configuration>();
         configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
         configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
@@ -129,6 +128,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
      */
     @Test
     public void testProviderFromCacheManager() throws InterruptedException {
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
 
         Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
         Ehcache m2sampleCache1 = manager2.getCache("sampleCache1");
@@ -163,6 +163,8 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
     public void testDeleteReplicatedCache() throws InterruptedException {
         //manual does not nor should it work this way
         assumeThat(getClass(), IsSame.<Class<?>>sameInstance(MulticastRMIPeerProviderTest.class));
+
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
 
         manager1.addCache("fromDefaultCache");
         manager2.addCache("fromDefaultCache");
