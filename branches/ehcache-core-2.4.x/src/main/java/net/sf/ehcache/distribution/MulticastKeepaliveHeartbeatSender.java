@@ -56,8 +56,10 @@ public final class MulticastKeepaliveHeartbeatSender {
     private static final int DEFAULT_HEARTBEAT_INTERVAL = 5000;
     private static final int MINIMUM_HEARTBEAT_INTERVAL = 1000;
     private static final int MAXIMUM_PEERS_PER_SEND = 150;
+    private static final int ONE_HUNDRED_MS = 100;
 
     private static long heartBeatInterval = DEFAULT_HEARTBEAT_INTERVAL;
+    private static long heartBeatStaleTime = -1;
 
     private final InetAddress groupMulticastAddress;
     private final Integer groupMulticastPort;
@@ -273,10 +275,32 @@ public final class MulticastKeepaliveHeartbeatSender {
     }
 
     /**
+     * Sets the heartbeat stale time to something other than the default of {@code ((2 * HeartBeatInterval) + 100)ms}.
+     * This is useful for testing, but not recommended for production. This method is static and so affects the stale
+     * time all users.
+     *
+     * @param heartBeatStaleTime a time in ms
+     */
+    public static void setHeartBeatStaleTime(long heartBeatStaleTime) {
+        MulticastKeepaliveHeartbeatSender.heartBeatStaleTime = heartBeatStaleTime;
+    }
+
+    /**
      * Returns the heartbeat interval.
      */
     public static long getHeartBeatInterval() {
         return heartBeatInterval;
+    }
+
+    /**
+     * Returns the time after which a heartbeat is considered stale.
+     */
+    public static long getHeartBeatStaleTime() {
+        if (heartBeatStaleTime < 0) {
+            return (heartBeatInterval * 2) + ONE_HUNDRED_MS;
+        } else {
+            return heartBeatStaleTime;
+        }
     }
 
     /**

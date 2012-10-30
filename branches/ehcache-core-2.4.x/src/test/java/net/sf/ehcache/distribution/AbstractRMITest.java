@@ -52,6 +52,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,12 @@ public abstract class AbstractRMITest {
             }
         }
         return threads;
+    }
+    
+    @Before
+    public void setupMulticastTiming() {
+        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(30000);
     }
 
     protected static final void setHeapDumpOnOutOfMemoryError(boolean value) {
