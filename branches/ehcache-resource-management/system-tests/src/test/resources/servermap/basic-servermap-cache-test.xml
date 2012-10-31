@@ -43,7 +43,7 @@
          maxElementsInMemory="400"
          eternal="false"
          timeToIdleSeconds="15"
-         maxElementsOnDisk="500">
+         maxElementsOnDisk="5000">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
@@ -52,7 +52,7 @@
          maxElementsInMemory="400"
          eternal="false"
          timeToLiveSeconds="15"
-         maxElementsOnDisk="500">
+         maxElementsOnDisk="5000">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>

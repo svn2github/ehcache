@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import com.tc.properties.TCPropertiesConsts;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -27,6 +28,7 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
     super("evict-cache-test.xml", testConfig, App.class, App.class);
     testConfig.getL2Config().setDgcEnabled(true);
     testConfig.getL2Config().setDgcIntervalInSec(10);
+    testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
   }
 
   public static class App extends ClientBase implements CacheEventListener {
