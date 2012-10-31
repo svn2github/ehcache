@@ -23,8 +23,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 
@@ -44,6 +42,7 @@ import org.junit.Test;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -108,17 +107,19 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-        LOGGER.info("Starting Test Setup");
-        manager1 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
-        LOGGER.info("Created Manager 1");
-        manager2 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
-        LOGGER.info("Created Manager 2");
-        manager3 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml").name("cm3"));
-        LOGGER.info("Created Manager 3");
-        manager4 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml").name("cm4"));
-        LOGGER.info("Created Manager 4");
-        manager5 = new CacheManager(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml").name("cm5"));
-        LOGGER.info("Created Manager 5");
+        List<Configuration> configurations = new ArrayList<Configuration>();
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml").name("cm3"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml").name("cm4"));
+        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml").name("cm5"));
+
+        List<CacheManager> managers = startupManagers(configurations);
+        manager1 = managers.get(0);
+        manager2 = managers.get(1);
+        manager3 = managers.get(2);
+        manager4 = managers.get(3);
+        manager5 = managers.get(4);
 
         //allow cluster to be established
         LOGGER.info("Validating Cluster Membership");
