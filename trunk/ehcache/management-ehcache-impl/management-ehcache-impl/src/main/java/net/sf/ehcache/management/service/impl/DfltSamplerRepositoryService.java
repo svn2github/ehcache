@@ -30,7 +30,6 @@ import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
-import org.terracotta.management.resource.Representable;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
 
@@ -40,7 +39,6 @@ import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,9 +68,8 @@ public class DfltSamplerRepositoryService
 
   private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryService.class);
 
-  private final static Set<String> DFLT_ATTRS = new HashSet<String>(Arrays.asList(new String[] { "Name" }));
-
   public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=RepositoryService";
+  public static final String AGENCY = "Ehcache";
 
   /**
    * Guarded By cacheManagerSamplerRepoLock
@@ -452,10 +449,17 @@ public class DfltSamplerRepositoryService
   private AgentEntity buildAgentEntity() {
     AgentEntity e = new AgentEntity();
     e.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+    e.setAgencyOf(AGENCY);
 
-    Collection<Representable> reps = new HashSet<Representable>();
-    reps.addAll(createCacheManagerEntities(null, DFLT_ATTRS));
-    e.setRootRepresentables(reps);
+    StringBuilder sb = new StringBuilder();
+    for (String cmName : cacheManagerSamplerRepo.keySet()) {
+      sb.append(cmName).append(",");
+    }
+    if (sb.indexOf(",") > -1) {
+      sb.deleteCharAt(sb.length() - 1);
+    }
+
+    e.getRootRepresentables().put("cacheManagerNames", sb.toString());
     return e;
   }
 
@@ -481,7 +485,7 @@ public class DfltSamplerRepositoryService
     AgentMetadataEntity ame = new AgentMetadataEntity();
 
     ame.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
-    ame.setAgencyOf("Ehcache");
+    ame.setAgencyOf(AGENCY);
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
 
