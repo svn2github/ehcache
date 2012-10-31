@@ -40,7 +40,7 @@ public class UpdateChecker extends TimerTask {
     private static final long MILLIS_PER_SECOND = 1000L;
     private static final int CONNECT_TIMEOUT = 3000;
     private static final String UNKNOWN = "UNKNOWN";
-    private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?kitID=ehcache.default&pageID=update.properties";
+    private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?pageID=update.properties";
     private static final long START_TIME = System.currentTimeMillis();
 
     /**
@@ -67,7 +67,7 @@ public class UpdateChecker extends TimerTask {
     private void doCheck() throws IOException {
         URL updateUrl = buildUpdateCheckUrl();
         if (Boolean.getBoolean("net.sf.ehcache.debug.updatecheck")) {
-          LOG.info("Update check url: {}", updateUrl);
+            LOG.info("Update check url: {}", updateUrl);
         }
         Properties updateProps = getUpdateProperties(updateUrl);
         String currentVersion = new ProductInfo().getVersion();
@@ -131,8 +131,17 @@ public class UpdateChecker extends TimerTask {
      */
     protected String buildParamsString() throws UnsupportedEncodingException {
         ProductInfo productInfo = new ProductInfo();
+        String productName = productInfo.getName().toLowerCase();
         StringBuilder sb = new StringBuilder();
-        sb.append("id=");
+        sb.append("kitID=");
+        if (productName.contains("ehcache")) {
+            sb.append("ehcache.default");
+        } else if (productName.contains("bigmemory")) {
+            sb.append("bigmemory.default");
+        } else {
+            throw new AssertionError("Unknown product name: " + productName);
+        }
+        sb.append("&id=");
         sb.append(getClientId());
         sb.append("&os-name=");
         sb.append(urlEncode(getProperty("os.name")));
@@ -170,6 +179,7 @@ public class UpdateChecker extends TimerTask {
 
     /**
      * URL safe encoding
+     *
      * @param param
      * @return
      * @throws UnsupportedEncodingException
