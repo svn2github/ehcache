@@ -415,6 +415,7 @@
             <!-- The default-test execution is automatically bound to the test phase by Surefire -->
             <id>default-test</id>
             <configuration>
+<skipTests>true</skipTests>
               <excludes>
                 <exclude>**/*$*</exclude>
                 <exclude>**/Abstract*Test.java</exclude>

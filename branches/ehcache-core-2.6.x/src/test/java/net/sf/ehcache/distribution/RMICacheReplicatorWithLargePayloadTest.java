@@ -17,29 +17,33 @@
 package net.sf.ehcache.distribution;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.collection.IsCollectionWithSize.*;
+import static org.hamcrest.core.Is.*;
+import static org.hamcrest.core.IsNull.*;
+import static org.hamcrest.number.OrderingComparison.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import junit.framework.Assert;
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.util.RetryAssert;
 
 import org.hamcrest.collection.IsEmptyCollection;
@@ -62,19 +66,6 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
     private static int MB = 1024 * 1024;
 
     /**
-     * CacheManager 1 in the cluster
-     */
-    protected CacheManager manager1;
-    /**
-     * CacheManager 2 in the cluster
-     */
-    protected CacheManager manager2;
-    /**
-     * CacheManager 3 in the cluster
-     */
-    protected CacheManager manager3;
-
-    /**
      * {@inheritDoc} Sets up two caches: cache1 is local. cache2 is to be receive updates
      *
      * @throws Exception
@@ -82,17 +73,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
     @Before
     public void setUp() throws Exception {
         failFastInsufficientMemory();
-
-        List<Configuration> configurations = new ArrayList<Configuration>();
-        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-1.xml")).name("cm1"));
-        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-2.xml")).name("cm2"));
-        configurations.add(ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-3.xml")).name("cm2"));
-        List<CacheManager> managers = startupManagers(configurations);
-        manager1 = managers.get(0);
-        manager2 = managers.get(1);
-        manager3 = managers.get(2);
-        // allow cluster to be established
-        waitForClusterMembership(10, TimeUnit.SECONDS, Arrays.asList(manager1.getCacheNames()), manager1, manager2, manager3);
+        assertThat(getActiveReplicationThreads(), IsEmptyCollection.<Thread>empty());
     }
 
     private void failFastInsufficientMemory() {
@@ -110,52 +91,80 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws Exception
-     */
     @After
-    public void tearDown() throws Exception {
-
-        if (manager1 != null) {
-            manager1.shutdown();
-        }
-        if (manager2 != null) {
-            manager2.shutdown();
-        }
-        if (manager3 != null) {
-            manager3.shutdown();
-        }
-
+    public void noReplicationThreads() throws Exception {
         RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
+            @Override
             public Set<Thread> call() throws Exception {
                 return getActiveReplicationThreads();
             }
         }, IsEmptyCollection.<Thread>empty());
     }
+    
+    private static List<CacheManager> createCluster(int size, String ... caches){
+        LOG.info("Creating Cluster");
+        Collection<String> required = Arrays.asList(caches);
+        List<Configuration> configurations = new ArrayList<Configuration>(size);
+        for (int i = 1; i <= size; i++) {
+            Configuration config = getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-" + i + ".xml").name("cm" + i);
+            if (!required.isEmpty()) {
+                for (Iterator<Map.Entry<String, CacheConfiguration>> it = config.getCacheConfigurations().entrySet().iterator(); it.hasNext(); ) {
+                    if (!required.contains(it.next().getKey())) {
+                        it.remove();
+                    }
+                }
+            }
+            configurations.add(config);
+        }
+        LOG.info("Created Configurations");
+
+        List<CacheManager> members = startupManagers(configurations);
+        try {
+          LOG.info("Created Managers");
+          if (required.isEmpty()) {
+              waitForClusterMembership(10, TimeUnit.SECONDS, members);
+              LOG.info("Cluster Membership Complete");
+              emptyCaches(10, TimeUnit.SECONDS, members);
+              LOG.info("Caches Emptied");
+          } else {
+              waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
+              emptyCaches(10, TimeUnit.SECONDS, required, members);
+          }
+          return members;
+        } catch (RuntimeException e) {
+          destroyCluster(members);
+          throw e;
+        } catch (Error e) {
+          destroyCluster(members);
+          throw e;
+        }
+    }
+
+    private static void destroyCluster(List<CacheManager> members) {
+        for (CacheManager manager : members) {
+            if (manager != null) {
+                manager.shutdown();
+            }
+        }
+    }
 
     @Test
     public void testAssertBigPayload() {
-        List<CachePeer> localPeers = manager1.getCachePeerListener("RMI").getBoundCachePeers();
-        List<byte[]> payloadList = PayloadUtil.createCompressedPayloadList(localPeers, 150);
-        Assert.assertTrue("Payload is not big enough for cacheManager-1", payloadList.size() > 1);
-
-        localPeers = manager2.getCachePeerListener("RMI").getBoundCachePeers();
-        payloadList = PayloadUtil.createCompressedPayloadList(localPeers, 150);
-        Assert.assertTrue("Payload is not big enough for cacheManager-2", payloadList.size() > 1);
-
-        localPeers = manager3.getCachePeerListener("RMI").getBoundCachePeers();
-        payloadList = PayloadUtil.createCompressedPayloadList(localPeers, 150);
-        Assert.assertTrue("Payload is not big enough for cacheManager-3", payloadList.size() > 1);
-
-        CacheManager manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-4.xml");
+        List<CacheManager> cluster = createCluster(3);
         try {
-            localPeers = manager4.getCachePeerListener("RMI").getBoundCachePeers();
-            payloadList = PayloadUtil.createCompressedPayloadList(localPeers, 150);
-            Assert.assertTrue("Payload is not big enough for cacheManager-4", payloadList.size() > 1);
+            for (CacheManager manager : cluster) {
+                List<CachePeer> localPeers = cluster.get(0).getCachePeerListener("RMI").getBoundCachePeers();
+                List<byte[]> payloadList = PayloadUtil.createCompressedPayloadList(localPeers, 150);
+                assertThat(manager.getName(), payloadList, hasSize(greaterThan(1)));
+            }
+
+            cluster.add(new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-4.xml"));
+            
+            List<CachePeer> localPeers = cluster.get(3).getCachePeerListener("RMI").getBoundCachePeers();
+            List<byte[]> payloadList = PayloadUtil.createCompressedPayloadList(localPeers, 150);
+            assertThat(payloadList, hasSize(greaterThan(1)));
         } finally {
-            manager4.shutdown();
+          destroyCluster(cluster);
         }
     }
 
@@ -164,13 +173,15 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
-        // Add new CacheManager to cluster
-        CacheManager manager4 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-4.xml");
+        List<CacheManager> cluster = createCluster(3);
         try {
-            // Allow detection to occur
-            waitForClusterMembership(10020, TimeUnit.MILLISECONDS, Arrays.asList(manager1.getCacheNames()), manager1, manager2, manager3, manager4);
+            //Add new CacheManager to cluster
+            cluster.add(new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-4.xml"));
+
+            //Allow detection to occur
+            waitForClusterMembership(10020, TimeUnit.MILLISECONDS, cluster);
         } finally {
-            manager4.shutdown();
+            destroyCluster(cluster);
         }
     }
 
@@ -179,10 +190,18 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
-        // Drop a CacheManager from the cluster
-        manager3.shutdown();
-        // Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-        waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Arrays.asList(manager1.getCacheNames()), manager1, manager2);
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
+        List<CacheManager> cluster = createCluster(3);
+        try {
+            //Drop a CacheManager from the cluster
+            cluster.remove(2).shutdown();
+            assertThat(cluster, hasSize(2));
+
+            //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
+            waitForClusterMembership(11020, TimeUnit.MILLISECONDS, cluster);
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     /**
@@ -190,22 +209,24 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
-        MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(2000);
+        List<CacheManager> cluster = createCluster(3);
         try {
-            Thread.sleep(2000);
-            // Drop a CacheManager from the cluster
-            manager3.shutdown();
+            CacheManager manager = cluster.get(0);
 
-            // Insufficient time, should be alive till now
-            CacheManagerPeerProvider provider = manager1.getCacheManagerPeerProvider("RMI");
-            for (String cacheName : manager1.getCacheNames()) {
-                List remotePeersOfCache1 = provider.listRemoteCachePeers(manager1.getCache(cacheName));
-                assertEquals(2, remotePeersOfCache1.size());
+            Thread.sleep(2000);
+
+            //Drop a CacheManager from the cluster
+            cluster.remove(2).shutdown();
+            
+            //Insufficient time for it to timeout
+            CacheManagerPeerProvider provider = manager.getCacheManagerPeerProvider("RMI");
+            for (String cacheName : manager.getCacheNames()) {
+                List remotePeersOfCache1 = provider.listRemoteCachePeers(manager.getCache(cacheName));
+                assertThat((List<?>) remotePeersOfCache1, hasSize(2));
             }
         } finally {
-            MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-            Thread.sleep(2000);
-        }
+            destroyCluster(cluster);
+        }        
     }
 
     /**
@@ -215,33 +236,35 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
      */
     @Test
     public void testPutProgagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
-
-        // Put
-        final String[] cacheNames = manager1.getCacheNames();
-        Arrays.sort(cacheNames);
-        for (int i = 0; i < cacheNames.length; i++) {
-            String name = cacheNames[i];
-            manager1.getCache(name).put(new Element(Integer.toString(i), Integer.valueOf(i)));
-            // Add some non serializable elements that should not get propagated
-            manager1.getCache(name).put(new Element("nonSerializable" + i, new Object()));
-        }
-
-        assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
-
-            public Boolean call() throws Exception {
-                for (int i = 0; i < cacheNames.length; i++) {
-                    String name = cacheNames[i];
-                    for (CacheManager manager : new CacheManager[] {manager2, manager3}) {
-                        Element element = manager.getCache(name).get(Integer.toString(i));
-                        assertNotNull("Cache : " + name, element);
-                        assertEquals(Integer.toString(i), element.getKey());
-                        assertEquals(Integer.valueOf(i), element.getValue());
-
-                        assertNull(manager.getCache(name).get("nonSerializable" + i));
-                    }
-                }
-                return Boolean.TRUE;
+        final List<CacheManager> cluster = createCluster(3);
+        try {
+            final CacheManager manager0 = cluster.get(0);
+            //Put
+            final String[] cacheNames = manager0.getCacheNames();
+            Arrays.sort(cacheNames);
+            for (int i = 0; i < cacheNames.length; i++) {
+                String name = cacheNames[i];
+                manager0.getCache(name).put(new Element(Integer.toString(i), Integer.valueOf(i)));
+                //Add some non serializable elements that should not get propagated
+                manager0.getCache(name).put(new Element("nonSerializable" + i, new Object()));
             }
-        }, is(Boolean.TRUE));
+
+            assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
+
+                public Boolean call() throws Exception {
+                    for (int i = 0; i < cacheNames.length; i++) {
+                        String name = cacheNames[i];
+                        for (CacheManager manager : cluster.subList(1, cluster.size())) {
+                            assertThat("Cache : " + name, manager.getCache(name).get(Integer.toString(i)), notNullValue());
+                            assertThat(manager.getCache(name).get("nonSerializable" + i), nullValue());
+                        }
+                    }
+                    return Boolean.TRUE;
+                }
+            }, is(Boolean.TRUE));
+        } finally {
+            destroyCluster(cluster);
+        }
+        
     }
 }
