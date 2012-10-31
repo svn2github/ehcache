@@ -61,7 +61,7 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
     } catch (ServiceExecutionException e) {
       LOG.error("Failed to get cache managers.", e.getCause());
       throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause()).build());
     }
   }
 
@@ -82,7 +82,7 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
     } catch (ServiceExecutionException e) {
       LOG.error("Failed to update cache manager.", e.getCause());
       throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause()).build());
     }
   }
 }
