@@ -172,6 +172,8 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
+
         // Drop a CacheManager from the cluster
         manager3.shutdown();
         // Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
