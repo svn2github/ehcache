@@ -41,6 +41,7 @@ import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
 import net.sf.ehcache.transaction.xa.XAExecutionListener;
 import net.sf.ehcache.transaction.xa.XATransactionContext;
+import net.sf.ehcache.util.lang.VicariousThreadLocal;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class JtaLocalTransactionStore extends AbstractTransactionStore {
     private static final String ALTERNATIVE_TERMINATION_MODE_SYS_PROPERTY_NAME = "net.sf.ehcache.transaction.xa.alternativeTerminationMode";
     private static final AtomicBoolean ATOMIKOS_WARNING_ISSUED = new AtomicBoolean(false);
 
-    private static final ThreadLocal<Transaction> BOUND_JTA_TRANSACTIONS = new ThreadLocal<Transaction>();
+    private static final VicariousThreadLocal<Transaction> BOUND_JTA_TRANSACTIONS = new VicariousThreadLocal<Transaction>();
 
     private final TransactionManagerLookup transactionManagerLookup;
     private final TransactionController transactionController;
