@@ -31,14 +31,12 @@ import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
-import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
@@ -56,6 +54,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.event.EventListenerList;
 
@@ -83,7 +82,6 @@ public class ClusteredStore implements TerracottaStore {
   private final RegisteredEventListeners                      registeredEventListeners;
   private final ClusteredCacheInternalContext                 internalContext;
   private final CacheEventListener                            evictionListener;
-  private final ToolkitCache<String, Serializable>            configMap;
 
   // non-final private fields
   private EventListenerList                                   listenerList;
@@ -97,7 +95,7 @@ public class ClusteredStore implements TerracottaStore {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
 
-    configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache.getCacheManager().getName(),
+    ConcurrentMap<String, Serializable> configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache.getCacheManager().getName(),
                                                                           cache.getName());
     CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
     if (transactionalModeTemp == null) {

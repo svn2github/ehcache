@@ -10,7 +10,6 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -256,10 +255,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCache<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
+  public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
-    return toolkit.getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
-                            + CLUSTERED_STORE_CONFIG_MAP, Serializable.class);
+    return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
+                          + CLUSTERED_STORE_CONFIG_MAP, String.class, Serializable.class);
   }
 
   @Override
