@@ -11,7 +11,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.search.SearchBuilder;
+import org.terracotta.toolkit.search.QueryBuilder;
+import org.terracotta.toolkit.search.SearchExecutor;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 
 import java.io.Serializable;
@@ -49,10 +50,10 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public SearchBuilder createSearchBuilder() {
+  public SearchExecutor createSearchExecutor() {
     lock.readLock().lock();
     try {
-      return activeDelegate.createSearchBuilder();
+      return activeDelegate.createSearchExecutor();
     } finally {
       lock.readLock().unlock();
     }
@@ -598,5 +599,16 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
       lock.readLock().unlock();
     }
   }
+
+  @Override
+  public QueryBuilder createQueryBuilder() {
+    lock.readLock().lock();
+    try {
+      return activeDelegate.createQueryBuilder();
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
 
 }

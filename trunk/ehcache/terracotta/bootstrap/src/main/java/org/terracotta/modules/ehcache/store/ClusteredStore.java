@@ -179,10 +179,6 @@ public class ClusteredStore implements TerracottaStore {
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
 
-  protected void extractSearchAttributes(Element element) {
-    // implemented in EE subclass only
-  }
-
   @Override
   public void unpinAll() {
     backend.unpinAll();
@@ -238,7 +234,7 @@ public class ClusteredStore implements TerracottaStore {
     if (element == null) { return true; }
 
     String pKey = generatePortableKeyFor(element.getObjectKey());
-    extractSearchAttributes(element);
+    // extractSearchAttributes(element);
 
     // Keep this before the backend put to ensure that a write behind operation can never be lost.
     // This will be handled in the Terracotta L2 as an atomic operation right after the backend put since at that
@@ -263,7 +259,7 @@ public class ClusteredStore implements TerracottaStore {
         throw new UnsupportedOperationException("putAll() doesn't support custom lifespan");
       }
       String pKey = generatePortableKeyFor(element.getObjectKey());
-      extractSearchAttributes(element);
+      // extractSearchAttributes(element);
       ElementData elementData = valueModeHandler.createElementData(element);
       entries.put(pKey, elementData);
     }
@@ -349,7 +345,7 @@ public class ClusteredStore implements TerracottaStore {
   @Override
   public Element putIfAbsent(Element element) throws NullPointerException {
     String pKey = generatePortableKeyFor(element.getObjectKey());
-    extractSearchAttributes(element);
+    // extractSearchAttributes(element);
     ElementData value = valueModeHandler.createElementData(element);
     Serializable data = backend.putIfAbsent(pKey, value);
     return data == null ? null : this.valueModeHandler.createElement(element.getKey(), data);
