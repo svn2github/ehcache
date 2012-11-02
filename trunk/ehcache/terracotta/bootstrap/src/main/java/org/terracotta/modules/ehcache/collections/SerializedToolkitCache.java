@@ -13,6 +13,8 @@ import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
+import org.terracotta.toolkit.search.QueryBuilder;
+import org.terracotta.toolkit.search.SearchExecutor;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 
 import java.io.IOException;
@@ -490,5 +492,15 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   @Override
   public void setAttributeExtractor(ToolkitAttributeExtractor attrExtractor) {
     this.toolkitCache.setAttributeExtractor(attrExtractor);
+  }
+
+  @Override
+  public QueryBuilder createQueryBuilder() {
+    return this.toolkitCache.createQueryBuilder();
+  }
+
+  @Override
+  public SearchExecutor createSearchExecutor() {
+    return this.toolkitCache.createSearchExecutor();
   }
 }
