@@ -6,16 +6,15 @@ package org.terracotta.modules.ehcache.l1bm;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
-import com.tc.test.config.model.PersistenceMode;
 import com.tc.test.config.model.TestConfig;
 
 public class L2SizeDelayTest extends AbstractTerracottaActivePassiveTestBase {
   public L2SizeDelayTest(TestConfig testConfig) {
     super("l2-strong-cache-config.xml", testConfig, L2SizeDelayTestClient.class);
-    testConfig.getL2Config().setPersistenceMode(PersistenceMode.PERMANENT_STORE);
+    testConfig.getL2Config().setRestartable(true);
     testConfig.getL2Config().setMaxHeap(512);
     testConfig.getClientConfig().setMaxHeap(512);
     testConfig.getClientConfig().addExtraClientJvmArg("-XX:+UseParallelGC");

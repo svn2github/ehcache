@@ -5,7 +5,6 @@ package org.terracotta.modules.ehcache.cluster;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 
-import com.tc.test.config.model.PersistenceMode;
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.runtime.Os;
 
@@ -18,7 +17,7 @@ public class ClusterTopologyListenerTest extends AbstractCacheTestBase {
       disableTest();
     }
 
-    testConfig.getL2Config().setPersistenceMode(PersistenceMode.PERMANENT_STORE);
+    testConfig.getL2Config().setRestartable(true);
     testConfig.getL2Config().setClientReconnectWindow(600);
 
     testConfig.addTcProperty("l2.l1reconnect.enabled", "true");

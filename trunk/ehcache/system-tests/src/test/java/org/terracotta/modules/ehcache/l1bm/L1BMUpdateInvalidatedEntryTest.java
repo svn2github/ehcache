@@ -6,14 +6,12 @@ package org.terracotta.modules.ehcache.l1bm;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
-
+import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
-import org.terracotta.ehcache.tests.ClientBase;
 
 import com.tc.object.ClientConfigurationContext;
 import com.tc.properties.TCPropertiesImpl;
-import com.tc.test.config.model.PersistenceMode;
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.CallableWaiter;
 
@@ -31,7 +29,7 @@ public class L1BMUpdateInvalidatedEntryTest extends AbstractTerracottaActivePass
 
   public L1BMUpdateInvalidatedEntryTest(TestConfig testConfig) {
     super("l1bm-update-invalidated-entry-test.xml", testConfig, App.class, App.class);
-    testConfig.getL2Config().setPersistenceMode(PersistenceMode.PERMANENT_STORE);
+    testConfig.getL2Config().setRestartable(true);
   }
 
   public static class App extends ClientBase {

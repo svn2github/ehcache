@@ -6,7 +6,6 @@ package net.sf.ehcache.terracotta;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 
-import com.tc.test.config.model.PersistenceMode;
 import com.tc.test.config.model.ServerCrashMode;
 import com.tc.test.config.model.TestConfig;
 
@@ -20,7 +19,7 @@ public class AbstractTerracottaActivePassiveTestBase extends AbstractCacheTestBa
                                                  Class<? extends ClientBase>... c) {
     super(ehcacheConfigPath, testConfig, c);
 
-    testConfig.getL2Config().setPersistenceMode(PersistenceMode.TEMPORARY_SWAP_ONLY);
+    testConfig.getL2Config().setRestartable(false);
 
     testConfig.getGroupConfig().setMemberCount(2);
     testConfig.getGroupConfig().setElectionTime(5);

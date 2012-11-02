@@ -7,13 +7,11 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
-
+import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
-import org.terracotta.ehcache.tests.ClientBase;
 
 import com.tc.properties.TCPropertiesConsts;
-import com.tc.test.config.model.PersistenceMode;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.Serializable;
@@ -30,7 +28,7 @@ public class LocalReadsGetKeysTest extends AbstractTerracottaActivePassiveTestBa
     String timeout = "120000";
     testConfig.addTcProperty(TCPropertiesConsts.L2_L1RECONNECT_ENABLED, "true");
     testConfig.addTcProperty(TCPropertiesConsts.L2_L1RECONNECT_TIMEOUT_MILLS, timeout);
-    testConfig.getL2Config().setPersistenceMode(PersistenceMode.PERMANENT_STORE);
+    testConfig.getL2Config().setRestartable(true);
   }
 
   public static class App extends ClientBase {
