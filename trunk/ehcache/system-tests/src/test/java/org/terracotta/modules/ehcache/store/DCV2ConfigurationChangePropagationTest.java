@@ -133,14 +133,14 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
 
       if (index == 0) {
         System.err.println("Changing Disk Capacity on Client " + clientId);
-        cache.getCacheConfiguration().setMaxElementsOnDisk(99);
+        cache.getCacheConfiguration().setMaxEntriesInCache(99);
       }
 
       barrier2.await();
 
       for (int i = 0; i < 60; i++) {
         Thread.sleep(1000);
-        if (99 == cache.getCacheConfiguration().getMaxElementsOnDisk()) {
+        if (99 == cache.getCacheConfiguration().getMaxEntriesInCache()) {
           System.err.println("Change to Disk Capacity took " + (i + 1) + " seconds to propagate to Client " + clientId);
           return cacheManager;
         }

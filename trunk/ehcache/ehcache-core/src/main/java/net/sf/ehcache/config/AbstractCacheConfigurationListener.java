@@ -81,4 +81,14 @@ abstract class AbstractCacheConfigurationListener implements CacheConfigurationL
     public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
         //
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
+        //
+    }
+
+
 }

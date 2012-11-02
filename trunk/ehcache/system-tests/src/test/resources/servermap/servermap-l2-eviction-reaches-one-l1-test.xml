@@ -9,7 +9,7 @@
   <cache name="test"
          maxElementsInMemory="100"
          eternal="false"
-         maxElementsOnDisk="100">
+         maxEntriesInCache="100">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
@@ -17,7 +17,7 @@
   <cache name="testWithConcurrency"
          maxElementsInMemory="50"
          eternal="false"
-         maxElementsOnDisk="100">
+         maxEntriesInCache="100">
 
       <terracotta clustered="true" concurrency="50" />
   </cache>

@@ -317,17 +317,17 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
     public void testDiskCapacityChange(CacheManager cm) throws Exception {
       final Cache cache = createCache("testDiskCapacityChange", 10, true, 0, 0);
-      cache.getCacheConfiguration().maxElementsOnDisk(100).getTerracottaConfiguration()
+      cache.getCacheConfiguration().maxEntriesInCache(100).getTerracottaConfiguration()
           .consistency(TerracottaConfiguration.Consistency.STRONG).concurrency(1);
       cm.addCache(cache);
 
       testCacheDiskCapacity(cache, 100);
 
-      cache.getCacheConfiguration().setMaxElementsOnDisk(200);
+      cache.getCacheConfiguration().setMaxEntriesInCache(200);
 
       testCacheDiskCapacity(cache, 200);
 
-      cache.getCacheConfiguration().setMaxElementsOnDisk(50);
+      cache.getCacheConfiguration().setMaxEntriesInCache(50);
 
       testCacheDiskCapacity(cache, 50);
     }

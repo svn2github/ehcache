@@ -710,6 +710,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
     /**
      * {@inheritDoc}
      */
+    public void maxEntriesInCacheChanged(final int oldValue, final int newValue) {
+        // no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean containsKeyInMemory(Object key) {
         return containsKey(key);
     }

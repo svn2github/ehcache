@@ -1,7 +1,7 @@
 <ehcache>
 	<defaultCache maxEntriesLocalHeap="100"/>
 	
-	<cache name="test" maxElementsOnDisk="1000" maxEntriesLocalHeap="100">
+	<cache name="test" maxEntriesInCache="1000" maxEntriesLocalHeap="100">
 		<terracotta/>
 	</cache>
 	

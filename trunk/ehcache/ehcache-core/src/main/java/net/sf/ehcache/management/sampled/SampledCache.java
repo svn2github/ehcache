@@ -768,6 +768,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
+     */
+    public int getMaxEntriesInCache() {
+        return sampledCacheDelegate.getMaxEntriesInCache();
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setMaxEntriesLocalDisk(long)
      */
@@ -821,6 +828,14 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public void setMaxElementsOnDisk(int maxElements) {
         sampledCacheDelegate.setMaxElementsOnDisk(maxElements);
+        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxEntriesInCache(int maxEntries) {
+        sampledCacheDelegate.setMaxEntriesInCache(maxEntries);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
 
@@ -1190,6 +1205,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("MaxBytesLocalHeap", getMaxBytesLocalHeap());
         result.put("MaxBytesLocalOffHeap", getMaxBytesLocalOffHeap());
         result.put("MaxBytesLocalDisk", getMaxBytesLocalDisk());
+        result.put("MaxEntriesInCache", getMaxEntriesInCache());
         result.put("DiskPersistent", isDiskPersistent());
         result.put("Eternal", isEternal());
         result.put("OverflowToDisk", isOverflowToDisk());

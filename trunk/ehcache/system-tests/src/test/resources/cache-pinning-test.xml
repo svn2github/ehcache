@@ -4,35 +4,35 @@
 
   	<defaultCache maxElementsInMemory="10000" eternal="true" />
 
-	<cache name="pinned" maxElementsInMemory="10" maxElementsOnDisk="100"
+	<cache name="pinned" maxElementsInMemory="10" maxEntriesInCache="100"
 		eternal="true" statistics="true">
 		<pinning store="localHeap" />
 		<terracotta clustered="true" consistency="strong" />
 	</cache>
 
 	<cache name="pinnedEventual" maxElementsInMemory="10"
-		maxElementsOnDisk="100" eternal="true" statistics="true">
+		maxEntriesInCache="100" eternal="true" statistics="true">
 		<pinning store="localHeap" />
 		<terracotta clustered="true" consistency="eventual" />
 	</cache>
 
 	<cache name="pinnedElementEventual" maxElementsInMemory="10"
-		maxElementsOnDisk="100" eternal="true" statistics="true">
+		maxEntriesInCache="100" eternal="true" statistics="true">
 		<terracotta clustered="true" consistency="eventual" />
 	</cache>
 
 	<cache name="pinnedElementStrong" maxElementsInMemory="10"
-		maxElementsOnDisk="100" eternal="true" statistics="true">
+		maxEntriesInCache="100" eternal="true" statistics="true">
 		<terracotta clustered="true" consistency="strong" />
 	</cache>
 	
 	<cache name="pinnedElementEventualNoServerEviction" maxElementsInMemory="10"
-		maxElementsOnDisk="10000" eternal="true" statistics="true">
+		maxEntriesInCache="10000" eternal="true" statistics="true">
 		<terracotta clustered="true" consistency="eventual" />
 	</cache>
 
 	<cache name="pinnedElementStrongNoServerEviction" maxElementsInMemory="10"
-		maxElementsOnDisk="10000" eternal="true" statistics="true">
+		maxEntriesInCache="10000" eternal="true" statistics="true">
 		<terracotta clustered="true" consistency="strong" />
 	</cache>
   

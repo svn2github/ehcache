@@ -294,6 +294,13 @@ public class CacheConfigurationListenerTest extends AbstractCacheTest {
         public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
             // no-op
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void maxEntriesInCacheChanged(final int oldValue, final int newValue) {
+            // no-op
+        }
     }
 
     static class Event {

@@ -112,8 +112,8 @@ public class CacheConfigurationElement extends SimpleNodeElement {
         element.addAttribute(new SimpleNodeAttribute("timeToLiveSeconds", cacheConfiguration.getTimeToLiveSeconds()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TTL));
         if (cacheConfiguration.isTerracottaClustered()) {
-            element.addAttribute(new SimpleNodeAttribute("maxElementsOnDisk", cacheConfiguration.getMaxElementsOnDisk()).optional(true)
-                    .defaultValue(CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK));
+            element.addAttribute(new SimpleNodeAttribute("maxElementsInCache", cacheConfiguration.getMaxEntriesInCache()).optional(true)
+                    .defaultValue(CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE));
         }
         if (!cacheConfiguration.isTerracottaClustered() && cacheConfiguration.getMaxEntriesLocalDisk() > 0) {
             element.addAttribute(new SimpleNodeAttribute("maxEntriesLocalDisk", cacheConfiguration.getMaxEntriesLocalDisk()).optional(true)

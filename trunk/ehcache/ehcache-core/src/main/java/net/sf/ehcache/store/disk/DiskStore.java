@@ -263,6 +263,13 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
             diskPool.setMaxSize(newValue);
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void maxEntriesInCacheChanged(final int oldValue, final int newValue) {
+            // no-op
+        }
     }
 
     /**

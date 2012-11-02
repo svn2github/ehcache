@@ -848,10 +848,30 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    public int getMaxEntriesInCache() {
+        return cache.getCacheConfiguration().getMaxEntriesInCache();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void setMaxElementsOnDisk(int maxElements) {
         if (getMaxElementsOnDisk() != maxElements) {
             try {
                 cache.getCacheConfiguration().setMaxElementsOnDisk(maxElements);
+            } catch (RuntimeException e) {
+                throw Utils.newPlainException(e);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setMaxEntriesInCache(int maxEntries) {
+        if (getMaxEntriesInCache() != maxEntries) {
+            try {
+                cache.getCacheConfiguration().setMaxEntriesInCache(maxEntries);
             } catch (RuntimeException e) {
                 throw Utils.newPlainException(e);
             }
@@ -1257,6 +1277,15 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
         if (oldCapacity != newCapacity) {
             setMaxElementsOnDisk(newCapacity);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
+        if (oldCapacity != newCapacity) {
+            setMaxEntriesInCache(newCapacity);
         }
     }
 

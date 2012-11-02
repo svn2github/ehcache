@@ -195,11 +195,25 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     int getMaxElementsOnDisk();
 
     /**
+     * Configuration property accessor
+     *
+     * @return Max entries in cache config setting value
+     */
+    int getMaxEntriesInCache();
+
+    /**
      * setMaxElementsOnDisk
      *
      * @param maxElements
      */
     void setMaxElementsOnDisk(int maxElements);
+
+    /**
+     * setMaxEntriesInCache
+     *
+     * @param maxEntriesInCache
+     */
+    void setMaxEntriesInCache(int maxEntries);
 
     /**
      * Configuration property accessor

@@ -66,6 +66,12 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
 
   @Override
   public void diskCapacityChanged(int oldCapacity, int newCapacity) {
+    // change(DynamicConfigType.MAX_TOTAL_COUNT, newCapacity, true);
+    throw new IllegalStateException("Disk capacity should not change for terracotta clustered caches");
+  }
+
+  @Override
+  public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
     change(DynamicConfigType.MAX_TOTAL_COUNT, newCapacity, true);
   }
 
@@ -122,7 +128,7 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
           break;
         }
         case MAX_TOTAL_COUNT: {
-          cache.getCacheConfiguration().internalSetDiskCapacity(getInt(newValue));
+          cache.getCacheConfiguration().internalSetMaxEntriesInCache(getInt(newValue));
           break;
         }
         case MAX_COUNT_LOCAL_HEAP: {

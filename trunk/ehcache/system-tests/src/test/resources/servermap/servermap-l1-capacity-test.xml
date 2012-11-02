@@ -8,14 +8,14 @@
       
   <cache name="testWithNoMaxElementsInMemory"
          maxElementsInMemory="0"
-         maxElementsOnDisk="7000"
+         maxEntriesInCache="7000"
          eternal="true">
       <terracotta clustered="true" concurrency="1" />
   </cache>
 
   <cache name="testWithMaxElementsInMemory"
          maxElementsInMemory="5000"
-         maxElementsOnDisk="7000"
+         maxEntriesInCache="7000"
          eternal="true">
 
       <terracotta clustered="true" concurrency="1" />
@@ -23,7 +23,7 @@
 
   <cache name="testWithMaxElementsInMemoryExpiration"
          maxElementsInMemory="5000"
-         maxElementsOnDisk="15000"
+         maxEntriesInCache="15000"
          timeToLiveSeconds="30"
          eternal="false">
 

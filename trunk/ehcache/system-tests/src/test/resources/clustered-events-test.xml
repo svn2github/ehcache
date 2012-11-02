@@ -47,7 +47,7 @@
 
     <cache name="testSerializationExpiry"
            maxElementsInMemory="10"
-           maxElementsOnDisk="10"
+           maxEntriesInCache="10"
            eternal="false">
 
         <cacheEventListenerFactory class="org.terracotta.modules.ehcache.event.EhcacheTerracottaEventListenerFactory" listenFor="all" />

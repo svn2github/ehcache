@@ -128,7 +128,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
                                String valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
-      cacheConfiguration.setMaxElementsOnDisk(1000000);
+      cacheConfiguration.setMaxEntriesInCache(1000000);
       cacheConfiguration.setMaxElementsInMemory(1000000);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setTimeToLiveSeconds(100000);

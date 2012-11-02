@@ -8,7 +8,7 @@
 
   <cache name="test1"
          maxElementsInMemory="1000"
-         maxElementsOnDisk="5000">
+         maxEntriesInCache="5000">
 
          <terracotta clustered="true" concurrency="1"/>
   </cache>

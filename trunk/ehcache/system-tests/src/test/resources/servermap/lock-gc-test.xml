@@ -8,7 +8,7 @@
       
   <cache name="testLockGC"
          maxElementsInMemory="0"
-         maxElementsOnDisk="0"
+         maxEntriesInCache="0"
          eternal="true">
 
       <terracotta clustered="true" consistency="strong" concurrency="1" />

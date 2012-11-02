@@ -55,7 +55,7 @@ public interface CacheConfigurationListener {
      * @param newCapacity new capacity
      */
     public void memoryCapacityChanged(int oldCapacity, int newCapacity);
-    
+
     /**
      * Indicates a change in the configuration for enable/disable logging
      * @param oldValue old value whether logging was enabled or not
@@ -72,7 +72,7 @@ public interface CacheConfigurationListener {
 
     /**
      * Indicates that this listener was removed from the given configuration
-     * 
+     *
      * @param config
      */
     public void deregistered(CacheConfiguration config);
@@ -90,4 +90,11 @@ public interface CacheConfigurationListener {
      * @param newValue new value in bytes
      */
     public void maxBytesLocalDiskChanged(long oldValue, long newValue);
+
+    /**
+     * Indicates a change in the configuration for maxEntriesInCache setting
+     * @param oldValue old value
+     * @param newValue new value
+     */
+    public void maxEntriesInCacheChanged(int oldValue, int newValue);
 }

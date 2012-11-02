@@ -155,7 +155,7 @@ public class GetAllTest extends AbstractCacheTestBase {
                                ValueMode valueMode) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
-      cacheConfiguration.setMaxElementsOnDisk(10000);
+      cacheConfiguration.setMaxEntriesInCache(10000);
       cacheConfiguration.setMaxElementsInMemory(10000);
       cacheConfiguration.setEternal(false);
       cacheConfiguration.setTimeToLiveSeconds(100000);

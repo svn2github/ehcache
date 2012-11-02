@@ -10,6 +10,7 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -116,7 +117,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
     builder.maxTTLSeconds((int) ehcacheConfig.getTimeToLiveSeconds());
-    builder.maxTotalCount(ehcacheConfig.getMaxElementsOnDisk());
+    builder.maxTotalCount(ehcacheConfig.getMaxEntriesInCache());
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
 
     if (terracottaConfiguration.isSynchronousWrites()) {

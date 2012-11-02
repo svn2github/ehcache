@@ -148,6 +148,11 @@ public class CacheConfiguration implements Cloneable {
     public static final int DEFAULT_MAX_ELEMENTS_ON_DISK = 0;
 
     /**
+     * Default value for maxEntriesInCache
+     */
+    public static final int DEFAULT_MAX_ENTRIES_IN_CACHE = -1;
+
+    /**
      * Default value for transactionalMode
      */
     public static final TransactionalMode DEFAULT_TRANSACTIONAL_MODE = TransactionalMode.OFF;
@@ -218,6 +223,11 @@ public class CacheConfiguration implements Cloneable {
      * <code>0</code> translates to no-limit.
      */
     protected volatile int maxElementsOnDisk = DEFAULT_MAX_ELEMENTS_ON_DISK;
+
+    /**
+     * the maximum entries to be held in the cache
+     */
+    protected volatile int maxEntriesInCache = DEFAULT_MAX_ENTRIES_IN_CACHE;
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -1043,6 +1053,9 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
+        if (isTerracottaClustered()) {
+            throw new InvalidConfigurationException("MaxEntriesLocalDisk is not applicable for Terracotta clustered caches");
+        }
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
             throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
                                                     "MaxBytesLocalDisk set on cache");
@@ -1055,6 +1068,35 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Sets the maximum number of entries in the cache. Only applies to terracotta clustered caches.
+     * <p/>
+     * The values for maxEntriesInCache is interpreted as follows:
+     * <ul>
+     * <li>maxEntriesInCache <= 0 means no capacity based eviction, but resource based eviction can happen.</li>
+     * <li>maxEntriesInCache == 0 means no eviction, neither of capacity based nor resource based eviction will happen.</li>
+     * <li>maxEntriesInCache > 0 means both capacity based and resource based eviction can happen
+     * </ul>
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
+     * @param maxEntriesInCache maximum number of entries in cache
+     */
+    public void setMaxEntriesInCache(int maxEntriesInCache) {
+        if (!isTerracottaClustered()) {
+            throw new InvalidConfigurationException("MaxEntriesInCache can be used for terracotta clustered caches only");
+        }
+        if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
+            throw new InvalidConfigurationException("MaxEntriesInCache is not compatible with " +
+                                                    "MaxBytesLocalDisk set on cache");
+        }
+        checkDynamicChange();
+        int oldValue = this.maxEntriesInCache;
+        this.maxEntriesInCache = maxEntriesInCache;
+        fireMaxEntriesInCacheChanged(oldValue, this.maxEntriesInCache);
+    }
+
+
+    /**
      * Sets the maximum number elements on Disk. 0 means unlimited.
      * <p/>
      * This property can be modified dynamically while the cache is operating.
@@ -1062,6 +1104,9 @@ public class CacheConfiguration implements Cloneable {
      * @param maxEntriesLocalDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      */
     public void setMaxEntriesLocalDisk(long maxEntriesLocalDisk) {
+        if (isTerracottaClustered()) {
+            throw new InvalidConfigurationException("MaxEntriesLocalDisk is not applicable for Terracotta clustered caches");
+        }
         verifyGreaterThanOrEqualToZero(maxEntriesLocalDisk, "maxEntriesLocalDisk");
         if (maxEntriesLocalDisk > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
@@ -1085,6 +1130,20 @@ public class CacheConfiguration implements Cloneable {
      */
     public final CacheConfiguration maxElementsOnDisk(int maxElementsOnDisk) {
         setMaxElementsOnDisk(maxElementsOnDisk);
+        return this;
+    }
+
+    /**
+     * Builder which sets the maximum number entries in cache.
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
+     * @param maxEntriesInCache the maximum number of entries to allow in the cache.
+     * @return this configuration instance
+     * @see #setMaxEntriesInCache(int)
+     */
+    public final CacheConfiguration maxEntriesInCache(int maxEntriesInCache) {
+        setMaxEntriesInCache(maxEntriesInCache);
         return this;
     }
 
@@ -1452,6 +1511,9 @@ public class CacheConfiguration implements Cloneable {
      * @param maxBytesDisk max bytes on disk in bytes
      */
     public void setMaxBytesLocalDisk(final Long maxBytesDisk) {
+        if (isTerracottaClustered()) {
+            throw new InvalidConfigurationException("MaxBytesLocalDisk is not applicable for Terracotta clustered caches");
+        }
         if (onDiskPoolUsage != null && getMaxEntriesLocalDisk() > 0) {
             throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
                                                     "MaxBytesLocalDisk set on cache");
@@ -2346,6 +2408,14 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Accessor
+     *
+     */
+    public int getMaxEntriesInCache() {
+        return maxEntriesInCache;
+    }
+
+    /**
      * Configured maximum number of entries for the local disk store.
      */
     public long getMaxEntriesLocalDisk() {
@@ -2760,6 +2830,14 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
+    private void fireMaxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
+        if (oldCapacity != newCapacity) {
+            for (CacheConfigurationListener l : listeners) {
+                l.maxEntriesInCacheChanged(oldCapacity, newCapacity);
+            }
+        }
+    }
+
     private void fireMemoryCapacityChanged(int oldCapacity, int newCapacity) {
         if (oldCapacity != newCapacity) {
             for (CacheConfigurationListener l : listeners) {
@@ -2809,6 +2887,13 @@ public class CacheConfiguration implements Cloneable {
      */
     public void internalSetDiskCapacity(int capacity) {
         this.maxElementsOnDisk = capacity;
+    }
+
+    /**
+     * Intended for internal use only, and subject to change.
+     */
+    public void internalSetMaxEntriesInCache(int entries) {
+        this.maxEntriesInCache = entries;
     }
 
     /**

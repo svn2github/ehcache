@@ -17,7 +17,7 @@
          maxElementsInMemory="4000"
          eternal="false"
          timeToIdleSeconds="30"
-         maxElementsOnDisk="5000">
+         maxEntriesInCache="5000">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
@@ -26,7 +26,7 @@
          maxElementsInMemory="4000"
          eternal="false"
          timeToLiveSeconds="30"
-         maxElementsOnDisk="5000">
+         maxEntriesInCache="5000">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
@@ -34,7 +34,7 @@
   <cache name="testWithEvictionMaxElements"
          maxElementsInMemory="4000"
          eternal="true"
-         maxElementsOnDisk="5000">
+         maxEntriesInCache="5000">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
@@ -43,7 +43,7 @@
          maxElementsInMemory="400"
          eternal="false"
          timeToIdleSeconds="15"
-         maxElementsOnDisk="5000">
+         maxEntriesInCache="5000">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
@@ -52,7 +52,7 @@
          maxElementsInMemory="400"
          eternal="false"
          timeToLiveSeconds="15"
-         maxElementsOnDisk="5000">
+         maxEntriesInCache="5000">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
@@ -61,7 +61,7 @@
          maxElementsInMemory="100"
          eternal="false"
          timeToLiveSeconds="900"
-         maxElementsOnDisk="500">
+         maxEntriesInCache="500">
 
       <terracotta clustered="true" concurrency="1" />
   </cache>
