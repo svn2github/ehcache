@@ -130,77 +130,41 @@ public abstract class BaseQueryInterpreter {
         }
     }
 
-    private void processCriteria(Criteria criteria) {
+    /**
+     * @param criteria search criteria
+     */
+    protected void processCriteria(Criteria criteria) {
         if (criteria instanceof AlwaysMatch) {
-            processAlwaysCriteria(AlwaysMatch.class.cast(criteria));
+            all();
         } else if (criteria instanceof And) {
-            processAndCriteria(And.class.cast(criteria));
+            and(And.class.cast(criteria));
         } else if (criteria instanceof Or) {
-            processOrCriteria(Or.class.cast(criteria));
+            or(Or.class.cast(criteria));
         } else if (criteria instanceof Not) {
             processNotCriteria(Not.class.cast(criteria));
         } else if (criteria instanceof NotEqualTo) {
-            processNotEqualCriteria(NotEqualTo.class.cast(criteria));
+            notEqualTerm(NotEqualTo.class.cast(criteria));
         } else if (criteria instanceof NotILike) {
-            processNotLikeCriteria(NotILike.class.cast(criteria));
+            notIlike(NotILike.class.cast(criteria));
         } else if (criteria instanceof Between) {
-            processBetweenCriteria(Between.class.cast(criteria));
+            between(Between.class.cast(criteria));
         } else if (criteria instanceof EqualTo) {
-            processEqualCriteria(EqualTo.class.cast(criteria));
+            equalTo(EqualTo.class.cast(criteria));
         } else if (criteria instanceof ILike) {
-            processLikeCriteria(ILike.class.cast(criteria));
+            ilike(ILike.class.cast(criteria));
         } else if (criteria instanceof GreaterThan) {
-            processGreaterThanCriteria(GreaterThan.class.cast(criteria));
+            greaterThan(GreaterThan.class.cast(criteria));
         } else if (criteria instanceof GreaterThanOrEqual) {
-            processGreaterThanOrEqualCriteria(GreaterThanOrEqual.class.cast(criteria));
+            greaterThanEqual(GreaterThanOrEqual.class.cast(criteria));
         } else if (criteria instanceof InCollection) {
-            processInCollectionCriteria(InCollection.class.cast(criteria));
+            in(InCollection.class.cast(criteria));
         } else if (criteria instanceof LessThan) {
-            processLessThanCriteria(LessThan.class.cast(criteria));
+            lessThan(LessThan.class.cast(criteria));
         } else if (criteria instanceof LessThanOrEqual) {
-            processLessThanOrEqualCriteria(LessThanOrEqual.class.cast(criteria));
+            lessThanEqual(LessThanOrEqual.class.cast(criteria));
         } else {
             throw new SearchException("Unknown criteria type: " + criteria);
         }
-    }
-
-    private void processLikeCriteria(ILike criteria) {
-        ilike(criteria.getAttributeName(), criteria.getRegex());
-    }
-
-    private void processNotLikeCriteria(NotILike criteria) {
-        notIlike(criteria.getAttributeName(), criteria.getRegex());
-    }
-
-    private void processAlwaysCriteria(AlwaysMatch cast) {
-        all();
-    }
-
-    private void processAndCriteria(And criteria) {
-        beginGroup();
-        and();
-        for (Criteria element : criteria.getCriterion()) {
-            processCriteria(element);
-        }
-        endGroup();
-    }
-
-    private void processOrCriteria(Or criteria) {
-        beginGroup();
-        or();
-        for (Criteria element : criteria.getCriterion()) {
-            processCriteria(element);
-        }
-        endGroup();
-    }
-
-    private void processInCollectionCriteria(InCollection criteria) {
-        beginGroup();
-        or();
-        for (Object value : criteria.values()) {
-            term(criteria.getAttributeName(), value);
-        }
-        endGroup();
     }
 
     private void processNotCriteria(Not not) {
@@ -267,34 +231,6 @@ public abstract class BaseQueryInterpreter {
         }
     }
 
-    private void processNotEqualCriteria(NotEqualTo criteria) {
-        notEqualTerm(criteria.getAttributeName(), criteria.getValue());
-    }
-
-    private void processBetweenCriteria(Between criteria) {
-        between(criteria.getAttributeName(), criteria.getMin(), criteria.getAttributeName(), criteria.getMax(), criteria.isMinInclusive(),
-                criteria.isMaxInclusive());
-    }
-
-    private void processEqualCriteria(EqualTo criteria) {
-        term(criteria.getAttributeName(), criteria.getValue());
-    }
-
-    private void processGreaterThanCriteria(GreaterThan criteria) {
-        greaterThan(criteria.getAttributeName(), criteria.getComparableValue());
-    }
-
-    private void processGreaterThanOrEqualCriteria(GreaterThanOrEqual criteria) {
-        greaterThanEqual(criteria.getAttributeName(), criteria.getComparableValue());
-    }
-
-    private void processLessThanCriteria(LessThan criteria) {
-        lessThan(criteria.getAttributeName(), criteria.getComparableValue());
-    }
-
-    private void processLessThanOrEqualCriteria(LessThanOrEqual criteria) {
-        lessThanEqual(criteria.getAttributeName(), criteria.getComparableValue());
-    }
 
     /**
      * hook
@@ -384,7 +320,7 @@ public abstract class BaseQueryInterpreter {
      * @param name
      * @param regex
      */
-    protected abstract void ilike(String name, String regex);
+    protected abstract void ilike(ILike criteria);
 
     /**
      * hook
@@ -394,89 +330,60 @@ public abstract class BaseQueryInterpreter {
     /**
      * hook
      */
-    protected abstract void endGroup();
+    protected abstract void and(And criteria);
 
     /**
      * hook
      */
-    protected abstract void and();
+    protected abstract void or(Or criteria);
 
     /**
      * hook
      */
-    protected abstract void or();
-
-    /**
-     * hook
-     */
-    protected abstract void beginGroup();
+    protected abstract void in(InCollection criteria);
 
     /**
      * hook
      *
-     * @param name
-     * @param value
      */
-    protected abstract void term(String name, Object value);
+    protected abstract void equalTo(EqualTo criteria);
 
     /**
      * hook
      *
-     * @param name
-     * @param regex
      */
-    protected abstract void notIlike(String name, String regex);
+    protected abstract void notIlike(NotILike criteria);
 
     /**
      * hook
      *
-     * @param name
-     * @param value
      */
-    protected abstract void greaterThan(String name, Object value);
+    protected abstract void greaterThan(GreaterThan criteria);
 
     /**
      * hook
      *
-     * @param name
-     * @param value
      */
-    protected abstract void greaterThanEqual(String name, Object value);
+    protected abstract void greaterThanEqual(GreaterThanOrEqual criteria);
 
     /**
      * hook
-     *
-     * @param name1
-     * @param value1
-     * @param name2
-     * @param value2
-     * @param minInclusive
-     * @param maxInclusive
      */
-    protected abstract void between(String name1, Object value1, String name2, Object value2, boolean minInclusive, boolean maxInclusive);
+    protected abstract void between(Between criteria);
 
     /**
      * hook
-     *
-     * @param name
-     * @param value
      */
-    protected abstract void notEqualTerm(String name, Object value);
+    protected abstract void notEqualTerm(NotEqualTo term);
 
     /**
      * hook
-     *
-     * @param name
-     * @param value
      */
-    protected abstract void lessThanEqual(String name, Object value);
+    protected abstract void lessThanEqual(LessThanOrEqual lte);
 
     /**
      * hook
-     *
-     * @param name
-     * @param value
      */
-    protected abstract void lessThan(String name, Object value);
+    protected abstract void lessThan(LessThan lt);
 
 }
