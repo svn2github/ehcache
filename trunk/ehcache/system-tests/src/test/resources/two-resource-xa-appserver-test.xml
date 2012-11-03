@@ -7,6 +7,7 @@
         eternal="false"
         timeToIdleSeconds="120"
         timeToLiveSeconds="120"
+        maxEntriesOnDisk="10000000"
         memoryStoreEvictionPolicy="LRU"
         />
 
