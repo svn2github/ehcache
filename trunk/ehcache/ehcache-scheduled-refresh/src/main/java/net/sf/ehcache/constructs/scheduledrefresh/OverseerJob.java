@@ -96,8 +96,8 @@ public class OverseerJob implements Job {
     private void waitForOutstandingJobCount(JobExecutionContext context, ScheduledRefreshConfiguration config,
                                             Scheduler scheduler, int minCount) throws SchedulerException {
         GroupMatcher<JobKey> matcher = GroupMatcher.jobGroupEquals(context.getJobDetail().getKey().getGroup());
-        for (Set<JobKey> queuedKeys = scheduler.getJobKeys(matcher); scheduler.isShutdown() && queuedKeys.size() >
-                minCount; queuedKeys = scheduler.getJobKeys(matcher)) {
+        for (Set<JobKey> queuedKeys = scheduler.getJobKeys(matcher); (!scheduler.isShutdown()) &&
+                (queuedKeys.size() > minCount); queuedKeys = scheduler.getJobKeys(matcher)) {
             try {
                 Thread.sleep(config.getPollTimeMs());
             } catch (InterruptedException e) {
