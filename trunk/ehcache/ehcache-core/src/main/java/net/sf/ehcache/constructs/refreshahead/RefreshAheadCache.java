@@ -97,7 +97,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
         // make this cache clustered in the same way as the underlying cache,
         this.supportConfig = new CacheConfiguration();
         supportConfig.name(underlyingCache.getName() + "_" + getClass().getName() + "_refreshAheadSupport");
-        supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.DISTRIBUTED));
+        supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.NONE));
         supportConfig = supportConfig.maxEntriesLocalHeap(refreshAheadConfig.getMaximumRefreshBacklogItems());
         supportConfig = supportConfig.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.FIFO);
         supportConfig = supportConfig.eternal(false);
@@ -106,6 +106,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
         supportConfig = supportConfig.timeToLiveSeconds(Long.MAX_VALUE);
         // grab TC stuff
         if (underlyingCache.getCacheConfiguration().isTerracottaClustered()) {
+            supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.DISTRIBUTED));
             TerracottaConfiguration underlyingTerracottaConfig = underlyingCache.getCacheConfiguration().getTerracottaConfiguration()
                     .clone();
             // perhaps? Still experimenting with this
