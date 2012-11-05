@@ -39,7 +39,8 @@ public class RefreshAheadCacheTest {
         Ehcache cache = manager.getEhcache("test");
 
         RefreshAheadCacheConfiguration refreshConfig = new RefreshAheadCacheConfiguration().timeToRefreshSeconds(7).numberOfThreads(4)
-                .maximumRefreshBacklogItems(100).build();
+                .maximumRefreshBacklogItems(100)
+                .build();
         RefreshAheadCache decorator = new RefreshAheadCache(cache, refreshConfig);
 
         cache.registerCacheLoader(stringifyCacheLoader);

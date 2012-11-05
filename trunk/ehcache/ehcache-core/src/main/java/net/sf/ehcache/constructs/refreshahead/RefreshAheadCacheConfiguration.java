@@ -58,7 +58,7 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
 
     private static final int DEFAULT_NUMBER_THREADS = 1;
     private static final int DEFAULT_BATCHSIZE = 10;
-    private static final int DEFAULT_BACKLOG_MAX = 100;
+    private static final int DEFAULT_BACKLOG_MAX = -1;
 
     private long timeToRefreshSeconds = Long.MAX_VALUE;
     private long timeToRefreshMillis = 0L;
@@ -74,7 +74,6 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
      * Create a default, valid configuration
      */
     public RefreshAheadCacheConfiguration() {
-        validate();
     }
 
     /**
@@ -139,6 +138,9 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
     private void validate() {
         if (timeToRefreshSeconds <= 0L) {
             throw new IllegalStateException("Must provide >=0 timeToRefreshSeconds for refresh ahead caching");
+        }
+        if (maximumRefreshBacklogItems <= 0) {
+            throw new IllegalStateException("Must provide >=0 maximumBacklogItems for refresh ahead caching");
         }
         valid = true;
     }
@@ -215,7 +217,10 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
     }
 
     /**
-     * Set the maximum refresh backlog items.
+     * Set the maximum refresh backlog items. This is the max number of items which can be queued for
+     * refresh processing; above this, keys that are candidates for refresh may be skipped. The correct
+     * setting for this will be deployment specific. Too low and refresh opportunities will be skipped;
+     * too high and refresh operations could come to dominate processing.
      *
      * @param maximumRefreshBacklogItems
      */
