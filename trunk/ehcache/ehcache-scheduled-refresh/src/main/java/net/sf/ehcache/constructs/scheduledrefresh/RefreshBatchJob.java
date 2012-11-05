@@ -24,6 +24,8 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class RefreshBatchJob implements Job {
 
+    private static final Logger LOG = LoggerFactory.getLogger(OverseerJob.class);
     private static HashMap<String, AtomicInteger> bulkLoadTrackingMap = new HashMap<String, AtomicInteger>(1);
     private static ReentrantLock bulkloadLock = new ReentrantLock();
 
@@ -95,8 +98,12 @@ public class RefreshBatchJob implements Job {
 
         HashSet<? extends Object> keysToProcess = new HashSet((Collection<? extends Object>) jdm.get(
                 ScheduledRefreshCacheExtension.PROP_KEYS_TO_PROCESS));
-        if (config.isUseBulkload()) {
-            requestBulkLoadEnabled(underlyingCache);
+        try {
+            if (config.isUseBulkload()) {
+                requestBulkLoadEnabled(underlyingCache);
+            }
+        } catch (UnsupportedOperationException e) {
+            LOG.warn("Bulk Load requested for cache that does not support bulk load.");
         }
         // iterate through the loaders
         for (CacheLoader loader : underlyingCache.getRegisteredCacheLoaders()) {
@@ -117,6 +124,14 @@ public class RefreshBatchJob implements Job {
         // assume we got here ok, now evict any that don't evict
         if (config.isLoadMissEvicts() && !keysToProcess.isEmpty()) {
             underlyingCache.removeAll(keysToProcess);
+        }
+
+        try {
+            if (config.isUseBulkload()) {
+                requestBulkLoadRestored(underlyingCache);
+            }
+        } catch (UnsupportedOperationException e) {
+            // warned above.
         }
 
     }
