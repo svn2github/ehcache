@@ -4,7 +4,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
-
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Before;
@@ -137,7 +136,7 @@ public class CacheConfigurationTest {
             cacheManager.addCache(new Cache(configuration));
             fail("This should throw InvalidConfigurationException");
         } catch (CacheException e) {
-            assertThat(e.getMessage().contains("use maxElementsOnDisk instead"), is(true));
+            assertThat(e.getMessage().contains("use maxEntriesInCache instead"), is(true));
         }
     }
 

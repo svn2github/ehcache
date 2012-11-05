@@ -69,10 +69,14 @@ public class ClusteredEntryBasedConfigAttributesValueFactory implements XSDAttri
             }
             if("maxEntriesLocalHeap".equals(attribute.getName()) ||
                     "maxEntriesLocalOffHeap".equals(attribute.getName()) ||
-                    "maxElementsOnDisk".equals(attribute.getName())) {
+                    "maxEntriesInCache".equals(attribute.getName())) {
                 return "10000";
             }
+            if("maxElementsOnDisk".equals(attribute.getName())) {
+                return null;
+            }
         }
+
         if ("ehcache".equals(element.getName())) {
             if("maxBytesLocalHeap".equals(attribute.getName()) ||
                     "maxBytesLocalOffHeap".equals(attribute.getName()) ||

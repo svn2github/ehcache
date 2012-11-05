@@ -56,7 +56,8 @@ public class ClusteredSizeBasedConfigAttributesValueFactory implements XSDAttrib
             }
             // these are deprecated
             if ("maxElementsInMemory".equals(attribute.getName()) ||
-                    "maxMemoryOffHeap".equals(attribute.getName())) {
+                    "maxMemoryOffHeap".equals(attribute.getName()) ||
+                    "maxElementsOnDisk".equals(attribute.getName())) {
                 return null;
             }
             if ("diskPersistent".equals(attribute.getName()) ||

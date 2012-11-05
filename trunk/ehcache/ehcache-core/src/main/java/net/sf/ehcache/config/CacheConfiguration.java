@@ -16,16 +16,6 @@
 
 package net.sf.ehcache.config;
 
-import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -35,9 +25,18 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
 /**
  * A value object used to represent cache configuration.
@@ -1082,13 +1081,6 @@ public class CacheConfiguration implements Cloneable {
      * @param maxEntriesInCache maximum number of entries in cache
      */
     public void setMaxEntriesInCache(int maxEntriesInCache) {
-        if (!isTerracottaClustered()) {
-            throw new InvalidConfigurationException("MaxEntriesInCache can be used for terracotta clustered caches only");
-        }
-        if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
-            throw new InvalidConfigurationException("MaxEntriesInCache is not compatible with " +
-                                                    "MaxBytesLocalDisk set on cache");
-        }
         checkDynamicChange();
         int oldValue = this.maxEntriesInCache;
         this.maxEntriesInCache = maxEntriesInCache;
@@ -1911,6 +1903,12 @@ public class CacheConfiguration implements Cloneable {
                                                     "please adjust your -Xmx setting accordingly"));
         }
 
+        if (maxEntriesInCache != DEFAULT_MAX_ENTRIES_IN_CACHE) {
+          if (!isTerracottaClustered()) {
+            errors.add(new ConfigError("maxEntriesInCache is not applicable to unclustered caches."));
+          }
+        }
+
         //commenting this check until fixed for cachemanger is fixed
         //if (isOverflowToOffHeapSet() && !maxBytesLocalOffHeapExplicitlySet) {
         //    errors.add(new CacheConfigError("\"overFlowToOffHeap\" is set, but \"maxBytesLocalOffHeap\" is not set.", getName()));
@@ -1936,13 +1934,18 @@ public class CacheConfiguration implements Cloneable {
         if (maxEntriesLocalDiskExplicitlySet) {
             errors.add(new CacheConfigError("You can't set maxEntriesLocalDisk when clustering your cache with Terracotta, " +
                     "local disks won't be used! To control elements going in the cache cluster wide, " +
-                    "use maxElementsOnDisk instead", getName()));
+                    "use maxEntriesInCache instead", getName()));
         }
 
 
         if (maxBytesLocalDiskExplicitlySet) {
             errors.add(new CacheConfigError("You can't set maxBytesLocalDisk when clustering your cache with Terracotta",
                     getName()));
+        }
+
+        if (maxElementsOnDisk != DEFAULT_MAX_ELEMENTS_ON_DISK) {
+          errors.add(new CacheConfigError("maxElementsOnDisk is not used with clustered caches. Use maxEntriesInCache " +
+                                          "to set maximum cache size.", getName()));
         }
 
         validateTerracottaConfig(configuration, errors);

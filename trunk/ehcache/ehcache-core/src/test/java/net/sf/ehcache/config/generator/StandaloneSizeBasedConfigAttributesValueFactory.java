@@ -64,7 +64,8 @@ public class StandaloneSizeBasedConfigAttributesValueFactory implements XSDAttri
             }
             if ("maxEntriesLocalDisk".equals(attribute.getName()) ||
                     "maxEntriesLocalOffHeap".equals(attribute.getName()) ||
-                    "maxEntriesLocalHeap".equals(attribute.getName())) {
+                    "maxEntriesLocalHeap".equals(attribute.getName()) ||
+                    "maxEntriesInCache".equals(attribute.getName())) {
                 return null;
             }
         }

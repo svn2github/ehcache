@@ -72,6 +72,9 @@ public class StandaloneEntryBasedConfigAttributesValueFactory implements XSDAttr
                     "maxEntriesLocalDisk".equals(attribute.getName())) {
                 return "10000";
             }
+            if("maxEntriesInCache".equals(attribute.getName())) {
+              return null;
+            }
         }
         if ("ehcache".equals(element.getName())) {
             if("maxBytesLocalHeap".equals(attribute.getName()) ||
