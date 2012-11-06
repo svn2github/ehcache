@@ -98,8 +98,9 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
         this.supportConfig = new CacheConfiguration();
         supportConfig.name(underlyingCache.getName() + "_" + getClass().getName() + "_refreshAheadSupport");
         supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.NONE));
-        supportConfig = supportConfig.maxEntriesLocalHeap(refreshAheadConfig.getMaximumRefreshBacklogItems());
-        supportConfig = supportConfig.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.FIFO);
+        supportConfig = supportConfig.maxEntriesLocalHeap(refreshAheadConfig.getBatchSize()
+                *refreshAheadConfig.getNumberOfThreads());
+        supportConfig = supportConfig.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU);
         supportConfig = supportConfig.eternal(false);
         // we might want to actually enable these to some reasonable amount
         supportConfig = supportConfig.timeToIdleSeconds(Long.MAX_VALUE);
