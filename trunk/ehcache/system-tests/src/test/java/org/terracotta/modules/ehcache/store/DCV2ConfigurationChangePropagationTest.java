@@ -5,7 +5,6 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
@@ -63,7 +62,7 @@ public class DCV2ConfigurationChangePropagationTest extends AbstractCacheTestBas
     private void verifyNewNode(final Cache cache) {
       Assert.assertEquals(99, cache.getCacheConfiguration().getTimeToIdleSeconds());
       Assert.assertEquals(99, cache.getCacheConfiguration().getTimeToLiveSeconds());
-      Assert.assertEquals(99, cache.getCacheConfiguration().getMaxElementsOnDisk());
+      Assert.assertEquals(99, cache.getCacheConfiguration().getMaxEntriesInCache());
       Assert.assertEquals(10000, cache.getCacheConfiguration().getMaxEntriesLocalHeap());
     }
 
