@@ -15,7 +15,7 @@
   
   <cache name="strong"
          maxElementsInMemory="10000"
-         eternal="true">
+        eternal="true">
 
       <terracotta clustered="true" consistency="strong"/>
   </cache>

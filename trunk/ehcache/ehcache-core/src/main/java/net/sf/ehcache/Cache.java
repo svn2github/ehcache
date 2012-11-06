@@ -1045,9 +1045,11 @@ public class Cache implements InternalEhcache, StoreListener {
                 boolean cachePinned = getCacheConfiguration().getPinningConfiguration() != null
                         && getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
                 if (!cachePinned && getCacheConfiguration().getMaxEntriesInCache() == 0) {
-                    LOG.warn("Performance may degrade and server disks could run out of space!\nThe distributed cache {} does not have " +
-                             "maxEntriesInCache set. Failing to set maxEntriesInCache could mean no eviction of its elements from the " +
-                             "Terracotta Server Array disk store. To avoid this, set maxEntriesInCache to a non-zero value.", getName());
+                    LOG.warn("Performance may degrade and server could run out of space!\nThe distributed cache {} has " +
+                             "maxEntriesInCache set to zero. Setting maxEntriesInCache to zero prevents eviction of its " + 
+                             "elements from the Terracotta Server Array. To avoid this, set maxEntriesInCache to a " +
+                             "non-zero value or remove the attribute.", getName());
+                                      
                 }
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
