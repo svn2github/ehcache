@@ -1052,9 +1052,6 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
-        if (isTerracottaClustered()) {
-            throw new InvalidConfigurationException("MaxEntriesLocalDisk is not applicable for Terracotta clustered caches");
-        }
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
             throw new InvalidConfigurationException("MaxEntriesLocalDisk is not compatible with " +
                                                     "MaxBytesLocalDisk set on cache");

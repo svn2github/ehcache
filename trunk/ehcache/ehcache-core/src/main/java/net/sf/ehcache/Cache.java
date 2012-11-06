@@ -32,10 +32,10 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
@@ -1044,10 +1044,10 @@ public class Cache implements InternalEhcache, StoreListener {
                 }
                 boolean cachePinned = getCacheConfiguration().getPinningConfiguration() != null
                         && getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
-                if (!cachePinned && getCacheConfiguration().getMaxElementsOnDisk() == 0) {
+                if (!cachePinned && getCacheConfiguration().getMaxEntriesInCache() == 0) {
                     LOG.warn("Performance may degrade and server disks could run out of space!\nThe distributed cache {} does not have " +
-                             "maxElementsOnDisk set. Failing to set maxElementsOnDisk could mean no eviction of its elements from the " +
-                             "Terracotta Server Array disk store. To avoid this, set maxElementsOnDisk to a non-zero value.", getName());
+                             "maxEntriesInCache set. Failing to set maxEntriesInCache could mean no eviction of its elements from the " +
+                             "Terracotta Server Array disk store. To avoid this, set maxEntriesInCache to a non-zero value.", getName());
                 }
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
