@@ -98,29 +98,20 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
         this.supportConfig = new CacheConfiguration();
         supportConfig.name(underlyingCache.getName() + "_" + getClass().getName() + "_refreshAheadSupport");
         supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.NONE));
-        supportConfig = supportConfig.maxEntriesLocalHeap(refreshAheadConfig.getBatchSize()
-                * refreshAheadConfig.getNumberOfThreads());
+        int activeSize = refreshAheadConfig.getBatchSize() * refreshAheadConfig.getNumberOfThreads();
+        supportConfig = supportConfig.maxEntriesLocalHeap(activeSize);
         supportConfig = supportConfig.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU);
-        supportConfig = supportConfig.eternal(false);
-        // we might want to actually enable these to some reasonable amount
-        supportConfig = supportConfig.timeToIdleSeconds(Long.MAX_VALUE);
-        supportConfig = supportConfig.timeToLiveSeconds(Long.MAX_VALUE);
+        supportConfig = supportConfig.eternal(true);
         // grab TC stuff
         if (underlyingCache.getCacheConfiguration().isTerracottaClustered()) {
             supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.DISTRIBUTED));
-            TerracottaConfiguration underlyingTerracottaConfig = underlyingCache.getCacheConfiguration().getTerracottaConfiguration()
-                    .clone();
-            // perhaps? Still experimenting with this
-            // perhaps we really want to allow the user to specifically override matching
-            // the base cache consistency with a param
-            // e.g., terracottaConsistency=...
-            // what about RMI Distributed EHCache?
-            underlyingTerracottaConfig.consistency(Consistency.STRONG);
 
-            // is cacheXA false always going to work?
-            underlyingTerracottaConfig.cacheXA(false);
-            supportConfig.addTerracotta(underlyingTerracottaConfig);
-        }
+            TerracottaConfiguration newTerracottaConfig = new TerracottaConfiguration().clustered(true);
+
+            newTerracottaConfig.consistency(Consistency.STRONG);
+
+            supportConfig.addTerracotta(newTerracottaConfig);
+        } else { supportConfig.setMaxElementsOnDisk(activeSize); }
 
         // here we try to create the support cache. Realize someone other
         // node may be trying to do it too, so try carefully. Note that this depends on
