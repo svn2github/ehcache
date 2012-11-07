@@ -82,8 +82,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
         assertStatistics(cache, NUMBER_OF_ELEMENTS, NUMBER_OF_ELEMENTS, MEMORY_STORE_COUNT, NUMBER_OF_ELEMENTS * 2
                                                                                             - MEMORY_STORE_COUNT);
       } finally {
-        cache.removeAll();
         printCacheStatistics(cache);
+        cache.removeAll();
       }
     }
 
@@ -95,8 +95,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
                          NUMBER_OF_ELEMENTS * 2 - cache.getMemoryStoreSize());
         testSizeCacheStability(cache);
       } finally {
-        cache.removeAll();
         printCacheStatistics(cache);
+        cache.removeAll();
       }
     }
 
