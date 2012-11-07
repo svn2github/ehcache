@@ -10,7 +10,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
-
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -25,6 +24,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
 
   public L1BMCacheStatisticsTest(TestConfig testConfig) {
     super(testConfig, App.class);
+    testConfig.getL2Config().setMaxHeap(512);
   }
 
   public static class App extends ClientBase {
@@ -35,10 +35,6 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
 
     public App(String[] args) {
       super(args);
-    }
-
-    public static void main(String[] args) {
-      new App(args).run();
     }
 
     @Override
@@ -86,6 +82,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
         assertStatistics(cache, NUMBER_OF_ELEMENTS, NUMBER_OF_ELEMENTS, MEMORY_STORE_COUNT, NUMBER_OF_ELEMENTS * 2
                                                                                             - MEMORY_STORE_COUNT);
       } finally {
+        cache.removeAll();
         printCacheStatistics(cache);
       }
     }
@@ -98,6 +95,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
                          NUMBER_OF_ELEMENTS * 2 - cache.getMemoryStoreSize());
         testSizeCacheStability(cache);
       } finally {
+        cache.removeAll();
         printCacheStatistics(cache);
       }
     }
