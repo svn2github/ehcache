@@ -172,8 +172,8 @@ public class ClusteredStore implements TerracottaStore {
     }
     boolean cachePinned = cacheConfiguration.getPinningConfiguration() != null
                           && cacheConfiguration.getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
-    if (cachePinned && cacheConfiguration.getMaxElementsOnDisk() != CacheConfiguration.DEFAULT_MAX_ELEMENTS_ON_DISK) {
-      errors.add(new ConfigError("Cache pinning is not supported with maxElementsOnDisk"));
+    if (cachePinned && cacheConfiguration.getMaxEntriesInCache() != CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE) {
+      errors.add(new ConfigError("Cache pinning is not supported with maxEntriesInCache"));
     }
 
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
