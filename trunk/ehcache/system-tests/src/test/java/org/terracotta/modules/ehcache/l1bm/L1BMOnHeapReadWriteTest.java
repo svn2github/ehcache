@@ -8,7 +8,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
-
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
@@ -29,6 +28,7 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
 
   public L1BMOnHeapReadWriteTest(TestConfig testConfig) {
     super(testConfig, L1BMOnHeapReadWriteTestApp.class, L1BMOnHeapReadWriteTestApp.class);
+    testConfig.getL2Config().setMaxHeap(512);
   }
 
   public static class L1BMOnHeapReadWriteTestApp extends ClientBase {
@@ -48,17 +48,21 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
       boolean shouldWait = true;
       Cache eventualWithStatsCache = createCache("eventualWithStatsCache", cacheManager, "EVENTUAL", true);
       testL1BigMemorySanity(eventualWithStatsCache, shouldWait);
+      eventualWithStatsCache.removeAll();
 
       Cache eventualWithoutStatsCache = createCache("eventualWithoutStatsCache", cacheManager, "EVENTUAL", false);
       testL1BigMemorySanity(eventualWithoutStatsCache, shouldWait);
+      eventualWithoutStatsCache.removeAll();
 
       shouldWait = false;
       Cache strongWithStatsCache = createCache("strongWithStatsCache", cacheManager, "STRONG", true);
       testL1BigMemorySanity(strongWithStatsCache, shouldWait);
+      strongWithStatsCache.removeAll();
 
       shouldWait = false;
       Cache strongWithoutStatsCache = createCache("strongWithoutStatsCache", cacheManager, "STRONG", false);
       testL1BigMemorySanity(strongWithoutStatsCache, shouldWait);
+      strongWithoutStatsCache.removeAll();
     }
 
     private void testL1BigMemorySanity(Cache cache, boolean shouldWait) throws InterruptedException,
