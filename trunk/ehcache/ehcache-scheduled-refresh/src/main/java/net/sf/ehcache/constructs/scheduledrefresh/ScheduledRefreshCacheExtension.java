@@ -221,7 +221,7 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
         props.put(StdSchedulerFactory.PROP_SCHED_NAME, name);
         props.put(StdSchedulerFactory.PROP_SCHED_MAKE_SCHEDULER_THREAD_DAEMON, Boolean.TRUE.toString());
         props.put("org.quartz.threadPool.threadCount",
-                Integer.toString(config.getQuartzThreadCount()));
+                Integer.toString(config.getQuartzThreadCount() + 1));
         if (config.getTerracottaConfigUrl() != null) {
             this.isLocalJobStore = false;
             props.put(PROP_QUARTZ_JOB_STORE_TC_CONFIG_URL, config.getTerracottaConfigUrl());
