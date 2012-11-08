@@ -27,21 +27,10 @@
     <module>management-ehcache</module>
     <module>management-ehcache-impl</module>
     <module>ehcache-scheduled-refresh</module>
-    <module>system-tests-base</module>
+    <module>system-tests</module>
   </modules>
 
   <profiles>
-    <profile>
-      <id>skip-system-tests</id>
-      <activation>
-        <property>
-          <name>!jenkins.publisher</name>
-        </property>
-      </activation>
-      <modules>
-        <module>system-tests</module>
-      </modules>
-    </profile>
     <profile>
       <id>dist</id>
       <modules>
