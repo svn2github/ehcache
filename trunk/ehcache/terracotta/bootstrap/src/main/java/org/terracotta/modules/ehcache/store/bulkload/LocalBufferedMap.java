@@ -175,7 +175,6 @@ public class LocalBufferedMap<K, V> {
     }
   }
 
-  // this method is called under read-lock from BulkLoadClusteredCache
   public V put(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
     Value<V> wrappedValue = new Value(value, createTimeInSecs, customMaxTTISeconds,
                                                           customMaxTTLSeconds);
@@ -192,15 +191,9 @@ public class LocalBufferedMap<K, V> {
   }
 
   private void throttleIfNecessary(long currentPendingSize) {
-    if (currentPendingSize <= throttlePutsByteSize) { return; }
-    bulkLoadClusteredCache.releaseLocalReadLock();
-    try {
-      while (currentPendingSize > throttlePutsByteSize) {
-        sleepMillis(100);
-        currentPendingSize = pendingOpsSize.get();
-      }
-    } finally {
-      bulkLoadClusteredCache.acquireLocalReadLock();
+    while (currentPendingSize > throttlePutsByteSize) {
+      sleepMillis(100);
+      currentPendingSize = pendingOpsSize.get();
     }
   }
 
