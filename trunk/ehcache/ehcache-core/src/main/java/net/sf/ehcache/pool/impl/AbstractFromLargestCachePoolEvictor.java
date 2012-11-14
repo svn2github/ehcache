@@ -17,7 +17,7 @@
 package net.sf.ehcache.pool.impl;
 
 import net.sf.ehcache.pool.PoolEvictor;
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,28 +27,28 @@ import java.util.Collection;
  *
  * @author Ludovic Orban
  */
-public abstract class AbstractFromLargestCachePoolEvictor implements PoolEvictor<PoolableStore> {
+public abstract class AbstractFromLargestCachePoolEvictor implements PoolEvictor<PoolParticipant> {
 
     /**
      * {@inheritDoc}
      */
-    public boolean freeSpace(Collection<PoolableStore> from, long bytes) {
+    public boolean freeSpace(Collection<PoolParticipant> from, long bytes) {
         if (from == null || from.isEmpty()) {
             return false;
         }
 
         long remainingSizeInBytes = bytes;
-        Collection<PoolableStore> tried = new ArrayList<PoolableStore>();
+        Collection<PoolParticipant> tried = new ArrayList<PoolParticipant>();
 
         while (tried.size() != from.size()) {
-            PoolableStore largestPoolableStore = findUntriedLargestPoolableStore(from, tried);
+            PoolParticipant largestPoolParticipant = findUntriedLargestPoolableStore(from, tried);
 
-            long beforeEvictionSize = getSizeInBytes(largestPoolableStore);
-            if (!evict(1, bytes, largestPoolableStore)) {
-                tried.add(largestPoolableStore);
+            long beforeEvictionSize = getSizeInBytes(largestPoolParticipant);
+            if (!evict(1, bytes, largestPoolParticipant)) {
+                tried.add(largestPoolParticipant);
                 continue;
             }
-            long afterEvictionSize = getSizeInBytes(largestPoolableStore);
+            long afterEvictionSize = getSizeInBytes(largestPoolParticipant);
 
             remainingSizeInBytes -= (beforeEvictionSize - afterEvictionSize);
             if (remainingSizeInBytes <= 0L) {
@@ -64,36 +64,36 @@ public abstract class AbstractFromLargestCachePoolEvictor implements PoolEvictor
      *
      * @param count the element count
      * @param bytes the bytes count
-     * @param poolableStore the store
+     * @param poolParticipant the store
      * @return true if eviction succeeded, ie: if there was enough evictable resource held by the store
      */
-    protected abstract boolean evict(int count, long bytes, PoolableStore poolableStore);
+    protected abstract boolean evict(int count, long bytes, PoolParticipant poolParticipant);
 
     /**
      * Get a store size in bytes for a chosen resource
      *
-     * @param poolableStore the store
+     * @param poolParticipant the store
      * @return the size in bytes
      */
-    protected abstract long getSizeInBytes(PoolableStore poolableStore);
+    protected abstract long getSizeInBytes(PoolParticipant poolParticipant);
 
-    private PoolableStore findUntriedLargestPoolableStore(Collection<PoolableStore> from, Collection<PoolableStore> tried) {
-        PoolableStore largestPoolableStore = null;
-        for (PoolableStore poolableStore : from) {
-            if (alreadyTried(tried, poolableStore)) {
+    private PoolParticipant findUntriedLargestPoolableStore(Collection<PoolParticipant> from, Collection<PoolParticipant> tried) {
+        PoolParticipant largestPoolParticipant = null;
+        for (PoolParticipant poolParticipant : from) {
+            if (alreadyTried(tried, poolParticipant)) {
                 continue;
             }
 
-            if (largestPoolableStore == null || getSizeInBytes(poolableStore) > getSizeInBytes(largestPoolableStore)) {
-                largestPoolableStore = poolableStore;
+            if (largestPoolParticipant == null || getSizeInBytes(poolParticipant) > getSizeInBytes(largestPoolParticipant)) {
+                largestPoolParticipant = poolParticipant;
             }
         }
-        return largestPoolableStore;
+        return largestPoolParticipant;
     }
 
-    private boolean alreadyTried(Collection<PoolableStore> tried, PoolableStore from) {
-        for (PoolableStore poolableStore : tried) {
-            if (poolableStore == from) {
+    private boolean alreadyTried(Collection<PoolParticipant> tried, PoolParticipant from) {
+        for (PoolParticipant poolParticipant : tried) {
+            if (poolParticipant == from) {
                 return true;
             }
         }

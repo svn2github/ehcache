@@ -32,7 +32,7 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -68,7 +68,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public final class DiskStore extends AbstractStore implements TierableStore, PoolableStore, StripedReadWriteLockProvider {
+public final class DiskStore extends AbstractStore implements TierableStore, PoolParticipant, StripedReadWriteLockProvider {
 
     private static final int FFFFCD7D = 0xffffcd7d;
     private static final int FIFTEEN = 15;

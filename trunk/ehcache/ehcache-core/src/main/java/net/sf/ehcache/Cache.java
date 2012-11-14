@@ -52,7 +52,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolEvictor;
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.FromLargestCacheOnDiskPoolEvictor;
@@ -998,7 +998,7 @@ public class Cache implements InternalEhcache, StoreListener {
             // on-heap pool configuration
             Pool onHeapPool;
             if (configuration.getMaxBytesLocalHeap() > 0) {
-                PoolEvictor<PoolableStore> evictor = new FromLargestCacheOnHeapPoolEvictor();
+                PoolEvictor<PoolParticipant> evictor = new FromLargestCacheOnHeapPoolEvictor();
                 SizeOfEngine sizeOfEngine = cacheManager.createSizeOfEngine(this);
                 onHeapPool = new BoundedPool(configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
             } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()) {
@@ -1010,7 +1010,7 @@ public class Cache implements InternalEhcache, StoreListener {
             // on-disk pool configuration
             Pool onDiskPool;
             if (configuration.getMaxBytesLocalDisk() > 0) {
-                PoolEvictor<PoolableStore> evictor = new FromLargestCacheOnDiskPoolEvictor();
+                PoolEvictor<PoolParticipant> evictor = new FromLargestCacheOnDiskPoolEvictor();
                 onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
             } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesLocalDiskSet()) {
                 onDiskPool = getCacheManager().getOnDiskPool();

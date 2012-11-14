@@ -16,14 +16,12 @@
 
 package net.sf.ehcache.pool;
 
-import net.sf.ehcache.store.Store;
-
 /**
  * A poolable store reports its resource usage to a {@link Pool}.
  *
  * @author Ludovic Orban
  */
-public interface PoolableStore extends Store {
+public interface PoolParticipant {
 
     /**
      * Perform eviction to release on-heap resources
@@ -42,6 +40,27 @@ public interface PoolableStore extends Store {
      * @return true if the requested number of elements could be evicted
      */
     boolean evictFromOnDisk(int count, long size);
+
+    /**
+     * Gets the size of the on-disk portion of the store, in bytes.
+     *
+     * @return the on-disk size of the store in bytes
+     * @deprecated Revisit once Montreal design is in
+     */
+    @Deprecated
+    long getOnDiskSizeInBytes();
+
+    /**
+     * Gets the size of the in-memory portion of the store, in bytes.
+     * <p/>
+     * This method may be expensive to run, depending on implementation. Implementers may choose to return
+     * an approximate size.
+     *
+     * @return the approximate in-memory size of the store in bytes
+     * @deprecated Revisit once Montreal design is in
+     */
+    @Deprecated
+    long getInMemorySizeInBytes();
 
     /**
      * Return the approximate disk hit rate

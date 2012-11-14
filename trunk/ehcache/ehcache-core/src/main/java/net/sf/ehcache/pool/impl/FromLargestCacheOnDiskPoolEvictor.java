@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.pool.impl;
 
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 
 /**
  * Pool evictor which always evicts from the store consuming the most disk resources.
@@ -29,16 +29,16 @@ public class FromLargestCacheOnDiskPoolEvictor extends AbstractFromLargestCacheP
      * {@inheritDoc}
      */
     @Override
-    protected boolean evict(int count, long bytes, PoolableStore largestPoolableStore) {
-        return largestPoolableStore.evictFromOnDisk(count, bytes);
+    protected boolean evict(int count, long bytes, PoolParticipant largestPoolParticipant) {
+        return largestPoolParticipant.evictFromOnDisk(count, bytes);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected long getSizeInBytes(PoolableStore largestPoolableStore) {
-        return largestPoolableStore.getOnDiskSizeInBytes();
+    protected long getSizeInBytes(PoolParticipant largestPoolParticipant) {
+        return largestPoolParticipant.getOnDiskSizeInBytes();
     }
 
 }

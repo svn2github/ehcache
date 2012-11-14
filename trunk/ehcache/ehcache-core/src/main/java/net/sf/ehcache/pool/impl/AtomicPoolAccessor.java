@@ -19,7 +19,7 @@ package net.sf.ehcache.pool.impl;
 import java.util.concurrent.atomic.AtomicLong;
 
 import net.sf.ehcache.pool.Pool;
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -28,7 +28,7 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
+final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
 
     private final AtomicLong size;
 
@@ -40,7 +40,7 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
      * @param sizeOfEngine engine used to size objects
      * @param currentSize initial size of the store
      */
-    AtomicPoolAccessor(Pool<PoolableStore> pool, PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
+    AtomicPoolAccessor(Pool<PoolParticipant> pool, PoolParticipant store, SizeOfEngine sizeOfEngine, long currentSize) {
         super(pool, store, sizeOfEngine);
         this.size = new AtomicLong(currentSize);
     }

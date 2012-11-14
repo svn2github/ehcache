@@ -16,20 +16,20 @@
 
 package net.sf.ehcache.pool.impl;
 
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 
 /**
  * Balanced access evictor that makes on-heap eviction decisions.
  *
  * @author Chris Dennis
  */
-public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvictor<PoolableStore> {
+public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvictor<PoolParticipant> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean evict(PoolableStore store, int count, long size) {
+    protected boolean evict(PoolParticipant store, int count, long size) {
         return store.evictFromOnHeap(count, size);
     }
 
@@ -37,7 +37,7 @@ public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvict
      * {@inheritDoc}
      */
     @Override
-    protected long countSize(PoolableStore store) {
+    protected long countSize(PoolParticipant store) {
         return store.getApproximateHeapCountSize();
     }
 
@@ -45,7 +45,7 @@ public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvict
      * {@inheritDoc}
      */
     @Override
-    protected long byteSize(PoolableStore store) {
+    protected long byteSize(PoolParticipant store) {
         return store.getApproximateHeapByteSize();
     }
 
@@ -53,7 +53,7 @@ public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvict
      * {@inheritDoc}
      */
     @Override
-    protected float hitRate(PoolableStore store) {
+    protected float hitRate(PoolParticipant store) {
         return store.getApproximateHeapHitRate();
     }
 
@@ -61,7 +61,7 @@ public class BalancedAccessOnHeapPoolEvictor extends AbstractBalancedAccessEvict
      * {@inheritDoc}
      */
     @Override
-    protected float missRate(PoolableStore store) {
+    protected float missRate(PoolParticipant store) {
         return store.getApproximateHeapMissRate();
     }
 }

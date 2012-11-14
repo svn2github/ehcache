@@ -31,7 +31,7 @@ import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
@@ -56,7 +56,7 @@ import java.util.concurrent.locks.Lock;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore extends AbstractStore implements TierableStore, PoolableStore, CacheConfigurationListener {
+public class MemoryStore extends AbstractStore implements TierableStore, PoolParticipant, CacheConfigurationListener {
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because we size

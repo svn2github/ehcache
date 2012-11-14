@@ -20,7 +20,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.ehcache.pool.Pool;
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -28,7 +28,7 @@ import net.sf.ehcache.pool.SizeOfEngine;
  *
  * @author Ludovic Orban
  */
-final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
+final class LockedPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
 
     private long size;
     private final Lock lock = new ReentrantLock();
@@ -41,7 +41,7 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolableStore> {
      * @param sizeOfEngine engine used to size objects
      * @param currentSize initial size of the store
      */
-    LockedPoolAccessor(Pool pool, PoolableStore store, SizeOfEngine sizeOfEngine, long currentSize) {
+    LockedPoolAccessor(Pool pool, PoolParticipant store, SizeOfEngine sizeOfEngine, long currentSize) {
         super(pool, store, sizeOfEngine);
         this.size = currentSize;
     }

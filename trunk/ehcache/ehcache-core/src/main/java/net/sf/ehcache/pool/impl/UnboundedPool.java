@@ -22,7 +22,7 @@ import java.util.Collections;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolEvictor;
-import net.sf.ehcache.pool.PoolableStore;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -30,7 +30,7 @@ import net.sf.ehcache.pool.SizeOfEngine;
  *
  * @author Ludovic Orban
  */
-public class UnboundedPool implements Pool<PoolableStore> {
+public class UnboundedPool implements Pool<PoolParticipant> {
 
     /**
      * Create an UnboundedPool instance
@@ -61,21 +61,21 @@ public class UnboundedPool implements Pool<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor<PoolableStore> createPoolAccessor(PoolableStore store, int maxDepth, boolean abortWhenMaxDepthExceeded) {
+    public PoolAccessor<PoolParticipant> createPoolAccessor(PoolParticipant store, int maxDepth, boolean abortWhenMaxDepthExceeded) {
         return new UnboundedPoolAccessor();
     }
 
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor createPoolAccessor(PoolableStore store, SizeOfEngine sizeOfEngine) {
+    public PoolAccessor createPoolAccessor(PoolParticipant store, SizeOfEngine sizeOfEngine) {
         return new UnboundedPoolAccessor();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void registerPoolAccessor(PoolAccessor<? extends PoolableStore> accessor) {
+    public void registerPoolAccessor(PoolAccessor<? extends PoolParticipant> accessor) {
         //no-op
     }
 
@@ -89,14 +89,14 @@ public class UnboundedPool implements Pool<PoolableStore> {
     /**
      * {@inheritDoc}
      */
-    public Collection<PoolableStore> getPoolableStores() {
+    public Collection<PoolParticipant> getPoolableStores() {
         return Collections.emptyList();
     }
 
     /**
      * {@inheritDoc}
      */
-    public PoolEvictor<PoolableStore> getEvictor() {
+    public PoolEvictor<PoolParticipant> getEvictor() {
         throw new UnsupportedOperationException();
     }
 
