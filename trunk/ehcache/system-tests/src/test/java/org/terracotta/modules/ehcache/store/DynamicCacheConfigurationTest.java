@@ -31,6 +31,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
     super(testConfig, App.class);
     testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "1000");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
+    testConfig.getL2Config().setMaxHeap(512);
   }
 
   public static class App extends ClientBase {
