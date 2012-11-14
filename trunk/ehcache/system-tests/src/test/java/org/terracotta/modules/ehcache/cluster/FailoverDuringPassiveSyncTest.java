@@ -8,8 +8,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
 
 import org.junit.Assert;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.objectserver.core.api.ServerConfigurationContext;
 import com.tc.test.config.model.TestConfig;
@@ -21,6 +21,7 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
     testConfig.getGroupConfig().setMemberCount(3);
 
     testConfig.addTcProperty("seda." + ServerConfigurationContext.OBJECTS_SYNC_STAGE + ".sleepMs", "2000");
+    timebombTest("2012-11-26");
   }
 
   public static class FailoverDuringPassiveSyncTestApp extends ClientBase {
