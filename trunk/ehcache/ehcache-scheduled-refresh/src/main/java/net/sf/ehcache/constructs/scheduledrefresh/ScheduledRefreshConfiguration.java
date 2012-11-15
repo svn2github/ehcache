@@ -394,7 +394,11 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
      * Set the Terracotta configuration url, to use a TerracottaJobStore. If
      * this is not set, a RamJobStore will be used.
      */
+    @Deprecated
     public void setTerracottaConfigUrl(String terracottaClusterURL) {
+        if (terracottaClusterURL != null) {
+            throw new UnsupportedOperationException("Scheduled Refresh cannot be used in a clustered manner yet.");
+        }
         this.terracottaConfigUrl = terracottaClusterURL;
     }
 
@@ -402,6 +406,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
      * Fluently, set the Terracotta configuration url, to use a
      * TerracottaJobStore. If this is not set, a RamJobStore will be used.
      */
+    @Deprecated
     public ScheduledRefreshConfiguration terracottaConfigUrl(String terracottaClusterURL) {
         setTerracottaConfigUrl(terracottaClusterURL);
         return this;
@@ -529,7 +534,13 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
      *
      * @param scheduleMisfiresNow true to schedule misfires immediately
      */
+    @Deprecated
     public void setScheduleMisfiresNow(boolean scheduleMisfiresNow) {
+        if (scheduleMisfiresNow != DEFAULT_SCHEDULE_MISFIRES_NOW) {
+            throw new UnsupportedOperationException("Scheduled Refresh cannot be used in a clustered manner yet; " +
+                    "misfire settings are ignored.");
+        }
+
         this.scheduleMisfiresNow = scheduleMisfiresNow;
     }
 
@@ -540,6 +551,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
      * @param scheduleMisfiresNow true to schedule misfires immediately
      * @return this configuration
      */
+    @Deprecated
     public ScheduledRefreshConfiguration scheduleMisfiresNow(boolean scheduleMisfiresNow) {
         this.scheduleMisfiresNow = scheduleMisfiresNow;
         return this;
@@ -547,6 +559,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
 
     /**
      * toString() variant for a specific cache
+     *
      * @param targetCache
      * @return
      */
