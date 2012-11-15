@@ -2,11 +2,11 @@ package org.terracotta.ehcache.tests.loader;
 
 import net.sf.ehcache.CacheManager;
 
+import org.objectweb.asm.ClassWriter;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.toolkit.Toolkit;
 
-import com.tc.asm.ClassWriter;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.File;
