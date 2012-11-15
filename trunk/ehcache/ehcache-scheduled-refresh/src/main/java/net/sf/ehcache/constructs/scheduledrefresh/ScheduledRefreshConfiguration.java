@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Configuration for a {@link ScheduledRefreshCacheExtension}. Can be
- * initialized from a {@link Properties} object.
+ * initialized from a {@link Properties} object. Currently, the use of a clustered
+ * {@link org.terracotta.quartz.TerracottaJobStore} is not supported. This usage
+ * will be supported in the future.
  *
  * @author cschanck
  */
@@ -392,7 +394,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
 
     /**
      * Set the Terracotta configuration url, to use a TerracottaJobStore. If
-     * this is not set, a RamJobStore will be used.
+     * this is not set, a RamJobStore will be used. Currently not supported.
      */
     @Deprecated
     public void setTerracottaConfigUrl(String terracottaClusterURL) {
@@ -405,6 +407,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     /**
      * Fluently, set the Terracotta configuration url, to use a
      * TerracottaJobStore. If this is not set, a RamJobStore will be used.
+     * Currently not supported.
      */
     @Deprecated
     public ScheduledRefreshConfiguration terracottaConfigUrl(String terracottaClusterURL) {
@@ -530,7 +533,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
 
     /**
      * Set whether Job misfires (for example if the cluster is down) are fired immediately or
-     * wait until their next scheduled time.
+     * wait until their next scheduled time. Currently not supported.
      *
      * @param scheduleMisfiresNow true to schedule misfires immediately
      */
@@ -546,7 +549,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
 
     /**
      * Set whether Job misfires (for example if the cluster is down) are fired immediately or
-     * wait until their next scheduled time.
+     * wait until their next scheduled time. Currently not supported.
      *
      * @param scheduleMisfiresNow true to schedule misfires immediately
      * @return this configuration
