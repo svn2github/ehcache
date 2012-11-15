@@ -81,4 +81,95 @@ public class RefreshAheadCacheTest {
         manager.shutdown();
     }
 
+    @Test
+    public void testSimpleCaseXML() {
+
+        CacheManager manager = new CacheManager();
+        manager.removalAll();
+        manager.shutdown();
+
+        CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream
+                ("/ehcache-refresh-ahead-simple.xml"));
+
+        Ehcache decorator=cacheManager.getEhcache("testRefreshAhead1");
+
+
+        decorator.put(new Element(new Integer(1), new String("1")));
+        decorator.put(new Element(new Integer(2), new String("2")));
+        decorator.put(new Element(new Integer(3), new String("3")));
+        decorator.put(new Element(new Integer(4), new String("4")));
+
+        // get the first one
+        Element got = decorator.get(new Integer(1));
+        long creationTime = got.getCreationTime();
+        Assert.assertNotNull(got);
+
+        sleepySeconds(1);
+        // now, you should get the same one, no refresh ahead
+        got = decorator.get(new Integer(1));
+        Assert.assertNotNull(got);
+        Assert.assertEquals(got.getCreationTime(), creationTime);
+
+        // wait long enough for refresh ahead to trigger. 7+1=8 seconds
+        // you'll get the original back right away, but a call done soon should get a new one.
+        sleepySeconds(7);
+        got = decorator.get(new Integer(1));
+        Assert.assertNotNull(got);
+
+        // processing time,
+        sleepySeconds(1);
+        // better be a new object this time, faulted in via refresh ahead
+        // better not have the same creation time as originally
+        got = decorator.get(new Integer(1));
+        Assert.assertFalse(creationTime == got.getCreationTime());
+
+        cacheManager.shutdown();
+
+    }
+
+    @Test
+    public void testSimpleCaseXMLNullEvicts() {
+
+        CacheManager manager = new CacheManager();
+        manager.removalAll();
+        manager.shutdown();
+
+        CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream
+                ("/ehcache-refresh-ahead-simple.xml"));
+
+        Ehcache decorator=cacheManager.getEhcache("testRefreshAhead2");
+
+
+        decorator.put(new Element(new Integer(1), new String("1")));
+        decorator.put(new Element(new Integer(2), new String("2")));
+        decorator.put(new Element(new Integer(3), new String("3")));
+        decorator.put(new Element(new Integer(4), new String("4")));
+
+        // get the first one
+        Element got = decorator.get(new Integer(1));
+        long creationTime = got.getCreationTime();
+        Assert.assertNotNull(got);
+
+        sleepySeconds(1);
+        // now, you should get the same one, no refresh ahead
+        got = decorator.get(new Integer(1));
+        Assert.assertNotNull(got);
+        Assert.assertEquals(got.getCreationTime(), creationTime);
+
+        // wait long enough for refresh ahead to trigger. 7+1=8 seconds
+        // you'll get the original back right away, but a call done soon should get a new one.
+        sleepySeconds(7);
+        got = decorator.get(new Integer(1));
+        Assert.assertNotNull(got);
+
+        // processing time,
+        sleepySeconds(1);
+        // better be a new object this time, faulted in via refresh ahead
+        // better not have the same creation time as originally
+        got = decorator.get(new Integer(1));
+        Assert.assertNull(got);
+
+        cacheManager.shutdown();
+
+    }
 }

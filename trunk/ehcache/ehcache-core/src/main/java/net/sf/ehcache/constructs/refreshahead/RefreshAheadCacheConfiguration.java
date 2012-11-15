@@ -57,7 +57,7 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
     public static final String LOAD_MISS_EVICTS = "loadMissEvicts";
 
     private static final int DEFAULT_NUMBER_THREADS = 1;
-    private static final int DEFAULT_BATCHSIZE = 10;
+    private static final int DEFAULT_BATCHSIZE = 100;
     private static final int DEFAULT_BACKLOG_MAX = -1;
 
     private long timeToRefreshSeconds = Long.MAX_VALUE;

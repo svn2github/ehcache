@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.Cache;
@@ -57,6 +58,7 @@ import net.sf.ehcache.util.VmUtils;
 public class RefreshAheadCache extends EhcacheDecoratorAdapter {
 
     private static final Object REFRESH_VALUE = Boolean.TRUE;
+    private static final int DEFAULT_SUPPORT_TTL_SECONDS = (int)TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES);
     private final AtomicInteger refreshSuccessCount = new AtomicInteger();
     private final RefreshAheadCacheConfiguration refreshAheadConfig;
     private CacheConfiguration supportConfig;
@@ -98,11 +100,12 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
         this.supportConfig = new CacheConfiguration();
         supportConfig.name(underlyingCache.getName() + "_" + getClass().getName() + "_refreshAheadSupport");
         supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.NONE));
-        int activeSize = refreshAheadConfig.getBatchSize() * refreshAheadConfig.getNumberOfThreads();
+        int activeSize = 2 * refreshAheadConfig.getBatchSize() * refreshAheadConfig.getNumberOfThreads();
         supportConfig = supportConfig.maxEntriesLocalHeap(activeSize);
         supportConfig = supportConfig.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU);
-        supportConfig = supportConfig.eternal(true);
-        // grab TC stuff
+        supportConfig = supportConfig.timeToLiveSeconds(DEFAULT_SUPPORT_TTL_SECONDS);
+
+        // TC stuff
         if (underlyingCache.getCacheConfiguration().isTerracottaClustered()) {
             supportConfig = supportConfig.persistence(new PersistenceConfiguration().strategy(Strategy.DISTRIBUTED));
 
@@ -113,9 +116,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
             supportConfig.addTerracotta(newTerracottaConfig);
         } else { supportConfig.setMaxElementsOnDisk(activeSize); }
 
-        // here we try to create the support cache. Realize someone other
-        // node may be trying to do it too, so try carefully. Note that this depends on
-        //
+        // here we try to create the support cache.
         this.supportCache = new Cache(supportConfig);
 
         Ehcache prior = underlyingCache.getCacheManager().addCacheIfAbsent(supportCache);
@@ -123,6 +124,9 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
             throw new IllegalStateException("Unable to add refresh ahead support cache due to name collision: "
                     + refreshAheadConfig.getName());
         }
+
+        // wipe it on startup. might wobble in a clustered case, but clears out orphans.
+        prior.removeAll();
 
         // catch the dispose. not sure this is the best way to do it at all.
         // we could register a listener alternatively
@@ -187,7 +191,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
                         try {
                             for (Map.Entry<? extends Object, ? extends Object> entry : values.entrySet()) {
                                 Element newElement = new Element(entry.getKey(), entry.getValue());
-                                underlyingCache.put(newElement);
+                                underlyingCache.replace(newElement);
                                 refreshSuccessCount.incrementAndGet();
                             }
                         } finally {
