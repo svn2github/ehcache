@@ -20,10 +20,8 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
   public FailoverDuringPassiveSyncTest(TestConfig testConfig) {
     super("failover-during-passive-sync-test.xml", testConfig, FailoverDuringPassiveSyncTestApp.class);
     testConfig.getGroupConfig().setMemberCount(3);
-    testConfig.setRestartZappedL2(false);
 
     testConfig.addTcProperty("seda." + ServerConfigurationContext.OBJECTS_SYNC_STAGE + ".sleepMs", "2000");
-    // timebombTest("2012-11-26");
   }
 
   public static class FailoverDuringPassiveSyncTestApp extends ClientBase {
