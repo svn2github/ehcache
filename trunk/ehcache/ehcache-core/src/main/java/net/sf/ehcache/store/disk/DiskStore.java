@@ -1165,7 +1165,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     }
 
     /**
-     * Don't you use this !
+     * PoolParticipant that is used with the HeapPool. As the DiskStore uses Heap resources
      */
     private class DiskStoreHeapPoolParticipant implements PoolParticipant {
 
