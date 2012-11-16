@@ -47,10 +47,8 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactory;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolEvictor;
-import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.SizeOfEngine;
-import net.sf.ehcache.pool.impl.BalancedAccessOnDiskPoolEvictor;
-import net.sf.ehcache.pool.impl.BalancedAccessOnHeapPoolEvictor;
+import net.sf.ehcache.pool.impl.BalancedAccessEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.Store;
@@ -409,12 +407,12 @@ public class CacheManager {
         runtimeCfg = configuration.setupFor(this, DEFAULT_NAME);
 
         if (configuration.isMaxBytesLocalHeapSet()) {
-            PoolEvictor<PoolParticipant> evictor = new BalancedAccessOnHeapPoolEvictor();
+            PoolEvictor evictor = new BalancedAccessEvictor();
             SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
             this.onHeapPool = new BoundedPool(configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
         }
         if (configuration.isMaxBytesLocalDiskSet()) {
-            PoolEvictor<PoolParticipant> evictor = new BalancedAccessOnDiskPoolEvictor();
+            PoolEvictor evictor = new BalancedAccessEvictor();
             this.onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
         }
 

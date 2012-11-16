@@ -24,8 +24,9 @@ import java.util.Collection;
  *
  * @param <T> The type of the resources to free space on.
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
-public interface PoolEvictor<T> {
+public interface PoolEvictor<T extends PoolParticipant> {
 
     /**
      * Free at least N bytes from a collection of resources

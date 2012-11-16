@@ -28,7 +28,7 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
+final class AtomicPoolAccessor extends AbstractPoolAccessor {
 
     private final AtomicLong size;
 
@@ -36,12 +36,12 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
      * Creates an atomic pool accessor with the specified properties.
      *
      * @param pool pool to be accessed
-     * @param store accessing store
+     * @param poolParticipant accessing poolParticipant
      * @param sizeOfEngine engine used to size objects
-     * @param currentSize initial size of the store
+     * @param currentSize initial size of the poolParticipant
      */
-    AtomicPoolAccessor(Pool<PoolParticipant> pool, PoolParticipant store, SizeOfEngine sizeOfEngine, long currentSize) {
-        super(pool, store, sizeOfEngine);
+    AtomicPoolAccessor(Pool pool, PoolParticipant poolParticipant, SizeOfEngine sizeOfEngine, long currentSize) {
+        super(pool, poolParticipant, sizeOfEngine);
         this.size = new AtomicLong(currentSize);
     }
 
@@ -65,7 +65,7 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
             // if there is not enough room => evict
             long missingSize = newSize - getPool().getMaxSize();
 
-            if (getPool().getEvictor().freeSpace(getPool().getPoolableStores(), missingSize) || force) {
+            if (getPool().getEvictor().freeSpace(getPool().getPoolParticipants(), missingSize) || force) {
                 size.addAndGet(sizeOf);
                 return sizeOf;
             } else {

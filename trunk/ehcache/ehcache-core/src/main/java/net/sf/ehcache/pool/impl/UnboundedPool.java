@@ -29,8 +29,9 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * A no-op pool which does not enforce any resource consumption limit.
  *
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
-public class UnboundedPool implements Pool<PoolParticipant> {
+public class UnboundedPool implements Pool {
 
     /**
      * Create an UnboundedPool instance
@@ -61,42 +62,42 @@ public class UnboundedPool implements Pool<PoolParticipant> {
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor<PoolParticipant> createPoolAccessor(PoolParticipant store, int maxDepth, boolean abortWhenMaxDepthExceeded) {
+    public PoolAccessor createPoolAccessor(PoolParticipant participant, int maxDepth, boolean abortWhenMaxDepthExceeded) {
         return new UnboundedPoolAccessor();
     }
 
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor createPoolAccessor(PoolParticipant store, SizeOfEngine sizeOfEngine) {
+    public PoolAccessor createPoolAccessor(PoolParticipant participant, SizeOfEngine sizeOfEngine) {
         return new UnboundedPoolAccessor();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void registerPoolAccessor(PoolAccessor<? extends PoolParticipant> accessor) {
+    public void registerPoolAccessor(PoolAccessor accessor) {
         //no-op
     }
 
     /**
      * {@inheritDoc}
      */
-    public void removePoolAccessor(PoolAccessor<?> accessor) {
+    public void removePoolAccessor(PoolAccessor accessor) {
         //no-op
     }
 
     /**
      * {@inheritDoc}
      */
-    public Collection<PoolParticipant> getPoolableStores() {
+    public Collection<PoolParticipant> getPoolParticipants() {
         return Collections.emptyList();
     }
 
     /**
      * {@inheritDoc}
      */
-    public PoolEvictor<PoolParticipant> getEvictor() {
+    public PoolEvictor getEvictor() {
         throw new UnsupportedOperationException();
     }
 
@@ -158,7 +159,7 @@ public class UnboundedPool implements Pool<PoolParticipant> {
         /**
          * {@inheritDoc}
          */
-        public Object getStore() {
+        public PoolParticipant getParticipant() {
             throw new UnsupportedOperationException();
         }
 

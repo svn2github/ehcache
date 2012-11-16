@@ -26,8 +26,9 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * has been configured.
  *
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
-public class StrictlyBoundedPool extends AbstractPool<PoolParticipant> {
+public class StrictlyBoundedPool extends AbstractPool {
 
     /**
      * Create a StrictlyBoundedPool instance
@@ -36,15 +37,15 @@ public class StrictlyBoundedPool extends AbstractPool<PoolParticipant> {
      * @param evictor the pool evictor, for cross-store eviction.
      * @param defaultSizeOfEngine the default SizeOf engine used by the accessors.
      */
-    public StrictlyBoundedPool(long maximumPoolSize, PoolEvictor<PoolParticipant> evictor, SizeOfEngine defaultSizeOfEngine) {
+    public StrictlyBoundedPool(long maximumPoolSize, PoolEvictor evictor, SizeOfEngine defaultSizeOfEngine) {
         super(maximumPoolSize, evictor, defaultSizeOfEngine);
     }
 
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor createPoolAccessor(PoolParticipant store, SizeOfEngine sizeOfEngine) {
-        LockedPoolAccessor accessor = new LockedPoolAccessor(this, store, sizeOfEngine, 0);
+    public PoolAccessor createPoolAccessor(PoolParticipant participant, SizeOfEngine sizeOfEngine) {
+        LockedPoolAccessor accessor = new LockedPoolAccessor(this, participant, sizeOfEngine, 0);
         registerPoolAccessor(accessor);
         return accessor;
     }

@@ -26,8 +26,9 @@ import java.util.Collection;
  * Abstract pool evictor which always evicts from the store consuming the most resources.
  *
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
-public abstract class AbstractFromLargestCachePoolEvictor implements PoolEvictor<PoolParticipant> {
+public class FromLargestCachePoolEvictor implements PoolEvictor<PoolParticipant> {
 
     /**
      * {@inheritDoc}
@@ -43,12 +44,12 @@ public abstract class AbstractFromLargestCachePoolEvictor implements PoolEvictor
         while (tried.size() != from.size()) {
             PoolParticipant largestPoolParticipant = findUntriedLargestPoolableStore(from, tried);
 
-            long beforeEvictionSize = getSizeInBytes(largestPoolParticipant);
-            if (!evict(1, bytes, largestPoolParticipant)) {
+            long beforeEvictionSize = largestPoolParticipant.getSizeInBytes();
+            if (!largestPoolParticipant.evict(1, bytes)) {
                 tried.add(largestPoolParticipant);
                 continue;
             }
-            long afterEvictionSize = getSizeInBytes(largestPoolParticipant);
+            long afterEvictionSize = largestPoolParticipant.getSizeInBytes();
 
             remainingSizeInBytes -= (beforeEvictionSize - afterEvictionSize);
             if (remainingSizeInBytes <= 0L) {
@@ -59,24 +60,6 @@ public abstract class AbstractFromLargestCachePoolEvictor implements PoolEvictor
         return false;
     }
 
-    /**
-     * Evict from a store for a chosen resource
-     *
-     * @param count the element count
-     * @param bytes the bytes count
-     * @param poolParticipant the store
-     * @return true if eviction succeeded, ie: if there was enough evictable resource held by the store
-     */
-    protected abstract boolean evict(int count, long bytes, PoolParticipant poolParticipant);
-
-    /**
-     * Get a store size in bytes for a chosen resource
-     *
-     * @param poolParticipant the store
-     * @return the size in bytes
-     */
-    protected abstract long getSizeInBytes(PoolParticipant poolParticipant);
-
     private PoolParticipant findUntriedLargestPoolableStore(Collection<PoolParticipant> from, Collection<PoolParticipant> tried) {
         PoolParticipant largestPoolParticipant = null;
         for (PoolParticipant poolParticipant : from) {
@@ -84,7 +67,7 @@ public abstract class AbstractFromLargestCachePoolEvictor implements PoolEvictor
                 continue;
             }
 
-            if (largestPoolParticipant == null || getSizeInBytes(poolParticipant) > getSizeInBytes(largestPoolParticipant)) {
+            if (largestPoolParticipant == null || poolParticipant.getSizeInBytes() > largestPoolParticipant.getSizeInBytes()) {
                 largestPoolParticipant = poolParticipant;
             }
         }

@@ -17,7 +17,6 @@
 package net.sf.ehcache;
 
 import net.sf.ehcache.pool.Pool;
-import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.SoftLockFactory;
 import net.sf.ehcache.transaction.SoftLockManager;
@@ -53,7 +52,7 @@ public interface FeaturesManager {
      * @param onDiskPool on-disk pool
      * @return a store for the given cache
      */
-    Store createStore(Cache cache, Pool<PoolParticipant> onHeapPool, Pool<PoolParticipant> onDiskPool);
+    Store createStore(Cache cache, Pool onHeapPool, Pool onDiskPool);
 
     /**
      * Create a transaction map for the associated cache manager

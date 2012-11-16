@@ -25,6 +25,7 @@ import java.util.List;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolEvictor;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.SizeOfEngine;
 
 /**
@@ -33,14 +34,13 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * This contains all the logic of a pool except for the actual creation of accessor instances.
  *
  * @author Chris Dennis
- *
- * @param <T> the pool store type
+ * @author Alex Snaps
  */
-public abstract class AbstractPool<T> implements Pool<T> {
+public abstract class AbstractPool implements Pool {
 
     private volatile long maximumPoolSize;
-    private final PoolEvictor<T> evictor;
-    private final List<PoolAccessor<? extends T>> poolAccessors;
+    private final PoolEvictor evictor;
+    private final List<PoolAccessor> poolAccessors;
     private final SizeOfEngine defaultSizeOfEngine;
 
     /**
@@ -50,11 +50,11 @@ public abstract class AbstractPool<T> implements Pool<T> {
      * @param evictor the pool evictor, for cross-store eviction.
      * @param defaultSizeOfEngine the default SizeOf engine used by the accessors.
      */
-    public AbstractPool(long maximumPoolSize, PoolEvictor<T> evictor, SizeOfEngine defaultSizeOfEngine) {
+    public AbstractPool(long maximumPoolSize, PoolEvictor evictor, SizeOfEngine defaultSizeOfEngine) {
         this.maximumPoolSize = maximumPoolSize;
         this.evictor = evictor;
         this.defaultSizeOfEngine = defaultSizeOfEngine;
-        this.poolAccessors = Collections.synchronizedList(new ArrayList<PoolAccessor<? extends T>>());
+        this.poolAccessors = Collections.synchronizedList(new ArrayList<PoolAccessor>());
     }
 
     /**
@@ -84,29 +84,29 @@ public abstract class AbstractPool<T> implements Pool<T> {
         long sizeToEvict = oldSize - newSize;
 
         if (sizeToEvict > 0) {
-            evictor.freeSpace(getPoolableStores(), sizeToEvict);
+            evictor.freeSpace(getPoolParticipants(), sizeToEvict);
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor<T> createPoolAccessor(T store, int maxDepth, boolean abortWhenMaxDepthExceeded) {
-        return createPoolAccessor(store, defaultSizeOfEngine.copyWith(maxDepth, abortWhenMaxDepthExceeded));
+    public PoolAccessor createPoolAccessor(PoolParticipant participant, int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        return createPoolAccessor(participant, defaultSizeOfEngine.copyWith(maxDepth, abortWhenMaxDepthExceeded));
     }
 
     /**
      * {@inheritDoc}
      */
-    public void registerPoolAccessor(PoolAccessor<? extends T> accessor) {
+    public void registerPoolAccessor(PoolAccessor accessor) {
         poolAccessors.add(accessor);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void removePoolAccessor(PoolAccessor<?> accessor) {
-        Iterator<PoolAccessor<? extends T>> iterator = poolAccessors.iterator();
+    public void removePoolAccessor(PoolAccessor accessor) {
+        Iterator<PoolAccessor> iterator = poolAccessors.iterator();
         while (iterator.hasNext()) {
             if (iterator.next() == accessor) {
                 iterator.remove();
@@ -118,10 +118,10 @@ public abstract class AbstractPool<T> implements Pool<T> {
     /**
      * {@inheritDoc}
      */
-    public Collection<T> getPoolableStores() {
-        Collection<T> poolableStores = new ArrayList<T>(poolAccessors.size());
-        for (PoolAccessor<? extends T> poolAccessor : poolAccessors) {
-            poolableStores.add(poolAccessor.getStore());
+    public Collection<PoolParticipant> getPoolParticipants() {
+        Collection<PoolParticipant> poolableStores = new ArrayList<PoolParticipant>(poolAccessors.size());
+        for (PoolAccessor poolAccessor : poolAccessors) {
+            poolableStores.add(poolAccessor.getParticipant());
         }
         return poolableStores;
     }
@@ -129,7 +129,7 @@ public abstract class AbstractPool<T> implements Pool<T> {
     /**
      * {@inheritDoc}
      */
-    public PoolEvictor<T> getEvictor() {
+    public PoolEvictor getEvictor() {
         return evictor;
     }
 

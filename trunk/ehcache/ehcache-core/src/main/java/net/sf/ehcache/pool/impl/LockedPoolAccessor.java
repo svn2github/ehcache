@@ -27,8 +27,9 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * The PoolAccessor class of the StrictlyBoundedPool
  *
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
-final class LockedPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
+final class LockedPoolAccessor extends AbstractPoolAccessor {
 
     private long size;
     private final Lock lock = new ReentrantLock();
@@ -37,12 +38,12 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
      * Creates a locked pool accessor with the specified properties.
      *
      * @param pool pool to be accessed
-     * @param store accessing store
+     * @param poolParticipant accessing poolParticipant
      * @param sizeOfEngine engine used to size objects
-     * @param currentSize initial size of the store
+     * @param currentSize initial size of the poolParticipant
      */
-    LockedPoolAccessor(Pool pool, PoolParticipant store, SizeOfEngine sizeOfEngine, long currentSize) {
-        super(pool, store, sizeOfEngine);
+    LockedPoolAccessor(Pool pool, PoolParticipant poolParticipant, SizeOfEngine sizeOfEngine, long currentSize) {
+        super(pool, poolParticipant, sizeOfEngine);
         this.size = currentSize;
     }
 
@@ -72,7 +73,7 @@ final class LockedPoolAccessor extends AbstractPoolAccessor<PoolParticipant> {
                     // eviction must be done outside the lock to avoid deadlocks as it may evict from other pools
                     lock.unlock();
                     try {
-                        boolean successful = getPool().getEvictor().freeSpace(getPool().getPoolableStores(), missingSize);
+                        boolean successful = getPool().getEvictor().freeSpace(getPool().getPoolParticipants(), missingSize);
                         if (!force && !successful) {
                             // cannot free enough bytes
                             return -1;

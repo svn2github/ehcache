@@ -28,7 +28,7 @@ import net.sf.ehcache.pool.PoolEvictor;
  * @author Ludovic Orban
  * @author Chris Dennis
  */
-public class BoundedPool extends AbstractPool<PoolParticipant> {
+public class BoundedPool extends AbstractPool {
 
     /**
      * Create a BoundedPool instance
@@ -37,15 +37,15 @@ public class BoundedPool extends AbstractPool<PoolParticipant> {
      * @param evictor the pool evictor, for cross-store eviction.
      * @param defaultSizeOfEngine the default SizeOf engine used by the accessors.
      */
-    public BoundedPool(long maximumPoolSize, PoolEvictor<PoolParticipant> evictor, SizeOfEngine defaultSizeOfEngine) {
+    public BoundedPool(long maximumPoolSize, PoolEvictor evictor, SizeOfEngine defaultSizeOfEngine) {
         super(maximumPoolSize, evictor, defaultSizeOfEngine);
     }
 
     /**
      * {@inheritDoc}
      */
-    public PoolAccessor createPoolAccessor(PoolParticipant store, SizeOfEngine sizeOfEngine) {
-        AtomicPoolAccessor accessor = new AtomicPoolAccessor(this, store, sizeOfEngine, 0);
+    public PoolAccessor createPoolAccessor(PoolParticipant participant, SizeOfEngine sizeOfEngine) {
+        AtomicPoolAccessor accessor = new AtomicPoolAccessor(this, participant, sizeOfEngine, 0);
         registerPoolAccessor(accessor);
         return accessor;
     }

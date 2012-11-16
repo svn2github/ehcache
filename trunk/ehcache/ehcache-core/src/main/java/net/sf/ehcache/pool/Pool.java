@@ -23,11 +23,10 @@ import java.util.Collection;
  * which it uses to tell the pool about its consumption. A SizeOf engine is used to calculate the size of the
  * objects added to the pool.
  *
- * @param <T> type of store that uses this pool
- *
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
-public interface Pool<T> {
+public interface Pool {
 
     /**
      * Return the used size of the pool.
@@ -53,48 +52,48 @@ public interface Pool<T> {
     /**
      * Return a PoolAccessor whose consumption is tracked by this pool, using a default SizeOf engine.
      *
-     * @param store the store which will use the created accessor.
+     * @param participant the participant which will use the created accessor.
      * @param maxDepth maximum depth of the object graph to traverse
      * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
-    public PoolAccessor<T> createPoolAccessor(T store, int maxDepth, boolean abortWhenMaxDepthExceeded);
+    public PoolAccessor createPoolAccessor(PoolParticipant participant, int maxDepth, boolean abortWhenMaxDepthExceeded);
 
     /**
      * Register an accessor implementation with this pool.
      *
      * @param accessor accessor to be registered
      */
-    void registerPoolAccessor(PoolAccessor<? extends T> accessor);
+    void registerPoolAccessor(PoolAccessor accessor);
 
     /**
      * Remove the supplied accessor from this pool.
      *
      * @param accessor accessor to be removed
      */
-    void removePoolAccessor(PoolAccessor<?> accessor);
+    void removePoolAccessor(PoolAccessor accessor);
 
     /**
      * Return a PoolAccessor whose consumption is tracked by this pool, using a specific SizeOf engine.
      *
-     * @param store the store which will use the created accessor.
+     * @param participant the participant which will use the created accessor.
      * @param sizeOfEngine the SizeOf engine used to measure the size of objects added through the created accessor.
      * @return a PoolAccessor whose consumption is tracked by this pool.
      */
-    PoolAccessor<T> createPoolAccessor(T store, SizeOfEngine sizeOfEngine);
+    PoolAccessor createPoolAccessor(PoolParticipant participant, SizeOfEngine sizeOfEngine);
 
     /**
-     * Return the stores accessing this pool.
+     * Return the participants accessing this pool.
      *
-     * @return stores using this pool
+     * @return participants using this pool
      */
-    Collection<T> getPoolableStores();
+    Collection<PoolParticipant> getPoolParticipants();
 
     /**
      * Return the pool evictor used by this pool.
      *
      * @return the pool evictor
      */
-    PoolEvictor<T> getEvictor();
+    PoolEvictor getEvictor();
 
 }

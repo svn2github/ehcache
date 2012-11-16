@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.SizeOfEngine;
 
@@ -27,10 +28,9 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * Abstract PoolAccessor implementation providing pool to store binding functionality.
  *
  * @author Chris Dennis
- *
- * @param <T> accessing store type
+ * @author Alex Snaps
  */
-public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
+public abstract class AbstractPoolAccessor implements PoolAccessor {
 
     /**
      * {@link SizeOfEngine} used by the accessor.
@@ -38,20 +38,20 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
     protected final SizeOfEngine sizeOfEngine;
 
     private final AtomicBoolean unlinked = new AtomicBoolean();
-    private final Pool<T> pool;
-    private final T store;
+    private final Pool pool;
+    private final PoolParticipant poolParticipant;
 
     private volatile boolean abortedSizeOf = false;
 
     /**
-     * Creates an accessor for the specified store to access the specified pool.
+     * Creates an accessor for the specified participant to access the specified pool.
      *
      * @param pool pool to be accessed
-     * @param store accessing store
+     * @param participant accessing participant
      */
-    public AbstractPoolAccessor(Pool<T> pool, T store, SizeOfEngine sizeOfEngine) {
+    public AbstractPoolAccessor(Pool pool, PoolParticipant participant, SizeOfEngine sizeOfEngine) {
         this.pool = pool;
-        this.store = store;
+        this.poolParticipant = participant;
         this.sizeOfEngine = sizeOfEngine;
     }
 
@@ -132,8 +132,8 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
     /**
      * {@inheritDoc}
      */
-    public final T getStore() {
-        return store;
+    public final PoolParticipant getParticipant() {
+        return poolParticipant;
     }
 
     /**
@@ -159,7 +159,7 @@ public abstract class AbstractPoolAccessor<T> implements PoolAccessor<T> {
      *
      * @return associated pool
      */
-    protected final Pool<T> getPool() {
+    protected final Pool getPool() {
         return pool;
     }
 

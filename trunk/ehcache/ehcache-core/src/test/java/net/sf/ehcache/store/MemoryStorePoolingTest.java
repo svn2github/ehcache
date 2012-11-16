@@ -20,7 +20,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.impl.ConstantSizeOfEngine;
-import net.sf.ehcache.pool.impl.FromLargestCacheOnHeapPoolEvictor;
+import net.sf.ehcache.pool.impl.FromLargestCachePoolEvictor;
 import net.sf.ehcache.pool.impl.StrictlyBoundedPool;
 
 import org.junit.After;
@@ -78,7 +78,7 @@ public class MemoryStorePoolingTest {
 
         onHeapPool = new StrictlyBoundedPool(
                 16384 * 2, // == 2 elements
-                new FromLargestCacheOnHeapPoolEvictor(),
+                new FromLargestCachePoolEvictor(),
                 new ConstantSizeOfEngine(
                         1536,  /* 1.5 KB*/
                         14336, /* 14 KB */

@@ -952,7 +952,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     /**
      * {@inheritDoc}
      */
-    public boolean evictFromOnHeap(int count, long size) {
+    public boolean evict(int count, long size) {
         if (storePinned) {
             return false;
         }
@@ -969,63 +969,28 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     /**
      * {@inheritDoc}
      */
-    public boolean evictFromOnDisk(int count, long size) {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateDiskHitRate() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateDiskMissRate() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateDiskCountSize() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateDiskByteSize() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateHeapHitRate() {
+    public float getApproximateHitRate() {
         return hitRate.getRate();
     }
 
     /**
      * {@inheritDoc}
      */
-    public float getApproximateHeapMissRate() {
+    public float getApproximateMissRate() {
         return missRate.getRate();
     }
 
     /**
      * {@inheritDoc}
      */
-    public long getApproximateHeapCountSize() {
+    public long getApproximateCountSize() {
         return map.quickSize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public long getApproximateHeapByteSize() {
+    public long getSizeInBytes() {
         return poolAccessor.getSize();
     }
 
@@ -1085,7 +1050,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
          * @param eventListener event listener (or {@code null} for no notifications)
          * @return a backing map
          */
-        SelectableConcurrentHashMap newBackingMap(PoolAccessor<?> poolAccessor, boolean elementPinning, int initialCapacity,
+        SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, boolean elementPinning, int initialCapacity,
                 float loadFactor, int concurrency, int maximumCapacity, RegisteredEventListeners eventListener);
     }
 
@@ -1095,7 +1060,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     static class BasicBackingFactory implements BackingFactory {
 
         @Override
-        public SelectableConcurrentHashMap newBackingMap(PoolAccessor<?> poolAccessor, boolean elementPinning, int initialCapacity,
+        public SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, boolean elementPinning, int initialCapacity,
                 float loadFactor, int concurrency, int maximumCapacity, RegisteredEventListeners eventListener) {
             return new SelectableConcurrentHashMap(poolAccessor, elementPinning, initialCapacity,
                     loadFactor, concurrency, maximumCapacity, eventListener);

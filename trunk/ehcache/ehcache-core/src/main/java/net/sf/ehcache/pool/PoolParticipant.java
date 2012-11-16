@@ -20,101 +20,45 @@ package net.sf.ehcache.pool;
  * A poolable store reports its resource usage to a {@link Pool}.
  *
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
 public interface PoolParticipant {
 
     /**
-     * Perform eviction to release on-heap resources
+     * Perform eviction to release resources
      *
      * @param count the number of elements to evict
      * @param size the size in bytes to free (hint)
      * @return true if the requested number of elements could be evicted
      */
-    boolean evictFromOnHeap(int count, long size);
+    boolean evict(int count, long size);
 
     /**
-     * Perform eviction to release on-disk resources
+     * Gets the size in bytes.
      *
-     * @param count the number of elements to evict
-     * @param size the size in bytes to free (hint)
-     * @return true if the requested number of elements could be evicted
+     * @return the size from the pool used by the participant in bytes
      */
-    boolean evictFromOnDisk(int count, long size);
+    long getSizeInBytes();
 
     /**
-     * Gets the size of the on-disk portion of the store, in bytes.
+     * Return the approximate hit rate
      *
-     * @return the on-disk size of the store in bytes
-     * @deprecated Revisit once Montreal design is in
+     * @return the approximate hit rate
      */
-    @Deprecated
-    long getOnDiskSizeInBytes();
+    float getApproximateHitRate();
 
     /**
-     * Gets the size of the in-memory portion of the store, in bytes.
-     * <p/>
-     * This method may be expensive to run, depending on implementation. Implementers may choose to return
-     * an approximate size.
+     * Return the approximate miss rate
      *
-     * @return the approximate in-memory size of the store in bytes
-     * @deprecated Revisit once Montreal design is in
+     * @return the approximate miss rate
      */
-    @Deprecated
-    long getInMemorySizeInBytes();
+    float getApproximateMissRate();
 
     /**
-     * Return the approximate disk hit rate
+     * Return the approximate size
      *
-     * @return the approximate disk hit rate
+     * @return the approximate size
      */
-    float getApproximateDiskHitRate();
-
-    /**
-     * Return the approximate disk miss rate
-     *
-     * @return the approximate disk miss rate
-     */
-    float getApproximateDiskMissRate();
-
-    /**
-     * Return the approximate disk size
-     *
-     * @return the approximate disk size
-     */
-    long getApproximateDiskCountSize();
+    long getApproximateCountSize();
     
-    /**
-     * Return the approximate disk size in bytes
-     *
-     * @return the approximate disk size in bytes
-     */
-    long getApproximateDiskByteSize();
-    
-    /**
-     * Return the approximate heap hit rate
-     *
-     * @return the approximate heap hit rate
-     */
-    float getApproximateHeapHitRate();
-
-    /**
-     * Return the approximate heap miss rate
-     *
-     * @return the approximate heap miss rate
-     */
-    float getApproximateHeapMissRate();
-
-    /**
-     * Return the approximate heap size
-     *
-     * @return the approximate heap size
-     */
-    long getApproximateHeapCountSize();
-
-    /**
-     * Return the approximate heap size in bytes
-     *
-     * @return the approximate heap size in bytes
-     */
-    long getApproximateHeapByteSize();
 }

@@ -82,7 +82,6 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private static final int DEFAULT_INITIAL_CAPACITY = 16;
     private static final int DEFAULT_SEGMENT_COUNT = 64;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-    private static final int SLEEP_INTERVAL_MS = 10;
 
     private final DiskStorageFactory disk;
     private final Random rndm = new Random();
@@ -101,7 +100,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private DiskStore(DiskStorageFactory disk, Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
-        this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(this,
+        this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(new DiskStoreHeapPoolParticipant(),
             SizeOfPolicyConfiguration.resolveMaxDepth(cache),
             SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
         this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this, new DiskSizeOfEngine());
@@ -679,22 +678,14 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
-    public boolean evictFromOnHeap(int count, long size) {
-        // evicting from disk also frees up heap
+    public boolean evict(int count, long size) {
         return disk.evict(count) == count;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean evictFromOnDisk(int count, long size) {
-        return disk.evict(count) == count;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateDiskHitRate() {
+    public float getApproximateHitRate() {
         float sum = 0;
         for (Segment s : segments) {
             sum += s.getDiskHitRate();
@@ -705,7 +696,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
-    public float getApproximateDiskMissRate() {
+    public float getApproximateMissRate() {
         float sum = 0;
         for (Segment s : segments) {
             sum += s.getDiskMissRate();
@@ -716,43 +707,15 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
-    public long getApproximateDiskCountSize() {
+    public long getApproximateCountSize() {
         return getOnDiskSize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public long getApproximateDiskByteSize() {
+    public long getSizeInBytes() {
         return getOnDiskSizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateHeapHitRate() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateHeapMissRate() {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateHeapCountSize() {
-        return getInMemorySize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateHeapByteSize() {
-        return getInMemorySizeInBytes();
     }
 
     /**
@@ -1198,6 +1161,37 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
 
         private int indexFor(final Object key) {
             return hash(key.hashCode()) >>> segmentShift;
+        }
+    }
+
+    /**
+     * Don't you use this !
+     */
+    private class DiskStoreHeapPoolParticipant implements PoolParticipant {
+
+        @Override
+        public boolean evict(final int count, final long size) {
+            return DiskStore.this.evict(count, size);
+        }
+
+        @Override
+        public long getSizeInBytes() {
+            return getInMemorySizeInBytes();
+        }
+
+        @Override
+        public float getApproximateHitRate() {
+            return 0f;
+        }
+
+        @Override
+        public float getApproximateMissRate() {
+            return 0f;
+        }
+
+        @Override
+        public long getApproximateCountSize() {
+            return getInMemorySize();
         }
     }
 }

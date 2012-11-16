@@ -30,11 +30,11 @@ public class RoundRobinOnHeapPoolEvictor implements PoolEvictor<PoolParticipant>
 
         while (true) {
             for (PoolParticipant poolParticipant : from) {
-                long beforeEvictionSize = poolParticipant.getInMemorySizeInBytes();
-                if (!poolParticipant.evictFromOnHeap(1, bytes)) {
+                long beforeEvictionSize = poolParticipant.getSizeInBytes();
+                if (!poolParticipant.evict(1, bytes)) {
                     return false;
                 }
-                long afterEvictionSize = poolParticipant.getInMemorySizeInBytes();
+                long afterEvictionSize = poolParticipant.getSizeInBytes();
 
                 remaining -= (beforeEvictionSize - afterEvictionSize);
                 if (remaining <= 0L) {

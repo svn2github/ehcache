@@ -19,11 +19,10 @@ package net.sf.ehcache.pool;
 /**
  * PoolAccessors are used by stores to tell the pools about their resource consumption
  *
- * @param <T> type of the store that uses this accessor
- *
  * @author Ludovic Orban
+ * @author Alex Snaps
  */
-public interface PoolAccessor<T> {
+public interface PoolAccessor {
 
     /**
      * Add an element to the pool.
@@ -87,7 +86,7 @@ public interface PoolAccessor<T> {
      *
      * @return store using this accessor
      */
-    T getStore();
+    PoolParticipant getParticipant();
 
     /**
      * Sets the max size for this pool
