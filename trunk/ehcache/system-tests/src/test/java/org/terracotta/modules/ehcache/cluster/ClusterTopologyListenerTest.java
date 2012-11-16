@@ -17,7 +17,6 @@ public class ClusterTopologyListenerTest extends AbstractCacheTestBase {
       disableTest();
     }
 
-    testConfig.getL2Config().setRestartable(true);
     testConfig.getL2Config().setClientReconnectWindow(600);
 
     testConfig.addTcProperty("l2.l1reconnect.enabled", "true");

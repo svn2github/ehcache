@@ -29,7 +29,6 @@ public class L1BMUpdateInvalidatedEntryTest extends AbstractTerracottaActivePass
 
   public L1BMUpdateInvalidatedEntryTest(TestConfig testConfig) {
     super("l1bm-update-invalidated-entry-test.xml", testConfig, App.class, App.class);
-    testConfig.getL2Config().setRestartable(true);
   }
 
   public static class App extends ClientBase {

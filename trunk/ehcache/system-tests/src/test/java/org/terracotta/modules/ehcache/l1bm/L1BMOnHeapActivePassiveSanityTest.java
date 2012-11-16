@@ -12,7 +12,6 @@ public class L1BMOnHeapActivePassiveSanityTest extends AbstractTerracottaActiveP
 
   public L1BMOnHeapActivePassiveSanityTest(TestConfig testConfig) {
     super(testConfig, L1BMOnHeapBasicSanityTestApp.class, L1BMOnHeapBasicSanityTestApp.class);
-    testConfig.getL2Config().setRestartable(true);
     testConfig.getL2Config().setMaxHeap(512);
     testConfig.getCrashConfig().setCrashMode(ServerCrashMode.RANDOM_SERVER_CRASH);
     testConfig.getCrashConfig().setServerCrashWaitTimeInSec(30);
