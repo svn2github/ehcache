@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"/>
+  
+  <cache name="tti"
+         maxElementsInMemory="500"
+         timeToIdleSeconds="20">
+         <terracotta clustered="true" consistency="strong"/>
+  </cache>
+  
+  <cache name="eternal"
+         maxElementsInMemory="500"
+         eternal="true">
+         <terracotta clustered="true" consistency="strong"/>
+  </cache>
+
+  <cache name="ttl"
+         maxElementsInMemory="500"
+         timeToLiveSeconds="20">
+         <terracotta clustered="true" consistency="strong"/>
+  </cache>
+  
+  <cache name="ttittl"
+         maxElementsInMemory="500"
+         timeToIdleSeconds="20"
+         timeToLiveSeconds="40">
+         <terracotta clustered="true" consistency="strong"/>
+  </cache>
+
+  <terracottaConfig url="localhost:PORT"/>
+</ehcache>
