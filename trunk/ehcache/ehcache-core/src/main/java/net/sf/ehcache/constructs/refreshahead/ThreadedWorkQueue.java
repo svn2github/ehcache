@@ -18,24 +18,27 @@ package net.sf.ehcache.constructs.refreshahead;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class implements a work queue of pooled objects. You can offer a
  * stream of objects to the backing poool of threads and it will consume them
- * and hand them to the BatchWorker as a collection to be processed (batched).<p>
+ * and hand them to the BatchWorker as a collection to be processed (batched).
+ * <p>
  *
- * Essentially, it uses BatchWorker as Callable/Future with a collection
- * argument.
+ * Essentially, it uses BatchWorker as Callable/Future with a collection argument.
  *
  * @author cschanck
  *
  * @param <W>
  */
 public class ThreadedWorkQueue<W> {
+
+    private static final int MINUTES_OF_THE_IDLE_LIFE = 5;
 
     /**
      * Callback class, think of it as a Runnable with an argument that is
@@ -49,12 +52,13 @@ public class ThreadedWorkQueue<W> {
 
         /**
          * Process a batch of work.
+         *
          * @param collection
          */
         public void process(Collection<? extends WW> collection);
     }
 
-    private LinkedBlockingQueue<W> queue;
+    private final LinkedBlockingQueue<W> queue;
     private final ExecutorService threadPool;
     private volatile boolean isAlive;
     private final AtomicInteger backlogCounter = new AtomicInteger();
@@ -72,9 +76,16 @@ public class ThreadedWorkQueue<W> {
      * @param batchSize number of items, at a maximum, to send to a dispatcher at a time.
      */
     public ThreadedWorkQueue(BatchWorker<W> dispatcher, int numberOfThreads, ThreadFactory factory, int maximumQueueSize, int batchSize) {
-        threadPool = Executors.newFixedThreadPool(numberOfThreads, factory);
+        threadPool = new ThreadPoolExecutor(numberOfThreads,
+                numberOfThreads,
+                MINUTES_OF_THE_IDLE_LIFE,
+                TimeUnit.MINUTES,
+                new LinkedBlockingQueue<Runnable>(),
+                factory);
         this.batchSize = batchSize;
         this.dispatcher = dispatcher;
+        this.isAlive = true;
+        queue = new LinkedBlockingQueue<W>(maximumQueueSize);
         for (int i = 0; i < numberOfThreads; i++) {
             threadPool.submit(new Runnable() {
 
@@ -89,10 +100,7 @@ public class ThreadedWorkQueue<W> {
                     }
                 }
             });
-            queue = new LinkedBlockingQueue<W>(maximumQueueSize);
         }
-
-        this.isAlive = true;
     }
 
     /**
@@ -112,6 +120,7 @@ public class ThreadedWorkQueue<W> {
 
     /**
      * Is this work queue still accepting work.
+     *
      * @return true if still alive
      */
     public boolean isAlive() {
@@ -120,6 +129,7 @@ public class ThreadedWorkQueue<W> {
 
     /**
      * Get the current backlog count. An approximation, by necessity.
+     *
      * @return count of items yet to be processed.
      */
     public int getBacklogCount() {
@@ -128,6 +138,7 @@ public class ThreadedWorkQueue<W> {
 
     /**
      * get the dispatcher being used for this queue.
+     *
      * @return dispatcher
      */
     public BatchWorker<W> getDispatcher() {
@@ -136,6 +147,7 @@ public class ThreadedWorkQueue<W> {
 
     /**
      * Get the batch size
+     *
      * @return batch size
      */
     public int getBatchSize() {
@@ -143,8 +155,7 @@ public class ThreadedWorkQueue<W> {
     }
 
     /**
-     * Shutdown this queue. Propagates an interrupt to currently executing {@link BatchWorker}
-     * threads.
+     * Shutdown this queue. Propagates an interrupt to currently executing {@link BatchWorker} threads.
      */
     public void shutdown() {
         isAlive = false;
@@ -154,6 +165,7 @@ public class ThreadedWorkQueue<W> {
 
     /**
      * Actually do the work.
+     *
      * @param batch
      * @throws InterruptedException
      */
