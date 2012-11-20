@@ -6,6 +6,7 @@ package org.terracotta.modules.ehcache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
@@ -104,5 +105,7 @@ public interface ToolkitInstanceFactory {
 
   ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName, TransactionID transactionID,
                                                Object key);
+
+  void removeNonStopConfigforCache(Ehcache cache);
 
 }

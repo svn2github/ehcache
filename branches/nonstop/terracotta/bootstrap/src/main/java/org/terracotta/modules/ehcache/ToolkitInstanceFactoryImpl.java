@@ -5,9 +5,11 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
 
@@ -20,6 +22,7 @@ import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.ToolkitObjectType;
 import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheConfigFields.PinningStore;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -29,6 +32,8 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ToolkitCacheConfigBuilderInternal;
+import org.terracotta.toolkit.nonstop.NonStopConfigurationBuilder;
+import org.terracotta.toolkit.nonstop.NonStopConfigurationFields;
 import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
@@ -95,7 +100,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
-    final Configuration clusteredCacheConfig = createClusteredMapConfig(new ToolkitCacheConfigBuilderInternal(), cache);
+    final Configuration clusteredCacheConfig = createClusteredCacheConfig(cache);
+    addNonStopConfig(cache);
     return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cache),
                                                                          clusteredCacheConfig, Serializable.class);
   }
@@ -112,7 +118,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                CacheEventNotificationMsg.class);
   }
 
-  private static Configuration createClusteredMapConfig(ToolkitCacheConfigBuilderInternal builder, Ehcache cache) {
+  private static Configuration createClusteredCacheConfig(Ehcache cache) {
+    ToolkitCacheConfigBuilderInternal builder = new ToolkitCacheConfigBuilderInternal();
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
@@ -149,6 +156,34 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.copyOnReadEnabled(terracottaConfiguration.isCopyOnRead());
 
     return builder.build();
+  }
+
+  private void addNonStopConfig(Ehcache cache) {
+    NonStopConfigurationBuilder builder = new NonStopConfigurationBuilder();
+    final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
+    final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
+    NonstopConfiguration nonstopConfiguration = terracottaConfiguration.getNonstopConfiguration();
+    builder.nonStopToolkitType(ToolkitObjectType.CACHE);
+    builder.toolkitInstanceName(getFullyQualifiedCacheName(cache));
+    builder.enable(nonstopConfiguration.isEnabled());
+    builder.timeoutMillis(nonstopConfiguration.getTimeoutMillis());
+    TimeoutBehaviorConfiguration timeoutBehavior = nonstopConfiguration.getTimeoutBehavior();
+    if (timeoutBehavior.equals(TimeoutBehaviorConfiguration.NOOP_TYPE_NAME)) {
+      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.NO_OP);
+    } else if (timeoutBehavior.equals(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME)) {
+      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.LOCAL_READS);
+    } else if (timeoutBehavior.equals(TimeoutBehaviorConfiguration.EXCEPTION_TYPE_NAME)) {
+      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT);
+    }
+    builder.apply(toolkit);
+
+  }
+
+  @Override
+  public void removeNonStopConfigforCache(Ehcache cache) {
+    toolkit.getNonStopToolkitRegistry().deregisterForInstance(getFullyQualifiedCacheName(cache),
+                                                              ToolkitObjectType.CACHE);
+
   }
 
   private static int calculateCorrectConcurrency(CacheConfiguration cacheConfiguration) {

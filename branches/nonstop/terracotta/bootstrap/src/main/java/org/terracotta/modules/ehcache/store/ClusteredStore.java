@@ -31,6 +31,7 @@ import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
@@ -402,6 +403,7 @@ public class ClusteredStore implements TerracottaStore {
     backend.removeListener(evictionListener);
     backend.disposeLocally();
     cacheConfigChangeBridge.disconnectConfigs();
+    toolkitInstanceFactory.removeNonStopConfigforCache(cache);
   }
 
   @Override

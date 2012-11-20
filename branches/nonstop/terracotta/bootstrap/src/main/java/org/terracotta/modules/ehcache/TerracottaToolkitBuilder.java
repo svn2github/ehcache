@@ -88,9 +88,9 @@ public class TerracottaToolkitBuilder {
 
   private String createTerracottaToolkitUrl(boolean isUrl, String tcConfigOrUrl) {
     if (isUrl) {
-      return "toolkit:terracotta://" + tcConfigOrUrl;
+      return "toolkit:nonstop-terracotta://" + tcConfigOrUrl;
     } else {
-      return "toolkit:terracotta:";
+      return "toolkit:nonstop-terracotta:";
     }
   }
 
