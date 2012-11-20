@@ -19,7 +19,7 @@
 
   <properties>
     <tc-maven-plugin.version>1.10.0-SNAPSHOT</tc-maven-plugin.version>
-    <toolkit-runtime.version>3.8.0-SNAPSHOT</toolkit-runtime.version>
+    <toolkit-runtime.version>4.0.0-SNAPSHOT</toolkit-runtime.version>
     <h2.version>1.1.116</h2.version>
     <jetty.version>6.1.15</jetty.version>
     <exec-maven-plugin.version>1.1</exec-maven-plugin.version>
