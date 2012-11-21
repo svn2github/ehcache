@@ -60,6 +60,9 @@
           </filters>          
           <transformers>
             <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+              <resource>devmode-classdir.txt</resource>
+            </transformer>               
           </transformers>
         </configuration>
         <executions>
