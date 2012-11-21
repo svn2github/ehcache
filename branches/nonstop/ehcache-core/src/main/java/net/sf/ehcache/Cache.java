@@ -1069,7 +1069,7 @@ public class Cache implements InternalEhcache, StoreListener {
                     nonstopConfig.freezeConfig();
                 }
                 // TODO : cleanUp nonstop
-                if (false && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
+                if ((0 == 1) && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
                     nonstopActiveDelegateHolder.terracottaStoreInitialized(terracottaStore);
                     store = nonstopActiveDelegateHolder.getNonstopStore();
                 } else {

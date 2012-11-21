@@ -78,7 +78,7 @@ public class TerracottaClient {
             terracottaClientConfiguration.freezeConfig();
         }
         // TODO cleanup.
-        if (false && isRejoinEnabled()) {
+        if ((0 == 1) && isRejoinEnabled()) {
             TerracottaRuntimeType type = TerracottaClusteredInstanceHelper.getInstance().getTerracottaRuntimeTypeOrNull();
             if (type == null) {
                 throw new InvalidConfigurationException(
