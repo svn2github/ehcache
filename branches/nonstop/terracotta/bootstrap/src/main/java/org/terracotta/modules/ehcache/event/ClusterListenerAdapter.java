@@ -7,20 +7,27 @@ import net.sf.ehcache.cluster.ClusterTopologyListener;
 
 import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterEvent.Type;
+import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.internal.cluster.OutOfBandClusterListener;
 
 public class ClusterListenerAdapter implements OutOfBandClusterListener {
   private static final String           EHCACHE_TERRACOTTA_PACKAGE_NAME = "net.sf.ehcache.terracotta";
   private final ClusterTopologyListener topologyListener;
+  private volatile TerracottaNodeImpl   currentNode;
+  private final ClusterInfo             cluster;
 
-  public ClusterListenerAdapter(ClusterTopologyListener topologyListener) {
+  public ClusterListenerAdapter(ClusterTopologyListener topologyListener, ClusterInfo cluster) {
     this.topologyListener = topologyListener;
+    this.cluster = cluster;
   }
 
   @Override
   public void onClusterEvent(org.terracotta.toolkit.cluster.ClusterEvent event) {
     switch (event.getType()) {
       case NODE_JOINED:
+        if (currentNode == null) {
+          currentNode = new TerracottaNodeImpl(cluster.getCurrentNode());
+        }
         topologyListener.nodeJoined(new TerracottaNodeImpl(event.getNode()));
         break;
       case NODE_LEFT:
@@ -32,6 +39,10 @@ public class ClusterListenerAdapter implements OutOfBandClusterListener {
       case OPERATIONS_ENABLED:
         topologyListener.clusterOnline(new TerracottaNodeImpl(event.getNode()));
         break;
+      case NODE_REJOINED:
+        TerracottaNodeImpl oldNode = currentNode;
+        currentNode = new TerracottaNodeImpl(event.getNode());
+        topologyListener.clusterRejoined(oldNode, currentNode);
     }
   }
 
