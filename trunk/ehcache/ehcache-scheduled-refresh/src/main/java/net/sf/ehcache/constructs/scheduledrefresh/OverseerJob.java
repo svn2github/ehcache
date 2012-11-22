@@ -15,8 +15,15 @@
  */
 package net.sf.ehcache.constructs.scheduledrefresh;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
@@ -31,12 +38,6 @@ import org.quartz.TriggerBuilder;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This is the seed job for a scheduled execution of a scheduled refresh job.
@@ -79,20 +80,42 @@ public class OverseerJob implements Job {
 
         ScheduledRefreshKeyGenerator<Serializable> generator = makeGeneratorObject(config.getKeyGeneratorClass());
         if (generator != null) {
-            LOG.info("Starting Scheduled refresh: " + config.toString(cache));
-            processKeys(context, config, cache, generator);
             Scheduler scheduler = context.getScheduler();
-            if (config.isUseBulkload()) {
+            try {
+                if(getOutstandingJobCount(context,scheduler)==1) {
+                    LOG.info("Starting Scheduled refresh: " + config.toString(cache));
+                    processKeys(context, config, cache, generator);
+                    if (config.isUseBulkload()) {
+                        try {
+                            waitForOutstandingJobCount(context, config, scheduler, 0);
+                        } catch (SchedulerException e) {
+                            LOG.warn("Unable to process Scheduled Refresh batch termination" + context.getJobDetail()
+                                    .getKey(), e);
+                        }
+                    }
+                } else {
+                    LOG.info("Skipping overlapping execution for Scheduled Refresh batch " + context.getJobDetail()
+                            .getKey());
+                }
+            } catch (SchedulerException e) {
                 try {
-                    waitForOutstandingJobCount(context, config, scheduler, 0);
-                } catch (SchedulerException e) {
-                    LOG.warn("Unable to process Scheduled Refresh batch termination" + context.getJobDetail()
+                    if(!scheduler.isShutdown()) {
+                        LOG.warn("Unable to process Scheduled Refresh batch " + context.getJobDetail()
                             .getKey(), e);
+                    }
+                } catch (SchedulerException e1) {
+                    LOG.warn(e1.getMessage(),e1);
                 }
             }
         }
     }
 
+    private int getOutstandingJobCount(JobExecutionContext context, Scheduler scheduler) throws SchedulerException {
+        GroupMatcher<JobKey> matcher = GroupMatcher.jobGroupEquals(context.getJobDetail().getKey().getGroup());
+        Set<JobKey> queuedKeys = scheduler.getJobKeys(matcher); 
+        return queuedKeys.size();
+    }
+    
     private void waitForOutstandingJobCount(JobExecutionContext context, ScheduledRefreshConfiguration config,
                                             Scheduler scheduler, int minCount) throws SchedulerException {
         GroupMatcher<JobKey> matcher = GroupMatcher.jobGroupEquals(context.getJobDetail().getKey().getGroup());
