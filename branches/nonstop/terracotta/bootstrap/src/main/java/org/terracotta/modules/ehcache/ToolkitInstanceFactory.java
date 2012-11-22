@@ -20,6 +20,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.nonstop.NonStopManager;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -107,5 +108,7 @@ public interface ToolkitInstanceFactory {
                                                Object key);
 
   void removeNonStopConfigforCache(Ehcache cache);
+
+  NonStopManager getNonStopManager();
 
 }

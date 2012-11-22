@@ -30,9 +30,9 @@ import java.util.Set;
  */
 public class ClusteredSafeStore implements TerracottaStore {
   private static final ClusteredStoreExceptionHandler EXCEPTION_HANDLER = new ClusteredSafeStoreExceptionHandler();
-  private final ClusteredStore                        delegateClusteredStore;
+  private final TerracottaStore                       delegateClusteredStore;
 
-  public ClusteredSafeStore(final ClusteredStore delegateClusteredStore) {
+  public ClusteredSafeStore(final TerracottaStore delegateClusteredStore) {
     this.delegateClusteredStore = delegateClusteredStore;
   }
 
@@ -102,12 +102,9 @@ public class ClusteredSafeStore implements TerracottaStore {
     }
   }
 
-  ClusteredStore getClusteredStore() {
-    return delegateClusteredStore;
-  }
-
   private static class ClusteredSafeStoreExceptionHandler implements ClusteredStoreExceptionHandler {
 
+    @Override
     public void handleException(Throwable t) {
       if (t.getClass().getSimpleName().equals("TCNotRunningException")) { throw new TerracottaNotRunningException(
                                                                                                                   "Clustered Cache is probably shutdown or Terracotta backend is down.",
@@ -118,6 +115,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element unsafeGet(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -131,6 +129,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Set getLocalKeys() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -144,6 +143,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public CacheConfiguration.TransactionalMode getTransactionalMode() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -157,6 +157,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void setPinned(Object arg0, boolean arg1) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -170,6 +171,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void unpinAll() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -183,6 +185,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean isPinned(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -196,6 +199,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void addStoreListener(StoreListener arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -209,6 +213,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void removeStoreListener(StoreListener arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -222,6 +227,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean putWithWriter(Element arg0, CacheWriterManager arg1) throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -237,6 +243,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element getQuiet(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -250,6 +257,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element removeWithWriter(Object arg0, CacheWriterManager arg1) throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -265,6 +273,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int getInMemorySize() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -278,6 +287,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int getOffHeapSize() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -291,6 +301,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int getOnDiskSize() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -304,6 +315,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int getTerracottaClusteredSize() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -317,6 +329,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public long getInMemorySizeInBytes() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -330,6 +343,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public long getOffHeapSizeInBytes() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -343,6 +357,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public long getOnDiskSizeInBytes() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -356,6 +371,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean hasAbortedSizeOf() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -369,6 +385,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean containsKeyOnDisk(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -382,6 +399,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean containsKeyOffHeap(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -395,6 +413,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean containsKeyInMemory(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -408,6 +427,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void expireElements() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -421,6 +441,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean bufferFull() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -434,6 +455,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Policy getInMemoryEvictionPolicy() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -447,6 +469,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void setInMemoryEvictionPolicy(Policy arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -460,6 +483,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Object getInternalContext() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -473,6 +497,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean isCacheCoherent() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -486,6 +511,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean isClusterCoherent() throws TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -501,6 +527,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean isNodeCoherent() throws TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -516,6 +543,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void setNodeCoherent(boolean arg0) throws UnsupportedOperationException, TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -533,6 +561,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void waitUntilClusterCoherent() throws UnsupportedOperationException, TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -550,6 +579,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Object getMBean() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -563,6 +593,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void setAttributeExtractors(Map arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -576,6 +607,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Results executeQuery(StoreQuery arg0) throws SearchException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -591,6 +623,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Attribute getSearchAttribute(String arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -604,6 +637,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Map getAllQuiet(Collection arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -617,6 +651,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Map getAll(Collection arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -630,6 +665,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element get(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -643,6 +679,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean put(Element arg0) throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -658,6 +695,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element replace(Element arg0) throws NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -673,6 +711,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean replace(Element arg0, Element arg1, ElementValueComparator arg2) throws NullPointerException,
       IllegalArgumentException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
@@ -691,6 +730,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void putAll(Collection arg0) throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -706,6 +746,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element remove(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -719,6 +760,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void flush() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -732,6 +774,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean containsKey(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -745,6 +788,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int getSize() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -758,6 +802,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element removeElement(Element arg0, ElementValueComparator arg1) throws NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -773,6 +818,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void removeAll() throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -788,6 +834,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void removeAll(Collection arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -801,6 +848,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Element putIfAbsent(Element arg0) throws NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -816,6 +864,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void dispose() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -829,6 +878,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List getKeys() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -842,6 +892,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Status getStatus() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
@@ -855,6 +906,7 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void recalculateSize(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {

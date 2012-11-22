@@ -1304,7 +1304,7 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
-        if (runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
+        if ((Boolean.valueOf(false)) && runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
             NonstopConfiguration nsCfg = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
             final long timeoutMillis = nsCfg.getTimeoutMillis() * nsCfg.getBulkOpsTimeoutMultiplyFactor();
             try {
