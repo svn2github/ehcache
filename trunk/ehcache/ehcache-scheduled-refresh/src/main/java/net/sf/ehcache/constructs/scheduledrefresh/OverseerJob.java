@@ -58,23 +58,23 @@ public class OverseerJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
 
         JobDataMap jdm = context.getMergedJobDataMap();
-        ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm.get(ScheduledRefreshCacheExtension
-                .PROP_CONFIG_OBJECT);
+        ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm
+                .get(ScheduledRefreshCacheExtension.PROP_CONFIG_OBJECT);
         String cacheManagerName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_MGR_NAME);
         String cacheName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_NAME);
 
         final CacheManager cacheManager = CacheManager.getCacheManager(cacheManagerName);
 
         if (cacheManager == null) {
-            LOG.warn("Unable to process Scheduled Refresh batch" + context.getJobDetail().getKey() + ": cache " +
-                    "manager " + cacheManager + " not found");
+            LOG.warn("Unable to process Scheduled Refresh batch" + context.getJobDetail().getKey() + ": cache "
+                    + "manager " + cacheManager + " not found");
             return;
         }
 
         final Ehcache cache = cacheManager.getEhcache(cacheName);
         if (cache == null) {
-            LOG.warn("Unable to process Scheduled Refresh batch" + context.getJobDetail().getKey() + ": cache " +
-                    cacheName + " not found");
+            LOG.warn("Unable to process Scheduled Refresh batch" + context.getJobDetail().getKey() + ": cache "
+                    + cacheName + " not found");
             return;
         }
 
@@ -82,29 +82,28 @@ public class OverseerJob implements Job {
         if (generator != null) {
             Scheduler scheduler = context.getScheduler();
             try {
-                if(getOutstandingJobCount(context,scheduler)==1) {
+                if (getOutstandingJobCount(context, scheduler) == 1) {
                     LOG.info("Starting Scheduled refresh: " + config.toString(cache));
                     processKeys(context, config, cache, generator);
                     if (config.isUseBulkload()) {
                         try {
                             waitForOutstandingJobCount(context, config, scheduler, 0);
                         } catch (SchedulerException e) {
-                            LOG.warn("Unable to process Scheduled Refresh batch termination" + context.getJobDetail()
-                                    .getKey(), e);
+                            LOG.warn("Unable to process Scheduled Refresh batch termination"
+                                    + context.getJobDetail().getKey(), e);
                         }
                     }
                 } else {
-                    LOG.info("Skipping overlapping execution for Scheduled Refresh batch " + context.getJobDetail()
-                            .getKey());
+                    LOG.info("Skipping overlapping execution for Scheduled Refresh batch "
+                            + context.getJobDetail().getKey());
                 }
             } catch (SchedulerException e) {
                 try {
-                    if(!scheduler.isShutdown()) {
-                        LOG.warn("Unable to process Scheduled Refresh batch " + context.getJobDetail()
-                            .getKey(), e);
+                    if (!scheduler.isShutdown()) {
+                        LOG.warn("Unable to process Scheduled Refresh batch " + context.getJobDetail().getKey(), e);
                     }
                 } catch (SchedulerException e1) {
-                    LOG.warn(e1.getMessage(),e1);
+                    LOG.warn(e1.getMessage(), e1);
                 }
             }
         }
@@ -112,15 +111,15 @@ public class OverseerJob implements Job {
 
     private int getOutstandingJobCount(JobExecutionContext context, Scheduler scheduler) throws SchedulerException {
         GroupMatcher<JobKey> matcher = GroupMatcher.jobGroupEquals(context.getJobDetail().getKey().getGroup());
-        Set<JobKey> queuedKeys = scheduler.getJobKeys(matcher); 
+        Set<JobKey> queuedKeys = scheduler.getJobKeys(matcher);
         return queuedKeys.size();
     }
-    
+
     private void waitForOutstandingJobCount(JobExecutionContext context, ScheduledRefreshConfiguration config,
-                                            Scheduler scheduler, int minCount) throws SchedulerException {
+            Scheduler scheduler, int minCount) throws SchedulerException {
         GroupMatcher<JobKey> matcher = GroupMatcher.jobGroupEquals(context.getJobDetail().getKey().getGroup());
-        for (Set<JobKey> queuedKeys = scheduler.getJobKeys(matcher); (!scheduler.isShutdown()) &&
-                (queuedKeys.size() > minCount); queuedKeys = scheduler.getJobKeys(matcher)) {
+        for (Set<JobKey> queuedKeys = scheduler.getJobKeys(matcher); (!scheduler.isShutdown())
+                && (queuedKeys.size() > minCount); queuedKeys = scheduler.getJobKeys(matcher)) {
             try {
                 Thread.sleep(config.getPollTimeMs());
             } catch (InterruptedException e) {
@@ -129,7 +128,7 @@ public class OverseerJob implements Job {
     }
 
     private void processKeys(JobExecutionContext context, ScheduledRefreshConfiguration config, final Ehcache cache,
-                             ScheduledRefreshKeyGenerator<Serializable> generator) throws JobExecutionException {
+            ScheduledRefreshKeyGenerator<Serializable> generator) throws JobExecutionException {
         ArrayList<Serializable> batch = new ArrayList<Serializable>(config.getBatchSize());
         for (Serializable key : generator.generateKeys(cache)) {
             batch.add(key);
@@ -155,7 +154,7 @@ public class OverseerJob implements Job {
     }
 
     private void process(JobExecutionContext context, Ehcache underlyingCache, ScheduledRefreshConfiguration config,
-                         List<Serializable> batch) throws SchedulerException {
+            List<Serializable> batch) throws SchedulerException {
 
         JobDataMap map = new JobDataMap(context.getJobDetail().getJobDataMap());
 
@@ -163,8 +162,10 @@ public class OverseerJob implements Job {
 
         Scheduler scheduler = context.getScheduler();
 
-        JobDetail job = JobBuilder.newJob(RefreshBatchJob.class).withIdentity("batch_" + INSTANCE_ID_GENERATOR
-                .incrementAndGet(), context.getTrigger().getJobKey().getGroup()).usingJobData(map).build();
+        JobDetail job = JobBuilder
+                .newJob(RefreshBatchJob.class)
+                .withIdentity("batch_" + INSTANCE_ID_GENERATOR.incrementAndGet(),
+                        context.getTrigger().getJobKey().getGroup()).usingJobData(map).build();
 
         waitForOutstandingJobCount(context, config, scheduler, config.getQuartzThreadCount());
 
@@ -179,8 +180,9 @@ public class OverseerJob implements Job {
     private ScheduledRefreshKeyGenerator<Serializable> makeGeneratorObject(String keyGeneratorClass) {
         try {
             Class<?> gen = Class.forName(keyGeneratorClass);
-            @SuppressWarnings ("unchecked") ScheduledRefreshKeyGenerator<Serializable> obj =
-                    (ScheduledRefreshKeyGenerator<Serializable>) gen.newInstance();
+            @SuppressWarnings("unchecked")
+            ScheduledRefreshKeyGenerator<Serializable> obj = (ScheduledRefreshKeyGenerator<Serializable>) gen
+                    .newInstance();
             return obj;
         } catch (ClassNotFoundException e) {
             LOG.warn("Unable to instantiate key generator class: " + keyGeneratorClass, e);
