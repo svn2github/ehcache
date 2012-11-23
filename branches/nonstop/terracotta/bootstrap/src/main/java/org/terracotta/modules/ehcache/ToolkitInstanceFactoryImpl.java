@@ -171,11 +171,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.timeoutMillis(nonstopConfiguration.getTimeoutMillis());
     TimeoutBehaviorConfiguration timeoutBehavior = nonstopConfiguration.getTimeoutBehavior();
     if (timeoutBehavior.equals(TimeoutBehaviorConfiguration.NOOP_TYPE_NAME)) {
-      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.NO_OP);
+      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.NO_OP,
+                                     NonStopConfigurationFields.NonStopTimeoutBehavior.NO_OP);
     } else if (timeoutBehavior.equals(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME)) {
-      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.LOCAL_READS);
+      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.LOCAL_READS,
+                                     NonStopConfigurationFields.NonStopTimeoutBehavior.NO_OP);
     } else if (timeoutBehavior.equals(TimeoutBehaviorConfiguration.EXCEPTION_TYPE_NAME)) {
-      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT);
+      builder.nonStopTimeoutBehavior(NonStopConfigurationFields.NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT,
+                                     NonStopConfigurationFields.NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT);
     }
     builder.apply(toolkit);
 
