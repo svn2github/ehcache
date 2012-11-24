@@ -251,8 +251,11 @@
             <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>META-INF/MANIFEST.MF</resource>
               <file>${project.build.directory}/MANIFEST.MF</file>
-            </transformer>          
-          </transformers>            
+            </transformer>  
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+              <resource>devmode-classdir.txt</resource>
+            </transformer>            
+          </transformers>             
         </configuration>
         <executions>
           <execution>

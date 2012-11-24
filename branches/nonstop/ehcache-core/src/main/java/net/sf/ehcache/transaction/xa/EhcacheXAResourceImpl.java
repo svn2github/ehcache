@@ -308,6 +308,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 Element e = underlyingStore.getQuiet(softLock.getKey());
                 if (e == null) {
                     // the element can be null if it was manually unpinned, see DEV-8308
+                    LOG.debug("soft lock ID with key '{}' is not present in underlying store, ignoring it", softLock.getKey());
                     continue;
                 }
                 SoftLockID softLockId = (SoftLockID)e.getObjectValue();
@@ -415,6 +416,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 Element e = underlyingStore.getQuiet(softLock.getKey());
                 if (e == null) {
                     // the element can be null if it was manually unpinned, see DEV-8308
+                    LOG.debug("soft lock ID with key '{}' is not present in underlying store, ignoring it", softLock.getKey());
                     continue;
                 }
                 SoftLockID softLockId = (SoftLockID)e.getObjectValue();
