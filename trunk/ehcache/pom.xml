@@ -29,6 +29,29 @@
     <module>management-ehcache-impl</module>
     <module>ehcache-scheduled-refresh</module>
   </modules>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.terracotta</groupId>
+        <artifactId>maven-forge-plugin</artifactId>
+        <version>${maven-forge-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>generateBuildInfoFile</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>buildinfo</goal>
+            </goals>
+            <configuration>
+              <generateBuildInfoFile>true</generateBuildInfoFile>
+              <buildInfoLocation>${project.build.outputDirectory}</buildInfoLocation>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>    
+    </plugins>
+  </build>
 
   <profiles>
     <profile>
