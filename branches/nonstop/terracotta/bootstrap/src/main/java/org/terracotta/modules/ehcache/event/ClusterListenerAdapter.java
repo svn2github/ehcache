@@ -43,6 +43,7 @@ public class ClusterListenerAdapter implements OutOfBandClusterListener {
         TerracottaNodeImpl oldNode = currentNode;
         currentNode = new TerracottaNodeImpl(event.getNode());
         topologyListener.clusterRejoined(oldNode, currentNode);
+        break;
     }
   }
 
