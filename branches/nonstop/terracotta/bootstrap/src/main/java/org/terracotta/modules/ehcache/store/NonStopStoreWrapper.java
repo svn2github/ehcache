@@ -128,7 +128,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   public Element unsafeGet(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
-      try {
+    try {
       nonStopManager.begin(getTimeOutInMillis());
       try {
         return this.delegate.unsafeGet(arg0);
@@ -137,7 +137,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
       } finally {
         nonStopManager.finish();
       }
-      } finally {
+    } finally {
       nonStopToolkitRegistry.deregisterForThread();
     }
   }
@@ -1287,21 +1287,22 @@ public class NonStopStoreWrapper implements TerracottaStore {
 
     @Override
     public NonStopTimeoutBehavior getImmutableOpNonStopTimeoutBehavior() {
-      return convertEhcacheBehaviorToToolkitBehavior();
+      return convertEhcacheBehaviorToToolkitBehavior(false);
     }
 
     @Override
     public NonStopTimeoutBehavior getMutableOpNonStopTimeoutBehavior() {
-      return convertEhcacheBehaviorToToolkitBehavior();
+      return convertEhcacheBehaviorToToolkitBehavior(true);
     }
 
-    protected NonStopTimeoutBehavior convertEhcacheBehaviorToToolkitBehavior() {
+    protected NonStopTimeoutBehavior convertEhcacheBehaviorToToolkitBehavior(boolean isMutateOp) {
       TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfig.getTimeoutBehavior();
       switch (behaviorConfiguration.getTimeoutBehaviorType()) {
         case EXCEPTION:
           return NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
         case LOCAL_READS:
-          return NonStopTimeoutBehavior.LOCAL_READS;
+          if (isMutateOp) return NonStopTimeoutBehavior.NO_OP;
+          else return NonStopTimeoutBehavior.LOCAL_READS;
         case NOOP:
           return NonStopTimeoutBehavior.NO_OP;
         default:
