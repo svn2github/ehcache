@@ -107,8 +107,6 @@ public interface ToolkitInstanceFactory {
   ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName, TransactionID transactionID,
                                                Object key);
 
-  void removeNonStopConfigforCache(Ehcache cache);
-
   NonStopManager getNonStopManager();
 
 }

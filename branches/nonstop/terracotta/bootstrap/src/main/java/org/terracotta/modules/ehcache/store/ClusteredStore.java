@@ -403,7 +403,6 @@ public class ClusteredStore implements TerracottaStore {
     backend.removeListener(evictionListener);
     backend.disposeLocally();
     cacheConfigChangeBridge.disconnectConfigs();
-    toolkitInstanceFactory.removeNonStopConfigforCache(cache);
   }
 
   @Override
