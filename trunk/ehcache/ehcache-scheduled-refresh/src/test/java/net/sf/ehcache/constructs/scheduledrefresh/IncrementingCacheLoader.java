@@ -1,18 +1,19 @@
 package net.sf.ehcache.constructs.scheduledrefresh;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.loader.CacheLoader;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 class IncrementingCacheLoader implements CacheLoader {
     private final int incrementalAmount;
     private boolean matchEvens;
-
+    private long msDelay=0L;
+    
     public IncrementingCacheLoader(boolean matchEvens, int inc) {
         this.incrementalAmount = inc;
         this.matchEvens = matchEvens;
@@ -21,6 +22,14 @@ class IncrementingCacheLoader implements CacheLoader {
     @Override
     public Map loadAll(Collection keys, Object argument) {
         return loadAll(keys);
+    }
+
+    public long getMsDelay() {
+        return msDelay;
+    }
+
+    public void setMsDelay(long msDelay) {
+        this.msDelay = msDelay;
     }
 
     @Override
@@ -43,6 +52,12 @@ class IncrementingCacheLoader implements CacheLoader {
 
     @Override
     public Object load(Object key) throws CacheException {
+        if(getMsDelay()>0L) {
+            try {
+                Thread.sleep(getMsDelay());
+            } catch (InterruptedException e) {
+            }
+        }
         if (key instanceof Number) {
             int ivalue = ((Number) key).intValue();
             if ((((ivalue & 0x01) != 0) && !matchEvens) || ((ivalue & 0x01) == 0) && matchEvens) {
