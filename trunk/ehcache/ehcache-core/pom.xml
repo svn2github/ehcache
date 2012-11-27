@@ -26,7 +26,6 @@
     <name>ehcache</name>
     <skipCheckstyle>false</skipCheckstyle>
     <skipJavadoc>false</skipJavadoc>
-    <build.timestamp>${maven.build.timestamp}</build.timestamp>
     <tests.supplemental.args/>
     <surefire.version>2.10</surefire.version>
   </properties>
@@ -503,11 +502,6 @@
         is used (for example git). Instead of getting the version build number from
         svn we will use the build date and the user name. -->
       <id>buildnumber-git</id>
-      <activation>
-        <file>
-          <missing>.svn</missing>
-        </file>
-      </activation>
       <build>
         <plugins>
           <plugin>
