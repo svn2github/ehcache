@@ -94,7 +94,6 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
     @After
     public void noReplicationThreads() throws Exception {
         RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Set<Thread>>() {
-            @Override
             public Set<Thread> call() throws Exception {
                 return getActiveReplicationThreads();
             }
