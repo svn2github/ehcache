@@ -45,7 +45,7 @@ public class ResultsImpl implements Results {
      * @param hasAttributes
      * @param hasAggregators
      */
-    public ResultsImpl(List<Result> results, boolean hasKeys, boolean hasValues, boolean hasAttributes, boolean hasAggregators) {
+    public ResultsImpl(List<? extends Result> results, boolean hasKeys, boolean hasValues, boolean hasAttributes, boolean hasAggregators) {
         this.hasKeys = hasKeys;
         this.hasValues = hasValues;
         this.hasAttributes = hasAttributes;
