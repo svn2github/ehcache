@@ -13,7 +13,6 @@ import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.search.QueryBuilder;
-import org.terracotta.toolkit.search.SearchExecutor;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
@@ -386,11 +385,6 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public SearchExecutor createSearchExecutor() {
-    return toolkitCache.createSearchExecutor();
-  }
-
-  @Override
   public QueryBuilder createQueryBuilder() {
     return toolkitCache.createQueryBuilder();
   }
@@ -465,4 +459,10 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   public void setAttributeExtractor(ToolkitAttributeExtractor extractor) {
     toolkitCache.setAttributeExtractor(extractor);
   }
+
+  @Override
+  public Map<K, V> unlockedGetAll(Collection<K> keys, boolean quiet) {
+    return quiet ? getAllQuiet(keys) : getAll(keys);
+  }
+
 }

@@ -26,7 +26,6 @@
     <name>ehcache</name>
     <skipCheckstyle>false</skipCheckstyle>
     <skipJavadoc>false</skipJavadoc>
-    <build.timestamp>${maven.build.timestamp}</build.timestamp>
     <tests.supplemental.args/>
     <surefire.version>2.10</surefire.version>
   </properties>
@@ -49,9 +48,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty.orbit</groupId>
-      <artifactId>javax.servlet</artifactId>
-      <version>3.0.0.v201112011016</version>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -503,11 +503,6 @@
         is used (for example git). Instead of getting the version build number from
         svn we will use the build date and the user name. -->
       <id>buildnumber-git</id>
-      <activation>
-        <file>
-          <missing>.svn</missing>
-        </file>
-      </activation>
       <build>
         <plugins>
           <plugin>

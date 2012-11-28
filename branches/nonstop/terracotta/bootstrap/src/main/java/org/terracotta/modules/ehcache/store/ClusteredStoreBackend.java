@@ -12,7 +12,6 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.search.QueryBuilder;
-import org.terracotta.toolkit.search.SearchExecutor;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 
 import java.io.Serializable;
@@ -44,16 +43,6 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
     try {
       return activeDelegate.putIfAbsent(key, value, createTimeInSecs, customMaxTTISeconds,
                                                     customMaxTTLSeconds);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public SearchExecutor createSearchExecutor() {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.createSearchExecutor();
     } finally {
       lock.readLock().unlock();
     }
@@ -610,5 +599,14 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
+  public Map<K, V> unlockedGetAll(Collection<K> keys, boolean quiet) {
+    lock.readLock().lock();
+    try {
+      return activeDelegate.unlockedGetAll(keys, quiet);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
 
 }

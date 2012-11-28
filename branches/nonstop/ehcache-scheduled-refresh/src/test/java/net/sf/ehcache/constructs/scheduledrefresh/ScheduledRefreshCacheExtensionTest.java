@@ -1,21 +1,21 @@
 package net.sf.ehcache.constructs.scheduledrefresh;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.loader.CacheLoader;
-import org.junit.Test;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import org.junit.Test;
 
 public class ScheduledRefreshCacheExtensionTest {
 
-    private static CacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
-    private static CacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
+    private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
+    private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
 
     private static void sleepySeconds(int secs) {
         sleepy(secs * 1000);
@@ -109,4 +109,41 @@ public class ScheduledRefreshCacheExtensionTest {
 
         manager.shutdown();
     }
+    
+    // OK. we want to create an ehcache, then programmitically decorate it with
+    // locks.
+    @Test
+    public void testPolling() {
+
+        CacheManager manager = new CacheManager();
+        manager.removalAll();
+
+        manager.addCache(new Cache(new CacheConfiguration().name("tt").eternal(true).maxEntriesLocalHeap(5000).overflowToDisk(false)));
+        Ehcache cache = manager.getEhcache("tt");
+        stupidCacheLoaderEvens.setMsDelay(100);
+        cache.registerCacheLoader(stupidCacheLoaderEvens);
+        cache.registerCacheLoader(stupidCacheLoaderOdds);
+
+        int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
+        ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(2).quartzThreadCount
+                (2).pollTimeMs(100).cronExpression(second + "/1 * * * * ?").build();
+        ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
+        cache.registerCacheExtension(cacheExtension);
+        cacheExtension.init();
+
+        final int ELEMENT_COUNT=50;
+        long[] orig=new long[ELEMENT_COUNT];
+        for (int i = 0; i < ELEMENT_COUNT; i++) {
+            Element elem = new  Element(new Integer(i), i + "");
+            orig[i]=elem.getCreationTime();
+            cache.put(elem);
+        }
+
+        sleepySeconds(20);
+
+        //cacheExtension.dispose();
+        manager.removalAll();
+        manager.shutdown();
+    }
+
 }
