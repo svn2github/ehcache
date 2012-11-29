@@ -614,7 +614,8 @@ public class CacheManager {
     public CacheEventListener createTerracottaEventReplicator(Ehcache cache) {
         CacheEventListener cacheEventListener = null;
         CacheConfiguration cacheConfig = cache.getCacheConfiguration();
-        if (cacheConfig.isTerracottaClustered() && cacheConfig.getTerracottaConfiguration().isNonstopEnabled()) {
+        // cleanUp disabled code
+        if (Boolean.valueOf("false") && cacheConfig.isTerracottaClustered() && cacheConfig.getTerracottaConfiguration().isNonstopEnabled()) {
             NonstopActiveDelegateHolder nonstopActiveDelegateHolder = getNonstopActiveDelegateHolder(cache);
             cacheEventListener = new NonstopCacheEventListener(nonstopActiveDelegateHolder);
         } else {
