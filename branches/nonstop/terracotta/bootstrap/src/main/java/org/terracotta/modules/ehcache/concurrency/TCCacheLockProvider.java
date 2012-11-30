@@ -7,7 +7,10 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.config.NonstopConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
 
+import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.store.ValueModeHandler;
 import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
@@ -21,16 +24,22 @@ public class TCCacheLockProvider implements CacheLockProvider {
 
   private final ToolkitCache     backend;
   private final ValueModeHandler         valueModeHandler;
-
-  public TCCacheLockProvider(ToolkitCache backend, ValueModeHandler valueModeHandler) {
+  private final NonstopConfiguration   nonStopConfiguration;
+  private final ToolkitInstanceFactory toolkitInstanceFactory;
+  public TCCacheLockProvider(ToolkitCache backend, ValueModeHandler valueModeHandler,
+                             ToolkitInstanceFactory toolkitInstanceFactory,
+                             TerracottaConfiguration terracottaConfiguration) {
     this.backend = backend;
     this.valueModeHandler = valueModeHandler;
+    this.nonStopConfiguration = terracottaConfiguration.getNonstopConfiguration();
+    this.toolkitInstanceFactory = toolkitInstanceFactory;
   }
 
   @Override
   public Sync getSyncForKey(Object key) {
     ToolkitReadWriteLock lock = createLock(key);
-    return new TCSync(lock.writeLock(), lock.readLock());
+    return new NonStopSyncWrapper(new TCSync(lock.writeLock(), lock.readLock()), toolkitInstanceFactory,
+                                  nonStopConfiguration);
   }
 
   private ToolkitReadWriteLock createLock(Object key) {

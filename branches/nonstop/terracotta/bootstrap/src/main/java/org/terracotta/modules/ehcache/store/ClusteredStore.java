@@ -96,8 +96,8 @@ public class ClusteredStore implements TerracottaStore {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
 
-    ConcurrentMap<String, Serializable> configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache.getCacheManager().getName(),
-                                                                          cache.getName());
+    ConcurrentMap<String, Serializable> configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache
+        .getCacheManager().getName(), cache.getName());
     CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
     if (transactionalModeTemp == null) {
       configMap.putIfAbsent(TRANSACTIONAL_MODE, ehcacheConfig.getTransactionalMode());
@@ -133,7 +133,8 @@ public class ClusteredStore implements TerracottaStore {
     registeredEventListeners = cache.getCacheEventNotificationService();
     evictionListener = new CacheEventListener();
     backend.addListener(evictionListener);
-    CacheLockProvider cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
+    CacheLockProvider cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler, toolkitInstanceFactory,
+                                                                  terracottaConfiguration);
     internalContext = new ClusteredCacheInternalContext(toolkitInstanceFactory.getToolkit(), cacheLockProvider);
   }
 
@@ -144,8 +145,7 @@ public class ClusteredStore implements TerracottaStore {
   private static CacheConfigChangeBridge createConfigChangeBridge(ToolkitInstanceFactory toolkitInstanceFactory,
                                                                   Ehcache ehcache,
                                                                   ToolkitCacheInternal<String, Serializable> cache) {
-    return new CacheConfigChangeBridge(ehcache, toolkitInstanceFactory.getFullyQualifiedCacheName(ehcache),
- cache,
+    return new CacheConfigChangeBridge(ehcache, toolkitInstanceFactory.getFullyQualifiedCacheName(ehcache), cache,
                                        toolkitInstanceFactory.getOrCreateConfigChangeNotifier(ehcache));
   }
 
@@ -645,8 +645,7 @@ public class ClusteredStore implements TerracottaStore {
     int customTTI = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToIdle();
     int customTTL = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToLive();
     if (checkContainsKeyOnPut) {
-      return backend.put(portableKey, value, creationTimeInSecs, customTTI, customTTL) == null ? true
-          : false;
+      return backend.put(portableKey, value, creationTimeInSecs, customTTI, customTTL) == null ? true : false;
     } else {
       backend.putNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
       return true;

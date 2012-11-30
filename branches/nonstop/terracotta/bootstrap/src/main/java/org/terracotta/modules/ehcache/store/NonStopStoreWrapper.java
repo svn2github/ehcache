@@ -8,7 +8,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
 import net.sf.ehcache.config.NonstopConfiguration;
-import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -23,8 +22,6 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.toolkit.internal.nonstop.NonStopManager;
-import org.terracotta.toolkit.nonstop.NonStopConfiguration;
-import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopTimeoutBehavior;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
 import org.terracotta.toolkit.nonstop.NonStopException;
 
@@ -40,7 +37,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
 
   private final NonStopManager               nonStopManager;
   private final TerracottaStore              delegate;
-  private final NonstopConfiguration         nonStopConfiguration;
   private final NonStopConfigurationRegistry nonStopToolkitRegistry;
   private final ToolkitNonStopConfiguration  toolkitNonStopConfiguration;
 
@@ -49,12 +45,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
     this.delegate = delegate;
     this.nonStopManager = toolkitInstanceFactory.getNonStopManager();
     this.nonStopToolkitRegistry = toolkitInstanceFactory.getToolkit().getNonStopToolkitRegistry();
-    this.nonStopConfiguration = nonStopConfiguration;
     this.toolkitNonStopConfiguration = new ToolkitNonStopConfiguration(nonStopConfiguration);
   }
 
   private long getTimeOutInMillis() {
-    return nonStopConfiguration.getTimeoutMillis();
+    return toolkitNonStopConfiguration.getTimeoutMillis();
   }
 
   public static void main(String[] args) {
@@ -230,14 +225,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean replace(Element arg0, Element arg1, ElementValueComparator arg2) throws NullPointerException,
-      IllegalArgumentException {
+  public Element replace(Element arg0) throws NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
     try {
       nonStopManager.begin(getTimeOutInMillis());
       try {
-        return this.delegate.replace(arg0, arg1, arg2);
+        return this.delegate.replace(arg0);
       } catch (NonStopException e) {
         throw new NonStopCacheException(e);
       } finally {
@@ -252,13 +246,14 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Element replace(Element arg0) throws NullPointerException {
+  public boolean replace(Element arg0, Element arg1, ElementValueComparator arg2) throws NullPointerException,
+      IllegalArgumentException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
     try {
       nonStopManager.begin(getTimeOutInMillis());
       try {
-        return this.delegate.replace(arg0);
+        return this.delegate.replace(arg0, arg1, arg2);
       } catch (NonStopException e) {
         throw new NonStopCacheException(e);
       } finally {
@@ -378,13 +373,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void removeAll() throws CacheException {
+  public void removeAll(Collection arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
     try {
       nonStopManager.begin(getTimeOutInMillis());
       try {
-        this.delegate.removeAll();
+        this.delegate.removeAll(arg0);
       } catch (NonStopException e) {
         throw new NonStopCacheException(e);
       } finally {
@@ -399,13 +394,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void removeAll(Collection arg0) {
+  public void removeAll() throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
     try {
       nonStopManager.begin(getTimeOutInMillis());
       try {
-        this.delegate.removeAll(arg0);
+        this.delegate.removeAll();
       } catch (NonStopException e) {
         throw new NonStopCacheException(e);
       } finally {
@@ -448,6 +443,27 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonStopManager.begin(getTimeOutInMillis());
       try {
         return this.delegate.putIfAbsent(arg0);
+      } catch (NonStopException e) {
+        throw new NonStopCacheException(e);
+      } finally {
+        nonStopManager.finish();
+      }
+    } finally {
+      nonStopToolkitRegistry.deregisterForThread();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Object getInternalContext() {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
+    try {
+      nonStopManager.begin(getTimeOutInMillis());
+      try {
+        return this.delegate.getInternalContext();
       } catch (NonStopException e) {
         throw new NonStopCacheException(e);
       } finally {
@@ -616,27 +632,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonStopManager.begin(getTimeOutInMillis());
       try {
         this.delegate.recalculateSize(arg0);
-      } catch (NonStopException e) {
-        throw new NonStopCacheException(e);
-      } finally {
-        nonStopManager.finish();
-      }
-    } finally {
-      nonStopToolkitRegistry.deregisterForThread();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Object getInternalContext() {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
-    try {
-      nonStopManager.begin(getTimeOutInMillis());
-      try {
-        return this.delegate.getInternalContext();
       } catch (NonStopException e) {
         throw new NonStopCacheException(e);
       } finally {
@@ -1276,54 +1271,5 @@ public class NonStopStoreWrapper implements TerracottaStore {
     } finally {
       nonStopToolkitRegistry.deregisterForThread();
     }
-  }
-
-  private static class ToolkitNonStopConfiguration implements NonStopConfiguration {
-    private final NonstopConfiguration ehcacheNonStopConfig;
-
-    ToolkitNonStopConfiguration(final NonstopConfiguration ehcacheNonStopConfig) {
-      this.ehcacheNonStopConfig = ehcacheNonStopConfig;
-    }
-
-    @Override
-    public NonStopTimeoutBehavior getImmutableOpNonStopTimeoutBehavior() {
-      return convertEhcacheBehaviorToToolkitBehavior(false);
-    }
-
-    @Override
-    public NonStopTimeoutBehavior getMutableOpNonStopTimeoutBehavior() {
-      return convertEhcacheBehaviorToToolkitBehavior(true);
-    }
-
-    protected NonStopTimeoutBehavior convertEhcacheBehaviorToToolkitBehavior(boolean isMutateOp) {
-      TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfig.getTimeoutBehavior();
-      switch (behaviorConfiguration.getTimeoutBehaviorType()) {
-        case EXCEPTION:
-          return NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
-        case LOCAL_READS:
-          if (isMutateOp) return NonStopTimeoutBehavior.NO_OP;
-          else return NonStopTimeoutBehavior.LOCAL_READS;
-        case NOOP:
-          return NonStopTimeoutBehavior.NO_OP;
-        default:
-          return NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
-      }
-    }
-
-    @Override
-    public long getTimeoutMillis() {
-      return ehcacheNonStopConfig.getTimeoutMillis();
-    }
-
-    @Override
-    public boolean isEnabled() {
-      return ehcacheNonStopConfig.isEnabled();
-    }
-
-    @Override
-    public boolean isImmediateTimeoutEnabled() {
-      return ehcacheNonStopConfig.isImmediateTimeout();
-    }
-
   }
 }
