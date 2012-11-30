@@ -49,14 +49,13 @@ public class FailoverToOutOfSyncPassivesTest extends AbstractTerracottaActivePas
 
       final AtomicBoolean running = new AtomicBoolean(true);
 
-      final int max = cache.getCacheConfiguration().getMaxEntriesInCache();
       Thread putter = new Thread(new Runnable() {
         @Override
         public void run() {
           int idx = 0;
 
-          while (running.get() && idx++ < max) {
-            cache.put(new Element("key-" + idx, new byte[1024]));
+          while (running.get()) {
+            cache.put(new Element("key-" + idx++, new byte[1024]));
           }
         }
       });

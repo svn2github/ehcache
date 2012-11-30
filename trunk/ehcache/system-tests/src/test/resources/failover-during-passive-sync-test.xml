@@ -7,7 +7,7 @@
       eternal="true"/>
 
   <cache name="test"
-         maxElementsInMemory="20000"
+         maxEntriesInCache="0"
          eternal="true">
 
          <terracotta concurrency="256" clustered="true" consistency="strong"/>
