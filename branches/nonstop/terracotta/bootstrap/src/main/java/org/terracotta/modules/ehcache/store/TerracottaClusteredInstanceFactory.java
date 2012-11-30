@@ -89,12 +89,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   public final Store createStore(Ehcache cache) {
     NonstopConfiguration nonstopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
         .getNonstopConfiguration();
-    if (nonstopConfiguration.isEnabled()) {
-      return new ClusteredSafeStore(new NonStopStoreWrapper(newStore(cache), toolkitInstanceFactory,
-                                                            nonstopConfiguration));
-    } else {
-      return new ClusteredSafeStore(newStore(cache));
-    }
+    return new ClusteredSafeStore(
+                                  new NonStopStoreWrapper(newStore(cache), toolkitInstanceFactory, nonstopConfiguration));
   }
 
   /**
