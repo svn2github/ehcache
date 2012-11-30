@@ -27,7 +27,9 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
+import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.nonstop.NonStopManager;
 import org.terracotta.toolkit.internal.store.ToolkitCacheConfigBuilderInternal;
 import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
@@ -95,7 +97,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
-    final Configuration clusteredCacheConfig = createClusteredMapConfig(new ToolkitCacheConfigBuilderInternal(), cache);
+    final Configuration clusteredCacheConfig = createClusteredCacheConfig(cache);
     return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cache),
                                                                          clusteredCacheConfig, Serializable.class);
   }
@@ -112,7 +114,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                CacheEventNotificationMsg.class);
   }
 
-  private static Configuration createClusteredMapConfig(ToolkitCacheConfigBuilderInternal builder, Ehcache cache) {
+  private static Configuration createClusteredCacheConfig(Ehcache cache) {
+    ToolkitCacheConfigBuilderInternal builder = new ToolkitCacheConfigBuilderInternal();
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
@@ -353,5 +356,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       return file.exists() && file.isFile();
     }
 
+  }
+
+  @Override
+  public NonStopManager getNonStopManager() {
+    return ((ToolkitInternal) toolkit).getNonStopManager();
   }
 }

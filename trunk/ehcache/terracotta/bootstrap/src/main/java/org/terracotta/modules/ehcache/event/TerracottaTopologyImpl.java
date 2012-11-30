@@ -88,11 +88,11 @@ public class TerracottaTopologyImpl implements CacheCluster {
   }
 
   private void addInternal(ClusterTopologyListener listener) {
-    cluster.addClusterListener(new ClusterListenerAdapter(listener));
+    cluster.addClusterListener(new ClusterListenerAdapter(listener, cluster));
   }
 
   private void removeInternal(ClusterTopologyListener listener) {
-    cluster.removeClusterListener(new ClusterListenerAdapter(listener));
+    cluster.removeClusterListener(new ClusterListenerAdapter(listener, cluster));
   }
 
   @Override

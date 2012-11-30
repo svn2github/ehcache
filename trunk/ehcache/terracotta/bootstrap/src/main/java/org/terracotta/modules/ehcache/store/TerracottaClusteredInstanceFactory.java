@@ -6,6 +6,7 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
@@ -86,7 +87,10 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public final Store createStore(Ehcache cache) {
-    return new ClusteredSafeStore(newStore(cache));
+    NonstopConfiguration nonstopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
+        .getNonstopConfiguration();
+    return new ClusteredSafeStore(
+                                  new NonStopStoreWrapper(newStore(cache), toolkitInstanceFactory, nonstopConfiguration));
   }
 
   /**

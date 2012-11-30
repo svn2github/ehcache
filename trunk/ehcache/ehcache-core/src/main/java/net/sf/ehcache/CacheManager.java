@@ -614,7 +614,8 @@ public class CacheManager {
     public CacheEventListener createTerracottaEventReplicator(Ehcache cache) {
         CacheEventListener cacheEventListener = null;
         CacheConfiguration cacheConfig = cache.getCacheConfiguration();
-        if (cacheConfig.isTerracottaClustered() && cacheConfig.getTerracottaConfiguration().isNonstopEnabled()) {
+        // cleanUp disabled code
+        if (Boolean.valueOf("false") && cacheConfig.isTerracottaClustered() && cacheConfig.getTerracottaConfiguration().isNonstopEnabled()) {
             NonstopActiveDelegateHolder nonstopActiveDelegateHolder = getNonstopActiveDelegateHolder(cache);
             cacheEventListener = new NonstopCacheEventListener(nonstopActiveDelegateHolder);
         } else {
@@ -1304,7 +1305,7 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
-        if (runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
+        if ((Boolean.valueOf(false)) && runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
             NonstopConfiguration nsCfg = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
             final long timeoutMillis = nsCfg.getTimeoutMillis() * nsCfg.getBulkOpsTimeoutMultiplyFactor();
             try {

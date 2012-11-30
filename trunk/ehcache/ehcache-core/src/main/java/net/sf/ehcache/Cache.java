@@ -1044,10 +1044,10 @@ public class Cache implements InternalEhcache, StoreListener {
                         && getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
                 if (!cachePinned && getCacheConfiguration().getMaxEntriesInCache() == 0) {
                     LOG.warn("Performance may degrade and server could run out of space!\nThe distributed cache {} has " +
-                             "maxEntriesInCache set to zero. Setting maxEntriesInCache to zero prevents eviction of its " + 
+                             "maxEntriesInCache set to zero. Setting maxEntriesInCache to zero prevents eviction of its " +
                              "elements from the Terracotta Server Array. To avoid this, set maxEntriesInCache to a " +
                              "non-zero value or remove the attribute.", getName());
-                                      
+
                 }
                 Store tempStore = cacheManager.createTerracottaStore(this);
                 if (!(tempStore instanceof TerracottaStore)) {
@@ -1068,7 +1068,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 if (nonstopConfig != null) {
                     nonstopConfig.freezeConfig();
                 }
-                if (getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
+                // TODO : cleanUp nonstop
+                if ((0 == 1) && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
                     nonstopActiveDelegateHolder.terracottaStoreInitialized(terracottaStore);
                     store = nonstopActiveDelegateHolder.getNonstopStore();
                 } else {
