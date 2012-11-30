@@ -69,6 +69,9 @@ public class NonStopSyncWrapper implements Sync {
 
         out.println(" {");
         out.println("    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!");
+
+        out.println("    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);");
+        out.println("    try {");
         out.println("    if (!toolkitNonStopConfiguration.isEnabled()) {");
         out.print("        ");
         if (m.getReturnType() != Void.TYPE) {
@@ -82,10 +85,8 @@ public class NonStopSyncWrapper implements Sync {
           }
         }
         out.println(");");
-        out.println("    } else {");
 
-        out.println("    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);");
-        out.println("    try {");
+        out.println("    } else {");
         out.println("      nonStopManager.begin(getTimeOutInMillis());");
         out.println("      try {");
 
@@ -106,11 +107,12 @@ public class NonStopSyncWrapper implements Sync {
         out.println("      } finally {");
         out.println("        nonStopManager.finish();");
         out.println("      }");
+        out.println("}");
         out.println("    } finally {");
         out.println("    nonStopToolkitRegistry.deregisterForThread();");
         out.println(" }");
+
         out.println(" }");
-        out.println("}");
         out.println("");
       }
     }
@@ -122,11 +124,11 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public void lock(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    if (!toolkitNonStopConfiguration.isEnabled()) {
-      this.delegate.lock(arg0);
-    } else {
-      nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
-      try {
+    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
+    try {
+      if (!toolkitNonStopConfiguration.isEnabled()) {
+        this.delegate.lock(arg0);
+      } else {
         nonStopManager.begin(getTimeOutInMillis());
         try {
           this.delegate.lock(arg0);
@@ -135,9 +137,9 @@ public class NonStopSyncWrapper implements Sync {
         } finally {
           nonStopManager.finish();
         }
-      } finally {
-        nonStopToolkitRegistry.deregisterForThread();
       }
+    } finally {
+      nonStopToolkitRegistry.deregisterForThread();
     }
   }
 
@@ -147,11 +149,11 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public void unlock(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    if (!toolkitNonStopConfiguration.isEnabled()) {
-      this.delegate.unlock(arg0);
-    } else {
-      nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
-      try {
+    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
+    try {
+      if (!toolkitNonStopConfiguration.isEnabled()) {
+        this.delegate.unlock(arg0);
+      } else {
         nonStopManager.begin(getTimeOutInMillis());
         try {
           this.delegate.unlock(arg0);
@@ -160,9 +162,9 @@ public class NonStopSyncWrapper implements Sync {
         } finally {
           nonStopManager.finish();
         }
-      } finally {
-        nonStopToolkitRegistry.deregisterForThread();
       }
+    } finally {
+      nonStopToolkitRegistry.deregisterForThread();
     }
   }
 
@@ -172,11 +174,11 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public boolean tryLock(LockType arg0, long arg1) throws InterruptedException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    if (!toolkitNonStopConfiguration.isEnabled()) {
-      return this.delegate.tryLock(arg0, arg1);
-    } else {
-      nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
-      try {
+    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
+    try {
+      if (!toolkitNonStopConfiguration.isEnabled()) {
+        return this.delegate.tryLock(arg0, arg1);
+      } else {
         nonStopManager.begin(getTimeOutInMillis());
         try {
           return this.delegate.tryLock(arg0, arg1);
@@ -185,9 +187,9 @@ public class NonStopSyncWrapper implements Sync {
         } finally {
           nonStopManager.finish();
         }
-      } finally {
-        nonStopToolkitRegistry.deregisterForThread();
       }
+    } finally {
+      nonStopToolkitRegistry.deregisterForThread();
     }
   }
 
@@ -197,11 +199,11 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public boolean isHeldByCurrentThread(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    if (!toolkitNonStopConfiguration.isEnabled()) {
-      return this.delegate.isHeldByCurrentThread(arg0);
-    } else {
-      nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
-      try {
+    nonStopToolkitRegistry.registerForThread(toolkitNonStopConfiguration);
+    try {
+      if (!toolkitNonStopConfiguration.isEnabled()) {
+        return this.delegate.isHeldByCurrentThread(arg0);
+      } else {
         nonStopManager.begin(getTimeOutInMillis());
         try {
           return this.delegate.isHeldByCurrentThread(arg0);
@@ -210,9 +212,9 @@ public class NonStopSyncWrapper implements Sync {
         } finally {
           nonStopManager.finish();
         }
-      } finally {
-        nonStopToolkitRegistry.deregisterForThread();
       }
+    } finally {
+      nonStopToolkitRegistry.deregisterForThread();
     }
   }
 
