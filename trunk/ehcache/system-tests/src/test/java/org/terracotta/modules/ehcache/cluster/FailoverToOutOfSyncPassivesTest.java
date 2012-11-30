@@ -8,15 +8,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
 
 import org.junit.Assert;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.objectserver.core.api.ServerConfigurationContext;
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.concurrent.ThreadUtil;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class FailoverToOutOfSyncPassivesTest extends AbstractTerracottaActivePassiveTestBase {
 
@@ -48,12 +47,16 @@ public class FailoverToOutOfSyncPassivesTest extends AbstractTerracottaActivePas
       info("Waiting until the passives are synced up.");
       getTestControlMbean().waitUntilPassiveStandBy(0);
 
-      final AtomicInteger keyIndex = new AtomicInteger();
       final AtomicBoolean running = new AtomicBoolean(true);
+
+      final int max = cache.getCacheConfiguration().getMaxEntriesInCache();
       Thread putter = new Thread(new Runnable() {
+        @Override
         public void run() {
-          while (running.get()) {
-            cache.put(new Element("key-" + keyIndex.incrementAndGet(), new byte[1024]));
+          int idx = 0;
+
+          while (running.get() && idx++ < max) {
+            cache.put(new Element("key-" + idx, new byte[1024]));
           }
         }
       });
@@ -71,7 +74,8 @@ public class FailoverToOutOfSyncPassivesTest extends AbstractTerracottaActivePas
       info("Killing active server.");
       getTestControlMbean().crashActiveServer(0);
 
-      for (int i = 1; i < keyIndex.get(); i++) {
+      int size = cache.getSize();
+      for (int i = 0; i < size; i++) {
         Assert.assertNotNull(cache.get("key-" + i));
       }
     }
