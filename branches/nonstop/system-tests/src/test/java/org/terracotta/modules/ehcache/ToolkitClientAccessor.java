@@ -18,11 +18,7 @@ public class ToolkitClientAccessor {
     if (cacheConfiguration.isTerracottaClustered()) {
       CacheAccessor storeAccessor = CacheAccessor.newCacheAccessor(cache);
       Store store = null;
-      if (isNonStopEnabled(cacheConfiguration)) {
-        store = storeAccessor.getNonstopActiveDelegateHolder().getUnderlyingTerracottaStore();
-      } else {
-        store = storeAccessor.getStore();
-      }
+      store = storeAccessor.getStore();
       Object internalContext = store.getInternalContext();
       if (internalContext instanceof ToolkitLookup) {
         return ((ToolkitLookup) internalContext).getToolkit();
