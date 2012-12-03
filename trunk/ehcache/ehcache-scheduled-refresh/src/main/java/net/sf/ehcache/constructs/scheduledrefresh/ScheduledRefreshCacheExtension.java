@@ -33,7 +33,6 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.simpl.RAMJobStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.quartz.TerracottaJobStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -225,7 +224,8 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
         if (config.getTerracottaConfigUrl() != null) {
             this.isLocalJobStore = false;
             props.put(PROP_QUARTZ_JOB_STORE_TC_CONFIG_URL, config.getTerracottaConfigUrl());
-            props.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, TerracottaJobStore.class.getName());
+            throw new UnsupportedOperationException("Terracotta Job Store not supported");
+            //props.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, TerracottaJobStore.class.getName());
         } else {
             this.isLocalJobStore = true;
             props.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, RAMJobStore.class.getName());
