@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>management-ehcache-impl-parent</artifactId>
+    <version>2.7.0-TP2</version>
+    <relativePath>..</relativePath>
+  </parent>  
+
+  <groupId>net.sf.ehcache.internal</groupId>
+  <artifactId>ehcache-rest-agent</artifactId>
+  <name>ehcache-rest-agent</name>
+
+  <description>Ehcache REST implementation</description>
+
+  <properties>
+    <private-classpath>rest-management-private-classpath</private-classpath>
+    <private-class-suffix>.class_terracotta</private-class-suffix>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>management-ehcache-impl</artifactId>
+      <version>${project.version}</version>      
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>8.1.7.v20120910</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.6</version>
+        <configuration>
+          <shadedArtifactAttached>false</shadedArtifactAttached>
+          <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+          <artifactSet>
+            <excludes>
+              <!-- excludes already existing classes in the main classpath -->
+              <exclude>org.slf4j:*</exclude>
+            </excludes>
+          </artifactSet>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>                                       
+              </excludes>
+            </filter>            
+          </filters>          
+          <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+              <resource>devmode-classdir.txt</resource>
+            </transformer>               
+          </transformers>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.gmaven</groupId>
+        <artifactId>gmaven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>fix-content</id>
+            <phase>package</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <scriptpath>
+                <element>${basedir}/src/scripts</element>
+              </scriptpath>            
+              <source>
+                import Util
+                Util.packageAgentJar(project)
+              </source>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </repository>  
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </pluginRepository>  
+    <pluginRepository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </pluginRepository>
+  </pluginRepositories>    
+</project>
