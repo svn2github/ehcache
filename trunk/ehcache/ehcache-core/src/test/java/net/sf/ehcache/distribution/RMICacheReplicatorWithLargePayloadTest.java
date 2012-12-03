@@ -221,7 +221,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
             CacheManagerPeerProvider provider = manager.getCacheManagerPeerProvider("RMI");
             for (String cacheName : manager.getCacheNames()) {
                 List remotePeersOfCache1 = provider.listRemoteCachePeers(manager.getCache(cacheName));
-                assertThat(remotePeersOfCache1, hasSize(2));
+                assertThat((List<?>) remotePeersOfCache1, hasSize(2));
             }
         } finally {
             destroyCluster(cluster);

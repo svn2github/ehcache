@@ -20,7 +20,6 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.nonstop.NonStopManager;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -106,7 +105,4 @@ public interface ToolkitInstanceFactory {
 
   ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName, TransactionID transactionID,
                                                Object key);
-
-  NonStopManager getNonStopManager();
-
 }
