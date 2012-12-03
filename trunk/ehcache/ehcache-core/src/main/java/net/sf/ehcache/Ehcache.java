@@ -25,7 +25,6 @@ import java.util.Map;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
-import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.exceptionhandler.CacheExceptionHandler;
 import net.sf.ehcache.extension.CacheExtension;

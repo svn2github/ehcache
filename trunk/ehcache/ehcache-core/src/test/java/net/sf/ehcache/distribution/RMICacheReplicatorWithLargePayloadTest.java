@@ -17,17 +17,17 @@
 package net.sf.ehcache.distribution;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
-import static org.hamcrest.collection.IsCollectionWithSize.*;
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.core.IsNull.*;
-import static org.hamcrest.number.OrderingComparison.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sf.ehcache.AbstractCacheTest;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -100,7 +99,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
             }
         }, IsEmptyCollection.<Thread>empty());
     }
-    
+
     private static List<CacheManager> createCluster(int size, String ... caches){
         LOG.info("Creating Cluster");
         Collection<String> required = Arrays.asList(caches);
@@ -159,7 +158,7 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
             }
 
             cluster.add(new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-big-payload-4.xml"));
-            
+
             List<CachePeer> localPeers = cluster.get(3).getCachePeerListener("RMI").getBoundCachePeers();
             List<byte[]> payloadList = PayloadUtil.createCompressedPayloadList(localPeers, 150);
             assertThat(payloadList, hasSize(greaterThan(1)));
@@ -217,16 +216,16 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
 
             //Drop a CacheManager from the cluster
             cluster.remove(2).shutdown();
-            
+
             //Insufficient time for it to timeout
             CacheManagerPeerProvider provider = manager.getCacheManagerPeerProvider("RMI");
             for (String cacheName : manager.getCacheNames()) {
                 List remotePeersOfCache1 = provider.listRemoteCachePeers(manager.getCache(cacheName));
-                assertThat((List<?>) remotePeersOfCache1, hasSize(2));
+                assertThat(remotePeersOfCache1, hasSize(2));
             }
         } finally {
             destroyCluster(cluster);
-        }        
+        }
     }
 
     /**
@@ -265,6 +264,6 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
         } finally {
             destroyCluster(cluster);
         }
-        
+
     }
 }

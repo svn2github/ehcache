@@ -1,16 +1,15 @@
 package net.sf.ehcache.constructs.refreshahead;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CacheLoaderFactory;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 public class NullLoaderFactory extends CacheLoaderFactory {
 

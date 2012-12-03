@@ -18,9 +18,6 @@ package net.sf.ehcache.config.nonstop;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.Collection;
 
 import junit.framework.TestCase;
