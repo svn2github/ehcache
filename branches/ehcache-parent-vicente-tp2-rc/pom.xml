@@ -5,7 +5,7 @@
   <groupId>net.sf.ehcache</groupId>
   <artifactId>ehcache-parent</artifactId>
   <packaging>pom</packaging>
-  <version>2.4-SNAPSHOT</version>
+  <version>2.4-TP2</version>
 
   <name>Ehcache Parent</name>
   <description>Ehcache is a widely used, pure Java, in-process, distributed cache</description>
@@ -24,7 +24,7 @@
 
     <checkstyle-groupId>org.terracotta.checkstyle</checkstyle-groupId>
     <checkstyle-artifactId>terracotta-checkstyle</checkstyle-artifactId>
-    <checkstyle-version>1.0-SNAPSHOT</checkstyle-version>
+    <checkstyle-version>1.0-TP2</checkstyle-version>
     <checkstyle-suppressions-file>${basedir}/checkstyle/suppressions.xml</checkstyle-suppressions-file>
     <checkstyle-config-file>checkstyle.xml</checkstyle-config-file>
     <checkstyle-header-file>header.txt</checkstyle-header-file>
