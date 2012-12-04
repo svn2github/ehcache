@@ -17,12 +17,12 @@ public class ToolkitNonStopConfiguration implements NonStopConfiguration {
   }
 
   @Override
-  public NonStopConfigurationFields.NonStopReadTimeoutBehavior getImmutableOpNonStopTimeoutBehavior() {
+  public NonStopConfigurationFields.NonStopReadTimeoutBehavior getReadOpNonStopTimeoutBehavior() {
     return convertEhcacheBehaviorToToolkitReadBehavior();
   }
 
   @Override
-  public NonStopConfigurationFields.NonStopWriteTimeoutBehavior getMutableOpNonStopTimeoutBehavior() {
+  public NonStopConfigurationFields.NonStopWriteTimeoutBehavior getWriteOpNonStopTimeoutBehavior() {
     return convertEhcacheBehaviorToToolkitWriteBehavior();
   }
 

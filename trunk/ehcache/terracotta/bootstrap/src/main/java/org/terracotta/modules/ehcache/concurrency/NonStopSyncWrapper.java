@@ -24,7 +24,7 @@ public class NonStopSyncWrapper implements Sync {
   public NonStopSyncWrapper(Sync delegate, ToolkitInstanceFactory toolkitInstanceFactory,
                             NonstopConfiguration nonStopConfiguration) {
     this.delegate = delegate;
-    this.nonStopToolkit = toolkitInstanceFactory.getToolkit().asNonStopToolkit();
+    this.nonStopToolkit = ((NonStopToolkit) toolkitInstanceFactory.getToolkit());
     this.toolkitNonStopConfiguration = new ToolkitNonStopConfiguration(nonStopConfiguration);
   }
 
@@ -61,7 +61,7 @@ public class NonStopSyncWrapper implements Sync {
 
         out.println(" {");
         out.println("    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!");
-        out.println("      nonStopToolkit.begin(toolkitNonStopConfiguration);");
+        out.println("      nonStopToolkit.start(toolkitNonStopConfiguration);");
         out.println("      try {");
 
         out.print("        ");
@@ -79,7 +79,7 @@ public class NonStopSyncWrapper implements Sync {
         out.println("      } catch (NonStopException e) {");
         out.println("        throw new NonStopCacheException(e);");
         out.println("      } finally {");
-        out.println("        nonStopToolkit.finish();");
+        out.println("        nonStopToolkit.stop();");
         out.println("      }");
         out.println("}");
         out.println("");
@@ -93,13 +93,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public void lock(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.begin(toolkitNonStopConfiguration);
+    nonStopToolkit.start(toolkitNonStopConfiguration);
     try {
       this.delegate.lock(arg0);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.finish();
+      nonStopToolkit.stop();
     }
   }
 
@@ -109,13 +109,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public void unlock(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.begin(toolkitNonStopConfiguration);
+    nonStopToolkit.start(toolkitNonStopConfiguration);
     try {
       this.delegate.unlock(arg0);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.finish();
+      nonStopToolkit.stop();
     }
   }
 
@@ -125,13 +125,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public boolean tryLock(LockType arg0, long arg1) throws InterruptedException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.begin(toolkitNonStopConfiguration);
+    nonStopToolkit.start(toolkitNonStopConfiguration);
     try {
       return this.delegate.tryLock(arg0, arg1);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.finish();
+      nonStopToolkit.stop();
     }
   }
 
@@ -141,13 +141,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public boolean isHeldByCurrentThread(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.begin(toolkitNonStopConfiguration);
+    nonStopToolkit.start(toolkitNonStopConfiguration);
     try {
       return this.delegate.isHeldByCurrentThread(arg0);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.finish();
+      nonStopToolkit.stop();
     }
   }
 }
