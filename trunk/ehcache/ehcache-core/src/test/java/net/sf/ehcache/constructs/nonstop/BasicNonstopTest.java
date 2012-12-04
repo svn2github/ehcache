@@ -25,12 +25,14 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonstopTestUtil.EhcacheMethodsInvoker;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 @RunWith(value = MockitoJUnitRunner.class)
 public class BasicNonstopTest extends TestCase {
 
