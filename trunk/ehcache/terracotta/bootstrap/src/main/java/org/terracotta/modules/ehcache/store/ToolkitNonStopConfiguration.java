@@ -7,7 +7,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 
 import org.terracotta.toolkit.nonstop.NonStopConfiguration;
-import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopTimeoutBehavior;
+import org.terracotta.toolkit.nonstop.NonStopConfigurationFields;
 
 public class ToolkitNonStopConfiguration implements NonStopConfiguration {
   private final NonstopConfiguration ehcacheNonStopConfig;
@@ -17,27 +17,40 @@ public class ToolkitNonStopConfiguration implements NonStopConfiguration {
   }
 
   @Override
-  public NonStopTimeoutBehavior getImmutableOpNonStopTimeoutBehavior() {
-    return convertEhcacheBehaviorToToolkitBehavior(false);
+  public NonStopConfigurationFields.NonStopReadTimeoutBehavior getImmutableOpNonStopTimeoutBehavior() {
+    return convertEhcacheBehaviorToToolkitReadBehavior();
   }
 
   @Override
-  public NonStopTimeoutBehavior getMutableOpNonStopTimeoutBehavior() {
-    return convertEhcacheBehaviorToToolkitBehavior(true);
+  public NonStopConfigurationFields.NonStopWriteTimeoutBehavior getMutableOpNonStopTimeoutBehavior() {
+    return convertEhcacheBehaviorToToolkitWriteBehavior();
   }
 
-  protected NonStopTimeoutBehavior convertEhcacheBehaviorToToolkitBehavior(boolean isMutateOp) {
+  private NonStopConfigurationFields.NonStopReadTimeoutBehavior convertEhcacheBehaviorToToolkitReadBehavior() {
     TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfig.getTimeoutBehavior();
     switch (behaviorConfiguration.getTimeoutBehaviorType()) {
       case EXCEPTION:
-        return NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
       case LOCAL_READS:
-        if (isMutateOp) return NonStopTimeoutBehavior.NO_OP;
-        else return NonStopTimeoutBehavior.LOCAL_READS;
+        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.LOCAL_READS;
       case NOOP:
-        return NonStopTimeoutBehavior.NO_OP;
+        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.NO_OP;
       default:
-        return NonStopTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+    }
+  }
+
+  private NonStopConfigurationFields.NonStopWriteTimeoutBehavior convertEhcacheBehaviorToToolkitWriteBehavior() {
+    TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfig.getTimeoutBehavior();
+    switch (behaviorConfiguration.getTimeoutBehaviorType()) {
+      case EXCEPTION:
+        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+      case LOCAL_READS:
+        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.NO_OP;
+      case NOOP:
+        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.NO_OP;
+      default:
+        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
     }
   }
 
