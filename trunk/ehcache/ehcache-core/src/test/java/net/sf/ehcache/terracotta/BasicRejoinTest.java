@@ -42,12 +42,14 @@ import net.sf.ehcache.constructs.nonstop.ThreadDump;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
 import net.sf.ehcache.terracotta.TestRejoinStore.StoreAction;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class BasicRejoinTest extends TestCase {
 
