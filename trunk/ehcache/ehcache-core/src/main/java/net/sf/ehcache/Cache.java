@@ -16,6 +16,37 @@
 
 package net.sf.ehcache;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -37,11 +68,7 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
-import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
 import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonstopException;
-import net.sf.ehcache.constructs.nonstop.store.NonstopStoreImpl;
-import net.sf.ehcache.constructs.nonstop.store.RejoinAwareNonstopStore;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -103,39 +130,9 @@ import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterFactory;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.CacheWriterManagerException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -281,8 +278,6 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private volatile ElementValueComparator elementValueComparator;
 
-    private volatile NonstopActiveDelegateHolderImpl nonstopActiveDelegateHolder;
-
     private volatile EhcacheXAResource xaResource;
 
     /**
@@ -352,7 +347,6 @@ public class Cache implements InternalEhcache, StoreListener {
         registerCacheLoaders(configuration, this);
         registerCacheWriter(configuration, this);
 
-        this.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(this);
     }
 
 
@@ -1068,13 +1062,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 if (nonstopConfig != null) {
                     nonstopConfig.freezeConfig();
                 }
-                // TODO : cleanUp nonstop
-                if ((0 == 1) && getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
-                    nonstopActiveDelegateHolder.terracottaStoreInitialized(terracottaStore);
-                    store = nonstopActiveDelegateHolder.getNonstopStore();
-                } else {
-                    store = terracottaStore;
-                }
+                store = terracottaStore;
             } else {
                 FeaturesManager featuresManager = cacheManager.getFeaturesManager();
                 if (featuresManager == null) {
@@ -2489,10 +2477,6 @@ public class Cache implements InternalEhcache, StoreListener {
 
         // null the lockProvider too explicitly to help gc
         lockProvider = null;
-
-        if (cacheManager != null) {
-            cacheManager.getCacheRejoinAction().unregister(this);
-        }
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 
@@ -2822,7 +2806,6 @@ public class Cache implements InternalEhcache, StoreListener {
         copy.elementValueComparator = copy.configuration.getElementValueComparatorConfiguration()
             .createElementComparatorInstance(copy.configuration);
         copy.propertyChangeSupport = new PropertyChangeSupport(copy);
-        copy.nonstopActiveDelegateHolder = new NonstopActiveDelegateHolderImpl(copy);
         copy.cacheWriterManagerInitFlag = new AtomicBoolean(false);
         copy.cacheWriterManagerInitLock = new ReentrantLock();
         for (PropertyChangeListener propertyChangeListener : propertyChangeSupport.getPropertyChangeListeners()) {
@@ -3117,11 +3100,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public void setCacheManager(CacheManager cacheManager) {
         CacheManager oldValue = getCacheManager();
-        if (oldValue != null) {
-            oldValue.getCacheRejoinAction().unregister(this);
-        }
         this.cacheManager = cacheManager;
-        cacheManager.getCacheRejoinAction().register(this);
         firePropertyChange("CacheManager", oldValue, cacheManager);
     }
 
@@ -4028,33 +4007,6 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
-     * Start cluster rejoin
-     */
-    void clusterRejoinStarted() {
-        try {
-            nonstopActiveDelegateHolder.getUnderlyingTerracottaStore().dispose();
-        } catch (Exception e) {
-            LOG.debug("Ignoring exception while disposing old store on rejoin - " + e.getMessage(), e);
-        }
-        cacheStatus.clusterRejoinInProgress();
-    }
-
-    /**
-     * Complete cluster rejoin
-     */
-    void clusterRejoinComplete() {
-        // initialize again
-        initialise();
-        if (cacheWriterManagerInitFlag.compareAndSet(true, false)) {
-            initialiseCacheWriterManager(registeredCacheWriter != null);
-        }
-        cacheStatus.clusterRejoinComplete();
-        if (compoundStore instanceof RejoinAwareNonstopStore) {
-            ((RejoinAwareNonstopStore) compoundStore).clusterRejoined();
-        }
-    }
-
-    /**
      * Gets the lock for a given key
      *
      * @param key
@@ -4179,7 +4131,6 @@ public class Cache implements InternalEhcache, StoreListener {
         final boolean oldValue = isNodeBulkLoadEnabled();
         if (oldValue != enabledBulkLoad) {
             compoundStore.setNodeCoherent(!enabledBulkLoad);
-            nonstopActiveDelegateHolder.nodeBulkLoadChanged(enabledBulkLoad);
             firePropertyChange("NodeCoherent", oldValue, enabledBulkLoad);
         }
     }
@@ -4231,14 +4182,6 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
-     * Returns the {@link NonstopActiveDelegateHolder}
-     * @return the {@link NonstopActiveDelegateHolder}
-     */
-    protected NonstopActiveDelegateHolder getNonstopActiveDelegateHolder() {
-        return nonstopActiveDelegateHolder;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public void recalculateSize(Object key) {
@@ -4254,11 +4197,6 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     private static class CacheStatus {
         private volatile Status status = Status.STATUS_UNINITIALISED;
-        private final AtomicBoolean clusterRejoinInProgress = new AtomicBoolean(false);
-
-        private void clusterRejoinComplete() {
-            clusterRejoinInProgress.set(false);
-        }
 
         public void checkAlive(CacheConfiguration configuration) {
             final Status readStatus = status;
@@ -4267,17 +4205,13 @@ public class Cache implements InternalEhcache, StoreListener {
             }
         }
 
-        private void clusterRejoinInProgress() {
-            clusterRejoinInProgress.set(true);
-        }
-
         /**
          * Returns true if cache can be initialized. Cache can be initialized if cache has not been shutdown yet.
          *
          * @return true if cache can be initialized
          */
         public boolean canInitialize() {
-            return status == Status.STATUS_UNINITIALISED || clusterRejoinInProgress.get();
+            return status == Status.STATUS_UNINITIALISED;
         }
 
         /**
@@ -4323,101 +4257,6 @@ public class Cache implements InternalEhcache, StoreListener {
          */
         public boolean isUninitialized() {
             return status == Status.STATUS_UNINITIALISED;
-        }
-
-    }
-
-    /**
-     * Private Static class
-     *
-     * @author Abhishek Sanoujam
-     *
-     */
-    private static class NonstopActiveDelegateHolderImpl implements NonstopActiveDelegateHolder {
-
-        private final Cache cache;
-        private volatile NonstopStoreImpl nonstopStore;
-        private volatile TerracottaStore underlyingTerracottaStore;
-        private volatile NonstopExecutorService nonstopExecutorService;
-        private volatile CacheLockProvider underlyingCacheLockProvider;
-        private volatile boolean nodeBulkLoadEnabled;
-        private volatile CacheEventListener cacheEventReplicator;
-
-        public NonstopActiveDelegateHolderImpl(Cache cache) {
-            this.cache = cache;
-        }
-
-        public void nodeBulkLoadChanged(final boolean enabled) {
-            this.nodeBulkLoadEnabled = enabled;
-        }
-
-        public RejoinAwareNonstopStore getNonstopStore() {
-            if (nonstopStore != null) {
-                return nonstopStore;
-            }
-            initializeNonstopStore();
-            return nonstopStore;
-        }
-
-        private synchronized void initializeNonstopStore() {
-            if (nonstopStore == null) {
-                if (!cache.getCacheConfiguration().isTerracottaClustered()) {
-                    throw new AssertionError("NonstopStore supported for Terracotta clustered caches only");
-                }
-                if (!cache.getCacheConfiguration().getTerracottaConfiguration().isNonstopEnabled()) {
-                    throw new AssertionError("Nonstop is not enabled");
-                }
-                nonstopStore = new NonstopStoreImpl(this, cache.getCacheCluster(), cache.getCacheConfiguration()
-                        .getTerracottaConfiguration().getNonstopConfiguration(), cache.getCacheConfiguration().getTransactionalMode(),
-                        cache.getTransactionManagerLookup());
-            }
-        }
-
-        public synchronized void terracottaStoreInitialized(TerracottaStore newTerracottaStore) {
-            this.underlyingTerracottaStore = newTerracottaStore;
-
-            if (nodeBulkLoadEnabled) {
-                LOG.debug("Enabling bulk-load for " + cache.getName());
-                underlyingTerracottaStore.setNodeCoherent(false);
-            }
-
-            // reset all other holders associated with the new store
-            nonstopExecutorService = cache.getCacheManager().getNonstopExecutorService();
-            Object context = underlyingTerracottaStore.getInternalContext();
-            if (context instanceof CacheLockProvider) {
-                underlyingCacheLockProvider = (CacheLockProvider) context;
-            } else {
-                throw new AssertionError("TerracottaStore.getInternalContext() is not correct - "
-                        + (context == null ? "NULL" : context.getClass().getName()));
-            }
-            cacheEventReplicator = cache.getCacheManager().getClusteredInstanceFactory(cache).createEventReplicator(cache);
-        }
-
-        public TerracottaStore getUnderlyingTerracottaStore() {
-            return underlyingTerracottaStore;
-        }
-
-        public NonstopExecutorService getNonstopExecutorService() {
-            return nonstopExecutorService;
-        }
-
-        public CacheLockProvider getUnderlyingCacheLockProvider() {
-            return underlyingCacheLockProvider;
-        }
-
-        public CacheEventListener getCacheEventReplicator() {
-            if (cacheEventReplicator != null) {
-                return cacheEventReplicator;
-            } else {
-                synchronized (this) {
-                    if (cacheEventReplicator == null) {
-                        // don't use getCacheManager().createTerracottaEventReplicator(cache) but create one using the clustered instance
-                        // factory
-                        cacheEventReplicator = cache.getCacheManager().getClusteredInstanceFactory(cache).createEventReplicator(cache);
-                    }
-                    return cacheEventReplicator;
-                }
-            }
         }
 
     }

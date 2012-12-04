@@ -22,11 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.constructs.nonstop.NonstopTimeoutBehaviorFactory;
-import net.sf.ehcache.constructs.nonstop.store.ExceptionOnTimeoutStore;
-import net.sf.ehcache.constructs.nonstop.store.LocalReadsOnTimeoutStore;
-import net.sf.ehcache.constructs.nonstop.store.NoOpOnTimeoutStore;
-import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * Configuration element for configuring timeoutBehavior for nonstop
@@ -77,14 +72,6 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
                 return EXCEPTION_TYPE_NAME;
             }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public NonstopTimeoutBehaviorFactory getTimeoutBehaviorFactory(Properties properties) {
-                return ExceptionOnTimeoutStore.FACTORY;
-            }
-
         },
         /**
          * Timeout behavior type that returns null and does nothing on timeout
@@ -99,13 +86,6 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
                 return NOOP_TYPE_NAME;
             }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public NonstopTimeoutBehaviorFactory getTimeoutBehaviorFactory(Properties properties) {
-                return NoOpOnTimeoutStore.FACTORY;
-            }
 
         },
         /**
@@ -121,13 +101,6 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
                 return LOCAL_READS_TYPE_NAME;
             }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public NonstopTimeoutBehaviorFactory getTimeoutBehaviorFactory(Properties properties) {
-                return LocalReadsOnTimeoutStore.FACTORY;
-            }
         },
         /**
          * Timeout behavior type that uses a custom factory to create the actual timeout behavior on timeout. The custom factory has to be
@@ -145,23 +118,6 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
                 return CUSTOM_TYPE_NAME;
             }
 
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public NonstopTimeoutBehaviorFactory getTimeoutBehaviorFactory(Properties properties) {
-                if (properties == null || !properties.containsKey(CUSTOM_TYPE_FACTORY_PROPERTY_NAME)) {
-                    throw new CacheException("When using " + getTypeName() + " timeout behavior type, need to set properties with key '"
-                            + CUSTOM_TYPE_FACTORY_PROPERTY_NAME + "', specified properties: " + (properties == null ? "NULL" : properties));
-                }
-                final String customFactoryClassName = properties.getProperty(CUSTOM_TYPE_FACTORY_PROPERTY_NAME);
-                Object factory = ClassLoaderUtil.createNewInstance(customFactoryClassName);
-                if (!(factory instanceof NonstopTimeoutBehaviorFactory)) {
-                    throw new CacheException("The factory '" + customFactoryClassName + "' is NOT an instance of "
-                            + NonstopTimeoutBehaviorFactory.class.getName());
-                }
-                return (NonstopTimeoutBehaviorFactory) factory;
-            }
         };
 
         /**
@@ -177,7 +133,6 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
          * @param properties The configured properties
          * @return the factory to create timeout behaviors for this type
          */
-        public abstract NonstopTimeoutBehaviorFactory getTimeoutBehaviorFactory(Properties properties);
 
         private static final Map<String, TimeoutBehaviorType> TYPE_MAP;
         static {
@@ -382,25 +337,6 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
             return false;
         }
         return type == other.type;
-    }
-
-    /**
-     * Get the {@link NonstopTimeoutBehaviorFactory} according to the active config
-     *
-     * @return the nonstopTimeoutBehaviorFactory
-     */
-    public NonstopTimeoutBehaviorFactory getNonstopTimeoutBehaviorFactory() {
-        switch (type) {
-            case EXCEPTION:
-            case NOOP:
-            case LOCAL_READS:
-                // no need to parse properties as not used (for now at least)
-                return type.getTimeoutBehaviorFactory(null);
-            case CUSTOM:
-                return type.getTimeoutBehaviorFactory(extractProperties());
-            default:
-                throw new CacheException("Unknown timeout behavior type - " + type);
-        }
     }
 
     private Properties extractProperties() {

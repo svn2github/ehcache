@@ -3,7 +3,6 @@
  */
 package net.sf.ehcache;
 
-import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
 import net.sf.ehcache.store.Store;
 
 public class CacheAccessor {
@@ -18,9 +17,6 @@ public class CacheAccessor {
     return cache.getStore();
   }
 
-  public NonstopActiveDelegateHolder getNonstopActiveDelegateHolder() {
-    return cache.getNonstopActiveDelegateHolder();
-  }
 
   public static CacheAccessor newCacheAccessor(Cache cache) {
     return new CacheAccessor(cache);

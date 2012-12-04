@@ -15,6 +15,21 @@
  */
 package net.sf.ehcache;
 
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
@@ -25,21 +40,14 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
-import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
-import net.sf.ehcache.constructs.nonstop.CacheManagerExecutorServiceFactory;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
-import net.sf.ehcache.constructs.nonstop.NonstopActiveDelegateHolder;
-import net.sf.ehcache.constructs.nonstop.NonstopExecutorService;
-import net.sf.ehcache.constructs.nonstop.NonstopExecutorServiceFactory;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
 import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
-import net.sf.ehcache.event.NonstopCacheEventListener;
 import net.sf.ehcache.management.ManagementServerLoader;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
@@ -54,12 +62,11 @@ import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
-import net.sf.ehcache.terracotta.TerracottaClientRejoinListener;
 import net.sf.ehcache.transaction.DelegatingTransactionIDFactory;
 import net.sf.ehcache.transaction.ReadCommittedSoftLockFactory;
 import net.sf.ehcache.transaction.SoftLockFactory;
-import net.sf.ehcache.transaction.SoftLockManagerImpl;
 import net.sf.ehcache.transaction.SoftLockManager;
+import net.sf.ehcache.transaction.SoftLockManagerImpl;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
@@ -71,26 +78,6 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeoutException;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -226,10 +213,8 @@ public class CacheManager {
 
     private volatile Pool onDiskPool;
 
-    private final NonstopExecutorServiceFactory nonstopExecutorServiceFactory = CacheManagerExecutorServiceFactory.getInstance();
     private volatile Configuration.RuntimeCfg runtimeCfg;
 
-    private final CacheRejoinAction cacheRejoinAction = new CacheRejoinAction();
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     private String registeredMgmtSvrBind;
@@ -246,10 +231,10 @@ public class CacheManager {
      * Note that if one of the {@link #create()} methods are called, a new singleton instance will be created, separate from any instances
      * created in this method.
      *
-     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
-     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception.
-     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same instance
-     * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create
+     * multiple CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. It is recommended
+     * to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same instance of
+     * CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @param configuration
      * @throws CacheException
@@ -265,10 +250,12 @@ public class CacheManager {
      * Note that if one of the {@link #create()} methods are called, a new singleton will be created,
      * separate from any instances created in this method.
      *
-     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
-     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link #newInstance()}
-     * methods also registers the CacheManager with its name.
-     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same instance
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create
+     * multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the
+     * {@link #newInstance()} methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same
+     * instance
      * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @param configurationFileName
@@ -288,10 +275,12 @@ public class CacheManager {
      * Note that if one of the {@link #create()} methods are called, a new singleton will be created,
      * separate from any instances created in this method.
      *
-     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
-     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link #newInstance()}
-     * methods also registers the CacheManager with its name.
-     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same instance
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create
+     * multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the
+     * {@link #newInstance()} methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same
+     * instance
      * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * <p/>
@@ -301,8 +290,8 @@ public class CacheManager {
      * URL url = this.getClass().getResource(&quot;/ehcache-2.xml&quot;);
      * </pre>
      *
-     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case it will
-     * look in the root of the classpath.
+     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case
+     * it will look in the root of the classpath.
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
      *
@@ -323,10 +312,12 @@ public class CacheManager {
      * Note that if one of the {@link #create()} methods are called, a new singleton will be created,
      * separate from any instances created in this method.
      *
-     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
-     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link #newInstance()}
-     * methods also registers the CacheManager with its name.
-     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same instance
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create
+     * multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the
+     * {@link #newInstance()} methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same
+     * instance
      * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @param configurationInputStream
@@ -342,10 +333,12 @@ public class CacheManager {
     /**
      * Constructor.
      *
-     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create multiple
-     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link newInstance()}
-     * methods also registers the CacheManager with its name.
-     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same instance
+     * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create
+     * multiple
+     * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link
+     * newInstance()} methods also registers the CacheManager with its name.
+     * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same
+     * instance
      * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
      *
      * @throws CacheException
@@ -416,12 +409,11 @@ public class CacheManager {
             this.onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
         }
 
-        terracottaClient = new TerracottaClient(this, cacheRejoinAction, configuration.getTerracottaConfiguration());
+        terracottaClient = new TerracottaClient(this, configuration.getTerracottaConfiguration());
 
         boolean clustered = false;
         Map<String, CacheConfiguration> cacheConfigs = configuration.getCacheConfigurations();
-        if (configuration.getDefaultCacheConfiguration() != null
-                && configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
+        if (configuration.getDefaultCacheConfiguration() != null && configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
             terracottaClient.createClusteredInstanceFactory(cacheConfigs);
             clustered = true;
         } else {
@@ -459,7 +451,7 @@ public class CacheManager {
         try {
             addConfiguredCaches(configurationHelper);
         } finally {
-          INITIALIZING_CACHE_MANAGERS_MAP.remove(runtimeCfg.getCacheManagerName());
+            INITIALIZING_CACHE_MANAGERS_MAP.remove(runtimeCfg.getCacheManagerName());
         }
 
         try {
@@ -482,7 +474,8 @@ public class CacheManager {
         }
         if (managementRESTService != null && managementRESTService.isEnabled()) {
             /**
-             * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class loader space.
+             * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class
+             * loader space.
              */
             synchronized (CacheManager.class) {
                 ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
@@ -614,22 +607,8 @@ public class CacheManager {
     public CacheEventListener createTerracottaEventReplicator(Ehcache cache) {
         CacheEventListener cacheEventListener = null;
         CacheConfiguration cacheConfig = cache.getCacheConfiguration();
-        // cleanUp disabled code
-        if (Boolean.valueOf("false") && cacheConfig.isTerracottaClustered() && cacheConfig.getTerracottaConfiguration().isNonstopEnabled()) {
-            NonstopActiveDelegateHolder nonstopActiveDelegateHolder = getNonstopActiveDelegateHolder(cache);
-            cacheEventListener = new NonstopCacheEventListener(nonstopActiveDelegateHolder);
-        } else {
-            cacheEventListener = getClusteredInstanceFactory(cache).createEventReplicator(cache);
-        }
+        cacheEventListener = getClusteredInstanceFactory(cache).createEventReplicator(cache);
         return cacheEventListener;
-    }
-
-    private NonstopActiveDelegateHolder getNonstopActiveDelegateHolder(Ehcache cache) {
-        if (cache instanceof Cache) {
-            return ((Cache) cache).getNonstopActiveDelegateHolder();
-        } else {
-            throw new CacheException("Cache event replication using Terracotta is not supported for Cache decorators");
-        }
     }
 
     /**
@@ -878,7 +857,8 @@ public class CacheManager {
     /**
      * A factory method to create a CacheManager with a specified configuration.
      * <p>
-     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
+     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return
+     * already created one.
      *
      * @param configurationFileName
      *            an xml file compliant with the ehcache.xsd schema
@@ -901,8 +881,8 @@ public class CacheManager {
      * URL url = this.getClass().getResource(&quot;/ehcache-2.xml&quot;);
      * </pre>
      *
-     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case it will
-     * look in the root of the classpath.
+     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case
+     * it will look in the root of the classpath.
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
      *
@@ -937,12 +917,13 @@ public class CacheManager {
      * URL url = this.getClass().getResource(&quot;/ehcache-2.xml&quot;);
      * </pre>
      *
-     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case it will
-     * look in the root of the classpath.
+     * Note that {@link Class#getResource(String)} will look for resources in the same package unless a leading "/" is used, in which case
+     * it will look in the root of the classpath.
      * <p/>
      * You can also load a resource using other class loaders. e.g. {@link Thread#getContextClassLoader()}
      *
-     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
+     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return
+     * already created one.
      *
      * @param configurationFileURL
      *            an URL to an xml file compliant with the ehcache.xsd schema
@@ -951,8 +932,8 @@ public class CacheManager {
      *            no longer required, call shutdown to free resources.
      */
     public static CacheManager newInstance(URL configurationFileURL) throws CacheException {
-        return newInstance(ConfigurationFactory.parseConfiguration(configurationFileURL),
-                "Creating new CacheManager with config URL: " + configurationFileURL);
+        return newInstance(ConfigurationFactory.parseConfiguration(configurationFileURL), "Creating new CacheManager with config URL: "
+                + configurationFileURL);
     }
 
     /**
@@ -989,7 +970,8 @@ public class CacheManager {
      * inputstream.
      * <p/>
      *
-     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
+     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return
+     * already created one.
      *
      * @param inputStream
      *            InputStream of xml compliant with the ehcache.xsd schema
@@ -1024,7 +1006,9 @@ public class CacheManager {
     /**
      * A factory method to create a CacheManager from a net.sf.ehcache.config.Configuration.
      * <p/>
-     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return already created one.
+     * If the specified configuration has different names for the CacheManager, it will return a new one for each unique name or return
+     * already created one.
+     *
      * @param config
      */
     public static CacheManager newInstance(Configuration config) {
@@ -1057,7 +1041,6 @@ public class CacheManager {
             return cacheManager;
         }
     }
-
 
     /**
      * Checks if a cacheManager already exists for a given name and gets it.
@@ -1218,7 +1201,7 @@ public class CacheManager {
         if (cache == null) {
             return;
         }
-        addCache((Ehcache)cache);
+        addCache((Ehcache) cache);
     }
 
     /**
@@ -1242,13 +1225,11 @@ public class CacheManager {
         }
         final CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
         final boolean verifyOffHeapUsage = runtimeCfg.hasOffHeapPool()
-                                           && ((!cacheConfiguration.isOverflowToDisk()
-                                                && !cacheConfiguration.isOverflowToOffHeapSet())
-                                               || cacheConfiguration.isOverflowToOffHeap());
+                && ((!cacheConfiguration.isOverflowToDisk() && !cacheConfiguration.isOverflowToOffHeapSet()) || cacheConfiguration
+                        .isOverflowToOffHeap());
 
-        if (verifyOffHeapUsage &&
-            (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet()
-             || cacheConfiguration.getMaxBytesLocalOffHeap() > 0)) {
+        if (verifyOffHeapUsage
+                && (cacheConfiguration.isMaxBytesLocalOffHeapPercentageSet() || cacheConfiguration.getMaxBytesLocalOffHeap() > 0)) {
             throw new CacheException("CacheManager uses OffHeap settings, you can't add cache using offHeap dynamically!");
         }
         addCacheNoCheck(cache, true);
@@ -1305,25 +1286,7 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
-        if ((Boolean.valueOf(false)) && runtimeCfg.isTerracottaRejoin() && cache.getCacheConfiguration().isTerracottaClustered()) {
-            NonstopConfiguration nsCfg = cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
-            final long timeoutMillis = nsCfg.getTimeoutMillis() * nsCfg.getBulkOpsTimeoutMultiplyFactor();
-            try {
-                getNonstopExecutorService().execute(new Callable<Void>() {
-                    public Void call() throws Exception {
-                        cache.initialise();
-                        return null;
-                    }
-                }, timeoutMillis);
-            } catch (TimeoutException e) {
-                throw new NonStopCacheException("Unable to add cache [" + cache.getCacheConfiguration().getName() + "] within "
-                        + timeoutMillis + " msecs", e);
-            } catch (InterruptedException e) {
-                throw new CacheException(e);
-            }
-        } else {
-            cache.initialise();
-        }
+        cache.initialise();
 
         if (!runtimeCfg.allowsDynamicCacheConfig()) {
             cache.disableDynamicFeatures();
@@ -1482,8 +1445,6 @@ public class CacheManager {
             terracottaClient.shutdown();
             transactionController = null;
             removeShutdownHook();
-            nonstopExecutorServiceFactory.shutdown(this);
-            getCacheRejoinAction().unregisterAll();
 
             if (featuresManager != null) {
                 featuresManager.dispose();
@@ -1491,7 +1452,7 @@ public class CacheManager {
 
             // release file lock on diskstore path
             if (diskStorePathManager != null) {
-              diskStorePathManager.releaseLock();
+                diskStorePathManager.releaseLock();
             }
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
@@ -1901,7 +1862,8 @@ public class CacheManager {
     }
 
     private List<Ehcache> createDefaultCacheDecorators(Ehcache underlyingCache) {
-        return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, runtimeCfg.getConfiguration().getDefaultCacheConfiguration());
+        return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, runtimeCfg.getConfiguration()
+                .getDefaultCacheConfiguration());
     }
 
     /**
@@ -1953,48 +1915,10 @@ public class CacheManager {
         return softLockManager;
     }
 
-    private void clusterRejoinStarted() {
-        for (Ehcache cache : ehcaches.values()) {
-            if (cache instanceof Cache) {
-                if (cache.getCacheConfiguration().isTerracottaClustered()) {
-                    ((Cache) cache).clusterRejoinStarted();
-                }
-            }
-        }
-        // shutdown the current nonstop executor service
-        nonstopExecutorServiceFactory.shutdown(this);
-    }
-
-    /**
-     * This method is called when the Terracotta Cluster is rejoined. Reinitializes all terracotta clustered caches in this cache manager
-     */
-    private void clusterRejoinComplete() {
-        // restart nonstop executor service
-        nonstopExecutorServiceFactory.getOrCreateNonstopExecutorService(this);
-        for (Ehcache cache : ehcaches.values()) {
-            if (cache instanceof Cache) {
-                if (cache.getCacheConfiguration().isTerracottaClustered()) {
-                    ((Cache) cache).clusterRejoinComplete();
-                }
-            }
-        }
-        if (mbeanRegistrationProvider.isInitialized()) {
-            // re-register mbeans
-            try {
-                mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
-            } catch (MBeanRegistrationProviderException e) {
-                throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
-                        + mbeanRegistrationProvider.getClass().getName(), e);
-            }
-        }
-        // recreate TransactionController with fresh TransactionIDFactory
-        transactionController = new TransactionController(getOrCreateTransactionIDFactory(), runtimeCfg.getConfiguration()
-                .getDefaultTransactionTimeoutInSeconds());
-    }
-
     /**
      * Creates a SizeOfEngine for a cache.
      * It will check for a System property on what class to instantiate.
+     *
      * @param cache The cache to be sized by the engine
      * @return a SizeOfEngine instance
      */
@@ -2004,7 +1928,7 @@ public class CacheManager {
         if (isNamed()) {
             prop += "." + getName();
         } else {
-          prop += ".default";
+            prop += ".default";
         }
 
         if (cache != null) {
@@ -2018,9 +1942,8 @@ public class CacheManager {
                 Class<? extends SizeOfEngine> aClass = (Class<? extends SizeOfEngine>) Class.forName(className);
                 return aClass.newInstance();
             } catch (Exception exception) {
-                throw new RuntimeException("Couldn't load and instantiate custom " +
-                                           (cache != null ? "SizeOfEngine for cache '" + cache.getName() + "'" : "default SizeOfEngine"),
-                    exception);
+                throw new RuntimeException("Couldn't load and instantiate custom "
+                        + (cache != null ? "SizeOfEngine for cache '" + cache.getName() + "'" : "default SizeOfEngine"), exception);
             }
         } else {
             SizeOfPolicyConfiguration sizeOfPolicyConfiguration = null;
@@ -2030,122 +1953,8 @@ public class CacheManager {
             if (sizeOfPolicyConfiguration == null) {
                 sizeOfPolicyConfiguration = getConfiguration().getSizeOfPolicyConfiguration();
             }
-            return new DefaultSizeOfEngine(
-                sizeOfPolicyConfiguration.getMaxDepth(),
-                sizeOfPolicyConfiguration.getMaxDepthExceededBehavior().isAbort());
-        }
-    }
-
-    /**
-     * Return the {@link NonstopExecutorService} associated with this cacheManager
-     * @return the {@link NonstopExecutorService} associated with this cacheManager
-     */
-    protected NonstopExecutorService getNonstopExecutorService() {
-        return nonstopExecutorServiceFactory.getOrCreateNonstopExecutorService(this);
-    }
-
-    /**
-     * Get the CacheRejoinAction
-     * @return the CacheRejoinAction
-     */
-    CacheRejoinAction getCacheRejoinAction() {
-        return cacheRejoinAction;
-    }
-
-    /**
-     * Class which handles rejoin events and notifies Caches implementations about them.
-     */
-    class CacheRejoinAction implements TerracottaClientRejoinListener {
-        private final Collection<WeakReference<Cache>> caches = new CopyOnWriteArrayList<WeakReference<Cache>>();
-
-        /**
-         * {@inheritDoc}
-         */
-        public void clusterRejoinStarted() {
-            // send clusterRejoinStarted event to all TC clustered caches
-            Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
-            for (final WeakReference<Cache> cacheRef : caches) {
-                Cache cache = cacheRef.get();
-                if (cache == null) {
-                    toRemove.add(cacheRef);
-                    continue;
-                }
-                if (cache.getCacheConfiguration().isTerracottaClustered()) {
-                    cache.clusterRejoinStarted();
-                }
-            }
-            caches.removeAll(toRemove);
-
-            // shutdown the current nonstop executor service
-            nonstopExecutorServiceFactory.shutdown(CacheManager.this);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public void clusterRejoinComplete() {
-            // restart nonstop executor service
-            nonstopExecutorServiceFactory.getOrCreateNonstopExecutorService(CacheManager.this);
-
-            // send clusterRejoinComplete event to all TC clustered caches
-            Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
-            for (final WeakReference<Cache> cacheRef : caches) {
-                Cache cache = cacheRef.get();
-                if (cache == null) {
-                    toRemove.add(cacheRef);
-                    continue;
-                }
-                if (cache.getCacheConfiguration().isTerracottaClustered()) {
-                    cache.clusterRejoinComplete();
-                }
-            }
-            caches.removeAll(toRemove);
-
-            if (mbeanRegistrationProvider.isInitialized()) {
-                // re-register mbeans
-                try {
-                    mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
-                } catch (MBeanRegistrationProviderException e) {
-                    throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
-                            + mbeanRegistrationProvider.getClass().getName(), e);
-                }
-            }
-            // recreate TransactionController with a fresh TransactionIDFactory
-            transactionIDFactory = null;
-            transactionController = new TransactionController(getOrCreateTransactionIDFactory(), runtimeCfg.getConfiguration()
-                    .getDefaultTransactionTimeoutInSeconds());
-        }
-
-        /**
-         * Register a Cache implementation
-         *
-         * @param cache the cache
-         */
-        public void register(Cache cache) {
-            caches.add(new WeakReference<Cache>(cache));
-        }
-
-        /**
-         * Unregister a Cache implementation
-         *
-         * @param cache the cache
-         */
-        public void unregister(Cache cache) {
-            Collection<WeakReference<Cache>> toRemove = new ArrayList<WeakReference<Cache>>();
-            for (final WeakReference<Cache> cacheRef : caches) {
-                Cache c = cacheRef.get();
-                if (c == null || c == cache) {
-                    toRemove.add(cacheRef);
-                }
-            }
-            caches.removeAll(toRemove);
-        }
-
-        /**
-         * Unregister all caches
-         */
-        public void unregisterAll() {
-            caches.clear();
+            return new DefaultSizeOfEngine(sizeOfPolicyConfiguration.getMaxDepth(), sizeOfPolicyConfiguration.getMaxDepthExceededBehavior()
+                    .isAbort());
         }
     }
 
@@ -2183,7 +1992,6 @@ public class CacheManager {
         }
     }
 
-
     /**
      * Get a currently initializing {@link CacheManager}.
      *
@@ -2191,6 +1999,6 @@ public class CacheManager {
      * @return the {@link CacheManager} if it exists.
      */
     static CacheManager getInitializingCacheManager(String name) {
-      return INITIALIZING_CACHE_MANAGERS_MAP.get(name);
+        return INITIALIZING_CACHE_MANAGERS_MAP.get(name);
     }
 }
