@@ -30,13 +30,13 @@ public class ToolkitNonStopConfiguration implements NonStopConfiguration {
     TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfig.getTimeoutBehavior();
     switch (behaviorConfiguration.getTimeoutBehaviorType()) {
       case EXCEPTION:
-        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.EXCEPTION;
       case LOCAL_READS:
         return NonStopConfigurationFields.NonStopReadTimeoutBehavior.LOCAL_READS;
       case NOOP:
         return NonStopConfigurationFields.NonStopReadTimeoutBehavior.NO_OP;
       default:
-        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+        return NonStopConfigurationFields.NonStopReadTimeoutBehavior.EXCEPTION;
     }
   }
 
@@ -44,13 +44,13 @@ public class ToolkitNonStopConfiguration implements NonStopConfiguration {
     TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfig.getTimeoutBehavior();
     switch (behaviorConfiguration.getTimeoutBehaviorType()) {
       case EXCEPTION:
-        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.EXCEPTION;
       case LOCAL_READS:
         return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.NO_OP;
       case NOOP:
         return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.NO_OP;
       default:
-        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.EXCEPTION_ON_TIMEOUT;
+        return NonStopConfigurationFields.NonStopWriteTimeoutBehavior.EXCEPTION;
     }
   }
 
