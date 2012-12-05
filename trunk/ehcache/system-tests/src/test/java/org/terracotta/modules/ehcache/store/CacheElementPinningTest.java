@@ -11,22 +11,17 @@ import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
-import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
-
-import java.util.concurrent.BrokenBarrierException;
 
 import junit.framework.Assert;
 
 public class CacheElementPinningTest extends AbstractCacheTestBase {
 
   private static final int ELEMENT_COUNT = 1000;
+  private static final int EXTRA_COUNT   = 10;
 
   public CacheElementPinningTest(TestConfig testConfig) {
     super("cache-pinning-test.xml", testConfig, App.class, App.class);
-    testConfig.getClientConfig()
-        .addExtraClientJvmArg("-Dcom.tc." + TCPropertiesConsts.L1_SERVERMAPMANAGER_FAULT_INVALIDATED_PINNED_ENTRIES
-                                  + "=true");
   }
 
   public static class App extends ClientBase {
@@ -43,10 +38,10 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
       runBasicElementPinningTest(cacheManager.getCache("pinnedElementEventual"));
     }
 
-    private void runBasicElementPinningTest(Cache cache) throws InterruptedException, BrokenBarrierException {
+    private void runBasicElementPinningTest(final Cache cache) throws Exception {
       final ToolkitBarrier barrier = getBarrierForAllClients();
       int index = barrier.await();
-      debug(" Client Index = " + index);
+      debug("Client Index = " + index);
       if (index == 0) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.setPinned(i, true);
@@ -61,7 +56,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
           assertNotNull(cache.get(i));
         }
 
-        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
+        Assert.assertEquals(ELEMENT_COUNT, cache.getMemoryStoreSize());
         Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
         Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
         Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
@@ -71,21 +66,26 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
           cache.setPinned(i, false);
         }
         // Elements will be evicted from cache. doing gets now will go to L2.
-        for (int i = 1001; i < 1010; i++) {
+        for (int i = ELEMENT_COUNT; i < ELEMENT_COUNT + EXTRA_COUNT; i++) {
           cache.put(new Element(i, i));
         }
+        waitForAllCurrentTransactionsToComplete(cache);
         for (int i = 0; i < ELEMENT_COUNT; i++) {
-          assertNotNull(cache.get(i));
+          cache.get(i);
         }
-        Assert.assertTrue(2 * ELEMENT_COUNT > cache.getStatistics().getInMemoryHits());
+
+        Assert.assertTrue(cache.getMemoryStoreSize() < ELEMENT_COUNT);
         Assert.assertTrue(0 < cache.getStatistics().getInMemoryMisses());
         Assert.assertTrue(0 < cache.getStatistics().getOnDiskHits());
+        cache.unpinAll();
         cache.removeAll();
+        debug("done testing pining with client " + index + " size " + cache.getSize());
       }
 
       barrier.await();
 
       if (index == 1) {
+        debug("pinning elemnts on client " + index);
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.setPinned(i, true);
           cache.put(new Element(i, i + 1));
@@ -95,25 +95,30 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
       }
 
       barrier.await();
-
+      debug("asserting elemnts on client " + index);
       for (int i = 0; i < ELEMENT_COUNT; i++) {
         assertNotNull(cache.get(i));
       }
 
+      barrier.await();
       if (index == 0) {
+        debug("pinning and updating elemnts on client " + index);
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.setPinned(i, true);
           cache.put(new Element(i, i + 2));
         }
+        waitForAllCurrentTransactionsToComplete(cache);
       }
 
-      waitForAllCurrentTransactionsToComplete(cache);
+      // WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+      // @Override
+      // public Boolean call() throws Exception {
+      // System.out.println("memory store count " + cache.getMemoryStoreSize());
+      // return cache.getMemoryStoreSize() >= ELEMENT_COUNT;
+      // }
+      // });
       barrier.await();
-
-      for (int i = 0; i < ELEMENT_COUNT; i++) {
-        assertNotNull(cache.get(i));
-      }
-
+      debug("asserting elemnts again on client " + index);
       for (int i = 0; i < ELEMENT_COUNT; i++) {
         Assert.assertEquals(new Element(i, i + 2), cache.get(i));
       }
