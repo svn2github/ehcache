@@ -471,6 +471,7 @@ public class CacheManager {
 
             managementRESTService.setEnabled(true);
             managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
+            managementRESTService.setSecurityServiceLocation(ManagementRESTServiceConfiguration.AUTO_LOCATION);
         }
         if (managementRESTService != null && managementRESTService.isEnabled()) {
             /**

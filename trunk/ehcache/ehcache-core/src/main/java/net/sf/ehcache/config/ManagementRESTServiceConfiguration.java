@@ -37,6 +37,11 @@ public class ManagementRESTServiceConfiguration {
     public static final String NO_BIND = "";
 
     /**
+     * Synthetic security service location used when it should be auto-discovered.
+     */
+    public static final String AUTO_LOCATION = "";
+
+    /**
      * Default timeout for the connection to the configured security service
      */
     public static final int DEFAULT_SECURITY_SVC_TIMEOUT = 5 * 1000;
