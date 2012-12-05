@@ -8,10 +8,13 @@ import net.sf.ehcache.Element;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
+
+import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
@@ -41,7 +44,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
     private void runBasicElementPinningTest(final Cache cache) throws Exception {
       final ToolkitBarrier barrier = getBarrierForAllClients();
       int index = barrier.await();
-      debug("Client Index = " + index);
+      debug("Client Index = " + index + " for " + cache.getName());
       if (index == 0) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.setPinned(i, true);
@@ -79,6 +82,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
         Assert.assertTrue(0 < cache.getStatistics().getOnDiskHits());
         cache.unpinAll();
         cache.removeAll();
+        waitForAllCurrentTransactionsToComplete(cache);
         debug("done testing pining with client " + index + " size " + cache.getSize());
       }
 
@@ -110,14 +114,16 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
         waitForAllCurrentTransactionsToComplete(cache);
       }
 
-      // WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
-      // @Override
-      // public Boolean call() throws Exception {
-      // System.out.println("memory store count " + cache.getMemoryStoreSize());
-      // return cache.getMemoryStoreSize() >= ELEMENT_COUNT;
-      // }
-      // });
+      Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          System.out.println("memory store count " + cache.getMemoryStoreSize());
+          return cache.getMemoryStoreSize() >= ELEMENT_COUNT;
+        }
+      });
       barrier.await();
+
       debug("asserting elemnts again on client " + index);
       for (int i = 0; i < ELEMENT_COUNT; i++) {
         Assert.assertEquals(new Element(i, i + 2), cache.get(i));
