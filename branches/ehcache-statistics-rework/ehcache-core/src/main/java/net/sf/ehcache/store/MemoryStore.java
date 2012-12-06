@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.GetResult;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.ReadWriteLockSync;
@@ -36,8 +37,6 @@ import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
 import net.sf.ehcache.store.disk.StoreUpdateException;
-import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
-import net.sf.ehcache.util.ratestatistics.RateStatistic;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +48,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
+import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
+import org.terracotta.statistics.derived.OperationResultFilter;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static java.util.Collections.singletonMap;
+
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
  * configured in the cache.
@@ -56,7 +63,7 @@ import java.util.concurrent.locks.Lock;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore extends AbstractStore implements TierableStore, PoolParticipant, CacheConfigurationListener {
+public class MemoryStore extends AbstractStore implements TierableStore, CacheConfigurationListener {
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because we size
@@ -86,8 +93,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     private final SelectableConcurrentHashMap map;
     private final PoolAccessor poolAccessor;
 
-    private final RateStatistic hitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
-    private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
+    private final OperationObserver getObserver = StatisticsManager.createOperationStatistic(this, singletonMap("get", "name"), GetResult.class);
 
     private final boolean storePinned;
     private final boolean elementPinningEnabled;
@@ -125,8 +131,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
         this.cache = cache;
         this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
         this.policy = determineEvictionPolicy(cache);
-
-        this.poolAccessor = pool.createPoolAccessor(this,
+        this.poolAccessor = pool.createPoolAccessor(new Participant(),
             SizeOfPolicyConfiguration.resolveMaxDepth(cache),
             SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
 
@@ -294,16 +299,19 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * @return the element, or null if there was no match for the key
      */
     public final Element get(final Object key) {
+        getObserver.begin();
         if (key == null) {
+            getObserver.end(GetResult.MISS);
             return null;
         } else {
             final Element e = map.get(key);
             if (e == null) {
-                missRate.event();
+                getObserver.end(GetResult.MISS);
+                return null;
             } else {
-                hitRate.event();
+                getObserver.end(GetResult.HIT);
+                return e;
             }
-            return e;
         }
     }
 
@@ -949,51 +957,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean evict(int count, long size) {
-        if (storePinned) {
-            return false;
-        }
-
-        for (int i = 0; i < count; i++) {
-            boolean removed = removeElementChosenByEvictionPolicy(null);
-            if (!removed) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateHitRate() {
-        return hitRate.getRate();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateMissRate() {
-        return missRate.getRate();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateCountSize() {
-        return map.quickSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getSizeInBytes() {
-        return poolAccessor.getSize();
-    }
-
     private Lock getWriteLock(Object key) {
         return map.lockFor(key).writeLock();
     }
@@ -1034,6 +997,56 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
         map.recalculateSize(key);
     }
 
+    /**
+     * PoolParticipant that is used with the HeapPool.
+     */
+    private final class Participant implements PoolParticipant {
+
+        private final EventRateSimpleMovingAverage hitRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+        private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+
+        private Participant() {
+            OperationStatistic<GetResult> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.HIT, hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.MISS, missRate));
+        }
+
+        @Override
+        public boolean evict(int count, long size) {
+            if (storePinned) {
+                return false;
+            }
+
+            for (int i = 0; i < count; i++) {
+                boolean removed = removeElementChosenByEvictionPolicy(null);
+                if (!removed) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public long getSizeInBytes() {
+            return poolAccessor.getSize();
+        }
+
+        @Override
+        public float getApproximateHitRate() {
+            return hitRate.rate(TimeUnit.SECONDS).floatValue();
+        }
+
+        @Override
+        public float getApproximateMissRate() {
+            return missRate.rate(TimeUnit.SECONDS).floatValue();
+        }
+
+        @Override
+        public long getApproximateCountSize() {
+            return map.quickSize();
+        }
+    }
+    
     /**
      * Factory interface to create a MemoryStore backing.
      */

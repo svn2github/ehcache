@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
@@ -36,8 +35,6 @@ import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
 import net.sf.ehcache.util.FindBugsSuppressWarnings;
-import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
-import net.sf.ehcache.util.ratestatistics.RateStatistic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,8 +93,6 @@ public class Segment extends ReentrantReadWriteLock {
      */
     private int threshold;
 
-    private final RateStatistic diskHitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
-    private final RateStatistic diskMissRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
     private final RegisteredEventListeners cacheEventNotificationService;
@@ -223,7 +218,6 @@ public class Segment extends ReentrantReadWriteLock {
                     e = e.next;
                 }
             }
-            miss();
             return null;
         } finally {
             readLock().unlock();
@@ -1065,35 +1059,5 @@ public class Segment extends ReentrantReadWriteLock {
             Segment.this.remove(lastReturned.key, lastReturned.hash, null, null);
             lastReturned = null;
         }
-    }
-
-    /**
-     * Return the disk hit rate
-     * @return the disk hit rate
-     */
-    public float getDiskHitRate() {
-        return diskHitRate.getRate();
-    }
-
-    /**
-     * Return the disk miss rate
-     * @return the disk miss rate
-     */
-    public float getDiskMissRate() {
-        return diskMissRate.getRate();
-    }
-
-    /**
-     * Record a hit in the disk tier
-     */
-    protected void diskHit() {
-        diskHitRate.event();
-    }
-
-    /**
-     * Record a miss in the disk tier
-     */
-    protected void miss() {
-        diskMissRate.event();
     }
 }

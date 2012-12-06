@@ -60,6 +60,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import net.sf.ehcache.GetResult;
+
+import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
+import org.terracotta.statistics.derived.OperationResultFilter;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static java.util.Collections.singletonMap;
+
 /**
  * Implements a persistent-to-disk store.
  * <p>
@@ -68,7 +78,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public final class DiskStore extends AbstractStore implements TierableStore, PoolParticipant, StripedReadWriteLockProvider {
+public final class DiskStore extends AbstractStore implements TierableStore, StripedReadWriteLockProvider {
 
     private static final int FFFFCD7D = 0xffffcd7d;
     private static final int FIFTEEN = 15;
@@ -90,12 +100,12 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
     private final boolean tierPinned;
     private final boolean persistent;
+    private final OperationObserver<GetResult> getObserver = StatisticsManager.createOperationStatistic(this, singletonMap("name", "get"), GetResult.class);
+    private final PoolAccessor onHeapPoolAccessor;
+    private final PoolAccessor onDiskPoolAccessor;
 
     private volatile CacheLockProvider lockProvider;
     private volatile Set<Object> keySet;
-    private volatile PoolAccessor onHeapPoolAccessor;
-    private volatile PoolAccessor onDiskPoolAccessor;
-
 
     private DiskStore(DiskStorageFactory disk, Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
@@ -103,7 +113,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(new DiskStoreHeapPoolParticipant(),
             SizeOfPolicyConfiguration.resolveMaxDepth(cache),
             SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
-        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this, new DiskSizeOfEngine());
+        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(new DiskStoreDiskPoolParticipant(), new DiskSizeOfEngine());
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
@@ -465,12 +475,21 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * {@inheritDoc}
      */
     public Element get(Object key) {
+        getObserver.begin();
         if (key == null) {
+            getObserver.end(GetResult.MISS);
             return null;
         }
 
         int hash = hash(key.hashCode());
-        return segmentFor(hash).get(key, hash);
+        Element e = segmentFor(hash).get(key, hash);
+        if (e == null) {
+            getObserver.end(GetResult.MISS);
+            return null;
+        } else {
+            getObserver.end(GetResult.HIT);
+            return e;
+        }
     }
 
     /**
@@ -673,49 +692,6 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public Status getStatus() {
         return status.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean evict(int count, long size) {
-        return disk.evict(count) == count;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateHitRate() {
-        float sum = 0;
-        for (Segment s : segments) {
-            sum += s.getDiskHitRate();
-        }
-        return sum;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateMissRate() {
-        float sum = 0;
-        for (Segment s : segments) {
-            sum += s.getDiskMissRate();
-        }
-        return sum;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateCountSize() {
-        return getOnDiskSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getSizeInBytes() {
-        return getOnDiskSizeInBytes();
     }
 
     /**
@@ -1171,7 +1147,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
 
         @Override
         public boolean evict(final int count, final long size) {
-            return DiskStore.this.evict(count, size);
+            return disk.evict(count) == count;
         }
 
         @Override
@@ -1192,6 +1168,46 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         @Override
         public long getApproximateCountSize() {
             return getInMemorySize();
+        }
+    }
+    
+    /**
+     * PoolParticipant that is used with the DiskPool.
+     */
+    private class DiskStoreDiskPoolParticipant implements PoolParticipant {
+
+        private final EventRateSimpleMovingAverage hitRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+        private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+
+        DiskStoreDiskPoolParticipant() {
+            OperationStatistic<GetResult> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.HIT, hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.MISS, missRate));
+        }
+
+        @Override
+        public boolean evict(int count, long size) {
+            return disk.evict(count) == count;
+        }
+
+        @Override
+        public long getSizeInBytes() {
+            return getOnDiskSizeInBytes();
+        }
+
+        @Override
+        public float getApproximateHitRate() {
+            return hitRate.rate(TimeUnit.SECONDS).floatValue();
+        }
+
+        @Override
+        public float getApproximateMissRate() {
+            return hitRate.rate(TimeUnit.SECONDS).floatValue();
+        }
+
+        @Override
+        public long getApproximateCountSize() {
+            return getOnDiskSize();
         }
     }
 }
