@@ -49,7 +49,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
-import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -92,12 +91,12 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
-import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
+import net.sf.ehcache.statisticsV2.Constants;
+import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
+import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
 import net.sf.ehcache.statisticsV2.EhcacheStatisticsCoreDb;
+import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
+import net.sf.ehcache.statisticsV2.StatisticsPlacholder;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -140,9 +139,6 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
-
-import static net.sf.ehcache.statisticsV2.Cost.*;
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -264,11 +260,14 @@ public class Cache implements InternalEhcache, StoreListener {
 
     public EhcacheStatisticsCoreDb statisticsDb;
 
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get")
-            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
+    private final OperationObserver<GetOutcome> getObserver = StatisticsManager.createOperationStatistic(this,
+            new EhcacheStatisticsPropertyMap("get",RetrievalCost.LOW,RecordingCost.LOW,"cache","group"),
+            GetOutcome.class);
 
-    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put")
-            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
+    private final OperationObserver<PutOutcome> putObserver = StatisticsManager.createOperationStatistic(this,
+            new EhcacheStatisticsPropertyMap("put",RetrievalCost.LOW,RecordingCost.LOW),
+            PutOutcome.class);
+
 
     private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search")
             .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
@@ -286,10 +285,6 @@ public class Cache implements InternalEhcache, StoreListener {
      * Use {@link #getExecutorService()} to ensure that it is initialised.
      */
     private volatile ExecutorService executorService;
-
-    private volatile LiveCacheStatisticsWrapper liveCacheStatisticsData;
-
-    private volatile SampledCacheStatisticsWrapper sampledCacheStatistics;
 
     private volatile TransactionManagerLookup transactionManagerLookup;
 
@@ -353,8 +348,6 @@ public class Cache implements InternalEhcache, StoreListener {
         registeredCacheLoaders = new CopyOnWriteArrayList<CacheLoader>();
 
         // initialize statistics
-        liveCacheStatisticsData = new LiveCacheStatisticsWrapper(this);
-        sampledCacheStatistics = new SampledCacheStatisticsWrapper();
 
         RegisteredEventListeners listeners = getCacheEventNotificationService();
         registerCacheListeners(configuration, listeners);
@@ -1149,16 +1142,6 @@ public class Cache implements InternalEhcache, StoreListener {
             initialiseCacheWriterManager(false);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
-            // initialize live statistics
-            // register to get notifications of
-            // put/update/removeInternal/expiry/eviction
-            getCacheEventNotificationService().registerListener(liveCacheStatisticsData);
-            // set up default values
-            liveCacheStatisticsData.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_BEST_EFFORT);
-            liveCacheStatisticsData.setStatisticsEnabled(configuration.getStatistics());
-
-            // register the sampled cache statistics
-            this.registerCacheUsageListener(sampledCacheStatistics);
 
             if (isTerracottaClustered()) {
                 // create this to be sure that it's present on each node to receive clustered events,
@@ -1173,7 +1156,6 @@ public class Cache implements InternalEhcache, StoreListener {
                 this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
 
-            StatisticsManager.associate(this).withChild(compoundStore);
             statisticsDb=new EhcacheStatisticsCoreDb(this);
         }
 
@@ -1620,10 +1602,9 @@ public class Cache implements InternalEhcache, StoreListener {
             return Collections.EMPTY_MAP;
         }
 
-        if (isStatisticsEnabled()) {
-            long start = System.currentTimeMillis();
+        if(true) {
+            // XXX cdennis needs to go here..
             Map<Object, Element> elements = searchAllInStoreWithStats(keys);
-            liveCacheStatisticsData.addGetTimeMillis(System.currentTimeMillis() - start);
             return elements;
         } else {
             return searchAllInStoreWithoutStats(keys);
@@ -1963,25 +1944,7 @@ public class Cache implements InternalEhcache, StoreListener {
         Map<Object, Boolean> wasOffHeapMap = new HashMap<Object, Boolean>();
         Map<Object, Boolean> wasOnDiskMap = new HashMap<Object, Boolean>();
 
-        for (Object key : keys) {
-            if (!compoundStore.containsKeyInMemory(key)) {
-                liveCacheStatisticsData.cacheMissInMemory();
-                if (hasOffHeap) {
-                    wasOffHeap = compoundStore.containsKeyOffHeap(key);
-                    wasOffHeapMap.put(key, wasOffHeap);
-                }
-              if (!wasOffHeap) {
-                  if (hasOffHeap) {
-                      liveCacheStatisticsData.cacheMissOffHeap();
-                  }
-                  wasOnDisk = compoundStore.containsKeyOnDisk(key);
-                  wasOnDiskMap.put(key, wasOnDisk);
-                  if (hasOnDisk && !wasOnDisk) {
-                      liveCacheStatisticsData.cacheMissOnDisk();
-                  }
-              }
-            }
-        }
+
         elements = compoundStore.getAll(keys);
 
         for (Entry<Object, Element> entry : elements.entrySet()) {
@@ -1992,7 +1955,6 @@ public class Cache implements InternalEhcache, StoreListener {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(configuration.getName() + " cache hit, but element expired");
                     }
-                    liveCacheStatisticsData.cacheMissExpired();
                     tryRemoveImmediately(key, true);
                     element = null;
                 } else {
@@ -2001,16 +1963,8 @@ public class Cache implements InternalEhcache, StoreListener {
                         LOG.debug("Cache: " + getName() + " store hit for " + key);
                     }
 
-                    if (wasOffHeapMap.containsKey(key) && wasOffHeapMap.get(key)) {
-                        liveCacheStatisticsData.cacheHitOffHeap();
-                    } else if (wasOnDiskMap.containsKey(key) && wasOnDiskMap.get(key)) {
-                        liveCacheStatisticsData.cacheHitOnDisk();
-                    } else {
-                        liveCacheStatisticsData.cacheHitInMemory();
-                    }
                 }
             } else {
-                liveCacheStatisticsData.cacheMissNotFound();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(configuration.getName() + " cache - Miss");
                 }
@@ -2542,22 +2496,6 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public int getSizeBasedOnAccuracy(int statisticsAccuracy)
-            throws IllegalStateException, CacheException {
-        if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_BEST_EFFORT) {
-            return getSize();
-        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_GUARANTEED) {
-            return getKeysWithExpiryCheck().size();
-        } else if (statisticsAccuracy == Statistics.STATISTICS_ACCURACY_NONE) {
-            return getKeysNoDuplicateCheck().size();
-        }
-        throw new IllegalArgumentException("Unknown statistics accuracy: "
-                + statisticsAccuracy);
-    }
-
-    /**
      * Gets the size of the memory store for this cache. This method relies on calculating
      * Serialized sizes. If the Element values are not Serializable they will show as zero.
      * <p/>
@@ -2703,11 +2641,6 @@ public class Cache implements InternalEhcache, StoreListener {
                     "none" : configuration.getPersistenceConfiguration().getStrategy())
                 .append(" diskExpiryThreadIntervalSeconds = ").append(configuration.getDiskExpiryThreadIntervalSeconds())
                 .append(registeredEventListeners)
-                .append(" hitCount = ").append(getLiveCacheStatisticsNoCheck().getCacheHitCount())
-                .append(" memoryStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getInMemoryHitCount())
-                .append(" diskStoreHitCount = ").append(getLiveCacheStatisticsNoCheck().getOnDiskHitCount())
-                .append(" missCountNotFound = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCount())
-                .append(" missCountExpired = ").append(getLiveCacheStatisticsNoCheck().getCacheMissCountExpired())
                 .append(" maxBytesLocalHeap = ").append(configuration.getMaxBytesLocalHeap())
                 .append(" overflowToOffHeap = ").append(configuration.isOverflowToOffHeap())
                 .append(" maxBytesLocalOffHeap = ").append(configuration.getMaxBytesLocalOffHeap())
@@ -2759,8 +2692,6 @@ public class Cache implements InternalEhcache, StoreListener {
         }
         Cache copy = (Cache) super.clone();
         // create new copies of the statistics
-        copy.liveCacheStatisticsData = new LiveCacheStatisticsWrapper(copy);
-        copy.sampledCacheStatistics = new SampledCacheStatisticsWrapper();
 
         copy.configuration = configuration.clone();
         copy.guid = createGuid();
@@ -2927,41 +2858,6 @@ public class Cache implements InternalEhcache, StoreListener {
         return cacheManager;
     }
 
-
-    /**
-     * Resets statistics counters back to 0.
-     *
-     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
-     */
-    public void clearStatistics() throws IllegalStateException {
-        checkStatus();
-        liveCacheStatisticsData.clearStatistics();
-        sampledCacheStatistics.clearStatistics();
-        registeredEventListeners.clearCounters();
-    }
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
-     *
-     * @return one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
-     */
-    public int getStatisticsAccuracy() {
-        return getLiveCacheStatistics().getStatisticsAccuracy();
-    }
-
-    /**
-     * Sets the statistics accuracy.
-     *
-     * @param statisticsAccuracy one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
-     */
-    public void setStatisticsAccuracy(int statisticsAccuracy) {
-        int oldValue = getStatisticsAccuracy();
-        if (statisticsAccuracy != oldValue) {
-            liveCacheStatisticsData.setStatisticsAccuracy(statisticsAccuracy);
-            firePropertyChange("StatisticsAccuracy", oldValue, statisticsAccuracy);
-        }
-    }
-
     /**
      * Causes all elements stored in the Cache to be synchronously checked for expiry, and if expired, evicted.
      */
@@ -3025,36 +2921,8 @@ public class Cache implements InternalEhcache, StoreListener {
      * reported by Statistics for the statistics accuracy of
      * {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      */
-    public Statistics getStatistics() throws IllegalStateException {
-        int size = getSizeBasedOnAccuracy(getLiveCacheStatistics()
-                .getStatisticsAccuracy());
-        return new Statistics(this, getLiveCacheStatistics()
-                .getStatisticsAccuracy(), getLiveCacheStatistics()
-                .getCacheHitCount(), getLiveCacheStatistics()
-                .getOnDiskHitCount(), getLiveCacheStatistics()
-                .getOffHeapHitCount(), getLiveCacheStatistics()
-                .getInMemoryHitCount(), getLiveCacheStatistics()
-                .getCacheMissCount(), getLiveCacheStatistics()
-                .getOnDiskMissCount(), getLiveCacheStatistics()
-                .getOffHeapMissCount(), getLiveCacheStatistics()
-                .getInMemoryMissCount(), size, getAverageGetTime(),
-                getLiveCacheStatistics().getEvictedCount(),
-                getMemoryStoreSize(), getOffHeapStoreSize(), getDiskStoreSize(),
-                getSearchesPerSecond(), getAverageSearchTime(), getLiveCacheStatistics().getWriterQueueLength());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getAverageSearchTime() {
-        return sampledCacheStatistics.getAverageSearchTime();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getSearchesPerSecond() {
-        return sampledCacheStatistics.getSearchesPerSecond();
+    public StatisticsPlacholder getStatistics() throws IllegalStateException {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -3188,14 +3056,6 @@ public class Cache implements InternalEhcache, StoreListener {
     public void unregisterCacheExtension(CacheExtension cacheExtension) {
         cacheExtension.dispose();
         registeredCacheExtensions.remove(cacheExtension);
-    }
-
-
-    /**
-     * The average get time in ms.
-     */
-    public float getAverageGetTime() {
-        return getLiveCacheStatistics().getAverageGetTimeMillis();
     }
 
     /**
@@ -3572,106 +3432,32 @@ public class Cache implements InternalEhcache, StoreListener {
         firePropertyChange("MemoryStoreEvictionPolicy", oldValue, policy);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public LiveCacheStatistics getLiveCacheStatistics()
-            throws IllegalStateException {
-        checkStatus();
-        return liveCacheStatisticsData;
-    }
 
-    private LiveCacheStatistics getLiveCacheStatisticsNoCheck() {
-        return liveCacheStatisticsData;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
-        checkStatus();
-        liveCacheStatisticsData.registerCacheUsageListener(cacheUsageListener);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException {
-        checkStatus();
-        liveCacheStatisticsData.removeCacheUsageListener(cacheUsageListener);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isStatisticsEnabled() {
-        return getLiveCacheStatistics().isStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setStatisticsEnabled(boolean enableStatistics) {
-        boolean oldValue = isStatisticsEnabled();
-        if (oldValue != enableStatistics) {
-            liveCacheStatisticsData.setStatisticsEnabled(enableStatistics);
-            if (!enableStatistics) {
-                setSampledStatisticsEnabled(false);
-            }
-            firePropertyChange("StatisticsEnabled", oldValue, enableStatistics);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public SampledCacheStatistics getSampledCacheStatistics() {
-        return sampledCacheStatistics;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public CacheStatisticsSampler getCacheStatisticsSampler() {
-        return sampledCacheStatistics;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSampledStatisticsEnabled(final boolean enableStatistics) {
-        if (cacheManager == null) {
-            throw new IllegalStateException(
-                "You must add the cache to a CacheManager before enabling/disabling sampled statistics.");
-        }
-        boolean oldValue = isSampledStatisticsEnabled();
-        if (oldValue != enableStatistics) {
-            if (enableStatistics) {
-                ManagementRESTServiceConfiguration mgmtRESTConfigSvc = cacheManager.getConfiguration().getManagementRESTService();
-                if (mgmtRESTConfigSvc != null && mgmtRESTConfigSvc.isEnabled()) {
-                    sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer(), mgmtRESTConfigSvc.makeSampledCounterConfig(),
-                        mgmtRESTConfigSvc.makeSampledGetRateCounterConfig(), mgmtRESTConfigSvc.makeSampledSearchRateCounterConfig());
-                } else {
-                    sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
-                }
-                setStatisticsEnabled(true);
-            } else {
-                sampledCacheStatistics.disableSampledStatistics();
-            }
-            firePropertyChange("SampledStatisticsEnabled", oldValue, enableStatistics);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.Ehcache#isSampledStatisticsEnabled()
-     */
-    public boolean isSampledStatisticsEnabled() {
-        return sampledCacheStatistics.isSampledStatisticsEnabled();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public void setSampledStatisticsEnabled(final boolean enableStatistics) {
+//        if (cacheManager == null) {
+//            throw new IllegalStateException(
+//                "You must add the cache to a CacheManager before enabling/disabling sampled statistics.");
+//        }
+//        boolean oldValue = isSampledStatisticsEnabled();
+//        if (oldValue != enableStatistics) {
+//            if (enableStatistics) {
+//                ManagementRESTServiceConfiguration mgmtRESTConfigSvc = cacheManager.getConfiguration().getManagementRESTService();
+//                if (mgmtRESTConfigSvc != null && mgmtRESTConfigSvc.isEnabled()) {
+//                    sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer(), mgmtRESTConfigSvc.makeSampledCounterConfig(),
+//                        mgmtRESTConfigSvc.makeSampledGetRateCounterConfig(), mgmtRESTConfigSvc.makeSampledSearchRateCounterConfig());
+//                } else {
+//                    sampledCacheStatistics.enableSampledStatistics(cacheManager.getTimer());
+//                }
+//                setStatisticsEnabled(true);
+//            } else {
+//                sampledCacheStatistics.disableSampledStatistics();
+//            }
+//            firePropertyChange("SampledStatisticsEnabled", oldValue, enableStatistics);
+//        }
+//    }
 
     /**
      * {@inheritDoc}
@@ -3950,16 +3736,10 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return query results
      */
     Results executeQuery(StoreQuery query) throws SearchException {
-        searchObserver.begin();
-        try {
-          validateSearchQuery(query);
-          return this.compoundStore.executeQuery(query);
-        } catch (SearchException e) {
-          searchObserver.end(SearchOutcome.EXCEPTION);
-          throw e;
-        } finally {
-          searchObserver.end(SearchOutcome.SUCCESS);
-        }
+
+        validateSearchQuery(query);
+
+        return this.compoundStore.executeQuery(query);
     }
 
     /**

@@ -78,7 +78,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
         cacheSizeBoundBootstrapCacheLoader.triggerLoad();
         int onDiskSize = cacheSizeBound.getDiskStoreSize();
         assertThat(cacheSizeBound.getMemoryStoreSize(), greaterThan(0L));
-        assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes(), lessThanOrEqualTo(KILOBYTES.toBytes(220L)));
+        assertThat(cacheSizeBound.getStatistics().getCore().getLocalHeapSizeInBytes(), lessThanOrEqualTo(KILOBYTES.toBytes(220L)));
         assertThat(cacheSizeBound.getDiskStoreSize(), is(onDiskSize));
         manager.shutdown();
         initCacheManager(CacheUT.sizeBased);
@@ -111,7 +111,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
                     .maxBytesLocalHeap(220, KILOBYTES)
                     .maxBytesLocalDisk(300, MEGABYTES), null, cacheSizeBoundBootstrapCacheLoader);
                 manager.addCache(cacheSizeBound);
-                cacheSizeBound.setSampledStatisticsEnabled(true);
+                cacheSizeBound.getStatistics().setSampledStatisticsEnabled(true);
                 break;
         }
     }

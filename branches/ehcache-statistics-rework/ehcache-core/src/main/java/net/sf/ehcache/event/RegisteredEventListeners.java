@@ -271,11 +271,14 @@ public class RegisteredEventListeners {
     private void invokeListener(CacheEventListener listener, Element element, ElementCreationCallback callback, Event eventType) {
         final Element e;
 
-        if (listener instanceof LiveCacheStatisticsData) {
-            // These listeners don't touch the element and since this is an internal listener there might not be
-            // an appropriate loader for resolving it
-            e = null;
-        } else if (callback != null) {
+// TODOD CRSS
+//        if (listener instanceof LiveCacheStatisticsData) {
+//            // These listeners don't touch the element and since this is an internal listener there might not be
+//            // an appropriate loader for resolving it
+//            e = null;
+//        } else
+
+            if (callback != null) {
             e = callback.createElement(listener.getClass().getClassLoader());
         } else {
             e = element;

@@ -55,7 +55,7 @@ public final class EhCache implements Cache {
     private final net.sf.ehcache.Ehcache cache;
 
     private final CacheLockProvider lockProvider;
-    
+
     /**
      * Creates a new Hibernate pluggable cache by name.
      * <p/>
@@ -67,7 +67,7 @@ public final class EhCache implements Cache {
      */
     public EhCache(net.sf.ehcache.Ehcache cache) {
         this.cache = cache;
-        
+
         Object context = cache.getInternalContext();
         if (context instanceof CacheLockProvider) {
             lockProvider = (CacheLockProvider) context;
@@ -247,7 +247,7 @@ public final class EhCache implements Cache {
      */
     public final long getSizeInMemory() {
         try {
-            return cache.calculateInMemorySize();
+            return cache.getStatistics().getCore().calculateInMemorySize();
         } catch (Throwable t) {
             return -1;
         }
@@ -258,7 +258,7 @@ public final class EhCache implements Cache {
      */
     public final long getElementCountInMemory() {
         try {
-            return cache.getMemoryStoreSize();
+            return cache.getStatistics().getCore().getMemoryStoreSize();
         } catch (net.sf.ehcache.CacheException ce) {
             throw new CacheException(ce);
         }
@@ -268,7 +268,7 @@ public final class EhCache implements Cache {
      * @return the number of elements in ehcache's DiskStore. 0 is there is no DiskStore
      */
     public final long getElementCountOnDisk() {
-        return cache.getDiskStoreSize();
+        return cache.getStatistics().getCore().getDiskStoreSize();
     }
 
 
@@ -300,6 +300,7 @@ public final class EhCache implements Cache {
     /**
      * @return the region name, which is the cache name in ehcache
      */
+    @Override
     public final String toString() {
         return "EHCache(" + getRegionName() + ')';
     }

@@ -109,16 +109,16 @@ public class SoftLockPinningTest {
             cache2.put(element2);
         }
 
-        assertEquals(100, cache1.getMemoryStoreSize());
-        assertEquals(100, cache2.getMemoryStoreSize());
+        assertEquals(100, cache1.getStatistics().getCore().getMemoryStoreSize());
+        assertEquals(100, cache2.getStatistics().getCore().getMemoryStoreSize());
         RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
             public Integer call() throws Exception {
-                return cache1.getDiskStoreSize();
+                return (int) cache1.getStatistics().getCore().getDiskStoreSize();
             }
         }, Is.is(100));
         RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
             public Integer call() throws Exception {
-                return cache2.getDiskStoreSize();
+                return (int) cache2.getStatistics().getCore().getDiskStoreSize();
             }
         }, Is.is(100));
 
@@ -166,16 +166,16 @@ public class SoftLockPinningTest {
             public void statusChanged(final int oldStatus, final int newStatus) {
                 if (oldStatus == Status.STATUS_PREPARED) {
 
-                    assertEquals(100, xaCache1.getMemoryStoreSize());
-                    assertEquals(100, xaCache2.getMemoryStoreSize());
+                    assertEquals(100, xaCache1.getStatistics().getCore().getMemoryStoreSize());
+                    assertEquals(100, xaCache2.getStatistics().getCore().getMemoryStoreSize());
                     RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
                         public Integer call() throws Exception {
-                            return xaCache1.getDiskStoreSize();
+                            return (int) xaCache1.getStatistics().getCore().getDiskStoreSize();
                         }
                     }, Is.is(100));
                     RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
                         public Integer call() throws Exception {
-                            return xaCache2.getDiskStoreSize();
+                            return (int) xaCache2.getStatistics().getCore().getDiskStoreSize();
                         }
                     }, Is.is(100));
 

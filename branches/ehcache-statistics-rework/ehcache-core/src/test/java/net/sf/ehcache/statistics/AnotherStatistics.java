@@ -28,205 +28,209 @@ package net.sf.ehcache.statistics;
  *
  * @author Abhishek Sanoujam
  */
-public class AnotherStatistics extends LiveCacheStatisticsImpl implements
-        CacheUsageListener {
-
-    /**
-     * Default constructor. Passes null in the super(Ehcache) constructor.
-     */
-    public AnotherStatistics() {
-        super(null);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementEvicted()
-     */
-    public void notifyCacheElementEvicted() {
-        super.notifyElementEvicted(null, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementExpired()
-     */
-    public void notifyCacheElementExpired() {
-        super.notifyElementExpired(null, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementPut()
-     */
-    public void notifyCacheElementPut() {
-        super.notifyElementPut(null, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementRemoved()
-     */
-    public void notifyCacheElementRemoved() {
-        super.notifyElementRemoved(null, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementUpdated()
-     */
-    public void notifyCacheElementUpdated() {
-        super.notifyElementUpdated(null, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitInMemory()
-     */
-    public void notifyCacheHitInMemory() {
-        super.cacheHitInMemory();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOffHeap()
-     */
-    public void notifyCacheHitOffHeap() {
-        super.cacheHitOffHeap();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOnDisk()
-     */
-    public void notifyCacheHitOnDisk() {
-        super.cacheHitOnDisk();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithExpired()
-     */
-    public void notifyCacheMissedWithExpired() {
-        super.cacheMissExpired();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithNotFound()
-     */
-    public void notifyCacheMissedWithNotFound() {
-        super.cacheMissNotFound();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissInMemory()
-     */
-    public void notifyCacheMissInMemory() {
-        super.cacheMissInMemory();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOffHeap()
-     */
-    public void notifyCacheMissOffHeap() {
-        super.cacheMissOffHeap();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOnDisk()
-     */
-    public void notifyCacheMissOnDisk() {
-        super.cacheMissOnDisk();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyRemoveAll()
-     */
-    public void notifyRemoveAll() {
-        super.notifyRemoveAll(null);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsAccuracyChanged(int)
-     */
-    public void notifyStatisticsAccuracyChanged(int statisticsAccuracy) {
-        super.setStatisticsAccuracy(statisticsAccuracy);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsCleared()
-     */
-    public void notifyStatisticsCleared() {
-        super.clearStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsEnabledChanged(boolean)
-     */
-    public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
-        super.setStatisticsEnabled(enableStatistics);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyTimeTakenForGet(long)
-     */
-    public void notifyTimeTakenForGet(long millis) {
-        super.addGetTimeMillis(millis);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyGetTimeNanos(long)
-     */
-    public void notifyGetTimeNanos(long nanos) {
-        super.addGetTimeNanos(nanos);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void notifyCacheSearch(long executeTime) {
-        throw new AssertionError();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void notifyXaCommit() {
-        super.xaCommit();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void notifyXaRollback() {
-        super.xaRollback();
-    }
+public class AnotherStatistics {
 }
+
+//
+//extends LiveCacheStatisticsImpl implements
+//        CacheUsageListener {
+//
+//    /**
+//     * Default constructor. Passes null in the super(Ehcache) constructor.
+//     */
+//    public AnotherStatistics() {
+//        super(null);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementEvicted()
+//     */
+//    public void notifyCacheElementEvicted() {
+//        super.notifyElementEvicted(null, null);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementExpired()
+//     */
+//    public void notifyCacheElementExpired() {
+//        super.notifyElementExpired(null, null);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementPut()
+//     */
+//    public void notifyCacheElementPut() {
+//        super.notifyElementPut(null, null);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementRemoved()
+//     */
+//    public void notifyCacheElementRemoved() {
+//        super.notifyElementRemoved(null, null);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheElementUpdated()
+//     */
+//    public void notifyCacheElementUpdated() {
+//        super.notifyElementUpdated(null, null);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitInMemory()
+//     */
+//    public void notifyCacheHitInMemory() {
+//        super.cacheHitInMemory();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOffHeap()
+//     */
+//    public void notifyCacheHitOffHeap() {
+//        super.cacheHitOffHeap();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheHitOnDisk()
+//     */
+//    public void notifyCacheHitOnDisk() {
+//        super.cacheHitOnDisk();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithExpired()
+//     */
+//    public void notifyCacheMissedWithExpired() {
+//        super.cacheMissExpired();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissedWithNotFound()
+//     */
+//    public void notifyCacheMissedWithNotFound() {
+//        super.cacheMissNotFound();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissInMemory()
+//     */
+//    public void notifyCacheMissInMemory() {
+//        super.cacheMissInMemory();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOffHeap()
+//     */
+//    public void notifyCacheMissOffHeap() {
+//        super.cacheMissOffHeap();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyCacheMissOnDisk()
+//     */
+//    public void notifyCacheMissOnDisk() {
+//        super.cacheMissOnDisk();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyRemoveAll()
+//     */
+//    public void notifyRemoveAll() {
+//        super.notifyRemoveAll(null);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsAccuracyChanged(int)
+//     */
+//    public void notifyStatisticsAccuracyChanged(int statisticsAccuracy) {
+//        super.setStatisticsAccuracy(statisticsAccuracy);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsCleared()
+//     */
+//    public void notifyStatisticsCleared() {
+//        super.clearStatistics();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyStatisticsEnabledChanged(boolean)
+//     */
+//    public void notifyStatisticsEnabledChanged(boolean enableStatistics) {
+//        super.setStatisticsEnabled(enableStatistics);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyTimeTakenForGet(long)
+//     */
+//    public void notifyTimeTakenForGet(long millis) {
+//        super.addGetTimeMillis(millis);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * @see net.sf.ehcache.statistics.CacheUsageListener#notifyGetTimeNanos(long)
+//     */
+//    public void notifyGetTimeNanos(long nanos) {
+//        super.addGetTimeNanos(nanos);
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public void notifyCacheSearch(long executeTime) {
+//        throw new AssertionError();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public void notifyXaCommit() {
+//        super.xaCommit();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public void notifyXaRollback() {
+//        super.xaRollback();
+//    }
+//}
