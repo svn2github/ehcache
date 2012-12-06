@@ -15,32 +15,6 @@
  */
 package net.sf.ehcache.transaction.xa;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
-import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.transaction.TransactionIDNotFoundException;
-import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockManager;
-import net.sf.ehcache.transaction.SoftLockID;
-import net.sf.ehcache.transaction.TransactionIDFactory;
-import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.commands.Command;
-import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
-import net.sf.ehcache.transaction.xa.processor.XARequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +24,33 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.transaction.SoftLock;
+import net.sf.ehcache.transaction.SoftLockID;
+import net.sf.ehcache.transaction.SoftLockManager;
+import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.TransactionIDNotFoundException;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.commands.Command;
+import net.sf.ehcache.transaction.xa.processor.XARequest;
+import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The EhcacheXAResource implementation
@@ -272,8 +273,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     public void commitInternal(Xid xid, boolean onePhase) throws XAException {
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid, cache);
         try {
-            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-            liveCacheStatisticsWrapper.xaCommit();
+            cache.getStatistics().getCore().xaCommit();
             if (onePhase) {
                 XATransactionContext twopcTransactionContext = xidToContextMap.get(xid);
                 if (twopcTransactionContext == null) {
@@ -369,8 +369,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         }
 
         if (!xids.isEmpty()) {
-            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-            liveCacheStatisticsWrapper.xaRecovered(xids.size());
+            cache.getStatistics().getCore().xaRecovered(xids.size());
         }
 
         return xids.toArray(new Xid[0]);
@@ -393,8 +392,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     public void rollbackInternal(Xid xid) throws XAException {
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid, cache);
         try {
-            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-            liveCacheStatisticsWrapper.xaRollback();
+            cache.getStatistics().getCore().xaRollback();
             Set<SoftLock> softLocks = softLockManager.collectAllSoftLocksForTransactionID(xidTransactionID);
             for (SoftLock softLock : softLocks) {
                 if (softLock.isExpired()) {

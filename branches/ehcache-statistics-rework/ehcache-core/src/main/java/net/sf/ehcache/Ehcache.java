@@ -32,7 +32,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statisticsV2.StatisticsPlacholder;
+import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
@@ -714,7 +714,7 @@ public interface Ehcache extends Cloneable {
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    StatisticsPlacholder getStatistics() throws IllegalStateException;
+    StatisticsPlaceholder getStatistics() throws IllegalStateException;
 
     /**
      * Sets the CacheManager

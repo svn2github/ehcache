@@ -96,7 +96,7 @@ import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
 import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
 import net.sf.ehcache.statisticsV2.EhcacheStatisticsCoreDb;
 import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
-import net.sf.ehcache.statisticsV2.StatisticsPlacholder;
+import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -2921,7 +2921,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * reported by Statistics for the statistics accuracy of
      * {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      */
-    public StatisticsPlacholder getStatistics() throws IllegalStateException {
+    public StatisticsPlaceholder getStatistics() throws IllegalStateException {
         throw new UnsupportedOperationException();
     }
 

@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.statisticsV2;
 
-public class StatisticsPlacholder {
+public class StatisticsPlaceholder {
 
     private final CoreStatisticsPlaceholder core=new CoreStatisticsPlaceholder();
 
@@ -28,6 +28,10 @@ public class StatisticsPlacholder {
 
     public ExtendedStatisticsPlaceholder getExtended() {
         return extended;
+    }
+
+    public void setStatisticsEnabled(boolean b) {
+        throw new UnsupportedOperationException();
     }
 
 

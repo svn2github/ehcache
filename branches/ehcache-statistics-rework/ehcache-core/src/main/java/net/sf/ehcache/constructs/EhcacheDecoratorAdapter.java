@@ -36,7 +36,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statisticsV2.StatisticsPlacholder;
+import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -811,7 +811,7 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     }
 
     @Override
-    public StatisticsPlacholder getStatistics() throws IllegalStateException {
+    public StatisticsPlaceholder getStatistics() throws IllegalStateException {
        return underlyingCache.getStatistics();
     }
 }

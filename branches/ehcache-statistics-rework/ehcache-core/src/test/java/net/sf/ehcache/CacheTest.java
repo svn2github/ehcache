@@ -57,7 +57,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.Assert;
-
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -925,7 +924,7 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
-        cache.setStatisticsEnabled(true);
+        cache.getStatistics().setStatisticsEnabled(true);
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -949,7 +948,7 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
-        cache.setStatisticsEnabled(true);
+        cache.getStatistics().setStatisticsEnabled(true);
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -958,19 +957,19 @@ public class CacheTest extends AbstractCacheTest {
         Thread.sleep(100);
 
         Element element1 = cache.get("key1");
-        assertEquals("Cache hit count", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getCore().getCacheHits());
         assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.getQuiet("key1");
-        assertEquals("Cache hit count", 1, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getCore().getCacheHits());
         assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.get("key1");
-        assertEquals("Cache hit count", 2, cache.getStatistics().getCacheHits());
+        assertEquals("Cache hit count", 2, cache.getStatistics().getCore().getCacheHits());
         assertEquals("Element hit count", 2, element1.getHitCount());
 
 
-        assertEquals("Cache miss count", 0, cache.getStatistics().getCacheMisses());
+        assertEquals("Cache miss count", 0, cache.getStatistics().getCore().getCacheMisses());
         cache.get("doesnotexist");
-        assertEquals("Cache miss count", 1, cache.getStatistics().getCacheMisses());
+        assertEquals("Cache miss count", 1, cache.getStatistics().getCore().getCacheMisses());
 
 
     }
@@ -986,7 +985,7 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
 
-        cache.setStatisticsEnabled(true);
+        cache.getStatistics().setStatisticsEnabled(true);
 
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
@@ -998,11 +997,11 @@ public class CacheTest extends AbstractCacheTest {
         long lastAccessedElement1 = element1.getLastAccessTime();
         long hitCountElement1 = element1.getHitCount();
         assertEquals("Element-1 Hit Count", 1, hitCountElement1);
-        assertEquals("Cache Hit Count", 1L, cache.getStatistics().getCacheHits());
+        assertEquals("Cache Hit Count", 1L, cache.getStatistics().getCore().getCacheHits());
 
         element1 = cache.getQuiet("key1");
         element1 = cache.getQuiet("key1");
-        assertEquals(1L, cache.getStatistics().getCacheHits());
+        assertEquals(1L, cache.getStatistics().getCore().getCacheHits());
         Element clonedElement1 = (Element) element1.clone();
         cache.putQuiet(clonedElement1);
         element1 = cache.getQuiet("key1");
@@ -1287,7 +1286,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testSizes() throws Exception {
         Ehcache cache = getSampleCache1();
 
-        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getCore().getMemoryStoreSize());
 
         for (int i = 0; i < 10010; i++) {
             cache.put(new Element("key" + i, "value1"));
@@ -1296,8 +1295,8 @@ public class CacheTest extends AbstractCacheTest {
         flushDiskStore(cache);
 
         assertThat(cache.getSize(), lessThanOrEqualTo(10000));
-        assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
-        assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+        assertThat(cache.getStatistics().getCore().getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+        assertThat(cache.getStatistics().getCore().getDiskStoreSize(), lessThanOrEqualTo(1000));
 
         //NonSerializable
         flushDiskStore(cache);
@@ -1307,8 +1306,8 @@ public class CacheTest extends AbstractCacheTest {
 
         int size = cache.getSize();
         assertThat(size, lessThanOrEqualTo(10000));
-        assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
-        assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+        assertThat(cache.getStatistics().getCore().getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+        assertThat(cache.getStatistics().getCore().getDiskStoreSize(), lessThanOrEqualTo(1000));
 
         if(cache.remove("key4")) {
             size--;
@@ -1329,8 +1328,8 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.removeAll();
         assertEquals(0, cache.getSize());
-        assertEquals(0, cache.getMemoryStoreSize());
-        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getCore().getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getCore().getDiskStoreSize());
 
     }
 
@@ -2266,7 +2265,7 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("someName", 100, true, true, 0, 0);
         manager.addCache(cache);
 
-        cache.setStatisticsEnabled(true);
+        cache.getStatistics().setStatisticsEnabled(true);
 
         ExecutorService executor = Executors.newFixedThreadPool(10);
 
@@ -2277,7 +2276,7 @@ public class CacheTest extends AbstractCacheTest {
         executor.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("Failures: ", 0, CacheTestRunnable.FAILURES.size());
-        assertEquals(5000, cache.getStatistics().getCacheHits());
+        assertEquals(5000, cache.getStatistics().getCore().getCacheHits());
 
     }
 
@@ -2341,16 +2340,16 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(cache);
         manager.addCache(clone);
 
-        cache.setStatisticsEnabled(true);
-        clone.setStatisticsEnabled(true);
+        cache.getStatistics().setStatisticsEnabled(true);
+        clone.getStatistics().setStatisticsEnabled(true);
 
         assertFalse(cache.getGuid().equals(clone.getGuid()));
 
         // validate updating the statistics of one cache does NOT affect a
         // cloned one
         cache.get("notFoundKey");
-        assertEquals(1, cache.getStatistics().getCacheMisses());
-        assertEquals(0, clone.getStatistics().getCacheMisses());
+        assertEquals(1, cache.getStatistics().getCore().getCacheMisses());
+        assertEquals(0, clone.getStatistics().getCore().getCacheMisses());
 
         cache.setDisabled(true);
         clone.setDisabled(true);
@@ -2738,7 +2737,7 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         public Long call() throws Exception {
-            return cache.getMemoryStoreSize();
+            return cache.getStatistics().getCore().getMemoryStoreSize();
         }
     }
 
@@ -2751,7 +2750,7 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         public Integer call() throws Exception {
-            return cache.getDiskStoreSize();
+            return cache.getStatistics().getCore().getDiskStoreSize();
         }
     }
 }

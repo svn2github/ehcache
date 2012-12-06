@@ -26,7 +26,7 @@ public class CoreStatisticsPlaceholder {
         throw new UnsupportedOperationException();
    }
 
-    public long getDiskStoreSize() {
+    public int getDiskStoreSize() {
         throw new UnsupportedOperationException();
     }
 
@@ -37,5 +37,46 @@ public class CoreStatisticsPlaceholder {
     public long getOffHeapStoreSize() {
         throw new UnsupportedOperationException();
    }
+
+    public long getInMemoryHits() {
+        throw new UnsupportedOperationException();
+    }
+
+    public long getInMemoryMisses() {
+        throw new UnsupportedOperationException();
+    }
+
+    public long getOnDiskHits() {
+        throw new UnsupportedOperationException();
+    }
+
+    public long getOnDiskMisses() {
+        throw new UnsupportedOperationException();
+    }
+
+    public long getEvictionCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void xaCommit() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void xaRecovered(int size) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void xaRollback() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Object getCacheHits() {
+        throw new UnsupportedOperationException();
+
+    }
+
+    public Object getCacheMisses() {
+        throw new UnsupportedOperationException();
+    }
 
 }

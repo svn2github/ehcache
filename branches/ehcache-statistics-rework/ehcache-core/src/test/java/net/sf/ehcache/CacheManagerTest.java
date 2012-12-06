@@ -17,9 +17,10 @@
 package net.sf.ehcache;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
-
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.collection.IsArrayContainingInOrder.arrayContaining;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -27,9 +28,6 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.hamcrest.collection.IsArrayContainingInOrder.arrayContaining;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -84,13 +82,11 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.MemorySizeParser;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.CombinableMatcher;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1128,7 +1124,8 @@ public class CacheManagerTest {
                 CacheEventListener cacheEventListener = (CacheEventListener) iterator
                         .next();
                 assertTrue(cacheEventListener instanceof CountingCacheEventListener
-                        || cacheEventListener instanceof LiveCacheStatisticsData);
+                        // XXX CRSS || cacheEventListener instanceof LiveCacheStatisticsData
+                        );
             }
         } finally {
             manager.shutdown();
