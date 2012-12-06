@@ -97,10 +97,7 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
-import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
-import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
 import net.sf.ehcache.statisticsV2.EhcacheStatisticsCoreDb;
-import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -143,6 +140,9 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statisticsV2.Cost.*;
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -264,17 +264,14 @@ public class Cache implements InternalEhcache, StoreListener {
 
     public EhcacheStatisticsCoreDb statisticsDb;
 
-    private final OperationObserver<GetOutcome> getObserver = StatisticsManager.createOperationStatistic(this,
-            new EhcacheStatisticsPropertyMap("get",RetrievalCost.LOW,RecordingCost.LOW,"cache","group"),
-            GetOutcome.class);
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get")
+            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
 
-    private final OperationObserver<PutOutcome> putObserver = StatisticsManager.createOperationStatistic(this,
-            new EhcacheStatisticsPropertyMap("put",RetrievalCost.LOW,RecordingCost.LOW),
-            PutOutcome.class);
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put")
+            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
 
-    private final OperationObserver<SearchOutcome> searchObserver = StatisticsManager.createOperationStatistic(this,
-            new EhcacheStatisticsPropertyMap("search", RetrievalCost.LOW, RecordingCost.LOW),
-            SearchOutcome.class);
+    private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search")
+            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
 
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.

@@ -50,8 +50,8 @@ public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor 
         this.outcome = (Class<? extends Enum>) attrs.get("type");
         this.opStatistic = (OperationStatistic) attrs.get("this");
         this.path = tn.getPath();
-        if(properties.containsKey(EhcacheStatisticsPropertyMap.TAGS_PROP)) {
-            tags=Collections.unmodifiableSet((Set<String>) properties.get(EhcacheStatisticsPropertyMap.TAGS_PROP));
+        if(properties.containsKey(StatisticBuilder.TAGS_PROP)) {
+            tags=Collections.unmodifiableSet((Set<String>) properties.get(StatisticBuilder.TAGS_PROP));
         } else {
             tags=Collections.EMPTY_SET;
         }
@@ -75,7 +75,7 @@ public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor 
      * @see net.sf.ehcache.statisticsV2.EhcacheStatisticDescriptor#getTags()
      */
     @Override
-    public Collection<String> getTags() {
+    public Set<String> getTags() {
         return tags;
     };
 
@@ -83,16 +83,16 @@ public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor 
      * @see net.sf.ehcache.statisticsV2.EhcacheStatisticDescriptor#getRecordingCost()
      */
     @Override
-    public Constants.RecordingCost getRecordingCost() {
-        return Constants.RecordingCost.UNKNOWN;
+    public Cost getRecordingCost() {
+        throw new UnsupportedOperationException();
     };
 
     /* (non-Javadoc)
      * @see net.sf.ehcache.statisticsV2.EhcacheStatisticDescriptor#getRetrievalCost()
      */
     @Override
-    public Constants.RetrievalCost getRetrievalCost() {
-        return Constants.RetrievalCost.UNKNOWN;
+    public Cost getRetrievalCost() {
+        throw new UnsupportedOperationException();
     }
 
     public Class<? extends Enum> getOutcome() {

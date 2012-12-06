@@ -16,17 +16,16 @@
 
 package net.sf.ehcache.statisticsV2;
 
-import java.util.Collection;
-
+import java.util.Set;
 import net.sf.ehcache.Ehcache;
 
 public interface EhcacheStatisticDescriptor {
 
-    public abstract Collection<String> getTags();
+    public abstract Set<String> getTags();
 
-    public abstract Constants.RecordingCost getRecordingCost();
+    public abstract Cost getRecordingCost();
 
-    public abstract Constants.RetrievalCost getRetrievalCost();
+    public abstract Cost getRetrievalCost();
 
     public abstract String getShortName();
 

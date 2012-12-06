@@ -27,14 +27,6 @@ public class Constants {
     public static final String NAME_PROP = "name";
     public static final String PROPERTIES_PROP = "properties";
 
-    public enum RecordingCost {
-        LOW, MEDIUM, HIGH, UNKNOWN
-    };
-
-    public enum RetrievalCost {
-        LOW, MEDIUM, HIGH, UNKNOWN
-    };
-
     public static String[] formStringPathsFromContext(TreeNode tn) {
         LinkedList<String> results = new LinkedList<String>();
         for (List<? extends TreeNode> path : tn.getPaths()) {
@@ -44,7 +36,7 @@ public class Constants {
                 Map<String, Object> props = (Map<String, Object>) n.getContext().attributes().get(PROPERTIES_PROP);
                 String name = null;
                 if (props != null) {
-                    name = (String) props.get(EhcacheStatisticsPropertyMap.NAME_PROP);
+                    name = (String) props.get(StatisticBuilder.NAME_PROP);
                 }
                 if (name == null) {
                     name = (String) n.getContext().attributes().get(NAME_PROP);

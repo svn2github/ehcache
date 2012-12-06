@@ -48,14 +48,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
-import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
-import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
-import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statisticsV2.Cost.*;
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -94,7 +94,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     private final SelectableConcurrentHashMap map;
     private final PoolAccessor poolAccessor;
 
-    private final OperationObserver getObserver = StatisticsManager.createOperationStatistic(this, new EhcacheStatisticsPropertyMap("get", RetrievalCost.LOW, RecordingCost.LOW, "heap"), GetOutcome.class);
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get")
+            .retrievalCost(LOW).recordingCost(LOW).tag("heap").build();
 
     private final boolean storePinned;
     private final boolean elementPinningEnabled;
