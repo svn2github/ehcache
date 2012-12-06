@@ -39,7 +39,7 @@ import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.ValueStatistic;
 
-public class EhcacheStatisticsLiveDb {
+public class EhcacheStatisticsCoreDb {
 
     private final StatisticsManager statisticsManager = new StatisticsManager();
     private final boolean live = false;
@@ -49,7 +49,7 @@ public class EhcacheStatisticsLiveDb {
     private final OperationStatistic<CacheOperationOutcomes.GetOutcome> cacheGetOp;
     private final OperationStatistic<CacheOperationOutcomes.PutOutcome> cachePutOp;
 
-    public EhcacheStatisticsLiveDb(Ehcache cache) {
+    public EhcacheStatisticsCoreDb(Ehcache cache) {
         this.cache = cache;
         statisticsManager.root(cache);
 

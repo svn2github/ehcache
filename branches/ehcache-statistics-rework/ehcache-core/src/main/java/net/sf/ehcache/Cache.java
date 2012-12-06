@@ -99,7 +99,7 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.statisticsV2.Constants;
 import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
 import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
-import net.sf.ehcache.statisticsV2.EhcacheStatisticsLiveDb;
+import net.sf.ehcache.statisticsV2.EhcacheStatisticsCoreDb;
 import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
@@ -262,7 +262,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private volatile CacheWriter registeredCacheWriter;
 
-    public EhcacheStatisticsLiveDb statisticsDb;
+    public EhcacheStatisticsCoreDb statisticsDb;
 
     private final OperationObserver<GetOutcome> getObserver = StatisticsManager.createOperationStatistic(this,
             new EhcacheStatisticsPropertyMap("get",RetrievalCost.LOW,RecordingCost.LOW,"cache","group"),
@@ -1172,7 +1172,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
 
-            statisticsDb=new EhcacheStatisticsLiveDb(this);
+            statisticsDb=new EhcacheStatisticsCoreDb(this);
         }
 
         compoundStore.addStoreListener(this);
