@@ -81,6 +81,7 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
           }
           cache.put(new Element(getKey(i), getValue(i + 1)));
         }
+        waitForAllCurrentTransactionsToComplete(cache);
         Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
       }
       getBarrierForAllClients().await();

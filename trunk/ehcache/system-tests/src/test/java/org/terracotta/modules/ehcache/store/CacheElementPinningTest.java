@@ -48,8 +48,6 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
       if (index == 0) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.setPinned(i, true);
-        }
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.put(new Element(i, i));
         }
 

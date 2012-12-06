@@ -90,7 +90,6 @@ public class CacheElementPinningNoServerEvictionTest extends AbstractCacheTestBa
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.put(new Element(i, i + 1));
           cache.setPinned(i, true);
-
         }
         waitForAllCurrentTransactionsToComplete(cache);
         Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
@@ -102,6 +101,7 @@ public class CacheElementPinningNoServerEvictionTest extends AbstractCacheTestBa
         assertNotNull(cache.get(i));
       }
 
+      barrier.await();
       // This keys are first put then pinned in order to test races on L1 when an element is pinned and eviction can
       // occur on same time.
       if (index == 0) {
@@ -109,15 +109,10 @@ public class CacheElementPinningNoServerEvictionTest extends AbstractCacheTestBa
           cache.put(new Element(i, i + 2));
           cache.setPinned(i, true);
         }
+        waitForAllCurrentTransactionsToComplete(cache);
       }
 
-      waitForAllCurrentTransactionsToComplete(cache);
       barrier.await();
-
-      for (int i = 0; i < ELEMENT_COUNT; i++) {
-        assertNotNull(cache.get(i));
-      }
-
       for (int i = 0; i < ELEMENT_COUNT; i++) {
         Assert.assertEquals(new Element(i, i + 2), cache.get(i));
       }
