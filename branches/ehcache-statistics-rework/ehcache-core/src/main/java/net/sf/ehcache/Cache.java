@@ -47,6 +47,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -94,6 +96,11 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
+import net.sf.ehcache.statisticsV2.Constants;
+import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
+import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
+import net.sf.ehcache.statisticsV2.EhcacheStatisticsLiveDb;
+import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -133,6 +140,9 @@ import net.sf.ehcache.writer.CacheWriterManagerException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.context.annotations.ContextAttribute;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.observer.OperationObserver;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -251,6 +261,16 @@ public class Cache implements InternalEhcache, StoreListener {
     private volatile ReentrantLock cacheWriterManagerInitLock = new ReentrantLock();
 
     private volatile CacheWriter registeredCacheWriter;
+
+    public EhcacheStatisticsLiveDb statisticsDb;
+
+    private final OperationObserver<GetOutcome> getObserver = StatisticsManager.createOperationStatistic(this,
+            new EhcacheStatisticsPropertyMap("get",RetrievalCost.LOW,RecordingCost.LOW,"cache","group"),
+            GetOutcome.class);
+
+    private final OperationObserver<PutOutcome> putObserver = StatisticsManager.createOperationStatistic(this,
+            new EhcacheStatisticsPropertyMap("put",RetrievalCost.LOW,RecordingCost.LOW),
+            PutOutcome.class);
 
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
@@ -1151,6 +1171,8 @@ public class Cache implements InternalEhcache, StoreListener {
             } else {
                 this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
+
+            statisticsDb=new EhcacheStatisticsLiveDb(this);
         }
 
         compoundStore.addStoreListener(this);
@@ -1393,6 +1415,7 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     private void putInternal(Element element, boolean doNotNotifyCacheReplicators, boolean useCacheWriter) {
+        putObserver.begin();
         if (useCacheWriter) {
             initialiseCacheWriterManager(true);
         }
@@ -1449,6 +1472,8 @@ public class Cache implements InternalEhcache, StoreListener {
             boolean elementExists = !compoundStore.put(element);
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
         }
+        putObserver.end(CacheOperationOutcomes.PutOutcome.COUNT);
+
     }
 
     private void putAllInternal(Collection<Element> elements, boolean doNotNotifyCacheReplicators) {
@@ -1567,22 +1592,16 @@ public class Cache implements InternalEhcache, StoreListener {
      * @since 1.2
      */
     public final Element get(Object key) throws IllegalStateException, CacheException {
+        getObserver.begin();
         checkStatus();
 
         if (disabled) {
             return null;
         }
 
-        if (isStatisticsEnabled()) {
-            long start = System.nanoTime();
-            Element element = searchInStoreWithStats(key);
-            //todo is this expensive. Maybe ditch.
-            long end = System.nanoTime();
-            liveCacheStatisticsData.addGetTimeNanos(end - start);
-            return element;
-        } else {
-            return searchInStoreWithoutStats(key, false, true);
-        }
+        Element ret = searchInStoreWithoutStats(key, false, true);
+        getObserver.end(ret==null?GetOutcome.MISS:GetOutcome.HIT);
+        return ret;
     }
 
     /**
@@ -1930,64 +1949,6 @@ public class Cache implements InternalEhcache, StoreListener {
     public final List getKeysNoDuplicateCheck() throws IllegalStateException {
         checkStatus();
         return getKeys();
-    }
-
-    private Element searchInStoreWithStats(Object key) {
-        boolean wasInMemory = compoundStore.containsKeyInMemory(key);
-        boolean wasOffHeap = false;
-        boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
-        boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
-        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
-        Element element;
-
-        if (!wasInMemory) {
-            liveCacheStatisticsData.cacheMissInMemory();
-            if (hasOffHeap) {
-                wasOffHeap = compoundStore.containsKeyOffHeap(key);
-            }
-        }
-
-        element = compoundStore.get(key);
-
-        if (element != null) {
-            if (isExpired(element)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache hit, but element expired");
-                }
-                liveCacheStatisticsData.cacheMissExpired();
-                tryRemoveImmediately(key, true);
-                element = null;
-            } else {
-                element.updateAccessStatistics();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Cache: " + getName() + " store hit for " + key);
-                }
-
-                if (wasInMemory) {
-                    liveCacheStatisticsData.cacheHitInMemory();
-                } else if (wasOffHeap) {
-                    liveCacheStatisticsData.cacheHitOffHeap();
-                } else if (hasOffHeap) {
-                    liveCacheStatisticsData.cacheMissOffHeap();
-                    liveCacheStatisticsData.cacheHitOnDisk();
-                } else {
-                    liveCacheStatisticsData.cacheHitOnDisk();
-                }
-            }
-        } else {
-            liveCacheStatisticsData.cacheMissNotFound();
-            if (hasOffHeap) {
-                liveCacheStatisticsData.cacheMissOffHeap();
-            }
-            if (hasOnDisk) {
-                liveCacheStatisticsData.cacheMissOnDisk();
-            }
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(configuration.getName() + " cache - Miss");
-            }
-        }
-        return element;
     }
 
     private Map<Object, Element> searchAllInStoreWithStats(Collection<?> keys) {
@@ -2700,6 +2661,7 @@ public class Cache implements InternalEhcache, StoreListener {
     /**
      * Gets the cache name.
      */
+    @ContextAttribute("name")
     public final String getName() {
         return configuration.getName();
     }

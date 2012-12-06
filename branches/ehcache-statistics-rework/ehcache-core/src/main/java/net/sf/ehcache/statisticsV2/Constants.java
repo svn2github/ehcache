@@ -1,0 +1,67 @@
+/**
+ *  Copyright Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package net.sf.ehcache.statisticsV2;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.terracotta.context.TreeNode;
+
+public class Constants {
+
+    public static final String NAME_PROP = "name";
+    public static final String PROPERTIES_PROP = "properties";
+
+    public enum RecordingCost {
+        LOW, MEDIUM, HIGH, UNKNOWN
+    };
+
+    public enum RetrievalCost {
+        LOW, MEDIUM, HIGH, UNKNOWN
+    };
+
+    public static String[] formStringPathsFromContext(TreeNode tn) {
+        LinkedList<String> results = new LinkedList<String>();
+        for (List<? extends TreeNode> path : tn.getPaths()) {
+            boolean first = true;
+            StringBuilder sb = new StringBuilder();
+            for (TreeNode n : path) {
+                Map<String, Object> props = (Map<String, Object>) n.getContext().attributes().get(PROPERTIES_PROP);
+                String name = null;
+                if (props != null) {
+                    name = (String) props.get(EhcacheStatisticsPropertyMap.NAME_PROP);
+                }
+                if (name == null) {
+                    name = (String) n.getContext().attributes().get(NAME_PROP);
+                }
+                if (!first) {
+                    sb.append("/");
+                } else {
+                    first = false;
+                }
+
+                sb.append(name);
+            }
+            results.add(sb.toString());
+
+        }
+
+        return results.toArray(new String[0]);
+
+    }
+}
