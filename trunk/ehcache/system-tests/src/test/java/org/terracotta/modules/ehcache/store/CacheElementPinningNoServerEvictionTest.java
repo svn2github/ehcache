@@ -81,6 +81,7 @@ public class CacheElementPinningNoServerEvictionTest extends AbstractCacheTestBa
         Assert.assertTrue(0 < cache.getStatistics().getInMemoryMisses());
         Assert.assertTrue(0 < cache.getStatistics().getOnDiskHits());
         cache.removeAll();
+        waitForAllCurrentTransactionsToComplete(cache);
       }
 
       barrier.await();
