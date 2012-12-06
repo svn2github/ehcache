@@ -60,8 +60,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.sf.ehcache.GetResult;
-
+import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
+import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
+import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
+import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
@@ -100,7 +102,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
     private final boolean tierPinned;
     private final boolean persistent;
-    private final OperationObserver<GetResult> getObserver = StatisticsManager.createOperationStatistic(this, singletonMap("name", "get"), GetResult.class);
+    private final OperationObserver<GetOutcome> getObserver = StatisticsManager.createOperationStatistic(this, new EhcacheStatisticsPropertyMap("get", RetrievalCost.LOW, RecordingCost.LOW, "disk"), GetOutcome.class);
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
 
@@ -477,17 +479,17 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
     public Element get(Object key) {
         getObserver.begin();
         if (key == null) {
-            getObserver.end(GetResult.MISS);
+            getObserver.end(GetOutcome.MISS);
             return null;
         }
 
         int hash = hash(key.hashCode());
         Element e = segmentFor(hash).get(key, hash);
         if (e == null) {
-            getObserver.end(GetResult.MISS);
+            getObserver.end(GetOutcome.MISS);
             return null;
         } else {
-            getObserver.end(GetResult.HIT);
+            getObserver.end(GetOutcome.HIT);
             return e;
         }
     }
@@ -1180,9 +1182,9 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
         private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
 
         DiskStoreDiskPoolParticipant() {
-            OperationStatistic<GetResult> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.HIT, hitRate));
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.MISS, missRate));
+            OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.HIT, hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.MISS, missRate));
         }
 
         @Override

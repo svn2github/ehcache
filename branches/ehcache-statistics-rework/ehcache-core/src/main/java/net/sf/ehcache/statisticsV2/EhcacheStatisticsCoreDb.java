@@ -41,7 +41,7 @@ import org.terracotta.statistics.ValueStatistic;
 
 public class EhcacheStatisticsCoreDb {
 
-    private final StatisticsManager statisticsManager = new StatisticsManager();
+    public final StatisticsManager statisticsManager = new StatisticsManager();
     private final boolean live = false;
     private final Ehcache cache;
     private final ConcurrentHashMap<String, OperationStatisticDescriptor> rawOperationStats = new ConcurrentHashMap<String, OperationStatisticDescriptor>();
@@ -102,17 +102,8 @@ public class EhcacheStatisticsCoreDb {
             Collection<? extends TreeNode> stats = statisticsManager.query(query);
 
             for (TreeNode tn : stats) {
-                Class identifierClazz = tn.getContext().identifier();
-                if (identifierClazz.equals(OperationStatistic.class)) {
-                    try {
-                        OperationStatisticDescriptor stat = new OperationStatisticDescriptor(cache, tn);
-                        rawOperationStats.put(stat.getStringPath(), stat);
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
+                OperationStatisticDescriptor stat = new OperationStatisticDescriptor(cache, tn);
+                rawOperationStats.put(stat.getStringPath(), stat);
             }
         }
     }

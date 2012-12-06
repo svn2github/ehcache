@@ -16,12 +16,16 @@
 
 package net.sf.ehcache.statistics;
 
+import java.util.Arrays;
 import org.junit.Test;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 
-public class Statistiscs2Test extends AbstractCacheTest {
+import org.terracotta.context.TreeNode;
+import org.terracotta.context.query.QueryBuilder;
+
+public class Statistics2Test extends AbstractCacheTest {
 
     @Test
     public void testSimple() {
@@ -29,6 +33,23 @@ public class Statistiscs2Test extends AbstractCacheTest {
         manager.addCache(cache);
 
         manager.shutdown();
+        
+        System.out.print(dumpTree(cache.statisticsDb.statisticsManager.queryForSingleton(QueryBuilder.queryBuilder().build())));
     }
 
+  public static String dumpTree(TreeNode node) {
+    return dumpSubtree(0, node);
+  }
+  
+  public static String dumpSubtree(int indent, TreeNode node) {
+    char[] indentChars = new char[indent];
+    Arrays.fill(indentChars, ' ');
+    StringBuilder sb = new StringBuilder();
+    String nodeString = node.toString();
+    sb.append(indentChars).append(nodeString).append("\n");
+    for (TreeNode child : node.getChildren()) {
+      sb.append(dumpSubtree(indent + nodeString.length(), child));
+    }
+    return sb.toString();
+  }
 }

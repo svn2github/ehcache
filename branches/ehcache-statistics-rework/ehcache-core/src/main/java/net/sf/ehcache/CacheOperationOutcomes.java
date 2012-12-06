@@ -20,4 +20,5 @@ public interface CacheOperationOutcomes {
 
     enum GetOutcome { HIT, MISS };
     enum PutOutcome { COUNT };
+    enum SearchOutcome { SUCCESS , EXCEPTION};
 }

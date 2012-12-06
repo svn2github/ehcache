@@ -20,7 +20,6 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.GetResult;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.ReadWriteLockSync;
@@ -48,13 +47,15 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
+import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
+import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
+import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
+import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
-
-import static java.util.Collections.singletonMap;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -93,7 +94,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     private final SelectableConcurrentHashMap map;
     private final PoolAccessor poolAccessor;
 
-    private final OperationObserver getObserver = StatisticsManager.createOperationStatistic(this, singletonMap("get", "name"), GetResult.class);
+    private final OperationObserver getObserver = StatisticsManager.createOperationStatistic(this, new EhcacheStatisticsPropertyMap("get", RetrievalCost.LOW, RecordingCost.LOW, "heap"), GetOutcome.class);
 
     private final boolean storePinned;
     private final boolean elementPinningEnabled;
@@ -301,15 +302,15 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     public final Element get(final Object key) {
         getObserver.begin();
         if (key == null) {
-            getObserver.end(GetResult.MISS);
+            getObserver.end(GetOutcome.MISS);
             return null;
         } else {
             final Element e = map.get(key);
             if (e == null) {
-                getObserver.end(GetResult.MISS);
+                getObserver.end(GetOutcome.MISS);
                 return null;
             } else {
-                getObserver.end(GetResult.HIT);
+                getObserver.end(GetOutcome.HIT);
                 return e;
             }
         }
@@ -1006,9 +1007,9 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
 
         private Participant() {
-            OperationStatistic<GetResult> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.HIT, hitRate));
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetResult>(GetResult.MISS, missRate));
+            OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.HIT, hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.MISS, missRate));
         }
 
         @Override

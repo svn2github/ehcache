@@ -23,11 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.terracotta.context.ContextElement;
+import net.sf.ehcache.Ehcache;
+
 import org.terracotta.context.TreeNode;
 import org.terracotta.statistics.OperationStatistic;
-
-import net.sf.ehcache.Ehcache;
 
 public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor {
 
@@ -42,7 +41,7 @@ public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor 
     private final String[] stringPaths;
     private final Set<String> tags;
 
-    public OperationStatisticDescriptor(Ehcache cache, TreeNode tn) throws InstantiationException, IllegalAccessException {
+    public OperationStatisticDescriptor(Ehcache cache, TreeNode tn) {
         this.cache = cache;
         this.tn = tn;
         this.attrs = tn.getContext().attributes();

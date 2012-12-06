@@ -49,6 +49,9 @@ public class Constants {
                 if (name == null) {
                     name = (String) n.getContext().attributes().get(NAME_PROP);
                 }
+                if (name == null) {
+                    name = n.getContext().identifier().getSimpleName();
+                }
                 if (!first) {
                     sb.append("/");
                 } else {

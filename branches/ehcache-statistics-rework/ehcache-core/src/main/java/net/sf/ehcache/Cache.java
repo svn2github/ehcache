@@ -49,6 +49,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -96,7 +97,6 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
-import net.sf.ehcache.statisticsV2.Constants;
 import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
 import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
 import net.sf.ehcache.statisticsV2.EhcacheStatisticsCoreDb;
@@ -271,6 +271,10 @@ public class Cache implements InternalEhcache, StoreListener {
     private final OperationObserver<PutOutcome> putObserver = StatisticsManager.createOperationStatistic(this,
             new EhcacheStatisticsPropertyMap("put",RetrievalCost.LOW,RecordingCost.LOW),
             PutOutcome.class);
+
+    private final OperationObserver<SearchOutcome> searchObserver = StatisticsManager.createOperationStatistic(this,
+            new EhcacheStatisticsPropertyMap("search", RetrievalCost.LOW, RecordingCost.LOW),
+            SearchOutcome.class);
 
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
@@ -1172,6 +1176,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
 
+            StatisticsManager.associate(this).withChild(compoundStore);
             statisticsDb=new EhcacheStatisticsCoreDb(this);
         }
 
@@ -3948,17 +3953,16 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return query results
      */
     Results executeQuery(StoreQuery query) throws SearchException {
-
-        validateSearchQuery(query);
-
-        if (isStatisticsEnabled()) {
-            long start = System.currentTimeMillis();
-            Results results = this.compoundStore.executeQuery(query);
-            sampledCacheStatistics.notifyCacheSearch(System.currentTimeMillis() - start);
-            return results;
+        searchObserver.begin();
+        try {
+          validateSearchQuery(query);
+          return this.compoundStore.executeQuery(query);
+        } catch (SearchException e) {
+          searchObserver.end(SearchOutcome.EXCEPTION);
+          throw e;
+        } finally {
+          searchObserver.end(SearchOutcome.SUCCESS);
         }
-
-        return this.compoundStore.executeQuery(query);
     }
 
     /**
