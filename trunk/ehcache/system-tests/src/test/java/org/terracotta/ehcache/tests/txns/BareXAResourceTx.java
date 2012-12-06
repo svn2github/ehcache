@@ -39,50 +39,53 @@ public class BareXAResourceTx extends AbstractTxClient {
     tm = new DummyTransactionManagerLookup().getTransactionManager();
     this.cache = theCache;
 
-    LOG.info("running testTwoPhaseCommit");
-    setUp();
-    testTwoPhaseCommit();
+    try {
+      setUp();
+      LOG.info("running testTwoPhaseCommit");
+      testTwoPhaseCommit();
 
-    LOG.info("running testOnePhaseCommit");
-    setUp();
-    testOnePhaseCommit();
+      setUp();
+      LOG.info("running testOnePhaseCommit");
+      testOnePhaseCommit();
 
-    LOG.info("running testTMFAILRollback");
-    setUp();
-    testTMFAILRollback();
+      setUp();
+      LOG.info("running testTMFAILRollback");
+      testTMFAILRollback();
 
-    LOG.info("running testTMSUCCESSRollback");
-    setUp();
-    testTMSUCCESSRollback();
+      setUp();
+      LOG.info("running testTMSUCCESSRollback");
+      testTMSUCCESSRollback();
 
-    LOG.info("running testIsolationWithNewElement");
-    setUp();
-    testIsolationWithNewElement();
+      setUp();
+      LOG.info("running testIsolationWithNewElement");
+      testIsolationWithNewElement();
 
-    LOG.info("running testIsolationWithExistingElement");
-    setUp();
-    testIsolationWithExistingElement();
+      setUp();
+      LOG.info("running testIsolationWithExistingElement");
+      testIsolationWithExistingElement();
 
-    LOG.info("running testConflictWithNewElement");
-    setUp();
-    testConflictWithNewElement();
+      setUp();
+      LOG.info("running testConflictWithNewElement");
+      testConflictWithNewElement();
 
-    LOG.info("running testConflictWithExistingElement");
-    setUp();
-    testConflictWithExistingElement();
+      setUp();
+      LOG.info("running testConflictWithExistingElement");
+      testConflictWithExistingElement();
 
-    LOG.info("running testRollbackAfterPrepare");
-    setUp();
-    testRollbackAfterPrepare();
+      setUp();
+      LOG.info("running testRollbackAfterPrepare");
+      testRollbackAfterPrepare();
 
-    LOG.info("running testRollbackWithoutPrepare");
-    setUp();
-    testRollbackWithoutPrepare();
+      setUp();
+      LOG.info("running testRollbackWithoutPrepare");
+      testRollbackWithoutPrepare();
 
-    LOG.info("running testEnlistment");
-    setUp();
-    testEnlistment();
-
+      setUp();
+      LOG.info("running testEnlistment");
+      testEnlistment();
+    } finally {
+      LOG.info("done running tests");
+    }
   }
 
   private void setUp() throws Exception {
