@@ -3,17 +3,17 @@
  */
 package org.terracotta.modules.ehcache.store;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
 import junit.framework.Assert;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class InlineExpirationTest extends AbstractCacheTestBase {
 
@@ -216,6 +216,7 @@ public class InlineExpirationTest extends AbstractCacheTestBase {
       cache.getCacheConfiguration().setTimeToIdleSeconds(tti);
 
       SECONDS.sleep(tti + 1);
+      Assert.assertTrue(cache.getMemoryStoreSize() >= 2);
       Assert.assertNull(cache.get(key1));
       cache.getCacheConfiguration().setTimeToIdleSeconds(0);
       cache.getCacheConfiguration().setEternal(true);
