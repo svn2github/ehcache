@@ -67,9 +67,8 @@ public class CacheElementPinningNoServerEvictionTest extends AbstractCacheTestBa
         Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
         Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
 
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-          cache.setPinned(i, false);
-        }
+        cache.unpinAll();
+
         // Elements will be evicted from cache. doing gets now will go to L2.
         for (int i = 1001; i < 1010; i++) {
           cache.put(new Element(i, i));

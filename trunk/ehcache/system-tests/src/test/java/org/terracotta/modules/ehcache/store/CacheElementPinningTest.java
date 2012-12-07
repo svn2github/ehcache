@@ -112,6 +112,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
         waitForAllCurrentTransactionsToComplete(cache);
       }
 
+      barrier.await();
       Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
