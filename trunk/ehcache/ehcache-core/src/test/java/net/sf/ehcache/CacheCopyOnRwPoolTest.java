@@ -69,7 +69,8 @@ public class CacheCopyOnRwPoolTest {
         ));
 
         Cache cache = cacheManager.getCache("memoryOnlyCache");
-        Cache copyCache = cacheManager.getCache("memoryOnlyCache_copy");
+                assertTrue(!cache.isDiskStore());
+Cache copyCache = cacheManager.getCache("memoryOnlyCache_copy");
 
         cache.put(new Element(1000, new CrazyObject()));
         copyCache.put(new Element(1000, new CrazyObject()));

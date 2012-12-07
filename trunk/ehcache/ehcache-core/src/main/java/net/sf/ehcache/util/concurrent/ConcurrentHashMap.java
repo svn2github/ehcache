@@ -4,16 +4,13 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-package net.sf.ehcache.store.jsr166;
+package net.sf.ehcache.util.concurrent;
 
-import java.util.Comparator;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
 import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.AbstractCollection;
 import java.util.Hashtable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +18,6 @@ import java.util.Enumeration;
 import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.atomic.AtomicReference;
 

@@ -4,7 +4,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-package net.sf.ehcache.store.jsr166;
+package net.sf.ehcache.util.concurrent;
 import java.util.Random;
 
 /**
