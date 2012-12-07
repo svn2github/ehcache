@@ -22,7 +22,6 @@ import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
-import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.Store;
 

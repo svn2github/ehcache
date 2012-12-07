@@ -46,9 +46,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import net.sf.ehcache.CacheOperationOutcomes.GetAllOutcome;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -62,7 +64,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
-import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
@@ -90,12 +91,7 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statisticsV2.Constants;
-import net.sf.ehcache.statisticsV2.Constants.RecordingCost;
-import net.sf.ehcache.statisticsV2.Constants.RetrievalCost;
 import net.sf.ehcache.statisticsV2.EhcacheStatisticsCoreDb;
-import net.sf.ehcache.statisticsV2.EhcacheStatisticsPropertyMap;
 import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
@@ -137,8 +133,10 @@ import net.sf.ehcache.writer.CacheWriterManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
-import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statisticsV2.Cost.*;
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -260,18 +258,14 @@ public class Cache implements InternalEhcache, StoreListener {
 
     public EhcacheStatisticsCoreDb statisticsDb;
 
-    private final OperationObserver<GetOutcome> getObserver = StatisticsManager.createOperationStatistic(this,
-            new EhcacheStatisticsPropertyMap("get",RetrievalCost.LOW,RecordingCost.LOW,"cache","group"),
-            GetOutcome.class);
-
-    private final OperationObserver<PutOutcome> putObserver = StatisticsManager.createOperationStatistic(this,
-            new EhcacheStatisticsPropertyMap("put",RetrievalCost.LOW,RecordingCost.LOW),
-            PutOutcome.class);
-
-
-    private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search")
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this)
             .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
-
+    private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this)
+            .retrievalCost(LOW).recordingCost(LOW).tag("cache", "bulk").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this)
+            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
+    private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this)
+            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
      * <p/>
@@ -1583,7 +1577,7 @@ public class Cache implements InternalEhcache, StoreListener {
             return null;
         }
 
-        Element ret = searchInStoreWithoutStats(key, false, true);
+        Element ret = elementStatsHelper(key, false, true, compoundStore.get(key));
         getObserver.end(ret==null?GetOutcome.MISS:GetOutcome.HIT);
         return ret;
     }
@@ -1852,7 +1846,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public final Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
-        return searchInStoreWithoutStats(key, true, false);
+        return elementStatsHelper(key, true, false, compoundStore.getQuiet(key));
     }
 
     /**
@@ -1935,17 +1929,7 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     private Map<Object, Element> searchAllInStoreWithStats(Collection<?> keys) {
-        boolean wasOnDisk = false;
-        boolean wasOffHeap = false;
-        boolean hasOffHeap = getCacheConfiguration().isOverflowToOffHeap();
-        boolean isTCClustered = getCacheConfiguration().isTerracottaClustered();
-        boolean hasOnDisk = isTCClustered || getCacheConfiguration().isOverflowToDisk();
-        Map<Object, Element> elements;
-        Map<Object, Boolean> wasOffHeapMap = new HashMap<Object, Boolean>();
-        Map<Object, Boolean> wasOnDiskMap = new HashMap<Object, Boolean>();
-
-
-        elements = compoundStore.getAll(keys);
+        Map<Object, Element> elements = compoundStore.getAll(keys);
 
         for (Entry<Object, Element> entry : elements.entrySet()) {
             Object key = entry.getKey();
@@ -1972,16 +1956,6 @@ public class Cache implements InternalEhcache, StoreListener {
             elements.put(key, element);
         }
         return elements;
-    }
-
-    private Element searchInStoreWithoutStats(Object key, boolean quiet, boolean notifyListeners) {
-        Element element = null;
-        if (quiet) {
-            element = compoundStore.getQuiet(key);
-        } else {
-            element = compoundStore.get(key);
-        }
-        return elementStatsHelper(key, quiet, notifyListeners, element);
     }
 
     private Element elementStatsHelper(Object key, boolean quiet, boolean notifyListeners, Element element) {
@@ -3736,10 +3710,16 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return query results
      */
     Results executeQuery(StoreQuery query) throws SearchException {
-
-        validateSearchQuery(query);
-
-        return this.compoundStore.executeQuery(query);
+        searchObserver.begin();
+        try {
+            validateSearchQuery(query);
+            Results results = this.compoundStore.executeQuery(query);
+            searchObserver.end(SearchOutcome.SUCCESS);
+            return results;
+        } catch (SearchException e) {
+            searchObserver.end(SearchOutcome.EXCEPTION);
+            throw e;
+        }
     }
 
     /**

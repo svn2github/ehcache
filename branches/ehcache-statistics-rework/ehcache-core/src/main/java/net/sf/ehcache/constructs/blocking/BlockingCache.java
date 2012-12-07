@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -29,7 +30,12 @@ import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
+import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.loader.CacheLoader;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statisticsV2.Cost.*;
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
 
 /**
  * A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
@@ -73,6 +79,9 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
     private final int stripes;
     private final AtomicReference<CacheLockProvider> cacheLockProviderReference;
     
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this)
+            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
+
     /**
      * Creates a BlockingCache which decorates the supplied cache.
      *
@@ -146,7 +155,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      */
     @Override
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
-
+        getObserver.begin();
         Sync lock = getLockForKey(key);
         acquiredLockForKey(key, lock, LockType.READ);
         Element element;
@@ -157,15 +166,16 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
         }
         if (element == null) {
             acquiredLockForKey(key, lock, LockType.WRITE);
-            element = underlyingCache.getQuiet(key);
+            element = underlyingCache.get(key);
             if (element != null) {
-                if (underlyingCache.isStatisticsEnabled()) {
-                    element = underlyingCache.get(key);
-                }
                 lock.unlock(LockType.WRITE);
             }
+            getObserver.end(GetOutcome.GET_AND_LOCKED);
+            return element;
+        } else {
+            getObserver.end(GetOutcome.GET);
+            return element;
         }
-        return element;
     }
 
     private void acquiredLockForKey(final Object key, final Sync lock, final LockType lockType) {

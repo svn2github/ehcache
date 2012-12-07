@@ -19,6 +19,7 @@ package net.sf.ehcache;
 public interface CacheOperationOutcomes {
 
     enum GetOutcome { HIT, MISS };
+    enum GetAllOutcome { ALL_MISS, ALL_HIT, PARTIAL};
     enum PutOutcome { COUNT };
     enum SearchOutcome { SUCCESS , EXCEPTION};
 }
