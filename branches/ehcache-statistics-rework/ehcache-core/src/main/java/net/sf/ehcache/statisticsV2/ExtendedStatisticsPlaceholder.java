@@ -209,7 +209,17 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
 
     @Override
     public int getCacheHitRatioMostRecentSample() {
-      throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getMaxGetTimeNanos() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getMinGetTimeNanos() {
+        throw new UnsupportedOperationException();
     }
 
 }

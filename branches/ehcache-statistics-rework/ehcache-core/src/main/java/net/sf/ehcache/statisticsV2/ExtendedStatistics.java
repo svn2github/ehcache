@@ -76,4 +76,8 @@ public interface ExtendedStatistics {
 
     int getCacheHitRatioMostRecentSample();
 
+    long getMaxGetTimeNanos();
+
+    long getMinGetTimeNanos();
+
 }

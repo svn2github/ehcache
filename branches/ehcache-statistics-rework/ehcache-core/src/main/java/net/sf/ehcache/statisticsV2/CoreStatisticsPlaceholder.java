@@ -99,30 +99,6 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
     }
 
     /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.CoreStatistics#xaCommit()
-     */
-    @Override
-    public void xaCommit() {
-        throw new UnsupportedOperationException();
-    }
-
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.CoreStatistics#xaRecovered(int)
-     */
-    @Override
-    public void xaRecovered(int size) {
-        throw new UnsupportedOperationException();
-    }
-
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.CoreStatistics#xaRollback()
-     */
-    @Override
-    public void xaRollback() {
-        throw new UnsupportedOperationException();
-    }
-
-    /* (non-Javadoc)
      * @see net.sf.ehcache.statisticsV2.CoreStatistics#getCacheHits()
      */
     @Override
@@ -144,14 +120,6 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
      */
     @Override
     public long getLocalHeapSizeInBytes() {
-        throw new UnsupportedOperationException();
-    }
-
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.CoreStatistics#getgetCacheHits()
-     */
-    @Override
-    public long getgetCacheHits() {
         throw new UnsupportedOperationException();
     }
 
@@ -200,22 +168,6 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
      */
     @Override
     public String getLocalHeapSizeString() {
-        throw new UnsupportedOperationException();
-    }
-
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.CoreStatistics#getCacheMissCount()
-     */
-    @Override
-    public long getCacheMissCount() {
-        throw new UnsupportedOperationException();
-    }
-
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.CoreStatistics#getCacheHitCount()
-     */
-    @Override
-    public long getCacheHitCount() {
         throw new UnsupportedOperationException();
     }
 

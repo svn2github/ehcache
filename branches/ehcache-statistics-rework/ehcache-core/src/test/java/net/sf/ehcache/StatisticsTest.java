@@ -67,7 +67,7 @@ public class StatisticsTest extends AbstractCacheTest {
         cache.get("key2");
 
         CoreStatistics statistics = cache.getStatistics().getCore();
-        assertEquals(2, statistics.getgetCacheHits());
+        assertEquals(2, statistics.getCacheHits());
         assertEquals(1, statistics.getOnDiskHits());
         assertEquals(1, statistics.getInMemoryHits());
         assertEquals(0, statistics.getCacheMisses());

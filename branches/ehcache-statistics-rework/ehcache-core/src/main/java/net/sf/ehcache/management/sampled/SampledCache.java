@@ -614,7 +614,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheHitCount()
      */
     public long getCacheHitCount() {
-        return sampledCacheDelegate.getCacheHitCount();
+        return sampledCacheDelegate.getCacheHits();
     }
 
     /**
@@ -623,7 +623,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getCacheMissCount()
      */
     public long getCacheMissCount() {
-        return sampledCacheDelegate.getCacheMissCount();
+        return sampledCacheDelegate.getCacheMisses();
     }
 
     /**

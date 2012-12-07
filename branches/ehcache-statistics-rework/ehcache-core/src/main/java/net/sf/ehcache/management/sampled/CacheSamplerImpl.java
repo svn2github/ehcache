@@ -536,7 +536,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     public long getMaxGetTimeNanos() {
         try {
-            return cache.getStatistics().getCore().getMaxGetTimeNanos();
+            return cache.getStatistics().getExtended().getMaxGetTimeNanos();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -547,7 +547,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     public long getMinGetTimeNanos() {
         try {
-            return cache.getStatistics().getCore().getMinGetTimeNanos();
+            return cache.getStatistics().getExtended().getMinGetTimeNanos();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -617,27 +617,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     public int getWriterConcurrency() {
         return cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindConcurrency();
-    }
-    /**
-     * {@inheritDoc}
-     */
-    public long getCacheHitCount() {
-        try {
-            return cache.getStatistics().getCore().getCacheHitCount();
-        } catch (RuntimeException e) {
-            throw Utils.newPlainException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getCacheMissCount() {
-        try {
-            return cache.getStatistics().getCore().getCacheMissCount();
-        } catch (RuntimeException e) {
-            throw Utils.newPlainException(e);
-        }
     }
 
     /**
@@ -1430,140 +1409,97 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     @Override
     public long calculateInMemorySize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().calculateInMemorySize();
     }
 
     @Override
     public long getMemoryStoreSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getMemoryStoreSize();
     }
 
     @Override
     public int getDiskStoreSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getDiskStoreSize();
     }
 
     @Override
     public long calculateOffHeapSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().calculateOffHeapSize();
     }
 
     @Override
     public long getOffHeapStoreSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getOffHeapStoreSize();
     }
 
     @Override
     public long getInMemoryHits() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getInMemoryHits();
     }
 
     @Override
     public long getInMemoryMisses() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getInMemoryMisses();
     }
 
     @Override
     public long getOnDiskHits() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getOnDiskHits();
     }
 
     @Override
     public long getOnDiskMisses() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getOnDiskMisses();
     }
 
     @Override
     public long getEvictionCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void xaCommit() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void xaRecovered(int size) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void xaRollback() {
-        // TODO Auto-generated method stub
-
+        return cache.getStatistics().getCore().getEvictedCount();
     }
 
     @Override
     public long getCacheHits() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getCacheHits();
     }
 
     @Override
     public long getCacheMisses() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public long getgetCacheHits() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getCacheMisses();
     }
 
     @Override
     public long getObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getObjectCount();
     }
 
     @Override
     public long getMemoryStoreObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getMemoryStoreObjectCount();
     }
 
     @Override
     public long getDiskStoreObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getDiskStoreObjectCount();
     }
 
     @Override
     public String getAssociatedCacheName() {
-        // TODO Auto-generated method stub
-        return null;
+        return cache.getStatistics().getCore().getAssociatedCacheName();
     }
 
     @Override
     public long getOffHeapHits() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getOffHeapHits();
     }
 
     @Override
     public long getOffHeapMisses() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getOffHeapMisses();
     }
 
     @Override
     public long getWriterQueueSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return cache.getStatistics().getCore().getWriterQueueLength();
     }
 
     @Override

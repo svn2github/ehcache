@@ -108,17 +108,17 @@ public final class BlockingCacheTest {
             BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testSupportsStatsCorrectly"));
             blockingCache.getStatistics().setStatisticsEnabled(true);
             CoreStatistics statistics = blockingCache.getStatistics().getCore();
-            long cacheMisses = statistics.getCacheMissCount();
-            long cacheHits = statistics.getCacheHitCount();
+            long cacheMisses = statistics.getCacheMisses();
+            long cacheHits = statistics.getCacheHits();
             String key = "123451234";
             blockingCache.get(key);
-            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
-            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMisses());
+            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHits());
             blockingCache.put(new Element(key, "value"));
-            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
-            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMisses());
+            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHits());
             assertNotNull(blockingCache.get(key));
-            assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHitCount());
+            assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHits());
             blockingCache.getStatistics().setStatisticsEnabled(false);
             blockingCache.remove(key);
         } finally {

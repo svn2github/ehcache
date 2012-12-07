@@ -122,8 +122,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
 
     protected void assertStatistics(Cache cache, long cacheHits, long cacheMisses, long inMemoryHits,
                                     long inMemoryMisses) throws Exception {
-      assertNearEquals(cacheHits, cache.getStatistics().getCore().getCacheHitCount(), 0.05);
-      assertNearEquals(cacheMisses, cache.getStatistics().getCore().getCacheMissCount(), 0.05);
+      assertNearEquals(cacheHits, cache.getStatistics().getCore().getCacheHits(), 0.05);
+      assertNearEquals(cacheMisses, cache.getStatistics().getCore().getCacheMisses(), 0.05);
       assertNearEquals(inMemoryHits, cache.getStatistics().getCore().getInMemoryHitCount(), 0.2);
       assertNearEquals(inMemoryMisses, cache.getStatistics().getCore().getInMemoryMissCount(), 0.2);
       Assert.assertEquals(0, cache.getStatistics().getCore().getOffHeapHitCount());
@@ -179,8 +179,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       info("Cache size: " + cache.getSize());
       info("Cache in memory size: " + cache.getMemoryStoreSize());
       info("Cache off heap size: " + cache.getOffHeapStoreSize());
-      info("Cache hits: " + cache.getStatistics().getCore().getCacheHitCount() + " misses: "
-           + cache.getStatistics().getCore().getCacheMissCount());
+      info("Cache hits: " + cache.getStatistics().getCore().getCacheHits() + " misses: "
+           + cache.getStatistics().getCore().getCacheMisses());
       info("Cache in memory hits: " + cache.getStatistics().getCore().getInMemoryHitCount() + " misses: "
            + cache.getStatistics().getCore().getInMemoryMissCount());
       info("Cache off heap hits: " + cache.getStatistics().getCore().getOffHeapHitCount() + " misses: "

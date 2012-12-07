@@ -38,19 +38,11 @@ public interface CoreStatistics {
 
     long getEvictionCount();
 
-    void xaCommit();
-
-    void xaRecovered(int size);
-
-    void xaRollback();
-
     long getCacheHits();
 
     long getCacheMisses();
 
     long getLocalHeapSizeInBytes();
-
-    long getgetCacheHits();
 
     long getObjectCount();
 
@@ -63,10 +55,6 @@ public interface CoreStatistics {
     String getAssociatedCacheName();
 
     long getLocalHeapSize();
-
-    long getCacheMissCount();
-
-    long getCacheHitCount();
 
     long getMaxGetTimeMillis();
 
