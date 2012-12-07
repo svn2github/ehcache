@@ -23,10 +23,6 @@ public interface EhcacheStatisticDescriptor {
 
     public abstract Set<String> getTags();
 
-    public abstract Cost getRecordingCost();
-
-    public abstract Cost getRetrievalCost();
-
     public abstract String getShortName();
 
     public abstract String getStringPath();

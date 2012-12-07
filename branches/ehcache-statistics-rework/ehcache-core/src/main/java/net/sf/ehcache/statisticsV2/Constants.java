@@ -18,7 +18,6 @@ package net.sf.ehcache.statisticsV2;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.terracotta.context.TreeNode;
 
@@ -33,11 +32,7 @@ public class Constants {
             boolean first = true;
             StringBuilder sb = new StringBuilder();
             for (TreeNode n : path) {
-                Map<String, Object> props = (Map<String, Object>) n.getContext().attributes().get(PROPERTIES_PROP);
                 String name = null;
-                if (props != null) {
-                    name = (String) props.get(StatisticBuilder.NAME_PROP);
-                }
                 if (name == null) {
                     name = (String) n.getContext().attributes().get(NAME_PROP);
                 }

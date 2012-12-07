@@ -71,7 +71,7 @@ public class EhcacheStatisticsCoreDb {
     private OperationStatistic probeForOpStatistic(String name) {
         OperationStatisticDescriptor descr = rawOperationStats.get(cache.getName() + name);
         if(descr==null) {
-            return new OperationStatistic<CacheOperationOutcomes.GetOutcome>(Collections.EMPTY_MAP, CacheOperationOutcomes.GetOutcome.class);
+            return new OperationStatistic<CacheOperationOutcomes.GetOutcome>("void", Collections.<String>emptySet(), Collections.<String, Object>emptyMap(), CacheOperationOutcomes.GetOutcome.class);
         } else {
             return descr.getOpStatistic();
         }

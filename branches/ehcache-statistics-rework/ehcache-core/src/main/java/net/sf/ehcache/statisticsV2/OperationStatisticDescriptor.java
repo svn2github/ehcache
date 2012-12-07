@@ -30,13 +30,10 @@ import org.terracotta.statistics.OperationStatistic;
 
 public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor {
 
-    private final Map<String, Object> attrs;
     private final TreeNode tn;
-    private final Map<String, Object> properties;
     private final String shortName;
     private final Class<? extends Enum> outcome;
     private final OperationStatistic opStatistic;
-    private final List<? extends TreeNode> path;
     private final Ehcache cache;
     private final String[] stringPaths;
     private final Set<String> tags;
@@ -44,23 +41,16 @@ public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor 
     public OperationStatisticDescriptor(Ehcache cache, TreeNode tn) {
         this.cache = cache;
         this.tn = tn;
-        this.attrs = tn.getContext().attributes();
-        this.properties = (Map<String, Object>) attrs.get(Constants.PROPERTIES_PROP);
-        this.shortName = (String) properties.get(Constants.NAME_PROP);
+        
+        Map<String, Object> attrs = tn.getContext().attributes();
+        this.shortName = (String) attrs.get("name");
         this.outcome = (Class<? extends Enum>) attrs.get("type");
         this.opStatistic = (OperationStatistic) attrs.get("this");
-        this.path = tn.getPath();
-        if(properties.containsKey(StatisticBuilder.TAGS_PROP)) {
-            tags=Collections.unmodifiableSet((Set<String>) properties.get(StatisticBuilder.TAGS_PROP));
-        } else {
-            tags=Collections.EMPTY_SET;
-        }
-        // must always be one, and one is enough.
-
+        this.tags = (Set<String>) attrs.get("tags");
+        
         String[] paths = Constants.formStringPathsFromContext(tn);
         Arrays.sort(paths);
         this.stringPaths=paths;
-
     }
 
     public String getIdentifer() {
@@ -78,22 +68,6 @@ public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor 
     public Set<String> getTags() {
         return tags;
     };
-
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.EhcacheStatisticDescriptor#getRecordingCost()
-     */
-    @Override
-    public Cost getRecordingCost() {
-        throw new UnsupportedOperationException();
-    };
-
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.EhcacheStatisticDescriptor#getRetrievalCost()
-     */
-    @Override
-    public Cost getRetrievalCost() {
-        throw new UnsupportedOperationException();
-    }
 
     public Class<? extends Enum> getOutcome() {
         return outcome;
@@ -130,7 +104,7 @@ public class OperationStatisticDescriptor implements EhcacheStatisticDescriptor 
     @Override
     public String toString() {
         return "EhcacheOperationStatisticDescriptor [path=" + getStringPath() + ", shortName=" + shortName + ", outcome=" + Arrays.asList(outcome.getEnumConstants())
-                + ", properties=" + properties + "]";
+                + ", tags=" + tags + "]";
     }
 
 }

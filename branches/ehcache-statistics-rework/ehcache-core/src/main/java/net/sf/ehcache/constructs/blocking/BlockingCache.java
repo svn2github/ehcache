@@ -34,7 +34,6 @@ import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutc
 import net.sf.ehcache.loader.CacheLoader;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statisticsV2.Cost.*;
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
 
 /**
@@ -79,8 +78,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
     private final int stripes;
     private final AtomicReference<CacheLockProvider> cacheLockProviderReference;
     
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this)
-            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
 
     /**
      * Creates a BlockingCache which decorates the supplied cache.

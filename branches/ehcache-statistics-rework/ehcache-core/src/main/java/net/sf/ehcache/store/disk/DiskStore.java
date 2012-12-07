@@ -60,8 +60,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
-import net.sf.ehcache.statisticsV2.Cost;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
@@ -69,7 +67,8 @@ import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
-import static net.sf.ehcache.statisticsV2.Cost.*;
+import net.sf.ehcache.store.StoreOperationOutcomes;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 
 /**
  * Implements a persistent-to-disk store.
@@ -101,8 +100,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
     private final boolean tierPinned;
     private final boolean persistent;
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get")
-            .retrievalCost(LOW).recordingCost(LOW).tag("disk").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").tag("disk").build();
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
 

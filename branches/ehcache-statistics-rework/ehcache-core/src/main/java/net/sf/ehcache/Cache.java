@@ -135,7 +135,6 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statisticsV2.Cost.*;
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
 
 /**
@@ -258,14 +257,11 @@ public class Cache implements InternalEhcache, StoreListener {
 
     public EhcacheStatisticsCoreDb statisticsDb;
 
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this)
-            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
-    private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this)
-            .retrievalCost(LOW).recordingCost(LOW).tag("cache", "bulk").build();
-    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this)
-            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
-    private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this)
-            .retrievalCost(LOW).recordingCost(LOW).tag("cache").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
+    private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this).tag("cache", "bulk").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("cache").build();
+    private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this).tag("cache").build();
+    
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
      * <p/>
