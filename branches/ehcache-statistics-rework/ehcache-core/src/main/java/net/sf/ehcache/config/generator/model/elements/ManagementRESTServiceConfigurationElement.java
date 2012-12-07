@@ -76,6 +76,6 @@ public class ManagementRESTServiceConfigurationElement extends SimpleNodeElement
         addAttribute(new SimpleNodeAttribute("sampleIntervalSeconds", managementRESTServiceConfiguration
             .getSampleIntervalSeconds()).optional(true).defaultValue(ExtendedStatisticsPlaceholder.DEFAULT_INTERVAL_SECS));
         addAttribute(new SimpleNodeAttribute("sampleSearchIntervalSeconds", managementRESTServiceConfiguration
-            .getSampleSearchIntervalSeconds()).optional(true).defaultValue(ExtendedStatisticsPlaceholder.DEFAULT_SEARCH_INTERVAL_SEC));
+            .getSampleSearchIntervalSeconds()).optional(true).defaultValue(ExtendedStatisticsPlaceholder.DEFAULT_SEARCH_INTERVAL_SECS));
     }
 }

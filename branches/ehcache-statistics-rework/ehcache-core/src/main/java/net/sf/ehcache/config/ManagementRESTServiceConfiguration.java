@@ -55,7 +55,7 @@ public class ManagementRESTServiceConfiguration {
 
     private volatile int sampleHistorySize = ExtendedStatisticsPlaceholder.DEFAULT_HISTORY_SIZE;
     private volatile int sampleIntervalSeconds = ExtendedStatisticsPlaceholder.DEFAULT_INTERVAL_SECS;
-    private volatile int sampleSearchIntervalSeconds = ExtendedStatisticsPlaceholder.DEFAULT_SEARCH_INTERVAL_SEC;
+    private volatile int sampleSearchIntervalSeconds = ExtendedStatisticsPlaceholder.DEFAULT_SEARCH_INTERVAL_SECS;
 
     /**
      * Check if the REST services should be enabled or not.

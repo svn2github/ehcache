@@ -16,57 +16,89 @@
 
 package net.sf.ehcache.statisticsV2;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import net.sf.ehcache.CacheOperationOutcomes;
+
 public interface ExtendedStatistics {
+    
+    void setStatisticsTimeToDisable(long time, TimeUnit unit);
+    
+    CompoundOperation<CacheOperationOutcomes.GetOutcome> get();
+    CompoundOperation<CacheOperationOutcomes.PutOutcome> put();
+    
+    interface CompoundOperation<T> {
+        Operation component(T result);
+    }
 
-    float getAverageGetTime();
+    public interface Operation {
+        Statistic<Double> rate();
+        Latency latency() throws UnsupportedOperationException;
+    }
+    
+    public interface Latency {
+        Statistic<Long> minimum();
+        Statistic<Long> maximum();
+        Statistic<Double> average();
+    }
+    
+    public interface Statistic<T> {
+        T value();
+        List<Timestamped<T>> history() throws UnsupportedOperationException;
+    }
+    
+    public interface Timestamped<T> {
+        T value();
+        long timestamp();
+    }
+    
+    double getAverageGetTime();
 
-    long getCacheHitMostRecentSample();
+    double getCacheHitMostRecentSample();
 
-    long getCacheMissMostRecentSample();
+    double getCacheMissMostRecentSample();
 
-    long getPutCount();
+    double getCacheElementPutMostRecentSample();
 
-    long getCacheElementPutMostRecentSample();
+    double getCacheMissNotFoundMostRecentSample();
 
-    long getCacheMissNotFoundMostRecentSample();
-
-    long getCacheMissExpiredMostRecentSample();
+    double getCacheMissExpiredMostRecentSample();
 
     long getMaxGetTimeMillis();
 
     long getMinGetTimeMillis();
 
-    long getCacheHitInMemoryMostRecentSample();
+    double getCacheHitInMemoryMostRecentSample();
 
-    long getCacheHitOffHeapMostRecentSample();
+    double getCacheHitOffHeapMostRecentSample();
 
-    long getCacheHitOnDiskMostRecentSample();
+    double getCacheHitOnDiskMostRecentSample();
 
-    long getCacheMissInMemoryMostRecentSample();
+    double getCacheMissInMemoryMostRecentSample();
 
-    long getCacheMissOffHeapMostRecentSample();
+    double getCacheMissOffHeapMostRecentSample();
 
-    long getCacheMissOnDiskMostRecentSample();
+    double getCacheMissOnDiskMostRecentSample();
 
-    long getCacheElementUpdatedMostRecentSample();
+    double getCacheElementUpdatedMostRecentSample();
 
-    long getCacheElementRemovedMostRecentSample();
+    double getCacheElementRemovedMostRecentSample();
 
-    long getCacheElementEvictedMostRecentSample();
+    double getCacheElementEvictedMostRecentSample();
 
-    long getCacheElementExpiredMostRecentSample();
+    double getCacheElementExpiredMostRecentSample();
 
-    long getSearchesPerSecond();
+    double getSearchesPerSecond();
 
-    long getAverageSearchTime();
+    double getAverageSearchTime();
 
-    long getCacheXaCommitsMostRecentSample();
+    double getCacheXaCommitsMostRecentSample();
 
-    long getCacheXaRollbacksMostRecentSample();
+    double getCacheXaRollbacksMostRecentSample();
 
-    long getAverageGetTimeMostRecentSample();
+    double getAverageGetTimeMostRecentSample();
 
-    long getAverageGetTimeNanosMostRecentSample();
+    double getAverageGetTimeNanosMostRecentSample();
 
     int getStatisticsAccuracy();
 

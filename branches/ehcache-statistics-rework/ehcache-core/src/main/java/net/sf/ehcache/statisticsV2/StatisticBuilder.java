@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
@@ -40,51 +41,20 @@ public final class StatisticBuilder {
         return new OperationStatisticBuilder(type);
     }
 
-    public static PassThroughStatisticBuilder passThrough() {
-        return new PassThroughStatisticBuilder();
+    public static <T extends Number> PassThroughStatisticBuilder<T> passThrough(Callable<T> callable) {
+        return new PassThroughStatisticBuilder(callable);
     }
 
     public static EventStatisticBuilder event() {
         return new EventStatisticBuilder();
     }
 
-    public static class OperationStatisticBuilder<T extends Enum<T>> extends AbstractStatisticBuilder {
+    public static class OperationStatisticBuilder<T extends Enum<T>> extends AbstractStatisticBuilder<OperationStatisticBuilder<T>> {
 
         private final Class<T> type;
 
-        private Object context;
-        
         public OperationStatisticBuilder(Class<T> type) {
             this.type = type;
-        }
-        
-        public OperationStatisticBuilder<T> of(Object of) {
-            if (context == null) {
-                context = of;
-                return this;
-            } else {
-                throw new IllegalStateException("Context already defined");
-            }
-        }
-        
-        public OperationStatisticBuilder<T> named(String name) {
-            addProperty(NAME_PROP, name);
-            return this;
-        }
-        
-        public OperationStatisticBuilder<T> tag(String ... tags) {
-            Set<String> tagSet = (Set<String>) properties.get(TAGS_PROP);
-            if (tagSet == null) {
-                tagSet = new HashSet<String>();
-                properties.put(TAGS_PROP, tagSet);
-            }
-            Collections.addAll(tagSet, tags);
-            return this;
-        }
-
-        public OperationStatisticBuilder<T> retrievalCost(Cost cost) {
-            addProperty(RETRIEVAL_COST_PROP, cost);
-            return this;
         }
         
         public OperationStatisticBuilder<T> recordingCost(Cost cost) {
@@ -101,17 +71,64 @@ public final class StatisticBuilder {
         }
     }
     
-    public static class PassThroughStatisticBuilder {
+    public static class PassThroughStatisticBuilder<T extends Number> extends AbstractStatisticBuilder<PassThroughStatisticBuilder<T>> {
         
+        private final Callable<T> callable;
+        
+        public PassThroughStatisticBuilder(Callable<T> callable) {
+            this.callable = callable;
+        }
+        
+        
+        public void build() {
+            StatisticsManager.<T>createPassThroughStatistic(context, properties, callable);
+        }
     }
     
     public static class EventStatisticBuilder {
         
     }
 
-    static class AbstractStatisticBuilder {
+    static class AbstractStatisticBuilder<T extends AbstractStatisticBuilder> {
         
         protected final Map<String, Object> properties = new HashMap<String, Object>();
+        
+        protected Object context;
+        
+        public T of(Object of) {
+            if (context == null) {
+                context = of;
+                return (T) this;
+            } else {
+                throw new IllegalStateException("Context already defined");
+            }
+        }
+        
+        public T named(String name) {
+            addProperty(NAME_PROP, name);
+            return (T) this;
+        }
+        
+        public T tag(String ... tags) {
+            Set<String> tagSet = (Set<String>) properties.get(TAGS_PROP);
+            if (tagSet == null) {
+                tagSet = new HashSet<String>();
+                properties.put(TAGS_PROP, tagSet);
+            }
+            Collections.addAll(tagSet, tags);
+            return (T) this;
+        }
+
+        public T retrievalCost(Cost cost) {
+            addProperty(RETRIEVAL_COST_PROP, cost);
+            return (T) this;
+        }
+        
+        protected void validate() {
+            if (context == null || !properties.containsKey(RETRIEVAL_COST_PROP)) {
+                throw new IllegalStateException();
+            }
+        }
         
         protected void addProperty(String name, Object value) {
             if (properties.containsKey(name)) {

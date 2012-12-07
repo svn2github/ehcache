@@ -211,7 +211,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                count += cache.getStatistics().getExtended().getPutCount();
+                count += cache.getStatistics().getCore().getPutCount();
             }
         }
         return count;

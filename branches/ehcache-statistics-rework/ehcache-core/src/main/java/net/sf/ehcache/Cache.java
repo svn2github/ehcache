@@ -1576,10 +1576,20 @@ public class Cache implements InternalEhcache, StoreListener {
         if (disabled) {
             return null;
         }
-
-        Element ret = elementStatsHelper(key, false, true, compoundStore.get(key));
-        getObserver.end(ret==null?GetOutcome.MISS:GetOutcome.HIT);
-        return ret;
+        
+        Element element = compoundStore.get(key);
+        if (element == null) {
+            getObserver.end(GetOutcome.MISS_NOT_FOUND);
+            return null;
+        } else if (isExpired(element)) {
+            tryRemoveImmediately(key, true);
+            getObserver.end(GetOutcome.MISS_EXPIRED);
+            return null;
+        } else if (!skipUpdateAccessStatistics(element)) {
+            element.updateAccessStatistics();
+        }
+        getObserver.end(GetOutcome.HIT);
+        return element;
     }
 
     /**
@@ -1846,7 +1856,15 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public final Element getQuiet(Object key) throws IllegalStateException, CacheException {
         checkStatus();
-        return elementStatsHelper(key, true, false, compoundStore.getQuiet(key));
+        Element element = compoundStore.getQuiet(key);
+        if (element == null) {
+            return null;
+        } else if (isExpired(element)) {
+            tryRemoveImmediately(key, false);
+            return null;
+        } else {
+            return element;
+        }
     }
 
     /**

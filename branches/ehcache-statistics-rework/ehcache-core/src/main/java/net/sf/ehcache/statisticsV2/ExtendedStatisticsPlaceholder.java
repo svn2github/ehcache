@@ -16,11 +16,15 @@
 
 package net.sf.ehcache.statisticsV2;
 
+import java.util.concurrent.TimeUnit;
+import org.terracotta.statistics.derived.EventParameterSimpleMovingAverage;
+import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
+
 public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
     /**
      * The default interval in seconds for the {@link SampledRateCounter} for recording the average search rate counter
      */
-    public static int DEFAULT_SEARCH_INTERVAL_SEC = 10;
+    public static int DEFAULT_SEARCH_INTERVAL_SECS = 10;
 
     /**
      * The default history size for {@link SampledCounter} objects.
@@ -32,14 +36,40 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     public static int DEFAULT_INTERVAL_SECS = 1;
 
+    private final EventParameterSimpleMovingAverage getLatencyAverage = new EventParameterSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventParameterSimpleMovingAverage searchLatencyAverage = new EventParameterSimpleMovingAverage(DEFAULT_SEARCH_INTERVAL_SECS, TimeUnit.SECONDS);
+    
+    private final EventRateSimpleMovingAverage hitRateAverage = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage missRateAverage = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage putRateAverage = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    
+    private final EventRateSimpleMovingAverage missNotFoundRateAverage = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage missExpiredRateAverage = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    
+    private final EventRateSimpleMovingAverage heapMissRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage offheapMissRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);;
+    private final EventRateSimpleMovingAverage diskMissRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);;
+    
+    private final EventRateSimpleMovingAverage offheapHitRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage diskHitRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage expiredRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage evictedRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage removedRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage updateRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    
+    private final EventRateSimpleMovingAverage xaRollbackRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    private final EventRateSimpleMovingAverage xaCommitRate = new EventRateSimpleMovingAverage(DEFAULT_INTERVAL_SECS, TimeUnit.SECONDS);
+    
+    private final EventRateSimpleMovingAverage searchRate = new EventRateSimpleMovingAverage(DEFAULT_SEARCH_INTERVAL_SECS, TimeUnit.SECONDS);
+    
     /*
      * (non-Javadoc)
      *
      * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getAverageGetTime()
      */
     @Override
-    public float getAverageGetTime() {
-        throw new UnsupportedOperationException();
+    public double getAverageGetTime() {
+        return getLatencyAverage.average();
     }
 
     /*
@@ -48,8 +78,8 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheHitMostRecentSample()
      */
     @Override
-    public long getCacheHitMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheHitMostRecentSample() {
+        return hitRateAverage.rate(TimeUnit.SECONDS);
     }
 
     /*
@@ -58,18 +88,8 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheMissMostRecentSample()
      */
     @Override
-    public long getCacheMissMostRecentSample() {
-        throw new UnsupportedOperationException();
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getPutCount()
-     */
-    @Override
-    public long getPutCount() {
-        throw new UnsupportedOperationException();
+    public double getCacheMissMostRecentSample() {
+        return missRateAverage.rate(TimeUnit.SECONDS);
     }
 
     /*
@@ -78,18 +98,16 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheElementPutMostRecentSample()
      */
     @Override
-    public long getCacheElementPutMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheElementPutMostRecentSample() {
+        return putRateAverage.rate(TimeUnit.SECONDS);
     }
 
-    /*
-     * (non-Javadoc)
-     *
+    /* (non-Javadoc)
      * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getMaxGetTimeMillis()
      */
     @Override
     public long getMaxGetTimeMillis() {
-        throw new UnsupportedOperationException();
+        return getLatencyAverage.maximum();
     }
 
     /*
@@ -99,87 +117,87 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public long getMinGetTimeMillis() {
-        throw new UnsupportedOperationException();
+        return getLatencyAverage.minimum();
     }
 
     @Override
-    public long getCacheHitInMemoryMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheHitInMemoryMostRecentSample() {
+        return hitRateAverage.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheHitOffHeapMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheHitOffHeapMostRecentSample() {
+        return offheapHitRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheHitOnDiskMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheHitOnDiskMostRecentSample() {
+        return diskHitRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheMissInMemoryMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheMissInMemoryMostRecentSample() {
+        return heapMissRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheMissOffHeapMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheMissOffHeapMostRecentSample() {
+        return offheapMissRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheMissOnDiskMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheMissOnDiskMostRecentSample() {
+        return diskMissRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheElementUpdatedMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheElementUpdatedMostRecentSample() {
+        return updateRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheElementRemovedMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheElementRemovedMostRecentSample() {
+        return removedRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheElementEvictedMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheElementEvictedMostRecentSample() {
+        return evictedRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheElementExpiredMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheElementExpiredMostRecentSample() {
+        return expiredRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getSearchesPerSecond() {
-        throw new UnsupportedOperationException();
+    public double getSearchesPerSecond() {
+        return searchRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getAverageSearchTime() {
-        throw new UnsupportedOperationException();
+    public double getAverageSearchTime() {
+        return searchLatencyAverage.average();
     }
 
     @Override
-    public long getCacheXaCommitsMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheXaCommitsMostRecentSample() {
+        return xaCommitRate.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheXaRollbacksMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheXaRollbacksMostRecentSample() {
+        return xaRollbackRate.rate(TimeUnit.SECONDS);
+    }
+    
+    @Override
+    public double getAverageGetTimeMostRecentSample() {
+        return getAverageGetTime();
     }
 
     @Override
-    public long getAverageGetTimeMostRecentSample() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getAverageGetTimeNanosMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getAverageGetTimeNanosMostRecentSample() {
+        return getAverageGetTime() * TimeUnit.SECONDS.toNanos(1);
     }
 
     @Override
@@ -198,13 +216,13 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
     }
 
     @Override
-    public long getCacheMissNotFoundMostRecentSample() {
-        throw new UnsupportedOperationException();
+    public double getCacheMissNotFoundMostRecentSample() {
+        return missNotFoundRateAverage.rate(TimeUnit.SECONDS);
     }
 
     @Override
-    public long getCacheMissExpiredMostRecentSample() {
-      throw new UnsupportedOperationException();
+    public double getCacheMissExpiredMostRecentSample() {
+        return missExpiredRateAverage.rate(TimeUnit.SECONDS);
     }
 
     @Override
