@@ -45,7 +45,7 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public long getCacheHitMostRecentSample() {
-        throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -53,8 +53,7 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public long getCacheMissMostRecentSample() {
-        // TODO Auto-generated method stub
-        return 0;
+      throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -62,8 +61,7 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public long getPutCount() {
-        // TODO Auto-generated method stub
-        return 0;
+      throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -71,8 +69,7 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public long getCacheElementPutMostRecentSample() {
-        // TODO Auto-generated method stub
-        return 0;
+      throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -80,8 +77,7 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public int getCacheMissNotFoundMostRecentSample() {
-        // TODO Auto-generated method stub
-        return 0;
+      throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -89,8 +85,7 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public int getCacheMissExpiredMostRecentSample() {
-        // TODO Auto-generated method stub
-        return 0;
+      throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -98,8 +93,7 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public long getMaxGetTimeMillis() {
-        // TODO Auto-generated method stub
-        return 0;
+      throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -107,6 +101,80 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
      */
     @Override
     public long getMinGetTimeMillis() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheHitInMemoryMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheHitOffHeapMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheHitOnDiskMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheMissInMemoryMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheMissOffHeapMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheMissOnDiskMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheElementUpdatedMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheElementRemovedMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheElementEvictedMostRecentSample() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheElementExpiredMostRecentSample() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getSearchesPerSecond() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getAverageSearchTime() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getCacheXaCommitsMostRecentSample() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getCacheXaRollbacksMostRecentSample() {
         // TODO Auto-generated method stub
         return 0;
     }

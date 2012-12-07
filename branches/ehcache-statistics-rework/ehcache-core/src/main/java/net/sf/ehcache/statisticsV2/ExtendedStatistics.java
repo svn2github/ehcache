@@ -36,4 +36,32 @@ public interface ExtendedStatistics {
 
     public abstract long getMinGetTimeMillis();
 
+    public abstract long getCacheHitInMemoryMostRecentSample();
+
+    public abstract long getCacheHitOffHeapMostRecentSample();
+
+    public abstract long getCacheHitOnDiskMostRecentSample();
+
+    public abstract long getCacheMissInMemoryMostRecentSample();
+
+    public abstract long getCacheMissOffHeapMostRecentSample();
+
+    public abstract long getCacheMissOnDiskMostRecentSample();
+
+    public abstract long getCacheElementUpdatedMostRecentSample();
+
+    public abstract long getCacheElementRemovedMostRecentSample();
+
+    public abstract long getCacheElementEvictedMostRecentSample();
+
+    public abstract long getCacheElementExpiredMostRecentSample();
+
+    public abstract long getSearchesPerSecond();
+
+    public abstract long getAverageSearchTime();
+
+    public abstract long getCacheXaCommitsMostRecentSample();
+
+    public abstract long getCacheXaRollbacksMostRecentSample();
+
 }

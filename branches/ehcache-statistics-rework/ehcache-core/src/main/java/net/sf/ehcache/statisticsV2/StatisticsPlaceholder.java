@@ -59,6 +59,11 @@ public class StatisticsPlaceholder {
         return null;
     }
 
+    public boolean isSampledStatisticsEnabled() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 
 
 }

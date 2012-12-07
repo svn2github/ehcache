@@ -276,4 +276,40 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
         return 0;
     }
 
+    @Override
+    public long getInMemoryHitCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getInMemoryMissCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public Object getOffHeapHitCount() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Object getOffHeapMissCount() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getExpiredCount() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int getWriterQueueLength() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }

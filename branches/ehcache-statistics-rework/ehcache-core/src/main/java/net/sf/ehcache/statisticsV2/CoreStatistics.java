@@ -94,4 +94,6 @@ public interface CoreStatistics {
 
     public abstract String getExpiredCount();
 
+    public abstract int getWriterQueueLength();
+
 }

@@ -20,7 +20,6 @@ import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
-import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statisticsV2.ExtendedStatisticsPlaceholder;
 
 /**
