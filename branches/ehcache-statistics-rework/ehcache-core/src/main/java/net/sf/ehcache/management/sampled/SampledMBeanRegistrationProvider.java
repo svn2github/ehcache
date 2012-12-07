@@ -170,8 +170,8 @@ public class SampledMBeanRegistrationProvider implements MBeanRegistrationProvid
     private void registerCacheMBean(Ehcache cache) throws InstanceAlreadyExistsException, MBeanRegistrationException,
             NotCompliantMBeanException {
         // enable sampled stats
-        if (cache.isStatisticsEnabled()) {
-          cache.setSampledStatisticsEnabled(true);
+        if (cache.getStatistics().isSampledStatisticsEnabled()) {
+          cache.getStatistics().setSampledStatisticsEnabled(true);
         }
         SampledCache terracottaCacheMBean = new SampledCache(cache);
         try {

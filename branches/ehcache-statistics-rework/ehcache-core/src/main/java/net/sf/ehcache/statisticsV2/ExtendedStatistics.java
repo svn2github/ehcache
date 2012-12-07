@@ -18,50 +18,62 @@ package net.sf.ehcache.statisticsV2;
 
 public interface ExtendedStatistics {
 
-    public abstract float getAverageGetTime();
+    float getAverageGetTime();
 
-    public abstract long getCacheHitMostRecentSample();
+    long getCacheHitMostRecentSample();
 
-    public abstract long getCacheMissMostRecentSample();
+    long getCacheMissMostRecentSample();
 
-    public abstract long getPutCount();
+    long getPutCount();
 
-    public abstract long getCacheElementPutMostRecentSample();
+    long getCacheElementPutMostRecentSample();
 
-    public abstract int getCacheMissNotFoundMostRecentSample();
+    long getCacheMissNotFoundMostRecentSample();
 
-    public abstract int getCacheMissExpiredMostRecentSample();
+    long getCacheMissExpiredMostRecentSample();
 
-    public abstract long getMaxGetTimeMillis();
+    long getMaxGetTimeMillis();
 
-    public abstract long getMinGetTimeMillis();
+    long getMinGetTimeMillis();
 
-    public abstract long getCacheHitInMemoryMostRecentSample();
+    long getCacheHitInMemoryMostRecentSample();
 
-    public abstract long getCacheHitOffHeapMostRecentSample();
+    long getCacheHitOffHeapMostRecentSample();
 
-    public abstract long getCacheHitOnDiskMostRecentSample();
+    long getCacheHitOnDiskMostRecentSample();
 
-    public abstract long getCacheMissInMemoryMostRecentSample();
+    long getCacheMissInMemoryMostRecentSample();
 
-    public abstract long getCacheMissOffHeapMostRecentSample();
+    long getCacheMissOffHeapMostRecentSample();
 
-    public abstract long getCacheMissOnDiskMostRecentSample();
+    long getCacheMissOnDiskMostRecentSample();
 
-    public abstract long getCacheElementUpdatedMostRecentSample();
+    long getCacheElementUpdatedMostRecentSample();
 
-    public abstract long getCacheElementRemovedMostRecentSample();
+    long getCacheElementRemovedMostRecentSample();
 
-    public abstract long getCacheElementEvictedMostRecentSample();
+    long getCacheElementEvictedMostRecentSample();
 
-    public abstract long getCacheElementExpiredMostRecentSample();
+    long getCacheElementExpiredMostRecentSample();
 
-    public abstract long getSearchesPerSecond();
+    long getSearchesPerSecond();
 
-    public abstract long getAverageSearchTime();
+    long getAverageSearchTime();
 
-    public abstract long getCacheXaCommitsMostRecentSample();
+    long getCacheXaCommitsMostRecentSample();
 
-    public abstract long getCacheXaRollbacksMostRecentSample();
+    long getCacheXaRollbacksMostRecentSample();
+
+    long getAverageGetTimeMostRecentSample();
+
+    long getAverageGetTimeNanosMostRecentSample();
+
+    int getStatisticsAccuracy();
+
+    String getStatisticsAccuracyDescription();
+
+    boolean isSampledStatisticsEnabled();
+
+    int getCacheHitRatioMostRecentSample();
 
 }

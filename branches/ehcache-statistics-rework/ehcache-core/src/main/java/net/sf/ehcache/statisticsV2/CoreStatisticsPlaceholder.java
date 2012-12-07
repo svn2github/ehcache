@@ -224,8 +224,7 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
      */
     @Override
     public long getMaxGetTimeMillis() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -233,8 +232,7 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
      */
     @Override
     public long getMinGetTimeMillis() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     /* (non-Javadoc)
@@ -242,74 +240,138 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
      */
     @Override
     public float getAverageGetTimeMillis() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getLocalHeapSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getOffHeapHits() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getOffHeapMisses() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getWriterQueueSize() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getOffHeapStoreObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getInMemoryHitCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getInMemoryMissCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object getOffHeapHitCount() {
-        // TODO Auto-generated method stub
-        return null;
+    public long getOffHeapHitCount() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object getOffHeapMissCount() {
-        // TODO Auto-generated method stub
-        return null;
+    public long getOffHeapMissCount() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public String getExpiredCount() {
-        // TODO Auto-generated method stub
-        return null;
+    public long getExpiredCount() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public int getWriterQueueLength() {
-        // TODO Auto-generated method stub
-        return 0;
+    public long getWriterQueueLength() {
+        throw new UnsupportedOperationException();
     }
+
+    @Override
+    public long getXaCommitCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getXaRollbackCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getXaRecoveredCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getOnDiskMissCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getCacheMissCountExpired() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getEvictedCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getOnDiskHitCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getLocalDiskSize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getLocalOffHeapSize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getLocalDiskSizeInBytes() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getLocalOffHeapSizeInBytes() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getPutCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getRemovedCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getSize() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getUpdateCount() {
+        throw new UnsupportedOperationException();
+    }
+
 
 }

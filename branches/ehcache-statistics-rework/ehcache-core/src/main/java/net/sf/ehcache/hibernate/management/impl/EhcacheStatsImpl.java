@@ -326,8 +326,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
                 rv.put(name, new int[] {(int) cache.getStatistics().getExtended().getCacheHitMostRecentSample(),
-                        cache.getStatistics().getExtended().getCacheMissNotFoundMostRecentSample()
-                                + cache.getStatistics().getExtended().getCacheMissExpiredMostRecentSample(),
+                        (int)cache.getStatistics().getExtended().getCacheMissNotFoundMostRecentSample()
+                                + (int)cache.getStatistics().getExtended().getCacheMissExpiredMostRecentSample(),
                         (int) cache.getStatistics().getExtended().getCacheElementPutMostRecentSample(), });
             }
         }

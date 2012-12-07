@@ -18,82 +18,113 @@ package net.sf.ehcache.statisticsV2;
 
 public interface CoreStatistics {
 
-    public abstract long calculateInMemorySize();
+    long calculateInMemorySize();
 
-    public abstract long getMemoryStoreSize();
+    long getMemoryStoreSize();
 
-    public abstract int getDiskStoreSize();
+    int getDiskStoreSize();
 
-    public abstract long calculateOffHeapSize();
+    long calculateOffHeapSize();
 
-    public abstract long getOffHeapStoreSize();
+    long getOffHeapStoreSize();
 
-    public abstract long getInMemoryHits();
+    long getInMemoryHits();
 
-    public abstract long getInMemoryMisses();
+    long getInMemoryMisses();
 
-    public abstract long getOnDiskHits();
+    long getOnDiskHits();
 
-    public abstract long getOnDiskMisses();
+    long getOnDiskMisses();
 
-    public abstract long getEvictionCount();
+    long getEvictionCount();
 
-    public abstract void xaCommit();
+    void xaCommit();
 
-    public abstract void xaRecovered(int size);
+    void xaRecovered(int size);
 
-    public abstract void xaRollback();
+    void xaRollback();
 
-    public abstract long getCacheHits();
+    long getCacheHits();
 
-    public abstract long getCacheMisses();
+    long getCacheMisses();
 
-    public abstract long getLocalHeapSizeInBytes();
+    long getLocalHeapSizeInBytes();
 
-    public abstract long getgetCacheHits();
+    long getgetCacheHits();
 
-    public abstract long getObjectCount();
+    long getObjectCount();
 
-    public abstract long getMemoryStoreObjectCount();
+    long getMemoryStoreObjectCount();
 
-    public abstract long getDiskStoreObjectCount();
+    long getDiskStoreObjectCount();
 
-    public abstract void clearStatistics();
+    void clearStatistics();
 
-    public abstract String getAssociatedCacheName();
+    String getAssociatedCacheName();
 
-    public abstract long getLocalHeapSize();
+    long getLocalHeapSize();
 
-    public abstract long getCacheMissCount();
+    long getCacheMissCount();
 
-    public abstract long getCacheHitCount();
+    long getCacheHitCount();
 
-    public abstract long getMaxGetTimeMillis();
+    long getMaxGetTimeMillis();
 
-    public abstract long getMinGetTimeMillis();
+    long getMinGetTimeMillis();
 
-    public abstract float getAverageGetTimeMillis();
+    float getAverageGetTimeMillis();
 
-    public abstract long getOffHeapHits();
+    long getOffHeapHits();
 
-    public abstract long getOffHeapMisses();
+    long getOffHeapMisses();
 
-    public abstract long getWriterQueueSize();
+    long getWriterQueueSize();
 
-    public abstract long getOffHeapStoreObjectCount();
+    long getOffHeapStoreObjectCount();
 
     String getLocalHeapSizeString();
 
-    public abstract long getInMemoryHitCount();
+    long getInMemoryHitCount();
 
-    public abstract long getInMemoryMissCount();
+    long getInMemoryMissCount();
 
-    public abstract Object getOffHeapHitCount();
+    long getOffHeapHitCount();
 
-    public abstract Object getOffHeapMissCount();
+    long getOffHeapMissCount();
 
-    public abstract String getExpiredCount();
+    long getExpiredCount();
 
-    public abstract int getWriterQueueLength();
+    long getWriterQueueLength();
+
+    long getXaCommitCount();
+
+    long getXaRollbackCount();
+
+    long getXaRecoveredCount();
+
+    long getOnDiskMissCount();
+
+    long getCacheMissCountExpired();
+
+    long getEvictedCount();
+
+    long getOnDiskHitCount();
+
+    long getLocalDiskSize();
+
+    long getLocalOffHeapSize();
+
+    long getLocalDiskSizeInBytes();
+
+    long getLocalOffHeapSizeInBytes();
+
+    long getPutCount();
+
+    long getRemovedCount();
+
+    long getSize();
+
+    long getUpdateCount();
+
 
 }
