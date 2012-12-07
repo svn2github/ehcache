@@ -6,6 +6,8 @@
 
 package net.sf.ehcache.util.concurrent;
 
+import net.sf.ehcache.util.lang.VicariousThreadLocal;
+
 import java.util.Random;
 
 /**
@@ -60,7 +62,7 @@ public class ThreadLocalRandom extends Random {
      * The actual ThreadLocal
      */
     private static final ThreadLocal<ThreadLocalRandom> localRandom =
-        new ThreadLocal<ThreadLocalRandom>() {
+        new VicariousThreadLocal<ThreadLocalRandom>() {
             protected ThreadLocalRandom initialValue() {
                 return new ThreadLocalRandom();
             }
