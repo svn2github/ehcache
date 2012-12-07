@@ -19,6 +19,9 @@ package net.sf.ehcache.statisticsV2;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.store.StoreOperationOutcomes;
+import net.sf.ehcache.transaction.xa.XaCommitOutcome;
+import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 public interface ExtendedStatistics {
     
@@ -26,8 +29,21 @@ public interface ExtendedStatistics {
     
     CompoundOperation<CacheOperationOutcomes.GetOutcome> get();
     CompoundOperation<CacheOperationOutcomes.PutOutcome> put();
+    CompoundOperation<CacheOperationOutcomes.RemoveOutcome> remove();
     
-    interface CompoundOperation<T> {
+    CompoundOperation<?> evicted();
+    CompoundOperation<?> expired();
+    
+    CompoundOperation<StoreOperationOutcomes.GetOutcome> heapGet();
+    CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet();
+    CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet();
+    
+    CompoundOperation<CacheOperationOutcomes.SearchOutcome> search();
+    
+    CompoundOperation<XaCommitOutcome> xaCommit();
+    CompoundOperation<XaRollbackOutcome> xaRollback();
+    
+    public interface CompoundOperation<T> {
         Operation component(T result);
     }
 
@@ -51,65 +67,4 @@ public interface ExtendedStatistics {
         T value();
         long timestamp();
     }
-    
-    double getAverageGetTime();
-
-    double getCacheHitMostRecentSample();
-
-    double getCacheMissMostRecentSample();
-
-    double getCacheElementPutMostRecentSample();
-
-    double getCacheMissNotFoundMostRecentSample();
-
-    double getCacheMissExpiredMostRecentSample();
-
-    long getMaxGetTimeMillis();
-
-    long getMinGetTimeMillis();
-
-    double getCacheHitInMemoryMostRecentSample();
-
-    double getCacheHitOffHeapMostRecentSample();
-
-    double getCacheHitOnDiskMostRecentSample();
-
-    double getCacheMissInMemoryMostRecentSample();
-
-    double getCacheMissOffHeapMostRecentSample();
-
-    double getCacheMissOnDiskMostRecentSample();
-
-    double getCacheElementUpdatedMostRecentSample();
-
-    double getCacheElementRemovedMostRecentSample();
-
-    double getCacheElementEvictedMostRecentSample();
-
-    double getCacheElementExpiredMostRecentSample();
-
-    double getSearchesPerSecond();
-
-    double getAverageSearchTime();
-
-    double getCacheXaCommitsMostRecentSample();
-
-    double getCacheXaRollbacksMostRecentSample();
-
-    double getAverageGetTimeMostRecentSample();
-
-    double getAverageGetTimeNanosMostRecentSample();
-
-    int getStatisticsAccuracy();
-
-    String getStatisticsAccuracyDescription();
-
-    boolean isSampledStatisticsEnabled();
-
-    int getCacheHitRatioMostRecentSample();
-
-    long getMaxGetTimeNanos();
-
-    long getMinGetTimeNanos();
-
 }
