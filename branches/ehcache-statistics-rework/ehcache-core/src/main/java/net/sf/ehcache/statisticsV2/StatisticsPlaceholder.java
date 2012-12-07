@@ -18,20 +18,45 @@ package net.sf.ehcache.statisticsV2;
 
 public class StatisticsPlaceholder {
 
-    private final CoreStatisticsPlaceholder core=new CoreStatisticsPlaceholder();
+    private final CoreStatistics core=new CoreStatisticsPlaceholder();
 
-    private final ExtendedStatisticsPlaceholder extended=new ExtendedStatisticsPlaceholder();
+    private final ExtendedStatistics extended=new ExtendedStatisticsPlaceholder();
 
-    public CoreStatisticsPlaceholder getCore() {
+    public CoreStatistics getCore() {
         return core;
     }
 
-    public ExtendedStatisticsPlaceholder getExtended() {
+    public ExtendedStatistics getExtended() {
         return extended;
     }
 
     public void setStatisticsEnabled(boolean b) {
         throw new UnsupportedOperationException();
+    }
+
+    public void setSampledStatisticsEnabled(boolean b) {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getAssociatedCacheName() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void clearStatistics() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isStatisticsEnabled() {
+        throw new UnsupportedOperationException();
+    }
+
+    public int getStatisticsAccuracy() {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getStatisticsAccuracyDescription() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 

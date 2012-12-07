@@ -16,6 +16,99 @@
 
 package net.sf.ehcache.statisticsV2;
 
-public class ExtendedStatisticsPlaceholder {
+public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
+    /**
+     * The default interval in seconds for the {@link SampledRateCounter} for recording the average search rate counter
+     */
+    public static  int DEFAULT_SEARCH_INTERVAL_SEC = 10;
+
+    /**
+     * The default history size for {@link SampledCounter} objects.
+     */
+    public static int DEFAULT_HISTORY_SIZE = 30;
+
+    /**
+     * The default interval for sampling events for {@link SampledCounter} objects.
+     */
+    public static int DEFAULT_INTERVAL_SECS = 1;
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getAverageGetTime()
+     */
+    @Override
+    public float getAverageGetTime() {
+        throw new UnsupportedOperationException();
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheHitMostRecentSample()
+     */
+    @Override
+    public long getCacheHitMostRecentSample() {
+        throw new UnsupportedOperationException();
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheMissMostRecentSample()
+     */
+    @Override
+    public long getCacheMissMostRecentSample() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getPutCount()
+     */
+    @Override
+    public long getPutCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheElementPutMostRecentSample()
+     */
+    @Override
+    public long getCacheElementPutMostRecentSample() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheMissNotFoundMostRecentSample()
+     */
+    @Override
+    public int getCacheMissNotFoundMostRecentSample() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getCacheMissExpiredMostRecentSample()
+     */
+    @Override
+    public int getCacheMissExpiredMostRecentSample() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getMaxGetTimeMillis()
+     */
+    @Override
+    public long getMaxGetTimeMillis() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.ExtendedStatistics#getMinGetTimeMillis()
+     */
+    @Override
+    public long getMinGetTimeMillis() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
 }

@@ -8,6 +8,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
@@ -116,7 +117,7 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
 
       Cache cache = new Cache(cacheConfiguration);
       cm.addCache(cache);
-      cache.setStatisticsEnabled(isWithStats);
+      cache.getStatistics().setStatisticsEnabled(isWithStats);
       return cache;
     }
 

@@ -16,21 +16,13 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.store.disk.DiskStoreHelper;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.Serializable;
@@ -42,13 +34,22 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.statisticsV2.CoreStatistics;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
+
+import org.hamcrest.collection.IsEmptyCollection;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -60,7 +61,7 @@ import static org.junit.Assert.fail;
 public final class BlockingCacheTest {
 
     private static final String DISK_STORE_PATH = "target/BlockingCacheTest";
-    
+
     @BeforeClass
     public static void cleanupDisk() {
         File diskStorePath = new File(DISK_STORE_PATH);
@@ -71,12 +72,12 @@ public final class BlockingCacheTest {
             }
         }
     }
-    
+
     @Before
     public void noCacheManagersBefore() {
         assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     @After
     public void noCacheManagersAfter() {
         assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
@@ -91,7 +92,7 @@ public final class BlockingCacheTest {
                 .overflowToDisk(true)
                 .diskPersistent(true));
     }
-    
+
     private CacheManager createCacheManager(CacheConfiguration config) {
         CacheManager manager = new CacheManager(new Configuration()
                 .name("BlockingCacheTest")
@@ -99,14 +100,14 @@ public final class BlockingCacheTest {
         manager.addCache(new Cache(config));
         return manager;
     }
-    
+
     @Test
     public void testSupportsStatsCorrectly() {
         CacheManager manager = createCacheManager("testSupportsStatsCorrectly");
         try {
             BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testSupportsStatsCorrectly"));
-            blockingCache.setStatisticsEnabled(true);
-            LiveCacheStatistics statistics = blockingCache.getLiveCacheStatistics();
+            blockingCache.getStatistics().setStatisticsEnabled(true);
+            CoreStatistics statistics = blockingCache.getStatistics().getCore();
             long cacheMisses = statistics.getCacheMissCount();
             long cacheHits = statistics.getCacheHitCount();
             String key = "123451234";
@@ -118,7 +119,7 @@ public final class BlockingCacheTest {
             assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
             assertNotNull(blockingCache.get(key));
             assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHitCount());
-            blockingCache.setStatisticsEnabled(false);
+            blockingCache.getStatistics().setStatisticsEnabled(false);
             blockingCache.remove(key);
         } finally {
             manager.shutdown();
@@ -162,7 +163,7 @@ public final class BlockingCacheTest {
         CacheManager manager = createCacheManager("testGetEntries");
         try {
             BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testGetEntries"));
-            
+
             Ehcache cache = blockingCache.getCache();
             for (int i = 0; i < 100; i++) {
                 cache.put(new Element(Integer.valueOf(i), "value" + i));
@@ -484,7 +485,7 @@ public final class BlockingCacheTest {
             Cache cache = manager.getCache("testInlineEviction");
             manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
             Ehcache blockingCache = manager.getEhcache("testInlineEviction");
-            
+
             blockingCache.put(new Element(KEY, "VALUE"));
             assertNotNull(blockingCache.get(KEY));
             // This tests inline eviction (EHC-420)
@@ -590,7 +591,7 @@ public final class BlockingCacheTest {
             manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
             Ehcache blockingCache = manager.getEhcache("testUseCacheAfterManagerShutdown");
 
-            assertEquals(0, blockingCache.getMemoryStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getCore().getMemoryStoreSize());
 
             for (int i = 0; i < 10010; i++) {
                 blockingCache.put(new Element("key" + i, "value1"));
@@ -630,8 +631,8 @@ public final class BlockingCacheTest {
 
             blockingCache.removeAll();
             assertEquals(0, blockingCache.getSize());
-            assertEquals(0, blockingCache.getMemoryStoreSize());
-            assertEquals(0, blockingCache.getDiskStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getCore().getMemoryStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getCore().getDiskStoreSize());
         } finally {
             manager.shutdown();
         }

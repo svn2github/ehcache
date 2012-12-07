@@ -16,8 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statisticsV2.CoreStatistics;
+import net.sf.ehcache.statisticsV2.ExtendedStatistics;
 
 /**
  * An interface for exposing cache statistics.
@@ -26,7 +26,7 @@ import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
  */
-public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistics {
+public interface CacheSampler extends CoreStatistics,ExtendedStatistics {
     /**
      * Is the cache enabled?
      */

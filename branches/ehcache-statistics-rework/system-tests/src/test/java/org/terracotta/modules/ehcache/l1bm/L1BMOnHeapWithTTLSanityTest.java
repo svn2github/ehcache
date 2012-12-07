@@ -10,6 +10,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
+
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
@@ -49,25 +50,25 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
 
       Cache dcv2EventualSerializationWithStats = createCache("dcv2EventualSerializationWithStats", cacheManager,
                                                               Consistency.EVENTUAL, ValueMode.SERIALIZATION);
-      dcv2EventualSerializationWithStats.setStatisticsEnabled(true);
+      dcv2EventualSerializationWithStats.getStatistics().setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2EventualSerializationWithStats, true);
       dcv2EventualSerializationWithStats.removeAll();
 
       Cache dcv2EventualSerializationWithoutStats = createCache("dcv2EventualSerializationWithoutStats", cacheManager,
                                                                  Consistency.EVENTUAL, ValueMode.SERIALIZATION);
-      dcv2EventualSerializationWithoutStats.setStatisticsEnabled(false);
+      dcv2EventualSerializationWithoutStats.getStatistics().setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2EventualSerializationWithoutStats, true);
       dcv2EventualSerializationWithoutStats.removeAll();
 
       Cache dcv2StrongSerializationWithStats = createCache("dcv2StrongSerializationWithStats", cacheManager,
                                                             Consistency.STRONG, ValueMode.SERIALIZATION);
-      dcv2StrongSerializationWithStats.setStatisticsEnabled(true);
+      dcv2StrongSerializationWithStats.getStatistics().setStatisticsEnabled(true);
       testL1BigMemorySanity(dcv2StrongSerializationWithStats, false);
       dcv2StrongSerializationWithStats.removeAll();
 
       Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
                                                   ValueMode.SERIALIZATION);
-      dcv2StrongWithoutStats.setStatisticsEnabled(false);
+      dcv2StrongWithoutStats.getStatistics().setStatisticsEnabled(false);
       testL1BigMemorySanity(dcv2StrongWithoutStats, false);
       dcv2StrongWithoutStats.removeAll();
     }

@@ -63,11 +63,11 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
         }
 
         Assert.assertEquals(ELEMENT_COUNT, cache.getMemoryStoreSize());
-        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
-        Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
+        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getCore().getInMemoryHits());
+        Assert.assertEquals(0, cache.getStatistics().getCore().getInMemoryMisses());
+        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskHits());
+        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskMisses());
+        Assert.assertEquals(0, cache.getStatistics().getCore().getEvictionCount());
         cache.getStatistics().clearStatistics();
         debug("done testing pining with client " + index + " size " + cache.getSize());
       }
@@ -100,9 +100,9 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
       }
       // All the gets on both the clients should be local as the pinned entries would have been faulted.
       Assert.assertEquals(ELEMENT_COUNT, cache.getMemoryStoreSize());
-      Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
-      Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-      Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
+      Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getCore().getInMemoryHits());
+      Assert.assertEquals(0, cache.getStatistics().getCore().getInMemoryMisses());
+      Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskHits());
     }
 
     private Object getKey(int i) {

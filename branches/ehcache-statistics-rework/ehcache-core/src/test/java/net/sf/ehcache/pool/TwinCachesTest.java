@@ -360,18 +360,19 @@ public class TwinCachesTest {
         Assert.assertEquals(ratio, ((float)one.getSize()) / totalCount, 0.1f);
         Assert.assertEquals(1f - ratio, ((float) two.getSize()) / totalCount, 0.1f);
 
-        long totalBytes = one.calculateInMemorySize() + two.calculateInMemorySize();
+        long totalBytes = one.getStatistics().getCore().calculateInMemorySize() +
+                two.getStatistics().getCore().calculateInMemorySize();
         float bytesRatio = (ratio * 128f) / ((ratio * 128f) + ((1 - ratio) * 256f));
 
         System.err.println("[1] Bytes Ratio    : " + bytesRatio);
-        System.err.println("[1] Bytes Measured : " + (((float) one.calculateInMemorySize()) / totalBytes) + " ["
-                + one.calculateInMemorySize() + "]");
+        System.err.println("[1] Bytes Measured : " + (((float) one.getStatistics().getCore().calculateInMemorySize()) / totalBytes) + " ["
+                + one.getStatistics().getCore().calculateInMemorySize() + "]");
         System.err.println("[2] Bytes Ratio    : " + (1 - bytesRatio));
-        System.err.println("[2] Bytes Measured : " + (((float) two.calculateInMemorySize()) / totalBytes) + " ["
-                + two.calculateInMemorySize() + "]");
+        System.err.println("[2] Bytes Measured : " + (((float) two.getStatistics().getCore().calculateInMemorySize()) / totalBytes) + " ["
+                + two.getStatistics().getCore().calculateInMemorySize() + "]");
 
-        Assert.assertEquals(bytesRatio, ((float) one.calculateInMemorySize()) / totalBytes, 0.1f);
-        Assert.assertEquals(1f - bytesRatio, ((float)two.calculateInMemorySize()) / totalBytes, 0.1f);
+        Assert.assertEquals(bytesRatio, ((float) one.getStatistics().getCore().calculateInMemorySize()) / totalBytes, 0.1f);
+        Assert.assertEquals(1f - bytesRatio, ((float)two.getStatistics().getCore().calculateInMemorySize()) / totalBytes, 0.1f);
     }
 
     private static int getRandomKey(Random rndm, int max) {

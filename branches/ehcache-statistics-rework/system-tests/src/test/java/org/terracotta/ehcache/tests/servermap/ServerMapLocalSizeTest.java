@@ -8,9 +8,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -42,17 +42,17 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
 
     private void doTestLocalSize(Cache cache) throws Throwable {
       final int maxElementsInMemory = 1000;
-      cache.setSampledStatisticsEnabled(true);
+      cache.getStatistics().setSampledStatisticsEnabled(true);
       for (int i = 0; i < maxElementsInMemory; i++) {
         cache.put(new Element("key-" + i, "value-" + i));
       }
 
       System.out.println("Size: " + cache.getSize());
-      System.out.println("In Memory size: " + cache.getLiveCacheStatistics().getLocalHeapSize());
+      System.out.println("In Memory size: " + cache.getStatistics().getCore().getLocalHeapSize());
 
       // eventual - can't assert size
       // Assert.assertEquals(maxElementsInMemory, cache.getSize());
-      Assert.assertEquals(maxElementsInMemory, cache.getLiveCacheStatistics().getLocalHeapSize());
+      Assert.assertEquals(maxElementsInMemory, cache.getStatistics().getCore().getLocalHeapSize());
       Assert.assertEquals(maxElementsInMemory, cache.getMemoryStoreSize());
 
       for (int i = 1; i <= 100; i++) {
@@ -62,7 +62,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
         // Assert.assertEquals(maxElementsInMemory + i, cache.getSize());
         // assert range as though eviction will happen, new puts can happen earlier before space becomes available (by
         // freeing meta-info mapping) in which case more key-value mapping are evicted
-        long actual = cache.getLiveCacheStatistics().getLocalHeapSize();
+        long actual = cache.getStatistics().getCore().getLocalHeapSize();
         final int delta = 100;
         Assert.assertTrue("Failed at i=" + i + ", actual: " + actual, (maxElementsInMemory - delta) < actual
                                                                       && (actual - delta) <= maxElementsInMemory);

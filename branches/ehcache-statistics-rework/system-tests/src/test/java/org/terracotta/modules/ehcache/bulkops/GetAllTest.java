@@ -49,17 +49,17 @@ public class GetAllTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache dcv2EventualWithStats = createCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL,
                                                  ValueMode.SERIALIZATION);
-      dcv2EventualWithStats.setStatisticsEnabled(true);
+      dcv2EventualWithStats.getStatistics().setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2EventualWithStats, true);
 
       Cache dcv2EventualWithoutStats = createCache("dcv2EventualWithoutStats", cacheManager,
                                                     Consistency.EVENTUAL, ValueMode.SERIALIZATION);
-      dcv2EventualWithoutStats.setStatisticsEnabled(false);
+      dcv2EventualWithoutStats.getStatistics().setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2EventualWithoutStats, true);
 
       Cache dcv2StrongWithStats = createCache("dcv2StrongWithStats", cacheManager, Consistency.STRONG,
                                                ValueMode.SERIALIZATION);
-      dcv2StrongWithStats.setStatisticsEnabled(true);
+      dcv2StrongWithStats.getStatistics().setStatisticsEnabled(true);
       testBulkOpsSanity(dcv2StrongWithStats, false);
 
     }

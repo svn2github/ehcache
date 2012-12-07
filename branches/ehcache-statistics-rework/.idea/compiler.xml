@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <option name="DEFAULT_COMPILER" value="Javac" />
+    <excludeFromCompile>
+      <directory url="file://$PROJECT_DIR$/terracotta/bootstrap/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/terracotta/bootstrap/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/ehcache-scheduled-refresh/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/ehcache-scheduled-refresh/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/management-ehcache/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/management-ehcache/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/ehcache-core/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/ehcache-core/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/system-tests/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/system-tests/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/management-ehcache-impl/management-ehcache-impl/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/management-ehcache-impl/management-ehcache-impl/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/ehcache/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/ehcache/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/management-ehcache-impl/ehcache-rest-agent/target/generated-sources/annotations" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/management-ehcache-impl/ehcache-rest-agent/target/generated-test-sources/test-annotations" includeSubdirectories="true" />
+    </excludeFromCompile>
+    <resourceExtensions />
+    <wildcardResourcePatterns>
+      <entry name="?*.properties" />
+      <entry name="?*.xml" />
+      <entry name="?*.gif" />
+      <entry name="?*.png" />
+      <entry name="?*.jpeg" />
+      <entry name="?*.jpg" />
+      <entry name="?*.html" />
+      <entry name="?*.dtd" />
+      <entry name="?*.tld" />
+      <entry name="?*.ftl" />
+    </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+      <profile default="false" name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="ehcache" />
+        <module name="ehcache-core" />
+        <module name="ehcache-rest-agent" />
+        <module name="ehcache-scheduled-refresh" />
+        <module name="ehcache-terracotta-bootstrap" />
+        <module name="ehcache-terracotta-system-tests" />
+        <module name="management-ehcache" />
+        <module name="management-ehcache-impl" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ehcache" target="1.6" />
+      <module name="ehcache-core" target="1.6" />
+      <module name="ehcache-rest-agent" target="1.6" />
+      <module name="ehcache-root" target="1.6" />
+      <module name="ehcache-scheduled-refresh" target="1.6" />
+      <module name="ehcache-terracotta-bootstrap" target="1.6" />
+      <module name="ehcache-terracotta-root" target="1.6" />
+      <module name="ehcache-terracotta-system-tests" target="1.6" />
+      <module name="management-ehcache" target="1.6" />
+      <module name="management-ehcache-impl" target="1.6" />
+      <module name="management-ehcache-impl-parent" target="1.6" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
+

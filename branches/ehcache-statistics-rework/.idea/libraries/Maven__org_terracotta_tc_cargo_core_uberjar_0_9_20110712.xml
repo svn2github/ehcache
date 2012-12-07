@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.terracotta:tc-cargo-core-uberjar:0.9.20110712">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/terracotta/tc-cargo-core-uberjar/0.9.20110712/tc-cargo-core-uberjar-0.9.20110712.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/terracotta/tc-cargo-core-uberjar/0.9.20110712/tc-cargo-core-uberjar-0.9.20110712-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/terracotta/tc-cargo-core-uberjar/0.9.20110712/tc-cargo-core-uberjar-0.9.20110712-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

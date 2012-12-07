@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.terracotta:management-tsa-war:war:4.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/terracotta/management-tsa-war/4.0.0-SNAPSHOT/management-tsa-war-4.0.0-SNAPSHOT.war!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/terracotta/management-tsa-war/4.0.0-SNAPSHOT/management-tsa-war-4.0.0-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/terracotta/management-tsa-war/4.0.0-SNAPSHOT/management-tsa-war-4.0.0-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

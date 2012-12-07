@@ -18,8 +18,8 @@ package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
+import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -51,7 +51,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     private static final long serialVersionUID = 8085302752781762030L;
 
     private transient Ehcache ehcache;
-    private Statistics statistics;
+    private StatisticsPlaceholder statistics;
 
     private final ObjectName objectName;
     private long lastUpdated;
@@ -137,7 +137,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getCacheHits() {
         updateIfNeeded();
-        return statistics.getCacheHits();
+        return statistics.getCore().getCacheHits();
     }
 
     /**
@@ -147,7 +147,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getInMemoryHits() {
         updateIfNeeded();
-        return statistics.getInMemoryHits();
+        return statistics.getCore().getInMemoryHits();
     }
 
     /**
@@ -157,7 +157,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOffHeapHits() {
         updateIfNeeded();
-        return statistics.getOffHeapHits();
+        return statistics.getCore().getOffHeapHits();
     }
 
     /**
@@ -167,7 +167,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOnDiskHits() {
         updateIfNeeded();
-        return statistics.getOnDiskHits();
+        return statistics.getCore().getOnDiskHits();
     }
 
     /**
@@ -178,25 +178,25 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getCacheMisses() {
         updateIfNeeded();
-        return statistics.getCacheMisses();
+        return statistics.getCore().getCacheMisses();
     }
 
     /** {@inheritDoc} */
     public long getInMemoryMisses() {
         updateIfNeeded();
-        return statistics.getInMemoryMisses();
+        return statistics.getCore().getInMemoryMisses();
     }
 
     /** {@inheritDoc} */
     public long getOffHeapMisses() {
         updateIfNeeded();
-        return statistics.getOffHeapMisses();
+        return statistics.getCore().getOffHeapMisses();
     }
 
     /** {@inheritDoc} */
     public long getOnDiskMisses() {
         updateIfNeeded();
-        return statistics.getOnDiskMisses();
+        return statistics.getCore().getOnDiskMisses();
     }
 
     /**
@@ -234,7 +234,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getObjectCount() {
         updateIfNeeded();
-        return statistics.getObjectCount();
+        return statistics.getCore().getObjectCount();
     }
 
     /**
@@ -244,7 +244,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getWriterQueueLength() {
         updateIfNeeded();
-        return statistics.getWriterQueueSize();
+        return statistics.getCore().getWriterQueueSize();
     }
 
     /**
@@ -260,7 +260,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getMemoryStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getMemoryStoreObjectCount();
+        return statistics.getCore().getMemoryStoreObjectCount();
     }
 
     /**
@@ -268,7 +268,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOffHeapStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getOffHeapStoreObjectCount();
+        return statistics.getCore().getOffHeapStoreObjectCount();
     }
 
     /**
@@ -277,7 +277,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getDiskStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getDiskStoreObjectCount();
+        return statistics.getCore().getDiskStoreObjectCount();
     }
 
 
@@ -310,8 +310,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getCacheHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getCacheHits();
-        long misses = statistics.getCacheMisses();
+        long hits = statistics.getCore().getCacheHits();
+        long misses = statistics.getCore().getCacheMisses();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -322,8 +322,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getCacheMissPercentage() {
         updateIfNeeded();
-        long hits = statistics.getCacheHits();
-        long misses = statistics.getCacheMisses();
+        long hits = statistics.getCore().getCacheHits();
+        long misses = statistics.getCore().getCacheMisses();
 
         long total = hits + misses;
         return getPercentage(misses, total);
@@ -334,8 +334,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getInMemoryHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getInMemoryHits();
-        long misses = statistics.getInMemoryMisses();
+        long hits = statistics.getCore().getInMemoryHits();
+        long misses = statistics.getCore().getInMemoryMisses();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -346,8 +346,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getOffHeapHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getOffHeapHits();
-        long misses = statistics.getOffHeapMisses();
+        long hits = statistics.getCore().getOffHeapHits();
+        long misses = statistics.getCore().getOffHeapMisses();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -358,8 +358,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getOnDiskHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getOnDiskHits();
-        long misses = statistics.getOnDiskMisses();
+        long hits = statistics.getCore().getOnDiskHits();
+        long misses = statistics.getCore().getOnDiskMisses();
 
         long total = hits + misses;
         return getPercentage(hits, total);
