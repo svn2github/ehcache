@@ -15,7 +15,7 @@
  */
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.statisticsV2.ExtendedStatisticsPlaceholder;
+import net.sf.ehcache.statisticsV2.ExtendedStatisticsImpl;
 import net.sf.ehcache.util.counter.sampled.SampledCounterConfig;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 
@@ -53,9 +53,9 @@ public class ManagementRESTServiceConfiguration {
     private volatile int securityServiceTimeout = DEFAULT_SECURITY_SVC_TIMEOUT;
     private volatile String bind = DEFAULT_BIND;
 
-    private volatile int sampleHistorySize = ExtendedStatisticsPlaceholder.DEFAULT_HISTORY_SIZE;
-    private volatile int sampleIntervalSeconds = ExtendedStatisticsPlaceholder.DEFAULT_INTERVAL_SECS;
-    private volatile int sampleSearchIntervalSeconds = ExtendedStatisticsPlaceholder.DEFAULT_SEARCH_INTERVAL_SECS;
+    private volatile int sampleHistorySize = ExtendedStatisticsImpl.DEFAULT_HISTORY_SIZE;
+    private volatile int sampleIntervalSeconds = ExtendedStatisticsImpl.DEFAULT_INTERVAL_SECS;
+    private volatile int sampleSearchIntervalSeconds = ExtendedStatisticsImpl.DEFAULT_SEARCH_INTERVAL_SECS;
 
     /**
      * Check if the REST services should be enabled or not.

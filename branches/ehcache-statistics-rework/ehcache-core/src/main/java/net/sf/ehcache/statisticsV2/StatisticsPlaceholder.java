@@ -20,7 +20,7 @@ public class StatisticsPlaceholder {
 
     private final CoreStatistics core=new CoreStatisticsPlaceholder();
 
-    private final ExtendedStatistics extended=new ExtendedStatisticsPlaceholder();
+    private final ExtendedStatistics extended=new ExtendedStatisticsImpl();
 
     public CoreStatistics getCore() {
         return core;

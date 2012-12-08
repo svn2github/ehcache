@@ -45,7 +45,8 @@ import org.terracotta.statistics.observer.OperationObserver;
 import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 import static org.terracotta.context.query.Matchers.*;
 
-public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
+public class ExtendedStatisticsImpl implements ExtendedStatistics {
+    
     /**
      * The default interval in seconds for the {@link SampledRateCounter} for recording the average search rate counter
      */
@@ -73,18 +74,18 @@ public class ExtendedStatisticsPlaceholder implements ExtendedStatistics {
     private final CompoundOperation<XaCommitOutcome> xaCommitCompound;
     private final CompoundOperation<XaRollbackOutcome> xaRollbackCompound;
     
-    public ExtendedStatisticsPlaceholder(StatisticsManager manager) {
-        getCompound = new CompoundOperationImpl<GetOutcome>(ExtendedStatisticsPlaceholder.<GetOutcome>extractCacheStat(manager, "get"), GetOutcome.class);
-        putCompound = new CompoundOperationImpl<PutOutcome>(ExtendedStatisticsPlaceholder.<PutOutcome>extractCacheStat(manager, "put"), PutOutcome.class);
-        removeCompound = new CompoundOperationImpl<RemoveOutcome>(ExtendedStatisticsPlaceholder.<RemoveOutcome>extractCacheStat(manager, "put"), RemoveOutcome.class);
-        evictedCompound = new CompoundOperationImpl<PutOutcome>(ExtendedStatisticsPlaceholder.<PutOutcome>extractCacheStat(manager, "put"), PutOutcome.class);
-        expiredCompound = new CompoundOperationImpl<PutOutcome>(ExtendedStatisticsPlaceholder.<PutOutcome>extractCacheStat(manager, "put"), PutOutcome.class);
-        heapGetCompound = new CompoundOperationImpl<StoreOperationOutcomes.GetOutcome>(ExtendedStatisticsPlaceholder.<StoreOperationOutcomes.GetOutcome>extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class);
-        offheapGetCompound = new CompoundOperationImpl<StoreOperationOutcomes.GetOutcome>(ExtendedStatisticsPlaceholder.<StoreOperationOutcomes.GetOutcome>extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class);
-        diskGetCompound = new CompoundOperationImpl<StoreOperationOutcomes.GetOutcome>(ExtendedStatisticsPlaceholder.<StoreOperationOutcomes.GetOutcome>extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class);
-        searchCompound = new CompoundOperationImpl<SearchOutcome>(ExtendedStatisticsPlaceholder.<SearchOutcome>extractCacheStat(manager, "put"), SearchOutcome.class);
-        xaCommitCompound = new CompoundOperationImpl<XaCommitOutcome>(ExtendedStatisticsPlaceholder.<XaCommitOutcome>extractCacheStat(manager, "put"), XaCommitOutcome.class);
-        xaRollbackCompound = new CompoundOperationImpl<XaRollbackOutcome>(ExtendedStatisticsPlaceholder.<XaRollbackOutcome>extractCacheStat(manager, "put"), XaRollbackOutcome.class);
+    public ExtendedStatisticsImpl(StatisticsManager manager) {
+        getCompound = new CompoundOperationImpl<GetOutcome>(ExtendedStatisticsImpl.<GetOutcome>extractCacheStat(manager, "get"), GetOutcome.class);
+        putCompound = new CompoundOperationImpl<PutOutcome>(ExtendedStatisticsImpl.<PutOutcome>extractCacheStat(manager, "put"), PutOutcome.class);
+        removeCompound = new CompoundOperationImpl<RemoveOutcome>(ExtendedStatisticsImpl.<RemoveOutcome>extractCacheStat(manager, "put"), RemoveOutcome.class);
+        evictedCompound = new CompoundOperationImpl<PutOutcome>(ExtendedStatisticsImpl.<PutOutcome>extractCacheStat(manager, "put"), PutOutcome.class);
+        expiredCompound = new CompoundOperationImpl<PutOutcome>(ExtendedStatisticsImpl.<PutOutcome>extractCacheStat(manager, "put"), PutOutcome.class);
+        heapGetCompound = new CompoundOperationImpl<StoreOperationOutcomes.GetOutcome>(ExtendedStatisticsImpl.<StoreOperationOutcomes.GetOutcome>extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class);
+        offheapGetCompound = new CompoundOperationImpl<StoreOperationOutcomes.GetOutcome>(ExtendedStatisticsImpl.<StoreOperationOutcomes.GetOutcome>extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class);
+        diskGetCompound = new CompoundOperationImpl<StoreOperationOutcomes.GetOutcome>(ExtendedStatisticsImpl.<StoreOperationOutcomes.GetOutcome>extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class);
+        searchCompound = new CompoundOperationImpl<SearchOutcome>(ExtendedStatisticsImpl.<SearchOutcome>extractCacheStat(manager, "put"), SearchOutcome.class);
+        xaCommitCompound = new CompoundOperationImpl<XaCommitOutcome>(ExtendedStatisticsImpl.<XaCommitOutcome>extractCacheStat(manager, "put"), XaCommitOutcome.class);
+        xaRollbackCompound = new CompoundOperationImpl<XaRollbackOutcome>(ExtendedStatisticsImpl.<XaRollbackOutcome>extractCacheStat(manager, "put"), XaRollbackOutcome.class);
     }
     
     private static <T extends Enum<T>> SourceStatistic<OperationObserver<T>> extractCacheStat(StatisticsManager manager, String name) {
