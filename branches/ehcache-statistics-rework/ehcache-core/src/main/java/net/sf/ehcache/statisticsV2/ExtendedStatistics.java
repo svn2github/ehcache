@@ -22,10 +22,12 @@ import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
+import org.terracotta.statistics.archive.Timestamped;
 
 public interface ExtendedStatistics {
     
     void setStatisticsTimeToDisable(long time, TimeUnit unit);
+    void setStatisticsEnabled(boolean enable);
     
     CompoundOperation<CacheOperationOutcomes.GetOutcome> get();
     CompoundOperation<CacheOperationOutcomes.PutOutcome> put();
@@ -61,10 +63,5 @@ public interface ExtendedStatistics {
     public interface Statistic<T> {
         T value();
         List<Timestamped<T>> history() throws UnsupportedOperationException;
-    }
-    
-    public interface Timestamped<T> {
-        T value();
-        long timestamp();
     }
 }
