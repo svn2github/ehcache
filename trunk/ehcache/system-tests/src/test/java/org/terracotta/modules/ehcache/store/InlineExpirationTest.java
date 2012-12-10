@@ -202,25 +202,18 @@ public class InlineExpirationTest extends AbstractCacheTestBase {
     }
 
     private void testEternalCacheTurnedMortal(Cache cache) throws Exception {
-      final String key1 = "eternalTurnedMortal";
-      final String key2 = "eternalTurnedMortal2";
+      final String key = "eternalTurnedMortal";
       final String value = "eternalTurnedMortalValue";
       final int tti = 10;
 
-      cache.put(new Element(key1, value));
-      cache.put(new Element(key2, value));
-      assertElement(cache.get(key1), key1, value);
-      assertElement(cache.get(key2), key2, value);
+      cache.put(new Element(key, value));
+      assertElement(cache.get(key), key, value);
 
       cache.getCacheConfiguration().setEternal(false);
       cache.getCacheConfiguration().setTimeToIdleSeconds(tti);
 
       SECONDS.sleep(tti + 1);
-      Assert.assertTrue(cache.getMemoryStoreSize() >= 2);
-      Assert.assertNull(cache.get(key1));
-      cache.getCacheConfiguration().setTimeToIdleSeconds(0);
-      cache.getCacheConfiguration().setEternal(true);
-      assertElement(cache.get(key2), key2, value);
+      Assert.assertNull(cache.get(key));
     }
 
     private void testEternalWithMortalElement(Cache cache) throws Exception {
