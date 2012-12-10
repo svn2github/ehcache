@@ -8,9 +8,13 @@ package net.sf.ehcache.store;
  *
  * @author cdennis
  */
-public class StoreOperationOutcomes {
-    
+public interface StoreOperationOutcomes {
+
     public enum GetOutcome {
         HIT, MISS;
     }
+
+    public enum PutOutcome { ADDED, UPDATED };
+    public enum RemoveOutcome { SUCCESS };
+
 }
