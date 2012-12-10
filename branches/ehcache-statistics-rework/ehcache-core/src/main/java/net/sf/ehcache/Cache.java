@@ -261,7 +261,7 @@ public class Cache implements InternalEhcache, StoreListener {
     private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this).tag("cache", "bulk").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("cache").build();
     private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this).tag("cache").build();
-    
+
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
      * <p/>
@@ -1424,8 +1424,8 @@ public class Cache implements InternalEhcache, StoreListener {
 
         backOffIfDiskSpoolFull();
         element.updateUpdateStatistics();
+        boolean elementExists=false;
         if (useCacheWriter) {
-            boolean elementExists = false;
             boolean notifyListeners = true;
             try {
                 elementExists = !compoundStore.putWithWriter(element, cacheWriterManager);
@@ -1443,10 +1443,10 @@ public class Cache implements InternalEhcache, StoreListener {
                 }
             }
         } else {
-            boolean elementExists = !compoundStore.put(element);
+            elementExists = !compoundStore.put(element);
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
         }
-        putObserver.end(CacheOperationOutcomes.PutOutcome.COUNT);
+        putObserver.end(elementExists?CacheOperationOutcomes.PutOutcome.UPDATED:CacheOperationOutcomes.PutOutcome.ADDED);
 
     }
 
@@ -1572,7 +1572,7 @@ public class Cache implements InternalEhcache, StoreListener {
         if (disabled) {
             return null;
         }
-        
+
         Element element = compoundStore.get(key);
         if (element == null) {
             getObserver.end(GetOutcome.MISS_NOT_FOUND);
