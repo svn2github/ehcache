@@ -56,13 +56,12 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
-    topology = null;
-    // createTopology(toolkitInstanceFactory);
+    topology = createTopology(toolkitInstanceFactory);
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
     softLockManagerProvider = new SoftLockManagerProvider(toolkitInstanceFactory);
     asyncCoordinatorFactory = createAsyncCoordinatorFactory();
     bulkLoadShutdownHook = new BulkLoadShutdownHook((ToolkitInternal) toolkitInstanceFactory.getToolkit());
-    // logEhcacheBuildInfo();
+    logEhcacheBuildInfo();
   }
 
   private static CacheCluster createTopology(ToolkitInstanceFactory factory) {
