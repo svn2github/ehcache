@@ -60,10 +60,11 @@ public interface ExtendedStatistics {
 
     public interface CompoundOperation<T> {
         Operation component(T result);
-        Operation component(Set<T> results);
+        Operation compound(Set<T> results);
     }
 
     public interface Operation {
+        long count();
         Statistic<Double> rate();
         Latency latency() throws UnsupportedOperationException;
     }

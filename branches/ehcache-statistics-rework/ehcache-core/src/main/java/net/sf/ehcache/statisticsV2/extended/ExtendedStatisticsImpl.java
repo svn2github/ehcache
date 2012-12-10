@@ -30,13 +30,12 @@ import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 import org.terracotta.context.TreeNode;
-import org.terracotta.statistics.SourceStatistic;
 import org.terracotta.statistics.StatisticsManager;
-import org.terracotta.statistics.observer.OperationObserver;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 import static org.terracotta.context.query.Matchers.*;
+import org.terracotta.statistics.OperationStatistic;
 
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
@@ -85,10 +84,10 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         searchCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), SearchOutcome.class, DEFAULT_SEARCH_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_SEARCH_INTERVAL_SECS, SECONDS);
     }
 
-    private static <T extends Enum<T>> SourceStatistic<OperationObserver<T>> extractCacheStat(StatisticsManager manager, String name) {
+    private static <T extends Enum<T>> OperationStatistic<T> extractCacheStat(StatisticsManager manager, String name) {
         TreeNode node = manager.queryForSingleton(queryBuilder().children().ensureUnique()
-                .children().filter(context(allOf(identifier(subclassOf(SourceStatistic.class)), attributes(hasAttribute("name", name))))).build());
-        return (SourceStatistic<OperationObserver<T>>) node.getContext().attributes().get("this");
+                .children().filter(context(allOf(identifier(subclassOf(OperationStatistic.class)), attributes(hasAttribute("name", name))))).build());
+        return (OperationStatistic<T>) node.getContext().attributes().get("this");
     }
 
 

@@ -14,8 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
-import org.terracotta.statistics.SourceStatistic;
-import org.terracotta.statistics.observer.OperationObserver;
+import org.terracotta.statistics.OperationStatistic;
 
 /**
  *
@@ -23,7 +22,7 @@ import org.terracotta.statistics.observer.OperationObserver;
  */
 class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
     
-    private final SourceStatistic<OperationObserver<T>> source;
+    private final OperationStatistic<T> source;
     
     private final Map<T, OperationImpl<T>> operations;    
     private final ConcurrentMap<Set<T>, OperationImpl<T>> compounds = new ConcurrentHashMap<Set<T>, OperationImpl<T>>();
@@ -36,7 +35,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
     private final long historyPeriod;
     private final TimeUnit historyUnit;
     
-    public CompoundOperationImpl(SourceStatistic<OperationObserver<T>> source, Class<T> type, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
+    public CompoundOperationImpl(OperationStatistic<T> source, Class<T> type, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
         this.source = source;
         
         this.averagePeriod = averagePeriod;
@@ -70,7 +69,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
     }
 
     @Override
-    public Operation component(Set<T> results) {
+    public Operation compound(Set<T> results) {
         Set<T> key = EnumSet.copyOf(results);
         OperationImpl<T> existing = compounds.get(key);
         if (existing == null) {
