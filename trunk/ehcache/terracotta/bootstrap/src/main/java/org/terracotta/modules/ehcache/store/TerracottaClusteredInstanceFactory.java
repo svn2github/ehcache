@@ -10,6 +10,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
@@ -35,6 +36,9 @@ import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
   public static final Logger                    LOGGER                     = LoggerFactory
@@ -52,12 +56,13 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
-    topology = createTopology(toolkitInstanceFactory);
+    topology = null;
+    // createTopology(toolkitInstanceFactory);
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
     softLockManagerProvider = new SoftLockManagerProvider(toolkitInstanceFactory);
     asyncCoordinatorFactory = createAsyncCoordinatorFactory();
     bulkLoadShutdownHook = new BulkLoadShutdownHook((ToolkitInternal) toolkitInstanceFactory.getToolkit());
-    logEhcacheBuildInfo();
+    // logEhcacheBuildInfo();
   }
 
   private static CacheCluster createTopology(ToolkitInstanceFactory factory) {
@@ -89,8 +94,26 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   public final Store createStore(Ehcache cache) {
     NonstopConfiguration nonstopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
         .getNonstopConfiguration();
-    return new ClusteredSafeStore(
-                                  new NonStopStoreWrapper(newStore(cache), toolkitInstanceFactory, nonstopConfiguration));
+    return new ClusteredSafeStore(new NonStopStoreWrapper(asyncCreateClusteredStore(cache), toolkitInstanceFactory,
+                                                          nonstopConfiguration));
+  }
+  
+  private FutureTask<TerracottaStore> asyncCreateClusteredStore(final Ehcache cache) {
+    Callable<TerracottaStore> callable = new Callable<TerracottaStore>() {
+      @Override
+      public TerracottaStore call() throws Exception {
+        return newStore(cache);
+      }
+    };
+    final FutureTask<TerracottaStore> futureTask = new FutureTask<TerracottaStore>(callable);
+    Thread t = new Thread("Non Stop initialization of ClusteredStore") {
+      @Override
+      public void run() {
+        futureTask.run();
+      }
+    };
+    t.start();
+    return futureTask;
   }
 
   /**
