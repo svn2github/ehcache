@@ -60,7 +60,9 @@ public class ServerMapL1CapacityExpirationExpressTestClient extends ServerMapCli
                        + cache.getMemoryStoreSize());
     // size should decrease as entries are removed
     // assume minimum 100 removed in server already, monkeys may be unhappy here
-    Assert.assertEquals(5100, cache.getSize());
+    // Assert.assertEquals(5100, cache.getSize());
+    assertRange(5000, 5100, cache.getSize());
+
     // memory store size should decrease by some amount (locks should have been recalled for some)
     // assume minimum 100, monkeys may behave otherwise sometimes
     assertRange(0, 5010, cache.getMemoryStoreSize());
@@ -69,7 +71,10 @@ public class ServerMapL1CapacityExpirationExpressTestClient extends ServerMapCli
       Assert.assertNotNull(element);
       Assert.assertEquals("value-" + i, element.getValue());
     }
-    Assert.assertEquals(5100, cache.getSize());
+
+    // Eviction could happen
+    assertRange(5000, 5100, cache.getSize());
+    // Assert.assertEquals(5100, cache.getSize());
   }
 
   private void assertRange(final int min, final int max, final long actual) {
