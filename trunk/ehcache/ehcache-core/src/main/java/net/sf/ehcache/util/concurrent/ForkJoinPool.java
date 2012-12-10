@@ -6,6 +6,9 @@
 
 package net.sf.ehcache.util.concurrent;
 
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1045,7 +1048,9 @@ public class ForkJoinPool extends AbstractExecutorService {
         static {
             int s;
             try {
-                U = sun.misc.Unsafe.getUnsafe();
+                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+                unsafeField.setAccessible(true);
+                U = (Unsafe)unsafeField.get(null);
                 Class<?> k = WorkQueue.class;
                 Class<?> ak = ForkJoinTask[].class;
                 QLOCK = U.objectFieldOffset
@@ -3247,7 +3252,9 @@ public class ForkJoinPool extends AbstractExecutorService {
     static {
         int s; // initialize field offsets for CAS etc
         try {
-            U = sun.misc.Unsafe.getUnsafe();
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            U = (Unsafe)unsafeField.get(null);
             Class<?> k = ForkJoinPool.class;
             CTL = U.objectFieldOffset
                 (k.getDeclaredField("ctl"));

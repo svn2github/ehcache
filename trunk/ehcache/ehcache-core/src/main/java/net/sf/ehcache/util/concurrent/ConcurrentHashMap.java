@@ -6,6 +6,9 @@
 
 package net.sf.ehcache.util.concurrent;
 
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -687,7 +690,9 @@ public class ConcurrentHashMap<K, V>
 
         static {
             try {
-                UNSAFE = sun.misc.Unsafe.getUnsafe();
+                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+                unsafeField.setAccessible(true);
+                UNSAFE = (Unsafe)unsafeField.get(null);
                 Class<?> k = Node.class;
                 hashOffset = UNSAFE.objectFieldOffset
                     (k.getDeclaredField("hash"));
@@ -6590,7 +6595,9 @@ public class ConcurrentHashMap<K, V>
     static {
         int ss;
         try {
-            UNSAFE = sun.misc.Unsafe.getUnsafe();
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            UNSAFE = (Unsafe)unsafeField.get(null);
             Class<?> k = ConcurrentHashMap.class;
             counterOffset = UNSAFE.objectFieldOffset
                 (k.getDeclaredField("counter"));

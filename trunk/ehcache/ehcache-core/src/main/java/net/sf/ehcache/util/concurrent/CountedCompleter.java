@@ -6,6 +6,10 @@
 
 package net.sf.ehcache.util.concurrent;
 
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
+
 /**
  * A {@link ForkJoinTask} with a completion action performed when
  * triggered and there are no remaining pending
@@ -704,7 +708,9 @@ public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
     private static final long PENDING;
     static {
         try {
-            U = sun.misc.Unsafe.getUnsafe();
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            U = (Unsafe)unsafeField.get(null);
             PENDING = U.objectFieldOffset
                 (CountedCompleter.class.getDeclaredField("pending"));
         } catch (Exception e) {
