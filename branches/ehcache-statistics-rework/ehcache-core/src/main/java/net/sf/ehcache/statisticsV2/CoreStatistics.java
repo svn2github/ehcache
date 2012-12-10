@@ -16,7 +16,47 @@
 
 package net.sf.ehcache.statisticsV2;
 
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.statisticsV2.CoreStatistics.CountOperation;
+import net.sf.ehcache.store.StoreOperationOutcomes;
+import net.sf.ehcache.transaction.xa.XaCommitOutcome;
+import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
+import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
+
 public interface CoreStatistics {
+
+    public interface CountOperation<T> {
+        long value(T result);
+    }
+
+    public CountOperation<CacheOperationOutcomes.GetOutcome> get();
+    public CountOperation<CacheOperationOutcomes.PutOutcome> put();
+    public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove();
+
+    public CountOperation<StoreOperationOutcomes.GetOutcome> localHeapGet();
+    public CountOperation<StoreOperationOutcomes.PutOutcome> localHeapPut();
+    public CountOperation<StoreOperationOutcomes.RemoveOutcome> localHeapRemove();
+
+    public CountOperation<StoreOperationOutcomes.GetOutcome> localOffHeapGet();
+    public CountOperation<StoreOperationOutcomes.PutOutcome> localOffHeapPut();
+    public CountOperation<StoreOperationOutcomes.RemoveOutcome> localOffHeapRemove();
+
+    public CountOperation<StoreOperationOutcomes.GetOutcome> diskGet();
+    public CountOperation<StoreOperationOutcomes.PutOutcome> diskPut();
+    public CountOperation<StoreOperationOutcomes.RemoveOutcome> diskRemove();
+
+    public CountOperation<XaCommitOutcome> xaCommit();
+    public CountOperation<XaRecoveryOutcome> xaRecovery();
+    public CountOperation<XaRollbackOutcome> xaRollback();
+
+    // TBD hated CRSS
+    long getEvictionCount();
+    long getExpiredCount();
+    long getCacheMissCountExpired();
+    long getEvictedCount();
+
+    // pass through stats
+    long getLocalHeapSizeInBytes();
 
     long calculateInMemorySize();
 
@@ -28,43 +68,13 @@ public interface CoreStatistics {
 
     long getOffHeapStoreSize();
 
-    long getInMemoryHits();
-
-    long getInMemoryMisses();
-
-    long getOnDiskHits();
-
-    long getOnDiskMisses();
-
-    long getEvictionCount();
-
-    long getCacheHits();
-
-    long getCacheMisses();
-
-    long getLocalHeapSizeInBytes();
-
     long getObjectCount();
 
     long getMemoryStoreObjectCount();
 
     long getDiskStoreObjectCount();
 
-    void clearStatistics();
-
-    String getAssociatedCacheName();
-
     long getLocalHeapSize();
-
-    long getMaxGetTimeMillis();
-
-    long getMinGetTimeMillis();
-
-    float getAverageGetTimeMillis();
-
-    long getOffHeapHits();
-
-    long getOffHeapMisses();
 
     long getWriterQueueSize();
 
@@ -72,31 +82,7 @@ public interface CoreStatistics {
 
     String getLocalHeapSizeString();
 
-    long getInMemoryHitCount();
-
-    long getInMemoryMissCount();
-
-    long getOffHeapHitCount();
-
-    long getOffHeapMissCount();
-
-    long getExpiredCount();
-
     long getWriterQueueLength();
-
-    long getXaCommitCount();
-
-    long getXaRollbackCount();
-
-    long getXaRecoveredCount();
-
-    long getOnDiskMissCount();
-
-    long getCacheMissCountExpired();
-
-    long getEvictedCount();
-
-    long getOnDiskHitCount();
 
     long getLocalDiskSize();
 
@@ -106,13 +92,6 @@ public interface CoreStatistics {
 
     long getLocalOffHeapSizeInBytes();
 
-    long getPutCount();
-
-    long getRemovedCount();
-
     long getSize();
-
-    long getUpdateCount();
-
 
 }

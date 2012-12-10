@@ -22,11 +22,15 @@ import net.sf.ehcache.statisticsV2.extended.ExtendedStatisticsImpl;
 public class StatisticsPlaceholder {
 
     private final CoreStatistics core=new CoreStatisticsPlaceholder();
-
+    private final FlatCoreStatistics flatCore=new FlatCoreStatisticsImpl(core);
     private final ExtendedStatistics extended=new ExtendedStatisticsImpl(null);
 
     public CoreStatistics getCore() {
         return core;
+    }
+
+    public FlatCoreStatistics getFlatCore() {
+        return flatCore;
     }
 
     public ExtendedStatistics getExtended() {

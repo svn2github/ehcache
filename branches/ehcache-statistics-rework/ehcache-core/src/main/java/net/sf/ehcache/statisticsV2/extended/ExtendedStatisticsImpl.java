@@ -38,7 +38,7 @@ import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 import static org.terracotta.context.query.Matchers.*;
 
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
-    
+
     /**
      * The default interval in seconds for the {@link SampledRateCounter} for recording the average search rate counter
      */
@@ -65,16 +65,16 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     private final CompoundOperationImpl<SearchOutcome> searchCompound;
     private final CompoundOperationImpl<XaCommitOutcome> xaCommitCompound;
     private final CompoundOperationImpl<XaRollbackOutcome> xaRollbackCompound;
-    
+
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
-    
+
     public ExtendedStatisticsImpl(StatisticsManager manager) {
         getCompound = new CompoundOperationImpl(extractCacheStat(manager, "get"), GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
         putCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), PutOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
         removeCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), RemoveOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
         evictedCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), null, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
         expiredCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), null, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        
+
         heapGetCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
         offheapGetCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
         diskGetCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
@@ -83,19 +83,19 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
         searchCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), SearchOutcome.class, DEFAULT_SEARCH_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_SEARCH_INTERVAL_SECS, SECONDS);
     }
-    
+
     private static <T extends Enum<T>> SourceStatistic<OperationObserver<T>> extractCacheStat(StatisticsManager manager, String name) {
         TreeNode node = manager.queryForSingleton(queryBuilder().children().ensureUnique()
                 .children().filter(context(allOf(identifier(subclassOf(SourceStatistic.class)), attributes(hasAttribute("name", name))))).build());
         return (SourceStatistic<OperationObserver<T>>) node.getContext().attributes().get("this");
     }
-    
-    
+
+
     @Override
     public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
     public void setStatisticsEnabled(boolean enabled) {
         if (enabled) {
@@ -171,12 +171,59 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
 
     @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> heapPut() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapPut() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskPut() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> heapRemove() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapRemove() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskRemove() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public CompoundOperation<XaCommitOutcome> xaCommit() {
-        return xaCommitCompound;
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public CompoundOperation<XaRollbackOutcome> xaRollback() {
-        return xaRollbackCompound;
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
     }
+
 }

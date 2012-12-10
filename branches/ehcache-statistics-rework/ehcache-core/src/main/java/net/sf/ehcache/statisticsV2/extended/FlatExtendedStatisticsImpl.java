@@ -14,280 +14,272 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2;
+package net.sf.ehcache.statisticsV2.extended;
 
-import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
-import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
-import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
-import net.sf.ehcache.transaction.xa.XaCommitOutcome;
-import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
-import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
+import java.util.concurrent.TimeUnit;
 
-public class CoreStatisticsPlaceholder implements CoreStatistics {
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+
+// TODO CRSS Start Here we are so fucked.
+public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
+
+    private final ExtendedStatistics extended;
+
+    public FlatExtendedStatisticsImpl(ExtendedStatistics extended) {
+        this.extended=extended;
+    }
 
     @Override
-    public CountOperation<GetOutcome> get() {
+    public ExtendedStatistics getExtended() {
+        return extended;
+    }
+
+    @Override
+    public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
+        extended.setStatisticsTimeToDisable(time, unit);
+    }
+
+    @Override
+    public Operation cacheHitOperation() {
+        return extended.get().component(CacheOperationOutcomes.GetOutcome.HIT);
+    }
+
+    @Override
+    public Operation cacheMissExpiredOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<PutOutcome> put() {
+    public Operation cacheMissNotFoundOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<RemoveOutcome> remove() {
+    public Operation cacheMissOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> localHeapGet() {
+    public Operation cachePutAddedOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> localHeapPut() {
+    public Operation cachePutReplacedOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> localHeapRemove() {
+    public Operation cachePutOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> localOffHeapGet() {
+    public Operation cacheRemoveOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> localOffHeapPut() {
+    public Operation localHeapHitOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> localOffHeapRemove() {
+    public Operation localHeapMissOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> diskGet() {
+    public Operation localHeapPutAddedOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
+    public Operation localHeapPutReplacedOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskRemove() {
+    public Operation localHeapPutOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<XaCommitOutcome> xaCommit() {
+    public Operation localHeapRemoveOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<XaRecoveryOutcome> xaRecovery() {
+    public Operation localOffHeapHitOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CountOperation<XaRollbackOutcome> xaRollback() {
+    public Operation localOffHeapMissOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getEvictionCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getExpiredCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getCacheMissCountExpired() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getEvictedCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getLocalHeapSizeInBytes() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long calculateInMemorySize() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getMemoryStoreSize() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getDiskStoreSize() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long calculateOffHeapSize() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getOffHeapStoreSize() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getObjectCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getMemoryStoreObjectCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getDiskStoreObjectCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getLocalHeapSize() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getWriterQueueSize() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getOffHeapStoreObjectCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getLocalHeapSizeString() {
+    public Operation localOffHeapPutAddedOperation() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getWriterQueueLength() {
+    public Operation localOffHeapPutReplacedOperation() {
         // TODO Auto-generated method stub
-        // return 0;
+        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getLocalDiskSize() {
+    public Operation localOffHeapPutOperation() {
         // TODO Auto-generated method stub
-        // return 0;
+        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getLocalOffHeapSize() {
+    public Operation localOffHeapRemoveOperation() {
         // TODO Auto-generated method stub
-        // return 0;
+        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getLocalDiskSizeInBytes() {
+    public Operation diskHeapHitOperation() {
         // TODO Auto-generated method stub
-        // return 0;
+        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getLocalOffHeapSizeInBytes() {
+    public Operation diskHeapMissOperation() {
         // TODO Auto-generated method stub
-        // return 0;
+        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getSize() {
+    public Operation diskHeapPutAddedOperation() {
         // TODO Auto-generated method stub
-        // return 0;
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation diskHeapPutReplacedOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation diskHeapPutOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation diskHeapRemoveOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation cacheSearchOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation xaCommitSuccessOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation xaCommitExceptionOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation xaCommitReadOnlyOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation xaRollbackOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation xaRollbackExceptionOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation xaRecoveryOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation evictionOperation() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Operation expiredOperation() {
+        // TODO Auto-generated method stub
+        // return null;
         throw new UnsupportedOperationException();
     }
 

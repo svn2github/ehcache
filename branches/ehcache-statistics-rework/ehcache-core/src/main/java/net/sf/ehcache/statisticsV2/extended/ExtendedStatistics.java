@@ -18,33 +18,43 @@ package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
+
 import org.terracotta.statistics.archive.Timestamped;
 
 public interface ExtendedStatistics {
-    
+
     void setStatisticsTimeToDisable(long time, TimeUnit unit);
     void setStatisticsEnabled(boolean enable);
-    
+
     CompoundOperation<CacheOperationOutcomes.GetOutcome> get();
     CompoundOperation<CacheOperationOutcomes.PutOutcome> put();
     CompoundOperation<CacheOperationOutcomes.RemoveOutcome> remove();
-    
+
     CompoundOperation<?> evicted();
     CompoundOperation<?> expired();
-    
+
     CompoundOperation<StoreOperationOutcomes.GetOutcome> heapGet();
     CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet();
     CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet();
-    
+
+    CompoundOperation<StoreOperationOutcomes.GetOutcome> heapPut();
+    CompoundOperation<StoreOperationOutcomes.PutOutcome> offheapPut();
+    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> diskPut();
+
+    CompoundOperation<StoreOperationOutcomes.GetOutcome> heapRemove();
+    CompoundOperation<StoreOperationOutcomes.PutOutcome> offheapRemove();
+    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> diskRemove();
+
     CompoundOperation<CacheOperationOutcomes.SearchOutcome> search();
-    
+
     CompoundOperation<XaCommitOutcome> xaCommit();
     CompoundOperation<XaRollbackOutcome> xaRollback();
-    
+
     public interface CompoundOperation<T> {
         Operation component(T result);
     }
@@ -53,13 +63,13 @@ public interface ExtendedStatistics {
         Statistic<Double> rate();
         Latency latency() throws UnsupportedOperationException;
     }
-    
+
     public interface Latency {
         Statistic<Long> minimum();
         Statistic<Long> maximum();
         Statistic<Double> average();
     }
-    
+
     public interface Statistic<T> {
         T value();
         List<Timestamped<T>> history() throws UnsupportedOperationException;
