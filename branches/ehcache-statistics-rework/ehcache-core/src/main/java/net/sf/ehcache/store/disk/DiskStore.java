@@ -51,6 +51,7 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -1181,8 +1182,8 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
 
         DiskStoreDiskPoolParticipant() {
             OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.HIT, hitRate));
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.MISS, missRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.HIT), hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.MISS), missRate));
         }
 
         @Override

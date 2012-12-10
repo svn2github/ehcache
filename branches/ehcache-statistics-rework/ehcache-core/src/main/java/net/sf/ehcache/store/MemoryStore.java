@@ -42,12 +42,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
-import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
@@ -55,6 +55,7 @@ import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import org.terracotta.statistics.Statistic;
 
 /**
@@ -302,12 +303,12 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     public final Element get(final Object key) {
         getObserver.begin();
         if (key == null) {
-            getObserver.end(GetOutcome.MISS_NOT_FOUND);
+            getObserver.end(GetOutcome.MISS);
             return null;
         } else {
             final Element e = map.get(key);
             if (e == null) {
-                getObserver.end(GetOutcome.MISS_NOT_FOUND);
+                getObserver.end(GetOutcome.MISS);
                 return null;
             } else {
                 getObserver.end(GetOutcome.HIT);
@@ -1010,8 +1011,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
 
         private Participant() {
             OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.HIT, hitRate));
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(GetOutcome.MISS_NOT_FOUND, missRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.HIT), hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.MISS), missRate));
         }
 
         @Override
