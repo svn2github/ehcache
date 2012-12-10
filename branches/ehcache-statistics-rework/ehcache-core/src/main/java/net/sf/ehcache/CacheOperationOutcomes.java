@@ -20,7 +20,7 @@ public interface CacheOperationOutcomes {
 
     enum GetOutcome { HIT, MISS_EXPIRED, MISS_NOT_FOUND};
     enum GetAllOutcome { ALL_MISS, ALL_HIT, PARTIAL};
-    enum PutOutcome { COUNT };
-    enum RemoveOutcome {};
+    enum PutOutcome { ADDED, UPDATED };
+    enum RemoveOutcome { SUCCESS };
     enum SearchOutcome { SUCCESS , EXCEPTION};
 }
