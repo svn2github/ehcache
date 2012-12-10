@@ -59,6 +59,8 @@ public class CacheCopyOnRwPoolTest {
                 new CacheConfiguration()
                         .statistics(true)
                         .name("memoryOnlyCache")
+                        .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                        .overflowToDisk(false)
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
@@ -66,11 +68,13 @@ public class CacheCopyOnRwPoolTest {
                         .name("memoryOnlyCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)
+                        .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                        .overflowToDisk(false)
         ));
 
         Cache cache = cacheManager.getCache("memoryOnlyCache");
-                assertTrue(!cache.isDiskStore());
-Cache copyCache = cacheManager.getCache("memoryOnlyCache_copy");
+        assertTrue(!cache.isDiskStore());
+        Cache copyCache = cacheManager.getCache("memoryOnlyCache_copy");
 
         cache.put(new Element(1000, new CrazyObject()));
         copyCache.put(new Element(1000, new CrazyObject()));
