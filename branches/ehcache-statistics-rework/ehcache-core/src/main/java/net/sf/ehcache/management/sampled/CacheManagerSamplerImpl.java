@@ -24,7 +24,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.statisticsV2.CoreStatistics;
-import net.sf.ehcache.statisticsV2.ExtendedStatistics;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 /**

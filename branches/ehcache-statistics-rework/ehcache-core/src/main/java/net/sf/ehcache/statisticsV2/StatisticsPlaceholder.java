@@ -16,11 +16,14 @@
 
 package net.sf.ehcache.statisticsV2;
 
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatisticsImpl;
+
 public class StatisticsPlaceholder {
 
     private final CoreStatistics core=new CoreStatisticsPlaceholder();
 
-    private final ExtendedStatistics extended=new ExtendedStatisticsImpl();
+    private final ExtendedStatistics extended=new ExtendedStatisticsImpl(null);
 
     public CoreStatistics getCore() {
         return core;

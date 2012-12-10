@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2;
+package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

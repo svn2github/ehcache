@@ -17,7 +17,7 @@
 package net.sf.ehcache.management.sampled;
 
 import net.sf.ehcache.statisticsV2.CoreStatistics;
-import net.sf.ehcache.statisticsV2.ExtendedStatistics;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
 
 /**
  * An interface for exposing cache statistics.
