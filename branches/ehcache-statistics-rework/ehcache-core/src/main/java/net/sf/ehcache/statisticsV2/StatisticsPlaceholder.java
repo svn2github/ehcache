@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.statisticsV2;
 
+import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatisticsImpl;
 
@@ -23,7 +24,7 @@ public class StatisticsPlaceholder {
 
     private final CoreStatistics core=new CoreStatisticsPlaceholder();
     private final FlatCoreStatistics flatCore=new FlatCoreStatisticsImpl(core);
-    private final ExtendedStatistics extended=new ExtendedStatisticsImpl(null);
+    private final ExtendedStatistics extended = new ExtendedStatisticsImpl(null, 5, TimeUnit.MINUTES);
 
     public CoreStatistics getCore() {
         return core;

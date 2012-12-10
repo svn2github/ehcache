@@ -70,9 +70,12 @@ public class RateStatistic<T extends Enum<T>> implements Statistic<Double> {
         start();
     }
     
-    public synchronized void expire(long expiry) {
+    public synchronized boolean expire(long expiry) {
         if (touchTimestamp < expiry) {
             stop();
+            return true;
+        } else {
+            return false;
         }
     }
 }

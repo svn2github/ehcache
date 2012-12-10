@@ -16,9 +16,14 @@
 
 package net.sf.ehcache.statisticsV2.extended;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import net.sf.ehcache.CacheOperationOutcomes;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
@@ -30,206 +35,158 @@ import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 import org.terracotta.context.TreeNode;
-import org.terracotta.statistics.StatisticsManager;
-
-import static java.util.concurrent.TimeUnit.*;
-import static org.terracotta.context.query.QueryBuilder.queryBuilder;
-import static org.terracotta.context.query.Matchers.*;
 import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.Time;
 
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
-    /**
-     * The default interval in seconds for the {@link SampledRateCounter} for recording the average search rate counter
-     */
-    public static int DEFAULT_SEARCH_INTERVAL_SECS = 10;
-
-    /**
-     * The default history size for {@link SampledCounter} objects.
-     */
-    public static int DEFAULT_HISTORY_SIZE = 30;
-
-    /**
-     * The default interval for sampling events for {@link SampledCounter} objects.
-     */
-    public static int DEFAULT_INTERVAL_SECS = 1;
-
-    private final CompoundOperationImpl<GetOutcome> getCompound;
-    private final CompoundOperationImpl<PutOutcome> putCompound;
-    private final CompoundOperationImpl<RemoveOutcome> removeCompound;
-    private final CompoundOperationImpl<?> evictedCompound;
-    private final CompoundOperationImpl<?> expiredCompound;
-    private final CompoundOperationImpl<StoreOperationOutcomes.GetOutcome> heapGetCompound;
-    private final CompoundOperationImpl<StoreOperationOutcomes.GetOutcome> offheapGetCompound;
-    private final CompoundOperationImpl<StoreOperationOutcomes.GetOutcome> diskGetCompound;
-    private final CompoundOperationImpl<SearchOutcome> searchCompound;
-    private final CompoundOperationImpl<XaCommitOutcome> xaCommitCompound;
-    private final CompoundOperationImpl<XaRollbackOutcome> xaRollbackCompound;
-
+    private final Map<OperationType, CompoundOperationImpl<?>> operations = new EnumMap<OperationType, CompoundOperationImpl<?>>(OperationType.class);
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
-
-    public ExtendedStatisticsImpl(StatisticsManager manager) {
-        getCompound = new CompoundOperationImpl(extractCacheStat(manager, "get"), GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        putCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), PutOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        removeCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), RemoveOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        evictedCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), null, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        expiredCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), null, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-
-        heapGetCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        offheapGetCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        diskGetCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), StoreOperationOutcomes.GetOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        xaCommitCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), XaCommitOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-        xaRollbackCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), XaRollbackOutcome.class, DEFAULT_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_INTERVAL_SECS, SECONDS);
-
-        searchCompound = new CompoundOperationImpl(extractCacheStat(manager, "put"), SearchOutcome.class, DEFAULT_SEARCH_INTERVAL_SECS, SECONDS, executor, DEFAULT_HISTORY_SIZE, DEFAULT_SEARCH_INTERVAL_SECS, SECONDS);
+    private final Runnable disableTask = new Runnable() {
+        @Override
+        public void run() {
+            for (CompoundOperationImpl<?> o : operations.values()) {
+                o.expire(Time.absoluteTime() - timeToDisableUnit.toMillis(timeToDisable));
+            }
+        }
+    };
+    
+    private long timeToDisable;
+    private TimeUnit timeToDisableUnit;
+    private ScheduledFuture disableStatus;
+    
+    public ExtendedStatisticsImpl(StatisticsManager manager, long timeToDisable, TimeUnit unit) {
+        this.timeToDisable = timeToDisable;
+        this.timeToDisableUnit = unit;
+        this.disableStatus = this.executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, unit);
+        
+        for (OperationType t : OperationType.values()) {
+            Set<TreeNode> result = manager.query(t.query());
+            switch (result.size()) {
+                case 0:
+                    break;
+                case 1:
+                    OperationStatistic source = (OperationStatistic) result.iterator().next().getContext().attributes().get("this");
+                    operations.put(t, new CompoundOperationImpl(source, t.type(), t.window(), TimeUnit.SECONDS, executor, t.history(), t.interval(), TimeUnit.SECONDS));
+                    break;
+                default:
+                    throw new IllegalStateException("Duplicate statistics found for " + t);
+            }
+        }
     }
-
-    private static <T extends Enum<T>> OperationStatistic<T> extractCacheStat(StatisticsManager manager, String name) {
-        TreeNode node = manager.queryForSingleton(queryBuilder().children().ensureUnique()
-                .children().filter(context(allOf(identifier(subclassOf(OperationStatistic.class)), attributes(hasAttribute("name", name))))).build());
-        return (OperationStatistic<T>) node.getContext().attributes().get("this");
-    }
-
 
     @Override
-    public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public synchronized void setStatisticsTimeToDisable(long time, TimeUnit unit) {
+        timeToDisable = time;
+        timeToDisableUnit = unit;
+        if (disableStatus != null) {
+            disableStatus.cancel(false);
+            disableStatus = executor.scheduleAtFixedRate(null, timeToDisable, timeToDisable, timeToDisableUnit);
+        }
     }
 
     @Override
-    public void setStatisticsEnabled(boolean enabled) {
+    public synchronized void setStatisticsEnabled(boolean enabled) {
         if (enabled) {
-            getCompound.start();
-            putCompound.start();
-            removeCompound.start();
-            evictedCompound.start();
-            expiredCompound.start();
-            heapGetCompound.start();
-            offheapGetCompound.start();
-            diskGetCompound.start();
-            xaCommitCompound.start();
-            xaRollbackCompound.start();
-            searchCompound.start();
+            if (disableStatus != null) {
+                disableStatus.cancel(false);
+                disableStatus = null;
+            }
         } else {
-            getCompound.stop();
-            putCompound.stop();
-            removeCompound.stop();
-            evictedCompound.stop();
-            expiredCompound.stop();
-            heapGetCompound.stop();
-            offheapGetCompound.stop();
-            diskGetCompound.stop();
-            xaCommitCompound.stop();
-            xaRollbackCompound.stop();
-            searchCompound.stop();
+            if (disableStatus == null) {
+                disableStatus = executor.scheduleAtFixedRate(null, timeToDisable, timeToDisable, timeToDisableUnit);
+            }
         }
     }
 
     @Override
     public CompoundOperation<GetOutcome> get() {
-        return getCompound;
+        return (CompoundOperation<GetOutcome>) operations.get(OperationType.CACHE_GET);
     }
 
     @Override
     public CompoundOperation<PutOutcome> put() {
-        return putCompound;
+        return (CompoundOperation<PutOutcome>) operations.get(OperationType.CACHE_PUT);
     }
 
     @Override
     public CompoundOperation<RemoveOutcome> remove() {
-        return removeCompound;
+        return (CompoundOperation<RemoveOutcome>) operations.get(OperationType.CACHE_REMOVE);
     }
 
     @Override
     public CompoundOperation<?> evicted() {
-        return evictedCompound;
+        return (CompoundOperation<?>) operations.get(OperationType.EVICTED);
     }
 
     @Override
     public CompoundOperation<?> expired() {
-        return expiredCompound;
-    }
-
-    @Override
-    public CompoundOperation<StoreOperationOutcomes.GetOutcome> heapGet() {
-        return heapGetCompound;
-    }
-
-    @Override
-    public CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet() {
-        return offheapGetCompound;
-    }
-
-    @Override
-    public CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet() {
-        return diskGetCompound;
+        return (CompoundOperation<?>) operations.get(OperationType.EXPIRED);
     }
 
     @Override
     public CompoundOperation<SearchOutcome> search() {
-        return searchCompound;
+        return (CompoundOperation<CacheOperationOutcomes.SearchOutcome>) operations.get(OperationType.SEARCH);
+    }
+
+    @Override
+    public CompoundOperation<StoreOperationOutcomes.GetOutcome> heapGet() {
+        return (CompoundOperation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.HEAP_GET);
     }
 
     @Override
     public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> heapPut() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapPut() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return (CompoundOperation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.HEAP_PUT);
     }
 
     @Override
     public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> heapRemove() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return (CompoundOperation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.HEAP_REMOVE);
+    }
+
+    @Override
+    public CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet() {
+        return (CompoundOperation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.OFFHEAP_GET);
+    }
+
+    @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapPut() {
+        return (CompoundOperation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.OFFHEAP_PUT);
     }
 
     @Override
     public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> offheapRemove() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return (CompoundOperation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.OFFHEAP_REMOVE);
+    }
+
+    @Override
+    public CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet() {
+        return (CompoundOperation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.DISK_GET);
+    }
+
+    @Override
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
+        return (CompoundOperation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.DISK_PUT);
     }
 
     @Override
     public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskRemove() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return (CompoundOperation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.DISK_REMOVE);
     }
 
     @Override
     public CompoundOperation<XaCommitOutcome> xaCommit() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return (CompoundOperation<XaCommitOutcome>) operations.get(OperationType.XA_COMMIT);
     }
 
     @Override
     public CompoundOperation<XaRollbackOutcome> xaRollback() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return (CompoundOperation<XaRollbackOutcome>) operations.get(OperationType.XA_ROLLBACK);
     }
 
     @Override
     public CompoundOperation<XaRecoveryOutcome> xaRecovery() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return (CompoundOperation<XaRecoveryOutcome>) operations.get(OperationType.XA_RECOVERY);
     }
 }

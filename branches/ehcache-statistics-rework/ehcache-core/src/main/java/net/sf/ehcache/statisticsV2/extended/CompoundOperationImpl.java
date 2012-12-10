@@ -6,6 +6,7 @@ package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -83,5 +84,17 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
         } else {
             return existing;
         }
+    }
+
+    boolean expire(long expiryTime) {
+        for (OperationImpl<?> o : operations.values()) {
+            o.expire(expiryTime);
+        }
+        for (Iterator<OperationImpl<T>> it = compounds.values().iterator(); it.hasNext(); ) {
+            if (it.next().expire(expiryTime)) {
+                it.remove();
+            }
+        }
+        return false;
     }
 }

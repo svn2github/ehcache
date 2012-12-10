@@ -54,4 +54,12 @@ class OperationImpl<T extends Enum<T>> implements Operation {
     public long count() {
         return source.sum(targets);
     }
+
+    boolean expire(long expiryTime) {
+        if (rate.expire(expiryTime) && latency.expire(expiryTime)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
