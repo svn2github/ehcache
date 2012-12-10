@@ -3,6 +3,7 @@ package net.sf.ehcache.transaction.xa;
 import bitronix.tm.BitronixTransaction;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.internal.TransactionStatusChangeListener;
+import bitronix.tm.recovery.Recoverer;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
@@ -94,6 +95,15 @@ public class XATransactionTest extends TestCase {
             public void statusChanged(int oldStatus, int newStatus) {
                 if (oldStatus == Status.STATUS_PREPARED) {
                     try {
+                        // <MNK-4250>
+                        // the BTM recoverer must not run while we mess with the internal BTM structures
+                        // so cancel it and wait until it doesn't run anymore
+                        Recoverer recoverer = TransactionManagerServices.getRecoverer();
+                        TransactionManagerServices.getTaskScheduler().cancelRecovery(recoverer);
+                        while (recoverer.isRunning()) {
+                            try { Thread.sleep(100); } catch (InterruptedException e) { /* ignore */ }
+                        }
+
                         XAResourceProducer txCache1Producer = ResourceRegistrar.get("txCache1");
                         XAResource xaResource1 = txCache1Producer.startRecovery().getXAResource();
                         Xid[] recoveredXids1 = xaResource1.recover(XAResource.TMSTARTRSCAN);
@@ -107,6 +117,10 @@ public class XATransactionTest extends TestCase {
                         // recover should not return XIDs of active transactions
                         assertEquals(0, recoveredXids1.length);
                         assertEquals(0, recoveredXids2.length);
+
+                        // reschedule the BTM recoverer
+                        // </MNK-4250>
+                        TransactionManagerServices.getTaskScheduler().scheduleRecovery(recoverer, new java.util.Date());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
