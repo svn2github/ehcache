@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.store.StoreOperationOutcomes;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
 
 // TODO CRSS Start Here we are so fucked.
 public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
@@ -47,79 +50,58 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation cacheMissExpiredOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.get().component(CacheOperationOutcomes.GetOutcome.MISS_EXPIRED);
     }
 
     @Override
     public Operation cacheMissNotFoundOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.get().component(CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND);
     }
 
     @Override
     public Operation cacheMissOperation() {
-        // TODO Auto-generated method stub
-        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Operation cachePutAddedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.put().component(CacheOperationOutcomes.PutOutcome.ADDED);
     }
 
     @Override
     public Operation cachePutReplacedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.put().component(CacheOperationOutcomes.PutOutcome.UPDATED);
     }
 
     @Override
     public Operation cachePutOperation() {
-        // TODO Auto-generated method stub
-        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Operation cacheRemoveOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.remove().component(CacheOperationOutcomes.RemoveOutcome.SUCCESS);
     }
 
     @Override
     public Operation localHeapHitOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.heapGet().component(GetOutcome.HIT);
     }
 
     @Override
     public Operation localHeapMissOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.heapGet().component(GetOutcome.MISS);
     }
 
     @Override
     public Operation localHeapPutAddedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+
+        return extended.heapPut().component(StoreOperationOutcomes.PutOutcome.ADDED);
     }
 
     @Override
     public Operation localHeapPutReplacedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.heapPut().component(PutOutcome.ADDED);
     }
 
     @Override
