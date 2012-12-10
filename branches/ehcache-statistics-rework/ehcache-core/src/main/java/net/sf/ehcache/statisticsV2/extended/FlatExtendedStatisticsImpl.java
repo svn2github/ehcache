@@ -19,12 +19,16 @@ package net.sf.ehcache.statisticsV2.extended;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
+import net.sf.ehcache.transaction.xa.XaCommitOutcome;
+import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
+import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
-// TODO CRSS Start Here we are so fucked.
 public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     private final ExtendedStatistics extended;
@@ -75,6 +79,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation cachePutOperation() {
+        // TODO
         throw new UnsupportedOperationException();
     }
 
@@ -106,162 +111,121 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation localHeapPutOperation() {
-        // TODO Auto-generated method stub
-        // return null;
+        // TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Operation localHeapRemoveOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.heapRemove().component(RemoveOutcome.SUCCESS);
     }
 
     @Override
     public Operation localOffHeapHitOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.offheapGet().component(GetOutcome.HIT);
     }
 
     @Override
     public Operation localOffHeapMissOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.offheapGet().component(GetOutcome.MISS);
     }
 
     @Override
     public Operation localOffHeapPutAddedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.offheapPut().component(PutOutcome.ADDED);
     }
 
     @Override
     public Operation localOffHeapPutReplacedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.offheapPut().component(PutOutcome.UPDATED);
     }
 
     @Override
     public Operation localOffHeapPutOperation() {
         // TODO Auto-generated method stub
-        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Operation localOffHeapRemoveOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.offheapRemove().component(RemoveOutcome.SUCCESS);
     }
 
     @Override
     public Operation diskHeapHitOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.diskGet().component(GetOutcome.HIT);
     }
 
     @Override
     public Operation diskHeapMissOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.diskGet().component(GetOutcome.MISS);
     }
 
     @Override
     public Operation diskHeapPutAddedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.diskPut().component(PutOutcome.ADDED);
     }
 
     @Override
     public Operation diskHeapPutReplacedOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.diskPut().component(PutOutcome.UPDATED);
     }
 
     @Override
     public Operation diskHeapPutOperation() {
         // TODO Auto-generated method stub
-        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Operation diskHeapRemoveOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.diskRemove().component(RemoveOutcome.SUCCESS);
     }
 
     @Override
     public Operation cacheSearchOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.search().component(SearchOutcome.SUCCESS);
     }
 
     @Override
     public Operation xaCommitSuccessOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.xaCommit().component(XaCommitOutcome.COMMITTED);
     }
 
     @Override
     public Operation xaCommitExceptionOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.xaCommit().component(XaCommitOutcome.EXCEPTION);
     }
 
     @Override
     public Operation xaCommitReadOnlyOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.xaCommit().component(XaCommitOutcome.READ_ONLY);
     }
 
     @Override
     public Operation xaRollbackOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.xaRollback().component(XaRollbackOutcome.ROLLEDBACK);
     }
 
     @Override
     public Operation xaRollbackExceptionOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.xaRollback().component(XaRollbackOutcome.EXCEPTION);
     }
 
     @Override
     public Operation xaRecoveryOperation() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return extended.xaRecovery().component(XaRecoveryOutcome.RECOVERED);
     }
 
     @Override
     public Operation evictionOperation() {
         // TODO Auto-generated method stub
-        // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Operation expiredOperation() {
         // TODO Auto-generated method stub
-        // return null;
         throw new UnsupportedOperationException();
     }
 

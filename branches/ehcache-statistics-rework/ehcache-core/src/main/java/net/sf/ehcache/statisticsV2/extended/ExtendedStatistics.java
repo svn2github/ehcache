@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
+import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 import org.terracotta.statistics.archive.Timestamped;
@@ -54,6 +55,7 @@ public interface ExtendedStatistics {
 
     CompoundOperation<XaCommitOutcome> xaCommit();
     CompoundOperation<XaRollbackOutcome> xaRollback();
+    CompoundOperation<XaRecoveryOutcome> xaRecovery();
 
     public interface CompoundOperation<T> {
         Operation component(T result);

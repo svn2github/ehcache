@@ -26,6 +26,7 @@ import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
+import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 import org.terracotta.context.TreeNode;
@@ -221,6 +222,13 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     @Override
     public CompoundOperation<XaRollbackOutcome> xaRollback() {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CompoundOperation<XaRecoveryOutcome> xaRecovery() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
