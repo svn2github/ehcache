@@ -171,7 +171,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> heapPut() {
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> heapPut() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
@@ -185,21 +185,21 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskPut() {
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> heapRemove() {
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> heapRemove() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapRemove() {
+    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> offheapRemove() {
         // TODO Auto-generated method stub
         // return null;
         throw new UnsupportedOperationException();
@@ -225,5 +225,4 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         // return null;
         throw new UnsupportedOperationException();
     }
-
 }

@@ -42,12 +42,12 @@ public interface ExtendedStatistics {
     CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet();
     CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet();
 
-    CompoundOperation<StoreOperationOutcomes.GetOutcome> heapPut();
+    CompoundOperation<StoreOperationOutcomes.PutOutcome> heapPut();
     CompoundOperation<StoreOperationOutcomes.PutOutcome> offheapPut();
-    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> diskPut();
+    CompoundOperation<StoreOperationOutcomes.PutOutcome> diskPut();
 
-    CompoundOperation<StoreOperationOutcomes.GetOutcome> heapRemove();
-    CompoundOperation<StoreOperationOutcomes.PutOutcome> offheapRemove();
+    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> heapRemove();
+    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> offheapRemove();
     CompoundOperation<StoreOperationOutcomes.RemoveOutcome> diskRemove();
 
     CompoundOperation<CacheOperationOutcomes.SearchOutcome> search();
