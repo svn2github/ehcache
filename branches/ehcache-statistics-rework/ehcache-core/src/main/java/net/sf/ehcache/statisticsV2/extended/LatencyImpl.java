@@ -4,6 +4,7 @@
  */
 package net.sf.ehcache.statisticsV2.extended;
 
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Latency;
@@ -25,12 +26,12 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
     private final StatisticImpl<Long> maximumStatistic;
     private final StatisticImpl<Double> averageStatistic;
 
-    public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, T target, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
+    public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
         this.average = new EventParameterSimpleMovingAverage(averagePeriod, averageUnit);
         this.minimumStatistic = new StatisticImpl<Long>(average.minimumStatistic(), executor, historySize, historyPeriod, historyUnit);
         this.maximumStatistic = new StatisticImpl<Long>(average.maximumStatistic(), executor, historySize, historyPeriod, historyUnit);
         this.averageStatistic = new StatisticImpl<Double>(average.averageStatistic(), executor, historySize, historyPeriod, historyUnit);
-        this.latencySampler = new LatencySampling(target, 1.0);
+        this.latencySampler = new LatencySampling(targets, 1.0);
         latencySampler.addDerivedStatistic(average);
         this.source = statistic;
     }

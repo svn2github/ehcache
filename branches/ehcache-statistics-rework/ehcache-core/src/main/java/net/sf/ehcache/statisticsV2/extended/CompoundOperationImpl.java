@@ -5,7 +5,11 @@
 package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
@@ -18,12 +22,33 @@ import org.terracotta.statistics.observer.OperationObserver;
  * @author cdennis
  */
 class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
-    private final Map<T, OperationImpl<T>> operations;
+    
+    private final SourceStatistic<OperationObserver<T>> source;
+    
+    private final Map<T, OperationImpl<T>> operations;    
+    private final ConcurrentMap<Set<T>, OperationImpl<T>> compounds = new ConcurrentHashMap<Set<T>, OperationImpl<T>>();
 
+    private final long averagePeriod;
+    private final TimeUnit averageUnit;
+    
+    private final ScheduledExecutorService executor;
+    private final int historySize;
+    private final long historyPeriod;
+    private final TimeUnit historyUnit;
+    
     public CompoundOperationImpl(SourceStatistic<OperationObserver<T>> source, Class<T> type, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
+        this.source = source;
+        
+        this.averagePeriod = averagePeriod;
+        this.averageUnit = averageUnit;
+        this.executor = executor;
+        this.historySize = historySize;
+        this.historyPeriod = historyPeriod;
+        this.historyUnit = historyUnit;
+        
         this.operations = new EnumMap(type);
         for (T result : type.getEnumConstants()) {
-            operations.put(result, new OperationImpl(source, result, averagePeriod, averageUnit, executor, historySize, historyPeriod, historyUnit));
+            operations.put(result, new OperationImpl(source, EnumSet.of(result), averagePeriod, averageUnit, executor, historySize, historyPeriod, historyUnit));
         }
     }
 
@@ -42,5 +67,22 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
     @Override
     public Operation component(T result) {
         return operations.get(result);
+    }
+
+    @Override
+    public Operation component(Set<T> results) {
+        Set<T> key = EnumSet.copyOf(results);
+        OperationImpl<T> existing = compounds.get(key);
+        if (existing == null) {
+            OperationImpl<T> created = new OperationImpl(source, key, averagePeriod, averageUnit, executor, historySize, historyPeriod, historyUnit);
+            OperationImpl<T> racer = compounds.putIfAbsent(key, created);
+            if (racer == null) {
+                return created;
+            } else {
+                return racer;
+            }
+        } else {
+            return existing;
+        }
     }
 }

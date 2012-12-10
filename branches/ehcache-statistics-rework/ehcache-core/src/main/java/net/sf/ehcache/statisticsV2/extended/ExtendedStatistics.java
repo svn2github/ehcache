@@ -17,6 +17,7 @@
 package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheOperationOutcomes;
@@ -59,6 +60,7 @@ public interface ExtendedStatistics {
 
     public interface CompoundOperation<T> {
         Operation component(T result);
+        Operation component(Set<T> results);
     }
 
     public interface Operation {

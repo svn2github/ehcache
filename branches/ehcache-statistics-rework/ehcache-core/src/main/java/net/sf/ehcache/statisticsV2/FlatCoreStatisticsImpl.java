@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.statisticsV2;
 
+import javax.management.MBeanPermission;
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;

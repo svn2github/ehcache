@@ -27,6 +27,8 @@ public interface CoreStatistics {
 
     public interface CountOperation<T> {
         long value(T result);
+        
+        long value(T ... results);
     }
 
     public CountOperation<CacheOperationOutcomes.GetOutcome> get();
