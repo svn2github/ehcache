@@ -10,7 +10,7 @@ import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
-import org.terracotta.toolkit.NonStopToolkit;
+import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.nonstop.NonStopException;
 
 import java.io.PrintStream;
@@ -18,13 +18,13 @@ import java.lang.reflect.Method;
 
 public class NonStopSyncWrapper implements Sync {
   private final Sync                        delegate;
-  private final NonStopToolkit              nonStopToolkit;
+  private final NonStop                     nonStop;
   private final ToolkitNonStopConfiguration toolkitNonStopConfiguration;
 
   public NonStopSyncWrapper(Sync delegate, ToolkitInstanceFactory toolkitInstanceFactory,
                             NonstopConfiguration nonStopConfiguration) {
     this.delegate = delegate;
-    this.nonStopToolkit = ((NonStopToolkit) toolkitInstanceFactory.getToolkit());
+    this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
     this.toolkitNonStopConfiguration = new ToolkitNonStopConfiguration(nonStopConfiguration);
   }
 
@@ -93,13 +93,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public void lock(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.start(toolkitNonStopConfiguration);
+    nonStop.start(toolkitNonStopConfiguration);
     try {
       this.delegate.lock(arg0);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.stop();
+      nonStop.finish();
     }
   }
 
@@ -109,13 +109,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public void unlock(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.start(toolkitNonStopConfiguration);
+    nonStop.start(toolkitNonStopConfiguration);
     try {
       this.delegate.unlock(arg0);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.stop();
+      nonStop.finish();
     }
   }
 
@@ -125,13 +125,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public boolean tryLock(LockType arg0, long arg1) throws InterruptedException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.start(toolkitNonStopConfiguration);
+    nonStop.start(toolkitNonStopConfiguration);
     try {
       return this.delegate.tryLock(arg0, arg1);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.stop();
+      nonStop.finish();
     }
   }
 
@@ -141,13 +141,13 @@ public class NonStopSyncWrapper implements Sync {
   @Override
   public boolean isHeldByCurrentThread(LockType arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStopToolkit.start(toolkitNonStopConfiguration);
+    nonStop.start(toolkitNonStopConfiguration);
     try {
       return this.delegate.isHeldByCurrentThread(arg0);
     } catch (NonStopException e) {
       throw new NonStopCacheException(e);
     } finally {
-      nonStopToolkit.stop();
+      nonStop.finish();
     }
   }
 }

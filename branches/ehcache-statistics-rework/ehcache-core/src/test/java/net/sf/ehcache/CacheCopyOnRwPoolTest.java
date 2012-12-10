@@ -22,6 +22,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +60,8 @@ public class CacheCopyOnRwPoolTest {
                 new CacheConfiguration()
                         .statistics(true)
                         .name("memoryOnlyCache")
+                        .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                        .overflowToDisk(false)
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
@@ -66,9 +69,12 @@ public class CacheCopyOnRwPoolTest {
                         .name("memoryOnlyCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)
+                        .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
+                        .overflowToDisk(false)
         ));
 
         Cache cache = cacheManager.getCache("memoryOnlyCache");
+        assertTrue(!cache.isDiskStore());
         Cache copyCache = cacheManager.getCache("memoryOnlyCache_copy");
 
         cache.put(new Element(1000, new CrazyObject()));

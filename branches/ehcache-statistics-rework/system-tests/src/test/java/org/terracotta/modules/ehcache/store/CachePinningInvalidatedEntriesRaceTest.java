@@ -81,8 +81,10 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
           }
           cache.put(new Element(getKey(i), getValue(i + 1)));
         }
+        waitForAllCurrentTransactionsToComplete(cache);
         Assert.assertEquals(ELEMENT_COUNT, cache.getSize());
       }
+
       getBarrierForAllClients().await();
       if (index == 0) {
         WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
@@ -99,7 +101,6 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
         assertEquals(cache.get(getKey(i)).getObjectValue(), getValue(i + 1));
       }
       // All the gets on both the clients should be local as the pinned entries would have been faulted.
-      Assert.assertEquals(ELEMENT_COUNT, cache.getMemoryStoreSize());
       Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getCore().getInMemoryHits());
       Assert.assertEquals(0, cache.getStatistics().getCore().getInMemoryMisses());
       Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskHits());

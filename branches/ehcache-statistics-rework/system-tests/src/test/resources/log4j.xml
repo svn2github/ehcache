@@ -17,6 +17,11 @@
         <appender-ref ref="console"/>
     </category>
 
+    <category name="net.sf.ehcache.transaction">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </category>
+
     <category name="bitronix">
         <level value="INFO"/>
         <appender-ref ref="console"/>

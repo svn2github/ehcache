@@ -99,6 +99,7 @@
     <!-- Contributed code -->
     <suppress checks="" files="ConcurrentHashMap.java"/>
     <suppress checks="" files="VicariousThreadLocal.java"/>
+    <suppress checks="" files="net[\\/]sf[\\/]ehcache[\\/]util[\\/]concurrent[\\/]"/>
 
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
