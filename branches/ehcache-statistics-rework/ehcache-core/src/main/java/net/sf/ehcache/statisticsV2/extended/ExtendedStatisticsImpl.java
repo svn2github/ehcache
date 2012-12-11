@@ -85,7 +85,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         timeToDisableUnit = unit;
         if (disableStatus != null) {
             disableStatus.cancel(false);
-            disableStatus = executor.scheduleAtFixedRate(null, timeToDisable, timeToDisable, timeToDisableUnit);
+            disableStatus = executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, timeToDisableUnit);
         }
     }
 
@@ -96,9 +96,15 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 disableStatus.cancel(false);
                 disableStatus = null;
             }
+            for (CompoundOperation<?> o : operations.values()) {
+                if (o instanceof CompoundOperationImpl<?>) {
+                    ((CompoundOperationImpl<?>) o).start();
+                }
+            }
         } else {
+            disableTask.run();
             if (disableStatus == null) {
-                disableStatus = executor.scheduleAtFixedRate(null, timeToDisable, timeToDisable, timeToDisableUnit);
+                disableStatus = executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, timeToDisableUnit);
             }
         }
     }

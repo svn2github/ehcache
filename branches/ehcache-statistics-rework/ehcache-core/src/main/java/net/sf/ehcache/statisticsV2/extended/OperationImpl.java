@@ -56,7 +56,7 @@ class OperationImpl<T extends Enum<T>> implements Operation {
     }
 
     boolean expire(long expiryTime) {
-        if (rate.expire(expiryTime) && latency.expire(expiryTime)) {
+        if (rate.expire(expiryTime) & latency.expire(expiryTime)) {
             return true;
         } else {
             return false;
