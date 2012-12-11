@@ -1148,9 +1148,10 @@ public class Cache implements InternalEhcache, StoreListener {
                 this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
 
-            // this is a little different.
+            // this is a little different. THis is sortof a mess.
+            // TODO TBD DO it better. CRSS
             statisticsDb=new EhcacheStatisticsCoreDb(this);
-            statistics=new StatisticsPlaceholder((Ehcache)this, statisticsDb.getStatisticsManager());
+            statistics=new StatisticsPlaceholder(this, statisticsDb.getStatisticsManager());
         }
 
         compoundStore.addStoreListener(this);
