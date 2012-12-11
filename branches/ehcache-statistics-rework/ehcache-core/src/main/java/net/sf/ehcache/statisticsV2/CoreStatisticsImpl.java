@@ -16,97 +16,128 @@
 
 package net.sf.ehcache.statisticsV2;
 
-import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
-import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
-import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
+import java.util.Arrays;
+import java.util.HashSet;
+
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
-public class CoreStatisticsPlaceholder implements CoreStatistics {
+public class CoreStatisticsImpl implements CoreStatistics {
 
-    @Override
-    public CountOperation<GetOutcome> get() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    private final ExtendedStatistics extended;
+    private final CountOperation cacheGet;
+    private final CountOperation cachePut;
+    private final CountOperation cacheRemove;
+    private final CountOperation localHeapGet;
+    private final CountOperation localHeapPut;
+    private final CountOperation localHeapRemove;
+    private final CountOperation localOffHeapGet;
+    private final CountOperation localOffHeapPut;
+    private final CountOperation localOffHeapRemove;
+    private final CountOperation diskGet;
+    private final CountOperation diskPut;
+    private final CountOperation diskRemove;
+
+    public CoreStatisticsImpl(ExtendedStatistics extended) {
+        this.extended=extended;
+        this.cacheGet=asCountOperation(extended.get());
+        this.cachePut=asCountOperation(extended.put());
+        this.cacheRemove=asCountOperation(extended.remove());
+
+        this.localHeapGet=asCountOperation(extended.heapGet());
+        this.localHeapPut=asCountOperation(extended.heapPut());
+        this.localHeapRemove=asCountOperation(extended.heapRemove());
+
+        this.localOffHeapGet=asCountOperation(extended.offheapGet());
+        this.localOffHeapPut=asCountOperation(extended.offheapPut());
+        this.localOffHeapRemove=asCountOperation(extended.offheapRemove());
+
+        this.diskGet=asCountOperation(extended.diskGet());
+        this.diskPut=asCountOperation(extended.diskPut());
+        this.diskRemove=asCountOperation(extended.diskRemove());
+
+    }
+
+    private static <T> CountOperation asCountOperation(final CompoundOperation<T> compoundOp) {
+        return new CountOperation<T>() {
+            @Override
+            public long value(T result) {
+                return compoundOp.component(result).count();
+            }
+
+            @Override
+            public long value(T... results) {
+                return compoundOp.compound(new HashSet<T>(Arrays.asList(results))).count();
+            }
+
+        };
     }
 
     @Override
-    public CountOperation<PutOutcome> put() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<CacheOperationOutcomes.GetOutcome> get() {
+        return cacheGet;
     }
 
     @Override
-    public CountOperation<RemoveOutcome> remove() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<CacheOperationOutcomes.PutOutcome> put() {
+        return cachePut;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> localHeapGet() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove() {
+        return cachePut;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> localHeapPut() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<GetOutcome> localHeapGet() {
+        return localHeapGet;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> localHeapRemove() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<PutOutcome> localHeapPut() {
+        return localHeapPut;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> localOffHeapGet() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<RemoveOutcome> localHeapRemove() {
+        return localHeapRemove;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> localOffHeapPut() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<GetOutcome> localOffHeapGet() {
+        return localOffHeapGet;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> localOffHeapRemove() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<PutOutcome> localOffHeapPut() {
+        return localOffHeapPut;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome> diskGet() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<RemoveOutcome> localOffHeapRemove() {
+        return localOffHeapRemove;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<GetOutcome> diskGet() {
+        return diskGet;
     }
 
     @Override
-    public CountOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskRemove() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+    public CountOperation<PutOutcome> diskPut() {
+        return diskPut;
+    }
+
+    @Override
+    public CountOperation<RemoveOutcome> diskRemove() {
+        return diskRemove;
     }
 
     @Override
@@ -290,6 +321,4 @@ public class CoreStatisticsPlaceholder implements CoreStatistics {
         // return 0;
         throw new UnsupportedOperationException();
     }
-
-
 }

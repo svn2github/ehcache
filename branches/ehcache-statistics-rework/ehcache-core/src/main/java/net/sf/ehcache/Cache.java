@@ -286,6 +286,8 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private volatile EhcacheXAResource xaResource;
 
+    private StatisticsPlaceholder statistics;
+
     /**
      * 2.0 and higher Constructor
      * <p/>
@@ -1146,7 +1148,9 @@ public class Cache implements InternalEhcache, StoreListener {
                 this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
 
+            // this is a little different.
             statisticsDb=new EhcacheStatisticsCoreDb(this);
+            statistics=new StatisticsPlaceholder((Ehcache)this, statisticsDb.getStatisticsManager());
         }
 
         compoundStore.addStoreListener(this);
@@ -2910,7 +2914,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      */
     public StatisticsPlaceholder getStatistics() throws IllegalStateException {
-        throw new UnsupportedOperationException();
+        return statistics;
     }
 
     /**

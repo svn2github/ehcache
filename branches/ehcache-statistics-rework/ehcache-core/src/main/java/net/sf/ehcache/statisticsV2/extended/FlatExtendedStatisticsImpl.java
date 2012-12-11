@@ -64,6 +64,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation cacheMissOperation() {
+        // TODO
         throw new UnsupportedOperationException();
     }
 

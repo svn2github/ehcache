@@ -17,14 +17,31 @@
 package net.sf.ehcache.statisticsV2;
 
 import java.util.concurrent.TimeUnit;
+
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatisticsImpl;
+import net.sf.ehcache.statisticsV2.extended.FlatExtendedStatisticsImpl;
+
+import org.terracotta.statistics.StatisticsManager;
 
 public class StatisticsPlaceholder {
 
-    private final CoreStatistics core=new CoreStatisticsPlaceholder();
-    private final FlatCoreStatistics flatCore=new FlatCoreStatisticsImpl(core);
-    private final ExtendedStatistics extended = new ExtendedStatisticsImpl(null, 5, TimeUnit.MINUTES);
+    private final CoreStatistics core;
+    private final FlatCoreStatistics flatCore;
+    private final ExtendedStatistics extended;
+    private final Ehcache cache;
+    private final StatisticsManager statisticsManager;
+    private final FlatExtendedStatisticsImpl flatExtended;
+
+    public StatisticsPlaceholder(Ehcache ehcache, StatisticsManager statisticsManager) {
+        this.cache=ehcache;
+        this.statisticsManager=statisticsManager;
+        extended = new ExtendedStatisticsImpl(statisticsManager, 5, TimeUnit.MINUTES);
+        flatExtended=new FlatExtendedStatisticsImpl(extended);
+        core=new CoreStatisticsImpl(extended);
+        flatCore=new FlatCoreStatisticsImpl(core);
+    }
 
     public CoreStatistics getCore() {
         return core;
@@ -36,6 +53,10 @@ public class StatisticsPlaceholder {
 
     public ExtendedStatistics getExtended() {
         return extended;
+    }
+
+    public FlatExtendedStatisticsImpl getFlatExtended() {
+        return flatExtended;
     }
 
     public void setStatisticsEnabled(boolean b) {

@@ -68,6 +68,10 @@ public class EhcacheStatisticsCoreDb {
         cachePutOp=probeForOpStatistic("/put");
     }
 
+    public StatisticsManager getStatisticsManager() {
+        return statisticsManager;
+    }
+
     private OperationStatistic probeForOpStatistic(String name) {
         OperationStatisticDescriptor descr = rawOperationStats.get(cache.getName() + name);
         if(descr==null) {
