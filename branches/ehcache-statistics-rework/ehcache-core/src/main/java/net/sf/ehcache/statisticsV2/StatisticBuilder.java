@@ -17,6 +17,7 @@
 package net.sf.ehcache.statisticsV2;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.terracotta.statistics.StatisticsManager;
@@ -51,9 +52,9 @@ public final class StatisticBuilder {
     
     static class AbstractStatisticBuilder<T extends AbstractStatisticBuilder> {
         
+        protected final Set<String> tags = new HashSet<String>();
         protected Object context;
         protected String name;
-        protected Set<String> tags;
         
         public T of(Object of) {
             if (context == null) {

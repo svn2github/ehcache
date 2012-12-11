@@ -41,13 +41,15 @@ import org.terracotta.statistics.Time;
 
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
-    private final Map<OperationType, CompoundOperationImpl<?>> operations = new EnumMap<OperationType, CompoundOperationImpl<?>>(OperationType.class);
+    private final Map<OperationType, CompoundOperation<?>> operations = new EnumMap<OperationType, CompoundOperation<?>>(OperationType.class);
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private final Runnable disableTask = new Runnable() {
         @Override
         public void run() {
-            for (CompoundOperationImpl<?> o : operations.values()) {
-                o.expire(Time.absoluteTime() - timeToDisableUnit.toMillis(timeToDisable));
+            for (CompoundOperation<?> o : operations.values()) {
+                if (o instanceof CompoundOperationImpl<?>) {
+                    ((CompoundOperationImpl<?>) o).expire(Time.absoluteTime() - timeToDisableUnit.toMillis(timeToDisable));
+                }
             }
         }
     };
@@ -65,6 +67,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             Set<TreeNode> result = manager.query(t.query());
             switch (result.size()) {
                 case 0:
+                    operations.put(t, NullCompoundOperation.instance());
                     break;
                 case 1:
                     OperationStatistic source = (OperationStatistic) result.iterator().next().getContext().attributes().get("this");

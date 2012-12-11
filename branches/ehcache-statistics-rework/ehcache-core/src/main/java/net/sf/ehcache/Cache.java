@@ -50,6 +50,7 @@ import net.sf.ehcache.CacheOperationOutcomes.GetAllOutcome;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
@@ -260,6 +261,7 @@ public class Cache implements InternalEhcache, StoreListener {
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
     private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this).tag("cache", "bulk").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("cache").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("cache").build();
     private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this).tag("cache").build();
 
     /**
@@ -2094,7 +2096,12 @@ public class Cache implements InternalEhcache, StoreListener {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final Element removeAndReturnElement(Object key) throws IllegalStateException {
-        return removeInternal(key, false, true, false, false);
+        removeObserver.begin();
+        try {
+            return removeInternal(key, false, true, false, false);
+        } finally {
+            removeObserver.end(RemoveOutcome.SUCCESS);
+        }
     }
 
     /**
@@ -2149,7 +2156,12 @@ public class Cache implements InternalEhcache, StoreListener {
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
     public final boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
-        return (removeInternal(key, false, true, doNotNotifyCacheReplicators, false) != null);
+        removeObserver.begin();
+        try {
+            return (removeInternal(key, false, true, doNotNotifyCacheReplicators, false) != null);
+        } finally {
+            removeObserver.end(RemoveOutcome.SUCCESS);
+        }
     }
 
     /**
@@ -2188,7 +2200,12 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public boolean removeWithWriter(Object key) throws IllegalStateException {
-        return (removeInternal(key, false, true, false, true) != null);
+        removeObserver.begin();
+        try {
+            return (removeInternal(key, false, true, false, true) != null);
+        } finally {
+            removeObserver.end(RemoveOutcome.SUCCESS);
+        }
     }
 
     /**
