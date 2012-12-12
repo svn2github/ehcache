@@ -19,6 +19,7 @@ package net.sf.ehcache.hibernate.management.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
@@ -137,7 +138,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                count += cache.getStatistics().getCore().getCacheHits();
+                count += cache.getStatistics().getFlatCore().cacheHitCount();
             }
         }
         return count;
@@ -160,7 +161,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                count += cache.getStatistics().getExtended().getCacheHitMostRecentSample();
+                count += cache.getStatistics().getFlatExtended().cacheHitOperation().rate().value().longValue();
             }
         }
         return count;
@@ -174,7 +175,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                count += cache.getStatistics().getCore().getCacheMisses();
+                count += cache.getStatistics().getFlatCore().cacheMissCount();
             }
         }
         return count;
@@ -197,7 +198,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                count += cache.getStatistics().getExtended().getCacheMissMostRecentSample();
+                count += cache.getStatistics().getFlatExtended().cacheMissOperation().rate().value().longValue();
             }
         }
         return count;
@@ -211,7 +212,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                count += cache.getStatistics().getCore().getPutCount();
+                count += cache.getStatistics().getFlatCore().cachePutCount();
             }
         }
         return count;
@@ -234,7 +235,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                count += cache.getStatistics().getExtended().getCacheElementPutMostRecentSample();
+                count += cache.getStatistics().getFlatExtended().cachePutOperation().rate().value().longValue();
             }
         }
         return count;
@@ -325,10 +326,10 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String name : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(name);
             if (cache != null) {
-                rv.put(name, new int[] {(int) cache.getStatistics().getExtended().getCacheHitMostRecentSample(),
-                        (int)cache.getStatistics().getExtended().getCacheMissNotFoundMostRecentSample()
-                                + (int)cache.getStatistics().getExtended().getCacheMissExpiredMostRecentSample(),
-                        (int) cache.getStatistics().getExtended().getCacheElementPutMostRecentSample(), });
+                rv.put(name, new int[] {cache.getStatistics().getFlatExtended().cacheHitOperation().rate().value().intValue() ,
+                        cache.getStatistics().getFlatExtended().cacheMissNotFoundOperation().rate().value().intValue() ,
+                                + cache.getStatistics().getFlatExtended().cacheMissExpiredOperation().rate().value().intValue() ,
+                        cache.getStatistics().getFlatExtended().cachePutOperation().rate().value().intValue()});
             }
         }
         return rv;
@@ -582,7 +583,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String cacheName : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
-                rv = Math.max(rv, cache.getStatistics().getCore().getMaxGetTimeMillis());
+                rv = Math.max(rv, TimeUnit.MILLISECONDS.convert(cache.getStatistics().getFlatExtended().cacheSearchOperation().latency().maximum().value().longValue(),TimeUnit.NANOSECONDS));
             }
         }
         return rv;
@@ -596,7 +597,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String cacheName : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
-                rv = Math.max(rv, cache.getStatistics().getCore().getMinGetTimeMillis());
+                rv = Math.max(rv, TimeUnit.MILLISECONDS.convert(cache.getStatistics().getFlatExtended().cacheSearchOperation().latency().minimum().value().longValue(),TimeUnit.NANOSECONDS));
+                // TODO CRSS why max?
             }
         }
         return rv;
@@ -610,7 +612,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public long getMaxGetTimeMillis(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);
         if (cache != null) {
-            return cache.getStatistics().getCore().getMaxGetTimeMillis();
+            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().getFlatExtended().cacheGetOperation().latency().maximum().value().longValue(),TimeUnit.NANOSECONDS);
         } else {
             return 0;
         }
@@ -624,7 +626,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public long getMinGetTimeMillis(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);
         if (cache != null) {
-            return cache.getStatistics().getCore().getMinGetTimeMillis();
+            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().getFlatExtended().cacheGetOperation().latency().minimum().value().longValue(),TimeUnit.NANOSECONDS);
         } else {
             return 0;
         }
@@ -638,7 +640,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public float getAverageGetTimeMillis(String region) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
-            return cache.getStatistics().getCore().getAverageGetTimeMillis();
+            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().getFlatExtended().cacheGetOperation().latency().average().value().longValue(),TimeUnit.NANOSECONDS);
         } else {
             return -1f;
         }

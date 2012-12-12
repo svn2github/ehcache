@@ -18,8 +18,6 @@ package net.sf.ehcache.statisticsV2;
 
 public interface FlatCoreStatistics {
 
-    CoreStatistics getCore();
-
     // cache level
     long cacheHitCount();
     long cacheMissExpiredCount();

@@ -190,11 +190,11 @@ public class CachePinningTest {
             assertNotNull(cache.get(i));
         }
 
-        Assert.assertEquals(expectedMemoryHits, cache.getStatistics().getCore().getInMemoryHits());
-        Assert.assertEquals(ELEMENT_COUNT - expectedMemoryHits, cache.getStatistics().getCore().getInMemoryMisses());
-        Assert.assertEquals(expectedDiskHits, cache.getStatistics().getCore().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getEvictionCount());
+        Assert.assertEquals(expectedMemoryHits, cache.getStatistics().getFlatCore().localHeapHitCount());
+        Assert.assertEquals(ELEMENT_COUNT - expectedMemoryHits, cache.getStatistics().getFlatCore().localHeapMissCount());
+        Assert.assertEquals(expectedDiskHits, cache.getStatistics().getFlatCore().diskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().getFlatCore().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().getFlatCore().getEvictionCount());
     }
 
     @Test

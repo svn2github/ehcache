@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.statisticsV2.extended;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheOperationOutcomes;
@@ -31,7 +34,17 @@ import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
+    private final static Set<CacheOperationOutcomes.PutOutcome> ALL_CACHE_PUT_OUTCOMES=asSet(CacheOperationOutcomes.PutOutcome.values());
+    private final static Set<CacheOperationOutcomes.GetOutcome> ALL_CACHE_GET_OUTCOMES=asSet(CacheOperationOutcomes.GetOutcome.values());
+    private final static Set<CacheOperationOutcomes.GetOutcome> ALL_CACHE_MISS_OUTCOMES=asSet(CacheOperationOutcomes.GetOutcome.MISS_EXPIRED,
+            CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND);
+    private final static Set<StoreOperationOutcomes.PutOutcome> ALL_STORE_PUT_OUTCOMES=asSet(StoreOperationOutcomes.PutOutcome.values());
+
     private final ExtendedStatistics extended;
+
+    private static <E> Set<E> asSet(E... ees) {
+        return new HashSet<E>(Arrays.asList(ees));
+    }
 
     public FlatExtendedStatisticsImpl(ExtendedStatistics extended) {
         this.extended=extended;
@@ -45,6 +58,11 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     @Override
     public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
         extended.setStatisticsTimeToDisable(time, unit);
+    }
+
+    @Override
+    public Operation cacheGetOperation() {
+        return extended.get().compound(ALL_CACHE_GET_OUTCOMES);
     }
 
     @Override
@@ -64,8 +82,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation cacheMissOperation() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return extended.get().compound(ALL_CACHE_MISS_OUTCOMES);
     }
 
     @Override
@@ -80,8 +97,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation cachePutOperation() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return extended.put().compound(ALL_CACHE_PUT_OUTCOMES);
     }
 
     @Override
@@ -112,8 +128,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation localHeapPutOperation() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return extended.heapPut().compound(ALL_STORE_PUT_OUTCOMES);
     }
 
     @Override
@@ -143,8 +158,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation localOffHeapPutOperation() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return extended.offheapPut().compound(ALL_STORE_PUT_OUTCOMES);
     }
 
     @Override
@@ -174,8 +188,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation diskHeapPutOperation() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return extended.diskPut().compound(ALL_STORE_PUT_OUTCOMES);
     }
 
     @Override

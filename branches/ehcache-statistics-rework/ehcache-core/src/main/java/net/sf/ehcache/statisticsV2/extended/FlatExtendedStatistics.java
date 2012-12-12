@@ -27,6 +27,7 @@ public interface FlatExtendedStatistics {
 
     void setStatisticsTimeToDisable(long time, TimeUnit unit);
 
+    Operation cacheGetOperation();
     Operation cacheHitOperation();
     Operation cacheMissExpiredOperation();
     Operation cacheMissNotFoundOperation();

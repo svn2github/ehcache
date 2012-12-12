@@ -27,16 +27,16 @@ import org.terracotta.statistics.StatisticsManager;
 
 public class StatisticsPlaceholder {
 
+    public static final int DEFAULT_HISTORY_SIZE = 30;
+    public static final int DEFAULT_INTERVAL_SECS = 10;
+    public static final int DEFAULT_SEARCH_INTERVAL_SECS = 10;
+
     private final CoreStatistics core;
     private final FlatCoreStatistics flatCore;
     private final ExtendedStatistics extended;
-    private final Ehcache cache;
-    private final StatisticsManager statisticsManager;
     private final FlatExtendedStatisticsImpl flatExtended;
 
     public StatisticsPlaceholder(Ehcache ehcache, StatisticsManager statisticsManager) {
-        this.cache=ehcache;
-        this.statisticsManager=statisticsManager;
         extended = new ExtendedStatisticsImpl(statisticsManager, 5, TimeUnit.MINUTES);
         flatExtended=new FlatExtendedStatisticsImpl(extended);
         core=new CoreStatisticsImpl(extended);

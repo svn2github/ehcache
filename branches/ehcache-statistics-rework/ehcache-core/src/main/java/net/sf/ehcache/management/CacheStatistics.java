@@ -137,7 +137,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getCacheHits() {
         updateIfNeeded();
-        return statistics.getCore().getCacheHits();
+        return statistics.getFlatCore().cacheHitCount();
     }
 
     /**
@@ -147,7 +147,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getInMemoryHits() {
         updateIfNeeded();
-        return statistics.getCore().getInMemoryHits();
+        return statistics.getFlatCore().localHeapHitCount();
     }
 
     /**
@@ -157,7 +157,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOffHeapHits() {
         updateIfNeeded();
-        return statistics.getCore().getOffHeapHits();
+        return statistics.getFlatCore().localOffHeapHitCount();
     }
 
     /**
@@ -167,7 +167,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOnDiskHits() {
         updateIfNeeded();
-        return statistics.getCore().getOnDiskHits();
+        return statistics.getFlatCore().diskHitCount();
     }
 
     /**
@@ -178,25 +178,25 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getCacheMisses() {
         updateIfNeeded();
-        return statistics.getCore().getCacheMisses();
+        return statistics.getFlatCore().cacheHitCount();
     }
 
     /** {@inheritDoc} */
     public long getInMemoryMisses() {
         updateIfNeeded();
-        return statistics.getCore().getInMemoryMisses();
+        return statistics.getFlatCore().cacheMissCount();
     }
 
     /** {@inheritDoc} */
     public long getOffHeapMisses() {
         updateIfNeeded();
-        return statistics.getCore().getOffHeapMisses();
+        return statistics.getFlatCore().localOffHeapMissCount();
     }
 
     /** {@inheritDoc} */
     public long getOnDiskMisses() {
         updateIfNeeded();
-        return statistics.getCore().getOnDiskMisses();
+        return statistics.getFlatCore().diskMissCount();
     }
 
     /**
@@ -234,7 +234,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getObjectCount() {
         updateIfNeeded();
-        return statistics.getCore().getObjectCount();
+        return statistics.getFlatCore().getObjectCount();
     }
 
     /**
@@ -244,7 +244,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getWriterQueueLength() {
         updateIfNeeded();
-        return statistics.getCore().getWriterQueueSize();
+        return statistics.getFlatCore().getWriterQueueSize();
     }
 
     /**
@@ -260,7 +260,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getMemoryStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getCore().getMemoryStoreObjectCount();
+        return statistics.getFlatCore().getMemoryStoreObjectCount();
     }
 
     /**
@@ -268,7 +268,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOffHeapStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getCore().getOffHeapStoreObjectCount();
+        return statistics.getFlatCore().getOffHeapStoreObjectCount();
     }
 
     /**
@@ -277,7 +277,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getDiskStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getCore().getDiskStoreObjectCount();
+        return statistics.getFlatCore().getDiskStoreObjectCount();
     }
 
 
@@ -310,8 +310,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getCacheHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getCore().getCacheHits();
-        long misses = statistics.getCore().getCacheMisses();
+        long hits = statistics.getFlatCore().cacheHitCount();
+        long misses = statistics.getFlatCore().cacheMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -322,8 +322,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getCacheMissPercentage() {
         updateIfNeeded();
-        long hits = statistics.getCore().getCacheHits();
-        long misses = statistics.getCore().getCacheMisses();
+        long hits = statistics.getFlatCore().cacheHitCount();
+        long misses = statistics.getFlatCore().cacheMissCount();
 
         long total = hits + misses;
         return getPercentage(misses, total);
@@ -334,8 +334,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getInMemoryHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getCore().getInMemoryHits();
-        long misses = statistics.getCore().getInMemoryMisses();
+        long hits = statistics.getFlatCore().localHeapHitCount();
+        long misses = statistics.getFlatCore().localHeapMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -346,8 +346,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getOffHeapHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getCore().getOffHeapHits();
-        long misses = statistics.getCore().getOffHeapMisses();
+        long hits = statistics.getFlatCore().localOffHeapHitCount();
+        long misses = statistics.getFlatCore().localOffHeapMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -358,8 +358,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getOnDiskHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getCore().getOnDiskHits();
-        long misses = statistics.getCore().getOnDiskMisses();
+        long hits = statistics.getFlatCore().diskHitCount();
+        long misses = statistics.getFlatCore().diskMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);

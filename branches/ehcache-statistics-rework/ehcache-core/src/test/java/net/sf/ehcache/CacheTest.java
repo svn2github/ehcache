@@ -957,19 +957,19 @@ public class CacheTest extends AbstractCacheTest {
         Thread.sleep(100);
 
         Element element1 = cache.get("key1");
-        assertEquals("Cache hit count", 1, cache.getStatistics().getCore().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getFlatCore().cacheHitCount());
         assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.getQuiet("key1");
-        assertEquals("Cache hit count", 1, cache.getStatistics().getCore().getCacheHits());
+        assertEquals("Cache hit count", 1, cache.getStatistics().getFlatCore().cacheHitCount());
         assertEquals("Element hit count", 1, element1.getHitCount());
         element1 = cache.get("key1");
-        assertEquals("Cache hit count", 2, cache.getStatistics().getCore().getCacheHits());
+        assertEquals("Cache hit count", 2, cache.getStatistics().getFlatCore().cacheHitCount());
         assertEquals("Element hit count", 2, element1.getHitCount());
 
 
-        assertEquals("Cache miss count", 0, cache.getStatistics().getCore().getCacheMisses());
+        assertEquals("Cache miss count", 0, cache.getStatistics().getFlatCore().cacheMissCount());
         cache.get("doesnotexist");
-        assertEquals("Cache miss count", 1, cache.getStatistics().getCore().getCacheMisses());
+        assertEquals("Cache miss count", 1, cache.getStatistics().getFlatCore().cacheMissCount());
 
 
     }
@@ -997,11 +997,11 @@ public class CacheTest extends AbstractCacheTest {
         long lastAccessedElement1 = element1.getLastAccessTime();
         long hitCountElement1 = element1.getHitCount();
         assertEquals("Element-1 Hit Count", 1, hitCountElement1);
-        assertEquals("Cache Hit Count", 1L, cache.getStatistics().getCore().getCacheHits());
+        assertEquals("Cache Hit Count", 1L, cache.getStatistics().getFlatCore().cacheHitCount());
 
         element1 = cache.getQuiet("key1");
         element1 = cache.getQuiet("key1");
-        assertEquals(1L, cache.getStatistics().getCore().getCacheHits());
+        assertEquals(1L, cache.getStatistics().getFlatCore().cacheHitCount());
         Element clonedElement1 = (Element) element1.clone();
         cache.putQuiet(clonedElement1);
         element1 = cache.getQuiet("key1");
@@ -2276,7 +2276,7 @@ public class CacheTest extends AbstractCacheTest {
         executor.awaitTermination(10, TimeUnit.SECONDS);
 
         assertEquals("Failures: ", 0, CacheTestRunnable.FAILURES.size());
-        assertEquals(5000, cache.getStatistics().getCore().getCacheHits());
+        assertEquals(5000, cache.getStatistics().getFlatCore().cacheHitCount());
 
     }
 
@@ -2348,8 +2348,8 @@ public class CacheTest extends AbstractCacheTest {
         // validate updating the statistics of one cache does NOT affect a
         // cloned one
         cache.get("notFoundKey");
-        assertEquals(1, cache.getStatistics().getCore().getCacheMisses());
-        assertEquals(0, clone.getStatistics().getCore().getCacheMisses());
+        assertEquals(1, cache.getStatistics().getFlatCore().cacheMissCount());
+        assertEquals(0, clone.getStatistics().getFlatCore().cacheMissCount());
 
         cache.setDisabled(true);
         clone.setDisabled(true);
