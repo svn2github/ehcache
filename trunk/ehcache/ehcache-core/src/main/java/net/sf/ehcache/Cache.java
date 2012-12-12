@@ -1055,14 +1055,15 @@ public class Cache implements InternalEhcache, StoreListener {
                         + "Please reconfigure cache '" + getName() + "' with transactionalMode = " + clusteredTransactionalMode
                     );
                 }
-                TerracottaStore terracottaStore = (TerracottaStore) makeXaStrictTransactionalIfNeeded(tempStore, copyStrategy);
+                TerracottaStore terracottaStore = (TerracottaStore) makeTransactionalIfNeeded(tempStore, copyStrategy);
 
                 NonstopConfiguration nonstopConfig = getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
                 // freeze the config whether nonstop is enabled or not
                 if (nonstopConfig != null) {
                     nonstopConfig.freezeConfig();
                 }
-                store = terracottaStore;
+
+                store = cacheManager.getClusteredInstanceFactory(this).createNonStopStore(terracottaStore, nonstopConfig);
             } else {
                 FeaturesManager featuresManager = cacheManager.getFeaturesManager();
                 if (featuresManager == null) {
@@ -1091,26 +1092,10 @@ public class Cache implements InternalEhcache, StoreListener {
                 } else {
                     store = featuresManager.createStore(this, onHeapPool, onDiskPool);
                 }
-                store = makeXaStrictTransactionalIfNeeded(store, copyStrategy);
+                store = makeTransactionalIfNeeded(store, copyStrategy);
             }
 
-            /* note: this isn't part of makeXaStrictTransactionalIfNeeded() as only xa_strict supports NonStop, meaning that only
-             * that transactional store can be wrapped by NonStopStore. Other TX modes have to wrap the NonStop store due to their
-             * lack of NonStop support (ie: lack of transaction context suspension/resuming).
-             */
-            if (configuration.isXaTransactional()) {
-                SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
-                LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
-                        getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, copyStrategy);
-                this.compoundStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
-                        cacheManager.getTransactionController());
-            } else if (configuration.isLocalTransactional()) {
-                SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
-                this.compoundStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
-                        getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, copyStrategy);
-            } else {
-                this.compoundStore = store;
-            }
+            this.compoundStore = store;
 
             if (isSearchable()) {
                 this.compoundStore = new ElementIdAssigningStore(compoundStore);
@@ -1192,18 +1177,15 @@ public class Cache implements InternalEhcache, StoreListener {
         }
     }
 
-    /*
-     * Note: this method could be used for xa and local tx modes as well if they supported NonStop
-     */
-    private Store makeXaStrictTransactionalIfNeeded(Store clusteredStore, ReadWriteCopyStrategy<Element> copyStrategy) {
+    private Store makeTransactionalIfNeeded(Store clusteredStore, ReadWriteCopyStrategy<Element> copyStrategy) {
         Store wrappedStore;
 
         if (configuration.isXaStrictTransactional()) {
             if (transactionManagerLookup.getTransactionManager() == null) {
-                throw new CacheException("You've configured cache " + cacheManager.getName() + "."
-                                         + configuration.getName() + " to be transactional, but no TransactionManager could be found!");
+                throw new CacheException("You've configured cache " + cacheManager.getName() + "." + configuration.getName()
+                        + " to be transactional, but no TransactionManager could be found!");
             }
-            //set xa enabled
+            // set xa enabled
             if (configuration.isTerracottaClustered()) {
                 configuration.getTerracottaConfiguration().setCacheXA(true);
             }
@@ -1211,12 +1193,22 @@ public class Cache implements InternalEhcache, StoreListener {
             TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
 
             // this xaresource is for initial registration and recovery
-            xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup,
-                    softLockManager, transactionIDFactory, copyStrategy);
+            xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup, softLockManager, transactionIDFactory,
+                    copyStrategy);
             transactionManagerLookup.register(xaResource, true);
 
             wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, clusteredStore,
                     copyStrategy);
+        } else if (configuration.isXaTransactional()) {
+            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+            LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
+                    getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, clusteredStore, copyStrategy);
+            wrappedStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
+                    cacheManager.getTransactionController());
+        } else if (configuration.isLocalTransactional()) {
+            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+            wrappedStore = new LocalTransactionStore(getCacheManager().getTransactionController(), getCacheManager()
+                    .getOrCreateTransactionIDFactory(), softLockManager, this, clusteredStore, copyStrategy);
         } else {
             wrappedStore = clusteredStore;
         }

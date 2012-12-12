@@ -18,8 +18,10 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
@@ -116,6 +118,11 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
      */
     public void shutdown() {
         delegate.shutdown();
+    }
+
+    @Override
+    public TerracottaStore createNonStopStore(TerracottaStore store, NonstopConfiguration nonstopConfiguration) {
+       return delegate.createNonStopStore(store, nonstopConfiguration);
     }
 
 }

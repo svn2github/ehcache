@@ -36,9 +36,6 @@ import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
   public static final Logger                    LOGGER                     = LoggerFactory
@@ -91,28 +88,12 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public final Store createStore(Ehcache cache) {
-    NonstopConfiguration nonstopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
-        .getNonstopConfiguration();
-    return new ClusteredSafeStore(new NonStopStoreWrapper(asyncCreateClusteredStore(cache), toolkitInstanceFactory,
-                                                          nonstopConfiguration));
+    return new ClusteredSafeStore(newStore(cache));
   }
-  
-  private FutureTask<TerracottaStore> asyncCreateClusteredStore(final Ehcache cache) {
-    Callable<TerracottaStore> callable = new Callable<TerracottaStore>() {
-      @Override
-      public TerracottaStore call() throws Exception {
-        return newStore(cache);
-      }
-    };
-    final FutureTask<TerracottaStore> futureTask = new FutureTask<TerracottaStore>(callable);
-    Thread t = new Thread("Non Stop initialization of ClusteredStore") {
-      @Override
-      public void run() {
-        futureTask.run();
-      }
-    };
-    t.start();
-    return futureTask;
+
+  @Override
+  public final TerracottaStore createNonStopStore(TerracottaStore store, NonstopConfiguration nonstopConfiguration) {
+    return new NonStopStoreWrapper(store, toolkitInstanceFactory, nonstopConfiguration);
   }
 
   /**
