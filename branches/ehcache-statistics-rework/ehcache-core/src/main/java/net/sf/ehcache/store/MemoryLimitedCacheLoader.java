@@ -50,8 +50,8 @@ public abstract class MemoryLimitedCacheLoader implements BootstrapCacheLoader, 
         }
 
         if (maxBytesInMem != 0) {
-            final long inMemorySizeInBytes = overflowToOffHeap ? cache.getStatistics().getCore().calculateOffHeapSize() : cache.getStatistics().getCore().calculateInMemorySize();
-            final long avgSize = inMemorySizeInBytes / (overflowToOffHeap ? cache.getStatistics().getCore().getOffHeapStoreSize() : cache.getStatistics().getCore().getMemoryStoreSize());
+            final long inMemorySizeInBytes = overflowToOffHeap ? cache.getStatistics().calculateOffHeapSize() : cache.getStatistics().calculateInMemorySize();
+            final long avgSize = inMemorySizeInBytes / (overflowToOffHeap ? cache.getStatistics().getOffHeapStoreSize() : cache.getStatistics().getMemoryStoreSize());
             return inMemorySizeInBytes + (avgSize * 2) >= maxBytesInMem;
         } else {
             return loadedElements >= maxElementsInMem;

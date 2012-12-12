@@ -48,11 +48,11 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
       }
 
       System.out.println("Size: " + cache.getSize());
-      System.out.println("In Memory size: " + cache.getStatistics().getCore().getLocalHeapSize());
+      System.out.println("In Memory size: " + cache.getStatistics().getLocalHeapSize());
 
       // eventual - can't assert size
       // Assert.assertEquals(maxElementsInMemory, cache.getSize());
-      Assert.assertEquals(maxElementsInMemory, cache.getStatistics().getCore().getLocalHeapSize());
+      Assert.assertEquals(maxElementsInMemory, cache.getStatistics().getLocalHeapSize());
       Assert.assertEquals(maxElementsInMemory, cache.getMemoryStoreSize());
 
       for (int i = 1; i <= 100; i++) {
@@ -62,7 +62,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
         // Assert.assertEquals(maxElementsInMemory + i, cache.getSize());
         // assert range as though eviction will happen, new puts can happen earlier before space becomes available (by
         // freeing meta-info mapping) in which case more key-value mapping are evicted
-        long actual = cache.getStatistics().getCore().getLocalHeapSize();
+        long actual = cache.getStatistics().getLocalHeapSize();
         final int delta = 100;
         Assert.assertTrue("Failed at i=" + i + ", actual: " + actual, (maxElementsInMemory - delta) < actual
                                                                       && (actual - delta) <= maxElementsInMemory);
