@@ -522,9 +522,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
-        assertThat(cache.getStatistics().getCore().getMemoryStoreSize(), equalTo(10L));
+        assertThat(cache.getStatistics().getMemoryStoreSize(), equalTo(10L));
         DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
-        assertThat(cache.getStatistics().getCore().getMemoryStoreSize(), equalTo(10L));
+        assertThat(cache.getStatistics().getMemoryStoreSize(), equalTo(10L));
 
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
         assertThat(listener.getCacheElementsEvicted(), hasSize(1));

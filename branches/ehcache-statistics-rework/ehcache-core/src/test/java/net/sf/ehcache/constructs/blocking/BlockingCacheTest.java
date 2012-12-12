@@ -43,6 +43,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.statisticsV2.CoreStatistics;
+import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.hamcrest.collection.IsEmptyCollection;
@@ -107,18 +108,18 @@ public final class BlockingCacheTest {
         try {
             BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testSupportsStatsCorrectly"));
             blockingCache.getStatistics().setStatisticsEnabled(true);
-            CoreStatistics statistics = blockingCache.getStatistics().getCore();
-            long cacheMisses = statistics.getCacheMisses();
-            long cacheHits = statistics.getCacheHits();
+            StatisticsPlaceholder statistics = blockingCache.getStatistics();
+            long cacheMisses = statistics.cacheMissCount();
+            long cacheHits = statistics.cacheHitCount();
             String key = "123451234";
             blockingCache.get(key);
-            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMisses());
-            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHits());
+            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.cacheMissCount());
+            assertEquals("Hits stat should have remain the same", cacheHits, statistics.cacheHitCount());
             blockingCache.put(new Element(key, "value"));
-            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMisses());
-            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHits());
+            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.cacheMissCount());
+            assertEquals("Hits stat should have remain the same", cacheHits, statistics.cacheHitCount());
             assertNotNull(blockingCache.get(key));
-            assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHits());
+            assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.cacheHitCount());
             blockingCache.getStatistics().setStatisticsEnabled(false);
             blockingCache.remove(key);
         } finally {
@@ -591,7 +592,7 @@ public final class BlockingCacheTest {
             manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
             Ehcache blockingCache = manager.getEhcache("testUseCacheAfterManagerShutdown");
 
-            assertEquals(0, blockingCache.getStatistics().getCore().getMemoryStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getMemoryStoreSize());
 
             for (int i = 0; i < 10010; i++) {
                 blockingCache.put(new Element("key" + i, "value1"));
@@ -631,8 +632,8 @@ public final class BlockingCacheTest {
 
             blockingCache.removeAll();
             assertEquals(0, blockingCache.getSize());
-            assertEquals(0, blockingCache.getStatistics().getCore().getMemoryStoreSize());
-            assertEquals(0, blockingCache.getStatistics().getCore().getDiskStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getMemoryStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getDiskStoreSize());
         } finally {
             manager.shutdown();
         }

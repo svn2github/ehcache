@@ -29,6 +29,7 @@ import java.io.ObjectOutputStream;
 
 import net.sf.ehcache.statisticsV2.CoreStatistics;
 import net.sf.ehcache.statisticsV2.FlatCoreStatistics;
+import net.sf.ehcache.statisticsV2.FlatStatistics;
 import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
 
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public class StatisticsTest extends AbstractCacheTest {
         cache.get("key1");
         cache.get("key2");
 
-        FlatCoreStatistics statistics = cache.getStatistics().getFlatCore();
+        FlatStatistics statistics = cache.getStatistics();
         assertEquals(2, statistics.cacheHitCount());
         assertEquals(1, statistics.diskHitCount());
         assertEquals(1, statistics.localHeapHitCount());
@@ -168,8 +169,8 @@ public class StatisticsTest extends AbstractCacheTest {
         cache.getStatistics().setStatisticsEnabled(true);
 
         StatisticsPlaceholder statistics = cache.getStatistics();
-        float averageGetTime = statistics.getExtended().getAverageGetTime();
-        assertTrue(0 == statistics.getExtended().getAverageGetTime());
+        double averageGetTime = statistics.cacheGetOperation().latency().average().value();
+        assertTrue(0 == statistics.cacheGetOperation().latency().average().value().intValue());
 
         for (int i = 0; i < 10000; i++) {
             cache.put(new Element("" + i, "value1"));
@@ -181,11 +182,11 @@ public class StatisticsTest extends AbstractCacheTest {
         }
 
         statistics = cache.getStatistics();
-        averageGetTime = statistics.getExtended().getAverageGetTime();
+        averageGetTime = statistics.cacheGetOperation().latency().average().value();
         assertTrue(averageGetTime >= .000001);
         statistics.clearStatistics();
         statistics = cache.getStatistics();
-        assertTrue(0 == statistics.getExtended().getAverageGetTime());
+        assertTrue(0 == statistics.cacheGetOperation().latency().average().value().intValue());
     }
 
     /**
@@ -201,24 +202,24 @@ public class StatisticsTest extends AbstractCacheTest {
         ehcache.getStatistics().setStatisticsEnabled(true);
 
         StatisticsPlaceholder statistics = ehcache.getStatistics();
-        assertEquals(0, statistics.getCore().getEvictionCount());
+        assertEquals(0, statistics.getEvictionCount());
 
         for (int i = 0; i < 10000; i++) {
             ehcache.put(new Element("" + i, "value1"));
         }
         statistics = ehcache.getStatistics();
-        assertEquals(9990, statistics.getCore().getEvictionCount());
+        assertEquals(9990, statistics.getEvictionCount());
 
         Thread.sleep(2010);
 
         // expiries do not count
         statistics = ehcache.getStatistics();
-        assertEquals(9990, statistics.getCore().getEvictionCount());
+        assertEquals(9990, statistics.getEvictionCount());
 
         statistics.clearStatistics();
 
         statistics = ehcache.getStatistics();
-        assertEquals(0, statistics.getCore().getEvictionCount());
+        assertEquals(0, statistics.getEvictionCount());
 
     }
 

@@ -25,38 +25,30 @@ import net.sf.ehcache.statisticsV2.extended.FlatExtendedStatisticsImpl;
 
 import org.terracotta.statistics.StatisticsManager;
 
-public class StatisticsPlaceholder {
+public class StatisticsPlaceholder extends DelegateFlatStatistics {
 
     public static final int DEFAULT_HISTORY_SIZE = 30;
     public static final int DEFAULT_INTERVAL_SECS = 10;
     public static final int DEFAULT_SEARCH_INTERVAL_SECS = 10;
 
     private final CoreStatistics core;
-    private final FlatCoreStatistics flatCore;
     private final ExtendedStatistics extended;
-    private final FlatExtendedStatisticsImpl flatExtended;
+    private final String assocCacheName;
 
     public StatisticsPlaceholder(Ehcache ehcache, StatisticsManager statisticsManager) {
+        super();
+        this.assocCacheName=ehcache.getName();
         extended = new ExtendedStatisticsImpl(statisticsManager, 5, TimeUnit.MINUTES);
-        flatExtended=new FlatExtendedStatisticsImpl(extended);
         core=new CoreStatisticsImpl(extended);
-        flatCore=new FlatCoreStatisticsImpl(core);
+        init(new FlatCoreStatisticsImpl(core), new FlatExtendedStatisticsImpl(extended));
     }
 
     public CoreStatistics getCore() {
         return core;
     }
 
-    public FlatCoreStatistics getFlatCore() {
-        return flatCore;
-    }
-
     public ExtendedStatistics getExtended() {
         return extended;
-    }
-
-    public FlatExtendedStatisticsImpl getFlatExtended() {
-        return flatExtended;
     }
 
     public void setStatisticsEnabled(boolean b) {
@@ -68,7 +60,7 @@ public class StatisticsPlaceholder {
     }
 
     public String getAssociatedCacheName() {
-        throw new UnsupportedOperationException();
+        return assocCacheName;
     }
 
     public void clearStatistics() {

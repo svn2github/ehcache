@@ -90,25 +90,25 @@ public class ConcurrentCacheMethodsTest {
         cache.removeAll();
         cache.getStatistics().setStatisticsEnabled(true);
         cache.getStatistics().clearStatistics();
-        assertThat(cache.getStatistics().getCore().getCacheMisses(), is(0L));
-        assertThat(cache.getStatistics().getCore().getCacheHits(), is(0L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(0L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(0L));
 
         assertThat(cache.get("someKey"), CoreMatchers.nullValue());
-        assertThat(cache.getStatistics().getCore().getCacheMisses(), is(1L));
-        assertThat(cache.getStatistics().getCore().getCacheHits(), is(0L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(0L));
 
         final Element element = new Element("someKey", "someValue");
         assertThat(cache.putIfAbsent(element), nullValue());
-        assertThat(cache.getStatistics().getCore().getCacheMisses(), is(1L));
-        assertThat(cache.getStatistics().getCore().getCacheHits(), is(0L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(0L));
 
         assertThat(cache.get("someKey"), sameInstance(element));
-        assertThat(cache.getStatistics().getCore().getCacheMisses(), is(1L));
-        assertThat(cache.getStatistics().getCore().getCacheHits(), is(1L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(1L));
 
         assertThat(cache.putIfAbsent(new Element("someKey", "someValue")), sameInstance(element));
-        assertThat(cache.getStatistics().getCore().getCacheMisses(), is(1L));
-        assertThat(cache.getStatistics().getCore().getCacheHits(), is(1L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(1L));
     }
 
     @Test

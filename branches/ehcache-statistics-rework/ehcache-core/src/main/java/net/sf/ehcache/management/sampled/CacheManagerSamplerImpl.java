@@ -15,17 +15,16 @@
  */
 package net.sf.ehcache.management.sampled;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheWriterConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statisticsV2.FlatStatistics;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * An implementation of {@link CacheManagerSampler}
@@ -82,11 +81,11 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result.put(cacheName, new long[] {stats.getCacheHitMostRecentSample(),
-                    stats.getCacheMissNotFoundMostRecentSample()
-                    + stats.getCacheMissExpiredMostRecentSample(),
-                    stats.getCacheElementPutMostRecentSample()});
+                FlatStatistics stats = cache.getStatistics();
+                result.put(cacheName, new long[] {stats.cacheHitOperation().rate().value().longValue(),
+                    stats.cacheMissExpiredOperation().rate().value().longValue(),
+                    + stats.cacheMissNotFoundOperation().rate().value().longValue(),
+                    stats.cachePutOperation().rate().value().longValue()});
             }
         }
         return result;
@@ -100,8 +99,8 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitMostRecentSample();
+                long val = cache.getStatistics().cacheHitOperation().rate().value().longValue();
+                result += val;
             }
         }
         return result;
@@ -115,8 +114,8 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitInMemoryMostRecentSample();
+                long val = cache.getStatistics().localHeapHitOperation().rate().value().longValue();
+                result += val;
             }
         }
         return result;
@@ -130,8 +129,8 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitOffHeapMostRecentSample();
+                long val = cache.getStatistics().localOffHeapHitOperation().rate().value().longValue();
+                result += val;
             }
         }
         return result;
@@ -145,8 +144,8 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheHitOnDiskMostRecentSample();
+                long val = cache.getStatistics().diskHeapHitOperation().rate().value().longValue();
+                result += val;
             }
         }
         return result;
@@ -160,9 +159,8 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += (stats.getCacheMissNotFoundMostRecentSample()
-                           + stats.getCacheMissExpiredMostRecentSample());
+                long val = cache.getStatistics().cacheMissOperation().rate().value().longValue();
+                result += val;
             }
         }
         return result;
@@ -176,8 +174,8 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                SampledCacheStatistics stats = cache.getSampledCacheStatistics();
-                result += stats.getCacheMissInMemoryMostRecentSample();
+                long val = cache.getStatistics().localHeapMissOperation().rate().value().longValue();
+                result += val;
             }
         }
         return result;

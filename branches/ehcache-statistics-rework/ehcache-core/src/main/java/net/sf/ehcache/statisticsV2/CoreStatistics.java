@@ -27,7 +27,7 @@ public interface CoreStatistics {
 
     public interface CountOperation<T> {
         long value(T result);
-        
+
         long value(T ... results);
     }
 
@@ -57,43 +57,5 @@ public interface CoreStatistics {
     long getCacheMissCountExpired();
     long getEvictedCount();
 
-    // pass through stats
-    long getLocalHeapSizeInBytes();
-
-    long calculateInMemorySize();
-
-    long getMemoryStoreSize();
-
-    int getDiskStoreSize();
-
-    long calculateOffHeapSize();
-
-    long getOffHeapStoreSize();
-
-    long getObjectCount();
-
-    long getMemoryStoreObjectCount();
-
-    long getDiskStoreObjectCount();
-
-    long getLocalHeapSize();
-
-    long getWriterQueueSize();
-
-    long getOffHeapStoreObjectCount();
-
-    String getLocalHeapSizeString();
-
-    long getWriterQueueLength();
-
-    long getLocalDiskSize();
-
-    long getLocalOffHeapSize();
-
-    long getLocalDiskSizeInBytes();
-
-    long getLocalOffHeapSizeInBytes();
-
-    long getSize();
 
 }

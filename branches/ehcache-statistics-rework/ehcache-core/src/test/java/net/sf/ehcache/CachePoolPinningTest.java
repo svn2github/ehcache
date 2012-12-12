@@ -163,10 +163,10 @@ public class CachePoolPinningTest {
             assertNotNull(cache.get(i));
         }
 
-        Assert.assertEquals(expectedMemoryHits, cache.getStatistics().getFlatCore().localHeapHitCount());
-        Assert.assertEquals(ELEMENT_COUNT - expectedMemoryHits, cache.getStatistics().getFlatCore().localHeapMissCount());
-        Assert.assertEquals(expectedDiskHits, cache.getStatistics().getFlatCore().diskHitCount());
-        Assert.assertEquals(0, cache.getStatistics().getFlatCore().diskMissCount());
+        Assert.assertEquals(expectedMemoryHits, cache.getStatistics().localHeapHitCount());
+        Assert.assertEquals(ELEMENT_COUNT - expectedMemoryHits, cache.getStatistics().localHeapMissCount());
+        Assert.assertEquals(expectedDiskHits, cache.getStatistics().diskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
     }
 
 }

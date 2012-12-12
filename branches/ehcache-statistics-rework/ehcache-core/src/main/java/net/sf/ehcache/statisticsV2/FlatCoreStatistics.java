@@ -71,29 +71,5 @@ public interface FlatCoreStatistics {
     long getExpiredCount();
     long getEvictedCount();
 
-    // pass through stats
-    long getLocalHeapSizeInBytes();
-    long calculateInMemorySize();
-    long getMemoryStoreSize();
-    long getLocalHeapSize();
-    String getLocalHeapSizeString();
 
-    long getObjectCount();
-    long getMemoryStoreObjectCount();
-
-    long getWriterQueueSize();
-    long getWriterQueueLength();
-
-    long getLocalDiskSize();
-    long getLocalDiskSizeInBytes();
-    long getDiskStoreObjectCount();
-    int getDiskStoreSize();
-
-    long getLocalOffHeapSize();
-    long getLocalOffHeapSizeInBytes();
-    long getOffHeapStoreObjectCount();
-    long getOffHeapStoreSize();
-    long calculateOffHeapSize();
-
-    long getSize();
 }

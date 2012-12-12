@@ -137,7 +137,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getCacheHits() {
         updateIfNeeded();
-        return statistics.getFlatCore().cacheHitCount();
+        return statistics.cacheHitCount();
     }
 
     /**
@@ -147,7 +147,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getInMemoryHits() {
         updateIfNeeded();
-        return statistics.getFlatCore().localHeapHitCount();
+        return statistics.localHeapHitCount();
     }
 
     /**
@@ -157,7 +157,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOffHeapHits() {
         updateIfNeeded();
-        return statistics.getFlatCore().localOffHeapHitCount();
+        return statistics.localOffHeapHitCount();
     }
 
     /**
@@ -167,7 +167,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOnDiskHits() {
         updateIfNeeded();
-        return statistics.getFlatCore().diskHitCount();
+        return statistics.diskHitCount();
     }
 
     /**
@@ -178,25 +178,25 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getCacheMisses() {
         updateIfNeeded();
-        return statistics.getFlatCore().cacheHitCount();
+        return statistics.cacheHitCount();
     }
 
     /** {@inheritDoc} */
     public long getInMemoryMisses() {
         updateIfNeeded();
-        return statistics.getFlatCore().cacheMissCount();
+        return statistics.cacheMissCount();
     }
 
     /** {@inheritDoc} */
     public long getOffHeapMisses() {
         updateIfNeeded();
-        return statistics.getFlatCore().localOffHeapMissCount();
+        return statistics.localOffHeapMissCount();
     }
 
     /** {@inheritDoc} */
     public long getOnDiskMisses() {
         updateIfNeeded();
-        return statistics.getFlatCore().diskMissCount();
+        return statistics.diskMissCount();
     }
 
     /**
@@ -234,7 +234,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getObjectCount() {
         updateIfNeeded();
-        return statistics.getFlatCore().getObjectCount();
+        return statistics.getObjectCount();
     }
 
     /**
@@ -244,7 +244,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getWriterQueueLength() {
         updateIfNeeded();
-        return statistics.getFlatCore().getWriterQueueSize();
+        return statistics.getWriterQueueSize();
     }
 
     /**
@@ -260,7 +260,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getMemoryStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getFlatCore().getMemoryStoreObjectCount();
+        return statistics.getMemoryStoreObjectCount();
     }
 
     /**
@@ -268,7 +268,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOffHeapStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getFlatCore().getOffHeapStoreObjectCount();
+        return statistics.getOffHeapStoreObjectCount();
     }
 
     /**
@@ -277,7 +277,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getDiskStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getFlatCore().getDiskStoreObjectCount();
+        return statistics.getDiskStoreObjectCount();
     }
 
 
@@ -310,8 +310,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getCacheHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getFlatCore().cacheHitCount();
-        long misses = statistics.getFlatCore().cacheMissCount();
+        long hits = statistics.cacheHitCount();
+        long misses = statistics.cacheMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -322,8 +322,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getCacheMissPercentage() {
         updateIfNeeded();
-        long hits = statistics.getFlatCore().cacheHitCount();
-        long misses = statistics.getFlatCore().cacheMissCount();
+        long hits = statistics.cacheHitCount();
+        long misses = statistics.cacheMissCount();
 
         long total = hits + misses;
         return getPercentage(misses, total);
@@ -334,8 +334,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getInMemoryHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getFlatCore().localHeapHitCount();
-        long misses = statistics.getFlatCore().localHeapMissCount();
+        long hits = statistics.localHeapHitCount();
+        long misses = statistics.localHeapMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -346,8 +346,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getOffHeapHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getFlatCore().localOffHeapHitCount();
-        long misses = statistics.getFlatCore().localOffHeapMissCount();
+        long hits = statistics.localOffHeapHitCount();
+        long misses = statistics.localOffHeapMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);
@@ -358,8 +358,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getOnDiskHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.getFlatCore().diskHitCount();
-        long misses = statistics.getFlatCore().diskMissCount();
+        long hits = statistics.diskHitCount();
+        long misses = statistics.diskMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);

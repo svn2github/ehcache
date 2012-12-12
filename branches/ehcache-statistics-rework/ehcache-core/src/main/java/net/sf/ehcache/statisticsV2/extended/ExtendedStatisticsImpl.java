@@ -53,16 +53,16 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             }
         }
     };
-    
+
     private long timeToDisable;
     private TimeUnit timeToDisableUnit;
     private ScheduledFuture disableStatus;
-    
+
     public ExtendedStatisticsImpl(StatisticsManager manager, long timeToDisable, TimeUnit unit) {
         this.timeToDisable = timeToDisable;
         this.timeToDisableUnit = unit;
         this.disableStatus = this.executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, unit);
-        
+
         for (OperationType t : OperationType.values()) {
             Set<TreeNode> result = manager.query(t.query());
             switch (result.size()) {
@@ -126,12 +126,12 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     @Override
     public CompoundOperation<?> evicted() {
-        return (CompoundOperation<?>) operations.get(OperationType.EVICTED);
+        return operations.get(OperationType.EVICTED);
     }
 
     @Override
     public CompoundOperation<?> expired() {
-        return (CompoundOperation<?>) operations.get(OperationType.EXPIRED);
+        return operations.get(OperationType.EXPIRED);
     }
 
     @Override
@@ -197,5 +197,119 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     @Override
     public CompoundOperation<XaRecoveryOutcome> xaRecovery() {
         return (CompoundOperation<XaRecoveryOutcome>) operations.get(OperationType.XA_RECOVERY);
+    }
+
+    @Override
+    public long getLocalHeapSizeInBytes() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long calculateInMemorySize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getMemoryStoreSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public int getDiskStoreSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long calculateOffHeapSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getOffHeapStoreSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getObjectCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getMemoryStoreObjectCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getDiskStoreObjectCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getLocalHeapSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getWriterQueueSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getOffHeapStoreObjectCount() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public String getLocalHeapSizeString() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public long getWriterQueueLength() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getLocalDiskSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getLocalOffHeapSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getLocalDiskSizeInBytes() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getLocalOffHeapSizeInBytes() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getSize() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

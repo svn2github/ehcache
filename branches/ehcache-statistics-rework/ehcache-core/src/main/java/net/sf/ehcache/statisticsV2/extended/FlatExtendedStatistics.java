@@ -23,8 +23,6 @@ import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
 
 public interface FlatExtendedStatistics {
 
-    ExtendedStatistics getExtended();
-
     void setStatisticsTimeToDisable(long time, TimeUnit unit);
 
     Operation cacheGetOperation();
@@ -69,4 +67,44 @@ public interface FlatExtendedStatistics {
 
     Operation evictionOperation();
     Operation expiredOperation();
+
+    // pass through stats
+    long getLocalHeapSizeInBytes();
+
+    long calculateInMemorySize();
+
+    long getMemoryStoreSize();
+
+    int getDiskStoreSize();
+
+    long calculateOffHeapSize();
+
+    long getOffHeapStoreSize();
+
+    long getObjectCount();
+
+    long getMemoryStoreObjectCount();
+
+    long getDiskStoreObjectCount();
+
+    long getLocalHeapSize();
+
+    long getWriterQueueSize();
+
+    long getOffHeapStoreObjectCount();
+
+    String getLocalHeapSizeString();
+
+    long getWriterQueueLength();
+
+    long getLocalDiskSize();
+
+    long getLocalOffHeapSize();
+
+    long getLocalDiskSizeInBytes();
+
+    long getLocalOffHeapSizeInBytes();
+
+    long getSize();
+
 }

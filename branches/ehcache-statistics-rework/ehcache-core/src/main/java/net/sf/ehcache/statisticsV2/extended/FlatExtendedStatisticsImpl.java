@@ -51,11 +51,6 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     }
 
     @Override
-    public ExtendedStatistics getExtended() {
-        return extended;
-    }
-
-    @Override
     public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
         extended.setStatisticsTimeToDisable(time, unit);
     }
@@ -243,5 +238,98 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public long getLocalHeapSizeInBytes() {
+        return extended.getLocalHeapSizeInBytes();
+    }
 
+    @Override
+    public long calculateInMemorySize() {
+        return extended.calculateInMemorySize();
+    }
+
+    @Override
+    public long getMemoryStoreSize() {
+        return extended.getMemoryStoreSize();
+    }
+
+    @Override
+    public int getDiskStoreSize() {
+       return extended.getDiskStoreSize();
+    }
+
+    @Override
+    public long calculateOffHeapSize() {
+        return extended.calculateOffHeapSize();
+    }
+
+    @Override
+    public long getOffHeapStoreSize() {
+        return extended.getOffHeapStoreSize();
+    }
+
+    @Override
+    public long getObjectCount() {
+        return extended.getObjectCount();
+    }
+
+    @Override
+    public long getMemoryStoreObjectCount() {
+        return extended.getMemoryStoreObjectCount();
+    }
+
+    @Override
+    public long getDiskStoreObjectCount() {
+        return extended.getDiskStoreObjectCount();
+    }
+
+    @Override
+    public long getLocalHeapSize() {
+        return extended.getLocalHeapSize();
+    }
+
+    @Override
+    public long getWriterQueueSize() {
+        return extended.getWriterQueueSize();
+    }
+
+    @Override
+    public long getOffHeapStoreObjectCount() {
+        return extended.getOffHeapStoreObjectCount();
+    }
+
+    @Override
+    public String getLocalHeapSizeString() {
+        return extended.getLocalHeapSizeString();
+    }
+
+    @Override
+    public long getWriterQueueLength() {
+        return extended.getWriterQueueLength();
+    }
+
+    @Override
+    public long getLocalDiskSize() {
+        return extended.getLocalDiskSize();
+    }
+
+    @Override
+    public long getLocalOffHeapSize() {
+        return extended.getLocalHeapSize();
+    }
+
+    @Override
+    public long getLocalDiskSizeInBytes() {
+        return extended.getLocalDiskSizeInBytes();
+    }
+
+    @Override
+    public long getLocalOffHeapSizeInBytes() {
+        return extended.getLocalOffHeapSizeInBytes();
+    }
+
+    @Override
+    public long getSize() {
+        return extended.getSize();
+    }
 }
