@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
@@ -44,6 +46,11 @@ public class CoreStatisticsImpl implements CoreStatistics {
     private final CountOperation diskGet;
     private final CountOperation diskPut;
     private final CountOperation diskRemove;
+    private final CountOperation xaCommit;
+    private final CountOperation xaRecovery;
+    private final CountOperation xaRollback;
+    private final CountOperation evicted;
+    private final CountOperation expired;
 
     public CoreStatisticsImpl(ExtendedStatistics extended) {
         this.extended=extended;
@@ -62,6 +69,13 @@ public class CoreStatisticsImpl implements CoreStatistics {
         this.diskGet=asCountOperation(extended.diskGet());
         this.diskPut=asCountOperation(extended.diskPut());
         this.diskRemove=asCountOperation(extended.diskRemove());
+
+        this.xaCommit=asCountOperation(extended.xaCommit());
+        this.xaRecovery=asCountOperation(extended.xaRecovery());
+        this.xaRollback=asCountOperation(extended.xaRollback());
+
+        this.evicted=asCountOperation(extended.eviction());
+        this.expired=asCountOperation(extended.expiration());
 
     }
 
@@ -140,53 +154,29 @@ public class CoreStatisticsImpl implements CoreStatistics {
         return diskRemove;
     }
 
-    @Override
     public CountOperation<XaCommitOutcome> xaCommit() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return xaCommit;
     }
 
     @Override
     public CountOperation<XaRecoveryOutcome> xaRecovery() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return xaRecovery;
     }
 
     @Override
     public CountOperation<XaRollbackOutcome> xaRollback() {
-        // TODO Auto-generated method stub
-        // return null;
-        throw new UnsupportedOperationException();
+        return xaRollback;
     }
 
     @Override
-    public long getEvictionCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
+    public CountOperation<EvictionOutcome> cacheEviction() {
+        return evicted;
     }
 
     @Override
-    public long getExpiredCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
+    public CountOperation<ExpiredOutcome> cacheExpiration() {
+        return expired;
     }
 
-    @Override
-    public long getCacheMissCountExpired() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getEvictedCount() {
-        // TODO Auto-generated method stub
-        // return 0;
-        throw new UnsupportedOperationException();
-    }
 
 }

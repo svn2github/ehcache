@@ -18,7 +18,6 @@ package net.sf.ehcache.statisticsV2;
 
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.statisticsV2.extended.FlatExtendedStatistics;
 
@@ -192,18 +191,6 @@ public class DelegateFlatStatistics implements FlatStatistics {
         return flatCore.xaRollbackCount();
     }
 
-    public long getEvictionCount() {
-        return flatCore.getEvictionCount();
-    }
-
-    public long getExpiredCount() {
-        return flatCore.getExpiredCount();
-    }
-
-    public long getEvictedCount() {
-        return flatCore.getEvictedCount();
-    }
-
     public void getStatisticsTimeToDisable(long time, TimeUnit unit) {
         flatExtended.setStatisticsTimeToDisable(time, unit);
     }
@@ -344,14 +331,6 @@ public class DelegateFlatStatistics implements FlatStatistics {
         return flatExtended.xaRecoveryOperation();
     }
 
-    public Operation evictionOperation() {
-        return flatExtended.evictionOperation();
-    }
-
-    public Operation expiredOperation() {
-        return flatExtended.expiredOperation();
-    }
-
     public long getLocalHeapSizeInBytes() {
         return flatExtended.getLocalHeapSizeInBytes();
     }
@@ -431,6 +410,26 @@ public class DelegateFlatStatistics implements FlatStatistics {
     @Override
     public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
            flatExtended.setStatisticsTimeToDisable(time, unit);
+    }
+
+    @Override
+    public long cacheExpiredCount() {
+        return flatExtended.cacheExpiredOperation().count();
+    }
+
+    @Override
+    public long cacheEvictedCount() {
+        return flatExtended.cacheEvictionOperation().count();
+    }
+
+    @Override
+    public Operation cacheEvictionOperation() {
+        return flatExtended.cacheEvictionOperation();
+    }
+
+    @Override
+    public Operation cacheExpiredOperation() {
+        return flatExtended.cacheExpiredOperation();
     }
 
 }

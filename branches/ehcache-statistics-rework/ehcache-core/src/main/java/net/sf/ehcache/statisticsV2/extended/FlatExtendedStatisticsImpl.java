@@ -227,13 +227,14 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     }
 
     @Override
-    public Operation evictionOperation() {
+    public Operation cacheEvictionOperation() {
+        return extended.e
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Operation expiredOperation() {
+    public Operation cacheExpiredOperation() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException();
     }

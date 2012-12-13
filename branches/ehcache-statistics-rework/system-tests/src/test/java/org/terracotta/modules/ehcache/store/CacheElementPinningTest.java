@@ -58,10 +58,10 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
         }
 
         Assert.assertEquals(ELEMENT_COUNT, cache.getMemoryStoreSize());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getEvictionCount());
+        Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
+        Assert.assertEquals(0, cache.getStatistics().diskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
 
         for (int i = 0; i < ELEMENT_COUNT; i++) {
           cache.setPinned(i, false);
@@ -76,8 +76,8 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
         }
 
         Assert.assertTrue(cache.getMemoryStoreSize() < ELEMENT_COUNT);
-        Assert.assertTrue(0 < cache.getStatistics().getCore().getInMemoryMisses());
-        Assert.assertTrue(0 < cache.getStatistics().getCore().getOnDiskHits());
+        Assert.assertTrue(0 < cache.getStatistics().localHeapMissCount());
+        Assert.assertTrue(0 < cache.getStatistics().diskHitCount());
         cache.unpinAll();
         cache.removeAll();
         waitForAllCurrentTransactionsToComplete(cache);

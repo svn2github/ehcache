@@ -68,11 +68,11 @@ public class CachePinningFaultInvalidatedEntriesTest extends AbstractCacheTestBa
           assertEquals(cache.get(getKey(i)).getValue(), getValue(i));
         }
         // All the gets on both the clients should be local as the pinned entries would have been faulted.
-        Assert.assertEquals(ELEMENT_COUNT * 2, cache.getStatistics().getCore().getInMemoryHits());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getEvictionCount());
+        Assert.assertEquals(ELEMENT_COUNT * 2, cache.getStatistics().localHeapHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
+        Assert.assertEquals(0, cache.getStatistics().diskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
       }
       getBarrierForAllClients().await();
       if (index == 1) {
@@ -94,7 +94,7 @@ public class CachePinningFaultInvalidatedEntriesTest extends AbstractCacheTestBa
 
         @Override
         public Boolean call() throws Exception {
-          long localsize = cache.getStatistics().getCore().getMemoryStoreObjectCount();
+          long localsize = cache.getStatistics().getMemoryStoreObjectCount();
           System.out.println("Local cache Size = " + localsize);
           return localsize == ELEMENT_COUNT;
         }
@@ -106,11 +106,11 @@ public class CachePinningFaultInvalidatedEntriesTest extends AbstractCacheTestBa
       }
       // All the gets on both the clients should be local as the pinned entries would have been faulted.
       if (index == 0) {
-        Assert.assertEquals(ELEMENT_COUNT * 4, cache.getStatistics().getCore().getInMemoryHits());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getInMemoryMisses());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getCore().getEvictionCount());
+        Assert.assertEquals(ELEMENT_COUNT * 4, cache.getStatistics().localHeapHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
+        Assert.assertEquals(0, cache.getStatistics().diskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
       }
       getBarrierForAllClients().await();
     }

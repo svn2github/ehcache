@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.util.concurrent.TimeUnit;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -31,6 +33,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
+ *
+ * There is stupid here -- *Sample() is the same as *Rate()
  */
 public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListener {
     private static final int PERCENTAGE_DIVISOR = 100;
@@ -145,7 +149,9 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     public long getAverageGetTimeMostRecentSample() {
-        return cache.getSampledCacheStatistics().getAverageGetTimeMostRecentSample();
+        return TimeUnit.MILLISECONDS.convert(
+                cache.getStatistics().cacheSearchOperation().latency().average().value().longValue(),
+                TimeUnit.NANOSECONDS);
     }
 
     /**

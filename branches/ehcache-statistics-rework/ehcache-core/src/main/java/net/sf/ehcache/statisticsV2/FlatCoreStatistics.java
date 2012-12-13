@@ -66,10 +66,8 @@ public interface FlatCoreStatistics {
     long xaRollbackSuccessCount();
     long xaRollbackCount(); // sum of prev 2
 
-    // TBD hated CRSS
-    long getEvictionCount();
-    long getExpiredCount();
-    long getEvictedCount();
-
+    // placeholder
+    long cacheExpiredCount();
+    long cacheEvictedCount();
 
 }

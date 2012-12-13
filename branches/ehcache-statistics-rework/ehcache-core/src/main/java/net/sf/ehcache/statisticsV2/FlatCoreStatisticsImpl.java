@@ -17,6 +17,9 @@
 package net.sf.ehcache.statisticsV2;
 
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
+import net.sf.ehcache.statisticsV2.CoreStatistics.CountOperation;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
@@ -217,20 +220,15 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
     }
 
     @Override
-    public long getEvictionCount() {
-        // TODO Auto-generated method stub
-        return 0;
+    public long cacheExpiredCount() {
+        return core.cacheExpiration().value(CacheOperationOutcomes.ExpiredOutcome.SUCCESS);
     }
 
     @Override
-    public long getExpiredCount() {
-        // TODO Auto-generated method stub
-        return 0;
+    public long cacheEvictedCount() {
+        return core.cacheEviction().value(CacheOperationOutcomes.EvictionOutcome.SUCCESS);
     }
 
-    @Override
-    public long getEvictedCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
+
+
 }

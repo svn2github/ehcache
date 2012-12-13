@@ -23,4 +23,6 @@ public interface CacheOperationOutcomes {
     enum PutOutcome { ADDED, UPDATED };
     enum RemoveOutcome { SUCCESS };
     enum SearchOutcome { SUCCESS , EXCEPTION};
+    enum EvictionOutcome { SUCCESS };
+    enum ExpiredOutcome { SUCCESS };
 }

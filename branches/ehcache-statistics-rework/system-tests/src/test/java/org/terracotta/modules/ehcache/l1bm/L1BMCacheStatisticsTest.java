@@ -185,7 +185,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
            + cache.getStatistics().localHeapMissCount());
       info("Cache off heap hits: " + cache.getStatistics().localOffHeapHitCount() + " misses: "
            + cache.getStatistics().localOffHeapMissCount());
-      info("Cache expirations: " + cache.getStatistics().getCore().getExpiredCount());
+      info("Cache expirations: " + cache.getStatistics().cacheExpiredCount());
     }
 
     private Cache createCache(CacheManager cm, String cacheName, Consistency consistency, ValueMode valueMode,

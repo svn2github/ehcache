@@ -65,8 +65,8 @@ public interface FlatExtendedStatistics {
     Operation xaRollbackExceptionOperation();
     Operation xaRecoveryOperation();
 
-    Operation evictionOperation();
-    Operation expiredOperation();
+    Operation cacheEvictionOperation();
+    Operation cacheExpiredOperation();
 
     // pass through stats
     long getLocalHeapSizeInBytes();

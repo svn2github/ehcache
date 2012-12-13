@@ -27,36 +27,36 @@ import org.terracotta.statistics.OperationStatistic;
     CACHE_GET(CacheOperationOutcomes.GetOutcome.class, cache().chain(childStatistic("get").build()).ensureUnique().build()),
     CACHE_PUT(CacheOperationOutcomes.PutOutcome.class, cache().chain(childStatistic("put").build()).ensureUnique().build()),
     CACHE_REMOVE(CacheOperationOutcomes.RemoveOutcome.class, cache().chain(childStatistic("remove").build()).ensureUnique().build()),
-    
+
     HEAP_GET(StoreOperationOutcomes.GetOutcome.class, queryBuilder().empty().build()),
     HEAP_PUT(StoreOperationOutcomes.PutOutcome.class, queryBuilder().empty().build()),
     HEAP_REMOVE(StoreOperationOutcomes.RemoveOutcome.class, queryBuilder().empty().build()),
-    
+
     OFFHEAP_GET(StoreOperationOutcomes.GetOutcome.class, queryBuilder().empty().build()),
     OFFHEAP_PUT(StoreOperationOutcomes.PutOutcome.class, queryBuilder().empty().build()),
     OFFHEAP_REMOVE(StoreOperationOutcomes.RemoveOutcome.class, queryBuilder().empty().build()),
-    
+
     DISK_GET(StoreOperationOutcomes.GetOutcome.class, queryBuilder().empty().build()),
     DISK_PUT(StoreOperationOutcomes.PutOutcome.class, queryBuilder().empty().build()),
     DISK_REMOVE(StoreOperationOutcomes.RemoveOutcome.class, queryBuilder().empty().build()),
-    
+
     XA_COMMIT(XaCommitOutcome.class, queryBuilder().empty().build()),
     XA_ROLLBACK(XaRollbackOutcome.class, queryBuilder().empty().build()),
     XA_RECOVERY(XaRecoveryOutcome.class, queryBuilder().empty().build()),
-    
+
     SEARCH(CacheOperationOutcomes.SearchOutcome.class, queryBuilder().empty().build()) {
         @Override
         long interval() {
             return 10;
         }
     },
-    
-    EVICTED(null, queryBuilder().empty().build()),
-    EXPIRED(null, queryBuilder().empty().build());
+
+    EVICTED(CacheOperationOutcomes.EvictionOutcome.class, queryBuilder().empty().build()),
+    EXPIRED(CacheOperationOutcomes.ExpiredOutcome.class, queryBuilder().empty().build());
 
     private final Class<? extends Enum> type;
     private final Query query;
-    
+
     private OperationType(Class<? extends Enum> type, Query query) {
         this.type = type;
         this.query = query;
@@ -65,7 +65,7 @@ import org.terracotta.statistics.OperationStatistic;
     final Class<? extends Enum> type() {
         return type;
     }
-    
+
     Query query() {
         return query;
     }
@@ -77,11 +77,11 @@ import org.terracotta.statistics.OperationStatistic;
     long interval() {
         return 1;
     }
-    
+
     long window() {
         return 1;
     }
-  
+
     static QueryBuilder cache() {
         return queryBuilder().children().filter(context(identifier(subclassOf(Cache.class))));
     }

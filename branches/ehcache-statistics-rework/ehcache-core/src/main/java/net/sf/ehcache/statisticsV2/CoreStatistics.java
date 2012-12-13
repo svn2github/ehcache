@@ -52,10 +52,8 @@ public interface CoreStatistics {
     public CountOperation<XaRollbackOutcome> xaRollback();
 
     // TBD hated CRSS
-    long getEvictionCount();
-    long getExpiredCount();
-    long getCacheMissCountExpired();
-    long getEvictedCount();
+    public CountOperation<CacheOperationOutcomes.EvictionOutcome> cacheEviction();
+    public CountOperation<CacheOperationOutcomes.ExpiredOutcome> cacheExpiration();
 
 
 }

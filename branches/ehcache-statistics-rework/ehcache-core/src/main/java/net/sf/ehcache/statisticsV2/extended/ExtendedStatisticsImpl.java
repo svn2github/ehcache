@@ -25,6 +25,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.CacheOperationOutcomes;
 
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
@@ -125,16 +127,6 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
 
     @Override
-    public CompoundOperation<?> evicted() {
-        return operations.get(OperationType.EVICTED);
-    }
-
-    @Override
-    public CompoundOperation<?> expired() {
-        return operations.get(OperationType.EXPIRED);
-    }
-
-    @Override
     public CompoundOperation<SearchOutcome> search() {
         return (CompoundOperation<CacheOperationOutcomes.SearchOutcome>) operations.get(OperationType.SEARCH);
     }
@@ -197,6 +189,16 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     @Override
     public CompoundOperation<XaRecoveryOutcome> xaRecovery() {
         return (CompoundOperation<XaRecoveryOutcome>) operations.get(OperationType.XA_RECOVERY);
+    }
+
+    @Override
+    public CompoundOperation<EvictionOutcome> eviction() {
+        return (CompoundOperation<CacheOperationOutcomes.EvictionOutcome>) operations.get(OperationType.EVICTED);
+    }
+
+    @Override
+    public CompoundOperation<ExpiredOutcome> expiration() {
+        return (CompoundOperation<CacheOperationOutcomes.ExpiredOutcome>) operations.get(OperationType.EXPIRED);
     }
 
     @Override

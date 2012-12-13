@@ -37,9 +37,6 @@ public interface ExtendedStatistics {
     CompoundOperation<CacheOperationOutcomes.PutOutcome> put();
     CompoundOperation<CacheOperationOutcomes.RemoveOutcome> remove();
 
-    CompoundOperation<?> evicted();
-    CompoundOperation<?> expired();
-
     CompoundOperation<StoreOperationOutcomes.GetOutcome> heapGet();
     CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet();
     CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet();
@@ -57,6 +54,9 @@ public interface ExtendedStatistics {
     CompoundOperation<XaCommitOutcome> xaCommit();
     CompoundOperation<XaRollbackOutcome> xaRollback();
     CompoundOperation<XaRecoveryOutcome> xaRecovery();
+
+    CompoundOperation<CacheOperationOutcomes.EvictionOutcome> eviction();
+    CompoundOperation<CacheOperationOutcomes.ExpiredOutcome> expiration();
 
     public interface CompoundOperation<T> {
         Operation component(T result);

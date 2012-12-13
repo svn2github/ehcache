@@ -259,7 +259,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                result += cache.getStatistics().evictionOperation().rate().value().longValue();
+                result += cache.getStatistics().cacheEvictionOperation().rate().value().longValue();
             }
         }
         return result;
@@ -273,7 +273,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                result += cache.getStatistics().expiredOperation().rate().value().longValue();
+                result += cache.getStatistics().cacheExpiredOperation().rate().value().longValue();
             }
         }
         return result;
