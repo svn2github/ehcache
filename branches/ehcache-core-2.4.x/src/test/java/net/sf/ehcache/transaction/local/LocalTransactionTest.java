@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author lorban
@@ -28,6 +31,7 @@ public class LocalTransactionTest extends TestCase {
     private Ehcache cache1;
     private Ehcache cache2;
     private TransactionController transactionController;
+    private ConsoleHandler allLogsConsoleHandler;
 
     @Override
     protected void setUp() throws Exception {
@@ -39,6 +43,12 @@ public class LocalTransactionTest extends TestCase {
         cache2 = cacheManager.getEhcache("txCache2");
         cache2.removeAll();
         transactionController.commit();
+
+        Logger logger = Logger.getLogger(LocalTransactionStore.class.getName());
+        allLogsConsoleHandler = new ConsoleHandler();
+        allLogsConsoleHandler.setLevel(Level.ALL);
+        logger.addHandler(allLogsConsoleHandler);
+        logger.setLevel(Level.ALL);
     }
 
     @Override
@@ -47,6 +57,10 @@ public class LocalTransactionTest extends TestCase {
             transactionController.rollback();
         }
         cacheManager.shutdown();
+
+        Logger logger = Logger.getLogger(LocalTransactionStore.class.getName());
+        logger.removeHandler(allLogsConsoleHandler);
+        logger.setLevel(Level.INFO);
     }
 
     public void testTransactionContextLifeCycle() throws Exception {
