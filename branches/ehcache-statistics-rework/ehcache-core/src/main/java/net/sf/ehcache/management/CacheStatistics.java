@@ -244,7 +244,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getWriterQueueLength() {
         updateIfNeeded();
-        return statistics.getWriterQueueSize();
+        return statistics.getWriterQueueLength();
     }
 
     /**

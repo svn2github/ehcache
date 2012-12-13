@@ -83,5 +83,5 @@ public interface FlatExtendedStatistics {
 
     long getLocalDiskSizeInBytes();
 
-    long getWriterQueueSize();
+    long getWriterQueueLength();
 }

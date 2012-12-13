@@ -255,7 +255,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
 
     @Override
-    public long getWriterQueueSize() {
-        return ((Long) passThroughs.get(PassThroughType.WRITER_QUEUE_SIZE).value()).longValue();
+    public long getWriterQueueLength() {
+        return ((Long) passThroughs.get(PassThroughType.WRITER_QUEUE_LENGTH).value()).longValue();
     }
 }

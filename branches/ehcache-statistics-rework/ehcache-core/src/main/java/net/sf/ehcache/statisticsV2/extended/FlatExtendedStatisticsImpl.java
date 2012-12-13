@@ -244,8 +244,8 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     }
 
     @Override
-    public long getWriterQueueSize() {
-        return extended.getWriterQueueSize();
+    public long getWriterQueueLength() {
+        return extended.getWriterQueueLength();
     }
 
     @Override
