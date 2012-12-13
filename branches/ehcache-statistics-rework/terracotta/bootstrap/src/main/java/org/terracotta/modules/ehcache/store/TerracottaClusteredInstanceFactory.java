@@ -10,6 +10,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
@@ -87,10 +88,12 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   @Override
   public final Store createStore(Ehcache cache) {
-    NonstopConfiguration nonstopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
-        .getNonstopConfiguration();
-    return new ClusteredSafeStore(
-                                  new NonStopStoreWrapper(newStore(cache), toolkitInstanceFactory, nonstopConfiguration));
+    return new ClusteredSafeStore(newStore(cache));
+  }
+
+  @Override
+  public final TerracottaStore createNonStopStore(TerracottaStore store, NonstopConfiguration nonstopConfiguration) {
+    return new NonStopStoreWrapper(store, toolkitInstanceFactory, nonstopConfiguration);
   }
 
   /**

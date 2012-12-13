@@ -41,6 +41,8 @@ public class AbstractCacheTestBase extends AbstractTestBase {
                                Class<? extends AbstractClientBase>... c) {
     super(testConfig);
     this.ehcacheConfigPath = ehcacheConfigPath;
+    testConfig.getL2Config().setMaxHeap(1024);
+    testConfig.getL2Config().setMinHeap(1024);
     testConfig.getClientConfig().setClientClasses(c);
   }
 

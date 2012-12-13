@@ -14,6 +14,7 @@ import com.tc.test.config.model.TestConfig;
 public class L2SizeDelayTest extends AbstractTerracottaActivePassiveTestBase {
   public L2SizeDelayTest(TestConfig testConfig) {
     super("l2-strong-cache-config.xml", testConfig, L2SizeDelayTestClient.class);
+    testConfig.getL2Config().setMinHeap(512);
     testConfig.getL2Config().setMaxHeap(512);
     testConfig.getClientConfig().setMaxHeap(512);
     testConfig.getClientConfig().addExtraClientJvmArg("-XX:+UseParallelGC");

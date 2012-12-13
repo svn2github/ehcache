@@ -17,8 +17,10 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
@@ -60,14 +62,14 @@ public interface ClusteredInstanceFactory {
      * @return cache event replicator
      */
     CacheEventListener createEventReplicator(Ehcache cache);
-    
+
     /**
      * Returns a universally unique identifiers for this factory.
-     * 
+     *
      * @return the identifier as a string
      */
     String getUUID();
-    
+
     /**
      * Cleans up any resources left behind after the shutdown of the associated CacheManager
      */
@@ -89,4 +91,12 @@ public interface ClusteredInstanceFactory {
      * @return a SoftLockManager
      */
     SoftLockManager getOrCreateSoftLockManager(Ehcache cache);
+
+    /**
+     * Create a NonStopStoreWrapper for a terracottaStore
+     *
+     * @param store the store for which to create a NonStopStore
+     * @return a NonStopStore
+     */
+    TerracottaStore createNonStopStore(TerracottaStore store, NonstopConfiguration nonstopConfiguration);
 }

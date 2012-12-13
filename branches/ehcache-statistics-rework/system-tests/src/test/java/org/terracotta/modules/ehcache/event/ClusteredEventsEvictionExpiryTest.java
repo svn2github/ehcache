@@ -6,7 +6,6 @@ package org.terracotta.modules.ehcache.event;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-
 import org.apache.log4j.Logger;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -156,7 +155,13 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          return 100 - cache.getSize() == listener.getEvicted().size();
+          if (100 - cache.getSize() != listener.getEvicted().size()) {
+            System.out.println("Eviction events not all received yet. cacheSize = " + cache.getSize() +
+                               " eviction events " + listener.getEvicted().size());
+            return false;
+          } else {
+            return true;
+          }
         }
       });
     }

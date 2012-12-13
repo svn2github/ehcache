@@ -5,6 +5,9 @@
  */
 
 package net.sf.ehcache.util.concurrent;
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
 import java.util.Random;
 
 /**
@@ -99,7 +102,9 @@ abstract class Striped64 extends Number {
         private static final long valueOffset;
         static {
             try {
-                UNSAFE = sun.misc.Unsafe.getUnsafe();
+                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+                unsafeField.setAccessible(true);
+                UNSAFE = (Unsafe)unsafeField.get(null);
                 Class<?> ak = Cell.class;
                 valueOffset = UNSAFE.objectFieldOffset
                     (ak.getDeclaredField("value"));
@@ -298,7 +303,9 @@ abstract class Striped64 extends Number {
     private static final long busyOffset;
     static {
         try {
-            UNSAFE = sun.misc.Unsafe.getUnsafe();
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            UNSAFE = (Unsafe)unsafeField.get(null);
             Class<?> sk = Striped64.class;
             baseOffset = UNSAFE.objectFieldOffset
                 (sk.getDeclaredField("base"));
