@@ -158,21 +158,21 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     public long getAverageGetTimeNanosMostRecentSample() {
-        return cache.getSampledCacheStatistics().getAverageGetTimeNanosMostRecentSample();
+        return cache.getStatistics().SampledCacheStatistics().getAverageGetTimeNanosMostRecentSample();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheEvictionRate() {
-        return getCacheElementEvictedMostRecentSample();
+        return cache.getStatistics().cacheEvictionOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getCacheElementEvictedMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheElementEvictedMostRecentSample();
+        return getCacheEvictionRate();
     }
 
     /**
@@ -186,7 +186,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     public long getCacheElementExpiredMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheElementExpiredMostRecentSample();
+        return cache.getStatistics().cacheExpiredOperation().rate().value().longValue();
     }
 
     /**

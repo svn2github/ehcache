@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.store.StoreOperationOutcomes;
@@ -228,15 +229,12 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Operation cacheEvictionOperation() {
-        return extended.e
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return extended.eviction().component(EvictionOutcome.SUCCESS);
     }
 
     @Override
     public Operation cacheExpiredOperation() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return extended.expiration().component(CacheOperationOutcomes.ExpiredOutcome.SUCCESS);
     }
 
     @Override

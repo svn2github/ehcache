@@ -202,24 +202,24 @@ public class StatisticsTest extends AbstractCacheTest {
         ehcache.getStatistics().setStatisticsEnabled(true);
 
         StatisticsPlaceholder statistics = ehcache.getStatistics();
-        assertEquals(0, statistics.getEvictionCount());
+        assertEquals(0, statistics.cacheEvictedCount());
 
         for (int i = 0; i < 10000; i++) {
             ehcache.put(new Element("" + i, "value1"));
         }
         statistics = ehcache.getStatistics();
-        assertEquals(9990, statistics.getEvictionCount());
+        assertEquals(9990, statistics.cacheEvictedCount());
 
         Thread.sleep(2010);
 
         // expiries do not count
         statistics = ehcache.getStatistics();
-        assertEquals(9990, statistics.getEvictionCount());
+        assertEquals(9990, statistics.cacheEvictedCount());
 
         statistics.clearStatistics();
 
         statistics = ehcache.getStatistics();
-        assertEquals(0, statistics.getEvictionCount());
+        assertEquals(0, statistics.cacheEvictedCount());
 
     }
 
