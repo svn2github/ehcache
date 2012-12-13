@@ -109,16 +109,16 @@ public class SoftLockPinningTest {
             cache2.put(element2);
         }
 
-        assertEquals(100, cache1.getStatistics().getMemoryStoreSize());
-        assertEquals(100, cache2.getStatistics().getMemoryStoreSize());
+        assertEquals(100, cache1.getStatistics().getLocalHeapSize());
+        assertEquals(100, cache2.getStatistics().getLocalHeapSize());
         RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
             public Integer call() throws Exception {
-                return (int) cache1.getStatistics().getDiskStoreSize();
+                return (int) cache1.getStatistics().getLocalDiskSize();
             }
         }, Is.is(100));
         RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
             public Integer call() throws Exception {
-                return (int) cache2.getStatistics().getDiskStoreSize();
+                return (int) cache2.getStatistics().getLocalDiskSize();
             }
         }, Is.is(100));
 
@@ -166,16 +166,16 @@ public class SoftLockPinningTest {
             public void statusChanged(final int oldStatus, final int newStatus) {
                 if (oldStatus == Status.STATUS_PREPARED) {
 
-                    assertEquals(100, xaCache1.getStatistics().getMemoryStoreSize());
-                    assertEquals(100, xaCache2.getStatistics().getMemoryStoreSize());
+                    assertEquals(100, xaCache1.getStatistics().getLocalHeapSize());
+                    assertEquals(100, xaCache2.getStatistics().getLocalHeapSize());
                     RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
                         public Integer call() throws Exception {
-                            return (int) xaCache1.getStatistics().getDiskStoreSize();
+                            return (int) xaCache1.getStatistics().getLocalDiskSize();
                         }
                     }, Is.is(100));
                     RetryAssert.assertBy(5, TimeUnit.SECONDS, new Callable<Integer>() {
                         public Integer call() throws Exception {
-                            return (int) xaCache2.getStatistics().getDiskStoreSize();
+                            return (int) xaCache2.getStatistics().getLocalDiskSize();
                         }
                     }, Is.is(100));
 

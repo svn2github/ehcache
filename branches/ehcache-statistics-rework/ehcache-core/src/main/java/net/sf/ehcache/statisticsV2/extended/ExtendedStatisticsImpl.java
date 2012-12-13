@@ -17,6 +17,7 @@
 package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -262,74 +263,4 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     public long getWriterQueueLength() {
         return ((Long) passThroughs.get(PassThroughType.WRITER_QUEUE_LENGTH).value()).longValue();
     }
-
-    @Override
-    public String getLocalHeapSizeString() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Deprecated
-    @Override
-    public long calculateInMemorySize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public long getMemoryStoreSize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public int getDiskStoreSize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public long calculateOffHeapSize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public long getOffHeapStoreSize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public long getObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public long getMemoryStoreObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public long getDiskStoreObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Deprecated
-    @Override
-    public long getOffHeapStoreObjectCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
 }

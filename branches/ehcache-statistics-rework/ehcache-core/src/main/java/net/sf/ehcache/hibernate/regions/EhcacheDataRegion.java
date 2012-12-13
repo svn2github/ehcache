@@ -103,7 +103,7 @@ public abstract class EhcacheDataRegion implements Region {
      */
     public long getSizeInMemory() {
         try {
-            return cache.getStatistics().calculateInMemorySize();
+            return cache.getStatistics().getLocalHeapSizeInBytes();
         } catch (Throwable t) {
             if (t instanceof NonStopCacheException) {
                 HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) t);
@@ -117,7 +117,7 @@ public abstract class EhcacheDataRegion implements Region {
      */
     public long getElementCountInMemory() {
         try {
-            return cache.getStatistics().getMemoryStoreSize();
+            return cache.getStatistics().getLocalHeapSize();
         } catch (net.sf.ehcache.CacheException ce) {
             if (ce instanceof NonStopCacheException) {
                 HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) ce);
@@ -133,7 +133,7 @@ public abstract class EhcacheDataRegion implements Region {
      */
     public long getElementCountOnDisk() {
         try {
-            return cache.getStatistics().getDiskStoreSize();
+            return cache.getStatistics().getLocalDiskSize();
         } catch (net.sf.ehcache.CacheException ce) {
             if (ce instanceof NonStopCacheException) {
                 HibernateNonstopCacheExceptionHandler.getInstance().handleNonstopCacheException((NonStopCacheException) ce);

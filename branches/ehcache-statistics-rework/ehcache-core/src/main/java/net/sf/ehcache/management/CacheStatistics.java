@@ -234,7 +234,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getObjectCount() {
         updateIfNeeded();
-        return statistics.getObjectCount();
+        return statistics.getSize();
     }
 
     /**
@@ -260,7 +260,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getMemoryStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getMemoryStoreObjectCount();
+        return statistics.getLocalHeapSize();
     }
 
     /**
@@ -268,7 +268,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOffHeapStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getOffHeapStoreObjectCount();
+        return statistics.getLocalOffHeapSize();
     }
 
     /**
@@ -277,7 +277,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getDiskStoreObjectCount() {
         updateIfNeeded();
-        return statistics.getDiskStoreObjectCount();
+        return statistics.getLocalDiskSize();
     }
 
 

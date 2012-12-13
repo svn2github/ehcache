@@ -73,9 +73,9 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(1, statistics.diskHitCount());
         assertEquals(1, statistics.localHeapHitCount());
         assertEquals(0, statistics.cacheMissCount());
-        assertEquals(2, statistics.getObjectCount());
-        assertEquals(1, statistics.getMemoryStoreObjectCount());
-        assertEquals(2, statistics.getDiskStoreObjectCount());
+        assertEquals(2, statistics.getSize());
+        assertEquals(1, statistics.getLocalHeapSize());
+        assertEquals(2, statistics.getLocalDiskSize());
 
         // key 2 should now be in the MemoryStore
         cache.get("key2");

@@ -1286,7 +1286,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testSizes() throws Exception {
         Ehcache cache = getSampleCache1();
 
-        assertEquals(0, cache.getStatistics().getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
         for (int i = 0; i < 10010; i++) {
             cache.put(new Element("key" + i, "value1"));
@@ -1295,8 +1295,8 @@ public class CacheTest extends AbstractCacheTest {
         flushDiskStore(cache);
 
         assertThat(cache.getSize(), lessThanOrEqualTo(10000));
-        assertThat(cache.getStatistics().getMemoryStoreSize(), lessThanOrEqualTo(10000L));
-        assertThat(cache.getStatistics().getDiskStoreSize(), lessThanOrEqualTo(1000));
+        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
+        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
         //NonSerializable
         flushDiskStore(cache);
@@ -1306,8 +1306,8 @@ public class CacheTest extends AbstractCacheTest {
 
         int size = cache.getSize();
         assertThat(size, lessThanOrEqualTo(10000));
-        assertThat(cache.getStatistics().getMemoryStoreSize(), lessThanOrEqualTo(10000L));
-        assertThat(cache.getStatistics().getDiskStoreSize(), lessThanOrEqualTo(1000));
+        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
+        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
         if(cache.remove("key4")) {
             size--;
@@ -1328,8 +1328,8 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.removeAll();
         assertEquals(0, cache.getSize());
-        assertEquals(0, cache.getStatistics().getMemoryStoreSize());
-        assertEquals(0, cache.getStatistics().getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
+        assertEquals(0, cache.getStatistics().getLocalDiskSize());
 
     }
 
@@ -1385,7 +1385,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element(Integer.valueOf(i), new Date()));
         }
 
-        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(100));
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(100L));
 
         for (int i = 0; i < 100; i++) {
             cache.get(Integer.valueOf(i));
@@ -1401,7 +1401,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key2", new String("fdgdf")));
         cache.put(new Element("key1", "value"));
 
-        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(103));
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(103L));
 
         cache.get("key1");
 
@@ -1421,7 +1421,7 @@ public class CacheTest extends AbstractCacheTest {
         //this one does
         cache.put(new Element("nullValue", null));
 
-        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(104));
+        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(104L));
         assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(50L));
 
         cache.flush();
@@ -1675,41 +1675,41 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(0, cache.getDiskStoreSize());
 
         cache.put(new Element("key1", "value1"));
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(1));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(1L));
         assertEquals(1, cache.getSize());
 
         cache.put(new Element("key2", "value2"));
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2L));
         assertEquals(2, cache.getSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         cache.put(new Element("key3", "value3"));
         cache.put(new Element("key4", "value4"));
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(4));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(4L));
         assertEquals(4, cache.getSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove last element inserted (is in memory store)
         cache.remove("key4");
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3L));
         assertEquals(3, cache.getSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove key1 element
         cache.remove("key1");
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2L));
         assertEquals(2, cache.getSize());
         assertEquals(0, cache.getMemoryStoreSize());
 
         // add another
         cache.put(new Element("key5", "value5"));
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3L));
         assertEquals(3, cache.getSize());
         assertEquals(1, cache.getMemoryStoreSize());
 
         // remove all
         cache.removeAll();
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(0));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(0L));
         assertEquals(0, cache.getSize());
         assertEquals(0, cache.getMemoryStoreSize());
 
@@ -2737,11 +2737,11 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         public Long call() throws Exception {
-            return cache.getStatistics().getMemoryStoreSize();
+            return cache.getStatistics().getLocalHeapSize();
         }
     }
 
-    static class GetCacheDiskSize implements Callable<Integer> {
+    static class GetCacheDiskSize implements Callable<Long> {
 
         private final Ehcache cache;
 
@@ -2749,8 +2749,8 @@ public class CacheTest extends AbstractCacheTest {
             this.cache = cache;
         }
 
-        public Integer call() throws Exception {
-            return cache.getStatistics().getDiskStoreSize();
+        public Long call() throws Exception {
+            return cache.getStatistics().getLocalDiskSize();
         }
     }
 }

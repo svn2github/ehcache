@@ -61,7 +61,9 @@ public interface ExtendedStatistics {
     public interface CompoundOperation<T> {
         Operation component(T result);
         Operation compound(Set<T> results);
- 
+
+        Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator);
+
         void setAlwaysOn(boolean enable);
         void setWindow(long time, TimeUnit unit);
         void setHistory(int samples, long time, TimeUnit unit);
@@ -85,42 +87,21 @@ public interface ExtendedStatistics {
     }
 
     // pass through stats
-    long getLocalHeapSizeInBytes();
-
-    long calculateInMemorySize();
-
-    long getMemoryStoreSize();
-
-    int getDiskStoreSize();
-
-    long calculateOffHeapSize();
-
-    long getOffHeapStoreSize();
-
-    long getObjectCount();
-
-    long getMemoryStoreObjectCount();
-
-    long getDiskStoreObjectCount();
+    long getSize();
 
     long getLocalHeapSize();
 
-    long getWriterQueueSize();
-
-    long getOffHeapStoreObjectCount();
-
-    String getLocalHeapSizeString();
-
-    long getWriterQueueLength();
-
-    long getLocalDiskSize();
+    long getLocalHeapSizeInBytes();
 
     long getLocalOffHeapSize();
 
-    long getLocalDiskSizeInBytes();
-
     long getLocalOffHeapSizeInBytes();
 
-    long getSize();
+    long getLocalDiskSize();
 
+    long getLocalDiskSizeInBytes();
+
+    long getWriterQueueSize();
+
+    long getWriterQueueLength();
 }

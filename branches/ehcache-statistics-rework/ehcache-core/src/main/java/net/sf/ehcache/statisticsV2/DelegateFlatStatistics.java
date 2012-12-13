@@ -335,52 +335,12 @@ public class DelegateFlatStatistics implements FlatStatistics {
         return flatExtended.getLocalHeapSizeInBytes();
     }
 
-    public long calculateInMemorySize() {
-        return flatExtended.calculateInMemorySize();
-    }
-
-    public long getMemoryStoreSize() {
-        return flatExtended.getMemoryStoreSize();
-    }
-
-    public int getDiskStoreSize() {
-        return flatExtended.getDiskStoreSize();
-    }
-
-    public long calculateOffHeapSize() {
-        return flatExtended.calculateOffHeapSize();
-    }
-
-    public long getOffHeapStoreSize() {
-        return flatExtended.getOffHeapStoreSize();
-    }
-
-    public long getObjectCount() {
-        return flatExtended.getObjectCount();
-    }
-
-    public long getMemoryStoreObjectCount() {
-        return flatExtended.getMemoryStoreObjectCount();
-    }
-
-    public long getDiskStoreObjectCount() {
-        return flatExtended.getDiskStoreObjectCount();
-    }
-
     public long getLocalHeapSize() {
         return flatExtended.getLocalHeapSize();
     }
 
     public long getWriterQueueSize() {
         return flatExtended.getWriterQueueSize();
-    }
-
-    public long getOffHeapStoreObjectCount() {
-        return flatExtended.getOffHeapStoreObjectCount();
-    }
-
-    public String getLocalHeapSizeString() {
-        return flatExtended.getLocalHeapSizeString();
     }
 
     public long getWriterQueueLength() {

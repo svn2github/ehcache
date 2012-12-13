@@ -592,7 +592,7 @@ public final class BlockingCacheTest {
             manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
             Ehcache blockingCache = manager.getEhcache("testUseCacheAfterManagerShutdown");
 
-            assertEquals(0, blockingCache.getStatistics().getMemoryStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getLocalHeapSize());
 
             for (int i = 0; i < 10010; i++) {
                 blockingCache.put(new Element("key" + i, "value1"));
@@ -632,8 +632,8 @@ public final class BlockingCacheTest {
 
             blockingCache.removeAll();
             assertEquals(0, blockingCache.getSize());
-            assertEquals(0, blockingCache.getStatistics().getMemoryStoreSize());
-            assertEquals(0, blockingCache.getStatistics().getDiskStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getLocalHeapSize());
+            assertEquals(0, blockingCache.getStatistics().getLocalDiskSize());
         } finally {
             manager.shutdown();
         }

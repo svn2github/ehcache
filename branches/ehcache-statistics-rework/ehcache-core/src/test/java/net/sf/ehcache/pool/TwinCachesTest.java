@@ -360,19 +360,19 @@ public class TwinCachesTest {
         Assert.assertEquals(ratio, ((float)one.getSize()) / totalCount, 0.1f);
         Assert.assertEquals(1f - ratio, ((float) two.getSize()) / totalCount, 0.1f);
 
-        long totalBytes = one.getStatistics().calculateInMemorySize() +
-                two.getStatistics().calculateInMemorySize();
+        long totalBytes = one.getStatistics().getLocalHeapSizeInBytes() +
+                two.getStatistics().getLocalHeapSizeInBytes();
         float bytesRatio = (ratio * 128f) / ((ratio * 128f) + ((1 - ratio) * 256f));
 
         System.err.println("[1] Bytes Ratio    : " + bytesRatio);
-        System.err.println("[1] Bytes Measured : " + (((float) one.getStatistics().calculateInMemorySize()) / totalBytes) + " ["
-                + one.getStatistics().calculateInMemorySize() + "]");
+        System.err.println("[1] Bytes Measured : " + (((float) one.getStatistics().getLocalHeapSizeInBytes()) / totalBytes) + " ["
+                + one.getStatistics().getLocalHeapSizeInBytes() + "]");
         System.err.println("[2] Bytes Ratio    : " + (1 - bytesRatio));
-        System.err.println("[2] Bytes Measured : " + (((float) two.getStatistics().calculateInMemorySize()) / totalBytes) + " ["
-                + two.getStatistics().calculateInMemorySize() + "]");
+        System.err.println("[2] Bytes Measured : " + (((float) two.getStatistics().getLocalHeapSizeInBytes()) / totalBytes) + " ["
+                + two.getStatistics().getLocalHeapSizeInBytes() + "]");
 
-        Assert.assertEquals(bytesRatio, ((float) one.getStatistics().calculateInMemorySize()) / totalBytes, 0.1f);
-        Assert.assertEquals(1f - bytesRatio, ((float)two.getStatistics().calculateInMemorySize()) / totalBytes, 0.1f);
+        Assert.assertEquals(bytesRatio, ((float) one.getStatistics().getLocalHeapSizeInBytes()) / totalBytes, 0.1f);
+        Assert.assertEquals(1f - bytesRatio, ((float)two.getStatistics().getLocalHeapSizeInBytes()) / totalBytes, 0.1f);
     }
 
     private static int getRandomKey(Random rndm, int max) {

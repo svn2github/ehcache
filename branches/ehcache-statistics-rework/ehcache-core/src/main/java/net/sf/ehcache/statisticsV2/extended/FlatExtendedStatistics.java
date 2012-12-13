@@ -69,42 +69,21 @@ public interface FlatExtendedStatistics {
     Operation cacheExpiredOperation();
 
     // pass through stats
-    long getLocalHeapSizeInBytes();
-
-    long calculateInMemorySize();
-
-    long getMemoryStoreSize();
-
-    int getDiskStoreSize();
-
-    long calculateOffHeapSize();
-
-    long getOffHeapStoreSize();
-
-    long getObjectCount();
-
-    long getMemoryStoreObjectCount();
-
-    long getDiskStoreObjectCount();
-
+    long getSize();
+    
     long getLocalHeapSize();
 
-    long getWriterQueueSize();
-
-    long getOffHeapStoreObjectCount();
-
-    String getLocalHeapSizeString();
-
-    long getWriterQueueLength();
-
-    long getLocalDiskSize();
+    long getLocalHeapSizeInBytes();
 
     long getLocalOffHeapSize();
 
-    long getLocalDiskSizeInBytes();
-
     long getLocalOffHeapSizeInBytes();
 
-    long getSize();
+    long getLocalDiskSize();
 
+    long getLocalDiskSizeInBytes();
+
+    long getWriterQueueSize();
+
+    long getWriterQueueLength();
 }

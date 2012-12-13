@@ -243,46 +243,6 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     }
 
     @Override
-    public long calculateInMemorySize() {
-        return extended.calculateInMemorySize();
-    }
-
-    @Override
-    public long getMemoryStoreSize() {
-        return extended.getMemoryStoreSize();
-    }
-
-    @Override
-    public int getDiskStoreSize() {
-       return extended.getDiskStoreSize();
-    }
-
-    @Override
-    public long calculateOffHeapSize() {
-        return extended.calculateOffHeapSize();
-    }
-
-    @Override
-    public long getOffHeapStoreSize() {
-        return extended.getOffHeapStoreSize();
-    }
-
-    @Override
-    public long getObjectCount() {
-        return extended.getObjectCount();
-    }
-
-    @Override
-    public long getMemoryStoreObjectCount() {
-        return extended.getMemoryStoreObjectCount();
-    }
-
-    @Override
-    public long getDiskStoreObjectCount() {
-        return extended.getDiskStoreObjectCount();
-    }
-
-    @Override
     public long getLocalHeapSize() {
         return extended.getLocalHeapSize();
     }
@@ -290,16 +250,6 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     @Override
     public long getWriterQueueSize() {
         return extended.getWriterQueueSize();
-    }
-
-    @Override
-    public long getOffHeapStoreObjectCount() {
-        return extended.getOffHeapStoreObjectCount();
-    }
-
-    @Override
-    public String getLocalHeapSizeString() {
-        return extended.getLocalHeapSizeString();
     }
 
     @Override

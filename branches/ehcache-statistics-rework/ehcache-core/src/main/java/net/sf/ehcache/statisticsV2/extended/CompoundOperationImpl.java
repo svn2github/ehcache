@@ -4,9 +4,11 @@
  */
 package net.sf.ehcache.statisticsV2.extended;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
 import org.terracotta.statistics.OperationStatistic;
 
 /**
@@ -27,6 +30,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
     
     private final Map<T, OperationImpl<T>> operations;    
     private final ConcurrentMap<Set<T>, OperationImpl<T>> compounds = new ConcurrentHashMap<Set<T>, OperationImpl<T>>();
+    private final ConcurrentMap<List<Set<T>>, RatioStatistic> ratios = new ConcurrentHashMap<List<Set<T>>, RatioStatistic>();
     
     private final ScheduledExecutorService executor;
 
@@ -57,11 +61,32 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
 
     @Override
     public Operation compound(Set<T> results) {
-        Set<T> key = EnumSet.copyOf(results);
-        OperationImpl<T> existing = compounds.get(key);
+        if (results.size() == 1) {
+            return component(results.iterator().next());
+        } else {
+            Set<T> key = EnumSet.copyOf(results);
+            OperationImpl<T> existing = compounds.get(key);
+            if (existing == null) {
+                OperationImpl<T> created = new OperationImpl(source, key, averageNanos, executor, historySize, historyNanos);
+                OperationImpl<T> racer = compounds.putIfAbsent(key, created);
+                if (racer == null) {
+                    return created;
+                } else {
+                    return racer;
+                }
+            } else {
+                return existing;
+            }
+        }
+    }
+
+    @Override
+    public Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator) {
+        List<Set<T>> key = Arrays.<Set<T>>asList(EnumSet.copyOf(numerator), EnumSet.copyOf(denomiator));
+        RatioStatistic existing = ratios.get(key);
         if (existing == null) {
-            OperationImpl<T> created = new OperationImpl(source, key, averageNanos, executor, historySize, historyNanos);
-            OperationImpl<T> racer = compounds.putIfAbsent(key, created);
+            RatioStatistic created = new RatioStatistic(compound(numerator).rate(), compound(denomiator).rate(), executor, historySize, historyNanos);
+            RatioStatistic racer = ratios.putIfAbsent(key, created);
             if (racer == null) {
                 return created;
             } else {
@@ -103,6 +128,9 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
         for (OperationImpl<T> op : compounds.values()) {
             op.setHistory(historySize, historyNanos);
         }
+        for (RatioStatistic ratio : ratios.values()) {
+            ratio.setHistory(historySize, historyNanos);
+        }
     }
 
     void expire(long expiryTime) {
@@ -111,6 +139,11 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
                 o.expire(expiryTime);
             }
             for (Iterator<OperationImpl<T>> it = compounds.values().iterator(); it.hasNext(); ) {
+                if (it.next().expire(expiryTime)) {
+                    it.remove();
+                }
+            }
+            for (Iterator<RatioStatistic> it = ratios.values().iterator(); it.hasNext(); ) {
                 if (it.next().expire(expiryTime)) {
                     it.remove();
                 }

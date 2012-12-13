@@ -16,6 +16,7 @@ import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
 import org.terracotta.statistics.archive.Timestamped;
 
+
 /**
  *
  * @author cdennis
@@ -40,6 +41,11 @@ class NullCompoundOperation<T> implements CompoundOperation<T> {
     @Override
     public Operation compound(Set<T> results) {
         return NullOperation.instance();
+    }
+
+    @Override
+    public Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator) {
+        return NullStatistic.instance(Double.NaN);
     }
 
     @Override
