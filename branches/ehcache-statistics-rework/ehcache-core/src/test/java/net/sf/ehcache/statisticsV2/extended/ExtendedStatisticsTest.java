@@ -4,7 +4,6 @@
  */
 package net.sf.ehcache.statisticsV2.extended;
 
-import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -40,22 +39,22 @@ public class ExtendedStatisticsTest {
             
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
             
-            assertThat(extendedStats.get().component(HIT).count(), is(0L));
-            assertThat(extendedStats.get().component(MISS_NOT_FOUND).count(), is(0L));
-            assertThat(extendedStats.get().component(MISS_EXPIRED).count(), is(0L));
+            assertThat(extendedStats.get().component(HIT).count().value(), is(0L));
+            assertThat(extendedStats.get().component(MISS_NOT_FOUND).count().value(), is(0L));
+            assertThat(extendedStats.get().component(MISS_EXPIRED).count().value(), is(0L));
             
             foo.get("miss");
             
-            assertThat(extendedStats.get().component(HIT).count(), is(0L));
-            assertThat(extendedStats.get().component(MISS_NOT_FOUND).count(), is(1L));
-            assertThat(extendedStats.get().component(MISS_EXPIRED).count(), is(0L));
+            assertThat(extendedStats.get().component(HIT).count().value(), is(0L));
+            assertThat(extendedStats.get().component(MISS_NOT_FOUND).count().value(), is(1L));
+            assertThat(extendedStats.get().component(MISS_EXPIRED).count().value(), is(0L));
             
             foo.put(new Element("miss", "miss"));
             foo.get("miss");
             
-            assertThat(extendedStats.get().component(HIT).count(), is(1L));
-            assertThat(extendedStats.get().component(MISS_NOT_FOUND).count(), is(1L));
-            assertThat(extendedStats.get().component(MISS_EXPIRED).count(), is(0L));
+            assertThat(extendedStats.get().component(HIT).count().value(), is(1L));
+            assertThat(extendedStats.get().component(MISS_NOT_FOUND).count().value(), is(1L));
+            assertThat(extendedStats.get().component(MISS_EXPIRED).count().value(), is(0L));
         } finally {
             manager.shutdown();
         }
@@ -72,23 +71,23 @@ public class ExtendedStatisticsTest {
             extendedStats.setStatisticsTimeToDisable(2, TimeUnit.SECONDS);
             Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
-            assertThat(missNotFound.count(), is(0L));
+            assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.rate().value(), is(0.0));
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(1L));
+            assertThat(missNotFound.count().value(), is(1L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
 
             TimeUnit.SECONDS.sleep(1);
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(2L));
+            assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
             
             TimeUnit.SECONDS.sleep(3);
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(3L));
+            assertThat(missNotFound.count().value(), is(3L));
             assertThat(missNotFound.rate().value(), is(0.0));
         } finally {
             manager.shutdown();
@@ -107,23 +106,23 @@ public class ExtendedStatisticsTest {
             extendedStats.setStatisticsEnabled(true);
             Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
-            assertThat(missNotFound.count(), is(0L));
+            assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.rate().value(), is(0.0));
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(1L));
+            assertThat(missNotFound.count().value(), is(1L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
 
             TimeUnit.SECONDS.sleep(1);
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(2L));
+            assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
             
             TimeUnit.SECONDS.sleep(3);
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(3L));
+            assertThat(missNotFound.count().value(), is(3L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
         } finally {
             manager.shutdown();
@@ -142,24 +141,27 @@ public class ExtendedStatisticsTest {
             extendedStats.setStatisticsEnabled(true);
             Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
-            assertThat(missNotFound.count(), is(0L));
+            assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.rate().value(), is(0.0));
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(1L));
+            assertThat(missNotFound.count().value(), is(1L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
 
             TimeUnit.SECONDS.sleep(1);
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(2L));
+            assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
             
             TimeUnit.SECONDS.sleep(3);
             
             extendedStats.setStatisticsEnabled(false);
+            
+            TimeUnit.SECONDS.sleep(1);
+            
             foo.get("miss");
-            assertThat(missNotFound.count(), is(3L));
+            assertThat(missNotFound.count().value(), is(3L));
             assertThat(missNotFound.rate().value(), is(0.0));
         } finally {
             manager.shutdown();
@@ -177,20 +179,39 @@ public class ExtendedStatisticsTest {
             extendedStats.setStatisticsEnabled(true);
             Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
-            assertThat(missNotFound.count(), is(0L));
+            assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.latency().average().value(), is(Double.NaN));
             
             foo.get("miss");
-            assertThat(missNotFound.count(), is(1L));
+            assertThat(missNotFound.count().value(), is(1L));
             assertThat(missNotFound.latency().average().value(), greaterThan(0.0));
             assertThat(missNotFound.latency().minimum().value(), is(missNotFound.latency().maximum().value()));
             assertThat(missNotFound.latency().minimum().value().doubleValue(), is(missNotFound.latency().average().value()));
 
             foo.get("miss");
-            assertThat(missNotFound.count(), is(2L));
+            assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.latency().average().value(), greaterThan(0.0));
             assertThat(missNotFound.latency().minimum().value().doubleValue(), lessThanOrEqualTo(missNotFound.latency().average().value()));
             assertThat(missNotFound.latency().maximum().value().doubleValue(), greaterThanOrEqualTo(missNotFound.latency().average().value()));
+        } finally {
+            manager.shutdown();
+        }
+    }
+    
+    @Test
+    public void testSimplePassThroughStatistic() {
+        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
+        try {
+            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
+            manager.addCache(foo);
+            
+            ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
+            
+            assertThat(extendedStats.getSize(), is(0L));
+            
+            foo.put(new Element("foo", "foo"));
+            
+            assertThat(extendedStats.getSize(), is(1L));
         } finally {
             manager.shutdown();
         }

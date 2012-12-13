@@ -40,7 +40,7 @@ class OperationImpl<T extends Enum<T>> implements Operation {
 
     @Override
     public Statistic<Long> count() {
-        return count();
+        return count;
     }
 
     void start() {

@@ -137,6 +137,7 @@ import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
+import org.terracotta.statistics.Statistic;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -2495,6 +2496,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return The size value
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
+    @Statistic(name="cache-size", tags="cache")
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
 
