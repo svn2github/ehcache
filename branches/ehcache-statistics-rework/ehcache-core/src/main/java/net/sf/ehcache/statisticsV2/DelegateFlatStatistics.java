@@ -343,10 +343,6 @@ public class DelegateFlatStatistics implements FlatStatistics {
         return flatExtended.getWriterQueueSize();
     }
 
-    public long getWriterQueueLength() {
-        return flatExtended.getWriterQueueLength();
-    }
-
     public long getLocalDiskSize() {
         return flatExtended.getLocalDiskSize();
     }

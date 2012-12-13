@@ -249,11 +249,6 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     }
 
     @Override
-    public long getWriterQueueLength() {
-        return extended.getWriterQueueLength();
-    }
-
-    @Override
     public long getLocalDiskSize() {
         return extended.getLocalDiskSize();
     }
