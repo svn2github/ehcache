@@ -26,6 +26,7 @@ import net.sf.ehcache.writer.CacheWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.terracotta.statistics.Statistic;
 
 /**
  * @author Alex Snaps
@@ -135,6 +136,7 @@ public class WriteBehindQueueManager implements WriteBehind {
     /**
      * {@inheritDoc}
      */
+    @Statistic(name="write-behind-queue-size", tags="write-behind")
     public long getQueueSize() {
         int size = 0;
         readLock.lock();

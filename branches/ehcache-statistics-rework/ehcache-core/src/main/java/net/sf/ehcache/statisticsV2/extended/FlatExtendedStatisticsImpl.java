@@ -17,6 +17,7 @@
 package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -35,17 +36,12 @@ import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
-    private final static Set<CacheOperationOutcomes.PutOutcome> ALL_CACHE_PUT_OUTCOMES=asSet(CacheOperationOutcomes.PutOutcome.values());
-    private final static Set<CacheOperationOutcomes.GetOutcome> ALL_CACHE_GET_OUTCOMES=asSet(CacheOperationOutcomes.GetOutcome.values());
-    private final static Set<CacheOperationOutcomes.GetOutcome> ALL_CACHE_MISS_OUTCOMES=asSet(CacheOperationOutcomes.GetOutcome.MISS_EXPIRED,
-            CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND);
-    private final static Set<StoreOperationOutcomes.PutOutcome> ALL_STORE_PUT_OUTCOMES=asSet(StoreOperationOutcomes.PutOutcome.values());
+    private final static Set<CacheOperationOutcomes.PutOutcome> ALL_CACHE_PUT_OUTCOMES = EnumSet.allOf(CacheOperationOutcomes.PutOutcome.class);
+    private final static Set<CacheOperationOutcomes.GetOutcome> ALL_CACHE_GET_OUTCOMES = EnumSet.allOf(CacheOperationOutcomes.GetOutcome.class);
+    private final static Set<CacheOperationOutcomes.GetOutcome> ALL_CACHE_MISS_OUTCOMES = EnumSet.of(CacheOperationOutcomes.GetOutcome.MISS_EXPIRED, CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND);
+    private final static Set<StoreOperationOutcomes.PutOutcome> ALL_STORE_PUT_OUTCOMES = EnumSet.allOf(StoreOperationOutcomes.PutOutcome.class);
 
     private final ExtendedStatistics extended;
-
-    private static <E> Set<E> asSet(E... ees) {
-        return new HashSet<E>(Arrays.asList(ees));
-    }
 
     public FlatExtendedStatisticsImpl(ExtendedStatistics extended) {
         this.extended=extended;

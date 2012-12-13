@@ -197,23 +197,4 @@ public class ExtendedStatisticsTest {
             manager.shutdown();
         }
     }
-    
-    @Test
-    public void testSimplePassThroughStatistic() {
-        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
-        try {
-            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
-            manager.addCache(foo);
-            
-            ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            
-            assertThat(extendedStats.getSize(), is(0L));
-            
-            foo.put(new Element("foo", "foo"));
-            
-            assertThat(extendedStats.getSize(), is(1L));
-        } finally {
-            manager.shutdown();
-        }
-    }
 }

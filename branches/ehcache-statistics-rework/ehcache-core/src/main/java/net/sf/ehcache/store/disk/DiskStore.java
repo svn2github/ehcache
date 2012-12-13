@@ -70,6 +70,7 @@ import org.terracotta.statistics.observer.OperationObserver;
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import org.terracotta.statistics.Statistic;
 
 /**
  * Implements a persistent-to-disk store.
@@ -375,6 +376,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "local-disk-size", tags = "disk")
     public int getOnDiskSize() {
         return disk.getOnDiskSize();
     }
@@ -382,6 +384,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "local-disk-size-in-bytes", tags = "disk")
     public long getOnDiskSizeInBytes() {
         long size = onDiskPoolAccessor.getSize();
         if (size < 0) {

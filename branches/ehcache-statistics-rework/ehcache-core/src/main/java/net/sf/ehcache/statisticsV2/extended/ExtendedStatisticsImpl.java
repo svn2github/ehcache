@@ -221,7 +221,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     @Override
     public long getLocalHeapSize() {
-        return ((Long) passThroughs.get(PassThroughType.LOCAL_HEAP_SIZE).value()).longValue();
+        return ((Integer) passThroughs.get(PassThroughType.LOCAL_HEAP_SIZE).value()).longValue();
     }
 
     @Override
@@ -257,10 +257,5 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     @Override
     public long getWriterQueueSize() {
         return ((Long) passThroughs.get(PassThroughType.WRITER_QUEUE_SIZE).value()).longValue();
-    }
-
-    @Override
-    public long getWriterQueueLength() {
-        return ((Long) passThroughs.get(PassThroughType.WRITER_QUEUE_LENGTH).value()).longValue();
     }
 }

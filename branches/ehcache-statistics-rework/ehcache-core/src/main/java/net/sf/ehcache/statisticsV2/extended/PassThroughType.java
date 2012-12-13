@@ -5,6 +5,8 @@
 package net.sf.ehcache.statisticsV2.extended;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.writer.writebehind.WriteBehindQueueManager;
 import org.terracotta.context.query.Query;
 import org.terracotta.context.query.QueryBuilder;
 import org.terracotta.statistics.ValueStatistic;
@@ -18,15 +20,14 @@ import static org.terracotta.context.query.QueryBuilder.*;
  */
 public enum PassThroughType {
 
-    CACHE_SIZE(Integer.TYPE, null, cache().chain(childStatistic("cache-size").build()).ensureUnique().build()), 
-    LOCAL_HEAP_SIZE(Long.TYPE, 0L, queryBuilder().empty().build()),
-    LOCAL_HEAP_SIZE_BYTES(Long.TYPE, 0L, queryBuilder().empty().build()),
-    LOCAL_OFFHEAP_SIZE(Long.TYPE, 0L, queryBuilder().empty().build()),
-    LOCAL_OFFHEAP_SIZE_BYTES(Long.TYPE, 0L, queryBuilder().empty().build()), 
-    LOCAL_DISK_SIZE(Long.TYPE, 0L, queryBuilder().empty().build()),
-    LOCAL_DISK_SIZE_BYTES(Long.TYPE, 0L, queryBuilder().empty().build()), 
-    WRITER_QUEUE_SIZE(Long.TYPE, 0L, queryBuilder().empty().build()),
-    WRITER_QUEUE_LENGTH(Long.TYPE, 0L, queryBuilder().empty().build());
+    CACHE_SIZE(Integer.TYPE, null, cache().chain(childStatistic("cache-size")).ensureUnique().build()), 
+    LOCAL_HEAP_SIZE(Integer.TYPE, 0, stores().chain(childStatistic("local-heap-size")).build()),
+    LOCAL_HEAP_SIZE_BYTES(Long.TYPE, 0L, stores().chain(childStatistic("local-heap-size-in-bytes")).build()),
+    LOCAL_OFFHEAP_SIZE(Long.TYPE, 0L, stores().chain(childStatistic("local-offheap-size")).build()),
+    LOCAL_OFFHEAP_SIZE_BYTES(Long.TYPE, 0L, stores().chain(childStatistic("local-offheap-size-in-bytes")).build()), 
+    LOCAL_DISK_SIZE(Long.TYPE, 0L, stores().chain(childStatistic("local-disk-size")).build()),
+    LOCAL_DISK_SIZE_BYTES(Long.TYPE, 0L, stores().chain(childStatistic("local-disk-size-in-bytes")).build()), 
+    WRITER_QUEUE_SIZE(Long.TYPE, 0L, queryBuilder().descendants().filter(context(identifier(subclassOf(WriteBehindQueueManager.class)))).chain(childStatistic("write-behind-queue-size")).build());
     
     private final Class<?> type;
     private final Object absentValue;
@@ -54,7 +55,11 @@ public enum PassThroughType {
         return queryBuilder().children().filter(context(identifier(subclassOf(Cache.class))));
     }
 
-    static QueryBuilder childStatistic(String name) {
-        return queryBuilder().children().filter(context(allOf(identifier(subclassOf(ValueStatistic.class)), attributes(hasAttribute("name", name)))));
+    static QueryBuilder stores() {
+        return queryBuilder().descendants().filter(context(identifier(subclassOf(Store.class))));
+    }
+    
+    static Query childStatistic(String name) {
+        return queryBuilder().children().filter(context(allOf(identifier(subclassOf(ValueStatistic.class)), attributes(hasAttribute("name", name))))).build();
     }
 }

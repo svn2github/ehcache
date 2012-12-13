@@ -137,7 +137,9 @@ import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
+import org.terracotta.context.annotations.ContextChild;
 import org.terracotta.statistics.Statistic;
+import org.terracotta.statistics.StatisticsManager;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -1132,6 +1134,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 compoundStore.setAttributeExtractors(extractors);
             }
             this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
+            StatisticsManager.associate(this).withChild(cacheWriterManager);
             cacheStatus.changeState(Status.STATUS_ALIVE);
             initialiseRegisteredCacheWriter();
             initialiseCacheWriterManager(false);
@@ -1153,6 +1156,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
             // this is a little different. THis is sortof a mess.
             // TODO TBD DO it better. CRSS
+            StatisticsManager.associate(this).withChild(compoundStore);
             statisticsDb=new EhcacheStatisticsCoreDb(this);
             statistics=new StatisticsPlaceholder(this, statisticsDb.getStatisticsManager());
         }

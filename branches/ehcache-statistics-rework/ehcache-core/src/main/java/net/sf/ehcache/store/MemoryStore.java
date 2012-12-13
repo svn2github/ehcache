@@ -755,7 +755,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="heap-count")
+    @Statistic(name="local-heap-size", tags="heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -763,7 +763,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="heap-size")
+    @Statistic(name="local-heap-size-in-bytes", tags="heap")
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
             DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
