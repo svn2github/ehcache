@@ -8,7 +8,6 @@ import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.ToolkitLogger;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,14 +17,11 @@ import java.util.Set;
  */
 public class BulkLoadShutdownHook implements Runnable {
 
-  private final ToolkitLogger                  logger;
   private final Set<BulkLoadToolkitCache>      registeredCaches = new HashSet<BulkLoadToolkitCache>();
   private final ClusterInfo                    terracottaClusterInfo;
-  private final static boolean                 DEBUG            = false;
 
   public BulkLoadShutdownHook(ToolkitInternal toolkit) {
     terracottaClusterInfo = toolkit.getClusterInfo();
-    logger = toolkit.getLogger(BulkLoadShutdownHook.class.getName());
     toolkit.registerBeforeShutdownHook(new Runnable() {
       @Override
       public void run() {
@@ -40,20 +36,17 @@ public class BulkLoadShutdownHook implements Runnable {
   }
 
   private synchronized void shutdownRegisteredCaches() {
-    debug("Shutting down registered ehcaches...");
-    if (terracottaClusterInfo.areOperationsEnabled()) {
+    if (registeredCaches.size() != 0 && terracottaClusterInfo.areOperationsEnabled()) {
       for (BulkLoadToolkitCache cache : registeredCaches) {
         try {
           if (cache.isBulkLoadEnabledInCurrentNode()) {
-            debug("Turning Off Bulk Load: " + cache.getName());
             cache.setBulkLoadEnabledInCurrentNode(false);
           }
         } catch (NonStopCacheException e) {
-          debug("NonStopCacheException ignored, probably L2 is not reachable anymore - " + e.getMessage());
+          //
         }
       }
     }
-    debug("Completed shutting down ehcaches.");
   }
 
   /**
@@ -62,22 +55,14 @@ public class BulkLoadShutdownHook implements Runnable {
    * in incoherent mode.
    */
   public synchronized void registerCache(BulkLoadToolkitCache cache) {
-    if (registeredCaches.add(cache)) {
-      debug("Registered cache for shutdown hook: " + cache.getName());
-    }
+    registeredCaches.add(cache);
   }
 
   /**
    * Unregisters the cache from shutdown hook.
    */
   public synchronized void unregisterCache(ToolkitCache cache) {
-    if (registeredCaches.remove(cache)) {
-      debug("Unregistered cache from shutdown hook: " + cache.getName());
-    }
-  }
-
-  private void debug(String msg) {
-    if (DEBUG) logger.info(msg);
+    registeredCaches.remove(cache);
   }
 
 }
