@@ -1,0 +1,17 @@
+<html>
+  <head>
+  </head>
+  <body>
+    This package contains the functionality to provide XA support to a transactional Cache.
+  <p>
+      As of now, only READ_COMMITED isolation level is provided. This is being handled by both
+      {@link net.sf.ehcache.transaction.xa.XATransactionContext XATransactionContext} (being the local transactional data) and
+      {@link net.sf.ehcache.transaction.xa.XATransactionStore XATransactionStore} (wrapping the underlying
+      {@link net.sf.ehcache.store.Store Store} instance and keeping the "in-transaction operations" on the cache in sync with
+      the {@link net.sf.ehcache.transaction.xa.XATransactionContext XATransactionContext} XA implementation.
+  </p>
+  <p>
+      It also contains the JTA XAResource implementation for Ehcache: {@link net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl}.
+  </p>
+  </body>
+</html>
