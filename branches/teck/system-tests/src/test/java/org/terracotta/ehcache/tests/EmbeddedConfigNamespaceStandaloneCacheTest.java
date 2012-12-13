@@ -40,7 +40,7 @@ public class EmbeddedConfigNamespaceStandaloneCacheTest extends AbstractCacheTes
     // Replace PORT token
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
-      line = line.replace("PORT", Integer.toString(getGroupsData()[0].getDsoPort(0)));
+      line = line.replace("PORT", Integer.toString(getGroupsData()[0].getTsaPort(0)));
       line = line.replace("CONFIG", ehcacheConfigPath);
       line = line.replace("TEMP", tempDir.getAbsolutePath());
       line = line.replace("TERRACOTTA_URL", getTerracottaURL());

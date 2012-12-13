@@ -14,8 +14,8 @@ public class ServerMapCapacityEvictionExpressTest extends AbstractCacheTestBase 
 
   public ServerMapCapacityEvictionExpressTest(TestConfig testConfig) {
     super("/servermap/basic-servermap-cache-test.xml", testConfig, ServerMapCapacityEvictionExpressTestClient.class);
-    testConfig.getL2Config().setDgcEnabled(true);
-    testConfig.getL2Config().setDgcIntervalInSec(60);
+    testConfig.setDgcEnabled(true);
+    testConfig.setDgcIntervalInSec(60);
     testConfig.addTcProperty("ehcache.evictor.logging.enabled", "true");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
 

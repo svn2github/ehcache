@@ -17,7 +17,7 @@ public class ClusterTopologyListenerTest extends AbstractCacheTestBase {
       disableTest();
     }
 
-    testConfig.getL2Config().setClientReconnectWindow(600);
+    testConfig.setClientReconnectWindow(600);
 
     testConfig.addTcProperty("l2.l1reconnect.enabled", "true");
     testConfig.addTcProperty("l2.l1reconnect.timeout.millis", "3000");
@@ -30,6 +30,7 @@ public class ClusterTopologyListenerTest extends AbstractCacheTestBase {
     for (final Class client : getTestConfig().getClientConfig().getClientClasses()) {
       threads[i] = new Thread(new Runnable() {
 
+        @Override
         public void run() {
           try {
             runClient(client);

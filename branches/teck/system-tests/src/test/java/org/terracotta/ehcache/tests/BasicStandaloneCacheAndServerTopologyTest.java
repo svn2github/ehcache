@@ -18,9 +18,9 @@ public class BasicStandaloneCacheAndServerTopologyTest extends AbstractCacheTest
   @Override
   protected void startClients() throws Throwable {
     getTestConfig().getClientConfig().addExtraClientJvmArg("-Dmy.tc.server.topology=127.0.0.1:"
-                                                               + getGroupData(0).getDsoPort(0));
+                                                               + getGroupData(0).getTsaPort(0));
     getTestConfig().getClientConfig().addExtraClientJvmArg("-Dtc.server.topology=127.0.0.1:"
-                                                               + getGroupData(0).getDsoPort(0));
+                                                               + getGroupData(0).getTsaPort(0));
 
     runClient(Client3.class);
     runClient(Client4.class);
