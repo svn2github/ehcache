@@ -61,12 +61,16 @@ public interface ExtendedStatistics {
     public interface CompoundOperation<T> {
         Operation component(T result);
         Operation compound(Set<T> results);
+ 
+        void setAlwaysOn(boolean enable);
+        void setWindow(long time, TimeUnit unit);
+        void setHistory(int samples, long time, TimeUnit unit);
     }
 
     public interface Operation {
-        long count();
+        Statistic<Long> count();
         Statistic<Double> rate();
-        Latency latency() throws UnsupportedOperationException;
+        Latency latency();
     }
 
     public interface Latency {
@@ -77,7 +81,7 @@ public interface ExtendedStatistics {
 
     public interface Statistic<T> {
         T value();
-        List<Timestamped<T>> history() throws UnsupportedOperationException;
+        List<Timestamped<T>> history();
     }
 
     // pass through stats

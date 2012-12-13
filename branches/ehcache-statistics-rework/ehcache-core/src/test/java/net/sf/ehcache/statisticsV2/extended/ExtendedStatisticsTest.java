@@ -4,6 +4,7 @@
  */
 package net.sf.ehcache.statisticsV2.extended;
 
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -27,7 +28,7 @@ public class ExtendedStatisticsTest {
     
     @Test(expected = IllegalStateException.class)
     public void testExtendedStatisticsWithoutRequiredStats() {
-        ExtendedStatistics statistics = new ExtendedStatisticsImpl(new StatisticsManager(), 10, TimeUnit.SECONDS);
+        new ExtendedStatisticsImpl(new StatisticsManager(), 10, TimeUnit.SECONDS);
     }
 
     @Test
@@ -160,9 +161,36 @@ public class ExtendedStatisticsTest {
             foo.get("miss");
             assertThat(missNotFound.count(), is(3L));
             assertThat(missNotFound.rate().value(), is(0.0));
+        } finally {
+            manager.shutdown();
+        }
+    }
+    
+    @Test
+    public void testExtendedCacheLatencyMeasurement() {
+        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
+        try {
+            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
+            manager.addCache(foo);
             
-            TimeUnit.SECONDS.sleep(3);
+            ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
+            extendedStats.setStatisticsEnabled(true);
+            Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
+            assertThat(missNotFound.count(), is(0L));
+            assertThat(missNotFound.latency().average().value(), is(Double.NaN));
+            
+            foo.get("miss");
+            assertThat(missNotFound.count(), is(1L));
+            assertThat(missNotFound.latency().average().value(), greaterThan(0.0));
+            assertThat(missNotFound.latency().minimum().value(), is(missNotFound.latency().maximum().value()));
+            assertThat(missNotFound.latency().minimum().value().doubleValue(), is(missNotFound.latency().average().value()));
+
+            foo.get("miss");
+            assertThat(missNotFound.count(), is(2L));
+            assertThat(missNotFound.latency().average().value(), greaterThan(0.0));
+            assertThat(missNotFound.latency().minimum().value().doubleValue(), lessThanOrEqualTo(missNotFound.latency().average().value()));
+            assertThat(missNotFound.latency().maximum().value().doubleValue(), greaterThanOrEqualTo(missNotFound.latency().average().value()));
         } finally {
             manager.shutdown();
         }

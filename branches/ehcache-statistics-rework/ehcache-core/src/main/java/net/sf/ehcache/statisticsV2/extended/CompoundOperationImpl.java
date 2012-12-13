@@ -27,40 +27,26 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
     
     private final Map<T, OperationImpl<T>> operations;    
     private final ConcurrentMap<Set<T>, OperationImpl<T>> compounds = new ConcurrentHashMap<Set<T>, OperationImpl<T>>();
-
-    private final long averagePeriod;
-    private final TimeUnit averageUnit;
     
     private final ScheduledExecutorService executor;
-    private final int historySize;
-    private final long historyPeriod;
-    private final TimeUnit historyUnit;
+
+    private volatile long averageNanos;
+    private volatile int historySize;    
+    private volatile long historyNanos;
+    
+    private volatile boolean alwaysOn = false;
     
     public CompoundOperationImpl(OperationStatistic<T> source, Class<T> type, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
         this.source = source;
         
-        this.averagePeriod = averagePeriod;
-        this.averageUnit = averageUnit;
+        this.averageNanos = averageUnit.toNanos(averagePeriod);
         this.executor = executor;
         this.historySize = historySize;
-        this.historyPeriod = historyPeriod;
-        this.historyUnit = historyUnit;
+        this.historyNanos = historyUnit.toNanos(historyPeriod);
         
         this.operations = new EnumMap(type);
         for (T result : type.getEnumConstants()) {
-            operations.put(result, new OperationImpl(source, EnumSet.of(result), averagePeriod, averageUnit, executor, historySize, historyPeriod, historyUnit));
-        }
-    }
-
-    public void start() {
-        for (OperationImpl<?> o : operations.values()) {
-            o.start();
-        }
-    }
-
-    public void stop() {
-        for (OperationImpl<?> o : operations.values()) {
-            o.stop();
+            operations.put(result, new OperationImpl(source, EnumSet.of(result), averageNanos, executor, historySize, historyNanos));
         }
     }
 
@@ -74,7 +60,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
         Set<T> key = EnumSet.copyOf(results);
         OperationImpl<T> existing = compounds.get(key);
         if (existing == null) {
-            OperationImpl<T> created = new OperationImpl(source, key, averagePeriod, averageUnit, executor, historySize, historyPeriod, historyUnit);
+            OperationImpl<T> created = new OperationImpl(source, key, averageNanos, executor, historySize, historyNanos);
             OperationImpl<T> racer = compounds.putIfAbsent(key, created);
             if (racer == null) {
                 return created;
@@ -86,15 +72,49 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
         }
     }
 
-    boolean expire(long expiryTime) {
-        for (OperationImpl<?> o : operations.values()) {
-            o.expire(expiryTime);
-        }
-        for (Iterator<OperationImpl<T>> it = compounds.values().iterator(); it.hasNext(); ) {
-            if (it.next().expire(expiryTime)) {
-                it.remove();
+    @Override
+    public void setAlwaysOn(boolean enable) {
+        alwaysOn = enable;
+        if (enable) {
+            for (OperationImpl<T> op : operations.values()) {
+                op.start();
             }
         }
-        return false;
+    }
+
+    @Override
+    public void setWindow(long time, TimeUnit unit) {
+        averageNanos = unit.toNanos(time);
+        for (OperationImpl<T> op : operations.values()) {
+            op.setWindow(averageNanos);
+        }
+        for (OperationImpl<T> op : compounds.values()) {
+            op.setWindow(averageNanos);
+        }
+    }
+
+    @Override
+    public void setHistory(int samples, long time, TimeUnit unit) {
+        historySize = samples;
+        historyNanos = unit.toNanos(time);
+        for (OperationImpl<T> op : operations.values()) {
+            op.setHistory(historySize, historyNanos);
+        }
+        for (OperationImpl<T> op : compounds.values()) {
+            op.setHistory(historySize, historyNanos);
+        }
+    }
+
+    void expire(long expiryTime) {
+        if (!alwaysOn) {
+            for (OperationImpl<?> o : operations.values()) {
+                o.expire(expiryTime);
+            }
+            for (Iterator<OperationImpl<T>> it = compounds.values().iterator(); it.hasNext(); ) {
+                if (it.next().expire(expiryTime)) {
+                    it.remove();
+                }
+            }
+        }
     }
 }

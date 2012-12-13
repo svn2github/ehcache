@@ -17,6 +17,7 @@
 package net.sf.ehcache.statisticsV2;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 
 import net.sf.ehcache.CacheOperationOutcomes;
@@ -79,16 +80,16 @@ public class CoreStatisticsImpl implements CoreStatistics {
 
     }
 
-    private static <T> CountOperation asCountOperation(final CompoundOperation<T> compoundOp) {
+    private static <T extends Enum<T>> CountOperation asCountOperation(final CompoundOperation<T> compoundOp) {
         return new CountOperation<T>() {
             @Override
             public long value(T result) {
-                return compoundOp.component(result).count();
+                return compoundOp.component(result).count().value();
             }
 
             @Override
             public long value(T... results) {
-                return compoundOp.compound(new HashSet<T>(Arrays.asList(results))).count();
+                return compoundOp.compound(EnumSet.copyOf(Arrays.asList(results))).count().value();
             }
 
         };

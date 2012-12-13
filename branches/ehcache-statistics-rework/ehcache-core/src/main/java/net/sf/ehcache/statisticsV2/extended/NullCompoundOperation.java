@@ -5,8 +5,11 @@
 package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Latency;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
@@ -38,6 +41,21 @@ class NullCompoundOperation<T> implements CompoundOperation<T> {
     public Operation compound(Set<T> results) {
         return NullOperation.instance();
     }
+
+    @Override
+    public void setAlwaysOn(boolean enable) {
+        //no-op
+    }
+
+    @Override
+    public void setWindow(long time, TimeUnit unit) {
+        //no-op
+    }
+
+    @Override
+    public void setHistory(int samples, long time, TimeUnit unit) {
+        //no-op
+    }
 }
 
 class NullOperation implements Operation {
@@ -53,13 +71,13 @@ class NullOperation implements Operation {
     }
     
     @Override
-    public long count() {
-        return 0L;
+    public Statistic<Long> count() {
+        return NullStatistic.instance(0L);
     }
 
     @Override
     public Statistic<Double> rate() {
-        return NullStatistic.<Double>instance();
+        return NullStatistic.instance(Double.NaN);
     }
 
     @Override
@@ -83,35 +101,48 @@ class NullLatency implements Latency {
 
     @Override
     public Statistic<Long> minimum() {
-        return NullStatistic.instance();
+        return NullStatistic.instance(null);
     }
 
     @Override
     public Statistic<Long> maximum() {
-        return NullStatistic.instance();
+        return NullStatistic.instance(null);
     }
 
     @Override
     public Statistic<Double> average() {
-        return NullStatistic.instance();
+        return NullStatistic.instance(Double.NaN);
     }
 }
 
 class NullStatistic<T> implements Statistic {
 
-    private static final Statistic INSTANCE = new NullStatistic();
-    
-    static <T> Statistic<T> instance() {
-        return INSTANCE;
+    private static final Map<Object, Statistic<?>> common = new HashMap<Object, Statistic<?>>();
+    static {
+        common.put(Double.NaN, new NullStatistic<Double>(Double.NaN));
+        common.put(Float.NaN, new NullStatistic<Float>(Float.NaN));
+        common.put(Long.valueOf(0L), new NullStatistic<Long>(0L));
+        common.put(null, new NullStatistic(null));
     }
     
-    private NullStatistic() {
-        //singleton
+    static <T> Statistic<T> instance(T value) {
+        Statistic<T> cached = (Statistic<T>) common.get(value);
+        if (cached == null) {
+            return new NullStatistic<T>(value);
+        } else {
+            return cached;
+        }
+    }
+
+    private final T value;
+    
+    private NullStatistic(T value) {
+        this.value = value;
     }
     
     @Override
     public T value() {
-        return null;
+        return value;
     }
 
     @Override

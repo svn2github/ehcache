@@ -99,14 +99,14 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 disableStatus = null;
             }
             for (CompoundOperation<?> o : operations.values()) {
-                if (o instanceof CompoundOperationImpl<?>) {
-                    ((CompoundOperationImpl<?>) o).start();
-                }
+                o.setAlwaysOn(true);
             }
         } else {
-            disableTask.run();
             if (disableStatus == null) {
-                disableStatus = executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, timeToDisableUnit);
+                disableStatus = executor.scheduleAtFixedRate(disableTask, 0, timeToDisable, timeToDisableUnit);
+            }
+            for (CompoundOperation<?> o : operations.values()) {
+                o.setAlwaysOn(false);
             }
         }
     }

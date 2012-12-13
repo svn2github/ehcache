@@ -49,6 +49,11 @@ import org.terracotta.statistics.OperationStatistic;
         long interval() {
             return 10;
         }
+
+        @Override
+        long window() {
+            return 10;
+        }
     },
 
     EVICTED(CacheOperationOutcomes.EvictionOutcome.class, queryBuilder().empty().build()),

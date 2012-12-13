@@ -20,9 +20,9 @@ class SampledStatistic<T> {
     private final StatisticSampler<T> sampler;
     private final StatisticArchive<T> history;
 
-    public SampledStatistic(ValueStatistic<T> statistic, ScheduledExecutorService executor, int historySize, long period, TimeUnit unit) {
+    public SampledStatistic(ValueStatistic<T> statistic, ScheduledExecutorService executor, int historySize, long periodNanos) {
         this.history = new StatisticArchive<T>(historySize);
-        this.sampler = new StatisticSampler<T>(executor, period, unit, statistic, history);
+        this.sampler = new StatisticSampler<T>(executor, periodNanos, TimeUnit.NANOSECONDS, statistic, history);
     }
 
     public void startSampling() {
@@ -35,5 +35,10 @@ class SampledStatistic<T> {
 
     public List<Timestamped<T>> history() {
         return history.getArchive();
+    }
+
+    void adjust(int historySize, long historyNanos) {
+        history.setCapacity(historySize);
+        sampler.setPeriod(historyNanos, TimeUnit.NANOSECONDS);
     }
 }

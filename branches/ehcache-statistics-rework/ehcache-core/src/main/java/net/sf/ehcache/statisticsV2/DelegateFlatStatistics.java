@@ -414,12 +414,12 @@ public class DelegateFlatStatistics implements FlatStatistics {
 
     @Override
     public long cacheExpiredCount() {
-        return flatExtended.cacheExpiredOperation().count();
+        return flatExtended.cacheExpiredOperation().count().value();
     }
 
     @Override
     public long cacheEvictedCount() {
-        return flatExtended.cacheEvictionOperation().count();
+        return flatExtended.cacheEvictionOperation().count().value();
     }
 
     @Override

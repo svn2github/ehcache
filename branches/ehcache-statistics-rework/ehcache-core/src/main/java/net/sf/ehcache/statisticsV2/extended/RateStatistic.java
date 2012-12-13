@@ -30,14 +30,14 @@ public class RateStatistic<T extends Enum<T>> implements Statistic<Double> {
     private boolean alive = false;
     private long touchTimestamp = -1;
     
-    public RateStatistic(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
+    public RateStatistic(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos, ScheduledExecutorService executor, int historySize, long historyNanos) {
         this.source = statistic;
-        this.rate = new EventRateSimpleMovingAverage(averagePeriod, averageUnit);
+        this.rate = new EventRateSimpleMovingAverage(averageNanos, TimeUnit.NANOSECONDS);
         this.rateObserver = new OperationResultFilter<T>(targets, rate);
-        this.history = new SampledStatistic<Double>(rate, executor, historySize, historyPeriod, historyUnit);
+        this.history = new SampledStatistic<Double>(rate, executor, historySize, historyNanos);
     }
     
-    public synchronized void start() {
+    synchronized void start() {
         if (!alive) {
             source.addDerivedStatistic(rateObserver);
             history.startSampling();
@@ -45,7 +45,7 @@ public class RateStatistic<T extends Enum<T>> implements Statistic<Double> {
         }
     }
 
-    public synchronized void stop() {
+    synchronized void stop() {
         if (alive) {
             history.stopSampling();
             source.removeDerivedStatistic(rateObserver);
@@ -56,7 +56,7 @@ public class RateStatistic<T extends Enum<T>> implements Statistic<Double> {
     @Override
     public Double value() {
         touch();
-        return rate.rate(TimeUnit.SECONDS);
+        return rate.value();
     }
 
     @Override
@@ -70,12 +70,20 @@ public class RateStatistic<T extends Enum<T>> implements Statistic<Double> {
         start();
     }
     
-    public synchronized boolean expire(long expiry) {
+    synchronized boolean expire(long expiry) {
         if (touchTimestamp < expiry) {
             stop();
             return true;
         } else {
             return false;
         }
+    }
+
+    void setWindow(long averageNanos) {
+        rate.setWindow(averageNanos, TimeUnit.NANOSECONDS);
+    }
+
+    void setHistory(int historySize, long historyNanos) {
+        history.adjust(historySize, historyNanos);
     }
 }

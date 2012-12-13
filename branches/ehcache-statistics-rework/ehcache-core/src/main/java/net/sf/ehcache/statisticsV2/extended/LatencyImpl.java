@@ -33,31 +33,33 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
     private boolean alive = false;
     private long touchTimestamp = -1;
     
-    public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
-        this.average = new EventParameterSimpleMovingAverage(averagePeriod, averageUnit);
-        this.minimumStatistic = new StatisticImpl<Long>(average.minimumStatistic(), executor, historySize, historyPeriod, historyUnit);
-        this.maximumStatistic = new StatisticImpl<Long>(average.maximumStatistic(), executor, historySize, historyPeriod, historyUnit);
-        this.averageStatistic = new StatisticImpl<Double>(average.averageStatistic(), executor, historySize, historyPeriod, historyUnit);
+    public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos, ScheduledExecutorService executor, int historySize, long historyNanos) {
+        this.average = new EventParameterSimpleMovingAverage(averageNanos, TimeUnit.NANOSECONDS);
+        this.minimumStatistic = new StatisticImpl<Long>(average.minimumStatistic(), executor, historySize, historyNanos);
+        this.maximumStatistic = new StatisticImpl<Long>(average.maximumStatistic(), executor, historySize, historyNanos);
+        this.averageStatistic = new StatisticImpl<Double>(average.averageStatistic(), executor, historySize, historyNanos);
         this.latencySampler = new LatencySampling(targets, 1.0);
         latencySampler.addDerivedStatistic(average);
         this.source = statistic;
     }
 
-    public synchronized void start() {
+    synchronized void start() {
         if (!alive) {
             source.addDerivedStatistic(latencySampler);
             minimumStatistic.startSampling();
             maximumStatistic.startSampling();
             averageStatistic.startSampling();
+            alive = true;
         }
     }
 
-    public synchronized void stop() {
+    synchronized void stop() {
         if (alive) {
             source.removeDerivedStatistic(latencySampler);
             minimumStatistic.stopSampling();
             maximumStatistic.stopSampling();
             averageStatistic.stopSampling();
+            alive = false;
         }
     }
 
@@ -89,15 +91,25 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
             return false;
         }
     }
+
+    void setWindow(long averageNanos) {
+        average.setWindow(averageNanos, TimeUnit.NANOSECONDS);
+    }
+
+    void setHistory(int historySize, long historyNanos) {
+        minimumStatistic.setHistory(historySize, historyNanos);
+        maximumStatistic.setHistory(historySize, historyNanos);
+        averageStatistic.setHistory(historySize, historyNanos);
+    }
     
     class StatisticImpl<T> implements Statistic<T> {
 
         private final ValueStatistic<T> value;
         private final SampledStatistic<T> history;
 
-        public StatisticImpl(ValueStatistic<T> value, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
+        public StatisticImpl(ValueStatistic<T> value, ScheduledExecutorService executor, int historySize, long historyNanos) {
             this.value = value;
-            this.history = new SampledStatistic<T>(value, executor, historySize, historyPeriod, historyUnit);
+            this.history = new SampledStatistic<T>(value, executor, historySize, historyNanos);
         }
 
         @Override
@@ -118,6 +130,10 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         
         private void stopSampling() {
             history.stopSampling();
+        }
+
+        private void setHistory(int historySize, long historyNanos) {
+            history.adjust(historySize, historyNanos);
         }
     }
 }
