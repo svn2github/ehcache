@@ -20,70 +20,35 @@ import org.terracotta.statistics.observer.OperationObserver;
  *
  * @author cdennis
  */
-public class RateStatistic<T extends Enum<T>> implements Statistic<Double> {
+public class RateStatistic<T extends Enum<T>> extends AbstractStatistic<Double> {
 
     private final SourceStatistic<OperationObserver<T>> source;
     private final OperationObserver<T> rateObserver;
     private final EventRateSimpleMovingAverage rate;
-    private final SampledStatistic<Double> history;
-    
-    private boolean alive = false;
-    private long touchTimestamp = -1;
     
     public RateStatistic(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos, ScheduledExecutorService executor, int historySize, long historyNanos) {
+        super(executor, historySize, historyNanos);
         this.source = statistic;
         this.rate = new EventRateSimpleMovingAverage(averageNanos, TimeUnit.NANOSECONDS);
         this.rateObserver = new OperationResultFilter<T>(targets, rate);
-        this.history = new SampledStatistic<Double>(rate, executor, historySize, historyNanos);
     }
     
-    synchronized void start() {
-        if (!alive) {
-            source.addDerivedStatistic(rateObserver);
-            history.startSampling();
-            alive = true;
-        }
-    }
-
-    synchronized void stop() {
-        if (alive) {
-            history.stopSampling();
-            source.removeDerivedStatistic(rateObserver);
-            alive = false;
-        }
-    }
-
-    @Override
-    public Double value() {
-        touch();
-        return rate.value();
-    }
-
-    @Override
-    public List<Timestamped<Double>> history() throws UnsupportedOperationException {
-        touch();
-        return history.history();
-    }
-
-    private synchronized void touch() {
-        touchTimestamp = Time.absoluteTime();
-        start();
-    }
-    
-    synchronized boolean expire(long expiry) {
-        if (touchTimestamp < expiry) {
-            stop();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     void setWindow(long averageNanos) {
         rate.setWindow(averageNanos, TimeUnit.NANOSECONDS);
     }
 
-    void setHistory(int historySize, long historyNanos) {
-        history.adjust(historySize, historyNanos);
+    @Override
+    void stopStatistic() {
+        source.removeDerivedStatistic(rateObserver);
+    }
+
+    @Override
+    void startStatistic() {
+        source.addDerivedStatistic(rateObserver);
+    }
+
+    @Override
+    Double readStatistic() {
+        return rate.value();
     }
 }

@@ -71,22 +71,30 @@ public class ExtendedStatisticsTest {
             extendedStats.setStatisticsTimeToDisable(2, TimeUnit.SECONDS);
             Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
+            assertThat(missNotFound.count().active(), is(false));
+            assertThat(missNotFound.rate().active(), is(false));
             assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.rate().value(), is(0.0));
             
             foo.get("miss");
+            assertThat(missNotFound.count().active(), is(false));
+            assertThat(missNotFound.rate().active(), is(true));
             assertThat(missNotFound.count().value(), is(1L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
-
+ 
             TimeUnit.SECONDS.sleep(1);
             
             foo.get("miss");
+            assertThat(missNotFound.count().active(), is(false));
+            assertThat(missNotFound.rate().active(), is(true));
             assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
             
             TimeUnit.SECONDS.sleep(3);
             
             foo.get("miss");
+            assertThat(missNotFound.count().active(), is(false));
+            assertThat(missNotFound.rate().active(), is(false));
             assertThat(missNotFound.count().value(), is(3L));
             assertThat(missNotFound.rate().value(), is(0.0));
         } finally {
@@ -104,7 +112,9 @@ public class ExtendedStatisticsTest {
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
             extendedStats.setStatisticsTimeToDisable(2, TimeUnit.SECONDS);
             extendedStats.setStatisticsEnabled(true);
-            Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
+            Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);            
+            assertThat(missNotFound.count().active(), is(true));
+            assertThat(missNotFound.rate().active(), is(true));
             
             assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.rate().value(), is(0.0));
@@ -114,12 +124,16 @@ public class ExtendedStatisticsTest {
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
 
             TimeUnit.SECONDS.sleep(1);
+            assertThat(missNotFound.count().active(), is(true));
+            assertThat(missNotFound.rate().active(), is(true));
             
             foo.get("miss");
             assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
             
             TimeUnit.SECONDS.sleep(3);
+            assertThat(missNotFound.count().active(), is(true));
+            assertThat(missNotFound.rate().active(), is(true));
             
             foo.get("miss");
             assertThat(missNotFound.count().value(), is(3L));
@@ -140,6 +154,8 @@ public class ExtendedStatisticsTest {
             extendedStats.setStatisticsTimeToDisable(2, TimeUnit.SECONDS);
             extendedStats.setStatisticsEnabled(true);
             Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
+            assertThat(missNotFound.count().active(), is(true));
+            assertThat(missNotFound.rate().active(), is(true));
             
             assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.rate().value(), is(0.0));
@@ -149,16 +165,22 @@ public class ExtendedStatisticsTest {
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
 
             TimeUnit.SECONDS.sleep(1);
+            assertThat(missNotFound.count().active(), is(true));
+            assertThat(missNotFound.rate().active(), is(true));
             
             foo.get("miss");
             assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
             
             TimeUnit.SECONDS.sleep(3);
+            assertThat(missNotFound.count().active(), is(true));
+            assertThat(missNotFound.rate().active(), is(true));
             
             extendedStats.setStatisticsEnabled(false);
             
             TimeUnit.SECONDS.sleep(1);
+            assertThat(missNotFound.count().active(), is(false));
+            assertThat(missNotFound.rate().active(), is(false));
             
             foo.get("miss");
             assertThat(missNotFound.count().value(), is(3L));

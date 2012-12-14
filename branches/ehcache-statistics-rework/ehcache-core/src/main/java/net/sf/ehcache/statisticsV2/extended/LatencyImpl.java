@@ -30,7 +30,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
     private final StatisticImpl<Long> maximumStatistic;
     private final StatisticImpl<Double> averageStatistic;
 
-    private boolean alive = false;
+    private boolean active = false;
     private long touchTimestamp = -1;
     
     public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos, ScheduledExecutorService executor, int historySize, long historyNanos) {
@@ -44,26 +44,15 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
     }
 
     synchronized void start() {
-        if (!alive) {
+        if (!active) {
             source.addDerivedStatistic(latencySampler);
             minimumStatistic.startSampling();
             maximumStatistic.startSampling();
             averageStatistic.startSampling();
-            alive = true;
+            active = true;
         }
     }
 
-    synchronized void stop() {
-        if (alive) {
-            source.removeDerivedStatistic(latencySampler);
-            minimumStatistic.stopSampling();
-            maximumStatistic.stopSampling();
-            averageStatistic.stopSampling();
-            alive = false;
-        }
-    }
-
-    @Override
     public Statistic<Long> minimum() {
         return minimumStatistic;
     }
@@ -85,7 +74,13 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
     
     public synchronized boolean expire(long expiry) {
         if (touchTimestamp < expiry) {
-            stop();
+            if (active) {
+                source.removeDerivedStatistic(latencySampler);
+                minimumStatistic.stopSampling();
+                maximumStatistic.stopSampling();
+                averageStatistic.stopSampling();
+                active = false;
+            }
             return true;
         } else {
             return false;
@@ -110,6 +105,11 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         public StatisticImpl(ValueStatistic<T> value, ScheduledExecutorService executor, int historySize, long historyNanos) {
             this.value = value;
             this.history = new SampledStatistic<T>(value, executor, historySize, historyNanos);
+        }
+
+        @Override
+        public boolean active() {
+            return active;
         }
 
         @Override

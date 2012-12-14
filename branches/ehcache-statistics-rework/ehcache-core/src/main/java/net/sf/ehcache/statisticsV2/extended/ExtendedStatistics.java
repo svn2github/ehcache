@@ -82,6 +82,8 @@ public interface ExtendedStatistics {
     }
 
     public interface Statistic<T> {
+        boolean active();
+        
         T value();
         List<Timestamped<T>> history();
     }

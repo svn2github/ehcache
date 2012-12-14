@@ -44,6 +44,7 @@ class OperationImpl<T extends Enum<T>> implements Operation {
     }
 
     void start() {
+        count.start();
         rate.start();
         latency.start();
     }

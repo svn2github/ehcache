@@ -15,63 +15,39 @@ import org.terracotta.statistics.archive.Timestamped;
  *
  * @author cdennis
  */
-public class RatioStatistic implements Statistic<Double> {
+public class RatioStatistic extends AbstractStatistic<Double> {
 
     private final ValueStatistic<Double> ratio;
-    private final SampledStatistic<Double> history;
-    private boolean alive = false;
-    private long touchTimestamp = -1;
     
     public RatioStatistic(final Statistic<? extends Number> numerator, final Statistic<? extends Number> denominator, ScheduledExecutorService executor, int historySize, long historyNanos) {
+        super(executor, historySize, historyNanos);
         this.ratio = new ValueStatistic<Double>() {
             @Override
             public Double value() {
                 return numerator.value().doubleValue() / denominator.value().doubleValue();
             }
         };
-        this.history = new SampledStatistic<Double>(ratio, executor, historySize, historyNanos);
     }
     
-    public synchronized void start() {
-        if (!alive) {
-            history.startSampling();
-            alive = true;
-        }
-    }
-
-    public synchronized void stop() {
-        if (alive) {
-            history.stopSampling();
-            alive = false;
-        }
-    }
-
     @Override
     public Double value() {
-        return ratio.value();
+        //XXX is this correct?
+        //reading the value doesn't touch the statistic
+        return readStatistic();
     }
 
     @Override
-    public List<Timestamped<Double>> history() {
-        touch();
-        return history.history();
+    void stopStatistic() {
+        //no-op
     }
 
-    private synchronized void touch() {
-        touchTimestamp = Time.absoluteTime();
-        start();
+    @Override
+    void startStatistic() {
+        //no-op
     }
 
-    public synchronized boolean expire(long expiry) {
-        if (touchTimestamp < expiry) {
-            stop();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    void setHistory(int historySize, long historyNanos) {
-        history.adjust(historySize, historyNanos);
+    @Override
+    Double readStatistic() {
+        return ratio.value();
     }
 }

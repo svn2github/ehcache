@@ -147,6 +147,11 @@ class NullStatistic<T> implements Statistic {
     }
     
     @Override
+    public boolean active() {
+        return false;
+    }
+
+    @Override
     public T value() {
         return value;
     }
