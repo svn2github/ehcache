@@ -49,12 +49,12 @@ public interface FlatExtendedStatistics {
     Operation localOffHeapPutOperation();
     Operation localOffHeapRemoveOperation();
 
-    Operation diskHeapHitOperation();
-    Operation diskHeapMissOperation();
-    Operation diskHeapPutAddedOperation();
-    Operation diskHeapPutReplacedOperation();
-    Operation diskHeapPutOperation();
-    Operation diskHeapRemoveOperation();
+    Operation localDiskHitOperation();
+    Operation localDiskMissOperation();
+    Operation localDiskPutAddedOperation();
+    Operation localDiskPutReplacedOperation();
+    Operation localDiskPutOperation();
+    Operation localDiskRemoveOperation();
 
     Operation cacheSearchOperation();
 

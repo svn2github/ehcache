@@ -279,28 +279,28 @@ public class DelegateFlatStatistics implements FlatStatistics {
         return flatExtended.localOffHeapRemoveOperation();
     }
 
-    public Operation diskHeapHitOperation() {
-        return flatExtended.diskHeapHitOperation();
+    public Operation localDiskHitOperation() {
+        return flatExtended.localDiskHitOperation();
     }
 
-    public Operation diskHeapMissOperation() {
-        return flatExtended.diskHeapMissOperation();
+    public Operation localDiskMissOperation() {
+        return flatExtended.localDiskMissOperation();
     }
 
-    public Operation diskHeapPutAddedOperation() {
-        return flatExtended.diskHeapPutAddedOperation();
+    public Operation localDiskPutAddedOperation() {
+        return flatExtended.localDiskPutAddedOperation();
     }
 
-    public Operation diskHeapPutReplacedOperation() {
-        return flatExtended.diskHeapPutReplacedOperation();
+    public Operation localDiskPutReplacedOperation() {
+        return flatExtended.localDiskPutReplacedOperation();
     }
 
-    public Operation diskHeapPutOperation() {
-        return flatExtended.diskHeapPutOperation();
+    public Operation localDiskPutOperation() {
+        return flatExtended.localDiskPutOperation();
     }
 
-    public Operation diskHeapRemoveOperation() {
-        return flatExtended.diskHeapRemoveOperation();
+    public Operation localDiskRemoveOperation() {
+        return flatExtended.localDiskRemoveOperation();
     }
 
     public Operation cacheSearchOperation() {

@@ -74,7 +74,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheHitOnDiskSample() {
-        return new SampledCounterProxy(cache.getStatistics().diskHeapHitOperation().rate());
+        return new SampledCounterProxy(cache.getStatistics().localDiskHitOperation().rate());
     }
 
     /**
@@ -106,7 +106,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheMissOnDiskSample() {
-        return new SampledCounterProxy(cache.getStatistics().diskHeapMissOperation().rate());
+        return new SampledCounterProxy(cache.getStatistics().localDiskMissOperation().rate());
     }
 
     /**

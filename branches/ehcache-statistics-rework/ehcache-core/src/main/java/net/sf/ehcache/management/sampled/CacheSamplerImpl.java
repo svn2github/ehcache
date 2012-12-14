@@ -293,7 +293,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheOnDiskHitRate() {
-        return cache.getStatistics().diskHeapHitOperation().rate().value().longValue();
+        return cache.getStatistics().localDiskHitOperation().rate().value().longValue();
     }
 
     /**
@@ -365,7 +365,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheOnDiskMissRate() {
-        return cache.getStatistics().diskHeapMissOperation().rate().value().longValue();
+        return cache.getStatistics().localDiskMissOperation().rate().value().longValue();
     }
 
     /**

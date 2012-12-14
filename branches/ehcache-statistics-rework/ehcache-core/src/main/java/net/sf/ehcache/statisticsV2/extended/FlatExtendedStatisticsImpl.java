@@ -159,32 +159,32 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     }
 
     @Override
-    public Operation diskHeapHitOperation() {
+    public Operation localDiskHitOperation() {
         return extended.diskGet().component(GetOutcome.HIT);
     }
 
     @Override
-    public Operation diskHeapMissOperation() {
+    public Operation localDiskMissOperation() {
         return extended.diskGet().component(GetOutcome.MISS);
     }
 
     @Override
-    public Operation diskHeapPutAddedOperation() {
+    public Operation localDiskPutAddedOperation() {
         return extended.diskPut().component(PutOutcome.ADDED);
     }
 
     @Override
-    public Operation diskHeapPutReplacedOperation() {
+    public Operation localDiskPutReplacedOperation() {
         return extended.diskPut().component(PutOutcome.UPDATED);
     }
 
     @Override
-    public Operation diskHeapPutOperation() {
+    public Operation localDiskPutOperation() {
         return extended.diskPut().compound(ALL_STORE_PUT_OUTCOMES);
     }
 
     @Override
-    public Operation diskHeapRemoveOperation() {
+    public Operation localDiskRemoveOperation() {
         return extended.diskRemove().component(RemoveOutcome.SUCCESS);
     }
 

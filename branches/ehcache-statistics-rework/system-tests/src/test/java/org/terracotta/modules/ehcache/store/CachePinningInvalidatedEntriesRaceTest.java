@@ -103,7 +103,7 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
       // All the gets on both the clients should be local as the pinned entries would have been faulted.
       Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().localHeapHitCount());
       Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
-      Assert.assertEquals(0, cache.getStatistics().diskHeapHitOperation());
+      Assert.assertEquals(0, cache.getStatistics().localDiskHitOperation());
     }
 
     private Object getKey(int i) {

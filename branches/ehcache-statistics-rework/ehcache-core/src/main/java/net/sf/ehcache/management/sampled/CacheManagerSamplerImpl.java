@@ -144,7 +144,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                long val = cache.getStatistics().diskHeapHitOperation().rate().value().longValue();
+                long val = cache.getStatistics().localDiskHitOperation().rate().value().longValue();
                 result += val;
             }
         }
@@ -203,7 +203,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                result += cache.getStatistics().diskHeapMissOperation().rate().value().longValue();
+                result += cache.getStatistics().localDiskMissOperation().rate().value().longValue();
             }
         }
         return result;
