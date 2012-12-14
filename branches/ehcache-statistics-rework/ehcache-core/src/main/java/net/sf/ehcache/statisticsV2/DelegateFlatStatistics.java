@@ -358,6 +358,10 @@ public class DelegateFlatStatistics implements FlatStatistics {
     public long getLocalOffHeapSizeInBytes() {
         return flatExtended.getLocalOffHeapSizeInBytes();
     }
+    
+    public long getRemoteSize() {
+        return flatExtended.getRemoteSize();
+    }
 
     public long getSize() {
         return flatExtended.getSize();

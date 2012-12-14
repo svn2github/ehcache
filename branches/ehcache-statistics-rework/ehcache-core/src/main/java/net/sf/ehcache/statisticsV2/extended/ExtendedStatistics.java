@@ -102,6 +102,8 @@ public interface ExtendedStatistics {
     long getLocalDiskSize();
 
     long getLocalDiskSizeInBytes();
+    
+    long getRemoteSize();
 
     long getWriterQueueLength();
 }

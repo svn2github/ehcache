@@ -17,7 +17,6 @@
 package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -247,6 +246,11 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     @Override
     public long getLocalDiskSizeInBytes() {
         return ((Long) passThroughs.get(PassThroughType.LOCAL_DISK_SIZE_BYTES).value()).longValue();
+    }
+
+    @Override
+    public long getRemoteSize() {
+        return ((Long) passThroughs.get(PassThroughType.REMOTE_SIZE).value()).longValue();
     }
 
     @Override

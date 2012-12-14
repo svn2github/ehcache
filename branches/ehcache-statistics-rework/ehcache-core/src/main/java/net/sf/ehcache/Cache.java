@@ -2515,7 +2515,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     @Deprecated public final long calculateInMemorySize() throws IllegalStateException, CacheException {
         checkStatus();
-        return compoundStore.getInMemorySizeInBytes();
+        return getStatistics().getLocalHeapSizeInBytes();
     }
 
     /**
@@ -2534,7 +2534,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     @Deprecated public final long calculateOffHeapSize() throws IllegalStateException, CacheException {
         checkStatus();
-        return compoundStore.getOffHeapSizeInBytes();
+        return getStatistics().getLocalOffHeapSizeInBytes();
     }
 
     /**
@@ -2545,7 +2545,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     @Deprecated public final long calculateOnDiskSize() throws IllegalStateException, CacheException {
         checkStatus();
-        return compoundStore.getOnDiskSizeInBytes();
+        return getStatistics().getLocalDiskSizeInBytes();
     }
 
     /**
@@ -2556,7 +2556,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     @Deprecated public final long getMemoryStoreSize() throws IllegalStateException {
         checkStatus();
-        return compoundStore.getInMemorySize();
+        return getStatistics().getLocalHeapSize();
     }
 
     /**
@@ -2567,7 +2567,7 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     @Deprecated public long getOffHeapStoreSize() throws IllegalStateException {
         checkStatus();
-        return compoundStore.getOffHeapSize();
+        return getStatistics().getLocalOffHeapSize();
     }
 
     /**
@@ -2579,9 +2579,9 @@ public class Cache implements InternalEhcache, StoreListener {
     @Deprecated public final int getDiskStoreSize() throws IllegalStateException {
         checkStatus();
         if (isTerracottaClustered()) {
-            return compoundStore.getTerracottaClusteredSize();
+            return (int) getStatistics().getRemoteSize();
         } else {
-            return compoundStore.getOnDiskSize();
+            return (int) getStatistics().getLocalDiskSize();
         }
     }
 

@@ -267,6 +267,11 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
     }
 
     @Override
+    public long getRemoteSize() {
+        return extended.getRemoteSize();
+    }
+    
+    @Override
     public long getSize() {
         return extended.getSize();
     }
