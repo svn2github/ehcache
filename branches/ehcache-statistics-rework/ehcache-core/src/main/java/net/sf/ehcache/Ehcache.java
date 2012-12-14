@@ -529,11 +529,64 @@ public interface Ehcache extends Cloneable {
     int getSize() throws IllegalStateException, CacheException;
 
     /**
+     * Gets the size of the memory store for this cache
+     * <p/>
+     * Warning: This method can be very expensive to run. Allow approximately 1 second
+     * per 1MB of entries. Running this method could create liveness problems
+     * because the object lock is held for a long period
+     * <p/>
+     *
+     * @return the approximate size of the memory store in bytes
+     * @throws IllegalStateException
+     */
+    @Deprecated long calculateInMemorySize() throws IllegalStateException, CacheException;
+
+    /**
+     * Gets the size of the off-heap store for this cache
+     *
+     * @return the size of the off-heap store in bytes
+     * @throws IllegalStateException
+     */
+    @Deprecated long calculateOffHeapSize() throws IllegalStateException, CacheException;
+
+    /**
+     * Gets the size of the on-disk store for this cache
+     *
+     * @return the size of the on-disk store in bytes
+     * @throws IllegalStateException
+     */
+    @Deprecated long calculateOnDiskSize() throws IllegalStateException, CacheException;
+
+    /**
      * Check if the cache may contain elements which the SizeOf engine could not fully size.
      *
      * @return true if the cache may contain partially sized objects
      */
     boolean hasAbortedSizeOf();
+
+    /**
+     * Returns the number of elements in the memory store.
+     *
+     * @return the number of elements in the memory store
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    @Deprecated long getMemoryStoreSize() throws IllegalStateException;
+
+    /**
+     * Returns the number of elements in the off-heap store.
+     *
+     * @return the number of elements in the off-heap store
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    @Deprecated long getOffHeapStoreSize() throws IllegalStateException;
+
+    /**
+     * Returns the number of elements in the disk store.
+     *
+     * @return the number of elements in the disk store.
+     * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
+     */
+    @Deprecated int getDiskStoreSize() throws IllegalStateException;
 
     /**
      * Gets the status attribute of the Cache.

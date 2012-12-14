@@ -2502,11 +2502,87 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
+     * Gets the size of the memory store for this cache. This method relies on calculating
+     * Serialized sizes. If the Element values are not Serializable they will show as zero.
+     * <p/>
+     * Warning: This method can be very expensive to run. Allow approximately 1 second
+     * per 1MB of entries. Running this method could create liveness problems
+     * because the object lock is held for a long period
+     * <p/>
+     *
+     * @return the approximate size of the memory store in bytes
+     * @throws IllegalStateException
+     */
+    @Deprecated public final long calculateInMemorySize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getInMemorySizeInBytes();
+    }
+
+    /**
      * {@inheritDoc}
      */
     public boolean hasAbortedSizeOf() {
         checkStatus();
         return compoundStore.hasAbortedSizeOf();
+    }
+
+    /**
+     * Gets the size of the off-heap store for this cache.
+     *
+     * @return the size of the off-heap store in bytes
+     * @throws IllegalStateException
+     */
+    @Deprecated public final long calculateOffHeapSize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getOffHeapSizeInBytes();
+    }
+
+    /**
+     * Gets the size of the on-disk store for this cache
+     *
+     * @return the size of the on-disk store in bytes
+     * @throws IllegalStateException
+     */
+    @Deprecated public final long calculateOnDiskSize() throws IllegalStateException, CacheException {
+        checkStatus();
+        return compoundStore.getOnDiskSizeInBytes();
+    }
+
+    /**
+     * Returns the number of elements in the memory store.
+     *
+     * @return the number of elements in the memory store
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    @Deprecated public final long getMemoryStoreSize() throws IllegalStateException {
+        checkStatus();
+        return compoundStore.getInMemorySize();
+    }
+
+    /**
+     * Returns the number of elements in the off-heap store.
+     *
+     * @return the number of elements in the off-heap store
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    @Deprecated public long getOffHeapStoreSize() throws IllegalStateException {
+        checkStatus();
+        return compoundStore.getOffHeapSize();
+    }
+
+    /**
+     * Returns the number of elements in the disk store.
+     *
+     * @return the number of elements in the disk store.
+     * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
+     */
+    @Deprecated public final int getDiskStoreSize() throws IllegalStateException {
+        checkStatus();
+        if (isTerracottaClustered()) {
+            return compoundStore.getTerracottaClusteredSize();
+        } else {
+            return compoundStore.getOnDiskSize();
+        }
     }
 
     /**

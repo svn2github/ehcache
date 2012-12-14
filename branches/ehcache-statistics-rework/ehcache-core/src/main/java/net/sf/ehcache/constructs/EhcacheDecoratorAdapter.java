@@ -204,6 +204,27 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
+    @Deprecated public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        return underlyingCache.calculateInMemorySize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Deprecated public long calculateOffHeapSize() throws IllegalStateException, CacheException {
+        return underlyingCache.calculateOffHeapSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Deprecated public long calculateOnDiskSize() throws IllegalStateException, CacheException {
+        return underlyingCache.calculateOnDiskSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean hasAbortedSizeOf() {
         return underlyingCache.hasAbortedSizeOf();
     }
@@ -316,6 +337,20 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
+    @Deprecated public long getOffHeapStoreSize() throws IllegalStateException {
+        return underlyingCache.getOffHeapStoreSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Deprecated public int getDiskStoreSize() throws IllegalStateException {
+        return underlyingCache.getDiskStoreSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public String getGuid() {
         return underlyingCache.getGuid();
     }
@@ -346,6 +381,13 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      */
     public List getKeysWithExpiryCheck() throws IllegalStateException, CacheException {
         return underlyingCache.getKeysWithExpiryCheck();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Deprecated public long getMemoryStoreSize() throws IllegalStateException {
+        return underlyingCache.getMemoryStoreSize();
     }
 
     /**

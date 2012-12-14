@@ -288,6 +288,51 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
+    @Deprecated public long calculateInMemorySize() throws IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.calculateInMemorySize();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    @Deprecated public long calculateOffHeapSize() throws IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.calculateOffHeapSize();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    @Deprecated public long calculateOnDiskSize() throws IllegalStateException, CacheException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.calculateOnDiskSize();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
     public boolean hasAbortedSizeOf() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -295,6 +340,51 @@ public class ClassLoaderAwareCache implements Ehcache {
         t.setContextClassLoader(this.classLoader);
         try {
             return this.cache.hasAbortedSizeOf();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    @Deprecated public long getMemoryStoreSize() throws IllegalStateException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.getMemoryStoreSize();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    @Deprecated public long getOffHeapStoreSize() throws IllegalStateException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.getOffHeapStoreSize();
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    @Deprecated public int getDiskStoreSize() throws IllegalStateException {
+        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.getDiskStoreSize();
         } finally {
             t.setContextClassLoader(prev);
         }
