@@ -62,9 +62,10 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     try {
       return entityResourceFactory.createCacheEntities(cmNames, cNames, cAttrs);
     } catch (ServiceExecutionException e) {
-      LOG.error("Failed to get caches.", e.getCause());
+      Throwable exceptionToLog = e.getCause() != null ? e.getCause() :  e;
+      LOG.error("Failed to get caches.", exceptionToLog);
       throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+          Response.status(Response.Status.BAD_REQUEST).entity(exceptionToLog.getMessage()).build());
     }
   }
 
