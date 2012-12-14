@@ -137,8 +137,6 @@ import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
-import org.terracotta.context.annotations.ContextChild;
-import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.StatisticsManager;
 
 /**
@@ -2492,7 +2490,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return The size value
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    @Statistic(name="cache-size", tags="cache")
+    @org.terracotta.statistics.Statistic(name="cache-size", tags="cache")
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
 

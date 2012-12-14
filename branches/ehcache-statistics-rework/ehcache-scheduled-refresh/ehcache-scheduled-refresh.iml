@@ -20,6 +20,7 @@
     <orderEntry type="library" name="Maven: c3p0:c3p0:0.9.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.6" level="project" />
     <orderEntry type="module" module-name="ehcache" />
+    <orderEntry type="library" name="Maven: ATTACHED-JAR: net.sf.ehcache:ehcache:2.7.0-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="ehcache-terracotta-bootstrap" />
     <orderEntry type="module" module-name="ehcache-rest-agent" />
     <orderEntry type="module" module-name="management-ehcache-impl" />
@@ -47,7 +48,7 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-io:8.1.7.v20120910" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-util:8.1.7.v20120910" level="project" />
     <orderEntry type="module" module-name="ehcache-core" />
-    <orderEntry type="library" name="Maven: org.terracotta.internal:statistics:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="statistics" />
     <orderEntry type="library" name="Maven: jfree:jfreechart:1.0.13" level="project" />
     <orderEntry type="library" name="Maven: jfree:jcommon:1.0.16" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.10" level="project" />

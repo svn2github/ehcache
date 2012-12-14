@@ -42,7 +42,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheHitSample() {
-        return cache.getCacheStatisticsSampler().getCacheHitSample();
+        return new SampledCounterProxy(cache.getStatistics().cacheHitOperation().rate());
     }
 
     /**
@@ -50,7 +50,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheHitRatioSample() {
-        return cache.getCacheStatisticsSampler().getCacheHitRatioSample();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -58,7 +58,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheHitInMemorySample() {
-        return cache.getCacheStatisticsSampler().getCacheHitInMemorySample();
+        return new SampledCounterProxy(cache.getStatistics().localHeapHitOperation().rate());
     }
 
     /**
@@ -66,7 +66,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheHitOffHeapSample() {
-        return cache.getCacheStatisticsSampler().getCacheHitOffHeapSample();
+        return new SampledCounterProxy(cache.getStatistics().localOffHeapHitOperation().rate());
     }
 
     /**
@@ -74,7 +74,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheHitOnDiskSample() {
-        return cache.getCacheStatisticsSampler().getCacheHitOnDiskSample();
+        return new SampledCounterProxy(cache.getStatistics().diskHeapHitOperation().rate());
     }
 
     /**
@@ -82,7 +82,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheMissSample() {
-        return cache.getCacheStatisticsSampler().getCacheMissSample();
+        return new SampledCounterProxy(cache.getStatistics().cacheMissOperation().rate());
     }
 
     /**
@@ -90,7 +90,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheMissInMemorySample() {
-        return cache.getCacheStatisticsSampler().getCacheMissInMemorySample();
+        return new SampledCounterProxy(cache.getStatistics().localHeapMissOperation().rate());
     }
 
     /**
@@ -98,7 +98,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheMissOffHeapSample() {
-        return cache.getCacheStatisticsSampler().getCacheMissOffHeapSample();
+        return new SampledCounterProxy(cache.getStatistics().localOffHeapMissOperation().rate());
     }
 
     /**
@@ -106,7 +106,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheMissOnDiskSample() {
-        return cache.getCacheStatisticsSampler().getCacheMissOnDiskSample();
+        return new SampledCounterProxy(cache.getStatistics().diskHeapMissOperation().rate());
     }
 
     /**
@@ -114,7 +114,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheMissExpiredSample() {
-        return cache.getCacheStatisticsSampler().getCacheMissExpiredSample();
+        return new SampledCounterProxy(cache.getStatistics().cacheMissExpiredOperation().rate());
     }
 
     /**
@@ -122,7 +122,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheMissNotFoundSample() {
-        return cache.getCacheStatisticsSampler().getCacheMissNotFoundSample();
+        return new SampledCounterProxy(cache.getStatistics().cacheMissNotFoundOperation().rate());
     }
 
     /**
@@ -130,7 +130,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheElementEvictedSample() {
-        return cache.getCacheStatisticsSampler().getCacheElementEvictedSample();
+        return new SampledCounterProxy(cache.getStatistics().cacheEvictionOperation().rate());
     }
 
     /**
@@ -138,7 +138,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheElementRemovedSample() {
-        return cache.getCacheStatisticsSampler().getCacheElementRemovedSample();
+        return new SampledCounterProxy(cache.getStatistics().cacheRemoveOperation().rate());
     }
 
     /**
@@ -146,7 +146,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheElementExpiredSample() {
-        return cache.getCacheStatisticsSampler().getCacheElementExpiredSample();
+        return new SampledCounterProxy(cache.getStatistics().cacheExpiredOperation().rate());
     }
 
     /**
@@ -154,7 +154,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheElementPutSample() {
-        return cache.getCacheStatisticsSampler().getCacheElementPutSample();
+        return new SampledCounterProxy(cache.getStatistics().cachePutOperation().rate());
     }
 
     /**
@@ -162,7 +162,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheElementUpdatedSample() {
-        return cache.getCacheStatisticsSampler().getCacheElementUpdatedSample();
+        return new SampledCounterProxy(cache.getStatistics().cachePutReplacedOperation().rate());
     }
 
     /**
@@ -170,7 +170,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledRateCounter getAverageGetTimeSample() {
-        return cache.getCacheStatisticsSampler().getAverageGetTimeSample();
+        return new SampledRateCounterProxy(cache.getStatistics().cacheGetOperation().latency().average());
     }
 
     /**
@@ -178,7 +178,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledRateCounter getAverageGetTimeNanosSample() {
-        return cache.getCacheStatisticsSampler().getAverageGetTimeNanosSample();
+        return new SampledRateCounterProxy(cache.getStatistics().cacheGetOperation().latency().average());
     }
 
     /**
@@ -186,7 +186,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledRateCounter getAverageSearchTimeSample() {
-        return cache.getCacheStatisticsSampler().getAverageSearchTimeSample();
+        return new SampledRateCounterProxy(cache.getStatistics().cacheSearchOperation().latency().average());
     }
 
     /**
@@ -194,7 +194,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getSearchesPerSecondSample() {
-        return cache.getCacheStatisticsSampler().getSearchesPerSecondSample();
+        return new SampledRateCounterProxy(cache.getStatistics().cacheSearchOperation().rate());
     }
 
     /**
@@ -202,7 +202,7 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheXaCommitsSample() {
-        return cache.getCacheStatisticsSampler().getCacheXaCommitsSample();
+        return new SampledRateCounterProxy(cache.getStatistics().xaCommitSuccessOperation().rate());
     }
 
     /**
@@ -210,6 +210,6 @@ public class ComprehensiveCacheSamplerImpl extends CacheSamplerImpl implements C
      */
     @Override
     public SampledCounter getCacheXaRollbacksSample() {
-        return cache.getCacheStatisticsSampler().getCacheXaRollbacksSample();
+        return new SampledRateCounterProxy(cache.getStatistics().xaRollbackOperation().rate());
     }
 }

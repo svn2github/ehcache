@@ -429,7 +429,7 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     /**
      * @return search time
      */
-    long getCacheAverageSearchTime();
+    long getCacheAverageSearchTimeNanos();
 
     /**
      * @return hit rate
@@ -499,5 +499,5 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     /**
      * @return average get time (nanos.)
      */
-    long getCacheAverageGetTime();
+    long getCacheAverageGetTimeNanos();
 }

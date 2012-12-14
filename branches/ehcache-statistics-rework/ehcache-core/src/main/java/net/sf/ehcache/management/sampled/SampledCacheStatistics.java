@@ -146,32 +146,8 @@ public interface SampledCacheStatistics {
      * cache
      *
      * @return Most recent sample of average get time taken for a get operation
-     * @deprecated
-     */
-    @Deprecated
-    long getAverageGetTimeMostRecentSample();
-
-    /**
-     * Get most recent value for average time taken for get() operation in the
-     * cache
-     *
-     * @return Most recent sample of average get time taken for a get operation
      */
     long getAverageGetTimeNanosMostRecentSample();
-
-    /**
-     * Get value for statisticsAccuracy
-     *
-     * @return one of Statistics#STATISTICS_ACCURACY_BEST_EFFORT,
-     *         Statistics#STATISTICS_ACCURACY_GUARANTEED,
-     *         Statistics#STATISTICS_ACCURACY_NONE
-     */
-    int getStatisticsAccuracy();
-
-    /**
-     * Get Description for statisticsAccuracy
-     */
-    String getStatisticsAccuracyDescription();
 
     /**
      * Returns true if statistics collection is enabled for cache, otherwise
@@ -194,7 +170,7 @@ public interface SampledCacheStatistics {
     /**
      * Get the average search execution time for searches finishing within the last sample period
      */
-    long getAverageSearchTime();
+    long getAverageSearchTimeNanos();
 
     /**
      * Get the number of searches that have finished execution in the last second

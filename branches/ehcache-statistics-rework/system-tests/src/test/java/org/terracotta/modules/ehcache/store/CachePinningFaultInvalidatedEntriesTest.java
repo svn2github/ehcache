@@ -94,7 +94,7 @@ public class CachePinningFaultInvalidatedEntriesTest extends AbstractCacheTestBa
 
         @Override
         public Boolean call() throws Exception {
-          long localsize = cache.getStatistics().getMemoryStoreObjectCount();
+          long localsize = cache.getStatistics().getLocalHeapSize();
           System.out.println("Local cache Size = " + localsize);
           return localsize == ELEMENT_COUNT;
         }

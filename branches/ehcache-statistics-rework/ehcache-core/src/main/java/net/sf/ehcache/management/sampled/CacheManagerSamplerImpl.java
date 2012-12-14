@@ -347,7 +347,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                result += Math.max(cache.getStatistics().getWriterQueueLength(), 0);
+                result += Math.max(cache.getStatistics().getWriterQueueLength(),0);
             }
         }
         return result;

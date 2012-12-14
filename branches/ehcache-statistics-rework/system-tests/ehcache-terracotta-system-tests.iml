@@ -12,6 +12,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ehcache" scope="TEST" />
+    <orderEntry type="library" scope="TEST" name="Maven: ATTACHED-JAR: net.sf.ehcache:ehcache:2.7.0-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="ehcache-terracotta-bootstrap" scope="TEST" />
     <orderEntry type="module" module-name="ehcache-rest-agent" scope="TEST" />
     <orderEntry type="library" name="Maven: net.sf.ehcache:management-ehcache-impl:2.7.0-SNAPSHOT" level="project" />
@@ -40,7 +41,7 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-util:8.1.7.v20120910" level="project" />
     <orderEntry type="module" module-name="ehcache-core" scope="TEST" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.6.6" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.terracotta.internal:statistics:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="statistics" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: jfree:jfreechart:1.0.13" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: jfree:jcommon:1.0.16" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.6.6" level="project" />

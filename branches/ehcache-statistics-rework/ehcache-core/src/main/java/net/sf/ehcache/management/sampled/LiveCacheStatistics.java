@@ -185,13 +185,6 @@ public interface LiveCacheStatistics {
     long getLocalDiskSizeInBytes();
 
     /**
-     * Average time in milliseconds taken to get an element from the cache.
-     *
-     * @return Average time taken for a get operation in milliseconds
-     */
-    float getAverageGetTimeMillis();
-
-    /**
      * Average time in nanoseconds taken to get an element from the cache.
      *
      * @return Average time taken for a get operation in nanoseconds
@@ -234,25 +227,6 @@ public interface LiveCacheStatistics {
     long getRemovedCount();
 
     /**
-     * Accurately measuring statistics can be expensive. Returns the current
-     * accuracy setting.
-     *
-     * @return one of Statistics.STATISTICS_ACCURACY_BEST_EFFORT,
-     *         Statistics.STATISTICS_ACCURACY_GUARANTEED,
-     *         Statistics.STATISTICS_ACCURACY_NONE
-     */
-    int getStatisticsAccuracy();
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current
-     * accuracy setting.
-     *
-     * @return a human readable description of the accuracy setting. One of
-     *         "None", "Best Effort" or "Guaranteed".
-     */
-    String getStatisticsAccuracyDescription();
-
-    /**
      * @return the name of the Ehcache
      */
     String getCacheName();
@@ -261,24 +235,6 @@ public interface LiveCacheStatistics {
      * Clears statistics of this cache
      */
     void clearStatistics();
-
-    /**
-     * Return minimum time taken for a get operation in the cache in milliseconds
-     *
-     * @return minimum time taken for a get operation in the cache in milliseconds
-     * @deprecated
-     */
-    @Deprecated
-    long getMinGetTimeMillis();
-
-    /**
-     * Return maximum time taken for a get operation in the cache in milliseconds
-     *
-     * @return maximum time taken for a get operation in the cache in milliseconds
-     * @deprecated
-     */
-    @Deprecated
-    long getMaxGetTimeMillis();
 
     /**
      * Return maximum time taken for a get operation in the cache in milliseconds
