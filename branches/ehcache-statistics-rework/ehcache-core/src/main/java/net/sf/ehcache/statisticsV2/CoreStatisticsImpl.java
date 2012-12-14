@@ -24,7 +24,7 @@ import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
@@ -80,7 +80,7 @@ public class CoreStatisticsImpl implements CoreStatistics {
 
     }
 
-    private static <T extends Enum<T>> CountOperation asCountOperation(final CompoundOperation<T> compoundOp) {
+    private static <T extends Enum<T>> CountOperation asCountOperation(final Operation<T> compoundOp) {
         return new CountOperation<T>() {
             @Override
             public long value(T result) {

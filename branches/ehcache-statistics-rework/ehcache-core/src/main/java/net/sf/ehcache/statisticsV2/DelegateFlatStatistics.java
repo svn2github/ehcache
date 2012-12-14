@@ -18,7 +18,7 @@ package net.sf.ehcache.statisticsV2;
 
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statisticsV2.extended.FlatExtendedStatistics;
 
 public class DelegateFlatStatistics implements FlatStatistics {
@@ -195,139 +195,139 @@ public class DelegateFlatStatistics implements FlatStatistics {
         flatExtended.setStatisticsTimeToDisable(time, unit);
     }
 
-    public Operation cacheGetOperation() {
+    public Result cacheGetOperation() {
         return flatExtended.cacheGetOperation();
     }
 
-    public Operation cacheHitOperation() {
+    public Result cacheHitOperation() {
         return flatExtended.cacheHitOperation();
     }
 
-    public Operation cacheMissExpiredOperation() {
+    public Result cacheMissExpiredOperation() {
         return flatExtended.cacheMissExpiredOperation();
     }
 
-    public Operation cacheMissNotFoundOperation() {
+    public Result cacheMissNotFoundOperation() {
         return flatExtended.cacheMissNotFoundOperation();
     }
 
-    public Operation cacheMissOperation() {
+    public Result cacheMissOperation() {
         return flatExtended.cacheMissOperation();
     }
 
-    public Operation cachePutAddedOperation() {
+    public Result cachePutAddedOperation() {
         return flatExtended.cachePutAddedOperation();
     }
 
-    public Operation cachePutReplacedOperation() {
+    public Result cachePutReplacedOperation() {
         return flatExtended.cachePutReplacedOperation();
     }
 
-    public Operation cachePutOperation() {
+    public Result cachePutOperation() {
         return flatExtended.cachePutOperation();
     }
 
-    public Operation cacheRemoveOperation() {
+    public Result cacheRemoveOperation() {
         return flatExtended.cacheRemoveOperation();
     }
 
-    public Operation localHeapHitOperation() {
+    public Result localHeapHitOperation() {
         return flatExtended.localHeapHitOperation();
     }
 
-    public Operation localHeapMissOperation() {
+    public Result localHeapMissOperation() {
         return flatExtended.localHeapMissOperation();
     }
 
-    public Operation localHeapPutAddedOperation() {
+    public Result localHeapPutAddedOperation() {
         return flatExtended.localHeapPutAddedOperation();
     }
 
-    public Operation localHeapPutReplacedOperation() {
+    public Result localHeapPutReplacedOperation() {
         return flatExtended.localHeapPutReplacedOperation();
     }
 
-    public Operation localHeapPutOperation() {
+    public Result localHeapPutOperation() {
         return flatExtended.localHeapPutOperation();
     }
 
-    public Operation localHeapRemoveOperation() {
+    public Result localHeapRemoveOperation() {
         return flatExtended.localHeapRemoveOperation();
     }
 
-    public Operation localOffHeapHitOperation() {
+    public Result localOffHeapHitOperation() {
         return flatExtended.localOffHeapHitOperation();
     }
 
-    public Operation localOffHeapMissOperation() {
+    public Result localOffHeapMissOperation() {
         return flatExtended.localOffHeapMissOperation();
     }
 
-    public Operation localOffHeapPutAddedOperation() {
+    public Result localOffHeapPutAddedOperation() {
         return flatExtended.localOffHeapPutAddedOperation();
     }
 
-    public Operation localOffHeapPutReplacedOperation() {
+    public Result localOffHeapPutReplacedOperation() {
         return flatExtended.localOffHeapPutReplacedOperation();
     }
 
-    public Operation localOffHeapPutOperation() {
+    public Result localOffHeapPutOperation() {
         return flatExtended.localOffHeapPutOperation();
     }
 
-    public Operation localOffHeapRemoveOperation() {
+    public Result localOffHeapRemoveOperation() {
         return flatExtended.localOffHeapRemoveOperation();
     }
 
-    public Operation localDiskHitOperation() {
+    public Result localDiskHitOperation() {
         return flatExtended.localDiskHitOperation();
     }
 
-    public Operation localDiskMissOperation() {
+    public Result localDiskMissOperation() {
         return flatExtended.localDiskMissOperation();
     }
 
-    public Operation localDiskPutAddedOperation() {
+    public Result localDiskPutAddedOperation() {
         return flatExtended.localDiskPutAddedOperation();
     }
 
-    public Operation localDiskPutReplacedOperation() {
+    public Result localDiskPutReplacedOperation() {
         return flatExtended.localDiskPutReplacedOperation();
     }
 
-    public Operation localDiskPutOperation() {
+    public Result localDiskPutOperation() {
         return flatExtended.localDiskPutOperation();
     }
 
-    public Operation localDiskRemoveOperation() {
+    public Result localDiskRemoveOperation() {
         return flatExtended.localDiskRemoveOperation();
     }
 
-    public Operation cacheSearchOperation() {
+    public Result cacheSearchOperation() {
         return flatExtended.cacheSearchOperation();
     }
 
-    public Operation xaCommitSuccessOperation() {
+    public Result xaCommitSuccessOperation() {
         return flatExtended.xaCommitSuccessOperation();
     }
 
-    public Operation xaCommitExceptionOperation() {
+    public Result xaCommitExceptionOperation() {
         return flatExtended.xaCommitExceptionOperation();
     }
 
-    public Operation xaCommitReadOnlyOperation() {
+    public Result xaCommitReadOnlyOperation() {
         return flatExtended.xaCommitReadOnlyOperation();
     }
 
-    public Operation xaRollbackOperation() {
+    public Result xaRollbackOperation() {
         return flatExtended.xaRollbackOperation();
     }
 
-    public Operation xaRollbackExceptionOperation() {
+    public Result xaRollbackExceptionOperation() {
         return flatExtended.xaRollbackExceptionOperation();
     }
 
-    public Operation xaRecoveryOperation() {
+    public Result xaRecoveryOperation() {
         return flatExtended.xaRecoveryOperation();
     }
 
@@ -379,12 +379,12 @@ public class DelegateFlatStatistics implements FlatStatistics {
     }
 
     @Override
-    public Operation cacheEvictionOperation() {
+    public Result cacheEvictionOperation() {
         return flatExtended.cacheEvictionOperation();
     }
 
     @Override
-    public Operation cacheExpiredOperation() {
+    public Result cacheExpiredOperation() {
         return flatExtended.cacheExpiredOperation();
     }
 

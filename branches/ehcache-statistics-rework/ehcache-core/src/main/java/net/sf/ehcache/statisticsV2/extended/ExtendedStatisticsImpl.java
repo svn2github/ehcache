@@ -47,12 +47,12 @@ import org.terracotta.statistics.ValueStatistic;
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private final Map<PassThroughType, ValueStatistic<?>> passThroughs = new EnumMap<PassThroughType, ValueStatistic<?>>(PassThroughType.class);
-    private final Map<OperationType, CompoundOperation<?>> operations = new EnumMap<OperationType, CompoundOperation<?>>(OperationType.class);
+    private final Map<OperationType, Operation<?>> operations = new EnumMap<OperationType, Operation<?>>(OperationType.class);
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private final Runnable disableTask = new Runnable() {
         @Override
         public void run() {
-            for (CompoundOperation<?> o : operations.values()) {
+            for (Operation<?> o : operations.values()) {
                 if (o instanceof CompoundOperationImpl<?>) {
                     ((CompoundOperationImpl<?>) o).expire(Time.absoluteTime() - timeToDisableUnit.toMillis(timeToDisable));
                 }
@@ -100,7 +100,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
 
     @Override
-    public synchronized void setStatisticsTimeToDisable(long time, TimeUnit unit) {
+    public synchronized void setTimeToDisable(long time, TimeUnit unit) {
         timeToDisable = time;
         timeToDisableUnit = unit;
         if (disableStatus != null) {
@@ -110,113 +110,113 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
 
     @Override
-    public synchronized void setStatisticsEnabled(boolean enabled) {
+    public synchronized void setAlwaysOn(boolean enabled) {
         if (enabled) {
             if (disableStatus != null) {
                 disableStatus.cancel(false);
                 disableStatus = null;
             }
-            for (CompoundOperation<?> o : operations.values()) {
+            for (Operation<?> o : operations.values()) {
                 o.setAlwaysOn(true);
             }
         } else {
             if (disableStatus == null) {
                 disableStatus = executor.scheduleAtFixedRate(disableTask, 0, timeToDisable, timeToDisableUnit);
             }
-            for (CompoundOperation<?> o : operations.values()) {
+            for (Operation<?> o : operations.values()) {
                 o.setAlwaysOn(false);
             }
         }
     }
 
     @Override
-    public CompoundOperation<GetOutcome> get() {
-        return (CompoundOperation<GetOutcome>) operations.get(OperationType.CACHE_GET);
+    public Operation<GetOutcome> get() {
+        return (Operation<GetOutcome>) operations.get(OperationType.CACHE_GET);
     }
 
     @Override
-    public CompoundOperation<PutOutcome> put() {
-        return (CompoundOperation<PutOutcome>) operations.get(OperationType.CACHE_PUT);
+    public Operation<PutOutcome> put() {
+        return (Operation<PutOutcome>) operations.get(OperationType.CACHE_PUT);
     }
 
     @Override
-    public CompoundOperation<RemoveOutcome> remove() {
-        return (CompoundOperation<RemoveOutcome>) operations.get(OperationType.CACHE_REMOVE);
+    public Operation<RemoveOutcome> remove() {
+        return (Operation<RemoveOutcome>) operations.get(OperationType.CACHE_REMOVE);
     }
 
     @Override
-    public CompoundOperation<SearchOutcome> search() {
-        return (CompoundOperation<CacheOperationOutcomes.SearchOutcome>) operations.get(OperationType.SEARCH);
+    public Operation<SearchOutcome> search() {
+        return (Operation<CacheOperationOutcomes.SearchOutcome>) operations.get(OperationType.SEARCH);
     }
 
     @Override
-    public CompoundOperation<StoreOperationOutcomes.GetOutcome> heapGet() {
-        return (CompoundOperation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.HEAP_GET);
+    public Operation<StoreOperationOutcomes.GetOutcome> heapGet() {
+        return (Operation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.HEAP_GET);
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> heapPut() {
-        return (CompoundOperation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.HEAP_PUT);
+    public Operation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> heapPut() {
+        return (Operation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.HEAP_PUT);
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> heapRemove() {
-        return (CompoundOperation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.HEAP_REMOVE);
+    public Operation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> heapRemove() {
+        return (Operation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.HEAP_REMOVE);
     }
 
     @Override
-    public CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet() {
-        return (CompoundOperation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.OFFHEAP_GET);
+    public Operation<StoreOperationOutcomes.GetOutcome> offheapGet() {
+        return (Operation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.OFFHEAP_GET);
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapPut() {
-        return (CompoundOperation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.OFFHEAP_PUT);
+    public Operation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapPut() {
+        return (Operation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.OFFHEAP_PUT);
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> offheapRemove() {
-        return (CompoundOperation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.OFFHEAP_REMOVE);
+    public Operation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> offheapRemove() {
+        return (Operation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.OFFHEAP_REMOVE);
     }
 
     @Override
-    public CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet() {
-        return (CompoundOperation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.DISK_GET);
+    public Operation<StoreOperationOutcomes.GetOutcome> diskGet() {
+        return (Operation<StoreOperationOutcomes.GetOutcome>) operations.get(OperationType.DISK_GET);
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
-        return (CompoundOperation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.DISK_PUT);
+    public Operation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
+        return (Operation<StoreOperationOutcomes.PutOutcome>) operations.get(OperationType.DISK_PUT);
     }
 
     @Override
-    public CompoundOperation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskRemove() {
-        return (CompoundOperation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.DISK_REMOVE);
+    public Operation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskRemove() {
+        return (Operation<StoreOperationOutcomes.RemoveOutcome>) operations.get(OperationType.DISK_REMOVE);
     }
 
     @Override
-    public CompoundOperation<XaCommitOutcome> xaCommit() {
-        return (CompoundOperation<XaCommitOutcome>) operations.get(OperationType.XA_COMMIT);
+    public Operation<XaCommitOutcome> xaCommit() {
+        return (Operation<XaCommitOutcome>) operations.get(OperationType.XA_COMMIT);
     }
 
     @Override
-    public CompoundOperation<XaRollbackOutcome> xaRollback() {
-        return (CompoundOperation<XaRollbackOutcome>) operations.get(OperationType.XA_ROLLBACK);
+    public Operation<XaRollbackOutcome> xaRollback() {
+        return (Operation<XaRollbackOutcome>) operations.get(OperationType.XA_ROLLBACK);
     }
 
     @Override
-    public CompoundOperation<XaRecoveryOutcome> xaRecovery() {
-        return (CompoundOperation<XaRecoveryOutcome>) operations.get(OperationType.XA_RECOVERY);
+    public Operation<XaRecoveryOutcome> xaRecovery() {
+        return (Operation<XaRecoveryOutcome>) operations.get(OperationType.XA_RECOVERY);
     }
 
     @Override
-    public CompoundOperation<EvictionOutcome> eviction() {
-        return (CompoundOperation<CacheOperationOutcomes.EvictionOutcome>) operations.get(OperationType.EVICTED);
+    public Operation<EvictionOutcome> eviction() {
+        return (Operation<CacheOperationOutcomes.EvictionOutcome>) operations.get(OperationType.EVICTED);
     }
 
     @Override
-    public CompoundOperation<ExpiredOutcome> expiration() {
-        return (CompoundOperation<CacheOperationOutcomes.ExpiredOutcome>) operations.get(OperationType.EXPIRED);
+    public Operation<ExpiredOutcome> expiration() {
+        return (Operation<CacheOperationOutcomes.ExpiredOutcome>) operations.get(OperationType.EXPIRED);
     }
 
     @Override

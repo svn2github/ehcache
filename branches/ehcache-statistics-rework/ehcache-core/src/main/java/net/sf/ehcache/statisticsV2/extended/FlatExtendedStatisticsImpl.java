@@ -16,16 +16,14 @@
 
 package net.sf.ehcache.statisticsV2.extended;
 
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
@@ -49,187 +47,187 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
-        extended.setStatisticsTimeToDisable(time, unit);
+        extended.setTimeToDisable(time, unit);
     }
 
     @Override
-    public Operation cacheGetOperation() {
+    public Result cacheGetOperation() {
         return extended.get().compound(ALL_CACHE_GET_OUTCOMES);
     }
 
     @Override
-    public Operation cacheHitOperation() {
+    public Result cacheHitOperation() {
         return extended.get().component(CacheOperationOutcomes.GetOutcome.HIT);
     }
 
     @Override
-    public Operation cacheMissExpiredOperation() {
+    public Result cacheMissExpiredOperation() {
         return extended.get().component(CacheOperationOutcomes.GetOutcome.MISS_EXPIRED);
     }
 
     @Override
-    public Operation cacheMissNotFoundOperation() {
+    public Result cacheMissNotFoundOperation() {
         return extended.get().component(CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND);
     }
 
     @Override
-    public Operation cacheMissOperation() {
+    public Result cacheMissOperation() {
         return extended.get().compound(ALL_CACHE_MISS_OUTCOMES);
     }
 
     @Override
-    public Operation cachePutAddedOperation() {
+    public Result cachePutAddedOperation() {
         return extended.put().component(CacheOperationOutcomes.PutOutcome.ADDED);
     }
 
     @Override
-    public Operation cachePutReplacedOperation() {
+    public Result cachePutReplacedOperation() {
         return extended.put().component(CacheOperationOutcomes.PutOutcome.UPDATED);
     }
 
     @Override
-    public Operation cachePutOperation() {
+    public Result cachePutOperation() {
         return extended.put().compound(ALL_CACHE_PUT_OUTCOMES);
     }
 
     @Override
-    public Operation cacheRemoveOperation() {
+    public Result cacheRemoveOperation() {
         return extended.remove().component(CacheOperationOutcomes.RemoveOutcome.SUCCESS);
     }
 
     @Override
-    public Operation localHeapHitOperation() {
+    public Result localHeapHitOperation() {
         return extended.heapGet().component(GetOutcome.HIT);
     }
 
     @Override
-    public Operation localHeapMissOperation() {
+    public Result localHeapMissOperation() {
         return extended.heapGet().component(GetOutcome.MISS);
     }
 
     @Override
-    public Operation localHeapPutAddedOperation() {
+    public Result localHeapPutAddedOperation() {
 
         return extended.heapPut().component(StoreOperationOutcomes.PutOutcome.ADDED);
     }
 
     @Override
-    public Operation localHeapPutReplacedOperation() {
+    public Result localHeapPutReplacedOperation() {
         return extended.heapPut().component(PutOutcome.ADDED);
     }
 
     @Override
-    public Operation localHeapPutOperation() {
+    public Result localHeapPutOperation() {
         return extended.heapPut().compound(ALL_STORE_PUT_OUTCOMES);
     }
 
     @Override
-    public Operation localHeapRemoveOperation() {
+    public Result localHeapRemoveOperation() {
         return extended.heapRemove().component(RemoveOutcome.SUCCESS);
     }
 
     @Override
-    public Operation localOffHeapHitOperation() {
+    public Result localOffHeapHitOperation() {
         return extended.offheapGet().component(GetOutcome.HIT);
     }
 
     @Override
-    public Operation localOffHeapMissOperation() {
+    public Result localOffHeapMissOperation() {
         return extended.offheapGet().component(GetOutcome.MISS);
     }
 
     @Override
-    public Operation localOffHeapPutAddedOperation() {
+    public Result localOffHeapPutAddedOperation() {
         return extended.offheapPut().component(PutOutcome.ADDED);
     }
 
     @Override
-    public Operation localOffHeapPutReplacedOperation() {
+    public Result localOffHeapPutReplacedOperation() {
         return extended.offheapPut().component(PutOutcome.UPDATED);
     }
 
     @Override
-    public Operation localOffHeapPutOperation() {
+    public Result localOffHeapPutOperation() {
         return extended.offheapPut().compound(ALL_STORE_PUT_OUTCOMES);
     }
 
     @Override
-    public Operation localOffHeapRemoveOperation() {
+    public Result localOffHeapRemoveOperation() {
         return extended.offheapRemove().component(RemoveOutcome.SUCCESS);
     }
 
     @Override
-    public Operation localDiskHitOperation() {
+    public Result localDiskHitOperation() {
         return extended.diskGet().component(GetOutcome.HIT);
     }
 
     @Override
-    public Operation localDiskMissOperation() {
+    public Result localDiskMissOperation() {
         return extended.diskGet().component(GetOutcome.MISS);
     }
 
     @Override
-    public Operation localDiskPutAddedOperation() {
+    public Result localDiskPutAddedOperation() {
         return extended.diskPut().component(PutOutcome.ADDED);
     }
 
     @Override
-    public Operation localDiskPutReplacedOperation() {
+    public Result localDiskPutReplacedOperation() {
         return extended.diskPut().component(PutOutcome.UPDATED);
     }
 
     @Override
-    public Operation localDiskPutOperation() {
+    public Result localDiskPutOperation() {
         return extended.diskPut().compound(ALL_STORE_PUT_OUTCOMES);
     }
 
     @Override
-    public Operation localDiskRemoveOperation() {
+    public Result localDiskRemoveOperation() {
         return extended.diskRemove().component(RemoveOutcome.SUCCESS);
     }
 
     @Override
-    public Operation cacheSearchOperation() {
+    public Result cacheSearchOperation() {
         return extended.search().component(SearchOutcome.SUCCESS);
     }
 
     @Override
-    public Operation xaCommitSuccessOperation() {
+    public Result xaCommitSuccessOperation() {
         return extended.xaCommit().component(XaCommitOutcome.COMMITTED);
     }
 
     @Override
-    public Operation xaCommitExceptionOperation() {
+    public Result xaCommitExceptionOperation() {
         return extended.xaCommit().component(XaCommitOutcome.EXCEPTION);
     }
 
     @Override
-    public Operation xaCommitReadOnlyOperation() {
+    public Result xaCommitReadOnlyOperation() {
         return extended.xaCommit().component(XaCommitOutcome.READ_ONLY);
     }
 
     @Override
-    public Operation xaRollbackOperation() {
+    public Result xaRollbackOperation() {
         return extended.xaRollback().component(XaRollbackOutcome.ROLLEDBACK);
     }
 
     @Override
-    public Operation xaRollbackExceptionOperation() {
+    public Result xaRollbackExceptionOperation() {
         return extended.xaRollback().component(XaRollbackOutcome.EXCEPTION);
     }
 
     @Override
-    public Operation xaRecoveryOperation() {
+    public Result xaRecoveryOperation() {
         return extended.xaRecovery().component(XaRecoveryOutcome.RECOVERED);
     }
 
     @Override
-    public Operation cacheEvictionOperation() {
+    public Result cacheEvictionOperation() {
         return extended.eviction().component(EvictionOutcome.SUCCESS);
     }
 
     @Override
-    public Operation cacheExpiredOperation() {
+    public Result cacheExpiredOperation() {
         return extended.expiration().component(CacheOperationOutcomes.ExpiredOutcome.SUCCESS);
     }
 

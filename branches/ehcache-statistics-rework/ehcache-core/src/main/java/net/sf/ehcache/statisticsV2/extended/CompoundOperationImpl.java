@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
 import org.terracotta.statistics.OperationStatistic;
 
@@ -24,7 +24,7 @@ import org.terracotta.statistics.OperationStatistic;
  *
  * @author cdennis
  */
-class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
+class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
     
     private final OperationStatistic<T> source;
     
@@ -55,12 +55,12 @@ class CompoundOperationImpl<T extends Enum<T>> implements CompoundOperation<T> {
     }
 
     @Override
-    public Operation component(T result) {
+    public Result component(T result) {
         return operations.get(result);
     }
 
     @Override
-    public Operation compound(Set<T> results) {
+    public Result compound(Set<T> results) {
         if (results.size() == 1) {
             return component(results.iterator().next());
         } else {

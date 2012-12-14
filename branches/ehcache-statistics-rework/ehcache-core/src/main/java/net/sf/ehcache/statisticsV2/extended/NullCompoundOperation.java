@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.CompoundOperation;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Latency;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Latency;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
 import org.terracotta.statistics.archive.Timestamped;
 
@@ -21,11 +21,11 @@ import org.terracotta.statistics.archive.Timestamped;
  *
  * @author cdennis
  */
-class NullCompoundOperation<T> implements CompoundOperation<T> {
+class NullCompoundOperation<T> implements Operation<T> {
 
-    private static final CompoundOperation INSTANCE = new NullCompoundOperation();
+    private static final Operation INSTANCE = new NullCompoundOperation();
     
-    static <T> CompoundOperation<T> instance() {
+    static <T> Operation<T> instance() {
         return INSTANCE;
     }
     
@@ -34,12 +34,12 @@ class NullCompoundOperation<T> implements CompoundOperation<T> {
     }
 
     @Override
-    public Operation component(T result) {
+    public Result component(T result) {
         return NullOperation.instance();
     }
 
     @Override
-    public Operation compound(Set<T> results) {
+    public Result compound(Set<T> results) {
         return NullOperation.instance();
     }
 
@@ -64,11 +64,11 @@ class NullCompoundOperation<T> implements CompoundOperation<T> {
     }
 }
 
-class NullOperation implements Operation {
+class NullOperation implements Result {
 
-    private static final Operation INSTANCE = new NullOperation();
+    private static final Result INSTANCE = new NullOperation();
 
-    static final Operation instance() {
+    static final Result instance() {
         return INSTANCE;
     }
     

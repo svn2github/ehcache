@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.terracotta.statistics.StatisticsManager;
 
 import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.*;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
 import static org.hamcrest.core.Is.*;
 import static org.hamcrest.number.OrderingComparison.*;
 import static org.junit.Assert.assertThat;
@@ -68,8 +68,8 @@ public class ExtendedStatisticsTest {
             manager.addCache(foo);
             
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            extendedStats.setStatisticsTimeToDisable(2, TimeUnit.SECONDS);
-            Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
+            extendedStats.setTimeToDisable(2, TimeUnit.SECONDS);
+            Result missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
             assertThat(missNotFound.count().active(), is(false));
             assertThat(missNotFound.rate().active(), is(false));
@@ -110,9 +110,9 @@ public class ExtendedStatisticsTest {
             manager.addCache(foo);
             
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            extendedStats.setStatisticsTimeToDisable(2, TimeUnit.SECONDS);
-            extendedStats.setStatisticsEnabled(true);
-            Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);            
+            extendedStats.setTimeToDisable(2, TimeUnit.SECONDS);
+            extendedStats.setAlwaysOn(true);
+            Result missNotFound = extendedStats.get().component(MISS_NOT_FOUND);            
             assertThat(missNotFound.count().active(), is(true));
             assertThat(missNotFound.rate().active(), is(true));
             
@@ -151,9 +151,9 @@ public class ExtendedStatisticsTest {
             manager.addCache(foo);
             
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            extendedStats.setStatisticsTimeToDisable(2, TimeUnit.SECONDS);
-            extendedStats.setStatisticsEnabled(true);
-            Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
+            extendedStats.setTimeToDisable(2, TimeUnit.SECONDS);
+            extendedStats.setAlwaysOn(true);
+            Result missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             assertThat(missNotFound.count().active(), is(true));
             assertThat(missNotFound.rate().active(), is(true));
             
@@ -176,7 +176,7 @@ public class ExtendedStatisticsTest {
             assertThat(missNotFound.count().active(), is(true));
             assertThat(missNotFound.rate().active(), is(true));
             
-            extendedStats.setStatisticsEnabled(false);
+            extendedStats.setAlwaysOn(false);
             
             TimeUnit.SECONDS.sleep(1);
             assertThat(missNotFound.count().active(), is(false));
@@ -198,8 +198,8 @@ public class ExtendedStatisticsTest {
             manager.addCache(foo);
             
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            extendedStats.setStatisticsEnabled(true);
-            Operation missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
+            extendedStats.setAlwaysOn(true);
+            Result missNotFound = extendedStats.get().component(MISS_NOT_FOUND);
             
             assertThat(missNotFound.count().value(), is(0L));
             assertThat(missNotFound.latency().average().value(), is(Double.NaN));

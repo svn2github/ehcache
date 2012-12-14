@@ -7,7 +7,7 @@ package net.sf.ehcache.statisticsV2.extended;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Latency;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
 import org.terracotta.statistics.OperationStatistic;
 
@@ -15,7 +15,7 @@ import org.terracotta.statistics.OperationStatistic;
  *
  * @author cdennis
  */
-class OperationImpl<T extends Enum<T>> implements Operation {
+class OperationImpl<T extends Enum<T>> implements Result {
     private final OperationStatistic<T> source;
     private final CountStatistic count;
     private final RateStatistic rate;

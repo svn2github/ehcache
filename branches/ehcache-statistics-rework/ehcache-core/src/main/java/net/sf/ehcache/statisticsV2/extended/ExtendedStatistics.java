@@ -30,37 +30,37 @@ import org.terracotta.statistics.archive.Timestamped;
 
 public interface ExtendedStatistics {
 
-    void setStatisticsTimeToDisable(long time, TimeUnit unit);
-    void setStatisticsEnabled(boolean enable);
+    void setTimeToDisable(long time, TimeUnit unit);
+    void setAlwaysOn(boolean alwaysOn);
 
-    CompoundOperation<CacheOperationOutcomes.GetOutcome> get();
-    CompoundOperation<CacheOperationOutcomes.PutOutcome> put();
-    CompoundOperation<CacheOperationOutcomes.RemoveOutcome> remove();
+    Operation<CacheOperationOutcomes.GetOutcome> get();
+    Operation<CacheOperationOutcomes.PutOutcome> put();
+    Operation<CacheOperationOutcomes.RemoveOutcome> remove();
 
-    CompoundOperation<StoreOperationOutcomes.GetOutcome> heapGet();
-    CompoundOperation<StoreOperationOutcomes.GetOutcome> offheapGet();
-    CompoundOperation<StoreOperationOutcomes.GetOutcome> diskGet();
+    Operation<StoreOperationOutcomes.GetOutcome> heapGet();
+    Operation<StoreOperationOutcomes.GetOutcome> offheapGet();
+    Operation<StoreOperationOutcomes.GetOutcome> diskGet();
 
-    CompoundOperation<StoreOperationOutcomes.PutOutcome> heapPut();
-    CompoundOperation<StoreOperationOutcomes.PutOutcome> offheapPut();
-    CompoundOperation<StoreOperationOutcomes.PutOutcome> diskPut();
+    Operation<StoreOperationOutcomes.PutOutcome> heapPut();
+    Operation<StoreOperationOutcomes.PutOutcome> offheapPut();
+    Operation<StoreOperationOutcomes.PutOutcome> diskPut();
 
-    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> heapRemove();
-    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> offheapRemove();
-    CompoundOperation<StoreOperationOutcomes.RemoveOutcome> diskRemove();
+    Operation<StoreOperationOutcomes.RemoveOutcome> heapRemove();
+    Operation<StoreOperationOutcomes.RemoveOutcome> offheapRemove();
+    Operation<StoreOperationOutcomes.RemoveOutcome> diskRemove();
 
-    CompoundOperation<CacheOperationOutcomes.SearchOutcome> search();
+    Operation<CacheOperationOutcomes.SearchOutcome> search();
 
-    CompoundOperation<XaCommitOutcome> xaCommit();
-    CompoundOperation<XaRollbackOutcome> xaRollback();
-    CompoundOperation<XaRecoveryOutcome> xaRecovery();
+    Operation<XaCommitOutcome> xaCommit();
+    Operation<XaRollbackOutcome> xaRollback();
+    Operation<XaRecoveryOutcome> xaRecovery();
 
-    CompoundOperation<CacheOperationOutcomes.EvictionOutcome> eviction();
-    CompoundOperation<CacheOperationOutcomes.ExpiredOutcome> expiration();
+    Operation<CacheOperationOutcomes.EvictionOutcome> eviction();
+    Operation<CacheOperationOutcomes.ExpiredOutcome> expiration();
 
-    public interface CompoundOperation<T> {
-        Operation component(T result);
-        Operation compound(Set<T> results);
+    public interface Operation<T> {
+        Result component(T result);
+        Result compound(Set<T> results);
 
         Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator);
 
@@ -69,7 +69,7 @@ public interface ExtendedStatistics {
         void setHistory(int samples, long time, TimeUnit unit);
     }
 
-    public interface Operation {
+    public interface Result {
         Statistic<Long> count();
         Statistic<Double> rate();
         Latency latency();

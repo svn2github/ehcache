@@ -18,55 +18,55 @@ package net.sf.ehcache.statisticsV2.extended;
 
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
 
 
 public interface FlatExtendedStatistics {
 
     void setStatisticsTimeToDisable(long time, TimeUnit unit);
 
-    Operation cacheGetOperation();
-    Operation cacheHitOperation();
-    Operation cacheMissExpiredOperation();
-    Operation cacheMissNotFoundOperation();
-    Operation cacheMissOperation();
-    Operation cachePutAddedOperation();
-    Operation cachePutReplacedOperation();
-    Operation cachePutOperation();
-    Operation cacheRemoveOperation();
+    Result cacheGetOperation();
+    Result cacheHitOperation();
+    Result cacheMissExpiredOperation();
+    Result cacheMissNotFoundOperation();
+    Result cacheMissOperation();
+    Result cachePutAddedOperation();
+    Result cachePutReplacedOperation();
+    Result cachePutOperation();
+    Result cacheRemoveOperation();
 
-    Operation localHeapHitOperation();
-    Operation localHeapMissOperation();
-    Operation localHeapPutAddedOperation();
-    Operation localHeapPutReplacedOperation();
-    Operation localHeapPutOperation();
-    Operation localHeapRemoveOperation();
+    Result localHeapHitOperation();
+    Result localHeapMissOperation();
+    Result localHeapPutAddedOperation();
+    Result localHeapPutReplacedOperation();
+    Result localHeapPutOperation();
+    Result localHeapRemoveOperation();
 
-    Operation localOffHeapHitOperation();
-    Operation localOffHeapMissOperation();
-    Operation localOffHeapPutAddedOperation();
-    Operation localOffHeapPutReplacedOperation();
-    Operation localOffHeapPutOperation();
-    Operation localOffHeapRemoveOperation();
+    Result localOffHeapHitOperation();
+    Result localOffHeapMissOperation();
+    Result localOffHeapPutAddedOperation();
+    Result localOffHeapPutReplacedOperation();
+    Result localOffHeapPutOperation();
+    Result localOffHeapRemoveOperation();
 
-    Operation localDiskHitOperation();
-    Operation localDiskMissOperation();
-    Operation localDiskPutAddedOperation();
-    Operation localDiskPutReplacedOperation();
-    Operation localDiskPutOperation();
-    Operation localDiskRemoveOperation();
+    Result localDiskHitOperation();
+    Result localDiskMissOperation();
+    Result localDiskPutAddedOperation();
+    Result localDiskPutReplacedOperation();
+    Result localDiskPutOperation();
+    Result localDiskRemoveOperation();
 
-    Operation cacheSearchOperation();
+    Result cacheSearchOperation();
 
-    Operation xaCommitSuccessOperation();
-    Operation xaCommitExceptionOperation();
-    Operation xaCommitReadOnlyOperation();
-    Operation xaRollbackOperation();
-    Operation xaRollbackExceptionOperation();
-    Operation xaRecoveryOperation();
+    Result xaCommitSuccessOperation();
+    Result xaCommitExceptionOperation();
+    Result xaCommitReadOnlyOperation();
+    Result xaRollbackOperation();
+    Result xaRollbackExceptionOperation();
+    Result xaRecoveryOperation();
 
-    Operation cacheEvictionOperation();
-    Operation cacheExpiredOperation();
+    Result cacheEvictionOperation();
+    Result cacheExpiredOperation();
 
     // pass through stats
     long getSize();
