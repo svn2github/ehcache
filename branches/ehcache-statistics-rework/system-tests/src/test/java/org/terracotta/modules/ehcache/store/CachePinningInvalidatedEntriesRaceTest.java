@@ -62,7 +62,7 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
           assertEquals(cache.get(getKey(i)).getObjectValue(), getValue(i));
         }
 
-        Assert.assertEquals(ELEMENT_COUNT, cache.getMemoryStoreSize());
+        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getLocalHeapSize());
         Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().localHeapHitCount());
         Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
         Assert.assertEquals(0, cache.getStatistics().diskHitCount());
@@ -90,8 +90,8 @@ public class CachePinningInvalidatedEntriesRaceTest extends AbstractCacheTestBas
         WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
-            System.out.println("memory store count " + cache.getMemoryStoreSize());
-            return cache.getMemoryStoreSize() >= ELEMENT_COUNT;
+            System.out.println("memory store count " + cache.getStatistics().getLocalHeapSize());
+            return cache.getStatistics().getLocalHeapSize() >= ELEMENT_COUNT;
           }
         });
       }

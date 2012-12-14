@@ -64,11 +64,11 @@ public class InfiniteCapacityCacheTest {
         }
 
         Assert.assertEquals(INFINITY, defined.getSize());
-        Assert.assertEquals(INFINITY, defined.getMemoryStoreSize());
-        Assert.assertEquals(0, defined.getDiskStoreSize());
+        Assert.assertEquals(INFINITY, defined.getStatistics().getLocalHeapSize());
+        Assert.assertEquals(0, defined.getStatistics().getLocalDiskSize());
 
         Assert.assertEquals(INFINITY, defaults.getSize());
-        Assert.assertEquals(INFINITY, defaults.getMemoryStoreSize());
-        Assert.assertEquals(0, defaults.getDiskStoreSize());
+        Assert.assertEquals(INFINITY, defaults.getStatistics().getLocalHeapSize());
+        Assert.assertEquals(0, defaults.getStatistics().getLocalDiskSize());
     }
 }

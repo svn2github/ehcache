@@ -89,7 +89,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
 
         @Override
         public Boolean call() throws Exception {
-          long cacheSize = cache.calculateInMemorySize();
+          long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
           double minSize = sizeInBytes * (1.0 - SIZE_TEST_TOLERANCE);
           double maxSize = sizeInBytes * (1.0 + SIZE_TEST_TOLERANCE);
           if (cacheSize < minSize || cacheSize > maxSize) {
@@ -100,7 +100,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
           return true;
         }
       });
-      long cacheSize = cache.calculateInMemorySize();
+      long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
       Assert.assertTrue("Cache size is exceeding the size limit. Size in bytes: " + cacheSize,
                         cacheSize <= sizeInBytes * (1 + SIZE_TEST_TOLERANCE));
       Assert.assertTrue("Cache size below threshold. Size in bytes: " + cacheSize,
@@ -154,12 +154,12 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
 
       int tenPercent = (maxEntriesOnLocalHeap * 10) / 100;
       int max = maxEntriesOnLocalHeap + tenPercent;
-      long memoryStoreSize = cache.getMemoryStoreSize();
+      long memoryStoreSize = cache.getStatistics().getLocalHeapSize();
 
       while (memoryStoreSize > max) {
         System.out.println("Memory Store size: " + memoryStoreSize + " expected 0-" + max);
         Thread.sleep(1000);
-        memoryStoreSize = cache.getMemoryStoreSize();
+        memoryStoreSize = cache.getStatistics().getLocalHeapSize();
       }
       Assert.assertTrue("Cache size differs from expected range. Size: " + memoryStoreSize,
                         (memoryStoreSize > 0 && memoryStoreSize <= max));

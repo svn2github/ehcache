@@ -57,7 +57,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
           assertNotNull(cache.get(i));
         }
 
-        Assert.assertEquals(ELEMENT_COUNT, cache.getMemoryStoreSize());
+        Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getLocalHeapSize());
         Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
         Assert.assertEquals(0, cache.getStatistics().diskHitCount());
         Assert.assertEquals(0, cache.getStatistics().diskMissCount());
@@ -75,7 +75,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
           cache.get(i);
         }
 
-        Assert.assertTrue(cache.getMemoryStoreSize() < ELEMENT_COUNT);
+        Assert.assertTrue(cache.getStatistics().getLocalHeapSize() < ELEMENT_COUNT);
         Assert.assertTrue(0 < cache.getStatistics().localHeapMissCount());
         Assert.assertTrue(0 < cache.getStatistics().diskHitCount());
         cache.unpinAll();
@@ -117,8 +117,8 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          System.out.println("memory store count " + cache.getMemoryStoreSize());
-          return cache.getMemoryStoreSize() >= ELEMENT_COUNT;
+          System.out.println("memory store count " + cache.getStatistics().getLocalHeapSize());
+          return cache.getStatistics().getLocalHeapSize() >= ELEMENT_COUNT;
         }
       });
       barrier.await();

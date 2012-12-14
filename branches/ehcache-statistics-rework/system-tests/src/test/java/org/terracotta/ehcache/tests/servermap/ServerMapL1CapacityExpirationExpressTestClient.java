@@ -32,15 +32,15 @@ public class ServerMapL1CapacityExpirationExpressTestClient extends ServerMapCli
       cache.put(new Element(new Integer(i), "value-" + i));
     }
     Thread.sleep(1000);
-    System.out.println("Cache populated. size: " + cache.getSize() + " inMemorySize: " + cache.getMemoryStoreSize());
+    System.out.println("Cache populated. size: " + cache.getSize() + " inMemorySize: " + cache.getStatistics().getLocalHeapSize());
     while (cache.getSize() != 4999) {
       Thread.sleep(100);
     }
-    while (cache.getMemoryStoreSize() != 4999) {
+    while (cache.getStatistics().getLocalHeapSize() != 4999) {
       Thread.sleep(100);
     }
     Assert.assertEquals(4999, cache.getSize());
-    Assert.assertEquals(4999, cache.getMemoryStoreSize());
+    Assert.assertEquals(4999, cache.getStatistics().getLocalHeapSize());
 
     System.out.println("Sleeping for 35 secs (now=" + new Date() + ")");
     // Sleep for 35 secs to expire the items
@@ -57,7 +57,7 @@ public class ServerMapL1CapacityExpirationExpressTestClient extends ServerMapCli
     // sleep for some time so that some recalls and removes happen
     Thread.sleep(10000);
     System.out.println("After adding 100 more elements. size: " + cache.getSize() + " inMemorySize: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
     // size should decrease as entries are removed
     // assume minimum 100 removed in server already, monkeys may be unhappy here
     // Assert.assertEquals(5100, cache.getSize());
@@ -65,7 +65,7 @@ public class ServerMapL1CapacityExpirationExpressTestClient extends ServerMapCli
 
     // memory store size should decrease by some amount (locks should have been recalled for some)
     // assume minimum 100, monkeys may behave otherwise sometimes
-    assertRange(0, 5010, cache.getMemoryStoreSize());
+    assertRange(0, 5010, cache.getStatistics().getLocalHeapSize());
     for (int i = 5000; i <= 5100; i++) {
       Element element = cache.get(new Integer(i));
       Assert.assertNotNull(element);

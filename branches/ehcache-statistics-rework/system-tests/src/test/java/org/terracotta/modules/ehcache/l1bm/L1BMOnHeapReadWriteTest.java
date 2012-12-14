@@ -84,11 +84,11 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
       }
       Assert.assertEquals(NUM_OF_ELEMENTS, cache.getSize());
       System.out.println("XXXXXX client " + index + " cache size: " + cache.getSize() + " local: "
-                         + cache.getMemoryStoreSize());
+                         + cache.getStatistics().getLocalHeapSize());
       if (index == 0) {
-        Assert.assertTrue(cache.getMemoryStoreSize() > 0);
+        Assert.assertTrue(cache.getStatistics().getLocalHeapSize() > 0);
       } else {
-        Assert.assertEquals(0, cache.getMemoryStoreSize());
+        Assert.assertEquals(0, cache.getStatistics().getLocalHeapSize());
       }
 
       System.out.println("XXXXX starting test threads....");

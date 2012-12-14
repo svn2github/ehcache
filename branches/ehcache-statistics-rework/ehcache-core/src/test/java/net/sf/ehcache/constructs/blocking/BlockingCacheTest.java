@@ -600,8 +600,8 @@ public final class BlockingCacheTest {
 
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             assertThat(cache.getSize(), lessThanOrEqualTo(10000));
-            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
-            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+            assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
             //NonSerializable
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
@@ -609,8 +609,8 @@ public final class BlockingCacheTest {
 
             int size = cache.getSize();
             assertThat(size, lessThanOrEqualTo(10000));
-            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
-            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+            assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
             if(cache.remove("key4")) {
                 size--;
@@ -624,8 +624,8 @@ public final class BlockingCacheTest {
             assertEquals(size, cache.getSize());
 
             //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
-            //assertEquals(10000, cache.getMemoryStoreSize());
-            //assertEquals(9, cache.getDiskStoreSize());
+            //assertEquals(10000, cache.getStatistics().getLocalHeapSize());
+            //assertEquals(9, cache.getStatistics().getLocalDiskSize());
 
 
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();

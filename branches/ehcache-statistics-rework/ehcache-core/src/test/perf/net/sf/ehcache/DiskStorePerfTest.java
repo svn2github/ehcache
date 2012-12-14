@@ -95,7 +95,7 @@ public class DiskStorePerfTest extends AbstractCachePerfTest {
         RetryAssert.assertBy(10, TimeUnit.SECONDS, new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                return cache.getDiskStoreSize();
+                return cache.getStatistics().getLocalDiskSize();
             }
         }, equalTo(ELEMENTS));
         assertThat(cache.getSize(), equalTo(ELEMENTS));

@@ -190,7 +190,7 @@ public class CachePerfTest extends AbstractCachePerfTest {
         }
 
         StopWatch stopWatch = new StopWatch();
-        long size = cache.calculateInMemorySize();
+        long size = cache.getStatistics().getLocalHeapSizeInBytes();
         assertTrue("Size is " + size + ". Check it for reasonableness.", size > 10000000 && size < 22000000);
         long elapsed = stopWatch.getElapsedTime();
         LOG.info("In-memory size in bytes: " + size
@@ -222,15 +222,15 @@ public class CachePerfTest extends AbstractCachePerfTest {
         manager.addCache(cache);
         StopWatch stopWatch = new StopWatch();
 
-        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
         for (int i = 0; i < 80000; i++) {
             cache.put(new Element("" + i, new byte[480]));
         }
         LOG.info("Put time: " + stopWatch.getElapsedTime());
         PerfDiskStoreHelper.flushAllEntriesToDisk(cache).get();
-        assertEquals(40000, cache.getMemoryStoreSize());
-        assertEquals(80000, cache.getDiskStoreSize());
+        assertEquals(40000, cache.getStatistics().getLocalHeapSize());
+        assertEquals(80000, cache.getStatistics().getLocalDiskSize());
 
         long beforeMemory = measureMemoryUse();
         stopWatch.getElapsedTime();
@@ -244,8 +244,8 @@ public class CachePerfTest extends AbstractCachePerfTest {
         long memoryIncrease = afterMemory - beforeMemory;
         assertTrue(memoryIncrease < 40000000);
 
-        assertEquals(0, cache.getMemoryStoreSize());
-        assertEquals(80000, cache.getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
+        assertEquals(80000, cache.getStatistics().getLocalDiskSize());
 
     }
 

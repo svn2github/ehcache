@@ -52,7 +52,7 @@ public class OverflowCacheTest {
             .diskSpoolBufferSizeMB(10));
         manager.addCache(cache);
 
-        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
         Element a;
         int i = 0;

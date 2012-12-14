@@ -80,10 +80,10 @@ public class CacheCopyOnRwPoolTest {
         cache.put(new Element(1000, new CrazyObject()));
         copyCache.put(new Element(1000, new CrazyObject()));
 
-        long cacheSize = cache.calculateInMemorySize();
+        long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
-        long copyCacheSize = copyCache.calculateInMemorySize();
+        long copyCacheSize = copyCache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
@@ -114,18 +114,18 @@ public class CacheCopyOnRwPoolTest {
 
         Thread.sleep(1000);
 
-        long cacheSize = cache.calculateInMemorySize();
+        long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
-        long copyCacheSize = copyCache.calculateInMemorySize();
+        long copyCacheSize = copyCache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
 
-        long cacheDiskSize = cache.calculateOnDiskSize();
+        long cacheDiskSize = cache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("cache disk size : " + cacheDiskSize);
         assertTrue(cacheDiskSize != 0);
-        long copyCacheDiskSize = copyCache.calculateOnDiskSize();
+        long copyCacheDiskSize = copyCache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("copyCache disk size : " + copyCacheDiskSize);
         assertTrue(copyCacheDiskSize != 0);
         assertTrue(cacheDiskSize != copyCacheDiskSize);
@@ -158,18 +158,18 @@ public class CacheCopyOnRwPoolTest {
 
         Thread.sleep(1000);
 
-        long cacheSize = cache.calculateInMemorySize();
+        long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
-        long copyCacheSize = copyCache.calculateInMemorySize();
+        long copyCacheSize = copyCache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
 
-        long cacheDiskSize = cache.calculateOnDiskSize();
+        long cacheDiskSize = cache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("cache disk size : " + cacheDiskSize);
         assertTrue(cacheDiskSize != 0);
-        long copyCacheDiskSize = copyCache.calculateOnDiskSize();
+        long copyCacheDiskSize = copyCache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("copyCache disk size : " + copyCacheDiskSize);
         assertTrue(copyCacheDiskSize != 0);
         assertTrue(cacheDiskSize != copyCacheDiskSize);

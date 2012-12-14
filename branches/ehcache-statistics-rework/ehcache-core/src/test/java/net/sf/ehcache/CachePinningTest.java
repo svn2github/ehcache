@@ -403,7 +403,7 @@ public class CachePinningTest {
         cm = new CacheManager(cm.getConfiguration());
         cache = cm.getCache(cache.getName());
         long maxElements = cache.getCacheConfiguration().getMaxEntriesLocalHeap();
-        assertThat(cache.getDiskStoreSize(), is((int)cache.getCacheConfiguration().getMaxEntriesLocalDisk()));
+        assertThat(cache.getStatistics().getLocalDiskSize(), is(cache.getCacheConfiguration().getMaxEntriesLocalDisk()));
         for (int i = (int) firstMax; i < maxElements; i++) {
             cache.put(new Element(i, "valueOf" + i));
         }

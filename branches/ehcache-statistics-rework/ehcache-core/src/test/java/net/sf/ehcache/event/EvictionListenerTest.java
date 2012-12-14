@@ -82,7 +82,7 @@ public class EvictionListenerTest {
             cache.put(new Element("key" + i, UUID.randomUUID().toString()));
         }
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
-        final int diskStoreSize = cache.getDiskStoreSize();
+        final long diskStoreSize = cache.getStatistics().getLocalDiskSize();
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
         System.out.println("\n\n ****");
         System.out.println("DiskStore store size : " + diskStoreSize);
@@ -96,7 +96,7 @@ public class EvictionListenerTest {
             if (!cache.isKeyInCache(key) && !cacheElementsEvicted.containsKey(key)) {
                 final String message = "Key '" + key + "' isn't in cache & we didn't get notified about its eviction!";
                 System.out.println(message);
-                assertThat(cacheElementsEvicted.size(), is((amountOfEntries - diskStoreSize)));
+                assertThat(cacheElementsEvicted.size(), is((int) (amountOfEntries - diskStoreSize)));
                 fail(message);
             }
         }
@@ -120,7 +120,7 @@ public class EvictionListenerTest {
         }
         Thread.sleep(2000);
         System.out.println("\n\n ****");
-        System.out.println("Memory store size before  : " + noDiskCache.getMemoryStoreSize());
+        System.out.println("Memory store size before  : " + noDiskCache.getStatistics().getLocalHeapSize());
         System.out.println(" ****\n\n");
 
         // Try putting an unpinned element and we should see an eviction
@@ -133,7 +133,7 @@ public class EvictionListenerTest {
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
 
         System.out.println("\n\n ****");
-        System.out.println("Memory store size after : " + noDiskCache.getMemoryStoreSize());
+        System.out.println("Memory store size after : " + noDiskCache.getStatistics().getLocalHeapSize());
         System.out.println(" ****\n\n");
 
         assertThat(cacheElementsEvicted.isEmpty(), is(false));
@@ -154,10 +154,10 @@ public class EvictionListenerTest {
 
         // now eviction should have happened for all keys which are unpinned just above
         cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
-        System.out.println("after eviction, Memory store size : " + noDiskCache.getMemoryStoreSize()+" size "+noDiskCache.getSize()+" evicted "+cacheElementsEvicted.size());
+        System.out.println("after eviction, Memory store size : " + noDiskCache.getStatistics().getLocalHeapSize()+" size "+noDiskCache.getSize()+" evicted "+cacheElementsEvicted.size());
         Assert.assertTrue(cacheElementsEvicted.size() > 1);
         Assert.assertTrue("cache size "+noDiskCache.getSize(), noDiskCache.getSize() < amountOfEntries);
-        Assert.assertTrue("memoryStore size "+noDiskCache.getMemoryStoreSize(), noDiskCache.getMemoryStoreSize() < amountOfEntries);
+        Assert.assertTrue("memoryStore size "+noDiskCache.getStatistics().getLocalHeapSize(), noDiskCache.getStatistics().getLocalHeapSize() < amountOfEntries);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class EvictionListenerTest {
         final Cache noDiskCache = new Cache(configuration);
         cacheManager.addCache(noDiskCache);
         CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
-        assertThat(noDiskCache.getMemoryStoreSize() <= noDiskCache.getCacheConfiguration().getMaxBytesLocalHeap(), is(true));
+        assertThat(noDiskCache.getStatistics().getLocalHeapSize() <= noDiskCache.getCacheConfiguration().getMaxBytesLocalHeap(), is(true));
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
@@ -228,7 +228,7 @@ public class EvictionListenerTest {
         final Cache diskCache = new Cache(configuration);
         cacheManager.addCache(diskCache);
         CountingCacheEventListener countingCacheEventListener = accessCache(diskCache);
-        assertThat(diskCache.getMemoryStoreSize(), is(100L));
+        assertThat(diskCache.getStatistics().getLocalHeapSize(), is(100L));
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(diskCache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));

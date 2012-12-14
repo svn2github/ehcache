@@ -92,8 +92,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       try {
         loadCache(cache, true);
         hitCache(cache);
-        assertStatistics(cache, NUMBER_OF_ELEMENTS, NUMBER_OF_ELEMENTS, cache.getMemoryStoreSize(),
-                         NUMBER_OF_ELEMENTS * 2 - cache.getMemoryStoreSize());
+        assertStatistics(cache, NUMBER_OF_ELEMENTS, NUMBER_OF_ELEMENTS, cache.getStatistics().getLocalHeapSize(),
+                         NUMBER_OF_ELEMENTS * 2 - cache.getStatistics().getLocalHeapSize());
         testSizeCacheStability(cache);
       } finally {
         printCacheStatistics(cache);
@@ -104,7 +104,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
     private void testSizeCacheStability(Cache cache) throws Exception {
       long key = NUMBER_OF_ELEMENTS;
       // Fill up the cache to a small 3% tolerance.
-      while (cache.calculateInMemorySize() < (0.97 * ONHEAP_SIZE)) {
+      while (cache.getStatistics().getLocalHeapSizeInBytes() < (0.97 * ONHEAP_SIZE)) {
         cache.put(new Element("key-" + key, "value-" + key));
         key++;
       }
@@ -156,7 +156,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       return new Callable<Long>() {
         @Override
         public Long call() throws Exception {
-          return cache.getMemoryStoreSize();
+          return cache.getStatistics().getLocalHeapSize();
         }
       };
     }
@@ -165,7 +165,7 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
       return new Callable<Long>() {
         @Override
         public Long call() throws Exception {
-          return cache.calculateInMemorySize();
+          return cache.getStatistics().getLocalHeapSizeInBytes();
         }
       };
     }
@@ -177,8 +177,8 @@ public class L1BMCacheStatisticsTest extends AbstractCacheTestBase {
     private void printCacheStatistics(Cache cache) {
       info("Cache name: " + cache.getName());
       info("Cache size: " + cache.getSize());
-      info("Cache in memory size: " + cache.getMemoryStoreSize());
-      info("Cache off heap size: " + cache.getOffHeapStoreSize());
+      info("Cache in memory size: " + cache.getStatistics().getLocalHeapSize());
+      info("Cache off heap size: " + cache.getStatistics().getLocalOffHeapSize());
       info("Cache hits: " + cache.getStatistics().cacheHitCount() + " misses: "
            + cache.getStatistics().cacheMissCount());
       info("Cache in memory hits: " + cache.getStatistics().localHeapHitCount() + " misses: "

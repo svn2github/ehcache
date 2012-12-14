@@ -174,7 +174,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
         assertEquals(4, store.getSize());
         assertEquals(2001, cache.getSize());
-        assertEquals(3998, cache.getDiskStoreSize());
+        assertEquals(3998, cache.getStatistics().getLocalDiskSize());
 
         /**
          * Non serializable test class
@@ -187,8 +187,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
 
         assertEquals(4, store.getSize());
         assertEquals(2002, cache.getSize());
-        assertEquals(1999, cache.getDiskStoreSize());
-//        assertEquals(1998, cache.getDiskStoreSize());    ???
+        assertEquals(1999, cache.getStatistics().getLocalDiskSize());
+//        assertEquals(1998, cache.getStatistics().getLocalDiskSize());    ???
 
         //smoke test
         for (int i = 0; i < 2000; i++) {

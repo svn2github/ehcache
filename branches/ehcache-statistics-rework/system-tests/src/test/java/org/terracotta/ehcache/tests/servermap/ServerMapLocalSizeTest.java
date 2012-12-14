@@ -53,7 +53,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
       // eventual - can't assert size
       // Assert.assertEquals(maxElementsInMemory, cache.getSize());
       Assert.assertEquals(maxElementsInMemory, cache.getStatistics().getLocalHeapSize());
-      Assert.assertEquals(maxElementsInMemory, cache.getMemoryStoreSize());
+      Assert.assertEquals(maxElementsInMemory, cache.getStatistics().getLocalHeapSize());
 
       for (int i = 1; i <= 100; i++) {
         cache.put(new Element("new-key-" + i, "new-value-" + i));
@@ -66,7 +66,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
         final int delta = 100;
         Assert.assertTrue("Failed at i=" + i + ", actual: " + actual, (maxElementsInMemory - delta) < actual
                                                                       && (actual - delta) <= maxElementsInMemory);
-        actual = cache.getMemoryStoreSize();
+        actual = cache.getStatistics().getLocalHeapSize();
         Assert.assertTrue("Failed at i=" + i + ", actual: " + actual, maxElementsInMemory - delta < actual
                                                                       && (actual - delta) <= maxElementsInMemory);
         Thread.sleep(100);
@@ -90,7 +90,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
       }
       // MNK-3020, calling getSize() to make sure that no entries are SMLCImpl.pendingTransactionEntries
       cache.getSize();
-      long newSize = cache.getMemoryStoreSize();
+      long newSize = cache.getStatistics().getLocalHeapSize();
       System.out.println("After adding first time, size: " + newSize);
       Assert.assertEquals(1, newSize);
       Element element = null;
@@ -112,7 +112,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
         clp.getSyncForKey(key).unlock(LockType.WRITE);
       }
 
-      newSize = cache.getMemoryStoreSize();
+      newSize = cache.getStatistics().getLocalHeapSize();
       System.out.println("After replace, size: " + newSize);
       Assert.assertEquals(1, newSize);
       element = cache.get(key);

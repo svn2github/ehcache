@@ -673,7 +673,7 @@ public class CacheTest extends AbstractCacheTest {
         manager.addCache(cache);
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        System.out.println(cache.getMemoryStoreSize());
+        System.out.println(cache.getStatistics().getLocalHeapSize());
         assertNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
     }
@@ -1060,7 +1060,7 @@ public class CacheTest extends AbstractCacheTest {
         } catch (AssertionError e) {
             //eviction failure
             System.err.println(e + " - likely eviction failure: checking memory store");
-            assertEquals(2, cache.getMemoryStoreSize());
+            assertEquals(2, cache.getStatistics().getLocalHeapSize());
         }
         Element nullValueElement = cache.get(object1);
         assertNull(nullValueElement.getValue());
@@ -1320,8 +1320,8 @@ public class CacheTest extends AbstractCacheTest {
 
         assertEquals(size, cache.getSize());
         //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
-        //assertEquals(10000, cache.getMemoryStoreSize());
-        //assertEquals(9, cache.getDiskStoreSize());
+        //assertEquals(10000, cache.getStatistics().getLocalHeapSize());
+        //assertEquals(9, cache.getStatistics().getLocalDiskSize());
 
 
         flushDiskStore(cache);
@@ -1377,8 +1377,8 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = manager.getCache("testFlushWhenOverflowToDisk");
         cache.removeAll();
 
-        assertEquals(0, cache.getMemoryStoreSize());
-        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
+        assertEquals(0, cache.getStatistics().getLocalDiskSize());
 
 
         for (int i = 0; i < 100; i++) {
@@ -1393,7 +1393,7 @@ public class CacheTest extends AbstractCacheTest {
 
         RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), lessThanOrEqualTo(50L));
         assertEquals(100, cache.getSize());
-        assertEquals(100, cache.getDiskStoreSize());
+        assertEquals(100, cache.getStatistics().getLocalDiskSize());
 
 
         //Should get selected. But this is probabilistic
@@ -1407,7 +1407,7 @@ public class CacheTest extends AbstractCacheTest {
 
         RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), lessThanOrEqualTo(50L));
         assertEquals(103, cache.getSize());
-        assertEquals(103, cache.getDiskStoreSize());
+        assertEquals(103, cache.getStatistics().getLocalDiskSize());
 
 
         //these "null" Elements are ignored and do not get put in
@@ -1415,20 +1415,20 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element(null, null));
 
         assertEquals(103, cache.getSize());
-        assertEquals(103, cache.getDiskStoreSize());
-        assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(50L));
+        assertEquals(103, cache.getStatistics().getLocalDiskSize());
+        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(50L));
 
         //this one does
         cache.put(new Element("nullValue", null));
 
         RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(104L));
-        assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(50L));
+        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(50L));
 
         cache.flush();
 
         RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), is(0L));
         //Non Serializable Elements get discarded
-        assertEquals(104, cache.getDiskStoreSize());
+        assertEquals(104, cache.getStatistics().getLocalDiskSize());
 
         cache.removeAll();
     }
@@ -1449,14 +1449,14 @@ public class CacheTest extends AbstractCacheTest {
             cache.get("" + i);
         }
 
-        assertEquals(10, cache.getMemoryStoreSize());
-        assertEquals(100, cache.getDiskStoreSize());
+        assertEquals(10, cache.getStatistics().getLocalHeapSize());
+        assertEquals(100, cache.getStatistics().getLocalDiskSize());
 
         cache.flush();
         Thread.sleep(200);
 
-        assertEquals(10, cache.getMemoryStoreSize());
-        assertEquals(100, cache.getDiskStoreSize());
+        assertEquals(10, cache.getStatistics().getLocalHeapSize());
+        assertEquals(100, cache.getStatistics().getLocalDiskSize());
         cacheManager.shutdown();
 
     }
@@ -1471,7 +1471,7 @@ public class CacheTest extends AbstractCacheTest {
             cache.put(new Element(Integer.toString(i), new Date()));
         }
 
-        for (long start = System.nanoTime(); (cache.getDiskStoreSize() != 100) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30));) {
+        for (long start = System.nanoTime(); (cache.getStatistics().getLocalDiskSize() != 100) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30));) {
             Thread.sleep(10);
         }
 
@@ -1479,16 +1479,16 @@ public class CacheTest extends AbstractCacheTest {
             cache.get(Integer.toString(i));
         }
 
-        assertEquals(10, cache.getMemoryStoreSize());
-        assertEquals(100, cache.getDiskStoreSize());
+        assertEquals(10, cache.getStatistics().getLocalHeapSize());
+        assertEquals(100, cache.getStatistics().getLocalDiskSize());
 
         cache.flush();
-        for (long start = System.nanoTime(); (cache.getMemoryStoreSize() > 0) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30));) {
+        for (long start = System.nanoTime(); (cache.getStatistics().getLocalHeapSize() > 0) && (System.nanoTime() - start < TimeUnit.SECONDS.toNanos(30));) {
             Thread.sleep(10);
         }
 
-        assertEquals(0, cache.getMemoryStoreSize());
-        assertEquals(100, cache.getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
+        assertEquals(100, cache.getStatistics().getLocalDiskSize());
         cacheManager.shutdown();
     }
 
@@ -1672,7 +1672,7 @@ public class CacheTest extends AbstractCacheTest {
     public void testGetDiskStoreSize() throws Exception {
         Cache cache = new Cache("testGetDiskStoreSize", 1, true, false, 100, 200);
         manager.addCache(cache);
-        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalDiskSize());
 
         cache.put(new Element("key1", "value1"));
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(1L));
@@ -1681,37 +1681,37 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key2", "value2"));
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2L));
         assertEquals(2, cache.getSize());
-        assertEquals(1, cache.getMemoryStoreSize());
+        assertEquals(1, cache.getStatistics().getLocalHeapSize());
 
         cache.put(new Element("key3", "value3"));
         cache.put(new Element("key4", "value4"));
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(4L));
         assertEquals(4, cache.getSize());
-        assertEquals(1, cache.getMemoryStoreSize());
+        assertEquals(1, cache.getStatistics().getLocalHeapSize());
 
         // remove last element inserted (is in memory store)
         cache.remove("key4");
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3L));
         assertEquals(3, cache.getSize());
-        assertEquals(1, cache.getMemoryStoreSize());
+        assertEquals(1, cache.getStatistics().getLocalHeapSize());
 
         // remove key1 element
         cache.remove("key1");
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(2L));
         assertEquals(2, cache.getSize());
-        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
         // add another
         cache.put(new Element("key5", "value5"));
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3L));
         assertEquals(3, cache.getSize());
-        assertEquals(1, cache.getMemoryStoreSize());
+        assertEquals(1, cache.getStatistics().getLocalHeapSize());
 
         // remove all
         cache.removeAll();
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(0L));
         assertEquals(0, cache.getSize());
-        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
         //Check behaviour of NonSerializable objects
         cache.put(new Element(new Object(), new Object()));
@@ -1721,8 +1721,8 @@ public class CacheTest extends AbstractCacheTest {
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
         assertEquals(1, cache.getSize());
-        assertEquals(0, cache.getDiskStoreSize());
-        assertEquals(1, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalDiskSize());
+        assertEquals(1, cache.getStatistics().getLocalHeapSize());
 
     }
 

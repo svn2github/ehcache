@@ -129,7 +129,7 @@ public class DiskBackMemoryStoreTest {
         cache.remove(-2);
         assertEquals(null, cache.get(-2));
 
-        assertEquals(0, cache.getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalDiskSize());
 
         for (int i = 0; i < 10010; i++) {
             cache.put(new Element(i, i));
@@ -137,11 +137,11 @@ public class DiskBackMemoryStoreTest {
 
         Thread.sleep(3000);
 
-        RetryAssert.assertBy(1, SECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cache.getDiskStoreSize();
+        RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
+                public Long call() throws Exception {
+                    return cache.getStatistics().getLocalDiskSize();
                 }
-            }, Is.is(10010));
+            }, Is.is(10010L));
 
         cm.shutdown();
     }

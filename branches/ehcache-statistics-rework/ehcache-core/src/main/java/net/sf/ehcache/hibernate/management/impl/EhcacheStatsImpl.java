@@ -525,7 +525,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public int getNumberOfElementsInMemory(String region) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
-            return (int) cache.getMemoryStoreSize();
+            return (int) cache.getStatistics().getLocalHeapSize();
         } else {
             return -1;
         }
@@ -539,7 +539,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public int getNumberOfElementsOffHeap(String region) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
-            return (int) cache.getOffHeapStoreSize();
+            return (int) cache.getStatistics().getLocalOffHeapSize();
         } else {
             return -1;
         }
@@ -553,7 +553,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public int getNumberOfElementsOnDisk(String region) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
-            return cache.getDiskStoreSize();
+            return (int) cache.getStatistics().getLocalDiskSize();
         } else {
             return -1;
         }

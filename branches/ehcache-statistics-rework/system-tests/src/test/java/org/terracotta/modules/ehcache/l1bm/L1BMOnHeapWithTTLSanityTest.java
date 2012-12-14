@@ -90,11 +90,11 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
       }
       Assert.assertEquals(numOfElements, cache.getSize());
       println("client " + index + " cache size: " + cache.getSize() + " local: "
-                         + cache.getMemoryStoreSize());
+                         + cache.getStatistics().getLocalHeapSize());
       if (index == 0) {
-        Assert.assertTrue(cache.getMemoryStoreSize() > 0);
+        Assert.assertTrue(cache.getStatistics().getLocalHeapSize() > 0);
       } else {
-        Assert.assertEquals(0, cache.getMemoryStoreSize());
+        Assert.assertEquals(0, cache.getStatistics().getLocalHeapSize());
       }
 
       barrier.await();
@@ -103,7 +103,7 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
       for (int i = 0; i < numOfElements; i++) {
         Assert.assertNotNull("value for key" + i + " is null", cache.get("key" + i));
       }
-      Assert.assertTrue(cache.getMemoryStoreSize() > 0);
+      Assert.assertTrue(cache.getStatistics().getLocalHeapSize() > 0);
 
       barrier.await();
       println("done with basic get, now removing random entries...");
