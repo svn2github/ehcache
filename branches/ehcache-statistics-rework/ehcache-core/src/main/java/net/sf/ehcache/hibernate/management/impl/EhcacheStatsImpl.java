@@ -328,7 +328,7 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
             if (cache != null) {
                 rv.put(name, new int[] {cache.getStatistics().cacheHitOperation().rate().value().intValue() ,
                         cache.getStatistics().cacheMissNotFoundOperation().rate().value().intValue() ,
-                                + cache.getStatistics().cacheMissExpiredOperation().rate().value().intValue() ,
+                                cache.getStatistics().cacheMissExpiredOperation().rate().value().intValue() ,
                         cache.getStatistics().cachePutOperation().rate().value().intValue()});
             }
         }
@@ -583,7 +583,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String cacheName : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
-                rv = Math.max(rv, TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheSearchOperation().latency().maximum().value().longValue(),TimeUnit.NANOSECONDS));
+                rv = Math.max(rv, TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheSearchOperation().latency().maximum().value().longValue(),
+                        TimeUnit.NANOSECONDS));
             }
         }
         return rv;
@@ -597,7 +598,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         for (String cacheName : cacheManager.getCacheNames()) {
             Cache cache = cacheManager.getCache(cacheName);
             if (cache != null) {
-                rv = Math.max(rv, TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheSearchOperation().latency().minimum().value().longValue(),TimeUnit.NANOSECONDS));
+                rv = Math.max(rv, TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheSearchOperation().latency().minimum().value().longValue(),
+                        TimeUnit.NANOSECONDS));
                 // TODO CRSS why max?
             }
         }
@@ -612,7 +614,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public long getMaxGetTimeMillis(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);
         if (cache != null) {
-            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheGetOperation().latency().maximum().value().longValue(),TimeUnit.NANOSECONDS);
+            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheGetOperation().latency().maximum().value().longValue(),
+                    TimeUnit.NANOSECONDS);
         } else {
             return 0;
         }
@@ -626,7 +629,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public long getMinGetTimeMillis(String cacheName) {
         Cache cache = cacheManager.getCache(cacheName);
         if (cache != null) {
-            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheGetOperation().latency().minimum().value().longValue(),TimeUnit.NANOSECONDS);
+            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheGetOperation().latency().minimum().value().longValue(),
+                    TimeUnit.NANOSECONDS);
         } else {
             return 0;
         }
@@ -640,7 +644,8 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     public float getAverageGetTimeMillis(String region) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
-            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheGetOperation().latency().average().value().longValue(),TimeUnit.NANOSECONDS);
+            return TimeUnit.MILLISECONDS.convert(cache.getStatistics().cacheGetOperation().latency().average().value().longValue(),
+                    TimeUnit.NANOSECONDS);
         } else {
             return -1f;
         }

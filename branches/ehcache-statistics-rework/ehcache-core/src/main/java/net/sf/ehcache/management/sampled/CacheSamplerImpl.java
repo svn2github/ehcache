@@ -157,7 +157,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getAverageGetTimeNanosMostRecentSample() {
-        return getAverageGetTimeNanos(); // TODO
+        return getAverageGetTimeNanos();
     }
 
     /**
@@ -189,7 +189,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheElementExpiredMostRecentSample() {
-        return getCacheExpirationRate(); // TODO
+        return getCacheExpirationRate();
     }
 
     /**
@@ -205,7 +205,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheElementPutMostRecentSample() {
-        return getCachePutRate(); // TODO
+        return getCachePutRate();
     }
 
     /**
@@ -221,7 +221,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheElementRemovedMostRecentSample() {
-        return getCacheRemoveRate(); // TODO
+        return getCacheRemoveRate();
     }
 
     /**
@@ -237,7 +237,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheElementUpdatedMostRecentSample() {
-        return getCacheUpdateRate(); // TODO
+        return getCacheUpdateRate();
     }
 
     /**
@@ -253,7 +253,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheHitInMemoryMostRecentSample() {
-        return getCacheInMemoryHitRate(); // TODO
+        return getCacheInMemoryHitRate();
     }
 
     /**
@@ -269,7 +269,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheHitOffHeapMostRecentSample() {
-        return getCacheOffHeapHitRate(); // TODO
+        return getCacheOffHeapHitRate();
     }
 
     /**
@@ -285,7 +285,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheHitMostRecentSample() {
-        return getCacheHitRate(); // TODO
+        return getCacheHitRate();
     }
 
     /**
@@ -301,7 +301,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheHitOnDiskMostRecentSample() {
-        return getCacheOnDiskHitRate(); // TODO
+        return getCacheOnDiskHitRate();
     }
 
     /**
@@ -325,7 +325,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheMissMostRecentSample() {
-        return getCacheMissRate(); // TODO
+        return getCacheMissRate();
     }
 
     /**
@@ -341,7 +341,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheMissInMemoryMostRecentSample() {
-        return getCacheInMemoryMissRate(); // TODO
+        return getCacheInMemoryMissRate();
     }
 
     /**
@@ -357,7 +357,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheMissOffHeapMostRecentSample() {
-        return getCacheOffHeapMissRate(); // TODO
+        return getCacheOffHeapMissRate();
     }
 
     /**
@@ -373,7 +373,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheMissOnDiskMostRecentSample() {
-        return getCacheOnDiskMissRate(); // TODO
+        return getCacheOnDiskMissRate();
     }
 
     /**
@@ -448,7 +448,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         }
     }
 
-    /**
+    /**a
      * {@inheritDoc}
      */
     @Override
@@ -1409,7 +1409,8 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getSearchesPerSecond() {
-        return 0; // TODO I can't math.
+        // TODO I can't math.
+        return 0;
     }
 
     /**
@@ -1457,7 +1458,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheXaCommitsMostRecentSample() {
-        return getTransactionCommitRate(); // TODO
+        return getTransactionCommitRate();
     }
 
     /**
@@ -1473,7 +1474,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getCacheXaRollbacksMostRecentSample() {
-        return getTransactionRollbackRate(); // TODO
+        return getTransactionRollbackRate();
     }
 
     /**
@@ -1493,7 +1494,8 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public int getCacheHitRatio() {
-        return (int) ((getCacheHitCount() * 100L) / (getCacheHitCount() + getCacheMissCount()));
+        final long oneHundred = 100L;
+        return (int) ((getCacheHitCount() * oneHundred) / (getCacheHitCount() + getCacheMissCount()));
     }
 
     /**
@@ -1501,7 +1503,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public int getCacheHitRatioMostRecentSample() {
-        return getCacheHitRatio(); // TODO
+        return getCacheHitRatio();
     }
 
     @Override

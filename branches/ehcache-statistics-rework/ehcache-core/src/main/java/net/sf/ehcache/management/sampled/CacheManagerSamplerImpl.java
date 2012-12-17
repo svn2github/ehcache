@@ -84,7 +84,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
                 FlatStatistics stats = cache.getStatistics();
                 result.put(cacheName, new long[] {stats.cacheHitOperation().rate().value().longValue(),
                     stats.cacheMissExpiredOperation().rate().value().longValue(),
-                    + stats.cacheMissNotFoundOperation().rate().value().longValue(),
+                    stats.cacheMissNotFoundOperation().rate().value().longValue(),
                     stats.cachePutOperation().rate().value().longValue()});
             }
         }
@@ -347,7 +347,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null) {
-                result += Math.max(cache.getStatistics().getWriterQueueLength(),0);
+                result += Math.max(cache.getStatistics().getWriterQueueLength(), 0);
             }
         }
         return result;

@@ -16,6 +16,25 @@
 
 package net.sf.ehcache.store.disk;
 
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
@@ -37,6 +56,7 @@ import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StripedReadWriteLockProvider;
 import net.sf.ehcache.store.TierableStore;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
@@ -44,33 +64,12 @@ import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
 import net.sf.ehcache.writer.CacheWriterManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
-
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
-import net.sf.ehcache.store.StoreOperationOutcomes;
-import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
-import org.terracotta.statistics.Statistic;
 
 /**
  * Implements a persistent-to-disk store.
@@ -1174,7 +1173,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
             return getInMemorySize();
         }
     }
-    
+
     /**
      * PoolParticipant that is used with the DiskPool.
      */

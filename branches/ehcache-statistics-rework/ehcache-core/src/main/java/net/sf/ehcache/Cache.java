@@ -136,7 +136,7 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
 import org.terracotta.statistics.StatisticsManager;
 
 /**
@@ -257,10 +257,11 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private volatile CacheWriter registeredCacheWriter;
 
-    public EhcacheStatisticsCoreDb statisticsDb;
+    private EhcacheStatisticsCoreDb statisticsDb;
 
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
-    private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this).tag("cache", "bulk").build();
+    private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this)
+            .tag("cache", "bulk").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("cache").build();
     private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("cache").build();
     private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this).tag("cache").build();
@@ -1140,8 +1141,8 @@ public class Cache implements InternalEhcache, StoreListener {
             // this is a little different. THis is sortof a mess.
             // TODO TBD DO it better. CRSS
             StatisticsManager.associate(this).withChild(compoundStore);
-            statisticsDb=new EhcacheStatisticsCoreDb(this);
-            statistics=new StatisticsPlaceholder(this, statisticsDb.getStatisticsManager());
+            statisticsDb = new EhcacheStatisticsCoreDb(this);
+            statistics = new StatisticsPlaceholder(this, statisticsDb.getStatisticsManager());
         }
 
         compoundStore.addStoreListener(this);
@@ -1426,7 +1427,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
         backOffIfDiskSpoolFull();
         element.updateUpdateStatistics();
-        boolean elementExists=false;
+        boolean elementExists = false;
         if (useCacheWriter) {
             boolean notifyListeners = true;
             try {
@@ -1448,7 +1449,7 @@ public class Cache implements InternalEhcache, StoreListener {
             elementExists = !compoundStore.put(element);
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
         }
-        putObserver.end(elementExists?CacheOperationOutcomes.PutOutcome.UPDATED:CacheOperationOutcomes.PutOutcome.ADDED);
+        putObserver.end(elementExists ? CacheOperationOutcomes.PutOutcome.UPDATED : CacheOperationOutcomes.PutOutcome.ADDED);
 
     }
 
@@ -1604,7 +1605,7 @@ public class Cache implements InternalEhcache, StoreListener {
             return Collections.EMPTY_MAP;
         }
 
-        if(true) {
+        if (true) {
             // XXX cdennis needs to go here..
             Map<Object, Element> elements = searchAllInStoreWithStats(keys);
             return elements;
@@ -2490,7 +2491,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return The size value
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    @org.terracotta.statistics.Statistic(name="cache-size", tags="cache")
+    @org.terracotta.statistics.Statistic(name = "cache-size", tags = "cache")
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
 

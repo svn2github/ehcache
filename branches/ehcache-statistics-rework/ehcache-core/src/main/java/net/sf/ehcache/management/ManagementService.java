@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager
  * will be to shut it down and create a new one from within a running JVM. For example,
  * in Java EE environments, applications are often undeployed and then redeployed. A
- * servlet listener available in the web module, <code>net.sf.ehcache.constructs.web.ShutdownListener</code>}
+ * servlet listener avdailable in the web module, <code>net.sf.ehcache.constructs.web.ShutdownListener</code>}
  * enables this to be detected and the CacheManager shutdown.
  * <p/>
  * When a CacheManager is shut down we need to ensure there is no memory, resource or
@@ -62,13 +62,13 @@ public class ManagementService implements CacheManagerEventListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagementService.class.getName());
 
-    private MBeanServer mBeanServer;
-    private net.sf.ehcache.CacheManager backingCacheManager;
-    private boolean registerCacheManager;
-    private boolean registerCaches;
-    private boolean registerCacheConfigurations;
-    private boolean registerCacheStatistics;
-    private boolean registerCacheStores;
+    private final MBeanServer mBeanServer;
+    private final net.sf.ehcache.CacheManager backingCacheManager;
+    private final boolean registerCacheManager;
+    private final boolean registerCaches;
+    private final boolean registerCacheConfigurations;
+    private final boolean registerCacheStatistics;
+    private final boolean registerCacheStores;
     private Status status;
 
 

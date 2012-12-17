@@ -20,7 +20,6 @@ import java.util.List;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperation;
-import org.terracotta.statistics.Statistic;
 
 /**
  * An implementation of write behind with a queue that is kept in non durable local heap.

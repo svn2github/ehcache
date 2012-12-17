@@ -54,7 +54,7 @@ import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import org.terracotta.statistics.Statistic;
 
@@ -755,7 +755,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="local-heap-size", tags="heap")
+    @Statistic(name = "local-heap-size", tags = "heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -763,16 +763,14 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="local-heap-size-in-bytes", tags="heap")
+    @Statistic(name = "local-heap-size-in-bytes", tags = "heap")
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
-            DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
-                SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-                SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT)
-            );
+            DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                    SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
             long sizeInBytes = 0;
             for (Object o : map.values()) {
-                Element element = (Element)o;
+                Element element = (Element) o;
                 if (element != null) {
                     Size size = defaultSizeOfEngine.sizeOf(element.getObjectKey(), element, map.storedObject(element));
                     sizeInBytes += size.getCalculated();
@@ -1050,7 +1048,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
             return map.quickSize();
         }
     }
-    
+
     /**
      * Factory interface to create a MemoryStore backing.
      */

@@ -77,10 +77,13 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final List<XAExecutionListener> listeners = new ArrayList<XAExecutionListener>();
     private final ElementValueComparator comparator;
 
-    private final OperationObserver<XaCommitOutcome> commitObserver = StatisticBuilder.operation(XaCommitOutcome.class).of(this).named("xa-commit").tag("transactional").build();
-    private final OperationObserver<XaRollbackOutcome> rollbackObserver = StatisticBuilder.operation(XaRollbackOutcome.class).of(this).named("xa-commit").tag("transactional").build();
-    private final OperationObserver<XaRecoveryOutcome> recoveryObserver = StatisticBuilder.operation(XaRecoveryOutcome.class).of(this).named("xa-recovery").tag("transactional").build();
-    
+    private final OperationObserver<XaCommitOutcome> commitObserver = StatisticBuilder.operation(XaCommitOutcome.class)
+            .of(this).named("xa-commit").tag("transactional").build();
+    private final OperationObserver<XaRollbackOutcome> rollbackObserver = StatisticBuilder.operation(XaRollbackOutcome.class)
+            .of(this).named("xa-commit").tag("transactional").build();
+    private final OperationObserver<XaRecoveryOutcome> recoveryObserver = StatisticBuilder.operation(XaRecoveryOutcome.class)
+            .of(this).named("xa-recovery").tag("transactional").build();
+
     /**
      * Constructor
      * @param cache the cache

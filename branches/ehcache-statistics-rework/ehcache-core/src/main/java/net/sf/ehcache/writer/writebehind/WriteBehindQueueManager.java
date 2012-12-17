@@ -16,6 +16,10 @@
 
 package net.sf.ehcache.writer.writebehind;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -23,9 +27,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.writer.CacheWriter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.terracotta.statistics.Statistic;
 
 /**
@@ -136,7 +137,7 @@ public class WriteBehindQueueManager implements WriteBehind {
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="write-behind-queue-length", tags="write-behind")
+    @Statistic(name = "write-behind-queue-length", tags = "write-behind")
     public long getQueueSize() {
         int size = 0;
         readLock.lock();

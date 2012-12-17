@@ -16,13 +16,14 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -32,9 +33,8 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.loader.CacheLoader;
-import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.*;
+import org.terracotta.statistics.observer.OperationObserver;
 
 /**
  * A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
@@ -77,7 +77,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
 
     private final int stripes;
     private final AtomicReference<CacheLockProvider> cacheLockProviderReference;
-    
+
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
 
     /**

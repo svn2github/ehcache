@@ -33,14 +33,13 @@ public class Statistics2Test extends AbstractCacheTest {
         manager.addCache(cache);
 
         manager.shutdown();
-        
-        System.out.print(dumpTree(cache.statisticsDb.statisticsManager.queryForSingleton(QueryBuilder.queryBuilder().build())));
+
     }
 
   public static String dumpTree(TreeNode node) {
     return dumpSubtree(0, node);
   }
-  
+
   public static String dumpSubtree(int indent, TreeNode node) {
     char[] indentChars = new char[indent];
     Arrays.fill(indentChars, ' ');

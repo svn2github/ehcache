@@ -16,13 +16,79 @@
 
 package net.sf.ehcache;
 
+/**
+ * Interface containing cache operation outcome enums
+ * @author cschanck
+ */
 public interface CacheOperationOutcomes {
 
-    enum GetOutcome { HIT, MISS_EXPIRED, MISS_NOT_FOUND};
-    enum GetAllOutcome { ALL_MISS, ALL_HIT, PARTIAL};
-    enum PutOutcome { ADDED, UPDATED };
-    enum RemoveOutcome { SUCCESS };
-    enum SearchOutcome { SUCCESS , EXCEPTION};
-    enum EvictionOutcome { SUCCESS };
-    enum ExpiredOutcome { SUCCESS };
+    /**
+     * Outcomes for cache Get operations.
+     *
+     * @author cschanck
+     */
+    enum GetOutcome {
+        /** hit. */
+        HIT,
+        /** miss expired. */
+        MISS_EXPIRED,
+        /** miss not found. */
+        MISS_NOT_FOUND
+    };
+
+    /**
+     * The outcomes for GetAll operations
+     */
+    enum GetAllOutcome {
+        /** all miss. */
+        ALL_MISS,
+        /** all hit. */
+        ALL_HIT,
+        /** partial. */
+        PARTIAL
+    };
+
+    /**
+     * The outcomes for Put Outcomes
+     */
+    enum PutOutcome {
+        /** added. */
+        ADDED,
+        /** updated. */
+        UPDATED
+    };
+
+    /**
+     * The outcomes for remove operations
+     */
+    enum RemoveOutcome {
+        /** success. */
+        SUCCESS
+    };
+
+    /**
+     * The outcomes for the store search operation
+     */
+    enum SearchOutcome {
+        /** success. */
+        SUCCESS,
+        /** exception. */
+        EXCEPTION
+    };
+
+    /**
+     * The eviction outcomes
+     */
+    enum EvictionOutcome {
+        /** success. */
+        SUCCESS
+    };
+
+    /**
+     * The expiration outcomes
+     */
+    enum ExpiredOutcome {
+        /** success. */
+        SUCCESS
+    };
 }
