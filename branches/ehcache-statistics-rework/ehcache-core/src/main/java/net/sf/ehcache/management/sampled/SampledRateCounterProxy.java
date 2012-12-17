@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.management.sampled;
 
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 
 /**

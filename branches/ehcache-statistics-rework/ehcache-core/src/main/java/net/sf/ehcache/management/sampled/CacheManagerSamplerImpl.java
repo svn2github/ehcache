@@ -23,7 +23,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheWriterConfiguration;
-import net.sf.ehcache.statisticsV2.FlatStatistics;
+import net.sf.ehcache.statistics.FlatStatistics;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
 /**

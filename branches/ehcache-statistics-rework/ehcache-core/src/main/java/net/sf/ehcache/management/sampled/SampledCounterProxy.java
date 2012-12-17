@@ -22,7 +22,7 @@ import java.util.Comparator;
 
 import org.terracotta.statistics.archive.Timestamped;
 
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.TimeStampedCounterValue;
 

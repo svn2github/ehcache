@@ -14,13 +14,15 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2.extended;
+package net.sf.ehcache.statistics.extended;
 
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Latency;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
+
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Latency;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
+
 import org.terracotta.statistics.OperationStatistic;
 
 /**

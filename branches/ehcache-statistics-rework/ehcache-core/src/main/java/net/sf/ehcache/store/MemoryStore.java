@@ -54,7 +54,7 @@ import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import org.terracotta.statistics.Statistic;
 

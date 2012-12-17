@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2;
+package net.sf.ehcache.statistics;
 
 import static org.terracotta.context.query.Matchers.allOf;
 import static org.terracotta.context.query.Matchers.attributes;

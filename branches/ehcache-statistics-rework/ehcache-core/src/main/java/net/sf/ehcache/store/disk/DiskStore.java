@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.store.disk;
 
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 import java.io.File;
 import java.io.IOException;

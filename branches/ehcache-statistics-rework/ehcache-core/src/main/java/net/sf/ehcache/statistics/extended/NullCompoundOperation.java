@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.sf.ehcache.statisticsV2.extended;
+package net.sf.ehcache.statistics.extended;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Latency;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
+
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Latency;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
+
 import org.terracotta.statistics.archive.Timestamped;
 
 

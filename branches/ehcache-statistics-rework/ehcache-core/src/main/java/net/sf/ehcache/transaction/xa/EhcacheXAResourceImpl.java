@@ -52,7 +52,8 @@ import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.ehcache.statisticsV2.StatisticBuilder;
+import net.sf.ehcache.statistics.StatisticBuilder;
+
 import org.terracotta.statistics.observer.OperationObserver;
 
 /**

@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2;
+package net.sf.ehcache.statistics;
 
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatisticsImpl;
-import net.sf.ehcache.statisticsV2.extended.FlatExtendedStatisticsImpl;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
+import net.sf.ehcache.statistics.extended.FlatExtendedStatisticsImpl;
 
 import org.terracotta.statistics.StatisticsManager;
 

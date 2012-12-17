@@ -19,7 +19,7 @@ package net.sf.ehcache.management;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
-import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsPlaceholder;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;

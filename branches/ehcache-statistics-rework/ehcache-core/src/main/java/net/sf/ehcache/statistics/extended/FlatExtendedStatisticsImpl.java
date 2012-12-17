@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2.extended;
+package net.sf.ehcache.statistics.extended;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;

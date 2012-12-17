@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2;
+package net.sf.ehcache.statistics;
 
-import net.sf.ehcache.statisticsV2.extended.FlatExtendedStatistics;
+import net.sf.ehcache.statistics.extended.FlatExtendedStatistics;
 
 public interface FlatStatistics extends FlatCoreStatistics,FlatExtendedStatistics{
 

@@ -9,6 +9,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.*;

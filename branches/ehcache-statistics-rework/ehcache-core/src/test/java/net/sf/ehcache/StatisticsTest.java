@@ -27,10 +27,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import net.sf.ehcache.statisticsV2.CoreStatistics;
-import net.sf.ehcache.statisticsV2.FlatCoreStatistics;
-import net.sf.ehcache.statisticsV2.FlatStatistics;
-import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.CoreStatistics;
+import net.sf.ehcache.statistics.FlatCoreStatistics;
+import net.sf.ehcache.statistics.FlatStatistics;
+import net.sf.ehcache.statistics.StatisticsPlaceholder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

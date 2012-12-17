@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.statisticsV2.extended;
+package net.sf.ehcache.statistics.extended;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 
 import org.terracotta.statistics.ValueStatistic;
 

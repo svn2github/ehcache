@@ -16,7 +16,7 @@
 
 package net.sf.ehcache.constructs.blocking;
 
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 import java.io.Serializable;
 import java.util.Collection;

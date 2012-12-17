@@ -92,8 +92,8 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.statisticsV2.EhcacheStatisticsCoreDb;
-import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.EhcacheStatisticsCoreDb;
+import net.sf.ehcache.statistics.StatisticsPlaceholder;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -136,7 +136,8 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statisticsV2.StatisticBuilder.operation;
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+
 import org.terracotta.statistics.StatisticsManager;
 
 /**

@@ -42,8 +42,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.statisticsV2.CoreStatistics;
-import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.CoreStatistics;
+import net.sf.ehcache.statistics.StatisticsPlaceholder;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.hamcrest.collection.IsEmptyCollection;

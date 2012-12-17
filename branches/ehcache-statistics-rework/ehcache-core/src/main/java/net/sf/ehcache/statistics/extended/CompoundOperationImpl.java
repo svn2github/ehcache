@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.sf.ehcache.statisticsV2.extended;
+package net.sf.ehcache.statistics.extended;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -15,9 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic;
+
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
+
 import org.terracotta.statistics.OperationStatistic;
 
 /**

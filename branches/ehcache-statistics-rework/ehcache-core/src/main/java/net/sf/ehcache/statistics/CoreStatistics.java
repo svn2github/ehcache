@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2;
+package net.sf.ehcache.statistics;
 
 import net.sf.ehcache.CacheOperationOutcomes;
-import net.sf.ehcache.statisticsV2.CoreStatistics.CountOperation;
+import net.sf.ehcache.statistics.CoreStatistics.CountOperation;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;

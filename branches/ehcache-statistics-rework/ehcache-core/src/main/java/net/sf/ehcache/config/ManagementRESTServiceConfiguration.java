@@ -15,7 +15,7 @@
  */
 package net.sf.ehcache.config;
 
-import net.sf.ehcache.statisticsV2.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsPlaceholder;
 import net.sf.ehcache.util.counter.sampled.SampledCounterConfig;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounterConfig;
 

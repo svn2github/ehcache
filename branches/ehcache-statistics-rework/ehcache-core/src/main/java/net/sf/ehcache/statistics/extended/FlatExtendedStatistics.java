@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statisticsV2.extended;
+package net.sf.ehcache.statistics.extended;
 
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 
 
 public interface FlatExtendedStatistics {

@@ -14,7 +14,9 @@ import org.junit.Test;
 import org.terracotta.statistics.StatisticsManager;
 
 import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.*;
-import net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Result;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import static org.hamcrest.core.Is.*;
 import static org.hamcrest.number.OrderingComparison.*;
 import static org.junit.Assert.assertThat;
