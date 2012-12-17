@@ -92,7 +92,7 @@ class NullCompoundOperation<T> implements Operation<T> {
     }
 }
 
-class NullOperation implements Result {
+final class NullOperation implements Result {
 
     private static final Result INSTANCE = new NullOperation();
 
@@ -100,6 +100,9 @@ class NullOperation implements Result {
         return INSTANCE;
     }
 
+    /**
+     * Instantiates a new null operation.
+     */
     private NullOperation() {
         //singleton
     }

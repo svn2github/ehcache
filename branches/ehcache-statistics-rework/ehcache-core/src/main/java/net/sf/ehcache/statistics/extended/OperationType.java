@@ -16,19 +16,22 @@
 
 package net.sf.ehcache.statistics.extended;
 
+import static org.terracotta.context.query.Matchers.allOf;
+import static org.terracotta.context.query.Matchers.attributes;
+import static org.terracotta.context.query.Matchers.context;
+import static org.terracotta.context.query.Matchers.hasAttribute;
+import static org.terracotta.context.query.Matchers.identifier;
+import static org.terracotta.context.query.Matchers.subclassOf;
+import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheOperationOutcomes;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
-import org.terracotta.context.query.Query;
 
-import static org.terracotta.context.query.Matchers.*;
+import org.terracotta.context.query.Query;
 import org.terracotta.context.query.QueryBuilder;
-import static org.terracotta.context.query.QueryBuilder.*;
 import org.terracotta.statistics.OperationStatistic;
 
 /**

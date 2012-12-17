@@ -18,7 +18,6 @@ package net.sf.ehcache.statistics;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
 
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -54,29 +53,29 @@ public class CoreStatisticsImpl implements CoreStatistics {
     private final CountOperation expired;
 
     public CoreStatisticsImpl(ExtendedStatistics extended) {
-        this.extended=extended;
-        this.cacheGet=asCountOperation(extended.get());
-        this.cachePut=asCountOperation(extended.put());
-        this.cacheRemove=asCountOperation(extended.remove());
+        this.extended = extended;
+        this.cacheGet = asCountOperation(extended.get());
+        this.cachePut = asCountOperation(extended.put());
+        this.cacheRemove = asCountOperation(extended.remove());
 
-        this.localHeapGet=asCountOperation(extended.heapGet());
-        this.localHeapPut=asCountOperation(extended.heapPut());
-        this.localHeapRemove=asCountOperation(extended.heapRemove());
+        this.localHeapGet = asCountOperation(extended.heapGet());
+        this.localHeapPut = asCountOperation(extended.heapPut());
+        this.localHeapRemove = asCountOperation(extended.heapRemove());
 
-        this.localOffHeapGet=asCountOperation(extended.offheapGet());
-        this.localOffHeapPut=asCountOperation(extended.offheapPut());
-        this.localOffHeapRemove=asCountOperation(extended.offheapRemove());
+        this.localOffHeapGet = asCountOperation(extended.offheapGet());
+        this.localOffHeapPut = asCountOperation(extended.offheapPut());
+        this.localOffHeapRemove = asCountOperation(extended.offheapRemove());
 
-        this.diskGet=asCountOperation(extended.diskGet());
-        this.diskPut=asCountOperation(extended.diskPut());
-        this.diskRemove=asCountOperation(extended.diskRemove());
+        this.diskGet = asCountOperation(extended.diskGet());
+        this.diskPut = asCountOperation(extended.diskPut());
+        this.diskRemove = asCountOperation(extended.diskRemove());
 
-        this.xaCommit=asCountOperation(extended.xaCommit());
-        this.xaRecovery=asCountOperation(extended.xaRecovery());
-        this.xaRollback=asCountOperation(extended.xaRollback());
+        this.xaCommit = asCountOperation(extended.xaCommit());
+        this.xaRecovery = asCountOperation(extended.xaRecovery());
+        this.xaRollback = asCountOperation(extended.xaRollback());
 
-        this.evicted=asCountOperation(extended.eviction());
-        this.expired=asCountOperation(extended.expiration());
+        this.evicted = asCountOperation(extended.eviction());
+        this.expired = asCountOperation(extended.expiration());
 
     }
 
@@ -178,6 +177,5 @@ public class CoreStatisticsImpl implements CoreStatistics {
     public CountOperation<ExpiredOutcome> cacheExpiration() {
         return expired;
     }
-
 
 }

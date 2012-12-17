@@ -23,6 +23,8 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
  * The Class SampledRateCounterProxy.
  *
  * @param <E> the element type
+ *
+ * @author cschanck
  */
 public class SampledRateCounterProxy<E extends Number> extends SampledCounterProxy<E> implements SampledRateCounter {
 

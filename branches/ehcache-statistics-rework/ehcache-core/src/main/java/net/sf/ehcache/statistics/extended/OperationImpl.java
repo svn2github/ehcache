@@ -55,7 +55,8 @@ class OperationImpl<T extends Enum<T>> implements Result {
      * @param historySize the history size
      * @param historyNanos the history nanos
      */
-    public OperationImpl(OperationStatistic<T> source, Set<T> targets, long averageNanos, ScheduledExecutorService executor, int historySize, long historyNanos) {
+    public OperationImpl(OperationStatistic<T> source, Set<T> targets, long averageNanos,
+            ScheduledExecutorService executor, int historySize, long historyNanos) {
         this.source = source;
         this.count = new CountStatistic(source, targets, executor, historySize, historyNanos);
         this.latency = new LatencyImpl(source, targets, averageNanos, executor, historySize, historyNanos);

@@ -28,32 +28,42 @@ public interface CoreStatistics {
     public interface CountOperation<T> {
         long value(T result);
 
-        long value(T ... results);
+        long value(T... results);
     }
 
     public CountOperation<CacheOperationOutcomes.GetOutcome> get();
+
     public CountOperation<CacheOperationOutcomes.PutOutcome> put();
+
     public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove();
 
     public CountOperation<StoreOperationOutcomes.GetOutcome> localHeapGet();
+
     public CountOperation<StoreOperationOutcomes.PutOutcome> localHeapPut();
+
     public CountOperation<StoreOperationOutcomes.RemoveOutcome> localHeapRemove();
 
     public CountOperation<StoreOperationOutcomes.GetOutcome> localOffHeapGet();
+
     public CountOperation<StoreOperationOutcomes.PutOutcome> localOffHeapPut();
+
     public CountOperation<StoreOperationOutcomes.RemoveOutcome> localOffHeapRemove();
 
     public CountOperation<StoreOperationOutcomes.GetOutcome> diskGet();
+
     public CountOperation<StoreOperationOutcomes.PutOutcome> diskPut();
+
     public CountOperation<StoreOperationOutcomes.RemoveOutcome> diskRemove();
 
     public CountOperation<XaCommitOutcome> xaCommit();
+
     public CountOperation<XaRecoveryOutcome> xaRecovery();
+
     public CountOperation<XaRollbackOutcome> xaRollback();
 
     // TBD hated CRSS
     public CountOperation<CacheOperationOutcomes.EvictionOutcome> cacheEviction();
-    public CountOperation<CacheOperationOutcomes.ExpiredOutcome> cacheExpiration();
 
+    public CountOperation<CacheOperationOutcomes.ExpiredOutcome> cacheExpiration();
 
 }

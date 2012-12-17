@@ -21,9 +21,17 @@ import java.util.List;
 
 import org.terracotta.context.TreeNode;
 
+/**
+ * The Operation/stats db Constants. Clas needs to go away.
+ *
+ * @author cschanck
+ */
 public class Constants {
 
+    /** The Constant NAME_PROP. */
     public static final String NAME_PROP = "name";
+
+    /** The Constant PROPERTIES_PROP. */
     public static final String PROPERTIES_PROP = "properties";
 
     /**

@@ -17,9 +17,6 @@
 package net.sf.ehcache.statistics;
 
 import net.sf.ehcache.CacheOperationOutcomes;
-import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
-import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
-import net.sf.ehcache.statistics.CoreStatistics.CountOperation;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
@@ -32,7 +29,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
     private final CoreStatistics core;
 
     public FlatCoreStatisticsImpl(CoreStatistics core) {
-        this.core=core;
+        this.core = core;
     }
 
     public CoreStatistics getCore() {
@@ -56,7 +53,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long cacheMissCount() {
-        return cacheMissExpiredCount()+cacheMissNotFoundCount();
+        return cacheMissExpiredCount() + cacheMissNotFoundCount();
     }
 
     @Override
@@ -71,7 +68,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long cachePutCount() {
-        return cachePutAddedCount()+cachePutUpdatedCount();
+        return cachePutAddedCount() + cachePutUpdatedCount();
     }
 
     @Override
@@ -101,7 +98,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long localHeapPutCount() {
-        return localHeapPutAddedCount()+localHeapPutUpdatedCount();
+        return localHeapPutAddedCount() + localHeapPutUpdatedCount();
     }
 
     @Override
@@ -131,7 +128,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long localOfHeapPutCount() {
-        return localOffHeapPutAddedCount()+localOffHeapPutUpdatedCount();
+        return localOffHeapPutAddedCount() + localOffHeapPutUpdatedCount();
     }
 
     @Override
@@ -161,7 +158,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long diskPutCount() {
-        return diskPutAddedCount()+diskPutUpdatedCount();
+        return diskPutAddedCount() + diskPutUpdatedCount();
     }
 
     @Override
@@ -186,7 +183,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long xaCommitCount() {
-        return xaCommitCommittedCount()+xaCommitExceptionCount()+xaCommitReadOnlyCount();
+        return xaCommitCommittedCount() + xaCommitExceptionCount() + xaCommitReadOnlyCount();
     }
 
     @Override
@@ -201,7 +198,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long xaRecoveryCount() {
-        return xaRecoveryNothingCount()+xaRecoveryRecoveredCount();
+        return xaRecoveryNothingCount() + xaRecoveryRecoveredCount();
     }
 
     @Override
@@ -216,7 +213,7 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
 
     @Override
     public long xaRollbackCount() {
-        return xaRollbackExceptionCount()+xaRollbackSuccessCount();
+        return xaRollbackExceptionCount() + xaRollbackSuccessCount();
     }
 
     @Override
@@ -228,7 +225,5 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
     public long cacheEvictedCount() {
         return core.cacheEviction().value(CacheOperationOutcomes.EvictionOutcome.SUCCESS);
     }
-
-
 
 }

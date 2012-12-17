@@ -15,15 +15,20 @@
  */
 package net.sf.ehcache.statistics.extended;
 
+import static org.terracotta.context.query.Matchers.allOf;
+import static org.terracotta.context.query.Matchers.attributes;
+import static org.terracotta.context.query.Matchers.context;
+import static org.terracotta.context.query.Matchers.hasAttribute;
+import static org.terracotta.context.query.Matchers.identifier;
+import static org.terracotta.context.query.Matchers.subclassOf;
+import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.writebehind.WriteBehindQueueManager;
+
 import org.terracotta.context.query.Query;
 import org.terracotta.context.query.QueryBuilder;
 import org.terracotta.statistics.ValueStatistic;
-
-import static org.terracotta.context.query.Matchers.*;
-import static org.terracotta.context.query.QueryBuilder.*;
 
 /**
  *
@@ -37,7 +42,8 @@ public enum PassThroughType {
     LOCAL_OFFHEAP_SIZE(Long.TYPE, 0L, stores().chain(childStatistic("local-offheap-size")).build()),
     LOCAL_OFFHEAP_SIZE_BYTES(Long.TYPE, 0L, stores().chain(childStatistic("local-offheap-size-in-bytes")).build()),
     LOCAL_DISK_SIZE(Long.TYPE, 0L, stores().chain(childStatistic("local-disk-size")).build()),
-    LOCAL_DISK_SIZE_BYTES(Long.TYPE, 0L, stores().chain(childStatistic("local-disk-size-in-bytes")).build()),
+    LOCAL_DISK_SIZE_BYTES(Long.TYPE, 0L, stores().chain(
+            childStatistic("local-disk-size-in-bytes")).build()),
     WRITER_QUEUE_LENGTH(Long.TYPE, 0L, queryBuilder().descendants().filter(context(identifier(subclassOf(WriteBehindQueueManager.class)))).chain(childStatistic("write-behind-queue-length")).build()),
     REMOTE_SIZE(Long.TYPE, 0L, stores().chain(childStatistic("remote-size")).build());
 

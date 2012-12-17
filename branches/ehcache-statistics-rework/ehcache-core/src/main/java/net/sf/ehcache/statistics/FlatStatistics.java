@@ -18,6 +18,11 @@ package net.sf.ehcache.statistics;
 
 import net.sf.ehcache.statistics.extended.FlatExtendedStatistics;
 
-public interface FlatStatistics extends FlatCoreStatistics,FlatExtendedStatistics{
+/**
+ * The Interface FlatStatistics; the almighty confluence of all basic statistics.
+ *
+ * @author cschanck
+ */
+public interface FlatStatistics extends FlatCoreStatistics, FlatExtendedStatistics {
 
 }

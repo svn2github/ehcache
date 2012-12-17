@@ -20,54 +20,84 @@ public interface FlatCoreStatistics {
 
     // cache level
     long cacheHitCount();
+
     long cacheMissExpiredCount();
+
     long cacheMissNotFoundCount();
+
     long cacheMissCount(); // sum of prev 2
 
     long cachePutAddedCount();
+
     long cachePutUpdatedCount();
+
     long cachePutCount(); // sum of prev 2
+
     long cacheRemoveCount();
 
     // heap
     long localHeapHitCount();
+
     long localHeapMissCount();
+
     long localHeapPutAddedCount();
+
     long localHeapPutUpdatedCount();
+
     long localHeapPutCount(); // sum of prev 2
 
     long localHeapRemoveCount();
 
     // offheap
     long localOffHeapHitCount();
+
     long localOffHeapMissCount();
+
     long localOffHeapPutAddedCount();
+
     long localOffHeapPutUpdatedCount();
+
     long localOfHeapPutCount(); // sum of prev 2
+
     long localOffHeapRemoveCount();
 
     // disk
     long diskHitCount();
+
     long diskMissCount();
+
     long diskPutAddedCount();
+
     long diskPutUpdatedCount();
+
     long diskPutCount(); // sum of prev 2
+
     long diskRemoveCount();
 
     // xa
     long xaCommitReadOnlyCount();
+
     long xaCommitExceptionCount();
+
     long xaCommitCommittedCount();
+
     long xaCommitCount(); // sum of prev 3
+
     long xaRecoveryNothingCount();
+
     long xaRecoveryRecoveredCount();
+
     long xaRecoveryCount(); // sum of prev 2
+
     long xaRollbackExceptionCount();
+
     long xaRollbackSuccessCount();
+
     long xaRollbackCount(); // sum of prev 2
 
     // placeholder
     long cacheExpiredCount();
+
     long cacheEvictedCount();
 
 }

@@ -52,7 +52,8 @@ public class RateStatistic<T extends Enum<T>> extends AbstractStatistic<Double> 
      * @param historySize the history size
      * @param historyNanos the history nanos
      */
-    public RateStatistic(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos, ScheduledExecutorService executor, int historySize, long historyNanos) {
+    public RateStatistic(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos,
+            ScheduledExecutorService executor, int historySize, long historyNanos) {
         super(executor, historySize, historyNanos);
         this.source = statistic;
         this.rate = new EventRateSimpleMovingAverage(averageNanos, TimeUnit.NANOSECONDS);
