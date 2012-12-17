@@ -16,23 +16,9 @@
 
 package net.sf.ehcache.statistics;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Random;
-import java.util.concurrent.Callable;
-
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.util.RetryAssert;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 /**

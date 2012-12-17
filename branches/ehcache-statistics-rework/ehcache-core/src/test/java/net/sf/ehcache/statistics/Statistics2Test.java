@@ -17,13 +17,12 @@
 package net.sf.ehcache.statistics;
 
 import java.util.Arrays;
-import org.junit.Test;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 
+import org.junit.Test;
 import org.terracotta.context.TreeNode;
-import org.terracotta.context.query.QueryBuilder;
 
 public class Statistics2Test extends AbstractCacheTest {
 

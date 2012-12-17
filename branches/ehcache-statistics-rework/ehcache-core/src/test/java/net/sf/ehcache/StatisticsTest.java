@@ -20,22 +20,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
-import net.sf.ehcache.statistics.CoreStatistics;
-import net.sf.ehcache.statistics.FlatCoreStatistics;
 import net.sf.ehcache.statistics.FlatStatistics;
 import net.sf.ehcache.statistics.StatisticsPlaceholder;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.junit.Test;
 
 /**
  * Tests for the statistics class
@@ -51,8 +41,7 @@ public class StatisticsTest extends AbstractCacheTest {
      * Test statistics directly from Statistics Object
      */
     @Test
-    public void testStatisticsFromStatisticsObject()
-            throws InterruptedException {
+    public void testStatisticsFromStatisticsObject() throws InterruptedException {
         // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         manager.addCache(cache);
@@ -111,34 +100,34 @@ public class StatisticsTest extends AbstractCacheTest {
     @Test
     public void testClearStatistics() throws InterruptedException {
         // TODO CRSS
-//        // Set size so the second element overflows to disk.
-//        Cache cache = new Cache("test", 1, true, false, 5, 2);
-//        manager.addCache(cache);
-//
-//        cache.getStatistics().setStatisticsEnabled(true);
-//
-//        cache.put(new Element("key1", "value1"));
-//        cache.put(new Element("key2", "value1"));
-//
-//        // allow disk write thread to complete
-//        Thread.sleep(100);
-//
-//        cache.get("key1");
-//        cache.get("key2");
-//
-//        CoreStatistics statistics = cache.getStatistics().getCore();
-//        assertEquals(2, statistics.getCacheHits());
-//        assertEquals(1, statistics.getOnDiskHits());
-//        assertEquals(1, statistics.getInMemoryHits());
-//        assertEquals(0, statistics.getCacheMisses());
-//
-//        // clear stats
-//        statistics.clearStatistics();
-//        statistics = cache.getStatistics().getCore();
-//        assertEquals(0, statistics.getCacheHits());
-//        assertEquals(0, statistics.getOnDiskHits());
-//        assertEquals(0, statistics.getInMemoryHits());
-//        assertEquals(0, statistics.getCacheMisses());
+        // // Set size so the second element overflows to disk.
+        // Cache cache = new Cache("test", 1, true, false, 5, 2);
+        // manager.addCache(cache);
+        //
+        // cache.getStatistics().setStatisticsEnabled(true);
+        //
+        // cache.put(new Element("key1", "value1"));
+        // cache.put(new Element("key2", "value1"));
+        //
+        // // allow disk write thread to complete
+        // Thread.sleep(100);
+        //
+        // cache.get("key1");
+        // cache.get("key2");
+        //
+        // CoreStatistics statistics = cache.getStatistics().getCore();
+        // assertEquals(2, statistics.getCacheHits());
+        // assertEquals(1, statistics.getOnDiskHits());
+        // assertEquals(1, statistics.getInMemoryHits());
+        // assertEquals(0, statistics.getCacheMisses());
+        //
+        // // clear stats
+        // statistics.clearStatistics();
+        // statistics = cache.getStatistics().getCore();
+        // assertEquals(0, statistics.getCacheHits());
+        // assertEquals(0, statistics.getOnDiskHits());
+        // assertEquals(0, statistics.getInMemoryHits());
+        // assertEquals(0, statistics.getCacheMisses());
     }
 
     /**
@@ -155,8 +144,6 @@ public class StatisticsTest extends AbstractCacheTest {
         }
 
     }
-
-
 
     /**
      * Tests average get time
@@ -195,8 +182,7 @@ public class StatisticsTest extends AbstractCacheTest {
     @Test
     public void testEvictionStatistics() throws InterruptedException {
         // set to 0 to make it run slow
-        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2,
-                2);
+        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);
         manager.addCache(ehcache);
 
         ehcache.getStatistics().setStatisticsEnabled(true);
