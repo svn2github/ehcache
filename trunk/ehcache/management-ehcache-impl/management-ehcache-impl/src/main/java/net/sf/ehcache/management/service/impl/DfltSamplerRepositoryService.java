@@ -37,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -121,9 +122,27 @@ public class DfltSamplerRepositoryService
       Object res = method.invoke(this, args);
       return serialize(res);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      Throwable t = getRootCause(e);
+      if (t instanceof RuntimeException) {
+        throw (RuntimeException)t;
+      } else {
+        throw new RuntimeException(t);
+      }
     }
   }
+  
+  private static Throwable getRootCause(Throwable t) {
+    Throwable last = null;
+    while (t != null) {
+      last = t;
+      t = t.getCause();
+    }
+    if (last instanceof InvocationTargetException) {
+      last = ((InvocationTargetException)last).getTargetException();
+    }
+    return last;
+  }
+
 
   private byte[] serialize(Object obj) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
