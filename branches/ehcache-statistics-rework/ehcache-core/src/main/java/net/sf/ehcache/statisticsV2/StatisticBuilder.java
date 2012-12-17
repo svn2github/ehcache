@@ -23,24 +23,55 @@ import java.util.Set;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
 
+/**
+ * The StatisticBuilder.
+ *
+ * @author cdennis
+ */
 public final class StatisticBuilder {
-    
+
+    /**
+     * Instantiates a new statistic builder.
+     */
     private StatisticBuilder() {
 
     }
 
+    /**
+     * Operation.
+     *
+     * @param <T> the generic type
+     * @param type the type
+     * @return the operation statistic builder
+     */
     public static <T extends Enum<T>> OperationStatisticBuilder<T> operation(Class<T> type) {
         return new OperationStatisticBuilder(type);
     }
 
+    /**
+     * The Class OperationStatisticBuilder.
+     *
+     * @param <T> the generic type
+     */
     public static class OperationStatisticBuilder<T extends Enum<T>> extends AbstractStatisticBuilder<OperationStatisticBuilder<T>> {
 
+        /** The type. */
         private final Class<T> type;
 
+        /**
+         * Instantiates a new operation statistic builder.
+         *
+         * @param type the type
+         */
         public OperationStatisticBuilder(Class<T> type) {
             this.type = type;
         }
-        
+
+        /**
+         * Builds the.
+         *
+         * @return the operation observer
+         */
         public OperationObserver<T> build() {
             if (context == null || name == null) {
                 throw new IllegalStateException();
@@ -49,13 +80,29 @@ public final class StatisticBuilder {
             }
         }
     }
-    
+
+    /**
+     * The Class AbstractStatisticBuilder.
+     *
+     * @param <T> the generic type
+     */
     static class AbstractStatisticBuilder<T extends AbstractStatisticBuilder> {
-        
+
+        /** The tags. */
         protected final Set<String> tags = new HashSet<String>();
+
+        /** The context. */
         protected Object context;
+
+        /** The name. */
         protected String name;
-        
+
+        /**
+         * Of.
+         *
+         * @param of the of
+         * @return the t
+         */
         public T of(Object of) {
             if (context == null) {
                 context = of;
@@ -64,7 +111,13 @@ public final class StatisticBuilder {
                 throw new IllegalStateException("Context already defined");
             }
         }
-        
+
+        /**
+         * Named.
+         *
+         * @param name the name
+         * @return the t
+         */
         public T named(String name) {
             if (this.name == null) {
                 this.name = name;
@@ -73,7 +126,13 @@ public final class StatisticBuilder {
                 throw new IllegalStateException("Name already defined");
             }
         }
-        
+
+        /**
+         * Tag.
+         *
+         * @param tags the tags
+         * @return the t
+         */
         public T tag(String ... tags) {
             Collections.addAll(this.tags, tags);
             return (T) this;

@@ -18,46 +18,72 @@ import org.terracotta.statistics.archive.Timestamped;
 
 
 /**
+ * The Class NullCompoundOperation.
  *
+ * @param <T> the generic type
  * @author cdennis
  */
 class NullCompoundOperation<T> implements Operation<T> {
 
     private static final Operation INSTANCE = new NullCompoundOperation();
-    
+
+    /**
+     * Instance.
+     *
+     * @param <T> the generic type
+     * @return the operation
+     */
     static <T> Operation<T> instance() {
         return INSTANCE;
     }
-    
+
     private NullCompoundOperation() {
         //singleton
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#component(java.lang.Object)
+     */
     @Override
     public Result component(T result) {
         return NullOperation.instance();
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#compound(java.util.Set)
+     */
     @Override
     public Result compound(Set<T> results) {
         return NullOperation.instance();
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#ratioOf(java.util.Set, java.util.Set)
+     */
     @Override
     public Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator) {
         return NullStatistic.instance(Double.NaN);
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#setAlwaysOn(boolean)
+     */
     @Override
     public void setAlwaysOn(boolean enable) {
         //no-op
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#setWindow(long, java.util.concurrent.TimeUnit)
+     */
     @Override
     public void setWindow(long time, TimeUnit unit) {
         //no-op
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#setHistory(int, long, java.util.concurrent.TimeUnit)
+     */
     @Override
     public void setHistory(int samples, long time, TimeUnit unit) {
         //no-op
@@ -71,11 +97,11 @@ class NullOperation implements Result {
     static final Result instance() {
         return INSTANCE;
     }
-    
+
     private NullOperation() {
         //singleton
     }
-    
+
     @Override
     public Statistic<Long> count() {
         return NullStatistic.instance(0L);
@@ -94,9 +120,9 @@ class NullOperation implements Result {
 
 
 class NullLatency implements Latency {
-    
+
     private static final Latency INSTANCE = new NullLatency();
-    
+
     static Latency instance() {
         return INSTANCE;
     }
@@ -130,7 +156,7 @@ class NullStatistic<T> implements Statistic {
         common.put(Long.valueOf(0L), new NullStatistic<Long>(0L));
         common.put(null, new NullStatistic(null));
     }
-    
+
     static <T> Statistic<T> instance(T value) {
         Statistic<T> cached = (Statistic<T>) common.get(value);
         if (cached == null) {
@@ -141,11 +167,11 @@ class NullStatistic<T> implements Statistic {
     }
 
     private final T value;
-    
+
     private NullStatistic(T value) {
         this.value = value;
     }
-    
+
     @Override
     public boolean active() {
         return false;

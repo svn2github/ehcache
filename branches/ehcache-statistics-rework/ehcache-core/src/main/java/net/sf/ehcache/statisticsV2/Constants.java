@@ -26,6 +26,12 @@ public class Constants {
     public static final String NAME_PROP = "name";
     public static final String PROPERTIES_PROP = "properties";
 
+    /**
+     * Form string paths from context.
+     *
+     * @param tn the tn
+     * @return the string[]
+     */
     public static String[] formStringPathsFromContext(TreeNode tn) {
         LinkedList<String> results = new LinkedList<String>();
         for (List<? extends TreeNode> path : tn.getPaths()) {
