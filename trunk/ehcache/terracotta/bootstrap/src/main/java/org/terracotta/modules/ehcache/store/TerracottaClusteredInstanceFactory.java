@@ -29,6 +29,7 @@ import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.FireRejoinOperatorEventClusterListener;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
+import org.terracotta.modules.ehcache.store.nonstop.NonStopStoreWrapper;
 import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
