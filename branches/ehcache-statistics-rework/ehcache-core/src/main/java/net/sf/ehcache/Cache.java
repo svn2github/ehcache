@@ -92,7 +92,6 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.statistics.EhcacheStatisticsCoreDb;
 import net.sf.ehcache.statistics.StatisticsPlaceholder;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementIdAssigningStore;
@@ -258,8 +257,6 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private volatile CacheWriter registeredCacheWriter;
 
-    private EhcacheStatisticsCoreDb statisticsDb;
-
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
     private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this)
             .tag("cache", "bulk").build();
@@ -292,6 +289,8 @@ public class Cache implements InternalEhcache, StoreListener {
     private volatile EhcacheXAResource xaResource;
 
     private StatisticsPlaceholder statistics;
+
+    private StatisticsManager statisticsManager;
 
     /**
      * 2.0 and higher Constructor
@@ -1142,8 +1141,9 @@ public class Cache implements InternalEhcache, StoreListener {
             // this is a little different. THis is sortof a mess.
             // TODO TBD DO it better. CRSS
             StatisticsManager.associate(this).withChild(compoundStore);
-            statisticsDb = new EhcacheStatisticsCoreDb(this);
-            statistics = new StatisticsPlaceholder(this, statisticsDb.getStatisticsManager());
+            statisticsManager = new StatisticsManager();
+            statisticsManager.root(this);
+            statistics = new StatisticsPlaceholder(this, statisticsManager);
         }
 
         compoundStore.addStoreListener(this);

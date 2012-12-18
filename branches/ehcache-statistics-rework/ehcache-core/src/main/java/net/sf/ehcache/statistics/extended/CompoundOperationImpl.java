@@ -27,29 +27,31 @@ import org.terracotta.statistics.OperationStatistic;
  * @author cdennis
  */
 class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
-    
+
     private final OperationStatistic<T> source;
-    
-    private final Map<T, OperationImpl<T>> operations;    
+
+    private final Map<T, OperationImpl<T>> operations;
     private final ConcurrentMap<Set<T>, OperationImpl<T>> compounds = new ConcurrentHashMap<Set<T>, OperationImpl<T>>();
     private final ConcurrentMap<List<Set<T>>, RatioStatistic> ratios = new ConcurrentHashMap<List<Set<T>>, RatioStatistic>();
-    
+
     private final ScheduledExecutorService executor;
 
     private volatile long averageNanos;
-    private volatile int historySize;    
+    private volatile int historySize;
     private volatile long historyNanos;
-    
+
     private volatile boolean alwaysOn = false;
-    
-    public CompoundOperationImpl(OperationStatistic<T> source, Class<T> type, long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
+
+    public CompoundOperationImpl(OperationStatistic<T> source, Class<T> type,
+            long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor,
+            int historySize, long historyPeriod, TimeUnit historyUnit) {
         this.source = source;
-        
+
         this.averageNanos = averageUnit.toNanos(averagePeriod);
         this.executor = executor;
         this.historySize = historySize;
         this.historyNanos = historyUnit.toNanos(historyPeriod);
-        
+
         this.operations = new EnumMap(type);
         for (T result : type.getEnumConstants()) {
             operations.put(result, new OperationImpl(source, EnumSet.of(result), averageNanos, executor, historySize, historyNanos));
