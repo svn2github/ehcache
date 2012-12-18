@@ -24,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TimerTask;
 
@@ -42,6 +44,48 @@ public class UpdateChecker extends TimerTask {
     private static final String UNKNOWN = "UNKNOWN";
     private static final String UPDATE_CHECK_URL = "http://www.terracotta.org/kit/reflector?pageID=update.properties";
     private static final long START_TIME = System.currentTimeMillis();
+
+    private final Map<String, String> params = new HashMap<String, String>();
+
+    /**
+     * Construct update checker object
+     */
+    public UpdateChecker() {
+        prepareParams();
+    }
+
+    private void prepareParams() {
+        ProductInfo productInfo = new ProductInfo();
+        String productName = productInfo.getName().toLowerCase();
+        String kitId = "ehcache.default";
+        if (productName.contains("ehcache")) {
+            kitId = "ehcache.default";
+        } else if (productName.contains("bigmemory")) {
+            kitId = "bigmemory.default";
+        } else {
+            throw new AssertionError("Unknown product name: " + productName);
+        }
+        putUrlSafe("kidID", kitId);
+        putUrlSafe("id", Integer.toString(getClientId()));
+        putUrlSafe("os-name", getProperty("os.name"));
+        putUrlSafe("jvm-name", getProperty("java.vm.name"));
+        putUrlSafe("jvm-version", getProperty("java.version"));
+        putUrlSafe("platform", getProperty("os.arch"));
+        putUrlSafe("tc-version", productInfo.getVersion());
+        putUrlSafe("tc-product", productInfo.getName() + " " + productInfo.getVersion());
+        putUrlSafe("source", productInfo.getName());
+        putUrlSafe("uptime-secs", Long.toString(getUptimeInSeconds()));
+        putUrlSafe("patch", productInfo.getPatchLevel());
+    }
+
+    /**
+     * Add param to map, value is url-encoded
+     * @param key
+     * @param value
+     */
+    protected void putUrlSafe(String key, String value) {
+        params.put(key, urlEncode(value));
+    }
 
     /**
      * Run the update check
@@ -65,6 +109,7 @@ public class UpdateChecker extends TimerTask {
     }
 
     private void doCheck() throws IOException {
+        updateParams();
         URL updateUrl = buildUpdateCheckUrl();
         if (Boolean.getBoolean("net.sf.ehcache.debug.updatecheck")) {
             LOG.info("Update check url: {}", updateUrl);
@@ -124,43 +169,20 @@ public class UpdateChecker extends TimerTask {
     }
 
     /**
-     * construct update url parameters
-     *
-     * @return
-     * @throws UnsupportedEncodingException
+     * hook point to update any params before update check
      */
-    protected String buildParamsString() throws UnsupportedEncodingException {
-        ProductInfo productInfo = new ProductInfo();
-        String productName = productInfo.getName().toLowerCase();
+    protected void updateParams() {
+        putUrlSafe("uptime-secs", Long.toString(getUptimeInSeconds()));
+    }
+
+    private String buildParamsString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("kitID=");
-        if (productName.contains("ehcache")) {
-            sb.append("ehcache.default");
-        } else if (productName.contains("bigmemory")) {
-            sb.append("bigmemory.default");
-        } else {
-            throw new AssertionError("Unknown product name: " + productName);
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            sb.append("&").append(entry.getKey()).append("=").append(entry.getValue());
         }
-        sb.append("&id=");
-        sb.append(getClientId());
-        sb.append("&os-name=");
-        sb.append(urlEncode(getProperty("os.name")));
-        sb.append("&jvm-name=");
-        sb.append(urlEncode(getProperty("java.vm.name")));
-        sb.append("&jvm-version=");
-        sb.append(urlEncode(getProperty("java.version")));
-        sb.append("&platform=");
-        sb.append(urlEncode(getProperty("os.arch")));
-        sb.append("&tc-version=");
-        sb.append(productInfo.getVersion());
-        sb.append("&tc-product=");
-        sb.append(urlEncode(productInfo.getName() + " " + productInfo.getVersion()));
-        sb.append("&source=");
-        sb.append(urlEncode(productInfo.getName()));
-        sb.append("&uptime-secs=");
-        sb.append(getUptimeInSeconds());
-        sb.append("&patch=");
-        sb.append(urlEncode(productInfo.getPatchLevel()));
+        if (sb.length() > 1) {
+            sb.deleteCharAt(0);
+        }
         return sb.toString();
     }
 
@@ -177,15 +199,13 @@ public class UpdateChecker extends TimerTask {
         }
     }
 
-    /**
-     * URL safe encoding
-     *
-     * @param param
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    protected String urlEncode(String param) throws UnsupportedEncodingException {
-        return URLEncoder.encode(param, "UTF-8");
+    private String urlEncode(String param) {
+        try {
+            return URLEncoder.encode(param, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private String getProperty(String prop) {

@@ -196,8 +196,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitReadWriteLock getOrCreateStoreLock(Ehcache cache) {
-    return toolkit.getReadWriteLock(getFullyQualifiedCacheName(cache) + DELIMITER + "storeRWLock");
+  public ToolkitLock getOrCreateStoreLock(Ehcache cache) {
+    return toolkit.getLock(getFullyQualifiedCacheName(cache) + DELIMITER + "storeRWLock");
   }
 
   @Override

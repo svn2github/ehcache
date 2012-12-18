@@ -60,7 +60,7 @@ public interface ToolkitInstanceFactory {
   /**
    * Returns a {@link ToolkitReadWriteLock} for protecting the cache's store cluster wide
    */
-  ToolkitReadWriteLock getOrCreateStoreLock(Ehcache cache);
+  ToolkitLock getOrCreateStoreLock(Ehcache cache);
 
   ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap();
 
