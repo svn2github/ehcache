@@ -101,7 +101,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Str
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
     private final boolean tierPinned;
     private final boolean persistent;
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").tag("disk").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).of(this).named("get").tag("disk").build();
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
 

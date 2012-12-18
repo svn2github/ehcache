@@ -1462,7 +1462,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testFlushWithClear() throws InterruptedException {
+    public void testFlushWithClear() throws InterruptedException, ExecutionException {
 
         CacheManager cacheManager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         Cache cache = cacheManager.getCache("SimplePageFragmentCachingFilter");

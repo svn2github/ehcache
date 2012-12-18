@@ -88,27 +88,26 @@ public class ConcurrentCacheMethodsTest {
     @Test
     public void testPutIfAbsentAffectsStats() {
         cache.removeAll();
-        cache.getStatistics().setStatisticsEnabled(true);
-        cache.getStatistics().clearStatistics();
-        assertThat(cache.getStatistics().cacheMissCount(), is(0L));
-        assertThat(cache.getStatistics().cacheHitCount(), is(0L));
+        
+        long initialMissCount = cache.getStatistics().cacheMissCount();
+        long initialHitCount = cache.getStatistics().cacheMissCount();
 
         assertThat(cache.get("someKey"), CoreMatchers.nullValue());
-        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
-        assertThat(cache.getStatistics().cacheHitCount(), is(0L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(initialMissCount + 1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(initialHitCount));
 
         final Element element = new Element("someKey", "someValue");
         assertThat(cache.putIfAbsent(element), nullValue());
-        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
-        assertThat(cache.getStatistics().cacheHitCount(), is(0L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(initialMissCount + 1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(initialHitCount));
 
         assertThat(cache.get("someKey"), sameInstance(element));
-        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
-        assertThat(cache.getStatistics().cacheHitCount(), is(1L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(initialMissCount + 1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(initialHitCount + 1L));
 
         assertThat(cache.putIfAbsent(new Element("someKey", "someValue")), sameInstance(element));
-        assertThat(cache.getStatistics().cacheMissCount(), is(1L));
-        assertThat(cache.getStatistics().cacheHitCount(), is(1L));
+        assertThat(cache.getStatistics().cacheMissCount(), is(initialMissCount + 1L));
+        assertThat(cache.getStatistics().cacheHitCount(), is(initialHitCount + 1L));
     }
 
     @Test

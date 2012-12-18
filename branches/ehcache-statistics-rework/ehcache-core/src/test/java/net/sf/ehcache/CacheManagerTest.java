@@ -1119,13 +1119,10 @@ public class CacheManagerTest {
 
             Set listeners = cache.getCacheEventNotificationService()
                     .getCacheEventListeners();
-            assertEquals(2, listeners.size());
+            assertEquals(1, listeners.size());
             for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-                CacheEventListener cacheEventListener = (CacheEventListener) iterator
-                        .next();
-                assertTrue(cacheEventListener instanceof CountingCacheEventListener
-                        // XXX CRSS || cacheEventListener instanceof LiveCacheStatisticsData
-                        );
+                CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+                assertTrue(cacheEventListener instanceof CountingCacheEventListener);
             }
         } finally {
             manager.shutdown();

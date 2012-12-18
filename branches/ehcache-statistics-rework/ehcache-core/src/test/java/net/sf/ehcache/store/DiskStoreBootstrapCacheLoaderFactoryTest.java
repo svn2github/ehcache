@@ -111,7 +111,6 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
                     .maxBytesLocalHeap(220, KILOBYTES)
                     .maxBytesLocalDisk(300, MEGABYTES), null, cacheSizeBoundBootstrapCacheLoader);
                 manager.addCache(cacheSizeBound);
-                cacheSizeBound.getStatistics().setSampledStatisticsEnabled(true);
                 break;
         }
     }

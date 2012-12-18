@@ -62,6 +62,7 @@ class SampledStatistic<T> {
      */
     public void stopSampling() {
         sampler.stop();
+        history.clear();
     }
 
     /**

@@ -41,7 +41,7 @@ public enum PassThroughType {
     LOCAL_HEAP_SIZE_BYTES(Long.TYPE, 0L, stores().chain(childStatistic("local-heap-size-in-bytes")).build()),
     LOCAL_OFFHEAP_SIZE(Long.TYPE, 0L, stores().chain(childStatistic("local-offheap-size")).build()),
     LOCAL_OFFHEAP_SIZE_BYTES(Long.TYPE, 0L, stores().chain(childStatistic("local-offheap-size-in-bytes")).build()),
-    LOCAL_DISK_SIZE(Long.TYPE, 0L, stores().chain(childStatistic("local-disk-size")).build()),
+    LOCAL_DISK_SIZE(Integer.TYPE, 0, stores().chain(childStatistic("local-disk-size")).build()),
     LOCAL_DISK_SIZE_BYTES(Long.TYPE, 0L, stores().chain(
             childStatistic("local-disk-size-in-bytes")).build()),
     WRITER_QUEUE_LENGTH(Long.TYPE, 0L, queryBuilder().descendants().filter(context(identifier(subclassOf(WriteBehindQueueManager.class)))).chain(childStatistic("write-behind-queue-length")).build()),

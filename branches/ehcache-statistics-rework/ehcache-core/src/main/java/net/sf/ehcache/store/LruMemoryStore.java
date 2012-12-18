@@ -36,7 +36,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import org.terracotta.statistics.Statistic;
+import org.terracotta.statistics.observer.OperationObserver;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.*;
 
 /**
  * An implementation of a LruMemoryStore.
@@ -79,6 +83,10 @@ public class LruMemoryStore extends AbstractStore {
     private final boolean cachePinned;
     private final boolean elementPinningEnabled;
 
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("heap").build();
+    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("heap").build();
+    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("heap").build();
+    
     /**
      * Constructor for the LruMemoryStore object
      * The backing {@link java.util.LinkedHashMap} is created with LRU by access order.
@@ -183,7 +191,15 @@ public class LruMemoryStore extends AbstractStore {
      * @return the element, or null if there was no match for the key
      */
     public final synchronized Element get(Object key) {
-        return (Element) map.get(key);
+        getObserver.begin();
+        Element e = (Element) map.get(key);
+        if (e == null) {
+            getObserver.end(GetOutcome.MISS);
+            return null;
+        } else {
+            getObserver.end(GetOutcome.HIT);
+            return e;
+        }
     }
 
     /**
@@ -193,7 +209,7 @@ public class LruMemoryStore extends AbstractStore {
      * @return the element, or null if there was no match for the key
      */
     public final synchronized Element getQuiet(Object key) {
-        return get(key);
+        return (Element) map.get(key);
     }
 
     /**
@@ -648,6 +664,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    @Statistic(name="local-heap-size", tags="heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -655,6 +672,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    @Statistic(name="local-heap-size-in-bytes", tags="heap")
     public long getInMemorySizeInBytes() {
         return getSizeInBytes();
     }

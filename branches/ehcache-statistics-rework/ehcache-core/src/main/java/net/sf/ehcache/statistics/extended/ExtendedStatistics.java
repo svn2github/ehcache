@@ -58,6 +58,8 @@ public interface ExtendedStatistics {
     Operation<CacheOperationOutcomes.EvictionOutcome> eviction();
     Operation<CacheOperationOutcomes.ExpiredOutcome> expiration();
 
+    //<T> List<Operation<T>> operations(T outcome, String name, String ... tags);
+
     public interface Operation<T> {
         Result component(T result);
         Result compound(Set<T> results);

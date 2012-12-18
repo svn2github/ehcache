@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.CacheOperationOutcomes;
 
@@ -47,7 +48,13 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private final Map<PassThroughType, ValueStatistic<?>> passThroughs = new EnumMap<PassThroughType, ValueStatistic<?>>(PassThroughType.class);
     private final Map<OperationType, Operation<?>> operations = new EnumMap<OperationType, Operation<?>>(OperationType.class);
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "Statistics Thread");
+        }
+    });
     private final Runnable disableTask = new Runnable() {
         @Override
         public void run() {
@@ -98,6 +105,15 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
+    public void shutdown() {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException _) {
+            Thread.currentThread().interrupt();
+        }
+    }
+    
     @Override
     public synchronized void setTimeToDisable(long time, TimeUnit unit) {
         timeToDisable = time;
@@ -240,7 +256,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     @Override
     public long getLocalDiskSize() {
-        return ((Long) passThroughs.get(PassThroughType.LOCAL_DISK_SIZE).value()).longValue();
+        return ((Integer) passThroughs.get(PassThroughType.LOCAL_DISK_SIZE).value()).longValue();
     }
 
     @Override

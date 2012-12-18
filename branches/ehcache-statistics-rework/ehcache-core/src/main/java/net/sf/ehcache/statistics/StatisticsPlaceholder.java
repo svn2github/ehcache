@@ -43,11 +43,13 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
 
     private static final int DEFAULT_TIME_TO_DISABLE_MINS = 5;
 
+    private final StatisticsManager statsManager;
+    
     /** The core. */
     private final CoreStatistics core;
 
     /** The extended statistics. */
-    private final ExtendedStatistics extended;
+    private final ExtendedStatisticsImpl extended;
 
     /** The associated cache name. */
     private final String assocCacheName;
@@ -58,14 +60,19 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * @param ehcache the ehcache
      * @param statisticsManager the statistics manager
      */
-    public StatisticsPlaceholder(Ehcache ehcache, StatisticsManager statisticsManager) {
-        super();
+    public StatisticsPlaceholder(Ehcache ehcache) {
+        this.statsManager = new StatisticsManager();
+        this.statsManager.root(ehcache);
         this.assocCacheName = ehcache.getName();
-        extended = new ExtendedStatisticsImpl(statisticsManager, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
-        core = new CoreStatisticsImpl(extended);
+        this.extended = new ExtendedStatisticsImpl(statsManager, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
+        this.core = new CoreStatisticsImpl(extended);
         init(new FlatCoreStatisticsImpl(core), new FlatExtendedStatisticsImpl(extended));
     }
 
+    public void shutdown() {
+        extended.shutdown();
+    }
+    
     /**
      * Gets the core.
      *
@@ -90,7 +97,7 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * @param b the new statistics enabled
      */
     public void setStatisticsEnabled(boolean b) {
-        throw new UnsupportedOperationException();
+        //no-op
     }
 
     /**
@@ -99,7 +106,7 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * @param b the new sampled statistics enabled
      */
     public void setSampledStatisticsEnabled(boolean b) {
-        throw new UnsupportedOperationException();
+        //no-op
     }
 
     /**
@@ -124,7 +131,7 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * @return true, if is statistics enabled
      */
     public boolean isStatisticsEnabled() {
-        throw new UnsupportedOperationException();
+        return true;
     }
 
     /**
@@ -133,7 +140,7 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * @return the statistics accuracy
      */
     public int getStatisticsAccuracy() {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 
     /**
@@ -142,8 +149,7 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * @return the statistics accuracy description
      */
     public String getStatisticsAccuracyDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        return "default";
     }
 
     /**

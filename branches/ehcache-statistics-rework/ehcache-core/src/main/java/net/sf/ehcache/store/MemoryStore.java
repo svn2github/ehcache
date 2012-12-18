@@ -96,6 +96,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     private final PoolAccessor poolAccessor;
 
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("heap").build();
+    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("heap").build();
+    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("heap").build();
 
     private final boolean storePinned;
     private final boolean elementPinningEnabled;
@@ -324,7 +326,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
      * @return the element, or null if there was no match for the key
      */
     public final Element getQuiet(Object key) {
-        return get(key);
+        return map.get(key);
     }
 
     /**
