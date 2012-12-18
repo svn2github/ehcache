@@ -7,7 +7,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.xa.XATransactionStore;
 
-import org.terracotta.modules.ehcache.store.NonStopStoreWrapper;
+import org.terracotta.modules.ehcache.store.nonstop.NonStopStoreWrapper;
 
 import java.lang.reflect.Field;
 

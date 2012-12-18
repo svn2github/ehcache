@@ -62,9 +62,10 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     try {
       return entityResourceFactory.createCacheEntities(cmNames, cNames, cAttrs);
     } catch (ServiceExecutionException e) {
-      LOG.error("Failed to get caches.", e.getCause());
+      Throwable exceptionToLog = e.getCause() != null ? e.getCause() :  e;
+      LOG.error("Failed to get caches.", exceptionToLog);
       throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+          Response.status(Response.Status.BAD_REQUEST).entity(exceptionToLog.getMessage()).build());
     }
   }
 
@@ -86,8 +87,11 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
       cacheSvc.createOrUpdateCache(cacheManagerName, cacheName, resource);
     } catch (ServiceExecutionException e) {
       LOG.error("Failed to create or update cache.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+      throw new WebApplicationException(e.getCause(),
+        Response.status(Response.Status.BAD_REQUEST)
+          .entity(e.getCause().getMessage())
+          .type("text/plain")
+          .build());
     }
   }
 
