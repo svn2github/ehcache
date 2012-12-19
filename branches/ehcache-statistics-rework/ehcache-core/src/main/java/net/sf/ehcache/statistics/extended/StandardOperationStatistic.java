@@ -91,10 +91,10 @@ enum StandardOperationStatistic {
     },
 
     /** The evicted. */
-    EVICTED(CacheOperationOutcomes.EvictionOutcome.class, "evicted"),
+    EVICTION(CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
 
     /** The expired. */
-    EXPIRED(CacheOperationOutcomes.ExpiredOutcome.class, "expired");
+    EXPIRY(true, CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
 
     private final boolean required;
     private final Class<? extends Enum> type;

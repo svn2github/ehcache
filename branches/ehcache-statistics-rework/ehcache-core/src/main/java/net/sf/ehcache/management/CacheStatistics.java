@@ -167,7 +167,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public long getOnDiskHits() {
         updateIfNeeded();
-        return statistics.diskHitCount();
+        return statistics.localDiskHitCount();
     }
 
     /**
@@ -196,7 +196,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     /** {@inheritDoc} */
     public long getOnDiskMisses() {
         updateIfNeeded();
-        return statistics.diskMissCount();
+        return statistics.localDiskMissCount();
     }
 
     /**
@@ -358,8 +358,8 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public double getOnDiskHitPercentage() {
         updateIfNeeded();
-        long hits = statistics.diskHitCount();
-        long misses = statistics.diskMissCount();
+        long hits = statistics.localDiskHitCount();
+        long misses = statistics.localDiskMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);

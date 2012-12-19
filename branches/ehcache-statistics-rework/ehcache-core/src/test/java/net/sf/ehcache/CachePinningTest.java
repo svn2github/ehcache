@@ -193,8 +193,8 @@ public class CachePinningTest {
 
 //        Assert.assertEquals(expectedMemoryHits, );
         Assert.assertEquals(ELEMENT_COUNT - cache.getStatistics().localHeapHitCount(), cache.getStatistics().localHeapMissCount());
-        Assert.assertEquals(cache.getStatistics().localHeapMissCount(), cache.getStatistics().diskHitCount());
-        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(cache.getStatistics().localHeapMissCount(), cache.getStatistics().localDiskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
         Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
     }
 

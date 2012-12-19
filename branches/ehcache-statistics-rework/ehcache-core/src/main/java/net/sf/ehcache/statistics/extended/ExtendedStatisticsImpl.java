@@ -96,7 +96,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             Set<ValueStatistic<?>> results = findPassThroughStatistic(manager, t.statisticName(), t.tags());
             switch (results.size()) {
                 case 0:
-                    LOGGER.info("Mocking Pass-Through Statistic: {}", t);
+                    LOGGER.debug("Mocking Pass-Through Statistic: {}", t);
                     standardPassThroughs.put(t, ConstantValueStatistic.instance(t.absentValue()));
                     break;
                 case 1:
@@ -115,7 +115,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                     if (t.required()) {
                         throw new IllegalStateException("Required statistic " + t + " not found");
                     } else {
-                        LOGGER.info("Mocking Operation Statistic: {}", t);
+                        LOGGER.debug("Mocking Operation Statistic: {}", t);
                         standardOperations.put(t, NullCompoundOperation.instance());
                     }
                     break;
@@ -241,12 +241,12 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     @Override
     public Operation<EvictionOutcome> eviction() {
-        return (Operation<CacheOperationOutcomes.EvictionOutcome>) standardOperations.get(StandardOperationStatistic.EVICTED);
+        return (Operation<CacheOperationOutcomes.EvictionOutcome>) standardOperations.get(StandardOperationStatistic.EVICTION);
     }
 
     @Override
-    public Operation<ExpiredOutcome> expiration() {
-        return (Operation<CacheOperationOutcomes.ExpiredOutcome>) standardOperations.get(StandardOperationStatistic.EXPIRED);
+    public Operation<ExpiredOutcome> expiry() {
+        return (Operation<CacheOperationOutcomes.ExpiredOutcome>) standardOperations.get(StandardOperationStatistic.EXPIRY);
     }
 
     @Override

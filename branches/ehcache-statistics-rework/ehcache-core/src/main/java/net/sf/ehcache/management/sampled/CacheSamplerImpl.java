@@ -668,7 +668,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public long getOnDiskMissCount() {
         try {
-            return cache.getStatistics().diskMissCount();
+            return cache.getStatistics().localDiskMissCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1155,7 +1155,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public long getOnDiskHitCount() {
         try {
-            return cache.getStatistics().diskHitCount();
+            return cache.getStatistics().localDiskHitCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }

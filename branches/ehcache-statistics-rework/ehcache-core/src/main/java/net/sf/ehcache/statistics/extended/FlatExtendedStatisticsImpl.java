@@ -228,7 +228,7 @@ public class FlatExtendedStatisticsImpl implements FlatExtendedStatistics {
 
     @Override
     public Result cacheExpiredOperation() {
-        return extended.expiration().component(CacheOperationOutcomes.ExpiredOutcome.SUCCESS);
+        return extended.expiry().component(CacheOperationOutcomes.ExpiredOutcome.SUCCESS);
     }
 
     @Override

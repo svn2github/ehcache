@@ -70,8 +70,8 @@ public class CachePinningFaultInvalidatedEntriesTest extends AbstractCacheTestBa
         // All the gets on both the clients should be local as the pinned entries would have been faulted.
         Assert.assertEquals(ELEMENT_COUNT * 2, cache.getStatistics().localHeapHitCount());
         Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
-        Assert.assertEquals(0, cache.getStatistics().diskHitCount());
-        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
         Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
       }
       getBarrierForAllClients().await();
@@ -108,8 +108,8 @@ public class CachePinningFaultInvalidatedEntriesTest extends AbstractCacheTestBa
       if (index == 0) {
         Assert.assertEquals(ELEMENT_COUNT * 4, cache.getStatistics().localHeapHitCount());
         Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
-        Assert.assertEquals(0, cache.getStatistics().diskHitCount());
-        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
         Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
       }
       getBarrierForAllClients().await();

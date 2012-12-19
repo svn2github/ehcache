@@ -63,8 +63,8 @@ public class CacheElementPinningNoServerEvictionTest extends AbstractCacheTestBa
 
         Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().localHeapHitCount());
         Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
-        Assert.assertEquals(0, cache.getStatistics().diskHitCount());
-        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
         Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
 
         cache.unpinAll();
@@ -78,7 +78,7 @@ public class CacheElementPinningNoServerEvictionTest extends AbstractCacheTestBa
         }
         Assert.assertTrue(2 * ELEMENT_COUNT > cache.getStatistics().localHeapHitCount());
         Assert.assertTrue(0 < cache.getStatistics().localHeapMissCount());
-        Assert.assertTrue(0 < cache.getStatistics().diskHitCount());
+        Assert.assertTrue(0 < cache.getStatistics().localDiskHitCount());
         cache.removeAll();
         waitForAllCurrentTransactionsToComplete(cache);
       }

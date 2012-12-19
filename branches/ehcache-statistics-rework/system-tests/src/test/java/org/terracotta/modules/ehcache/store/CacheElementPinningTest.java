@@ -59,8 +59,8 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
 
         Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getLocalHeapSize());
         Assert.assertEquals(0, cache.getStatistics().localHeapMissCount());
-        Assert.assertEquals(0, cache.getStatistics().diskHitCount());
-        Assert.assertEquals(0, cache.getStatistics().diskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
         Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
 
         for (int i = 0; i < ELEMENT_COUNT; i++) {
@@ -77,7 +77,7 @@ public class CacheElementPinningTest extends AbstractCacheTestBase {
 
         Assert.assertTrue(cache.getStatistics().getLocalHeapSize() < ELEMENT_COUNT);
         Assert.assertTrue(0 < cache.getStatistics().localHeapMissCount());
-        Assert.assertTrue(0 < cache.getStatistics().diskHitCount());
+        Assert.assertTrue(0 < cache.getStatistics().localDiskHitCount());
         cache.unpinAll();
         cache.removeAll();
         waitForAllCurrentTransactionsToComplete(cache);

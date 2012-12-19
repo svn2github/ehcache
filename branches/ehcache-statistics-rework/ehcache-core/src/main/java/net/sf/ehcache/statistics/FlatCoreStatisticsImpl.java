@@ -137,33 +137,33 @@ public class FlatCoreStatisticsImpl implements FlatCoreStatistics {
     }
 
     @Override
-    public long diskHitCount() {
-        return core.diskGet().value(GetOutcome.HIT);
+    public long localDiskHitCount() {
+        return core.localDiskGet().value(GetOutcome.HIT);
     }
 
     @Override
-    public long diskMissCount() {
-        return core.diskGet().value(GetOutcome.MISS);
+    public long localDiskMissCount() {
+        return core.localDiskGet().value(GetOutcome.MISS);
     }
 
     @Override
-    public long diskPutAddedCount() {
-        return core.diskPut().value(PutOutcome.ADDED);
+    public long localDiskPutAddedCount() {
+        return core.localDiskPut().value(PutOutcome.ADDED);
     }
 
     @Override
-    public long diskPutUpdatedCount() {
-        return core.diskPut().value(PutOutcome.UPDATED);
+    public long localDiskPutUpdatedCount() {
+        return core.localDiskPut().value(PutOutcome.UPDATED);
     }
 
     @Override
-    public long diskPutCount() {
-        return diskPutAddedCount() + diskPutUpdatedCount();
+    public long localDiskPutCount() {
+        return localDiskPutAddedCount() + localDiskPutUpdatedCount();
     }
 
     @Override
-    public long diskRemoveCount() {
-        return core.diskRemove().value(RemoveOutcome.SUCCESS);
+    public long localDiskRemoveCount() {
+        return core.localDiskRemove().value(RemoveOutcome.SUCCESS);
     }
 
     @Override

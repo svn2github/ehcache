@@ -56,7 +56,7 @@ public interface ExtendedStatistics {
     Operation<XaRecoveryOutcome> xaRecovery();
 
     Operation<CacheOperationOutcomes.EvictionOutcome> eviction();
-    Operation<CacheOperationOutcomes.ExpiredOutcome> expiration();
+    Operation<CacheOperationOutcomes.ExpiredOutcome> expiry();
 
     <T extends Enum<T>> Set<Operation<T>> operations(Class<T> outcome, String name, String ... tags);
 

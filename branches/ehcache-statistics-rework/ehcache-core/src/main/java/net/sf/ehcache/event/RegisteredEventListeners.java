@@ -36,6 +36,7 @@ import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+import org.terracotta.statistics.StatisticsManager;
 
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
@@ -78,6 +79,8 @@ public class RegisteredEventListeners {
      * @param cache
      */
     public RegisteredEventListeners(Ehcache cache) {
+        //XXX this isn't really very nice
+        StatisticsManager.associate(this).withParent(cache);
         this.cache = cache;
         helper = new CacheStoreHelper((Cache)cache);
     }

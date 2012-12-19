@@ -49,11 +49,11 @@ public interface CoreStatistics {
 
     public CountOperation<StoreOperationOutcomes.RemoveOutcome> localOffHeapRemove();
 
-    public CountOperation<StoreOperationOutcomes.GetOutcome> diskGet();
+    public CountOperation<StoreOperationOutcomes.GetOutcome> localDiskGet();
 
-    public CountOperation<StoreOperationOutcomes.PutOutcome> diskPut();
+    public CountOperation<StoreOperationOutcomes.PutOutcome> localDiskPut();
 
-    public CountOperation<StoreOperationOutcomes.RemoveOutcome> diskRemove();
+    public CountOperation<StoreOperationOutcomes.RemoveOutcome> localDiskRemove();
 
     public CountOperation<XaCommitOutcome> xaCommit();
 

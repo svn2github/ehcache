@@ -43,9 +43,9 @@ public class CoreStatisticsImpl implements CoreStatistics {
     private final CountOperation localOffHeapGet;
     private final CountOperation localOffHeapPut;
     private final CountOperation localOffHeapRemove;
-    private final CountOperation diskGet;
-    private final CountOperation diskPut;
-    private final CountOperation diskRemove;
+    private final CountOperation localDiskGet;
+    private final CountOperation localDiskPut;
+    private final CountOperation localDiskRemove;
     private final CountOperation xaCommit;
     private final CountOperation xaRecovery;
     private final CountOperation xaRollback;
@@ -66,16 +66,16 @@ public class CoreStatisticsImpl implements CoreStatistics {
         this.localOffHeapPut = asCountOperation(extended.offheapPut());
         this.localOffHeapRemove = asCountOperation(extended.offheapRemove());
 
-        this.diskGet = asCountOperation(extended.diskGet());
-        this.diskPut = asCountOperation(extended.diskPut());
-        this.diskRemove = asCountOperation(extended.diskRemove());
+        this.localDiskGet = asCountOperation(extended.diskGet());
+        this.localDiskPut = asCountOperation(extended.diskPut());
+        this.localDiskRemove = asCountOperation(extended.diskRemove());
 
         this.xaCommit = asCountOperation(extended.xaCommit());
         this.xaRecovery = asCountOperation(extended.xaRecovery());
         this.xaRollback = asCountOperation(extended.xaRollback());
 
         this.evicted = asCountOperation(extended.eviction());
-        this.expired = asCountOperation(extended.expiration());
+        this.expired = asCountOperation(extended.expiry());
 
     }
 
@@ -140,18 +140,18 @@ public class CoreStatisticsImpl implements CoreStatistics {
     }
 
     @Override
-    public CountOperation<GetOutcome> diskGet() {
-        return diskGet;
+    public CountOperation<GetOutcome> localDiskGet() {
+        return localDiskGet;
     }
 
     @Override
-    public CountOperation<PutOutcome> diskPut() {
-        return diskPut;
+    public CountOperation<PutOutcome> localDiskPut() {
+        return localDiskPut;
     }
 
     @Override
-    public CountOperation<RemoveOutcome> diskRemove() {
-        return diskRemove;
+    public CountOperation<RemoveOutcome> localDiskRemove() {
+        return localDiskRemove;
     }
 
     public CountOperation<XaCommitOutcome> xaCommit() {

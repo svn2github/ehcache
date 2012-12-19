@@ -62,17 +62,17 @@ public interface FlatCoreStatistics {
     long localOffHeapRemoveCount();
 
     // disk
-    long diskHitCount();
+    long localDiskHitCount();
 
-    long diskMissCount();
+    long localDiskMissCount();
 
-    long diskPutAddedCount();
+    long localDiskPutAddedCount();
 
-    long diskPutUpdatedCount();
+    long localDiskPutUpdatedCount();
 
-    long diskPutCount(); // sum of prev 2
+    long localDiskPutCount(); // sum of prev 2
 
-    long diskRemoveCount();
+    long localDiskRemoveCount();
 
     // xa
     long xaCommitReadOnlyCount();

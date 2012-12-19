@@ -68,7 +68,7 @@ public class StatisticsTest extends AbstractCacheTest {
 
         FlatStatistics statistics = cache.getStatistics();
         assertEquals(2, statistics.cacheHitCount());
-        assertEquals(1, statistics.diskHitCount());
+        assertEquals(1, statistics.localDiskHitCount());
         assertEquals(1, statistics.localHeapHitCount());
         assertEquals(0, statistics.cacheMissCount());
         assertEquals(2, statistics.getSize());
@@ -79,7 +79,7 @@ public class StatisticsTest extends AbstractCacheTest {
         cache.get("key1");
 
         assertEquals(3, statistics.cacheHitCount());
-        assertEquals(1, statistics.diskHitCount());
+        assertEquals(1, statistics.localDiskHitCount());
         assertEquals(2, statistics.localHeapHitCount());
         assertEquals(0, statistics.cacheMissCount());
 
@@ -89,14 +89,14 @@ public class StatisticsTest extends AbstractCacheTest {
         // key 1 should now be expired
         assertThat(cache.get("key1"), nullValue());
         assertEquals(3, statistics.cacheHitCount());
-        assertEquals(1, statistics.diskHitCount());
+        assertEquals(1, statistics.localDiskHitCount());
         assertEquals(3, statistics.localHeapHitCount());
         assertEquals(1, statistics.cacheMissCount());
 
         // key 2 should also be expired
         assertThat(cache.get("key2"), nullValue());
         assertEquals(3, statistics.cacheHitCount());
-        assertEquals(2, statistics.diskHitCount());
+        assertEquals(2, statistics.localDiskHitCount());
         assertEquals(3, statistics.localHeapHitCount());
         assertEquals(2, statistics.cacheMissCount());
 

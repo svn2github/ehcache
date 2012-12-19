@@ -127,28 +127,28 @@ public class DelegateFlatStatistics implements FlatStatistics {
         return flatCore.localOffHeapRemoveCount();
     }
 
-    public long diskHitCount() {
-        return flatCore.diskHitCount();
+    public long localDiskHitCount() {
+        return flatCore.localDiskHitCount();
     }
 
-    public long diskMissCount() {
-        return flatCore.diskMissCount();
+    public long localDiskMissCount() {
+        return flatCore.localDiskMissCount();
     }
 
-    public long diskPutAddedCount() {
-        return flatCore.diskPutAddedCount();
+    public long localDiskPutAddedCount() {
+        return flatCore.localDiskPutAddedCount();
     }
 
-    public long diskPutUpdatedCount() {
-        return flatCore.diskPutUpdatedCount();
+    public long localDiskPutUpdatedCount() {
+        return flatCore.localDiskPutUpdatedCount();
     }
 
-    public long diskPutCount() {
-        return flatCore.diskPutCount();
+    public long localDiskPutCount() {
+        return flatCore.localDiskPutCount();
     }
 
-    public long diskRemoveCount() {
-        return flatCore.diskRemoveCount();
+    public long localDiskRemoveCount() {
+        return flatCore.localDiskRemoveCount();
     }
 
     public long xaCommitReadOnlyCount() {
