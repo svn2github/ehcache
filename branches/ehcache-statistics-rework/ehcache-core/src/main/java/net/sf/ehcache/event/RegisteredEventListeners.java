@@ -62,8 +62,6 @@ public class RegisteredEventListeners {
 
     private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
 
-    private final AtomicLong elementsEvictedCounter = new AtomicLong(0);
-
     private final CacheStoreHelper helper;
 
     private final OperationObserver<CacheOperationOutcomes.ExpiredOutcome> expiryObserver = operation(ExpiredOutcome.class).named("expiry").of(this).tag("cache").build();
@@ -259,7 +257,6 @@ public class RegisteredEventListeners {
 
     private void internalNotifyElementEvicted(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         if (cache.getCacheConfiguration().getPinningConfiguration() == null) {
-            elementsEvictedCounter.incrementAndGet();
             if (hasCacheEventListeners()) {
                 for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                     if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
