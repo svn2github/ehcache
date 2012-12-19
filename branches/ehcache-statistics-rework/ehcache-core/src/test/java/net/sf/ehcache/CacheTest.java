@@ -65,6 +65,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheEventListenerAdapter;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.loader.CountingCacheLoader;
@@ -85,6 +86,8 @@ import org.hamcrest.core.Is;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +105,13 @@ public class CacheTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheTest.class.getName());
 
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        CacheTestRunnable.FAILURES.clear();
+    }
 
     /**
      * teardown
@@ -1060,9 +1070,9 @@ public class CacheTest extends AbstractCacheTest {
         } catch (AssertionError e) {
             //eviction failure
             System.err.println(e + " - likely eviction failure: checking memory store");
-            assertEquals(2, cache.getStatistics().getLocalHeapSize());
+            assertEquals(1, cache.getStatistics().getLocalHeapSize());
         }
-        Element nullValueElement = cache.get(object1);
+        Element nullValueElement = cache.get(object2);
         assertNull(nullValueElement.getValue());
         assertNull(nullValueElement.getObjectValue());
 
@@ -1296,7 +1306,8 @@ public class CacheTest extends AbstractCacheTest {
 
         assertThat(cache.getSize(), lessThanOrEqualTo(10000));
         assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
-        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
+        // TODO Lower tier will _never_ be smaller than higher ones now
+//        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
         //NonSerializable
         flushDiskStore(cache);
@@ -1307,7 +1318,8 @@ public class CacheTest extends AbstractCacheTest {
         int size = cache.getSize();
         assertThat(size, lessThanOrEqualTo(10000));
         assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
-        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
+        // TODO Lower tier will _never_ be smaller than higher ones now
+//        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
         if(cache.remove("key4")) {
             size--;
@@ -1426,7 +1438,7 @@ public class CacheTest extends AbstractCacheTest {
 
         cache.flush();
 
-        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), is(0L));
+//        RetryAssert.assertBy(10, TimeUnit.SECONDS, new GetCacheMemorySize(cache), is(0L));
         //Non Serializable Elements get discarded
         assertEquals(104, cache.getStatistics().getLocalDiskSize());
 
@@ -1597,13 +1609,14 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(element1);
         cache.put(element2);
 
-        Thread.sleep(1000);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
         //Removed because could not overflow
         if (cache.get("key1") == null) {
             assertNotNull(cache.get("key2"));
         } else {
-            assertNull(cache.get("key2"));
+            final Element key2 = cache.get("key2");
+            assertNull(key2);
         }
     }
 
@@ -1693,7 +1706,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.remove("key4");
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3L));
         assertEquals(3, cache.getSize());
-        assertEquals(1, cache.getStatistics().getLocalHeapSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
         // remove key1 element
         cache.remove("key1");
@@ -1989,6 +2002,7 @@ public class CacheTest extends AbstractCacheTest {
         Object value = "value";
 
         memoryAndDisk.put(new Element(key, value));
+        memoryAndDisk.get(key);
 
         assertTrue(memoryAndDisk.isElementInMemory(key));
     }
@@ -2243,7 +2257,7 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             manager.removalAll();
             testConcurrentPutsAreConsistent();
         }
@@ -2275,6 +2289,19 @@ public class CacheTest extends AbstractCacheTest {
         executor.shutdown();
         executor.awaitTermination(10, TimeUnit.SECONDS);
 
+        if (CacheTestRunnable.FAILURES.size() > 0) {
+            System.err.println("\n\nFOUND ERRORS!");
+            for (Object failure : CacheTestRunnable.FAILURES) {
+                if(failure instanceof Throwable) {
+                    ((Throwable)failure).printStackTrace();
+                } else {
+                    System.err.println(failure.toString());
+                }
+                System.err.println("\n****\n");
+            }
+            System.out.println(cache.getStatistics());
+            System.err.println("\n\nHave a nice day... debugging this!\n\n");
+        }
         assertEquals("Failures: ", 0, CacheTestRunnable.FAILURES.size());
         assertEquals(5000, cache.getStatistics().cacheHitCount());
 
@@ -2295,18 +2322,23 @@ public class CacheTest extends AbstractCacheTest {
         }
 
         public void run() {
-            setValue("new value");
-            setValue("new value2");
-            setValue("new value3");
-            setValue("new value4");
-            setValue("new value5");
+            try {
+                setValue("new value");
+                setValue("new value2");
+                setValue("new value3");
+                setValue("new value4");
+                setValue("new value5");
 
-            Element element = cache.get(key);
-            String value = element.getValue().toString();
-            boolean result = value.equals("new value5");
-            if (!result) {
-                LOG.info("key is: " + key + " value: " + value + " version: " + element.getVersion());
-                FAILURES.add("key is: " + key + " value: " + value);
+                Element element = cache.get(key);
+                String value = element.getValue().toString();
+                boolean result = value.equals("new value5");
+                if (!result || !element.getObjectKey().equals(key)) {
+                    LOG.info("key is: " + key + " value: " + value + " version: " + element.getVersion());
+                    FAILURES.add("key is: " + key + " value: " + value);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                FAILURES.add(e);
             }
         }
 

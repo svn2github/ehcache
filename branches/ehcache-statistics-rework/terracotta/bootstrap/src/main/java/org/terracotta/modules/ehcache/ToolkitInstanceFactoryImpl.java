@@ -17,9 +17,11 @@ import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
+import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.ToolkitObjectType;
 import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheConfigFields.PinningStore;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -29,6 +31,7 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ToolkitCacheConfigBuilderInternal;
+import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
@@ -96,6 +99,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
     final Configuration clusteredCacheConfig = createClusteredCacheConfig(cache);
+    addNonStopConfigForCache(cache);
     return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cache),
                                                                          clusteredCacheConfig, Serializable.class);
   }
@@ -307,6 +311,24 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return toolkit.getReadWriteLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                                     + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
                                     + EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME);
+  }
+
+  private void addNonStopConfigForCache(Ehcache cache) {
+    final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
+    final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
+    ToolkitNonStopConfiguration nonstopConfiguration = new ToolkitNonStopConfiguration(
+                                                                                       terracottaConfiguration
+                                                                                           .getNonstopConfiguration());
+    toolkit.getFeature(NonStop.class).getNonStopConfigurationRegistry()
+        .registerForInstance(nonstopConfiguration, getFullyQualifiedCacheName(cache), ToolkitObjectType.CACHE);
+
+  }
+
+  @Override
+  public void removeNonStopConfigforCache(Ehcache cache) {
+    toolkit.getFeature(NonStop.class).getNonStopConfigurationRegistry()
+        .deregisterForInstance(getFullyQualifiedCacheName(cache), ToolkitObjectType.CACHE);
+
   }
 
   private static class EhcacheTcConfig {

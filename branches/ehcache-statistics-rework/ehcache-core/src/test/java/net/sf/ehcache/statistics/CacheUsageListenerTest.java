@@ -16,8 +16,20 @@
 
 package net.sf.ehcache.statistics;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -39,7 +51,7 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      * @throws InterruptedException
      */
     @Test
-    public void testCacheUsageStatistics() throws InterruptedException {
+    public void testCacheUsageStatistics() throws InterruptedException, ExecutionException {
 //        // Set size so the second element overflows to disk.
 //        Cache cache = new Cache("test", 1, true, false, 5, 2);
 //        manager.addCache(cache);
@@ -80,12 +92,12 @@ public class CacheUsageListenerTest extends AbstractCacheTest {
      * - average get time
      */
     public void doTestCacheUsageStatistics(Cache cache, boolean checkStats,
-                                           AnotherStatistics anotherStats) throws InterruptedException {
-
-//        cache.put(new Element("key2", "value1"));
+                                           AnotherStatistics anotherStats) throws InterruptedException, ExecutionException {
+//
 //        cache.put(new Element("key1", "value1"));
+//        cache.put(new Element("key2", "value1"));
 //        // allow disk writer thread time to perform the write
-//        Thread.sleep(100);
+//        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 //        // key1 should be in the Disk Store
 //        cache.get("key1");
 //

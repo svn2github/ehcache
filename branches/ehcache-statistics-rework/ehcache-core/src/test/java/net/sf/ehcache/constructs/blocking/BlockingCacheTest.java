@@ -600,7 +600,8 @@ public final class BlockingCacheTest {
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             assertThat(cache.getSize(), lessThanOrEqualTo(10000));
             assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
-            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
+            // TODO Lower tier will _never_ be smaller than higher ones now
+//            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000));
 
             //NonSerializable
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
@@ -609,7 +610,8 @@ public final class BlockingCacheTest {
             int size = cache.getSize();
             assertThat(size, lessThanOrEqualTo(10000));
             assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
-            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
+            // TODO Lower tier will _never_ be smaller than higher ones now
+//            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000));
 
             if(cache.remove("key4")) {
                 size--;

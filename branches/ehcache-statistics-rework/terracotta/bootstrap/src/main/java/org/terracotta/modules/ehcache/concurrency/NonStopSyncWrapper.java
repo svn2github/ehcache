@@ -6,98 +6,36 @@ package org.terracotta.modules.ehcache.concurrency;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.NonstopConfiguration;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoinException;
+import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonstopException;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
-import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
+import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
 import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.nonstop.NonStopException;
 
-import java.io.PrintStream;
-import java.lang.reflect.Method;
-
 public class NonStopSyncWrapper implements Sync {
-  private final Sync                        delegate;
-  private final NonStop                     nonStop;
-  private final ToolkitNonStopConfiguration toolkitNonStopConfiguration;
+  private final Sync                                          delegate;
+  private final NonStop                                       nonStop;
+  private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
 
   public NonStopSyncWrapper(Sync delegate, ToolkitInstanceFactory toolkitInstanceFactory,
                             NonstopConfiguration nonStopConfiguration) {
     this.delegate = delegate;
     this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
-    this.toolkitNonStopConfiguration = new ToolkitNonStopConfiguration(nonStopConfiguration);
-  }
-
-  public static void main(String[] args) {
-    PrintStream out = System.out;
-    Class[] classes = { Sync.class };
-
-    for (Class c : classes) {
-      for (Method m : c.getMethods()) {
-        out.println("/**");
-        out.println("* {@inheritDoc}");
-        out.println("*/");
-        out.print("public " + m.getReturnType().getSimpleName() + " " + m.getName() + "(");
-        Class<?>[] params = m.getParameterTypes();
-        for (int i = 0; i < params.length; i++) {
-          out.print(params[i].getSimpleName() + " arg" + i);
-          if (i < params.length - 1) {
-            out.print(", ");
-          }
-        }
-        out.print(")");
-
-        Class<?>[] exceptions = m.getExceptionTypes();
-
-        if (exceptions.length > 0) {
-          out.print(" throws ");
-        }
-        for (int i = 0; i < exceptions.length; i++) {
-          out.print(exceptions[i].getSimpleName());
-          if (i < exceptions.length - 1) {
-            out.print(", ");
-          }
-        }
-
-        out.println(" {");
-        out.println("    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!");
-        out.println("      nonStopToolkit.start(toolkitNonStopConfiguration);");
-        out.println("      try {");
-
-        out.print("        ");
-        if (m.getReturnType() != Void.TYPE) {
-          out.print("return ");
-        }
-        out.print("this.delegate." + m.getName() + "(");
-        for (int i = 0; i < params.length; i++) {
-          out.print("arg" + i);
-          if (i < params.length - 1) {
-            out.print(", ");
-          }
-        }
-        out.println(");");
-        out.println("      } catch (NonStopException e) {");
-        out.println("        throw new NonStopCacheException(e);");
-        out.println("      } finally {");
-        out.println("        nonStopToolkit.stop();");
-        out.println("      }");
-        out.println("}");
-        out.println("");
-      }
-    }
+    this.toolkitNonStopConfiguration = new ToolkitNonStopExceptionOnTimeoutConfiguration(nonStopConfiguration);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void lock(LockType arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+  public void lock(LockType type) {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      this.delegate.lock(arg0);
+      this.delegate.lock(type);
     } catch (NonStopException e) {
-      throw new NonStopCacheException(e);
+      throw new LockOperationTimedOutNonstopException("Lock timed out");
     } finally {
       nonStop.finish();
     }
@@ -107,13 +45,12 @@ public class NonStopSyncWrapper implements Sync {
    * {@inheritDoc}
    */
   @Override
-  public void unlock(LockType arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+  public void unlock(LockType type) {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      this.delegate.unlock(arg0);
-    } catch (NonStopException e) {
-      throw new NonStopCacheException(e);
+      this.delegate.unlock(type);
+    } catch (org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException e) {
+      throw new InvalidLockStateAfterRejoinException(e);
     } finally {
       nonStop.finish();
     }
@@ -123,13 +60,12 @@ public class NonStopSyncWrapper implements Sync {
    * {@inheritDoc}
    */
   @Override
-  public boolean tryLock(LockType arg0, long arg1) throws InterruptedException {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+  public boolean tryLock(LockType type, long msec) throws InterruptedException {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      return this.delegate.tryLock(arg0, arg1);
+      return this.delegate.tryLock(type, msec);
     } catch (NonStopException e) {
-      throw new NonStopCacheException(e);
+      throw new LockOperationTimedOutNonstopException("try lock timed out");
     } finally {
       nonStop.finish();
     }
@@ -139,13 +75,12 @@ public class NonStopSyncWrapper implements Sync {
    * {@inheritDoc}
    */
   @Override
-  public boolean isHeldByCurrentThread(LockType arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+  public boolean isHeldByCurrentThread(LockType type) {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      return this.delegate.isHeldByCurrentThread(arg0);
+      return this.delegate.isHeldByCurrentThread(type);
     } catch (NonStopException e) {
-      throw new NonStopCacheException(e);
+      throw new LockOperationTimedOutNonstopException("isHeldByCurrentThread timed out");
     } finally {
       nonStop.finish();
     }

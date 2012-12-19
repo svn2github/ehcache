@@ -21,8 +21,13 @@ package net.sf.ehcache.store.disk;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.Element;
@@ -53,7 +58,7 @@ import org.slf4j.LoggerFactory;
 public class Segment extends ReentrantReadWriteLock {
 
     private static final Logger LOG = LoggerFactory.getLogger(Segment.class.getName());
-    private static final HashEntry NULL_HASH_ENTRY = new HashEntry(null, 0, null, null);
+    private static final HashEntry NULL_HASH_ENTRY = new HashEntry(null, 0, null, null, new AtomicBoolean(false));
 
     private static final float LOAD_FACTOR = 0.75f;
     private static final int MAXIMUM_CAPACITY = Integer.highestOneBit(Integer.MAX_VALUE);
@@ -97,6 +102,8 @@ public class Segment extends ReentrantReadWriteLock {
     private final PoolAccessor onDiskPoolAccessor;
     private final RegisteredEventListeners cacheEventNotificationService;
     private volatile boolean cachePinned;
+
+    private final Set<Object> pinnedKeys = new HashSet<Object>();
 
     /**
      * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
@@ -201,11 +208,13 @@ public class Segment extends ReentrantReadWriteLock {
     /**
      * Get the element mapped to this key (or null if there is no mapping for this key)
      *
+     *
      * @param key key to lookup
      * @param hash spread-hash for this key
+     * @param markFaulted
      * @return mapped element
      */
-    Element get(Object key, int hash) {
+    Element get(Object key, int hash, final boolean markFaulted) {
         readLock().lock();
         try {
             // read-volatile
@@ -213,6 +222,9 @@ public class Segment extends ReentrantReadWriteLock {
                 HashEntry e = getFirst(hash);
                 while (e != null) {
                     if (e.hash == hash && key.equals(e.key)) {
+                        if (markFaulted) {
+                            e.faulted.set(true);
+                        }
                         return decodeHit(e.element);
                     }
                     e = e.next;
@@ -318,7 +330,7 @@ public class Segment extends ReentrantReadWriteLock {
                 }
 
                 e.element = encoded;
-                installed = true;
+                installed = !pinnedKeys.contains(key);
                 free(onDiskSubstitute);
 
                 if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
@@ -372,7 +384,7 @@ public class Segment extends ReentrantReadWriteLock {
                 }
 
                 e.element = encoded;
-                installed = true;
+                installed = !pinnedKeys.contains(key);
                 oldElement = decode(onDiskSubstitute);
                 free(onDiskSubstitute);
 
@@ -408,10 +420,10 @@ public class Segment extends ReentrantReadWriteLock {
      * @param onlyIfAbsent if true does not replace existing mappings
      * @return previous element mapped to this key
      */
-    Element put(Object key, int hash, Element element, boolean onlyIfAbsent) {
+    Element put(Object key, int hash, Element element, boolean onlyIfAbsent, boolean faulted) {
         boolean installed = false;
         DiskSubstitute encoded = disk.create(element);
-        final long incomingHeapSize = onHeapPoolAccessor.add(key, encoded, NULL_HASH_ENTRY, cachePinned);
+        final long incomingHeapSize = onHeapPoolAccessor.add(key, encoded, NULL_HASH_ENTRY, cachePinned || faulted);
         if (incomingHeapSize < 0) {
             LOG.debug("put failed to add on heap");
             return null;
@@ -439,7 +451,7 @@ public class Segment extends ReentrantReadWriteLock {
                 DiskSubstitute onDiskSubstitute = e.element;
                 if (!onlyIfAbsent) {
                     e.element = encoded;
-                    installed = true;
+                    installed = !pinnedKeys.contains(key);
                     oldElement = decode(onDiskSubstitute);
 
                     free(onDiskSubstitute);
@@ -450,6 +462,7 @@ public class Segment extends ReentrantReadWriteLock {
                         final long existingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) onDiskSubstitute).getSize());
                         LOG.debug("put updated, deleted {} on disk", existingDiskSize);
                     }
+                    e.faulted.set(faulted);
                 } else {
                     oldElement = decode(onDiskSubstitute);
 
@@ -460,8 +473,8 @@ public class Segment extends ReentrantReadWriteLock {
             } else {
                 oldElement = null;
                 ++modCount;
-                tab[index] = new HashEntry(key, hash, first, encoded);
-                installed = true;
+                tab[index] = new HashEntry(key, hash, first, encoded, new AtomicBoolean(faulted));
+                installed = !pinnedKeys.contains(key);
                 // write-volatile
                 count = count + 1;
             }
@@ -520,7 +533,7 @@ public class Segment extends ReentrantReadWriteLock {
 
             if (e == null) {
                 ++modCount;
-                tab[index] = new HashEntry(key, hash, first, encoded);
+                tab[index] = new HashEntry(key, hash, first, encoded, new AtomicBoolean(false));
                 // write-volatile
                 count = count + 1;
                 return true;
@@ -589,7 +602,7 @@ public class Segment extends ReentrantReadWriteLock {
                     for (HashEntry p = e; p != lastRun; p = p.next) {
                         int k = p.hash & sizeMask;
                         HashEntry n = newTable[k];
-                        newTable[k] = new HashEntry(p.key, p.hash, n, p.element);
+                        newTable[k] = new HashEntry(p.key, p.hash, n, p.element, p.faulted);
                     }
                 }
             }
@@ -631,7 +644,7 @@ public class Segment extends ReentrantReadWriteLock {
                     ++modCount;
                     HashEntry newFirst = e.next;
                     for (HashEntry p = first; p != e; p = p.next) {
-                        newFirst = new HashEntry(p.key, p.hash, newFirst, p.element);
+                        newFirst = new HashEntry(p.key, p.hash, newFirst, p.element, p.faulted);
                     }
                     tab[index] = newFirst;
                     /*
@@ -691,7 +704,7 @@ public class Segment extends ReentrantReadWriteLock {
                 ++modCount;
                 HashEntry newFirst = e.next;
                 for (HashEntry p = first; p != e; p = p.next) {
-                    newFirst = new HashEntry(p.key, p.hash, newFirst, p.element);
+                    newFirst = new HashEntry(p.key, p.hash, newFirst, p.element, p.faulted);
                 }
                 tab[index] = newFirst;
                 /*
@@ -760,59 +773,92 @@ public class Segment extends ReentrantReadWriteLock {
      * @param fault element (proxy) to install
      * @return <code>true</code> if <code>fault</code> was installed
      */
-    boolean fault(Object key, int hash, Placeholder expect, DiskMarker fault) {
+    boolean fault(Object key, int hash, Placeholder expect, DiskMarker fault, final boolean skipFaulted) {
         writeLock().lock();
         try {
-            if (count != 0) {
-                final long deltaHeapSize = onHeapPoolAccessor.replace(expect.onHeapSize, key, fault, NULL_HASH_ENTRY, cachePinned);
-                if (deltaHeapSize == Long.MAX_VALUE) {
-                    remove(key, hash, null, null);
-                    return false;
-                } else {
-                    fault.onHeapSize = expect.onHeapSize + deltaHeapSize;
-                    LOG.debug("fault removed {} from heap", deltaHeapSize);
-                }
-                final long incomingDiskSize = onDiskPoolAccessor.add(key, null, fault, cachePinned);
-                if (incomingDiskSize < 0) {
-                    //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
-                    // that's why it is forced, even if that could make the pool go over limit
-                    long deleteSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
-                    LOG.debug("fault failed to add on disk, deleted {} from heap", deleteSize);
-                    expect.onHeapSize = fault.onHeapSize + deleteSize;
-                    final Element element = get(key, hash);
-                    if (cacheEventNotificationService.getFrontEndCacheTier() == null
-                        || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(element)) {
-                        notifyEviction(remove(key, hash, null, null));
-                        return false;
-                    }
-                    return true;
-                } else {
-                    LOG.debug("fault added {} on disk", incomingDiskSize);
-                }
-
-                for (HashEntry e = getFirst(hash); e != null; e = e.next) {
-                    if (e.hash == hash && key.equals(e.key)) {
-                        if (expect == e.element) {
-                            e.element = fault;
-                            free(expect);
-                            return true;
-                        }
-                    }
-                }
-
-                //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
-                // that's why it is forced, even if that could make the pool go over limit
-                final long failDeltaHeapSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
-                LOG.debug("fault installation failed, deleted {} from heap", failDeltaHeapSize);
-                expect.onHeapSize = fault.onHeapSize + failDeltaHeapSize;
-                onDiskPoolAccessor.delete(incomingDiskSize);
-                LOG.debug("fault installation failed deleted {} from disk", incomingDiskSize);
-            }
-            free(fault, true);
-            return false;
+            return !(isPinned(key, hash) && !skipFaulted) && faultInternal(key, hash, expect, fault, skipFaulted);
         } finally {
             writeLock().unlock();
         }
+    }
+
+    // TODO Needs some serious clean up !
+    private boolean faultInternal(final Object key, final int hash, final Placeholder expect, final DiskMarker fault, final boolean skipFaulted) {
+        boolean faulted = cachePinned;
+        if (count != 0 && !faulted) {
+            if (count != 0) {
+                HashEntry e = getFirst(hash);
+                while (e != null) {
+                    if (e.hash == hash && key.equals(e.key)) {
+                        faulted = e.faulted.get();
+                    }
+                    e = e.next;
+                }
+            }
+
+            if (skipFaulted && faulted) {
+                free(fault, false);
+                return true;
+            }
+
+            final long deltaHeapSize = onHeapPoolAccessor.replace(expect.onHeapSize, key, fault, NULL_HASH_ENTRY, faulted || cachePinned);
+            if (deltaHeapSize == Long.MAX_VALUE) {
+                remove(key, hash, null, null);
+                return false;
+            } else {
+                fault.onHeapSize = expect.onHeapSize + deltaHeapSize;
+                LOG.debug("fault removed {} from heap", deltaHeapSize);
+            }
+            final long incomingDiskSize = onDiskPoolAccessor.add(key, null, fault, faulted || cachePinned);
+            if (incomingDiskSize < 0) {
+                //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
+                // that's why it is forced, even if that could make the pool go over limit
+                long deleteSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
+                LOG.debug("fault failed to add on disk, deleted {} from heap", deleteSize);
+                expect.onHeapSize = fault.onHeapSize + deleteSize;
+                final Element element = get(key, hash, false);
+                return returnSafeDeprecated(key, hash, element);
+            } else {
+                LOG.debug("fault added {} on disk", incomingDiskSize);
+            }
+
+            if (findAndFree(key, hash, expect, fault)) {
+                return true;
+            }
+
+            //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
+            // that's why it is forced, even if that could make the pool go over limit
+            final long failDeltaHeapSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
+            LOG.debug("fault installation failed, deleted {} from heap", failDeltaHeapSize);
+            expect.onHeapSize = fault.onHeapSize + failDeltaHeapSize;
+            onDiskPoolAccessor.delete(incomingDiskSize);
+            LOG.debug("fault installation failed deleted {} from disk", incomingDiskSize);
+        }
+        free(fault, true);
+        return false;
+    }
+
+    private boolean findAndFree(final Object key, final int hash, final Placeholder expect, final DiskMarker fault) {
+        for (HashEntry e = getFirst(hash); e != null; e = e.next) {
+            if (e.hash == hash && key.equals(e.key)) {
+                if (expect == e.element) {
+                    e.element = fault;
+                    free(expect);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Deprecated
+    private boolean returnSafeDeprecated(final Object key, final int hash, final Element element) {
+        if (cacheEventNotificationService.getFrontEndCacheTier() == null
+            || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(element)) {
+            notifyEviction(remove(key, hash, null, null));
+            return false;
+        }
+        return true;
     }
 
     private void notifyEviction(final Element evicted) {
@@ -845,9 +891,13 @@ public class Segment extends ReentrantReadWriteLock {
      * @return <code>true</code> on a successful remove
      */
     Element evict(Object key, int hash, DiskSubstitute value, boolean notify) {
+
         if (writeLock().tryLock()) {
             Element evictedElement = null;
             try {
+                if (pinnedKeys.contains(key)) {
+                    return null;
+                }
                 HashEntry[] tab = table;
                 int index = hash & (tab.length - 1);
                 HashEntry first = tab[index];
@@ -856,20 +906,22 @@ public class Segment extends ReentrantReadWriteLock {
                     e = e.next;
                 }
 
-                if (e != null) {
+                if (e != null && !e.faulted.get()) {
                     evictedElement = decode(e.element);
                 }
 
-                if (e != null && (value == null || value == e.element)
-                    && (cacheEventNotificationService.getFrontEndCacheTier() == null
-                        || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(evictedElement))) {
+                // TODO this has to be removed!
+                @Deprecated
+                final boolean evictable = cacheEventNotificationService.getFrontEndCacheTier() == null
+                                  || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(evictedElement);
+                if (e != null && (value == null || value == e.element)  && !e.faulted.get() && evictable) {
                     // All entries following removed node can stay
                     // in list, but all preceding ones need to be
                     // cloned.
                     ++modCount;
                     HashEntry newFirst = e.next;
                     for (HashEntry p = first; p != e; p = p.next) {
-                        newFirst = new HashEntry(p.key, p.hash, newFirst, p.element);
+                        newFirst = new HashEntry(p.key, p.hash, newFirst, p.element, p.faulted);
                     }
                     tab[index] = newFirst;
                     /*
@@ -877,16 +929,16 @@ public class Segment extends ReentrantReadWriteLock {
                      * may have faulted in a different type - we must make sure we know what type
                      * to do the free on.
                      */
-                    DiskSubstitute v = e.element;
+                    DiskSubstitute onDiskSubstitute = e.element;
+                    free(onDiskSubstitute);
 
-                    free(v);
+                    final long outgoingHeapSize = onHeapPoolAccessor.delete(onDiskSubstitute.onHeapSize);
+                    LOG.debug("evicted {} from heap", outgoingHeapSize);
 
-                    if (v instanceof DiskMarker) {
-                        final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskMarker) v).getSize());
+                    if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
+                        final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) onDiskSubstitute).getSize());
                         LOG.debug("evicted {} from disk", outgoingDiskSize);
                     }
-                    final long outgoingHeapSize = onHeapPoolAccessor.delete(v.onHeapSize);
-                    LOG.debug("evicted {} from heap", outgoingHeapSize);
 
                     // write-volatile
                     count = count - 1;
@@ -897,7 +949,11 @@ public class Segment extends ReentrantReadWriteLock {
             } finally {
                 writeLock().unlock();
                 if (notify && evictedElement != null) {
-                    cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
+                    if (evictedElement.isExpired()) {
+                        cacheEventNotificationService.notifyElementExpiry(evictedElement, false);
+                    } else {
+                        cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
+                    }
                 }
             }
         } else {
@@ -914,13 +970,16 @@ public class Segment extends ReentrantReadWriteLock {
      * @param seed random seed for the selection
      */
     void addRandomSample(ElementSubstituteFilter filter, int sampleSize, Collection<DiskStorageFactory.DiskSubstitute> sampled, int seed) {
+        if (count == inMemSize()) {
+            return;
+        }
         final HashEntry[] tab = table;
         final int tableStart = seed & (tab.length - 1);
         int tableIndex = tableStart;
         do {
             for (HashEntry e = tab[tableIndex]; e != null; e = e.next) {
                 Object value = e.element;
-                if (filter.allows(value)) {
+                if (!e.faulted.get() && !pinnedKeys.contains(e.key) && filter.allows(value)) {
                     sampled.add((DiskStorageFactory.DiskSubstitute) value);
                 }
             }
@@ -986,6 +1045,165 @@ public class Segment extends ReentrantReadWriteLock {
             evict(key, hash, substitute, false);
         }
         return failedMarker;
+    }
+
+    /**
+     * Marks an entry as flushable to disk (i.e. not faulted in higher tiers)
+     * Also updates the access stats
+     * @param key the key
+     * @param hash they hash
+     * @param element the expected element
+     * @return true if succeeded
+     */
+    boolean flush(final Object key, final int hash, final Element element) {
+        DiskSubstitute diskSubstitute = null;
+        readLock().lock();
+        try {
+            HashEntry e = getFirst(hash);
+            while (e != null) {
+                if (e.hash == hash && key.equals(e.key)) {
+                    final boolean b = e.faulted.compareAndSet(true, false);
+                    diskSubstitute = e.element;
+                    if (diskSubstitute instanceof Placeholder) {
+                        if (((Placeholder)diskSubstitute).hasFailedToFlush() && evict(key, hash, diskSubstitute) != null) {
+                            diskSubstitute = null;
+                        }
+                    } else {
+                        if (diskSubstitute instanceof DiskMarker) {
+                            final DiskMarker diskMarker = (DiskMarker)diskSubstitute;
+                            diskMarker.updateStats(element);
+                        }
+                    }
+                    return b;
+                }
+                e = e.next;
+            }
+        } finally {
+            readLock().unlock();
+            if (diskSubstitute != null && element.isExpired()) {
+                evict(key, hash, diskSubstitute);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Marks a key as pinned
+     * @param key the key
+     * @param hash its hash
+     * @param pinned whether its pinned or not
+     */
+    void setPinned(final Object key, final int hash, final boolean pinned) {
+        DiskSubstitute installed = null;
+        writeLock().lock();
+        try {
+            if (pinned) {
+                if (pinnedKeys.add(key) && count != 0) {
+                    HashEntry e = getFirst(hash);
+                    while (e != null) {
+                        if (e.hash == hash && key.equals(e.key) && e.element instanceof DiskMarker) {
+                            put(key, hash, decodeHit(e.element), false, false);
+                            break;
+                        }
+                        e = e.next;
+                    }
+                    // get this thing faulted in again, w/o pending write task
+                }
+            } else {
+                // If this key was pinned and a mapping is present, reschedule a write task
+                if (pinnedKeys.remove(key) && count != 0) {
+                    HashEntry e = getFirst(hash);
+                    while (e != null) {
+                        if (e.hash == hash && key.equals(e.key)) {
+                            installed = e.element;
+                            break;
+                        }
+                        e = e.next;
+                    }
+                }
+            }
+        } finally {
+            writeLock().unlock();
+            if (installed != null) {
+                installed.installed();
+            }
+        }
+    }
+
+    /**
+     * Checks whether a key is pinned
+     * @param key the key
+     * @param hash its hash
+     * @return true if pinned, false otherwise
+     */
+    boolean isPinned(final Object key, final int hash) {
+        readLock().lock();
+        try {
+            return pinnedKeys.contains(key);
+        } finally {
+            readLock().unlock();
+        }
+    }
+
+    /**
+     * Unpins all pinned keys
+     */
+    void unpinAll() {
+        writeLock().lock();
+        try {
+            pinnedKeys.clear();
+        } finally {
+            writeLock().unlock();
+        }
+    }
+
+    /**
+     * Clears the faulted but on all entries
+     */
+    void clearFaultedBit() {
+        writeLock().lock();
+        try {
+            HashEntry entry;
+            for (HashEntry hashEntry : table) {
+                entry = hashEntry;
+                while (entry != null) {
+                    entry.faulted.set(false);
+                    entry = entry.next;
+                }
+            }
+        } finally {
+            writeLock().unlock();
+        }
+
+    }
+
+    /**
+     * TODO might want to eagerly do this!
+     * Returns the amount of mappings held in memory
+     * @return the amount of things in memory
+     */
+    int inMemSize() {
+        readLock().lock();
+        try {
+            int pinnedEntries = 0;
+            final Iterator<HashEntry> hashEntryIterator = hashIterator();
+            while (hashEntryIterator.hasNext()) {
+                if (pinnedKeys.contains(hashEntryIterator.next().element.getKey())) {
+                    pinnedEntries++;
+                }
+            }
+            return pinnedEntries;
+        } finally {
+            readLock().unlock();
+        }
+    }
+
+    /**
+     * A collection of pinned keys
+     * @return the pinned keySet
+     */
+    Collection pinnedKeys() {
+        return Collections.unmodifiableSet(pinnedKeys);
     }
 
     /**

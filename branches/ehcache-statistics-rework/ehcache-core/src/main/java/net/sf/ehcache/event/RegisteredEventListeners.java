@@ -534,6 +534,7 @@ public class RegisteredEventListeners {
      * Returns the {@link FrontEndCacheTier} this RegisteredEventListeners is backing, or null if the cache isn't backed by one
      * @return the Cache's FrontEndCacheTier
      */
+    @Deprecated
     public FrontEndCacheTier getFrontEndCacheTier() {
         Store store;
         try {

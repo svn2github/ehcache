@@ -52,6 +52,7 @@ public class StatisticsTest extends AbstractCacheTest {
     public void testStatisticsFromStatisticsObject() throws InterruptedException, ExecutionException {
         // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
+        cache.getCacheConfiguration().setMaxEntriesLocalDisk(2);
         manager.addCache(cache);
 
         cache.getStatistics().setStatisticsEnabled(true);
@@ -62,8 +63,8 @@ public class StatisticsTest extends AbstractCacheTest {
         // allow disk write thread to complete
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
-        assertThat(cache.get("key1"), notNullValue());
-        assertThat(cache.get("key2"), notNullValue());
+        cache.get("key2");
+        cache.get("key1");
 
         FlatStatistics statistics = cache.getStatistics();
         assertEquals(2, statistics.cacheHitCount());
@@ -75,7 +76,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(2, statistics.getLocalDiskSize());
 
         // key 2 should now be in the MemoryStore
-        assertThat(cache.get("key2"), notNullValue());
+        cache.get("key1");
 
         assertEquals(3, statistics.cacheHitCount());
         assertEquals(1, statistics.diskHitCount());

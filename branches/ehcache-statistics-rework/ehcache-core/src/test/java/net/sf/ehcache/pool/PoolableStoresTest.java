@@ -9,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -52,9 +54,9 @@ public class PoolableStoresTest {
             overflowToDiskCache.put(new Element(i, "" + i));
         }
 
-        assertEquals(64, memoryOnlyCache.getSize() + overflowToDiskCache.getSize());
-
-
+        assertThat(memoryOnlyCache.getSize(), greaterThan(0));
+        assertThat(overflowToDiskCache.getSize(), greaterThan(0));
+        assertThat(memoryOnlyCache.getSize() + overflowToDiskCache.getSize(), lessThanOrEqualTo(64));
     }
 
 }

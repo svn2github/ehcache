@@ -20,6 +20,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.sf.ehcache.util.RetryAssert.assertBy;
 import static net.sf.ehcache.util.RetryAssert.sizeOnDiskOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -48,10 +51,15 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheEventListenerAdapter;
+import net.sf.ehcache.store.CacheStore;
 import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Primitive;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.disk.DiskStorageFactory;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.PropertyUtil;
@@ -167,6 +175,46 @@ public class DiskStoreTest extends AbstractCacheTest {
     @Test
     public void testNothing() {
         //just tests setup and teardown
+    }
+
+    @Test
+    public void testPinningFaultsInMem() throws Exception {
+
+        DiskStore diskStore = getDiskStore(createNonExpiringDiskStore());
+        assertThat(diskStore.getInMemorySize(), is(0));
+        assertThat(diskStore.getOnDiskSize(), is(0));
+        assertThat(diskStore.getSize(), is(0));
+
+        diskStore.setPinned("myKey", true);
+        assertThat(diskStore.getInMemorySize(), is(0));
+        assertThat(diskStore.getOnDiskSize(), is(0));
+        assertThat(diskStore.getSize(), is(0));
+
+        diskStore.put(new Element("myKey", "value"));
+        assertThat(diskStore.getInMemorySize(), is(1));
+        assertThat(diskStore.getOnDiskSize(), is(0));
+        assertThat(diskStore.getSize(), is(1));
+
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
+        assertThat(diskStore.getInMemorySize(), is(1));
+        assertThat(diskStore.getOnDiskSize(), is(0));
+        assertThat(diskStore.getSize(), is(1));
+
+        diskStore.setPinned("myKey", false);
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
+        assertThat(diskStore.getInMemorySize(), is(0));
+        assertThat(diskStore.getOnDiskSize(), is(1));
+        assertThat(diskStore.getSize(), is(1));
+
+        diskStore.setPinned("myKey", true);
+        assertThat(diskStore.getInMemorySize(), is(1));
+        assertThat(diskStore.getOnDiskSize(), is(0));
+        assertThat(diskStore.getSize(), is(1));
+
+        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
+        assertThat(diskStore.getInMemorySize(), is(1));
+        assertThat(diskStore.getOnDiskSize(), is(0));
+        assertThat(diskStore.getSize(), is(1));
     }
 
     /**
@@ -602,11 +650,10 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testLFUEvictionFromDiskStore() throws IOException, InterruptedException, ExecutionException {
-        Cache cache = new Cache("testNonPersistent", 1, MemoryStoreEvictionPolicy.LFU, true,
-                null, false, 2000, 1000, false, 1, null, null, 10);
+        Cache cache = new Cache(new CacheConfiguration("testNonPersistent", 1).eternal(true).maxEntriesLocalDisk(10)
+            .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.LOCALTEMPSWAP)));
         manager.addCache(cache);
         final Store store = cache.getStore();
-
         Element element;
 
         assertEquals(0, store.getSize());
@@ -623,7 +670,8 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
 
         //allow to move through spool
-        assertBy(1, SECONDS, sizeOnDiskOf(store), Is.is(10));
+        DiskStoreHelper.flushAllEntriesToDisk(store).get();
+        assertThat(store.getOnDiskSize(), Is.is(10));
 
         element = new Element("keyNew", "valueNew");
         store.put(element);
@@ -960,8 +1008,8 @@ public class DiskStoreTest extends AbstractCacheTest {
      * @throws ExecutionException
      */
     @Test
-    public void testExpiryWithSize() throws InterruptedException, ExecutionException {
-        final Store diskStore = createDiskStore();
+    public void testExpiryWithSize() throws InterruptedException, ExecutionException, NoSuchFieldException, IllegalAccessException {
+        final DiskStore diskStore = getDiskStore(createDiskCache().getStore());
         diskStore.removeAll();
 
         byte[] data = new byte[1024];
@@ -972,7 +1020,6 @@ public class DiskStoreTest extends AbstractCacheTest {
                 diskStore.put(element);
             }
             DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
-
             assertBy(4, TimeUnit.SECONDS, new Callable<Long>() {
                 @Override
                 public Long call() throws Exception {
@@ -1245,19 +1292,25 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
     }
 
-    private DiskStore getDiskStore(Store diskBackedMemoryStore) throws NoSuchFieldException, IllegalAccessException {
-        Field f = FrontEndCacheTier.class.getDeclaredField("authority");
+    public static DiskStore getDiskStore(Store store) throws NoSuchFieldException, IllegalAccessException {
+        Field f;
+        if (store instanceof FrontEndCacheTier) {
+            f = FrontEndCacheTier.class.getDeclaredField("authority");
+        } else {
+            f = CacheStore.class.getDeclaredField("authoritativeTier");
+        }
         f.setAccessible(true);
-        return (DiskStore) f.get(diskBackedMemoryStore);
+        return (DiskStore) f.get(store);
     }
 
     @Test
-    public void testDiskPersistentExpiryThreadBehavior() {
+    public void testDiskPersistentExpiryThreadBehavior() throws Exception {
         CacheManager cacheManager = CacheManager.getInstance();
         try {
-            CacheConfiguration configuration = new CacheConfiguration("testCache", 20);
+            final long diskExpiryThreadIntervalSeconds = 6;
+            CacheConfiguration configuration = new CacheConfiguration("testCache", 1);
             configuration.setOverflowToDisk(true);
-            configuration.setTimeToIdleSeconds(10);
+            configuration.setTimeToIdleSeconds(diskExpiryThreadIntervalSeconds);
             configuration.setDiskPersistent(true);
             configuration.setDiskExpiryThreadIntervalSeconds(1);
 
@@ -1266,11 +1319,19 @@ public class DiskStoreTest extends AbstractCacheTest {
                 cacheManager.addCache(cache);
 
                 cache.put(new Element("1", "A value"));
-
-                for (int i = 0; i < 20; i++) {
-                    if (cache.get("1") == null) {
+                final DiskStore diskStore = getDiskStore(cache.getStore());
+                DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
+                long expirationTime = 0;
+                Element element = null;
+                for (int i = 0; i < diskExpiryThreadIntervalSeconds * 2; i++) {
+                    element = cache.get("1");
+                    if (element != null && diskStore.get("1") == null) {
                         throw new AssertionError();
                     }
+                    if(expirationTime == 0) {
+                        expirationTime = ((DiskStorageFactory.DiskMarker)diskStore.unretrievedGet("1")).getExpirationTime();
+                    }
+                    assertThat(((DiskStorageFactory.DiskMarker)diskStore.unretrievedGet("1")).getExpirationTime(), is(expirationTime));
 
                     try {
                         Thread.sleep(1 * 1000);
@@ -1278,6 +1339,9 @@ public class DiskStoreTest extends AbstractCacheTest {
                         //
                     }
                 }
+                assertThat(element, notNullValue());
+                cache.put(new Element("2", "who cares about the value?!")); // this should flush and update the stats!
+                assertThat(((DiskStorageFactory.DiskMarker)diskStore.unretrievedGet("1")).getExpirationTime(), is(element.getExpirationTime()));
             } finally {
                 cache.removeAll();
             }

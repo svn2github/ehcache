@@ -270,7 +270,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         final int DISK_WIGGLE = 2;
 
         Cache cache = new Cache("testDiskCapacityChange", 10, true, true, 0, 0);
-        cache.getCacheConfiguration().setMaxElementsOnDisk(10);
+        cache.getCacheConfiguration().setMaxElementsOnDisk(20);
         manager.addCache(cache);
 
         for (int i = 0; i < 40; i++) {
@@ -278,7 +278,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             assertThat(cache.getSize(), lessThanOrEqualTo(20));
             assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10L));
-            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(10L + DISK_WIGGLE));
+            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(20L + DISK_WIGGLE));
         }
 
         cache.getCacheConfiguration().setMaxElementsOnDisk(20);
@@ -291,7 +291,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             assertThat(cache.getStatistics().getLocalDiskSize(), CombinableMatcher.both(lessThanOrEqualTo(20L + DISK_WIGGLE)).and(greaterThan(10L)));
         }
 
-        cache.getCacheConfiguration().setMaxElementsOnDisk(5);
+        cache.getCacheConfiguration().setMaxElementsOnDisk(10);
 
         for (int i = 80; i < 120; i++) {
             cache.put(new Element("key" + i, new byte[0]));
@@ -300,7 +300,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
         assertThat(cache.getSize(), lessThanOrEqualTo(10));
         assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10L));
-        Assert.assertEquals(5, cache.getStatistics().getLocalDiskSize());
+        Assert.assertEquals(10, cache.getStatistics().getLocalDiskSize());
     }
 
     @Test

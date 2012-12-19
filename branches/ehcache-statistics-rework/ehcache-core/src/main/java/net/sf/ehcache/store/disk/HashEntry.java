@@ -22,6 +22,8 @@ package net.sf.ehcache.store.disk;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Internal entry structure used by the {@link net.sf.ehcache.store.disk.Segment} class.
  *
@@ -53,6 +55,11 @@ final class HashEntry {
     protected volatile DiskSubstitute element;
 
     /**
+     * marks the entry as faulted, can't evict faulted things
+     */
+    protected final AtomicBoolean faulted;
+
+    /**
      * Constructs a HashEntry instance mapping the supplied key, value pair
      * and linking it to the supplied HashEntry
      *
@@ -61,10 +68,11 @@ final class HashEntry {
      * @param next    next HashEntry in the chain
      * @param element initial value for this entry
      */
-    HashEntry(Object key, int hash, HashEntry next, DiskSubstitute element) {
+    HashEntry(Object key, int hash, HashEntry next, DiskSubstitute element, AtomicBoolean faulted) {
         this.key = key;
         this.hash = hash;
         this.next = next;
         this.element = element;
+        this.faulted = faulted;
     }
 }

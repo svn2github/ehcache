@@ -107,8 +107,8 @@ public class LiveCacheStatisticsTest extends AbstractCacheTest {
     public void doTestCacheUsageStatistics(Cache cache,
                                            boolean statisticsEnabled) throws InterruptedException {
 //
-//        cache.put(new Element("key2", "value1"));
 //        cache.put(new Element("key1", "value1"));
+//        cache.put(new Element("key2", "value1"));
 //        // key1 should be in the Disk Store
 //        cache.get("key1");
 //

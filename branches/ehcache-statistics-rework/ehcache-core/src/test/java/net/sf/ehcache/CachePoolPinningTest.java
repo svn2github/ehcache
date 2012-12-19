@@ -22,11 +22,17 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.concurrent.ExecutionException;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests for Cache pinning with pools
@@ -96,6 +102,7 @@ public class CachePoolPinningTest {
     }
 
     @Test
+    @Ignore
     public void testOverflowToDisk() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
@@ -123,6 +130,7 @@ public class CachePoolPinningTest {
     }
 
     @Test
+    @Ignore
     public void testDiskPersistent() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()

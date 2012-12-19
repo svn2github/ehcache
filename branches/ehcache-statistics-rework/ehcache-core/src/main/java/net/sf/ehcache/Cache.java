@@ -1979,6 +1979,12 @@ public class Cache implements InternalEhcache, StoreListener {
         return elements;
     }
 
+    /**
+     * This shouldn't be necessary once we got rid of this stupid locking layer!
+     * @param key
+     * @param notifyListeners
+     */
+    @Deprecated
     private void tryRemoveImmediately(final Object key, final boolean notifyListeners) {
         Sync syncForKey = ((CacheLockProvider)getInternalContext()).getSyncForKey(key);
         boolean writeLocked = false;

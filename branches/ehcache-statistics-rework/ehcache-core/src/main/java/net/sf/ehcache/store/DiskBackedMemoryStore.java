@@ -18,24 +18,24 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
-import net.sf.ehcache.search.impl.SearchManager;
+import net.sf.ehcache.store.cachingtier.CountBasedBackEnd;
+import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
+import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
+import net.sf.ehcache.store.cachingtier.PooledBasedBackEnd;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
-
-import java.io.Serializable;
 
 /**
  * A tiered store using an in-memory cache of elements stored on disk.
  *
  * @author Ludovic Orban
  */
-public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, DiskStore> {
-
-    private DiskBackedMemoryStore(CacheConfiguration cacheConfiguration, MemoryStore cache, DiskStore authority, SearchManager searchManager) {
-        super(cache, authority, cacheConfiguration.getCopyStrategy(), searchManager,
-              cacheConfiguration.isCopyOnWrite(), cacheConfiguration.isCopyOnRead());
-    }
+public abstract class DiskBackedMemoryStore extends AbstractStore {
 
     /**
      * Create a DiskBackedMemoryStore instance
@@ -45,10 +45,47 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
      * @return a DiskBackedMemoryStore instance
      */
     public static Store create(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
-        final MemoryStore memoryStore = createMemoryStore(cache, onHeapPool);
         DiskStore diskStore = createDiskStore(cache, onHeapPool, onDiskPool);
 
-        return new DiskBackedMemoryStore(cache.getCacheConfiguration(), memoryStore, diskStore, null);
+        final HeapCacheBackEnd<Object, Object> memCacheBackEnd;
+        final Policy memoryEvictionPolicy = MemoryStore.determineEvictionPolicy(cache);
+        if (cache.getCacheConfiguration().isCountBasedTuned()) {
+            final long maxEntriesLocalHeap = getCachingTierMaxEntryCount(cache);
+            memCacheBackEnd = new CountBasedBackEnd<Object, Object>(maxEntriesLocalHeap, memoryEvictionPolicy);
+        } else {
+            final PooledBasedBackEnd<Object, Object> pooledBasedBackEnd = new PooledBasedBackEnd<Object, Object>(memoryEvictionPolicy);
+
+            pooledBasedBackEnd.registerAccessor(
+                onHeapPool.createPoolAccessor(new PooledBasedBackEnd.PoolParticipant(pooledBasedBackEnd),
+                    SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                    SizeOfPolicyConfiguration.resolveBehavior(cache)
+                        .equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT)));
+
+            memCacheBackEnd = pooledBasedBackEnd;
+        }
+
+        return wrapIfCopy(new CacheStore(
+            new OnHeapCachingTier<Object, Element>(
+                memCacheBackEnd),
+            diskStore, cache.getCacheConfiguration()
+        ), cache.getCacheConfiguration());
+    }
+
+    private static long getCachingTierMaxEntryCount(final Ehcache cache) {
+        final PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
+        if (pinningConfiguration != null && pinningConfiguration.getStore() != PinningConfiguration.Store.INCACHE) {
+            return 0;
+        }
+        return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+    }
+
+    private static Store wrapIfCopy(final CacheStore diskCacheStore, final CacheConfiguration cacheConfiguration) {
+        if (cacheConfiguration.isCopyOnRead() || cacheConfiguration.isCopyOnWrite()) {
+            final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
+                .getCopyStrategyInstance();
+            return new CopyingCacheStore(diskCacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance);
+        }
+        return diskCacheStore;
     }
 
     private static MemoryStore createMemoryStore(Ehcache cache, Pool onHeapPool) {
@@ -60,7 +97,7 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
         if (config.isOverflowToDisk()) {
             return DiskStore.create(cache, onHeapPool, onDiskPool);
         } else {
-            throw new CacheException("DiskBackedMemoryStore can only be used when cache overflows to disk or is disk persistent");
+            throw new CacheException("DiskBackedMemoryStore can only be used for cache overflowing to disk");
         }
     }
 
@@ -69,13 +106,5 @@ public final class DiskBackedMemoryStore extends FrontEndCacheTier<MemoryStore, 
      */
     public Object getMBean() {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean notifyEvictionFromCache(final Serializable key) {
-        return authority.cleanUpFailedMarker(key);
     }
 }

@@ -48,6 +48,12 @@ public class CacheClassicLruMemoryStoreTest extends CacheTest {
         System.setProperty(Cache.NET_SF_EHCACHE_USE_CLASSIC_LRU, "false");
     }
 
+    @Override
+    @Test
+    public void testNonSerializableElement() throws Exception {
+        super.testNonSerializableElement();
+    }
+
     /**
      * Tests flushing the cache, with the default, which is to clear
      * <p/>

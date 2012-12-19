@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.pool.impl;
 
+import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolParticipant;
 
@@ -33,23 +34,23 @@ public class FromLargestCachePoolEvictor implements PoolEvictor<PoolParticipant>
     /**
      * {@inheritDoc}
      */
-    public boolean freeSpace(Collection<PoolParticipant> from, long bytes) {
+    public boolean freeSpace(Collection<PoolAccessor<PoolParticipant>> from, long bytes) {
         if (from == null || from.isEmpty()) {
             return false;
         }
 
         long remainingSizeInBytes = bytes;
-        Collection<PoolParticipant> tried = new ArrayList<PoolParticipant>();
+        Collection<PoolAccessor<PoolParticipant>> tried = new ArrayList<PoolAccessor<PoolParticipant>>();
 
         while (tried.size() != from.size()) {
-            PoolParticipant largestPoolParticipant = findUntriedLargestPoolableStore(from, tried);
+            PoolAccessor<PoolParticipant> largestPoolAccessor = findUntriedLargestPoolableStore(from, tried);
 
-            long beforeEvictionSize = largestPoolParticipant.getSizeInBytes();
-            if (!largestPoolParticipant.evict(1, bytes)) {
-                tried.add(largestPoolParticipant);
+            long beforeEvictionSize = largestPoolAccessor.getSize();
+            if (!largestPoolAccessor.getParticipant().evict(1, bytes)) {
+                tried.add(largestPoolAccessor);
                 continue;
             }
-            long afterEvictionSize = largestPoolParticipant.getSizeInBytes();
+            long afterEvictionSize = largestPoolAccessor.getSize();
 
             remainingSizeInBytes -= (beforeEvictionSize - afterEvictionSize);
             if (remainingSizeInBytes <= 0L) {
@@ -60,23 +61,24 @@ public class FromLargestCachePoolEvictor implements PoolEvictor<PoolParticipant>
         return false;
     }
 
-    private PoolParticipant findUntriedLargestPoolableStore(Collection<PoolParticipant> from, Collection<PoolParticipant> tried) {
-        PoolParticipant largestPoolParticipant = null;
-        for (PoolParticipant poolParticipant : from) {
-            if (alreadyTried(tried, poolParticipant)) {
+    private PoolAccessor<PoolParticipant> findUntriedLargestPoolableStore(Collection<PoolAccessor<PoolParticipant>> from,
+                                                                          Collection<PoolAccessor<PoolParticipant>> tried) {
+        PoolAccessor<PoolParticipant> largestPoolAccessor = null;
+        for (PoolAccessor<PoolParticipant> accessor : from) {
+            if (alreadyTried(tried, accessor)) {
                 continue;
             }
 
-            if (largestPoolParticipant == null || poolParticipant.getSizeInBytes() > largestPoolParticipant.getSizeInBytes()) {
-                largestPoolParticipant = poolParticipant;
+            if (largestPoolAccessor == null || accessor.getSize() > largestPoolAccessor.getSize()) {
+                largestPoolAccessor = accessor;
             }
         }
-        return largestPoolParticipant;
+        return largestPoolAccessor;
     }
 
-    private boolean alreadyTried(Collection<PoolParticipant> tried, PoolParticipant from) {
-        for (PoolParticipant poolParticipant : tried) {
-            if (poolParticipant == from) {
+    private boolean alreadyTried(Collection<PoolAccessor<PoolParticipant>> tried, PoolAccessor<PoolParticipant> from) {
+        for (PoolAccessor accessor : tried) {
+            if (accessor == from) {
                 return true;
             }
         }
