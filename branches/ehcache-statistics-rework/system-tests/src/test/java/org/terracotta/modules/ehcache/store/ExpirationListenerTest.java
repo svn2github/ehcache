@@ -17,6 +17,7 @@ import org.terracotta.ehcache.tests.ClientBase;
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.concurrent.ThreadUtil;
 
+import java.util.concurrent.atomic.AtomicLong;
 import junit.framework.Assert;
 
 public class ExpirationListenerTest extends AbstractCacheTestBase {
@@ -29,6 +30,7 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase implements CacheEventListener {
 
+    private final AtomicLong localExpiredCount = new AtomicLong();
     private final ToolkitBarrier barrier;
 
     public App(String[] args) {
@@ -71,7 +73,7 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
       Assert.assertNull(cache.get("key"));
       // only assert local listener would notice eviction events
       if (index == 0) {
-        Assert.assertEquals(1, cache.getCacheEventNotificationService().getElementsExpiredCounter());
+        Assert.assertEquals(1, localExpiredCount.get());
       }
 
       Assert.assertEquals(0, cache.getSize());
@@ -86,7 +88,7 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
     }
 
     public void notifyElementExpired(Ehcache cache, Element element) {
-      // don't care
+      localExpiredCount.incrementAndGet();
     }
 
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {

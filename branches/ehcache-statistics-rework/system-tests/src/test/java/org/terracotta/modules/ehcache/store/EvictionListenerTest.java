@@ -18,6 +18,7 @@ import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.test.config.model.TestConfig;
 
+import java.util.concurrent.atomic.AtomicLong;
 import junit.framework.Assert;
 
 public class EvictionListenerTest extends AbstractCacheTestBase {
@@ -35,7 +36,8 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
 
     private final ToolkitBarrier    barrier;
     private final ToolkitAtomicLong evictedCount;
-
+    private final AtomicLong localEvictedCount = new AtomicLong();
+    
     public App(String[] args) {
       super("test2", args);
       this.evictedCount = getClusteringToolkit().getAtomicLong("testLong");
@@ -81,10 +83,9 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
       barrier.await();
 
       Thread.sleep(30 * 1000);
-      System.out.println("XXXX client" + index + ": "
-                         + cache.getCacheEventNotificationService().getElementsEvictedCounter());
+      System.out.println("XXXX client" + index + ": " + localEvictedCount.get());
 
-      this.evictedCount.addAndGet(cache.getCacheEventNotificationService().getElementsEvictedCounter());
+      this.evictedCount.addAndGet(localEvictedCount.get());
 
       barrier.await();
 
@@ -97,6 +98,7 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
 
     public void notifyElementEvicted(Ehcache cache, Element element) {
       System.out.println("Element [" + element + "] evicted");
+      localEvictedCount.incrementAndGet();
     }
 
     public void notifyElementExpired(Ehcache cache, Element element) {

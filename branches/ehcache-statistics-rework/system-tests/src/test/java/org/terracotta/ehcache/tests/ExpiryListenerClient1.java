@@ -1,5 +1,6 @@
 package org.terracotta.ehcache.tests;
 
+import java.util.concurrent.atomic.AtomicLong;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -12,6 +13,8 @@ import junit.framework.Assert;
 
 public class ExpiryListenerClient1 extends ClientBase implements CacheEventListener {
 
+  private final AtomicLong localExpiredCount = new AtomicLong();
+  
   public ExpiryListenerClient1(String[] args) {
     super("test", args);
   }
@@ -39,7 +42,7 @@ public class ExpiryListenerClient1 extends ClientBase implements CacheEventListe
     } while (cache.getSize() > 0);
 
     // assert eviction has already occurred
-    Assert.assertEquals(1, cache.getCacheEventNotificationService().getElementsExpiredCounter());
+    Assert.assertEquals(1, localExpiredCount.get());
     Assert.assertEquals(0, cache.getSize());
   }
 
@@ -52,6 +55,7 @@ public class ExpiryListenerClient1 extends ClientBase implements CacheEventListe
   }
 
   public void notifyElementExpired(Ehcache cache, Element element) {
+    localExpiredCount.incrementAndGet();
     Assert.assertNotNull(element.getKey());
     Assert.assertNull(element.getValue());
     System.out.println("Got evicted: " + element);
