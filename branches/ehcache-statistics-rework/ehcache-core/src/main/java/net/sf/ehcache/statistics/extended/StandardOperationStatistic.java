@@ -91,7 +91,7 @@ enum StandardOperationStatistic {
     },
 
     /** The evicted. */
-    EVICTION(CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
+    EVICTION(true, CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
 
     /** The expired. */
     EXPIRY(true, CacheOperationOutcomes.ExpiredOutcome.class, "expiry");

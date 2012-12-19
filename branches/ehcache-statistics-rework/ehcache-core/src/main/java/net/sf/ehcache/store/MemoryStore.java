@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
@@ -98,6 +99,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
     private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("local-heap").build();
     private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("local-heap").build();
+    protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
     private final boolean storePinned;
     private final boolean elementPinningEnabled;
@@ -855,11 +857,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
      * @return true if succeeded, false otherwise
      */
     protected boolean evict(final Element element) {
+        evictionObserver.begin();
         final Element remove = remove(element.getObjectKey());
         RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
         final FrontEndCacheTier frontEndCacheTier = cacheEventNotificationService.getFrontEndCacheTier();
         if (remove != null && frontEndCacheTier != null && frontEndCacheTier.notifyEvictionFromCache(remove.getKey())) {
             cacheEventNotificationService.notifyElementEvicted(remove, false);
+            evictionObserver.end(EvictionOutcome.SUCCESS);
         }
         return remove != null;
     }

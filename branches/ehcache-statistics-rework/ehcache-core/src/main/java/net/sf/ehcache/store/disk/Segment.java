@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -43,6 +45,7 @@ import net.sf.ehcache.util.FindBugsSuppressWarnings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.observer.OperationObserver;
 
 /**
  * Segment implementation used in LocalStore.
@@ -104,6 +107,7 @@ public class Segment extends ReentrantReadWriteLock {
     private volatile boolean cachePinned;
 
     private final Set<Object> pinnedKeys = new HashSet<Object>();
+    private final OperationObserver<EvictionOutcome> evictionObserver;
 
     /**
      * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
@@ -126,10 +130,12 @@ public class Segment extends ReentrantReadWriteLock {
     public Segment(int initialCapacity, float loadFactor, DiskStorageFactory primary,
                    CacheConfiguration cacheConfiguration,
                    PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor, 
-                   RegisteredEventListeners cacheEventNotificationService) {
+                   RegisteredEventListeners cacheEventNotificationService,
+                   OperationObserver<EvictionOutcome> evictionObserver) {
         this.onHeapPoolAccessor = onHeapPoolAccessor;
         this.onDiskPoolAccessor = onDiskPoolAccessor;
         this.cacheEventNotificationService = cacheEventNotificationService;
+        this.evictionObserver = evictionObserver;
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
@@ -893,6 +899,7 @@ public class Segment extends ReentrantReadWriteLock {
     Element evict(Object key, int hash, DiskSubstitute value, boolean notify) {
 
         if (writeLock().tryLock()) {
+            evictionObserver.begin();
             Element evictedElement = null;
             try {
                 if (pinnedKeys.contains(key)) {
@@ -952,6 +959,7 @@ public class Segment extends ReentrantReadWriteLock {
                     if (evictedElement.isExpired()) {
                         cacheEventNotificationService.notifyElementExpiry(evictedElement, false);
                     } else {
+                        evictionObserver.end(EvictionOutcome.SUCCESS);
                         cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
                     }
                 }

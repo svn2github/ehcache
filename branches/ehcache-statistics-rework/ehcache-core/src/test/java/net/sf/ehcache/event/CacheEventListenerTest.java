@@ -521,7 +521,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     @Test
     public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException, ExecutionException {
         RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
-        long elementsEvictedCounter = cacheEventNotificationService.getElementsEvictedCounter();
 
         //should trigger a removal notification because it is not Serializable when it is evicted
         cache.put(new Element(12 + "", new Object()));
@@ -537,7 +536,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
         assertThat(listener.getCacheElementsEvicted(), hasSize(1));
-        assertEquals(cacheEventNotificationService.getElementsEvictedCounter(), elementsEvictedCounter + 1);
         assertThat(listener.getCacheElementsExpired(), hasSize(0));
     }
 

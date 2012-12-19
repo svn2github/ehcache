@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.observer.OperationObserver;
@@ -86,6 +88,7 @@ public class LruMemoryStore extends AbstractStore {
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
     private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("local-heap").build();
     private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("local-heap").build();
+    private final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
     
     /**
      * Constructor for the LruMemoryStore object
@@ -433,6 +436,8 @@ public class LruMemoryStore extends AbstractStore {
         }
 
         if (!spooled) {
+            evictionObserver.begin();
+            evictionObserver.end(EvictionOutcome.SUCCESS);
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
     }

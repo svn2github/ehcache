@@ -33,10 +33,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
+import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
-import org.terracotta.statistics.StatisticsManager;
 
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
@@ -62,12 +62,7 @@ public class RegisteredEventListeners {
 
     private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
 
-    private final AtomicLong elementsRemovedCounter = new AtomicLong(0);
-    private final AtomicLong elementsPutCounter = new AtomicLong(0);
-    private final AtomicLong elementsUpdatedCounter = new AtomicLong(0);
-    private final AtomicLong elementsExpiredCounter = new AtomicLong(0);
     private final AtomicLong elementsEvictedCounter = new AtomicLong(0);
-    private final AtomicLong elementsRemoveAllCounter = new AtomicLong(0);
 
     private final CacheStoreHelper helper;
 
@@ -108,7 +103,6 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementRemoved(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsRemovedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -144,7 +138,6 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementPut(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsPutCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -180,7 +173,6 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementUpdated(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsUpdatedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -220,7 +212,6 @@ public class RegisteredEventListeners {
             expiryObserver.begin();
             expiryObserver.end(ExpiredOutcome.SUCCESS);
         }
-        elementsExpiredCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -336,7 +327,6 @@ public class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementEvicted
      */
     public final void notifyRemoveAll(boolean remoteEvent) {
-        elementsRemoveAllCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -476,72 +466,6 @@ public class RegisteredEventListeners {
             sb.append(listenerWrapper.getListener().getClass().getName()).append(" ");
         }
         return sb.toString();
-    }
-
-    /**
-     * Clears all event counters
-     */
-    public void clearCounters() {
-        elementsRemovedCounter.set(0);
-        elementsPutCounter.set(0);
-        elementsUpdatedCounter.set(0);
-        elementsExpiredCounter.set(0);
-        elementsEvictedCounter.set(0);
-        elementsRemoveAllCounter.set(0);
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsRemovedCounter() {
-        return elementsRemovedCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsPutCounter() {
-        return elementsPutCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsUpdatedCounter() {
-        return elementsUpdatedCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsExpiredCounter() {
-        return elementsExpiredCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsEvictedCounter() {
-        return elementsEvictedCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsRemoveAllCounter() {
-        return elementsRemoveAllCounter.get();
     }
 
     /**
