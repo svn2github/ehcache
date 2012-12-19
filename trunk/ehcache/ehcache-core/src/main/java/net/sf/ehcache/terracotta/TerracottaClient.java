@@ -27,6 +27,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
+import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,9 @@ public class TerracottaClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
     private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
+
+    private static final String CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY = "com.terracotta.express.SecretProvider";
+    private static final String CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME = "net.sf.ehcache.terracotta.security.SingletonSecretProviderWrapper";
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
     private volatile ClusteredInstanceFactoryWrapper clusteredInstanceFactory;
@@ -60,6 +64,19 @@ public class TerracottaClient {
         this.terracottaClientConfiguration = terracottaClientConfiguration;
         if (terracottaClientConfiguration != null) {
             terracottaClientConfiguration.freezeConfig();
+
+            // if we're going clustered and secured, it's time to wrap the secret provider before the L1 can use it
+            String secretProviderClassname = System.getProperty(CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY);
+            String tcUrl = terracottaClientConfiguration.getUrl();
+            if (tcUrl != null && tcUrl.contains("@")) {
+                try {
+                    System.setProperty(CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY, CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME);
+                    Class<?> secretProviderWrapperClass = ClassLoaderUtil.loadClass(CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME);
+                    secretProviderWrapperClass.getMethod("useAsDelegate", String.class).invoke(secretProviderWrapperClass, secretProviderClassname);
+                } catch (Exception e) {
+                    throw new CacheException("Unable to initialize " + CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME, e);
+                }
+            }
         }
     }
 
