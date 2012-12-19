@@ -43,6 +43,11 @@ class NullCompoundOperation<T extends Enum<T>> implements Operation<T> {
         //singleton
     }
 
+    @Override
+    public Class<T> type() {
+        return null;
+    }
+    
     /* (non-Javadoc)
      * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#component(java.lang.Object)
      */

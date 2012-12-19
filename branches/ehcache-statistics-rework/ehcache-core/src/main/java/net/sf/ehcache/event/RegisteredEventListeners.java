@@ -31,6 +31,11 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
@@ -65,7 +70,9 @@ public class RegisteredEventListeners {
 
     private final CacheStoreHelper helper;
 
-    /**
+    private final OperationObserver<CacheOperationOutcomes.ExpiredOutcome> expiryObserver = operation(ExpiredOutcome.class).named("expiry").of(this).tag("cache").build();
+    
+   /**
      * Constructs a new notification service
      *
      * @param cache
@@ -206,6 +213,10 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementExpiry(Element element, ElementCreationCallback callback, boolean remoteEvent) {
+        if (!remoteEvent) {
+            expiryObserver.begin();
+            expiryObserver.end(ExpiredOutcome.SUCCESS);
+        }
         elementsExpiredCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {

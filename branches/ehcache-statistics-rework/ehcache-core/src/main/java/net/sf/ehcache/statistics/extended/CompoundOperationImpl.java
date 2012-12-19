@@ -30,6 +30,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
 
     private final OperationStatistic<T> source;
 
+    private final Class<T> type;
     private final Map<T, OperationImpl<T>> operations;
     private final ConcurrentMap<Set<T>, OperationImpl<T>> compounds = new ConcurrentHashMap<Set<T>, OperationImpl<T>>();
     private final ConcurrentMap<List<Set<T>>, RatioStatistic> ratios = new ConcurrentHashMap<List<Set<T>>, RatioStatistic>();
@@ -45,6 +46,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
     public CompoundOperationImpl(OperationStatistic<T> source, Class<T> type,
             long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor,
             int historySize, long historyPeriod, TimeUnit historyUnit) {
+        this.type = type;
         this.source = source;
 
         this.averageNanos = averageUnit.toNanos(averagePeriod);
@@ -58,6 +60,11 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
+    @Override
+    public Class<T> type() {
+        return type;
+    }
+    
     @Override
     public Result component(T result) {
         return operations.get(result);

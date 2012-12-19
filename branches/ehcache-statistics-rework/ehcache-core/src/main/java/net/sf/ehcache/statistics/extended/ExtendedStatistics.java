@@ -61,6 +61,8 @@ public interface ExtendedStatistics {
     <T extends Enum<T>> Set<Operation<T>> operations(Class<T> outcome, String name, String ... tags);
 
     public interface Operation<T extends Enum<T>> {
+        Class<T> type();
+        
         Result component(T result);
         Result compound(Set<T> results);
 

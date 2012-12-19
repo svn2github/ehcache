@@ -37,6 +37,25 @@ public interface CacheOperationOutcomes {
     };
 
     /**
+     * The outcomes for Put Outcomes
+     */
+    enum PutOutcome {
+        /** added. */
+        ADDED,
+        /** updated. */
+        UPDATED,
+        IGNORED
+    };
+
+    /**
+     * The outcomes for remove operations
+     */
+    enum RemoveOutcome {
+        /** success. */
+        SUCCESS
+    };
+
+    /**
      * The outcomes for GetAll operations
      */
     enum GetAllOutcome {
@@ -49,21 +68,19 @@ public interface CacheOperationOutcomes {
     };
 
     /**
-     * The outcomes for Put Outcomes
+     * The outcomes for GetAll operations
      */
-    enum PutOutcome {
-        /** added. */
-        ADDED,
-        /** updated. */
-        UPDATED
+    enum PutAllOutcome {
+        IGNORED,
+        COMPLETED
     };
 
     /**
-     * The outcomes for remove operations
+     * The outcomes for GetAll operations
      */
-    enum RemoveOutcome {
-        /** success. */
-        SUCCESS
+    enum RemoveAllOutcome {
+        IGNORED,
+        COMPLETED
     };
 
     /**
@@ -89,6 +106,7 @@ public interface CacheOperationOutcomes {
      */
     enum ExpiredOutcome {
         /** success. */
-        SUCCESS
+        SUCCESS,
+        FAILURE
     };
 }

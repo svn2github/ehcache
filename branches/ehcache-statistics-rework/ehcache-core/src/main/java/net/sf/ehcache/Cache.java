@@ -46,10 +46,13 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.GetAllOutcome;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.PutAllOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.RemoveAllOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
@@ -131,11 +134,11 @@ import net.sf.ehcache.writer.CacheWriterManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
+import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
-import org.terracotta.statistics.StatisticsManager;
 
 /**
  * Cache is the central class in ehcache. Caches have {@link Element}s and are managed
@@ -256,10 +259,14 @@ public class Cache implements InternalEhcache, StoreListener {
     private volatile CacheWriter registeredCacheWriter;
 
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
-    private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this)
-            .tag("cache", "bulk").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("cache").build();
     private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("cache").build();
+    private final OperationObserver<GetAllOutcome> getAllObserver = operation(GetAllOutcome.class).named("getAll").of(this)
+            .tag("cache", "bulk").build();
+    private final OperationObserver<PutAllOutcome> putAllObserver = operation(PutAllOutcome.class).named("putAll").of(this)
+            .tag("cache", "bulk").build();
+    private final OperationObserver<RemoveAllOutcome> removeAllObserver = operation(RemoveAllOutcome.class).named("removeAll").of(this)
+            .tag("cache", "bulk").build();
     private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this).tag("cache").build();
 
     /**
@@ -1380,6 +1387,7 @@ public class Cache implements InternalEhcache, StoreListener {
         checkStatus();
 
         if (disabled) {
+            putObserver.end(PutOutcome.IGNORED);
             return;
         }
 
@@ -1391,13 +1399,13 @@ public class Cache implements InternalEhcache, StoreListener {
                         "-Xmx to avoid this problem.");
 
             }
-            //nulls are ignored
+            putObserver.end(PutOutcome.IGNORED);
             return;
         }
 
 
         if (element.getObjectKey() == null) {
-            //nulls are ignored
+            putObserver.end(PutOutcome.IGNORED);
             return;
         }
 
@@ -1429,14 +1437,16 @@ public class Cache implements InternalEhcache, StoreListener {
             elementExists = !compoundStore.put(element);
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, elementExists);
         }
-        putObserver.end(elementExists ? CacheOperationOutcomes.PutOutcome.UPDATED : CacheOperationOutcomes.PutOutcome.ADDED);
+        putObserver.end(elementExists ? PutOutcome.UPDATED : PutOutcome.ADDED);
 
     }
 
     private void putAllInternal(Collection<Element> elements, boolean doNotNotifyCacheReplicators) {
+        putAllObserver.begin();
         checkStatus();
 
         if (disabled || elements.isEmpty()) {
+            putAllObserver.end(PutAllOutcome.IGNORED);
             return;
         }
 
@@ -1448,6 +1458,7 @@ public class Cache implements InternalEhcache, StoreListener {
             applyDefaultsToElementWithoutLifespanSet(element);
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, false);
         }
+        putAllObserver.end(PutAllOutcome.COMPLETED);
     }
 
     private void notifyPutInternalListeners(Element element, boolean doNotNotifyCacheReplicators, boolean elementExists) {
@@ -1553,6 +1564,7 @@ public class Cache implements InternalEhcache, StoreListener {
         checkStatus();
 
         if (disabled) {
+            getObserver.end(GetOutcome.MISS_NOT_FOUND);
             return null;
         }
 
@@ -1946,49 +1958,6 @@ public class Cache implements InternalEhcache, StoreListener {
         return getKeys();
     }
 
-    private Map<Object, Element> searchAllInStoreWithStats(Collection<?> keys) {
-        Map<Object, Element> elements = compoundStore.getAll(keys);
-
-        for (Entry<Object, Element> entry : elements.entrySet()) {
-            Object key = entry.getKey();
-            Element element = entry.getValue();
-            if (element != null) {
-                if (isExpired(element)) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(configuration.getName() + " cache hit, but element expired");
-                    }
-                    tryRemoveImmediately(key, true);
-                    element = null;
-                } else {
-                    element.updateAccessStatistics();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Cache: " + getName() + " store hit for " + key);
-                    }
-
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(configuration.getName() + " cache - Miss");
-                }
-            }
-            elements.put(key, element);
-        }
-        return elements;
-    }
-
-    private Element elementStatsHelper(Object key, boolean quiet, boolean notifyListeners, Element element) {
-        if (element != null) {
-            if (isExpired(element)) {
-                tryRemoveImmediately(key, notifyListeners);
-                element = null;
-            } else if (!(quiet || skipUpdateAccessStatistics(element))) {
-                element.updateAccessStatistics();
-            }
-        }
-        return element;
-    }
-
-
     /**
      * This shouldn't be necessary once we got rid of this stupid locking layer!
      * @param key
@@ -2303,9 +2272,11 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     private void removeAllInternal(final Collection<?> keys, boolean expiry, boolean notifyListeners,
             boolean doNotNotifyCacheReplicators) throws IllegalStateException {
+        removeAllObserver.begin();
         checkStatus();
 
         if (disabled || keys.isEmpty()) {
+            removeAllObserver.end(RemoveAllOutcome.IGNORED);
             return;
         }
 
@@ -2314,6 +2285,7 @@ public class Cache implements InternalEhcache, StoreListener {
             Element syntheticElement = new Element(key, null);
             notifyRemoveInternalListeners(key, false, notifyListeners, doNotNotifyCacheReplicators, syntheticElement);
         }
+        removeAllObserver.end(RemoveAllOutcome.COMPLETED);
     }
 
     /**
