@@ -35,6 +35,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.statistics.StatisticBuilder;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
@@ -56,6 +57,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.observer.OperationObserver;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -70,10 +72,18 @@ public class XATransactionStore extends AbstractTransactionStore {
     private final TransactionIDFactory transactionIdFactory;
     private final SoftLockManager softLockManager;
     private final Ehcache cache;
+    private final EhcacheXAResourceImpl recoveryResource;    
 
     private final ConcurrentHashMap<Transaction, EhcacheXAResource> transactionToXAResourceMap =
             new ConcurrentHashMap<Transaction, EhcacheXAResource>();
     private final ConcurrentHashMap<Transaction, Long> transactionToTimeoutMap = new ConcurrentHashMap<Transaction, Long>();
+
+    private final OperationObserver<XaCommitOutcome> commitObserver = StatisticBuilder.operation(XaCommitOutcome.class)
+            .of(this).named("xa-commit").tag("xa-transactional").build();
+    private final OperationObserver<XaRollbackOutcome> rollbackObserver = StatisticBuilder.operation(XaRollbackOutcome.class)
+            .of(this).named("xa-rollback").tag("xa-transactional").build();
+    private final OperationObserver<XaRecoveryOutcome> recoveryObserver = StatisticBuilder.operation(XaRecoveryOutcome.class)
+            .of(this).named("xa-recovery").tag("xa-transactional").build();
 
     /**
      * Constructor
@@ -95,6 +105,16 @@ public class XATransactionStore extends AbstractTransactionStore {
         }
         this.softLockManager = softLockManager;
         this.cache = cache;
+
+        // this xaresource is for initial registration and recovery
+        this.recoveryResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup, softLockManager, transactionIdFactory, copyStrategy, commitObserver, rollbackObserver, recoveryObserver);
+        transactionManagerLookup.register(recoveryResource, true);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        transactionManagerLookup.unregister(recoveryResource, true);
     }
 
     private Transaction getCurrentTransaction() throws SystemException {
@@ -116,7 +136,8 @@ public class XATransactionStore extends AbstractTransactionStore {
         if (xaResource == null) {
             LOG.debug("creating new XAResource");
             xaResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup,
-                    softLockManager, transactionIdFactory, copyStrategy);
+                    softLockManager, transactionIdFactory, copyStrategy, commitObserver, rollbackObserver,
+                    recoveryObserver);
             transactionToXAResourceMap.put(transaction, xaResource);
             xaResource.addTwoPcExecutionListener(new CleanupXAResource(getCurrentTransaction()));
         }

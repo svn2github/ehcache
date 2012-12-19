@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.statistics;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.Ehcache;
@@ -43,8 +44,6 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
 
     private static final int DEFAULT_TIME_TO_DISABLE_MINS = 5;
 
-    private final StatisticsManager statsManager;
-    
     /** The core. */
     private final CoreStatistics core;
 
@@ -60,19 +59,15 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * @param ehcache the ehcache
      * @param statisticsManager the statistics manager
      */
-    public StatisticsPlaceholder(Ehcache ehcache) {
-        this.statsManager = new StatisticsManager();
-        this.statsManager.root(ehcache);
+    public StatisticsPlaceholder(Ehcache ehcache, ScheduledExecutorService executor) {
+        StatisticsManager statsManager = new StatisticsManager();
+        statsManager.root(ehcache);
         this.assocCacheName = ehcache.getName();
-        this.extended = new ExtendedStatisticsImpl(statsManager, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
+        this.extended = new ExtendedStatisticsImpl(statsManager, executor, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
         this.core = new CoreStatisticsImpl(extended);
         init(new FlatCoreStatisticsImpl(core), new FlatExtendedStatisticsImpl(extended));
     }
 
-    public void shutdown() {
-        extended.shutdown();
-    }
-    
     /**
      * Gets the core.
      *

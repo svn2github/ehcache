@@ -46,14 +46,14 @@ import static org.terracotta.context.query.QueryBuilder.queryBuilder;
  *
  * @author cdennis
  */
- enum OperationType {
+enum OperationType {
 
     /** The cache get. */
-    CACHE_GET(CacheOperationOutcomes.GetOutcome.class, cache().chain(childStatistic("get")).ensureUnique().build()),
+    CACHE_GET(CacheOperationOutcomes.GetOutcome.class, cache().chain(childStatistic("get", "cache")).ensureUnique().build()),
     /** The cache put. */
-    CACHE_PUT(CacheOperationOutcomes.PutOutcome.class, cache().chain(childStatistic("put")).ensureUnique().build()),
+    CACHE_PUT(CacheOperationOutcomes.PutOutcome.class, cache().chain(childStatistic("put", "cache")).ensureUnique().build()),
     /** The cache remove. */
-    CACHE_REMOVE(CacheOperationOutcomes.RemoveOutcome.class, cache().chain(childStatistic("remove")).ensureUnique().build()),
+    CACHE_REMOVE(CacheOperationOutcomes.RemoveOutcome.class, cache().chain(childStatistic("remove", "cache")).ensureUnique().build()),
 
     /** The heap get. */
     HEAP_GET(StoreOperationOutcomes.GetOutcome.class, stores().chain(childStatistic("get", "heap")).build()),
@@ -83,16 +83,16 @@ import static org.terracotta.context.query.QueryBuilder.queryBuilder;
     DISK_REMOVE(StoreOperationOutcomes.RemoveOutcome.class, stores().chain(childStatistic("remove", "disk")).build()),
 
     /** The xa commit. */
-    XA_COMMIT(XaCommitOutcome.class, queryBuilder().empty().build()),
+    XA_COMMIT(XaCommitOutcome.class, stores().chain(childStatistic("xa-commit", "xa-transactional")).build()),
 
     /** The xa rollback. */
-    XA_ROLLBACK(XaRollbackOutcome.class, queryBuilder().empty().build()),
+    XA_ROLLBACK(XaRollbackOutcome.class, stores().chain(childStatistic("xa-rollback", "xa-transactional")).build()),
 
     /** The xa recovery. */
-    XA_RECOVERY(XaRecoveryOutcome.class, queryBuilder().empty().build()),
+    XA_RECOVERY(XaRecoveryOutcome.class, stores().chain(childStatistic("xa-recovery", "xa-transactional")).build()),
 
     /** The search. */
-    SEARCH(CacheOperationOutcomes.SearchOutcome.class, queryBuilder().empty().build()) {
+    SEARCH(CacheOperationOutcomes.SearchOutcome.class, cache().chain(childStatistic("search", "cache")).build()) {
         @Override
         long interval() {
             return 10;

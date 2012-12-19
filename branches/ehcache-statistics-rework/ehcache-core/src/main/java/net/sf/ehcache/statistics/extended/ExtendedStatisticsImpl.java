@@ -36,6 +36,8 @@ import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.terracotta.context.TreeNode;
 import org.terracotta.statistics.ConstantValueStatistic;
@@ -46,15 +48,11 @@ import org.terracotta.statistics.ValueStatistic;
 
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedStatisticsImpl.class);
+    
     private final Map<PassThroughType, ValueStatistic<?>> passThroughs = new EnumMap<PassThroughType, ValueStatistic<?>>(PassThroughType.class);
     private final Map<OperationType, Operation<?>> operations = new EnumMap<OperationType, Operation<?>>(OperationType.class);
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, new ThreadFactory() {
-
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r, "Statistics Thread");
-        }
-    });
+    private final ScheduledExecutorService executor;
     private final Runnable disableTask = new Runnable() {
         @Override
         public void run() {
@@ -70,7 +68,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     private TimeUnit timeToDisableUnit;
     private ScheduledFuture disableStatus;
 
-    public ExtendedStatisticsImpl(StatisticsManager manager, long timeToDisable, TimeUnit unit) {
+    public ExtendedStatisticsImpl(StatisticsManager manager, ScheduledExecutorService executor, long timeToDisable, TimeUnit unit) {
+        this.executor = executor;
         this.timeToDisable = timeToDisable;
         this.timeToDisableUnit = unit;
         this.disableStatus = this.executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, unit);
@@ -79,6 +78,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             Set<TreeNode> result = manager.query(t.query());
             switch (result.size()) {
                 case 0:
+                    LOGGER.info("Mocking Pass-Through Statistic: {}", t);
                     passThroughs.put(t, ConstantValueStatistic.instance(t.absentValue()));
                     break;
                 case 1:
@@ -93,6 +93,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             Set<TreeNode> result = manager.query(t.query());
             switch (result.size()) {
                 case 0:
+                    LOGGER.info("Mocking Operation Statistic: {}", t);
                     operations.put(t, NullCompoundOperation.instance());
                     break;
                 case 1:
@@ -102,15 +103,6 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 default:
                     throw new IllegalStateException("Duplicate statistics found for " + t);
             }
-        }
-    }
-
-    public void shutdown() {
-        executor.shutdown();
-        try {
-            executor.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException _) {
-            Thread.currentThread().interrupt();
         }
     }
     

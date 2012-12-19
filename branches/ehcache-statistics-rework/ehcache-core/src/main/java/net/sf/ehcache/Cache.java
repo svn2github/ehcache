@@ -117,8 +117,6 @@ import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
 import net.sf.ehcache.transaction.local.LocalTransactionStore;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.EhcacheXAResource;
-import net.sf.ehcache.transaction.xa.EhcacheXAResourceImpl;
 import net.sf.ehcache.transaction.xa.XATransactionStore;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.NamedThreadFactory;
@@ -286,11 +284,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private volatile ElementValueComparator elementValueComparator;
 
-    private volatile EhcacheXAResource xaResource;
-
     private StatisticsPlaceholder statistics;
-
-    private StatisticsManager statisticsManager;
 
     /**
      * 2.0 and higher Constructor
@@ -1133,10 +1127,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 this.lockProvider = new StripedReadWriteLockSync(StripedReadWriteLockSync.DEFAULT_NUMBER_OF_MUTEXES);
             }
 
-            // this is a little different. THis is sortof a mess.
-            // TODO TBD DO it better. CRSS
             StatisticsManager.associate(this).withChild(compoundStore);
-            statistics = new StatisticsPlaceholder(this);
+            statistics = new StatisticsPlaceholder(this, cacheManager.statisticsExecutor);
         }
 
         compoundStore.addStoreListener(this);
@@ -1192,12 +1184,6 @@ public class Cache implements InternalEhcache, StoreListener {
             }
             SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
             TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
-
-            // this xaresource is for initial registration and recovery
-            xaResource = new EhcacheXAResourceImpl(this, clusteredStore, transactionManagerLookup, softLockManager, transactionIDFactory,
-                    copyStrategy);
-            transactionManagerLookup.register(xaResource, true);
-
             wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, clusteredStore,
                     copyStrategy);
         } else if (configuration.isXaTransactional()) {
@@ -2362,10 +2348,6 @@ public class Cache implements InternalEhcache, StoreListener {
             return;
         }
 
-        if (statistics != null) {
-            statistics.shutdown();
-        }
-        
         if (bootstrapCacheLoader != null && bootstrapCacheLoader instanceof Disposable) {
             ((Disposable)bootstrapCacheLoader).dispose();
         }
@@ -2388,12 +2370,6 @@ public class Cache implements InternalEhcache, StoreListener {
             compoundStore.dispose();
             // null compoundStore explicitly to help gc (particularly for offheap)
             compoundStore = null;
-        }
-
-        // unregister xa resource from recovery
-        if (xaResource != null) {
-            transactionManagerLookup.unregister(xaResource, true);
-            xaResource = null;
         }
 
         // null the lockProvider too explicitly to help gc

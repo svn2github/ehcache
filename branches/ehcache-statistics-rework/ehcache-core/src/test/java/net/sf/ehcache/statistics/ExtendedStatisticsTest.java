@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.sf.ehcache.statisticsV2.extended;
+package net.sf.ehcache.statistics;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -29,7 +30,7 @@ public class ExtendedStatisticsTest {
     
     @Test(expected = IllegalStateException.class)
     public void testExtendedStatisticsWithoutRequiredStats() {
-        new ExtendedStatisticsImpl(new StatisticsManager(), 10, TimeUnit.SECONDS);
+        new ExtendedStatisticsImpl(new StatisticsManager(), Executors.newSingleThreadScheduledExecutor(), 10, TimeUnit.SECONDS);
     }
 
     @Test

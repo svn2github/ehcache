@@ -51,9 +51,6 @@ import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.sf.ehcache.statistics.StatisticBuilder;
-
 import org.terracotta.statistics.observer.OperationObserver;
 
 /**
@@ -78,12 +75,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final List<XAExecutionListener> listeners = new ArrayList<XAExecutionListener>();
     private final ElementValueComparator comparator;
 
-    private final OperationObserver<XaCommitOutcome> commitObserver = StatisticBuilder.operation(XaCommitOutcome.class)
-            .of(this).named("xa-commit").tag("transactional").build();
-    private final OperationObserver<XaRollbackOutcome> rollbackObserver = StatisticBuilder.operation(XaRollbackOutcome.class)
-            .of(this).named("xa-commit").tag("transactional").build();
-    private final OperationObserver<XaRecoveryOutcome> recoveryObserver = StatisticBuilder.operation(XaRecoveryOutcome.class)
-            .of(this).named("xa-recovery").tag("transactional").build();
+    private final OperationObserver<XaCommitOutcome> commitObserver;
+    private final OperationObserver<XaRollbackOutcome> rollbackObserver;
+    private final OperationObserver<XaRecoveryOutcome> recoveryObserver;
 
     /**
      * Constructor
@@ -95,7 +89,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup,
                                  SoftLockManager softLockManager, TransactionIDFactory transactionIDFactory,
-                                 ReadWriteCopyStrategy<Element> copyStrategy) {
+                                 ReadWriteCopyStrategy<Element> copyStrategy, OperationObserver<XaCommitOutcome> commitObserver,
+                                 OperationObserver<XaRollbackOutcome> rollbackObserver, OperationObserver<XaRecoveryOutcome> recoveryObserver) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;
         this.transactionIDFactory = transactionIDFactory;
@@ -105,6 +100,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
             .createElementComparatorInstance(cache.getCacheConfiguration());
+        this.commitObserver = commitObserver;
+        this.rollbackObserver = rollbackObserver;
+        this.recoveryObserver = recoveryObserver;
     }
 
     /**

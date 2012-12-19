@@ -24,7 +24,7 @@ import net.sf.ehcache.Cache;
 import org.junit.Test;
 import org.terracotta.context.TreeNode;
 
-public class Statistics2Test extends AbstractCacheTest {
+public class StatisticsTest extends AbstractCacheTest {
 
     @Test
     public void testSimple() {
