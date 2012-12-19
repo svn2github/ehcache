@@ -23,6 +23,7 @@ public class ProcessingBucket<E extends Serializable> {
   private enum STOP_STATE {
     NORMAL, STOP_REQUESTED, STOPPED
   }
+
   private static final Logger     LOGGER                   = LoggerFactory.getLogger(ProcessingBucket.class.getName());
   private static final int        UNLIMITED_QUEUE_SIZE     = 0;
   private static final String     threadNamePrefix         = "ProcessingWorker|";
@@ -143,6 +144,7 @@ public class ProcessingBucket<E extends Serializable> {
       }
       stopState = STOP_STATE.STOPPED;
       bucketNotEmpty.signalAll();
+      bucketNotFull.signalAll();
       processingWorkerThread.interrupt();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -158,7 +160,7 @@ public class ProcessingBucket<E extends Serializable> {
       if (t.getClass().getName().equals("com.tc.exception.TCNotRunningException") && !cluster.areOperationsEnabled()) {
         LOGGER
             .warn("destroyToolkitList caught TCNotRunningException on processing thread, but looks like we were shut down. "
-                    + "This can safely be ignored!", t);
+                      + "This can safely be ignored!", t);
       }
     }
     if (cleanupCallback != null) {
@@ -174,16 +176,14 @@ public class ProcessingBucket<E extends Serializable> {
     if (null == item) return;
     int maxQueueSize = config.getMaxQueueSize();
     bucketWriteLock.lock();
+    boolean interrupted = false;
     try {
       if (maxQueueSize != UNLIMITED_QUEUE_SIZE) {
-        while (toolkitList.size() >= maxQueueSize) {
+        while (!isCancelled() && toolkitList.size() >= maxQueueSize) {
           try {
             bucketNotFull.await();
           } catch (final InterruptedException e) {
-            // if the wait for items is interrupted, act as if the bucket was canceled
-            stop();
-            Thread.currentThread().interrupt();
-            return;
+            interrupted = true;
           }
         }
       }
@@ -194,6 +194,9 @@ public class ProcessingBucket<E extends Serializable> {
       }
     } finally {
       bucketWriteLock.unlock();
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
     }
   }
 
@@ -219,11 +222,9 @@ public class ProcessingBucket<E extends Serializable> {
     try {
       ItemsFilter<E> itemsFilter = this.filter;
       if (itemsFilter != null) {
-        debug(getThreadName() + " : filterQuarantined(): filtering " + toolkitList.size()
-                       + " quarantined items");
+        debug(getThreadName() + " : filterQuarantined(): filtering " + toolkitList.size() + " quarantined items");
         itemsFilter.filter(toolkitList);
-        debug(getThreadName() + " : filterQuarantined(): retained " + toolkitList.size()
-                       + " quarantined items");
+        debug(getThreadName() + " : filterQuarantined(): retained " + toolkitList.size() + " quarantined items");
       }
     } finally {
       bucketWriteLock.unlock();
@@ -484,7 +485,7 @@ public class ProcessingBucket<E extends Serializable> {
                 }
               }
             } catch (final InterruptedException e) {
-              // if the wait for items is interrupted, act as if the bucket was canceled
+              // if the processing worker thread is interrupted, act as if the bucket was canceled
               stop();
               Thread.currentThread().interrupt();
             }

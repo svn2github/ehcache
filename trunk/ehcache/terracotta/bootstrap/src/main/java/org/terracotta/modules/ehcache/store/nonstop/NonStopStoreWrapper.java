@@ -21,7 +21,7 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
-import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
+import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
 import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.nonstop.NonStopException;
 
@@ -29,36 +29,38 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class NonStopStoreWrapper implements TerracottaStore {
-  private final TerracottaStore             delegate;
-  private final NonStop                     nonStop;
-  private final ToolkitNonStopConfiguration toolkitNonStopConfiguration;
-  private final NonstopConfiguration        nonStopConfiguration;
-  private volatile TerracottaStore          ehacheNonStopConfiguration;
+  private final TerracottaStore                               delegate;
+  private final NonStop                                       nonStop;
+  private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
+  private final NonstopConfiguration                          ehcacheNonStopConfiguration;
+  private volatile TerracottaStore                            localReadDelegate;
+  private final BulkOpsToolkitNonStopConfiguration            bulkOpsToolkitNonStopConfiguration;
 
   public NonStopStoreWrapper(TerracottaStore delegate, ToolkitInstanceFactory toolkitInstanceFactory,
-                             NonstopConfiguration nonStopConfiguration) {
+                             NonstopConfiguration ehcacheNonStopConfiguration) {
     this.delegate = delegate;
     this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
-    this.nonStopConfiguration = nonStopConfiguration;
-    this.toolkitNonStopConfiguration = new ToolkitNonStopConfiguration(nonStopConfiguration);
-
+    this.ehcacheNonStopConfiguration = ehcacheNonStopConfiguration;
+    this.toolkitNonStopConfiguration = new ToolkitNonStopExceptionOnTimeoutConfiguration(ehcacheNonStopConfiguration);
+    this.bulkOpsToolkitNonStopConfiguration = new BulkOpsToolkitNonStopConfiguration(ehcacheNonStopConfiguration);
   }
 
   private TerracottaStore getTimeoutBehavior() {
-    TimeoutBehaviorConfiguration behaviorConfiguration = nonStopConfiguration.getTimeoutBehavior();
+    TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfiguration.getTimeoutBehavior();
     switch (behaviorConfiguration.getTimeoutBehaviorType()) {
       case EXCEPTION:
         return ExceptionOnTimeoutStore.getInstance();
       case LOCAL_READS:
-        if (ehacheNonStopConfiguration == null) {
-          ehacheNonStopConfiguration = new LocalReadsOnTimeoutStore(delegate);
+        if (localReadDelegate == null) {
+          localReadDelegate = new LocalReadsOnTimeoutStore(delegate);
         }
-        return ehacheNonStopConfiguration;
+        return localReadDelegate;
       case NOOP:
         return NoOpOnTimeoutStore.getInstance();
       default:
@@ -66,10 +68,44 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
+  private static class BulkOpsToolkitNonStopConfiguration extends ToolkitNonStopExceptionOnTimeoutConfiguration {
+
+    public BulkOpsToolkitNonStopConfiguration(NonstopConfiguration ehcacheNonStopConfig) {
+      super(ehcacheNonStopConfig);
+    }
+
+    @Override
+    public long getTimeoutMillis() {
+      return ehcacheNonStopConfig.getBulkOpsTimeoutMultiplyFactor() * ehcacheNonStopConfig.getTimeoutMillis();
+    }
+
+  }
+
+  private static void validateMethodNamesExist(Class klazz, Set<String> methodToCheck) {
+    for (String methodName : methodToCheck) {
+      if (!exist(klazz, methodName)) { throw new AssertionError("Method " + methodName + " does not exist in class "
+                                                                + klazz.getName()); }
+    }
+  }
+
+  private static boolean exist(Class klazz, String method) {
+    Method[] methods = klazz.getMethods();
+    for (Method m : methods) {
+      if (m.getName().equals(method)) { return true; }
+    }
+    return false;
+  }
+
   public static void main(String[] args) {
     PrintStream out = System.out;
     Class[] classes = { TerracottaStore.class };
-
+    Set<String> bulkMethods = new HashSet<String>();
+    bulkMethods.add("setNodeCoherent");
+    bulkMethods.add("putAll");
+    bulkMethods.add("getAllQuiet");
+    bulkMethods.add("getAll");
+    bulkMethods.add("removeAll");
+    validateMethodNamesExist(TerracottaStore.class, bulkMethods);
     for (Class c : classes) {
       for (Method m : c.getMethods()) {
         out.println("/**");
@@ -99,7 +135,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
 
         out.println(" {");
         out.println("    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!");
-        out.println("      nonStop.start(toolkitNonStopConfiguration);");
+        if (bulkMethods.contains(m.getName())) {
+          out.println("      nonStop.start(bulkOpsToolkitNonStopConfiguration);");
+        } else {
+          out.println("      nonStop.start(toolkitNonStopConfiguration);");
+        }
         out.println("      try {");
 
         out.print("        ");
@@ -254,7 +294,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   @Override
   public void putAll(Collection arg0) throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
       this.delegate.putAll(arg0);
     } catch (NonStopException e) {
@@ -334,7 +374,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   @Override
   public void removeAll(Collection arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
       this.delegate.removeAll(arg0);
     } catch (NonStopException e) {
@@ -350,7 +390,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   @Override
   public void removeAll() throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
       this.delegate.removeAll();
     } catch (NonStopException e) {
@@ -387,6 +427,54 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return this.delegate.putIfAbsent(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().putIfAbsent(arg0);
+    } finally {
+      nonStop.finish();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setNodeCoherent(boolean arg0) throws UnsupportedOperationException, TerracottaNotRunningException {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
+    try {
+      this.delegate.setNodeCoherent(arg0);
+    } catch (NonStopException e) {
+      getTimeoutBehavior().setNodeCoherent(arg0);
+    } finally {
+      nonStop.finish();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map getAllQuiet(Collection arg0) {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
+    try {
+      return this.delegate.getAllQuiet(arg0);
+    } catch (NonStopException e) {
+      return getTimeoutBehavior().getAllQuiet(arg0);
+    } finally {
+      nonStop.finish();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map getAll(Collection arg0) {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
+    try {
+      return this.delegate.getAll(arg0);
+    } catch (NonStopException e) {
+      return getTimeoutBehavior().getAll(arg0);
     } finally {
       nonStop.finish();
     }
@@ -764,22 +852,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void setNodeCoherent(boolean arg0) throws UnsupportedOperationException, TerracottaNotRunningException {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      this.delegate.setNodeCoherent(arg0);
-    } catch (NonStopException e) {
-      getTimeoutBehavior().setNodeCoherent(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean isNodeCoherent() throws TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
@@ -980,38 +1052,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
       this.delegate.setAttributeExtractors(arg0);
     } catch (NonStopException e) {
       getTimeoutBehavior().setAttributeExtractors(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Map getAllQuiet(Collection arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      return this.delegate.getAllQuiet(arg0);
-    } catch (NonStopException e) {
-      return getTimeoutBehavior().getAllQuiet(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Map getAll(Collection arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      return this.delegate.getAll(arg0);
-    } catch (NonStopException e) {
-      return getTimeoutBehavior().getAll(arg0);
     } finally {
       nonStop.finish();
     }
