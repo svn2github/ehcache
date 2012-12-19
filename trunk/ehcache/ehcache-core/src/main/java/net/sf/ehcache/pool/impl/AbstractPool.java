@@ -84,7 +84,7 @@ public abstract class AbstractPool implements Pool {
         long sizeToEvict = oldSize - newSize;
 
         if (sizeToEvict > 0) {
-            evictor.freeSpace(getPoolParticipants(), sizeToEvict);
+            evictor.freeSpace(poolAccessors, sizeToEvict);
         }
     }
 
@@ -118,12 +118,8 @@ public abstract class AbstractPool implements Pool {
     /**
      * {@inheritDoc}
      */
-    public Collection<PoolParticipant> getPoolParticipants() {
-        Collection<PoolParticipant> poolableStores = new ArrayList<PoolParticipant>(poolAccessors.size());
-        for (PoolAccessor poolAccessor : poolAccessors) {
-            poolableStores.add(poolAccessor.getParticipant());
-        }
-        return poolableStores;
+    public Collection<PoolAccessor> getPoolAccessors() {
+        return Collections.unmodifiableList(poolAccessors);
     }
 
     /**

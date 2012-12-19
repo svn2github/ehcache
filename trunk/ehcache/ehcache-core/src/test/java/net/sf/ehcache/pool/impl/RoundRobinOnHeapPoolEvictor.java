@@ -16,8 +16,9 @@
 
 package net.sf.ehcache.pool.impl;
 
-import net.sf.ehcache.pool.PoolParticipant;
+import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolEvictor;
+import net.sf.ehcache.pool.PoolParticipant;
 
 import java.util.Collection;
 
@@ -25,16 +26,16 @@ import java.util.Collection;
  * @author Ludovic Orban
  */
 public class RoundRobinOnHeapPoolEvictor implements PoolEvictor<PoolParticipant> {
-    public boolean freeSpace(Collection<PoolParticipant> from, long bytes) {
+    public boolean freeSpace(Collection<PoolAccessor<PoolParticipant>> from, long bytes) {
         long remaining = bytes;
 
         while (true) {
-            for (PoolParticipant poolParticipant : from) {
-                long beforeEvictionSize = poolParticipant.getSizeInBytes();
-                if (!poolParticipant.evict(1, bytes)) {
+            for (PoolAccessor accessor : from) {
+                long beforeEvictionSize = accessor.getSize();
+                if (!accessor.getParticipant().evict(1, bytes)) {
                     return false;
                 }
-                long afterEvictionSize = poolParticipant.getSizeInBytes();
+                long afterEvictionSize = accessor.getSize();
 
                 remaining -= (beforeEvictionSize - afterEvictionSize);
                 if (remaining <= 0L) {

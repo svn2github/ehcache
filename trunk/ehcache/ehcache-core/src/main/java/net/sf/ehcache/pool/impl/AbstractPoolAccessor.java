@@ -30,7 +30,7 @@ import net.sf.ehcache.pool.SizeOfEngine;
  * @author Chris Dennis
  * @author Alex Snaps
  */
-public abstract class AbstractPoolAccessor implements PoolAccessor {
+public abstract class AbstractPoolAccessor implements PoolAccessor<PoolParticipant> {
 
     /**
      * {@link SizeOfEngine} used by the accessor.

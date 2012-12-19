@@ -128,8 +128,8 @@ public class DiskStorageFactory {
 
         if (diskPersistent && diskStorePathManager.isAutoCreated()) {
             LOG.warn("Data in persistent disk stores is ignored for stores from automatically created directories.\n"
-                    + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n" + "Deleting data file "
-                    + file.getAbsolutePath());
+                    + "Remove diskPersistent or resolve the conflicting disk paths in cache configuration.\n"
+                    + "Deleting data file " + file.getAbsolutePath());
             deleteFile(file);
         } else if (!diskPersistent) {
             deleteFile(file);
@@ -481,6 +481,7 @@ public class DiskStorageFactory {
                     return null;
                 }
             } catch (Throwable e) {
+                // TODO Need to clean this up once FrontEndCacheTier is going away completely
                 LOG.error("Disk Write of " + placeholder.getKey() + " failed: ", e);
                 FrontEndCacheTier frontEndCacheTier = eventService.getFrontEndCacheTier();
                 if (frontEndCacheTier != null) {
@@ -495,7 +496,7 @@ public class DiskStorageFactory {
                         l.unlock();
                     }
                 } else {
-                    placeholder.setFailedToFlush(true);
+                    store.evict(placeholder.getKey(), placeholder);
                 }
                 return null;
             }
@@ -534,6 +535,7 @@ public class DiskStorageFactory {
      * Abstract superclass for all disk substitutes.
      */
     public abstract static class DiskSubstitute {
+
 
         /**
          * Cached size of this mapping on the Java heap.
@@ -781,7 +783,7 @@ public class DiskStorageFactory {
          * {@inheritDoc}
          */
         @Override
-        long getExpirationTime() {
+        public long getExpirationTime() {
             return expiry;
         }
 
@@ -792,6 +794,15 @@ public class DiskStorageFactory {
          */
         void hit(Element e) {
             hitCount++;
+            expiry = e.getExpirationTime();
+        }
+
+        /**
+         * Updates the stats from memory
+         * @param e
+         */
+        void updateStats(Element e) {
+            hitCount = e.getHitCount();
             expiry = e.getExpirationTime();
         }
     }
@@ -824,18 +835,7 @@ public class DiskStorageFactory {
 
         private void checkExpiry(DiskMarker marker, long now) {
             if (marker.getExpirationTime() < now) {
-                if (eventService.hasCacheEventListeners()) {
-                    try {
-                        Element element = read(marker);
-                        if (store.remove(marker.getKey()) != null) {
-                            eventService.notifyElementExpiry(element, false);
-                        }
-                    } catch (Exception e) {
-                        // ignore
-                    }
-                } else {
-                    store.evict(marker.getKey(), marker);
-                }
+                store.evict(marker.getKey(), marker);
             }
         }
     }
@@ -1022,6 +1022,14 @@ public class DiskStorageFactory {
      */
     public void setOnDiskCapacity(int capacity) {
         diskCapacity = capacity;
+    }
+
+    /**
+     * accessor to the on-disk capacity
+     * @return the capacity
+     */
+    int getDiskCapacity() {
+        return diskCapacity == 0 ? Integer.MAX_VALUE : diskCapacity;
     }
 
     private void onDiskEvict(int size, Object keyHint) {

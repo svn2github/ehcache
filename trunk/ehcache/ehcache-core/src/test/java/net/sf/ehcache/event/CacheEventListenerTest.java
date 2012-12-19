@@ -20,16 +20,22 @@ import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
+
+import static net.sf.ehcache.DiskStoreTest.getDiskStore;
 import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
+
+import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -84,7 +90,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     public void setUp() throws Exception {
         super.setUp();
         manager.shutdown();
-        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
+//        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
+        manager = CacheManager.create("/Users/asnaps/IdeaProjects/TC/Vicente/ehcache-ee/ehcache-os/ehcache-core/src/test/resources/ehcache-countinglisteners.xml");
         cache = manager.getCache(cacheName);
         cache.removeAll();
     }
@@ -307,6 +314,9 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         //expire
         Thread.sleep(15000);
+        for(int i = 0; i < cache.getCacheConfiguration().getMaxEntriesLocalHeap(); i ++) {
+            cache.put(new Element(i, i)); // makes sure the entry is flushed
+        }
         assertThat(cacheEventListener.counter.get(), equalTo(1));
 
         //the TestCacheEventListener does a put of a new Element with the same key on expiry
@@ -721,15 +731,17 @@ public class CacheEventListenerTest extends AbstractCacheTest {
      * @throws InterruptedException
      */
     @Test
-    public void testExpiryViaDiskStoreExpiryThread() throws InterruptedException {
+    public void testExpiryViaDiskStoreExpiryThread() throws Exception {
+        final DiskStore diskStore = getDiskStore(new CacheStoreHelper((Cache)cache).getStore());
         //Overflow 10 elements to disk store
         for (int i = 0; i < 20; i++) {
             Element element = new Element(Integer.toString(i), new Date());
-            cache.put(element);
+            element.setTimeToIdle(2);
+            diskStore.put(element);
         }
 
         // Wait for expiry and expiry thread
-        Thread.sleep(6999);
+        Thread.sleep(3999);
 
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
         List<CacheEvent> notifications = listener.getCacheElementsExpired();

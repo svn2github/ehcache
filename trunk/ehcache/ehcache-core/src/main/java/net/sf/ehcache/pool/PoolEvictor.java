@@ -35,6 +35,6 @@ public interface PoolEvictor<T extends PoolParticipant> {
      * @param bytes the number of bytes to free up
      * @return true if at least N bytes could be freed
      */
-    boolean freeSpace(Collection<T> from, long bytes);
+    boolean freeSpace(Collection<PoolAccessor<T>> from, long bytes);
 
 }
