@@ -87,7 +87,7 @@ public interface Pool {
      *
      * @return participants using this pool
      */
-    Collection<PoolParticipant> getPoolParticipants();
+    Collection<PoolAccessor> getPoolAccessors();
 
     /**
      * Return the pool evictor used by this pool.

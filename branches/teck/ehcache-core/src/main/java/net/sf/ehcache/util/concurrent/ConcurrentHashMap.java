@@ -5,10 +5,18 @@
  */
 
 package net.sf.ehcache.util.concurrent;
-
+import net.sf.ehcache.pool.PoolAccessor;
+import net.sf.ehcache.pool.PoolParticipant;
+import net.sf.ehcache.pool.impl.AbstractPoolAccessor;
+import net.sf.ehcache.pool.impl.UnboundedPool;
+import net.sf.ehcache.util.concurrent.ThreadLocalRandom;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import java.util.Comparator;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -215,6 +223,9 @@ import java.io.Serializable;
 public class ConcurrentHashMap<K, V>
     implements ConcurrentMap<K, V>, Serializable {
     private static final long serialVersionUID = 7249069246763182397L;
+
+    protected static final ConcurrentHashMap.Node FAKE_NODE = new Node(0, null, null, null, 0);
+    protected static final ConcurrentHashMap.Node FAKE_TREE_NODE = new TreeNode(0, null, null, null, 0, null);
 
     /**
      * A partitionable iterator. A Spliterator can be traversed
@@ -553,6 +564,8 @@ public class ConcurrentHashMap<K, V>
      */
     transient volatile Node[] table;
 
+    private volatile PoolAccessor<PoolParticipant> poolAccessor;
+
     /**
      * The counter maintaining number of elements.
      */
@@ -613,17 +626,23 @@ public class ConcurrentHashMap<K, V>
      * before a val, but can only be used after checking val to be
      * non-null.
      */
-    static class Node {
+    protected static class Node {
         volatile int hash;
         final Object key;
         volatile Object val;
         volatile Node next;
+        volatile int size;
 
-        Node(int hash, Object key, Object val, Node next) {
+        public Node(int hash, Object key, Object val, Node next) {
+            this(hash, key, val, next, 0);
+        }
+
+        public Node(int hash, Object key, Object val, Node next, int size) {
             this.hash = hash;
             this.key = key;
             this.val = val;
             this.next = next;
+            this.size = size;
         }
 
         /** CompareAndSet the hash field */
@@ -707,17 +726,18 @@ public class ConcurrentHashMap<K, V>
     /**
      * Nodes for use in TreeBins
      */
-    static final class TreeNode extends Node {
+    protected static final class TreeNode extends Node {
         TreeNode parent;  // red-black tree links
         TreeNode left;
         TreeNode right;
         TreeNode prev;    // needed to unlink next upon deletion
         boolean red;
 
-        TreeNode(int hash, Object key, Object val, Node next, TreeNode parent) {
-            super(hash, key, val, next);
+        public TreeNode(int hash, Object key, Object val, Node next, int size, TreeNode parent) {
+            super(hash, key, val, next, size);
             this.parent = parent;
         }
+
     }
 
     /**
@@ -845,16 +865,17 @@ public class ConcurrentHashMap<K, V>
                     if (c != (pc = pk.getClass()) ||
                         !(k instanceof Comparable) ||
                         (dir = ((Comparable)k).compareTo((Comparable)pk)) == 0) {
-                        dir = (c == pc) ? 0 : c.getName().compareTo(pc.getName());
-                        TreeNode r = null, s = null, pl, pr;
-                        if (dir >= 0) {
-                            if ((pl = p.left) != null && h <= pl.hash)
-                                s = pl;
+                        if ((dir = (c == pc) ? 0 :
+                            c.getName().compareTo(pc.getName())) == 0) {
+                            TreeNode r = null, pl, pr; // check both sides
+                            if ((pr = p.right) != null && h >= pr.hash &&
+                                (r = getTreeNode(h, k, pr)) != null)
+                                return r;
+                            else if ((pl = p.left) != null && h <= pl.hash)
+                                dir = -1;
+                            else // nothing there
+                                return null;
                         }
-                        else if ((pr = p.right) != null && h >= pr.hash)
-                            s = pr;
-                        if (s != null && (r = getTreeNode(h, k, s)) != null)
-                            return r;
                     }
                 }
                 else
@@ -897,6 +918,11 @@ public class ConcurrentHashMap<K, V>
          */
         @SuppressWarnings("unchecked") final TreeNode putTreeNode
         (int h, Object k, Object v) {
+            return putTreeNode(h, k, v, 0);
+        }
+
+        @SuppressWarnings("unchecked") final TreeNode putTreeNode
+        (int h, Object k, Object v, int size) {
             Class<?> c = k.getClass();
             TreeNode pp = root, p = null;
             int dir = 0;
@@ -909,11 +935,14 @@ public class ConcurrentHashMap<K, V>
                     if (c != (pc = pk.getClass()) ||
                         !(k instanceof Comparable) ||
                         (dir = ((Comparable)k).compareTo((Comparable)pk)) == 0) {
-                        dir = (c == pc) ? 0 : c.getName().compareTo(pc.getName());
-                        TreeNode r = null, s = null, pl, pr;
-                        if (dir >= 0) {
-                            if ((pl = p.left) != null && h <= pl.hash)
-                                s = pl;
+                        TreeNode s = null, r = null, pr;
+                        if ((dir = (c == pc) ? 0 :
+                            c.getName().compareTo(pc.getName())) == 0) {
+                            if ((pr = p.right) != null && h >= pr.hash &&
+                                (r = getTreeNode(h, k, pr)) != null)
+                                return r;
+                            else // continue left
+                                dir = -1;
                         }
                         else if ((pr = p.right) != null && h >= pr.hash)
                             s = pr;
@@ -927,7 +956,7 @@ public class ConcurrentHashMap<K, V>
             }
 
             TreeNode f = first;
-            TreeNode x = first = new TreeNode(h, k, v, f, p);
+            TreeNode x = first = new TreeNode(h, k, v, f, size, p);
             if (p == null)
                 root = x;
             else { // attach and rebalance; adapted from CLR
@@ -1256,6 +1285,10 @@ public class ConcurrentHashMap<K, V>
                                         deleted = true;
                                         t.deleteTreeNode(p);
                                     }
+                                    poolAccessor.delete(p.size);
+                                    if(v != null) {
+                                        poolAccessor.add(k, v, FAKE_TREE_NODE, true);
+                                    }
                                 }
                             }
                         }
@@ -1297,6 +1330,10 @@ public class ConcurrentHashMap<K, V>
                                             pred.next = en;
                                         else
                                             setTabAt(tab, i, en);
+                                    }
+                                    poolAccessor.delete(e.size);
+                                    if(v != null) {
+                                        poolAccessor.add(k, v, FAKE_NODE, true);
                                     }
                                 }
                                 break;
@@ -1436,8 +1473,12 @@ public class ConcurrentHashMap<K, V>
         return null;
     }
 
-    /** Implementation for putIfAbsent */
     private final Object internalPutIfAbsent(Object k, Object v) {
+        return internalPutIfAbsent(k, v, 0);
+    }
+
+    /** Implementation for putIfAbsent */
+    protected final Object internalPutIfAbsent(Object k, Object v, final int size) {
         int h = spread(k.hashCode());
         int count = 0;
         for (Node[] tab = table;;) {
@@ -1445,7 +1486,7 @@ public class ConcurrentHashMap<K, V>
             if (tab == null)
                 tab = initTable();
             else if ((f = tabAt(tab, i = (tab.length - 1) & h)) == null) {
-                if (casTabAt(tab, i, null, new Node(h, k, v, null)))
+                if (casTabAt(tab, i, null, new Node(h, k, v, null, size)))
                     break;
             }
             else if ((fh = f.hash) == MOVED) {
@@ -1456,7 +1497,7 @@ public class ConcurrentHashMap<K, V>
                     try {
                         if (tabAt(tab, i) == f) {
                             count = 2;
-                            TreeNode p = t.putTreeNode(h, k, v);
+                            TreeNode p = t.putTreeNode(h, k, v, size);
                             if (p != null)
                                 oldVal = p.val;
                         }
@@ -1508,7 +1549,7 @@ public class ConcurrentHashMap<K, V>
                                 }
                                 Node last = e;
                                 if ((e = e.next) == null) {
-                                    last.next = new Node(h, k, v, null);
+                                    last.next = new Node(h, k, v, null, size);
                                     if (count >= TREE_THRESHOLD)
                                         replaceWithTreeBin(tab, i, k);
                                     break;
@@ -2230,10 +2271,11 @@ public class ConcurrentHashMap<K, V>
         for (Node p = e; p != lastRun; p = p.next) {
             int ph = p.hash & HASH_BITS;
             Object pk = p.key, pv = p.val;
+            int ps = p.size;
             if ((ph & bit) == 0)
-                lo = new Node(ph, pk, pv, lo);
+                lo = new Node(ph, pk, pv, lo, ps);
             else
-                hi = new Node(ph, pk, pv, hi);
+                hi = new Node(ph, pk, pv, hi, ps);
         }
         setTabAt(nextTab, i, lo);
         setTabAt(nextTab, i + bit, hi);
@@ -2263,7 +2305,7 @@ public class ConcurrentHashMap<K, V>
         if (lc <= (TREE_THRESHOLD >>> 1)) {
             ln = null;
             for (Node p = lt.first; p != null; p = p.next)
-                ln = new Node(p.hash, p.key, p.val, ln);
+                ln = new Node(p.hash, p.key, p.val, ln, p.size);
         }
         else
             ln = new Node(MOVED, lt, null, null);
@@ -2271,7 +2313,7 @@ public class ConcurrentHashMap<K, V>
         if (hc <= (TREE_THRESHOLD >>> 1)) {
             hn = null;
             for (Node p = ht.first; p != null; p = p.next)
-                hn = new Node(p.hash, p.key, p.val, hn);
+                hn = new Node(p.hash, p.key, p.val, hn, p.size);
         }
         else
             hn = new Node(MOVED, ht, null, null);
@@ -2341,6 +2383,7 @@ public class ConcurrentHashMap<K, V>
         }
         if (delta != 0)
             counter.add(delta);
+        poolAccessor.clear();
     }
 
     /* ----------------Table Traversal -------------- */
@@ -2516,6 +2559,7 @@ public class ConcurrentHashMap<K, V>
      */
     public ConcurrentHashMap() {
         this.counter = new LongAdder();
+        this.poolAccessor = UnboundedPool.UNBOUNDED_ACCESSOR;
     }
 
     /**
@@ -2536,6 +2580,7 @@ public class ConcurrentHashMap<K, V>
             tableSizeFor(initialCapacity + (initialCapacity >>> 1) + 1));
         this.counter = new LongAdder();
         this.sizeCtl = cap;
+        this.poolAccessor = UnboundedPool.UNBOUNDED_ACCESSOR;
     }
 
     /**
@@ -2546,6 +2591,7 @@ public class ConcurrentHashMap<K, V>
     public ConcurrentHashMap(Map<? extends K, ? extends V> m) {
         this.counter = new LongAdder();
         this.sizeCtl = DEFAULT_CAPACITY;
+        this.poolAccessor = UnboundedPool.UNBOUNDED_ACCESSOR;
         internalPutAll(m);
     }
 
@@ -2597,6 +2643,11 @@ public class ConcurrentHashMap<K, V>
             MAXIMUM_CAPACITY : tableSizeFor((int)size);
         this.counter = new LongAdder();
         this.sizeCtl = cap;
+        this.poolAccessor = UnboundedPool.UNBOUNDED_ACCESSOR;
+    }
+
+    protected void setPoolAccessor(final PoolAccessor poolAccessor) {
+        this.poolAccessor = poolAccessor;
     }
 
     /**
@@ -2671,6 +2722,49 @@ public class ConcurrentHashMap<K, V>
         if (key == null)
             throw new NullPointerException();
         return (V)internalGet(key);
+    }
+
+
+    protected List<V> getRandomValues(int amount) {
+        ArrayList<V> sampled = new ArrayList<V>(amount * 2);
+
+        // pick a random starting point in the table
+        int randomHash = ThreadLocalRandom.current().nextInt();
+        Node[] tab = table;
+        if(tab == null) {
+            return sampled;
+        }
+        final int tableStart = randomHash & (tab.length - 1);
+        int tableIndex = tableStart;
+        outer:
+        do {
+            Node e;
+            Object ek;
+            for (e = tabAt(tab, tableIndex); e != null; e = e.next) {
+                if (e.hash == MOVED) {
+                    if ((ek = e.key) instanceof TreeBin) {
+                        e = ((TreeBin)ek).first;
+                        if(e == null)
+                            break;
+                        sampled.add((V)e.val);
+                        if (sampled.size() == amount) {
+                            break outer;
+                        }
+                    } else {
+                        tab = (Node[])ek;
+                        break;
+                    }
+                } else {
+                    sampled.add((V)e.val);
+                    if (sampled.size() == amount) {
+                        break outer;
+                    }
+                }
+            }
+            tableIndex = (tableIndex + 1) & (tab.length - 1);
+        } while (tableIndex != tableStart);
+
+        return sampled;
     }
 
     /**
@@ -2855,8 +2949,7 @@ public class ConcurrentHashMap<K, V>
      * unchanged.  Some attempted update operations on this map by
      * other threads may be blocked while computation is in progress,
      * so the computation should be short and simple, and must not
-     * attempt to update any other mappings of this Map. For example,
-     * to either create or append new messages to a value mapping:
+     * attempt to update any other mappings of this Map.
      *
      * @param key key with which the specified value is to be associated
      * @param remappingFunction the function to compute a value

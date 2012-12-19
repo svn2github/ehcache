@@ -73,7 +73,7 @@ final class LockedPoolAccessor extends AbstractPoolAccessor {
                     // eviction must be done outside the lock to avoid deadlocks as it may evict from other pools
                     lock.unlock();
                     try {
-                        boolean successful = getPool().getEvictor().freeSpace(getPool().getPoolParticipants(), missingSize);
+                        boolean successful = getPool().getEvictor().freeSpace(getPool().getPoolAccessors(), missingSize);
                         if (!force && !successful) {
                             // cannot free enough bytes
                             return -1;

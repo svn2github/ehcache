@@ -50,6 +50,7 @@ public class StatisticsTest extends AbstractCacheTest {
             throws InterruptedException {
         // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
+        cache.getCacheConfiguration().setMaxEntriesLocalDisk(2);
         manager.addCache(cache);
 
         cache.setStatisticsEnabled(true);
@@ -60,8 +61,8 @@ public class StatisticsTest extends AbstractCacheTest {
         // allow disk write thread to complete
         Thread.sleep(100);
 
-        cache.get("key1");
         cache.get("key2");
+        cache.get("key1");
 
         Statistics statistics = cache.getStatistics();
         assertEquals(2, statistics.getCacheHits());
@@ -73,7 +74,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(2, statistics.getDiskStoreObjectCount());
 
         // key 2 should now be in the MemoryStore
-        cache.get("key2");
+        cache.get("key1");
 
         statistics = cache.getStatistics();
         assertEquals(3, statistics.getCacheHits());
@@ -120,8 +121,8 @@ public class StatisticsTest extends AbstractCacheTest {
         // allow disk write thread to complete
         Thread.sleep(100);
 
-        cache.get("key1");
         cache.get("key2");
+        cache.get("key1");
 
         Statistics statistics = cache.getStatistics();
         assertEquals(2, statistics.getCacheHits());
@@ -170,8 +171,8 @@ public class StatisticsTest extends AbstractCacheTest {
         // allow disk write thread to complete
         Thread.sleep(100);
 
-        cache.get("key1");
         cache.get("key2");
+        cache.get("key1");
 
         Statistics statistics = cache.getStatistics();
         assertEquals("test", statistics.getAssociatedCacheName());

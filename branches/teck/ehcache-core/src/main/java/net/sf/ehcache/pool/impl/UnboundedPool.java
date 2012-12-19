@@ -34,6 +34,11 @@ import net.sf.ehcache.pool.SizeOfEngine;
 public class UnboundedPool implements Pool {
 
     /**
+     * An accessor that just is unbounded
+     */
+    public static final PoolAccessor<PoolParticipant> UNBOUNDED_ACCESSOR = new UnboundedPoolAccessor();
+
+    /**
      * Create an UnboundedPool instance
      */
     public UnboundedPool() {
@@ -90,7 +95,7 @@ public class UnboundedPool implements Pool {
     /**
      * {@inheritDoc}
      */
-    public Collection<PoolParticipant> getPoolParticipants() {
+    public Collection<PoolAccessor> getPoolAccessors() {
         return Collections.emptyList();
     }
 
@@ -104,7 +109,7 @@ public class UnboundedPool implements Pool {
     /**
      * The PoolAccessor class of the UnboundedPool
      */
-    private final class UnboundedPoolAccessor implements PoolAccessor {
+    private static final class UnboundedPoolAccessor implements PoolAccessor<PoolParticipant> {
 
         private UnboundedPoolAccessor() {
         }

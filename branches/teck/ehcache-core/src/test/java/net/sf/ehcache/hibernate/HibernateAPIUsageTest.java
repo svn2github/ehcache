@@ -142,11 +142,12 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         Thread.sleep(100);
         //this is now fixed
         assertThat(cache.getElementCountInMemory(), lessThanOrEqualTo(10000L));
-        RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
-            public Long call() throws Exception {
-                return cache.getElementCountOnDisk();
-            }
-        }, lessThan(1002L));
+        // TODO Lower tier will _never_ be smaller than higher ones now
+//        RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
+//            public Long call() throws Exception {
+//                return cache.getElementCountOnDisk();
+//            }
+//        }, lessThan(1002L));
         assertThat(cache.getElementCountOnDisk(), greaterThan(999L));
 
         //clear
@@ -340,7 +341,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         cache.clear();
         assertEquals(0, cache.getElementCountInMemory());
         cache.put(key, value);
-        assertTrue(EMPTY_ELEMENT_SIZE == cache.getSizeInMemory());
+        assertEquals(EMPTY_ELEMENT_SIZE, cache.getSizeInMemory());
 
         //locks
         //timeout. This seems strange

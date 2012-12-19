@@ -34,13 +34,6 @@ public interface PoolParticipant {
     boolean evict(int count, long size);
 
     /**
-     * Gets the size in bytes.
-     *
-     * @return the size from the pool used by the participant in bytes
-     */
-    long getSizeInBytes();
-
-    /**
      * Return the approximate hit rate
      *
      * @return the approximate hit rate

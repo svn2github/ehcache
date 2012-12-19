@@ -411,7 +411,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * @param cache the cache
      * @return the chosen eviction policy
      */
-    private static Policy determineEvictionPolicy(Ehcache cache) {
+    static Policy determineEvictionPolicy(Ehcache cache) {
         MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
 
         if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
@@ -985,13 +985,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      */
     public long getApproximateCountSize() {
         return map.quickSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getSizeInBytes() {
-        return poolAccessor.getSize();
     }
 
     private Lock getWriteLock(Object key) {

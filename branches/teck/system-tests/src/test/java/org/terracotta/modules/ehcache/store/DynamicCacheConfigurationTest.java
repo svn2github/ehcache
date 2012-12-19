@@ -3,14 +3,12 @@
  */
 package org.terracotta.modules.ehcache.store;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -20,8 +18,9 @@ import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.CallableWaiter;
 
-import java.util.Random;
 import java.util.concurrent.Callable;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * @author cdennis
@@ -31,7 +30,6 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
     super(testConfig, App.class);
     testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "1000");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
-    testConfig.getL2Config().setMaxHeap(512);
   }
 
   public static class App extends ClientBase {
@@ -106,6 +104,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       Assert.assertNull(cache.get("key1"));
       Assert.assertNull(cache.get("key2"));
+
+      cache.removeAll();
     }
 
     private void testTTLChange(CacheManager cm) throws InterruptedException {
@@ -151,6 +151,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       Assert.assertNull(cache.get("key1"));
       Assert.assertNull(cache.get("key2"));
+
+      cache.removeAll();
     }
 
     public void testTTIChangeWithCustomElements(CacheManager cm) throws InterruptedException {
@@ -203,6 +205,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       Assert.assertNotNull(cache.get("eternal"));
       Assert.assertNull(cache.get("short"));
       Assert.assertNotNull(cache.get("long"));
+
+      cache.removeAll();
     }
 
     public void testTTLChangeWithCustomElements(CacheManager cm) throws InterruptedException {
@@ -265,6 +269,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       Assert.assertNotNull(cache.get("eternal"));
       Assert.assertNull(cache.get("short"));
       Assert.assertNotNull(cache.get("long"));
+
+      cache.removeAll();
     }
 
     private void testMemoryCapacityChange(CacheManager cm) throws Exception {
@@ -295,6 +301,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       }
 
       waitForCacheMemoryStoreSize(cache, 50);
+
+      cache.removeAll();
     }
 
     private void waitForCacheMemoryStoreSize(final Cache cache, final int lowerBound, final int upperBound)
@@ -331,22 +339,19 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       cache.getCacheConfiguration().setMaxEntriesInCache(50);
 
       testCacheDiskCapacity(cache, 50);
+
+      cache.removeAll();
     }
 
     private void testCacheDiskCapacity(final Cache cache, final int capacity) throws Exception {
-      final Random r = new Random();
       for (int i = 0; i < 1000; i++) {
         cache.put(new Element("key" + i, new byte[0]));
       }
 
-      // Wait some time for the remove set to get sent to the server.
-      SECONDS.sleep(30);
-
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          // Initiate capacity eviction with a new put
-          cache.put(new Element("overflow" + r.nextInt(), new byte[0]));
+          System.out.println("Current cache size " + cache.getSize());
           return cache.getSize() >= capacity * 0.9 && cache.getSize() <= capacity * 1.1;
         }
       }, 2 * 60 * 1000, 10 * 1000);

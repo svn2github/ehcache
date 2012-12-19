@@ -24,6 +24,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.PoolParticipant;
 
@@ -42,17 +43,17 @@ public class BalancedAccessEvictor implements PoolEvictor<PoolParticipant> {
     /**
      * Comparator used to rank the stores in order of eviction 'cost'.
      */
-    private final class EvictionCostComparator implements Comparator<PoolParticipant> {
+    private final class EvictionCostComparator implements Comparator<PoolAccessor> {
 
         private final long unloadedSize;
-        private final Map<PoolParticipant, Float> evictionCostCache;
+        private final Map<PoolAccessor, Float> evictionCostCache;
 
         public EvictionCostComparator(long unloadedSize, int collectionSize) {
             this.unloadedSize = unloadedSize;
-            this.evictionCostCache = new IdentityHashMap<PoolParticipant, Float>(collectionSize);
+            this.evictionCostCache = new IdentityHashMap<PoolAccessor, Float>(collectionSize);
         }
 
-        public int compare(PoolParticipant s1, PoolParticipant s2) {
+        public int compare(PoolAccessor s1, PoolAccessor s2) {
             Float f1 = evictionCostCache.get(s1);
             if (f1 == null) {
               f1 = evictionCost(s1, unloadedSize);
@@ -70,27 +71,27 @@ public class BalancedAccessEvictor implements PoolEvictor<PoolParticipant> {
     /**
      * {@inheritDoc}
      */
-    public boolean freeSpace(Collection<PoolParticipant> from, long bytes) {
+    public boolean freeSpace(Collection<PoolAccessor<PoolParticipant>> from, long bytes) {
         if (from == null || from.isEmpty()) {
             return false;
         }
-        List<PoolParticipant> random = new ArrayList<PoolParticipant>(from);
+        List<PoolAccessor> random = new ArrayList<PoolAccessor>(from);
         Collections.shuffle(random);
 
         for (int i = 0; i < random.size(); i += SAMPLE_SIZE) {
-            List<PoolParticipant> sorted = random.subList(i, Math.min(SAMPLE_SIZE + i, random.size()));
+            List<PoolAccessor> sorted = random.subList(i, Math.min(SAMPLE_SIZE + i, random.size()));
             Collections.sort(sorted, new EvictionCostComparator(getDesiredUnloadedSize(sorted), sorted.size() + 1));
 
-            for (PoolParticipant participant : sorted) {
+            for (PoolAccessor accessor : sorted) {
                 int count;
-                long byteSize = participant.getSizeInBytes();
-                long countSize = participant.getApproximateCountSize();
+                long byteSize = accessor.getSize();
+                long countSize = accessor.getParticipant().getApproximateCountSize();
                 if (countSize == 0 || byteSize == 0) {
                     count = 1;
                 } else {
                     count = (int) Math.max((bytes * countSize) / byteSize, 1L);
                 }
-                if (participant.evict(count, bytes)) {
+                if (accessor.getParticipant().evict(count, bytes)) {
                     return true;
                 }
             }
@@ -99,7 +100,7 @@ public class BalancedAccessEvictor implements PoolEvictor<PoolParticipant> {
         return false;
     }
 
-    private float evictionCost(PoolParticipant participant, long unloadedSize) {
+    private float evictionCost(PoolAccessor accessor, long unloadedSize) {
         /*
          * The code below is a simplified version of this:
          *
@@ -111,13 +112,13 @@ public class BalancedAccessEvictor implements PoolEvictor<PoolParticipant> {
          * return meanEntrySize * accessRate * deltaFillLevel * hitDistributionFunction(fillLevel);
          */
 
-        float hitRate = participant.getApproximateHitRate();
-        float missRate = participant.getApproximateMissRate();
-        long countSize = participant.getApproximateCountSize();
+        float hitRate = accessor.getParticipant().getApproximateHitRate();
+        float missRate = accessor.getParticipant().getApproximateMissRate();
+        long countSize = accessor.getParticipant().getApproximateCountSize();
         float accessRate = hitRate + missRate;
 
         if (accessRate == 0.0f) {
-            if (participant.getSizeInBytes() > unloadedSize) {
+            if (accessor.getSize() > unloadedSize) {
                 return Float.NEGATIVE_INFINITY;
             } else {
                 return Float.POSITIVE_INFINITY;
@@ -138,10 +139,10 @@ public class BalancedAccessEvictor implements PoolEvictor<PoolParticipant> {
         return (float) Math.pow(fillLevel, -ALPHA);
     }
 
-    private long getDesiredUnloadedSize(Collection<PoolParticipant> from) {
+    private long getDesiredUnloadedSize(Collection<PoolAccessor> from) {
         long unloadedSize = 0L;
-        for (PoolParticipant poolAccessor : from) {
-            unloadedSize += poolAccessor.getSizeInBytes();
+        for (PoolAccessor accessor : from) {
+            unloadedSize += accessor.getSize();
         }
         return unloadedSize / from.size();
     }

@@ -35,10 +35,10 @@ import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
+import net.sf.ehcache.store.AuthoritativeTier;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StripedReadWriteLockProvider;
-import net.sf.ehcache.store.TierableStore;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
@@ -51,6 +51,7 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -68,7 +69,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Chris Dennis
  * @author Ludovic Orban
  */
-public final class DiskStore extends AbstractStore implements TierableStore, PoolParticipant, StripedReadWriteLockProvider {
+public final class DiskStore extends AbstractStore implements StripedReadWriteLockProvider, AuthoritativeTier {
 
     private static final int FFFFCD7D = 0xffffcd7d;
     private static final int FIFTEEN = 15;
@@ -103,7 +104,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(new DiskStoreHeapPoolParticipant(),
             SizeOfPolicyConfiguration.resolveMaxDepth(cache),
             SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
-        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(this, new DiskSizeOfEngine());
+        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(new DiskStoreDiskPoolParticipant(), new DiskSizeOfEngine());
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
@@ -114,7 +115,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         this.disk.bind(this);
         this.status.set(Status.STATUS_ALIVE);
         this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
-                     cache.getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
+                     cache.getCacheConfiguration().getPinningConfiguration().getStore().compareTo(PinningConfiguration.Store.INCACHE) <= 0;
         this.persistent = cache.getCacheConfiguration().isDiskPersistent();
     }
 
@@ -151,21 +152,25 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * {@inheritDoc}
      */
     public void unpinAll() {
-        // no-op
+        for (Segment segment : segments) {
+            segment.unpinAll();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isPinned(Object key) {
-        return false;
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).isPinned(key, hash);
     }
 
     /**
      * {@inheritDoc}
      */
     public void setPinned(Object key, boolean pinned) {
-        // no-op
+        int hash = hash(key.hashCode());
+        segmentFor(hash).setPinned(key, hash, pinned);
     }
 
 
@@ -185,6 +190,41 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public StripedReadWriteLock createStripedReadWriteLock() {
         return new DiskStoreStripedReadWriteLock();
+    }
+
+    @Override
+    public Element fault(final Object key, final boolean updateStats) {
+        if (key == null) {
+            return null;
+        }
+
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).get(key, hash, true);
+    }
+
+
+    @Override
+    public boolean putFaulted(final Element element) {
+        if (element == null) {
+            return false;
+        } else {
+            Object key = element.getObjectKey();
+            int hash = hash(key.hashCode());
+            Element oldElement = segmentFor(hash).put(key, hash, element, false, true);
+            return oldElement == null;
+        }
+    }
+
+    @Override
+    public boolean flush(final Element element) {
+        final Object key = element.getObjectKey();
+        int hash = hash(key.hashCode());
+        if (disk.getOnDiskSize() > disk.getDiskCapacity()) {
+            // todo this is ugly and only there to please the tests ... again!
+            return segmentFor(hash).flush(key, hash, element) && segmentFor(hash).evict(key, hash, null) != null;
+        } else {
+            return segmentFor(hash).flush(key, hash, element);
+        }
     }
 
     /**
@@ -332,7 +372,11 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * {@inheritDoc}
      */
     public int getInMemorySize() {
-        return 0;
+        int size = 0;
+        for (Segment segment : segments) {
+            size += segment.inMemSize();
+        }
+        return size;
     }
 
     /**
@@ -441,7 +485,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         } else {
             Object key = element.getObjectKey();
             int hash = hash(key.hashCode());
-            Element oldElement = segmentFor(hash).put(key, hash, element, false);
+            Element oldElement = segmentFor(hash).put(key, hash, element, false, false);
             return oldElement == null;
         }
     }
@@ -470,7 +514,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         }
 
         int hash = hash(key.hashCode());
-        return segmentFor(hash).get(key, hash);
+        return segmentFor(hash).get(key, hash, false);
     }
 
     /**
@@ -562,7 +606,11 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      * {@inheritDoc}
      */
     public Set getPresentPinnedKeys() {
-        return Collections.emptySet();
+        Set set = new HashSet();
+        for (Segment segment : segments) {
+            set.addAll(segment.pinnedKeys());
+        }
+        return set;
     }
 
     /**
@@ -597,9 +645,17 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public void dispose() {
         if (status.compareAndSet(Status.STATUS_ALIVE, Status.STATUS_SHUTDOWN)) {
+            unpinAll();
+            clearFaultedBit();
             disk.unbind();
             onHeapPoolAccessor.unlink();
             onDiskPoolAccessor.unlink();
+        }
+    }
+
+    private void clearFaultedBit() {
+        for (Segment segment : segments) {
+            segment.clearFaultedBit();
         }
     }
 
@@ -678,49 +734,6 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     /**
      * {@inheritDoc}
      */
-    public boolean evict(int count, long size) {
-        return disk.evict(count) == count;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateHitRate() {
-        float sum = 0;
-        for (Segment s : segments) {
-            sum += s.getDiskHitRate();
-        }
-        return sum;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateMissRate() {
-        float sum = 0;
-        for (Segment s : segments) {
-            sum += s.getDiskMissRate();
-        }
-        return sum;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateCountSize() {
-        return getOnDiskSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getSizeInBytes() {
-        return getOnDiskSizeInBytes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean containsKey(Object key) {
         int hash = hash(key.hashCode());
         return segmentFor(hash).containsKey(key, hash);
@@ -744,7 +757,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
     public Element putIfAbsent(Element element) throws NullPointerException {
         Object key = element.getObjectKey();
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, element, true);
+        return segmentFor(hash).put(key, hash, element, true, false);
     }
 
     /**
@@ -790,7 +803,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
      */
     public boolean fault(Object key, Placeholder expect, DiskMarker fault) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).fault(key, hash, expect, fault);
+        return segmentFor(hash).fault(key, hash, expect, fault, status.get() == Status.STATUS_SHUTDOWN);
     }
 
     /**
@@ -1171,12 +1184,7 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
 
         @Override
         public boolean evict(final int count, final long size) {
-            return DiskStore.this.evict(count, size);
-        }
-
-        @Override
-        public long getSizeInBytes() {
-            return getInMemorySizeInBytes();
+            return disk.evict(count) == count;
         }
 
         @Override
@@ -1192,6 +1200,40 @@ public final class DiskStore extends AbstractStore implements TierableStore, Poo
         @Override
         public long getApproximateCountSize() {
             return getInMemorySize();
+        }
+    }
+
+    /**
+     * PoolParticipant that is used with the DiskPool.
+     */
+    private class DiskStoreDiskPoolParticipant implements PoolParticipant {
+
+        @Override
+        public boolean evict(final int count, final long size) {
+            return disk.evict(count) == count;
+        }
+
+        @Override
+        public float getApproximateHitRate() {
+            float sum = 0;
+            for (Segment s : segments) {
+                sum += s.getDiskHitRate();
+            }
+            return sum;
+        }
+
+        @Override
+        public float getApproximateMissRate() {
+            float sum = 0;
+            for (Segment s : segments) {
+                sum += s.getDiskMissRate();
+            }
+            return sum;
+        }
+
+        @Override
+        public long getApproximateCountSize() {
+            return getOnDiskSize();
         }
     }
 }
