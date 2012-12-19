@@ -95,9 +95,9 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     private final SelectableConcurrentHashMap map;
     private final PoolAccessor poolAccessor;
 
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("heap").build();
-    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("heap").build();
-    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("heap").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
+    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("local-heap").build();
+    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("local-heap").build();
 
     private final boolean storePinned;
     private final boolean elementPinningEnabled;
@@ -757,7 +757,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name = "local-heap-size", tags = "heap")
+    @Statistic(name = "size", tags = "local-heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -765,7 +765,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name = "local-heap-size-in-bytes", tags = "heap")
+    @Statistic(name = "size-in-bytes", tags = "local-heap")
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
             DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(SizeOfPolicyConfiguration.resolveMaxDepth(cache),

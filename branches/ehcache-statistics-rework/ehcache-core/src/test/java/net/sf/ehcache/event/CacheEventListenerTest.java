@@ -90,8 +90,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     public void setUp() throws Exception {
         super.setUp();
         manager.shutdown();
-//        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
-        manager = CacheManager.create("/Users/asnaps/IdeaProjects/TC/Vicente/ehcache-ee/ehcache-os/ehcache-core/src/test/resources/ehcache-countinglisteners.xml");
+        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
         cache = manager.getCache(cacheName);
         cache.removeAll();
     }

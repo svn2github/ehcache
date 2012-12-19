@@ -27,9 +27,13 @@ public class BlockingCacheOperationOutcomes {
      */
     public enum GetOutcome {
 
-        /** get. */
-        GET,
-        /** get and locked. */
-        GET_AND_LOCKED;
+        /**
+         * Blocking Cache Hit.
+         */
+        HIT,
+        /** 
+         * Blocking Cache Miss and left locked.
+         */
+        MISS_AND_LOCKED;
     }
 }

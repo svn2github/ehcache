@@ -33,6 +33,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.loader.CacheLoader;
+import org.terracotta.statistics.StatisticsManager;
 
 import org.terracotta.statistics.observer.OperationObserver;
 
@@ -78,7 +79,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
     private final int stripes;
     private final AtomicReference<CacheLockProvider> cacheLockProviderReference;
 
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("cache").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("blocking-cache").build();
 
     /**
      * Creates a BlockingCache which decorates the supplied cache.
@@ -167,11 +168,13 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
             element = underlyingCache.get(key);
             if (element != null) {
                 lock.unlock(LockType.WRITE);
+                getObserver.end(GetOutcome.HIT);
+            } else {
+                getObserver.end(GetOutcome.MISS_AND_LOCKED);
             }
-            getObserver.end(GetOutcome.GET_AND_LOCKED);
             return element;
         } else {
-            getObserver.end(GetOutcome.GET);
+            getObserver.end(GetOutcome.HIT);
             return element;
         }
     }

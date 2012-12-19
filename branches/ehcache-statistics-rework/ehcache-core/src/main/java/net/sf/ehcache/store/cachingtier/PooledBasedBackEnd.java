@@ -18,7 +18,6 @@ package net.sf.ehcache.store.cachingtier;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 
@@ -31,12 +30,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.*;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.*;
 
 /**
  * A backend to a OnHeapCachingTier that will be cap'ed using a pool
@@ -54,10 +54,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     private volatile EvictionCallback<K, V> evictionCallback;
     private AtomicReference<PoolAccessor> poolAccessor = new AtomicReference<PoolAccessor>();
 
-    private final OperationObserver<StoreOperationOutcomes.GetOutcome> getObserver = operation(StoreOperationOutcomes.GetOutcome.class).named("get").of(this).tag("heap").build();
-    private final OperationObserver<StoreOperationOutcomes.GetOutcome> putObserver = operation(StoreOperationOutcomes.GetOutcome.class).named("put").of(this).tag("heap").build();
-    private final OperationObserver<StoreOperationOutcomes.GetOutcome> removeObserver = operation(StoreOperationOutcomes.GetOutcome.class).named("remove").of(this).tag("heap").build();
-
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("arc-get").of(this).tag("private").build();
 
     /**
      * Constructs a Pooled backend

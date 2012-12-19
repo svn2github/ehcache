@@ -102,7 +102,9 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
     private final boolean tierPinned;
     private final boolean persistent;
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).of(this).named("get").tag("disk").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).of(this).named("get").tag("local-disk").build();
+    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).of(this).named("put").tag("local-disk").build();
+    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).of(this).named("remove").tag("local-disk").build();
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
 
@@ -205,12 +207,20 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
 
     @Override
     public Element fault(final Object key, final boolean updateStats) {
+        getObserver.begin();
         if (key == null) {
+            getObserver.end(GetOutcome.MISS);
             return null;
+        } else {
+            int hash = hash(key.hashCode());
+            Element e = segmentFor(hash).get(key, hash, true);
+            if (e == null) {
+                getObserver.end(GetOutcome.MISS);
+            } else {
+                getObserver.end(GetOutcome.HIT);
+            }
+            return e;
         }
-
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).get(key, hash, true);
     }
 
 
@@ -419,7 +429,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name = "local-disk-size", tags = "disk")
+    @Statistic(name = "size", tags = "local-disk")
     public int getOnDiskSize() {
         return disk.getOnDiskSize();
     }
@@ -427,7 +437,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     /**
      * {@inheritDoc}
      */
-    @Statistic(name = "local-disk-size-in-bytes", tags = "disk")
+    @Statistic(name = "size-in-bytes", tags = "local-disk")
     public long getOnDiskSizeInBytes() {
         long size = onDiskPoolAccessor.getSize();
         if (size < 0) {
@@ -523,13 +533,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     public Element get(Object key) {
         getObserver.begin();
-        if (key == null) {
-            getObserver.end(GetOutcome.MISS);
-            return null;
-        }
-
-        int hash = hash(key.hashCode());
-        Element e = segmentFor(hash).get(key, hash, false);
+        Element e = getQuiet(key);
         if (e == null) {
             getObserver.end(GetOutcome.MISS);
             return null;
@@ -543,7 +547,12 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      * {@inheritDoc}
      */
     public Element getQuiet(Object key) {
-        return get(key);
+        if (key == null) {
+            return null;
+        } else {
+            int hash = hash(key.hashCode());
+            return segmentFor(hash).get(key, hash, false);
+        }
     }
 
     /**

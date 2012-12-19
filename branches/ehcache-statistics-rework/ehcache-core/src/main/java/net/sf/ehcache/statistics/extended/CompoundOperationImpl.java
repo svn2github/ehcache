@@ -137,10 +137,13 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
-    void expire(long expiryTime) {
-        if (!alwaysOn) {
+    boolean expire(long expiryTime) {
+        if (alwaysOn) {
+            return false;
+        } else {
+            boolean expired = true;
             for (OperationImpl<?> o : operations.values()) {
-                o.expire(expiryTime);
+                expired &= o.expire(expiryTime);
             }
             for (Iterator<OperationImpl<T>> it = compounds.values().iterator(); it.hasNext(); ) {
                 if (it.next().expire(expiryTime)) {
@@ -152,6 +155,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
                     it.remove();
                 }
             }
+            return expired & compounds.isEmpty() & ratios.isEmpty();
         }
     }
 }

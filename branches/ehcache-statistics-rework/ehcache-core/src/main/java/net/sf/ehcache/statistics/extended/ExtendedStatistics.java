@@ -58,9 +58,9 @@ public interface ExtendedStatistics {
     Operation<CacheOperationOutcomes.EvictionOutcome> eviction();
     Operation<CacheOperationOutcomes.ExpiredOutcome> expiration();
 
-    //<T> List<Operation<T>> operations(T outcome, String name, String ... tags);
+    <T extends Enum<T>> Set<Operation<T>> operations(Class<T> outcome, String name, String ... tags);
 
-    public interface Operation<T> {
+    public interface Operation<T extends Enum<T>> {
         Result component(T result);
         Result compound(Set<T> results);
 

@@ -31,11 +31,11 @@ import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import org.terracotta.context.annotations.ContextChild;
 
 /**
  * TODO this class requires some love... Don't think the CachingTier is always properly maintained should authority.*() throws
@@ -46,7 +46,9 @@ public class CacheStore implements Store {
 
     private static final int DEFAULT_LOCK_STRIPE_COUNT = 128;
 
+    @ContextChild
     private final CachingTier<Object, Element> cachingTier;
+    @ContextChild
     private final AuthoritativeTier authoritativeTier;
 
     private final Map keySetEver = new ConcurrentHashMap();
@@ -478,7 +480,7 @@ public class CacheStore implements Store {
         for (Object key : keys) {
             result.put(key, get(key));
         }
-        return Collections.unmodifiableMap(result);
+        return result;
     }
 
     @Override

@@ -1575,6 +1575,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * {@inheritDoc}
      */
     public Map<Object, Element> getAll(Collection<?> keys) throws IllegalStateException, CacheException {
+        getAllObserver.begin();
         checkStatus();
 
         if (disabled) {
@@ -1585,13 +1586,33 @@ public class Cache implements InternalEhcache, StoreListener {
             return Collections.EMPTY_MAP;
         }
 
-        if (true) {
-            // XXX cdennis needs to go here..
-            Map<Object, Element> elements = searchAllInStoreWithStats(keys);
-            return elements;
-        } else {
-            return searchAllInStoreWithoutStats(keys);
+        Map<Object, Element> elements = compoundStore.getAll(keys);
+
+        long misses = 0;
+        for (Entry<Object, Element> entry : elements.entrySet()) {
+            Object key = entry.getKey();
+            Element element = entry.getValue();
+            if (element == null) {
+                misses++;
+            } else {
+                if (isExpired(element)) {
+                    tryRemoveImmediately(key, true);
+                    elements.remove(key);
+                    misses++;
+                } else {
+                    element.updateAccessStatistics();
+                }
+            }
         }
+        int requests = elements.size();
+        if (misses == 0) {
+            getAllObserver.end(GetAllOutcome.ALL_HIT, requests, 0);
+        } else if (misses == requests) {
+            getAllObserver.end(GetAllOutcome.ALL_MISS, 0, misses);
+        } else {
+            getAllObserver.end(GetAllOutcome.PARTIAL, requests - misses, misses);
+        }
+        return elements;
     }
 
     /**
@@ -1967,17 +1988,6 @@ public class Cache implements InternalEhcache, StoreListener {
         return element;
     }
 
-
-    private Map<Object, Element> searchAllInStoreWithoutStats(Collection<?> keys) {
-        Map<Object, Element> elements = compoundStore.getAllQuiet(keys);
-
-        for (Entry<Object, Element> entry : elements.entrySet()) {
-            Element element = entry.getValue();
-            Object key = entry.getKey();
-            elements.put(key, elementStatsHelper(key, false, true, element));
-        }
-        return elements;
-    }
 
     /**
      * This shouldn't be necessary once we got rid of this stupid locking layer!
@@ -2471,7 +2481,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return The size value
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    @org.terracotta.statistics.Statistic(name = "cache-size", tags = "cache")
+    @org.terracotta.statistics.Statistic(name = "size", tags = "cache")
     public final int getSize() throws IllegalStateException, CacheException {
         checkStatus();
 

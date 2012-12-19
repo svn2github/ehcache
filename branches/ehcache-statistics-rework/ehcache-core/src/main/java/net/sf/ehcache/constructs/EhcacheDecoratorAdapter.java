@@ -41,6 +41,7 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
+import org.terracotta.statistics.StatisticsManager;
 
 /**
  * Adapter class for Ehcache interface decorators. Implements all method in {@link Ehcache} by delegating all calls to the decorated
@@ -63,6 +64,7 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      * @param underlyingCache
      */
     public EhcacheDecoratorAdapter(Ehcache underlyingCache) {
+        StatisticsManager.associate(this).withParent(underlyingCache);
         this.underlyingCache = underlyingCache;
     }
 

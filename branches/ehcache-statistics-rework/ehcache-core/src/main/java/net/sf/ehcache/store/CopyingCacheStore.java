@@ -31,12 +31,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.terracotta.context.annotations.ContextChild;
 
 /**
  * @author Alex Snaps
  */
 public final class CopyingCacheStore implements Store {
 
+    @ContextChild
     private final Store store;
     private final boolean copyOnRead;
     private final boolean copyOnWrite;

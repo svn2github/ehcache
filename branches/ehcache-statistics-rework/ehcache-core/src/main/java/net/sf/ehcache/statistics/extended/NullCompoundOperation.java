@@ -25,7 +25,7 @@ import org.terracotta.statistics.archive.Timestamped;
  * @param <T> the generic type
  * @author cdennis
  */
-class NullCompoundOperation<T> implements Operation<T> {
+class NullCompoundOperation<T extends Enum<T>> implements Operation<T> {
 
     private static final Operation INSTANCE = new NullCompoundOperation();
 
@@ -35,7 +35,7 @@ class NullCompoundOperation<T> implements Operation<T> {
      * @param <T> the generic type
      * @return the operation
      */
-    static <T> Operation<T> instance() {
+    static <T extends Enum<T>> Operation<T> instance() {
         return INSTANCE;
     }
 

@@ -741,11 +741,15 @@ public class CacheManagerTest {
             config.cache(new CacheConfiguration().name(Integer.toString(i)).maxEntriesLocalHeap(100).maxEntriesLocalDisk(1000)
                     .persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP)));
         }
+        int managerThreads = 0;
+        managerThreads += Runtime.getRuntime().availableProcessors(); //statistics executor
+        managerThreads += 1; //cache manager timer thread
+        managerThreads += 1; //local transactions recovery thread
         CacheManager manager = new CacheManager(config);
         try {
             Collection<Thread> spawnedThreads = JVMUtil.enumerateThreads();
             spawnedThreads.removeAll(initialThreads);
-            assertThat("Spawned Threads", spawnedThreads, hasSize(CombinableMatcher.<Integer>both(greaterThan(0)).and(lessThanOrEqualTo(manager.getCacheNames().length + 2))));
+            assertThat("Spawned Threads", spawnedThreads, hasSize(CombinableMatcher.<Integer>both(greaterThan(0)).and(lessThanOrEqualTo(manager.getCacheNames().length + managerThreads))));
         } finally {
             manager.shutdown();
         }

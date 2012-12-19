@@ -26,6 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
+import org.terracotta.context.annotations.ContextChild;
+import org.terracotta.statistics.Statistic;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.*;
 
 /**
  * An instance of this class will delegate the storage to the backing HeapCacheBackEnd.<br/>
@@ -41,7 +49,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
 
+    @ContextChild
     private final HeapCacheBackEnd<K, Object> backEnd;
+    
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("local-heap").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("local-heap").build();
+
 
     private volatile List<Listener<K, V>> listeners = new CopyOnWriteArrayList<Listener<K, V>>();
 
@@ -64,8 +78,10 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
 
     @Override
     public V get(final K key, final Callable<V> source, final boolean updateStats) {
+        if (updateStats) getObserver.begin();
         Object cachedValue = backEnd.get(key);
         if (cachedValue == null) {
+            if (updateStats) getObserver.end(GetOutcome.MISS);
             Fault<V> f = new Fault<V>(source);
             cachedValue = backEnd.putIfAbsent(key, f);
             if (cachedValue == null && !f.complete) {
@@ -88,6 +104,8 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
                     throw new RuntimeException(e);
                 }
             }
+        } else {
+            if (updateStats) getObserver.end(GetOutcome.HIT);
         }
 
         return getValue(cachedValue);
@@ -111,6 +129,7 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         listeners.add(listener);
     }
 
+    @Statistic(name = "size", tags = "local-heap")
     @Override
     public int getInMemorySize() {
         return backEnd.size();
@@ -126,6 +145,7 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         return backEnd.get(key) != null;
     }
 
+    @Statistic(name = "size-in-bytes", tags = "local-heap")
     @Override
     public long getInMemorySizeInBytes() {
         long sizeInBytes;

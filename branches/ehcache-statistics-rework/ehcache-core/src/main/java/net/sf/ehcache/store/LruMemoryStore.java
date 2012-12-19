@@ -83,9 +83,9 @@ public class LruMemoryStore extends AbstractStore {
     private final boolean cachePinned;
     private final boolean elementPinningEnabled;
 
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("heap").build();
-    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("heap").build();
-    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("heap").build();
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
+    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("local-heap").build();
+    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("local-heap").build();
     
     /**
      * Constructor for the LruMemoryStore object
@@ -664,7 +664,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="local-heap-size", tags="heap")
+    @Statistic(name="size", tags="local-heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -672,7 +672,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="local-heap-size-in-bytes", tags="heap")
+    @Statistic(name="size-in-bytes", tags="local-heap")
     public long getInMemorySizeInBytes() {
         return getSizeInBytes();
     }

@@ -89,15 +89,15 @@ public class StatisticsTest extends AbstractCacheTest {
         // key 1 should now be expired
         assertThat(cache.get("key1"), nullValue());
         assertEquals(3, statistics.cacheHitCount());
-        assertEquals(2, statistics.diskHitCount());
-        assertEquals(2, statistics.localHeapHitCount());
+        assertEquals(1, statistics.diskHitCount());
+        assertEquals(3, statistics.localHeapHitCount());
         assertEquals(1, statistics.cacheMissCount());
 
         // key 2 should also be expired
         assertThat(cache.get("key2"), nullValue());
         assertEquals(3, statistics.cacheHitCount());
-        assertEquals(3, statistics.diskHitCount());
-        assertEquals(2, statistics.localHeapHitCount());
+        assertEquals(2, statistics.diskHitCount());
+        assertEquals(3, statistics.localHeapHitCount());
         assertEquals(2, statistics.cacheMissCount());
 
         assertNotNull(statistics.toString());

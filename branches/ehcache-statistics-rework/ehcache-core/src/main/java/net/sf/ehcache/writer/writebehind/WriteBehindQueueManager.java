@@ -137,7 +137,7 @@ public class WriteBehindQueueManager implements WriteBehind {
     /**
      * {@inheritDoc}
      */
-    @Statistic(name = "write-behind-queue-length", tags = "write-behind")
+    @Statistic(name = "queue-length", tags = "write-behind")
     public long getQueueSize() {
         int size = 0;
         readLock.lock();
