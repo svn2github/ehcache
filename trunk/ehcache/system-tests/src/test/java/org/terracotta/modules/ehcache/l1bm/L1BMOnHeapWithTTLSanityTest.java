@@ -27,7 +27,6 @@ public class L1BMOnHeapWithTTLSanityTest extends AbstractCacheTestBase {
 
   public L1BMOnHeapWithTTLSanityTest(TestConfig testConfig) {
     super(testConfig, App.class, App.class);
-    testConfig.getL2Config().setMaxHeap(512);
   }
 
   public static class App extends ClientBase {

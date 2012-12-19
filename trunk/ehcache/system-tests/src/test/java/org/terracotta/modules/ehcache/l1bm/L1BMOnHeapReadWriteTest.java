@@ -28,7 +28,6 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
 
   public L1BMOnHeapReadWriteTest(TestConfig testConfig) {
     super(testConfig, L1BMOnHeapReadWriteTestApp.class, L1BMOnHeapReadWriteTestApp.class);
-    testConfig.getL2Config().setMaxHeap(512);
   }
 
   public static class L1BMOnHeapReadWriteTestApp extends ClientBase {
