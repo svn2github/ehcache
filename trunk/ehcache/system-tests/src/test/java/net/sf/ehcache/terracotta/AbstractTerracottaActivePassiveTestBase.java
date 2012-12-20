@@ -19,7 +19,7 @@ public class AbstractTerracottaActivePassiveTestBase extends AbstractCacheTestBa
                                                  Class<? extends ClientBase>... c) {
     super(ehcacheConfigPath, testConfig, c);
 
-    testConfig.getL2Config().setRestartable(false);
+    testConfig.setRestartable(false);
 
     testConfig.getGroupConfig().setMemberCount(2);
     testConfig.getGroupConfig().setElectionTime(5);

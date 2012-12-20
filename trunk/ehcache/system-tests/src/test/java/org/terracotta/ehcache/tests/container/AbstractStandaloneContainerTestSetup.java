@@ -51,7 +51,7 @@ public class AbstractStandaloneContainerTestSetup extends StandaloneTwoServerTes
   private File getTempEhcacheConfigFile() {
     try {
       File ehcacheConfigFile = writeDefaultConfigFile(TempDirectoryUtil.getTempDirectory(this.getClass()),
-                                                      getServerManager().getServerTcConfig().getDsoPort());
+                                                      getServerManager().getServerTcConfig().getTsaPort());
       System.out.println("Wrote temp config file at: " + ehcacheConfigFile.getAbsolutePath());
       return ehcacheConfigFile;
     } catch (IOException e) {

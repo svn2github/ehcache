@@ -13,8 +13,8 @@ public class ServerMapTTLExpressTest extends AbstractCacheTestBase {
 
   public ServerMapTTLExpressTest(TestConfig testConfig) {
     super("/servermap/basic-servermap-cache-test.xml", testConfig, ServerMapTTLExpressTestClient.class);
-    testConfig.getL2Config().setDgcEnabled(true);
-    testConfig.getL2Config().setDgcIntervalInSec(60);
+    testConfig.setDgcEnabled(true);
+    testConfig.setDgcIntervalInSec(60);
     testConfig.addTcProperty("ehcache.evictor.logging.enabled", "true");
 
     // L1 properties
