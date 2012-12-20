@@ -180,8 +180,15 @@ public class CachePinningTest {
     }
 
     private void doAssertions(Cache cache, long expectedMemoryHits, long expectedDiskHits) throws ExecutionException, InterruptedException {
+
+        cache.removeAll();
+        flushDisk(cache);
+
         for (int i = 0; i < ELEMENT_COUNT; i++) {
             cache.put(new Element(i, i));
+            if(i % 100 == 0) {
+                flushDisk(cache);
+            }
         }
 
         flushDisk(cache);
