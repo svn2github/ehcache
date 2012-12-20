@@ -3,6 +3,8 @@ package net.sf.ehcache.store.disk;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
+import net.sf.ehcache.store.CacheStore;
+import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.Store;
 
 import java.lang.reflect.Field;
@@ -15,13 +17,25 @@ public class PerfDiskStoreHelper {
 
     public static Future<Void> flushAllEntriesToDisk(final Cache cache) {
         CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(cache);
-        final Store store = cacheStoreHelper.getStore();
+        return flushAllEntriesToDisk(cacheStoreHelper.getStore());
+    }
+
+    public static Future<Void> flushAllEntriesToDisk(final Store store) {
         if(store instanceof DiskBackedMemoryStore) {
             final DiskStore authority = getField("authority", store);
-            final DiskStorageFactory factory = getField("disk", authority);
+            return flushAllEntriesToDisk(authority);
+        } else if (store instanceof CacheStore) {
+            final DiskStore authority = getField("authoritativeTier", store);
+            return flushAllEntriesToDisk(authority);
+        } else if (store instanceof LegacyStoreWrapper) {
+            final DiskStore authority = getField("disk", store);
+            return flushAllEntriesToDisk(authority);
+        } else if (store instanceof DiskStore) {
+            final DiskStorageFactory factory = getField("disk", store);
             return factory.flush();
+        } else {
+            return null;
         }
-        return null;
     }
 
     private static <T> T getField(final String fieldName, final Object obj) {
