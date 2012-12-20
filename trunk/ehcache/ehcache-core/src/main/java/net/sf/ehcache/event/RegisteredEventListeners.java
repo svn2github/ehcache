@@ -254,19 +254,17 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementEvicted(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        if (cache.getCacheConfiguration().getPinningConfiguration() == null) {
-            elementsEvictedCounter.incrementAndGet();
-            if (hasCacheEventListeners()) {
-                for (ListenerWrapper listenerWrapper : cacheEventListeners) {
-                    if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
-                            && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
-                        CacheEventListener listener = listenerWrapper.getListener();
-                        invokeListener(listener, element, callback, Event.EVICTED);
-                    }
+        elementsEvictedCounter.incrementAndGet();
+        if (hasCacheEventListeners()) {
+            for (ListenerWrapper listenerWrapper : cacheEventListeners) {
+                if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
+                    && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
+                    CacheEventListener listener = listenerWrapper.getListener();
+                    invokeListener(listener, element, callback, Event.EVICTED);
                 }
             }
         }
-    }
+     }
 
     private void invokeListener(CacheEventListener listener, Element element, ElementCreationCallback callback, Event eventType) {
         final Element e;
