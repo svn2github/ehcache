@@ -88,7 +88,8 @@ public class LruMemoryStore extends AbstractStore {
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
     private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("local-heap").build();
     private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("local-heap").build();
-    private final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+    private final OperationObserver<EvictionOutcome> evictionObserver;
+    
     
     /**
      * Constructor for the LruMemoryStore object
@@ -101,6 +102,11 @@ public class LruMemoryStore extends AbstractStore {
         this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
         this.cache = cache;
         this.diskStore = diskStore;
+        if (cache.getCacheConfiguration().isOverflowToDisk()) {
+            evictionObserver = null;
+        } else {
+            evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+        }
         map = new SpoolingLinkedHashMap();
         status = Status.STATUS_ALIVE;
     }
@@ -422,20 +428,17 @@ public class LruMemoryStore extends AbstractStore {
      * @param element the <code>Element</code> to be evicted.
      */
     protected final void evict(Element element) throws CacheException {
-        boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn(new StringBuilder("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
+                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             } else {
                 spoolToDisk(element);
-                spooled = true;
             }
-        }
-
-        if (!spooled) {
+        } else {
             evictionObserver.begin();
             evictionObserver.end(EvictionOutcome.SUCCESS);
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
