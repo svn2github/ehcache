@@ -141,7 +141,6 @@ public class CachePinningTest {
     }
 
     @Test
-    @Ignore
     public void testDiskPersistent() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()

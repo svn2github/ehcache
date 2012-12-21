@@ -43,6 +43,8 @@ import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.*;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 
 /**
  * An implementation of a LruMemoryStore.
@@ -86,8 +88,8 @@ public class LruMemoryStore extends AbstractStore {
     private final boolean elementPinningEnabled;
 
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
-    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("local-heap").build();
-    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("local-heap").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("local-heap").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("local-heap").build();
     private final OperationObserver<EvictionOutcome> evictionObserver;
     
     
