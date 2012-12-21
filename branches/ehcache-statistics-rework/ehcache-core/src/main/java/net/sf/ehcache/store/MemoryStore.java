@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.pool.impl.UnboundedPool;
 
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
@@ -57,6 +58,8 @@ import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import org.terracotta.statistics.Statistic;
 
 /**
@@ -97,8 +100,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     private final PoolAccessor poolAccessor;
 
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
-    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).named("put").of(this).tag("local-heap").build();
-    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).named("remove").of(this).tag("local-heap").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("local-heap").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("local-heap").build();
     protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
     private final boolean storePinned;
@@ -137,9 +140,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         this.cache = cache;
         this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
         this.policy = determineEvictionPolicy(cache);
-        this.poolAccessor = pool.createPoolAccessor(new Participant(),
-            SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-            SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+        if (pool instanceof UnboundedPool) {
+            this.poolAccessor = pool.createPoolAccessor(null, null);
+        } else {
+            this.poolAccessor = pool.createPoolAccessor(new Participant(),
+                SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+        }
 
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.storePinned = determineStorePinned(cache.getCacheConfiguration());

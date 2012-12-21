@@ -259,7 +259,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             for (OperationStatistic<T> source : sources) {
                 CompoundOperationImpl<T> operation = (CompoundOperationImpl<T>) customOperations.get(source);
                 if (operation == null) {
-                    operation = new CompoundOperationImpl<T>(source, source.type, 1, TimeUnit.SECONDS, executor, 0, 1, TimeUnit.SECONDS);
+                    operation = new CompoundOperationImpl<T>(source, source.type(), 1, TimeUnit.SECONDS, executor, 0, 1, TimeUnit.SECONDS);
                     CompoundOperationImpl<T> racer = (CompoundOperationImpl<T>) customOperations.putIfAbsent(source, operation);
                     if (racer != null) {
                         operation = racer;
@@ -318,7 +318,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private static <T extends Enum<T>> Set<OperationStatistic<T>> findOperationStatistic(StatisticsManager manager, Class<T> type, String name, final Set<String> tags) {
         Set<TreeNode> operationStatisticNodes = manager.query(queryBuilder().descendants().filter(context(identifier(subclassOf(OperationStatistic.class)))).build());
-        Set<TreeNode> result = queryBuilder().filter(context(attributes(allOf(hasAttribute("name", name), hasAttribute("tags", new Matcher<Set<String>>() {
+        Set<TreeNode> result = queryBuilder().filter(context(attributes(allOf(hasAttribute("type", type), hasAttribute("name", name), hasAttribute("tags", new Matcher<Set<String>>() {
             @Override
             protected boolean matchesSafely(Set<String> object) {
                 return object.containsAll(tags);
