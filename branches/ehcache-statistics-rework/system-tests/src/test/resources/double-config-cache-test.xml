@@ -17,7 +17,7 @@
     <tc-config xmlns="http://www.terracotta.org/config">
       <servers>
         <server host="localhost" name="LocalServer"/>
-        <dso-port>PORT</dso-port>
+        <tsa-port>PORT</tsa-port>
       </servers>
     </tc-config>
   </terracottaConfig>

@@ -126,7 +126,7 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
                                                false);
     builder.addDirectoryOrJARContainingClass(Assert.class); // junit
     builder.addServlet("BasicTestServlet", "/BasicTestServlet/*", BasicTestServlet.class, null, false);
-    builder.addFileAsResource(getEhcacheConfig(ehcacheConfig, getServerManager().getServerTcConfig().getDsoPort()),
+    builder.addFileAsResource(getEhcacheConfig(ehcacheConfig, getServerManager().getServerTcConfig().getTsaPort()),
                               "WEB-INF/classes/");
 
     Set<File> earLibs = new HashSet<File>();

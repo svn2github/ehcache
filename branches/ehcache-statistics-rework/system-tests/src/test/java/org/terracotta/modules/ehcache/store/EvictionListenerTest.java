@@ -3,7 +3,6 @@
  */
 package org.terracotta.modules.ehcache.store;
 
-import com.tc.properties.TCPropertiesConsts;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -16,6 +15,7 @@ import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
+import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,8 +27,8 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
 
   public EvictionListenerTest(TestConfig testConfig) {
     super("evict-cache-test.xml", testConfig, App.class, App.class);
-    testConfig.getL2Config().setDgcEnabled(true);
-    testConfig.getL2Config().setDgcIntervalInSec(10);
+    testConfig.setDgcEnabled(true);
+    testConfig.setDgcIntervalInSec(10);
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
   }
 
@@ -92,31 +92,38 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
       Assert.assertEquals("XXXX client " + index + " failed.", evictedElements, this.evictedCount.get());
     }
 
+    @Override
     public void dispose() {
       // don't care
     }
 
+    @Override
     public void notifyElementEvicted(Ehcache cache, Element element) {
       System.out.println("Element [" + element + "] evicted");
       localEvictedCount.incrementAndGet();
     }
 
+    @Override
     public void notifyElementExpired(Ehcache cache, Element element) {
       // don't care
     }
 
+    @Override
     public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
       // don't care
     }
 
+    @Override
     public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
       // don't care
     }
 
+    @Override
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
       // don't care
     }
 
+    @Override
     public void notifyRemoveAll(Ehcache cache) {
       // don't care
     }

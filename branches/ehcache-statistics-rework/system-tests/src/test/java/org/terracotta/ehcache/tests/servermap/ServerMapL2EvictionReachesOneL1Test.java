@@ -9,8 +9,8 @@ public class ServerMapL2EvictionReachesOneL1Test extends AbstractCacheTestBase {
   public ServerMapL2EvictionReachesOneL1Test(TestConfig testConfig) {
     super("/servermap/servermap-l2-eviction-reaches-one-l1-test.xml", testConfig,
           ServerMapL2EvictionReachesOneL1TestClient.class, ServerMapL2EvictionReachesOneL1Verifier.class);
-    testConfig.getL2Config().setDgcEnabled(true);
-    testConfig.getL2Config().setDgcIntervalInSec(60);
+    testConfig.setDgcEnabled(true);
+    testConfig.setDgcIntervalInSec(60);
     testConfig.addTcProperty("ehcache.evictor.logging.enabled", "true");
 
     testConfig.getClientConfig().addExtraClientJvmArg("-Dcom.tc.l1.cachemanager.enabled=false");

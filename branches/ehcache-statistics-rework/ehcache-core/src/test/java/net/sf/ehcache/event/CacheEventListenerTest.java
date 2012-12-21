@@ -737,6 +737,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             diskStore.put(element);
         }
 
+        DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
         // Wait for expiry and expiry thread
         Thread.sleep(3999);
 

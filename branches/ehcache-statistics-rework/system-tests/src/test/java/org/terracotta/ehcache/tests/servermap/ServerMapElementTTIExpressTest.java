@@ -14,8 +14,8 @@ public class ServerMapElementTTIExpressTest extends AbstractCacheTestBase {
 
   public ServerMapElementTTIExpressTest(TestConfig testConfig) {
     super("/servermap/basic-servermap-cache-test.xml", testConfig, ServerMapElementTTIExpressTestClient.class);
-    testConfig.getL2Config().setDgcEnabled(true);
-    testConfig.getL2Config().setDgcIntervalInSec(60);
+    testConfig.setDgcEnabled(true);
+    testConfig.setDgcIntervalInSec(60);
     testConfig.addTcProperty("ehcache.evictor.logging.enabled", "true");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_STORAGESTRATEGY_DCV2_EVICT_UNEXPIRED_ENTRIES_ENABLED, "false");
