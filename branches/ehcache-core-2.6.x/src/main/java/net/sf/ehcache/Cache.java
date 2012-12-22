@@ -70,7 +70,6 @@ import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatisticsWrapper;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
-import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
@@ -1121,10 +1120,6 @@ public class Cache implements InternalEhcache, StoreListener {
                         getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, copyStrategy);
             } else {
                 this.compoundStore = store;
-            }
-
-            if (isSearchable()) {
-                this.compoundStore = new ElementIdAssigningStore(compoundStore);
             }
 
             Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
