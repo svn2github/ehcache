@@ -9,6 +9,31 @@
             Terracotta Managment Console for Ehcache - A new web-based monitoring and administration tool for standalone Ehcache applications. This replaces Ehcache Monitor and provides an enhanced user interface focused on ease of use in managing your Ehcache deployments.
              </action>
             </release>
+                 <release version="2.6.1" date="2012-09" description="Supporting Release for BigMemory Go 3.7.1">
+        	<action dev="" type="New Feature" issue="">
+            In-memory data storage - BigMemory Go comes with 32GB of free storage capacity per JVM
+             </action>
+             <action dev="" type="New Feature" issue="">
+            Fast Search - BigMemory Go provides powerful search APIs for searching in-memory data in a predictable manner with extremely low latencies.
+             </action>
+            </release>
+     <release version="2.6.2" date="2012-11" description="Bug Fix Release">
+        	<action dev="" type="Bug Fix" issue="">
+                8308 - NPE on local transaction commit
+                8234 - Resolve issue with  ConfigurationUtil.generateCacheManagerConfigurationText not producing nonstop element
+                8212 - Fix to handle a frequently empty object manager
+                8203 - Duplicate keys returned by method getKeys() of class Cache
+                EHC-976 - Search fails when copyOnRead and copyOnWrite are both set
+                EHC-973 - Failure while decoding key java.nio.HeapByteBuffer
+                EHC-962 - JavaDoc of Element.getValue() is wrong for non-Serializable values
+	</action>
+             </release>
+     <release version="2.6.3" date="2013-01" description="Bug Fix Release">
+        	<action dev="" type="Bug Fix" issue="">
+                8194 - Write Behind config for writeBatchSize set w/o writeBatching enabled to true, gives no exception/warning that it's still not a BatchProcess enabled 	
+        </action>
+             </release>
+            
      <release version="2.5.2" date="2012-04" description="Bug Fix Release">
         	<action dev="" type="update" issue="EHC-898">
             net.sf.ehcache.configurationResourceName is ignored
