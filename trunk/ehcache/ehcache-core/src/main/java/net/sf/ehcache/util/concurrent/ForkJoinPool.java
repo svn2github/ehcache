@@ -123,6 +123,7 @@ import java.util.concurrent.TimeUnit;
  * @since 1.7
  * @author Doug Lea
  */
+@SuppressWarnings("restriction")
 public class ForkJoinPool extends AbstractExecutorService {
 
     /*

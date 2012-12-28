@@ -29,7 +29,6 @@ import org.junit.After;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

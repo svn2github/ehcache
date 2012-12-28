@@ -183,6 +183,7 @@ import java.lang.reflect.Constructor;
  * @since 1.7
  * @author Doug Lea
  */
+@SuppressWarnings("restriction")
 public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
 
     /*
@@ -534,7 +535,7 @@ public abstract class ForkJoinTask<V> implements Future<V>, Serializable {
         Throwable ex;
         if (e == null || (ex = e.ex) == null)
             return null;
-        if (false && e.thrower != Thread.currentThread().getId()) {
+        if (Boolean.valueOf("false") && e.thrower != Thread.currentThread().getId()) {
             Class<? extends Throwable> ec = ex.getClass();
             try {
                 Constructor<?> noArgCtor = null;

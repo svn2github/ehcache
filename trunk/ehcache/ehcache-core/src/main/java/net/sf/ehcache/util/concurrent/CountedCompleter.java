@@ -381,6 +381,7 @@ import java.lang.reflect.Field;
  * @since 1.8
  * @author Doug Lea
  */
+@SuppressWarnings("restriction")
 public abstract class CountedCompleter<T> extends ForkJoinTask<T> {
     private static final long serialVersionUID = 5232453752276485070L;
 

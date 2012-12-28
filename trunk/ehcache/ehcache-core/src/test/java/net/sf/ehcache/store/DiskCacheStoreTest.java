@@ -1,7 +1,5 @@
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.disk.DiskStore;
 import org.junit.Test;
 
 /**
