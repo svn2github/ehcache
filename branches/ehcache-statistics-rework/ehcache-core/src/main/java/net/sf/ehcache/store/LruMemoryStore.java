@@ -36,13 +36,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.statistics.StatisticBuilder;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.*;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 
@@ -87,12 +86,15 @@ public class LruMemoryStore extends AbstractStore {
     private final boolean cachePinned;
     private final boolean elementPinningEnabled;
 
-    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
-    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("local-heap").build();
-    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("local-heap").build();
+    private final OperationObserver<GetOutcome> getObserver = StatisticBuilder.operation(GetOutcome.class).named("get").of(this)
+            .tag("local-heap").build();
+    private final OperationObserver<PutOutcome> putObserver = StatisticBuilder.operation(PutOutcome.class).named("put").of(this)
+            .tag("local-heap").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = StatisticBuilder.operation(RemoveOutcome.class).named("remove").of(this)
+            .tag("local-heap").build();
     private final OperationObserver<EvictionOutcome> evictionObserver;
-    
-    
+
+
     /**
      * Constructor for the LruMemoryStore object
      * The backing {@link java.util.LinkedHashMap} is created with LRU by access order.
@@ -107,7 +109,7 @@ public class LruMemoryStore extends AbstractStore {
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             evictionObserver = null;
         } else {
-            evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+            evictionObserver = StatisticBuilder.operation(EvictionOutcome.class).named("eviction").of(this).build();
         }
         map = new SpoolingLinkedHashMap();
         status = Status.STATUS_ALIVE;
@@ -674,7 +676,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="size", tags="local-heap")
+    @Statistic(name = "size", tags = "local-heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -682,7 +684,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    @Statistic(name="size-in-bytes", tags="local-heap")
+    @Statistic(name = "size-in-bytes", tags = "local-heap")
     public long getInMemorySizeInBytes() {
         return getSizeInBytes();
     }

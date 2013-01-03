@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.store;
 
-import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;

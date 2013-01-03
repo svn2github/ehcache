@@ -36,7 +36,7 @@ import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.*;
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * A backend to a OnHeapCachingTier that will be cap'ed using a pool
@@ -52,7 +52,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
 
     private volatile Policy policy;
     private volatile EvictionCallback<K, V> evictionCallback;
-    private AtomicReference<PoolAccessor> poolAccessor = new AtomicReference<PoolAccessor>();
+    private final AtomicReference<PoolAccessor> poolAccessor = new AtomicReference<PoolAccessor>();
 
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("arc-get").of(this).tag("private").build();
 

@@ -1,7 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *  Copyright Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+
 package net.sf.ehcache.statistics.extended;
 
 import java.util.Collections;
@@ -25,9 +37,13 @@ import org.terracotta.statistics.archive.Timestamped;
  * @param <T> the generic type
  * @author cdennis
  */
-class NullCompoundOperation<T extends Enum<T>> implements Operation<T> {
+final class NullCompoundOperation<T extends Enum<T>> implements Operation<T> {
 
     private static final Operation INSTANCE = new NullCompoundOperation();
+
+    private NullCompoundOperation() {
+        //singleton
+    }
 
     /**
      * Instance.
@@ -39,61 +55,99 @@ class NullCompoundOperation<T extends Enum<T>> implements Operation<T> {
         return INSTANCE;
     }
 
-    private NullCompoundOperation() {
-        //singleton
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Class<T> type() {
         return null;
     }
-    
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#component(java.lang.Object)
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public Result component(T result) {
         return NullOperation.instance();
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#compound(java.util.Set)
+    /**
+     * {@inheritDoc}
      */
     @Override
     public Result compound(Set<T> results) {
         return NullOperation.instance();
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#ratioOf(java.util.Set, java.util.Set)
+    /**
+     * {@inheritDoc}
      */
     @Override
     public Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator) {
         return NullStatistic.instance(Double.NaN);
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#setAlwaysOn(boolean)
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void setAlwaysOn(boolean enable) {
         //no-op
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#setWindow(long, java.util.concurrent.TimeUnit)
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void setWindow(long time, TimeUnit unit) {
         //no-op
     }
 
-    /* (non-Javadoc)
-     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Operation#setHistory(int, long, java.util.concurrent.TimeUnit)
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void setHistory(int samples, long time, TimeUnit unit) {
         //no-op
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isAlwaysOn() {
+        // no-op
+        return false;
+    }
+
+    /*
+     * {@inheritDoc}
+     */
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#getWindowSize(java.util.concurrent.TimeUnit)
+     */
+    @Override
+    public long getWindowSize(TimeUnit unit) {
+        // no-op
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getHistorySampleSize() {
+        // no-op
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getHistorySampleTime(TimeUnit unit) {
+        // no-op
+        return 0;
     }
 }
 

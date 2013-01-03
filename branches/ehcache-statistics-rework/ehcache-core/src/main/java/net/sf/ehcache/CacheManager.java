@@ -31,9 +31,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
@@ -118,6 +116,7 @@ public class CacheManager {
      */
     public static final String ENABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.enableShutdownHook";
 
+
     private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
     /**
@@ -188,16 +187,7 @@ public class CacheManager {
      */
     private final ConcurrentMap<String, Ehcache> ehcaches = new ConcurrentHashMap<String, Ehcache>();
 
-    final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory() {
 
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread t = new Thread(r, "Statistics Thread");
-            t.setDaemon(true);
-            return t;
-        }
-    });
-    
     /**
      * Default cache cache.
      */
@@ -233,6 +223,20 @@ public class CacheManager {
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     private String registeredMgmtSvrBind;
+
+    /**
+     * statistics thread pool.
+     */
+    final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
+            new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r, "Statistics Thread");
+            t.setDaemon(true);
+            return t;
+        }
+    });
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing

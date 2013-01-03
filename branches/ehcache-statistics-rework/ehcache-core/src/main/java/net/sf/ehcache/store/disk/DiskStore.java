@@ -39,7 +39,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -61,6 +60,8 @@ import net.sf.ehcache.store.AuthoritativeTier;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.store.StripedReadWriteLockProvider;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
@@ -105,8 +106,8 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private final boolean tierPinned;
     private final boolean persistent;
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).of(this).named("get").tag("local-disk").build();
-    private final OperationObserver<GetOutcome> putObserver = operation(GetOutcome.class).of(this).named("put").tag("local-disk").build();
-    private final OperationObserver<GetOutcome> removeObserver = operation(GetOutcome.class).of(this).named("remove").tag("local-disk").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).of(this).named("put").tag("local-disk").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).of(this).named("remove").tag("local-disk").build();
     private final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
@@ -124,7 +125,8 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
-                    disk, cache.getCacheConfiguration(), onHeapPoolAccessor, onDiskPoolAccessor, cache.getCacheEventNotificationService(), evictionObserver);
+                    disk, cache.getCacheConfiguration(), onHeapPoolAccessor, onDiskPoolAccessor,
+                    cache.getCacheEventNotificationService(), evictionObserver);
         }
 
         this.disk = disk;

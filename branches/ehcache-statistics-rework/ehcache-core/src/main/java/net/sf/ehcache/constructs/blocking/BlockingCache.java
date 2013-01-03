@@ -33,7 +33,6 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.loader.CacheLoader;
-import org.terracotta.statistics.StatisticsManager;
 
 import org.terracotta.statistics.observer.OperationObserver;
 

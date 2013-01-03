@@ -14,19 +14,25 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.statistics;
+package net.sf.ehcache.statistics.beans;
 
-import java.util.Set;
-import net.sf.ehcache.Ehcache;
+/**
+ * A Class for Double proxies.
+ *
+ * @author cschanck
+ */
+public class DoubleBeanProxy extends AttributeProxy<Double> {
 
-public interface EhcacheStatisticDescriptor {
-
-    public abstract Set<String> getTags();
-
-    public abstract String getShortName();
-
-    public abstract String getStringPath();
-
-    public abstract Ehcache getCache();
+    /**
+     * Instantiates a new double bean proxy.
+     *
+     * @param name the name
+     * @param description the description
+     * @param isRead the is read
+     * @param isWrite the is write
+     */
+    public DoubleBeanProxy(String name, String description, boolean isRead, boolean isWrite) {
+        super(Double.class, name, description, isRead, isWrite);
+    }
 
 }

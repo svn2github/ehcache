@@ -81,12 +81,12 @@ enum StandardOperationStatistic {
     SEARCH(true, CacheOperationOutcomes.SearchOutcome.class, "search", "cache") {
         @Override
         long interval() {
-            return 10;
+            return TEN;
         }
 
         @Override
         long window() {
-            return 10;
+            return TEN;
         }
     },
 
@@ -96,6 +96,8 @@ enum StandardOperationStatistic {
     /** The expired. */
     EXPIRY(true, CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
 
+    private static final int THIRTY = 30;
+    private static final int TEN = 10;
     private final boolean required;
     private final Class<? extends Enum> type;
     private final String name;
@@ -104,7 +106,7 @@ enum StandardOperationStatistic {
     private StandardOperationStatistic(Class<? extends Enum> type, String name, String ... tags) {
         this(false, type, name, tags);
     }
-    
+
     private StandardOperationStatistic(boolean required, Class<? extends Enum> type, String name, String ... tags) {
         this.required = required;
         this.type = type;
@@ -116,13 +118,13 @@ enum StandardOperationStatistic {
      * If this statistic is required.
      * <p>
      * If required and this statistic is not present an exception will be thrown.
-     * 
-     * @return 
+     *
+     * @return
      */
     final boolean required() {
         return required;
     }
-    
+
     /**
      * Operation result type.
      *
@@ -134,16 +136,16 @@ enum StandardOperationStatistic {
 
     /**
      * The name of the statistic as found in the statistics context tree.
-     * 
+     *
      * @return the statistic name
      */
     final String operationName() {
         return name;
     }
-    
+
     /**
      * A set of tags that will be on the statistic found in the statistics context tree.
-     * 
+     *
      * @return the statistic tags
      */
     final Set<String> tags() {
@@ -156,7 +158,7 @@ enum StandardOperationStatistic {
      * @return the default history size
      */
     int history() {
-        return 30;
+        return THIRTY;
     }
 
     /**

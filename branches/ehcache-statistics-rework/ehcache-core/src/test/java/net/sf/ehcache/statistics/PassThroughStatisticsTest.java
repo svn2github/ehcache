@@ -22,21 +22,21 @@ import static org.junit.Assert.assertThat;
  * @author cdennis
  */
 public class PassThroughStatisticsTest {
-    
+
     @Test
     public void testGetSize() {
         CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
         try {
             Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
             manager.addCache(foo);
-            
+
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            
-            assertThat(extendedStats.getSize(), is(0L));
-            
+
+            assertThat(extendedStats.getSize().value().longValue(), is(0L));
+
             foo.put(new Element("foo", "foo"));
-            
-            assertThat(extendedStats.getSize(), is(1L));
+
+            assertThat(extendedStats.getSize().value().longValue(), is(1L));
         } finally {
             manager.shutdown();
         }
@@ -48,14 +48,14 @@ public class PassThroughStatisticsTest {
         try {
             Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
             manager.addCache(foo);
-            
+
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            
-            assertThat(extendedStats.getLocalHeapSize(), is(0L));
-            
+
+            assertThat(extendedStats.getLocalHeapSize().value().longValue(), is(0L));
+
             foo.put(new Element("foo", "foo"));
-            
-            assertThat(extendedStats.getLocalHeapSize(), is(1L));
+
+            assertThat(extendedStats.getLocalHeapSize().value().longValue(), is(1L));
         } finally {
             manager.shutdown();
         }
@@ -67,14 +67,14 @@ public class PassThroughStatisticsTest {
         try {
             Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
             manager.addCache(foo);
-            
+
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
-            
-            assertThat(extendedStats.getLocalHeapSize(), is(0L));
-            
+
+            assertThat(extendedStats.getLocalHeapSize().value().longValue(), is(0L));
+
             foo.put(new Element("foo", "foo"));
-            
-            assertThat(extendedStats.getLocalHeapSizeInBytes(), greaterThan(1L));
+
+            assertThat(extendedStats.getLocalHeapSizeInBytes().value().longValue(), greaterThan(1L));
         } finally {
             manager.shutdown();
         }

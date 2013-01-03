@@ -1,7 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *  Copyright Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+
 package net.sf.ehcache.statistics.extended;
 
 import java.util.List;
@@ -21,7 +33,9 @@ import org.terracotta.statistics.derived.LatencySampling;
 import org.terracotta.statistics.observer.OperationObserver;
 
 /**
+ * The Class LatencyImpl.
  *
+ * @param <T> the generic type
  * @author cdennis
  */
 class LatencyImpl<T extends Enum<T>> implements Latency {
@@ -34,8 +48,19 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
 
     private boolean active = false;
     private long touchTimestamp = -1;
-    
-    public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos, ScheduledExecutorService executor, int historySize, long historyNanos) {
+
+    /**
+     * Instantiates a new latency impl.
+     *
+     * @param statistic the statistic
+     * @param targets the targets
+     * @param averageNanos the average nanos
+     * @param executor the executor
+     * @param historySize the history size
+     * @param historyNanos the history nanos
+     */
+    public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos,
+            ScheduledExecutorService executor, int historySize, long historyNanos) {
         this.average = new EventParameterSimpleMovingAverage(averageNanos, TimeUnit.NANOSECONDS);
         this.minimumStatistic = new StatisticImpl<Long>(average.minimumStatistic(), executor, historySize, historyNanos);
         this.maximumStatistic = new StatisticImpl<Long>(average.maximumStatistic(), executor, historySize, historyNanos);
@@ -45,6 +70,9 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         this.source = statistic;
     }
 
+    /**
+     * Start.
+     */
     synchronized void start() {
         if (!active) {
             source.addDerivedStatistic(latencySampler);
@@ -55,15 +83,24 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         }
     }
 
+    /**
+     * Get the minimum
+     */
     public Statistic<Long> minimum() {
         return minimumStatistic;
     }
 
+    /**
+     * Get the maximum.
+     */
     @Override
     public Statistic<Long> maximum() {
         return maximumStatistic;
     }
 
+    /**
+     * Get the average.
+     */
     @Override
     public Statistic<Double> average() {
         return averageStatistic;
@@ -73,7 +110,13 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         touchTimestamp = Time.absoluteTime();
         start();
     }
-    
+
+    /**
+     * Expire.
+     *
+     * @param expiry the expiry
+     * @return true, if successful
+     */
     public synchronized boolean expire(long expiry) {
         if (touchTimestamp < expiry) {
             if (active) {
@@ -89,37 +132,76 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         }
     }
 
+    /**
+     * Sets the window.
+     *
+     * @param averageNanos the new window
+     */
     void setWindow(long averageNanos) {
         average.setWindow(averageNanos, TimeUnit.NANOSECONDS);
     }
 
+    /**
+     * Sets the history.
+     *
+     * @param historySize the history size
+     * @param historyNanos the history nanos
+     */
     void setHistory(int historySize, long historyNanos) {
         minimumStatistic.setHistory(historySize, historyNanos);
         maximumStatistic.setHistory(historySize, historyNanos);
         averageStatistic.setHistory(historySize, historyNanos);
     }
-    
+
+    /**
+     * The Class StatisticImpl.
+     *
+     * @param <T> the generic type
+     */
     class StatisticImpl<T> implements Statistic<T> {
 
         private final ValueStatistic<T> value;
         private final SampledStatistic<T> history;
 
+        /**
+         * Instantiates a new statistic impl.
+         *
+         * @param value the value
+         * @param executor the executor
+         * @param historySize the history size
+         * @param historyNanos the history nanos
+         */
         public StatisticImpl(ValueStatistic<T> value, ScheduledExecutorService executor, int historySize, long historyNanos) {
             this.value = value;
             this.history = new SampledStatistic<T>(value, executor, historySize, historyNanos);
         }
 
+        /*
+         * (non-Javadoc)
+         *
+         * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic#active()
+         */
         @Override
         public boolean active() {
             return active;
         }
 
+        /*
+         * (non-Javadoc)
+         *
+         * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic#value()
+         */
         @Override
         public T value() {
             touch();
             return value.value();
         }
 
+        /*
+         * (non-Javadoc)
+         *
+         * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic#history()
+         */
         @Override
         public List<Timestamped<T>> history() throws UnsupportedOperationException {
             touch();
@@ -129,7 +211,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         private void startSampling() {
             history.startSampling();
         }
-        
+
         private void stopSampling() {
             history.stopSampling();
         }

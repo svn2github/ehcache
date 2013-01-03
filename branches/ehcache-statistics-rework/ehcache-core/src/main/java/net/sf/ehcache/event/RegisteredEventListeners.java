@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import org.terracotta.statistics.StatisticsManager;
@@ -64,8 +63,9 @@ public class RegisteredEventListeners {
 
     private final CacheStoreHelper helper;
 
-    private final OperationObserver<CacheOperationOutcomes.ExpiredOutcome> expiryObserver = operation(ExpiredOutcome.class).named("expiry").of(this).tag("cache").build();
-    
+    private final OperationObserver<CacheOperationOutcomes.ExpiredOutcome> expiryObserver = operation(ExpiredOutcome.class).named("expiry")
+            .of(this).tag("cache").build();
+
    /**
      * Constructs a new notification service
      *

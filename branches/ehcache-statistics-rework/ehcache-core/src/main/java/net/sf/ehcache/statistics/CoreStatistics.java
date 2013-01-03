@@ -23,47 +23,155 @@ import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
+/**
+ * The CoreStatistics interface.
+ *
+ * @author cschanck
+ */
 public interface CoreStatistics {
 
+    /**
+     * The Interface CountOperation.
+     *
+     * @param <T> the generic type
+     */
     public interface CountOperation<T> {
+
+        /**
+         * Value.
+         *
+         * @param result the result
+         * @return the long
+         */
         long value(T result);
 
+        /**
+         * Value.
+         *
+         * @param results the results
+         * @return the long
+         */
         long value(T... results);
     }
 
+    /**
+     * Gets the.
+     *
+     * @return the count operation
+     */
     public CountOperation<CacheOperationOutcomes.GetOutcome> get();
 
+    /**
+     * Put.
+     *
+     * @return the count operation
+     */
     public CountOperation<CacheOperationOutcomes.PutOutcome> put();
 
+    /**
+     * Removes the.
+     *
+     * @return the count operation
+     */
     public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove();
 
+    /**
+     * Local heap get.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.GetOutcome> localHeapGet();
 
+    /**
+     * Local heap put.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.PutOutcome> localHeapPut();
 
+    /**
+     * Local heap remove.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.RemoveOutcome> localHeapRemove();
 
+    /**
+     * Local off heap get.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.GetOutcome> localOffHeapGet();
 
+    /**
+     * Local off heap put.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.PutOutcome> localOffHeapPut();
 
+    /**
+     * Local off heap remove.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.RemoveOutcome> localOffHeapRemove();
 
+    /**
+     * Local disk get.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.GetOutcome> localDiskGet();
 
+    /**
+     * Local disk put.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.PutOutcome> localDiskPut();
 
+    /**
+     * Local disk remove.
+     *
+     * @return the count operation
+     */
     public CountOperation<StoreOperationOutcomes.RemoveOutcome> localDiskRemove();
 
+    /**
+     * Xa commit.
+     *
+     * @return the count operation
+     */
     public CountOperation<XaCommitOutcome> xaCommit();
 
+    /**
+     * Xa recovery.
+     *
+     * @return the count operation
+     */
     public CountOperation<XaRecoveryOutcome> xaRecovery();
 
+    /**
+     * Xa rollback.
+     *
+     * @return the count operation
+     */
     public CountOperation<XaRollbackOutcome> xaRollback();
 
     // TBD hated CRSS
+    /**
+     * Cache eviction.
+     *
+     * @return the count operation
+     */
     public CountOperation<CacheOperationOutcomes.EvictionOutcome> cacheEviction();
 
+    /**
+     * Cache expiration.
+     *
+     * @return the count operation
+     */
     public CountOperation<CacheOperationOutcomes.ExpiredOutcome> cacheExpiration();
 
 }

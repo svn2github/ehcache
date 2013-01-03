@@ -46,7 +46,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.GetAllOutcome;
 
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
@@ -2658,12 +2657,12 @@ public class Cache implements InternalEhcache, StoreListener {
     public final Cache clone() throws CloneNotSupportedException {
         return new Cache(this);
     }
-    
+
     private Cache(Cache original) throws CloneNotSupportedException {
         if (original.compoundStore != null) {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
-        
+
         // create new copies of the statistics
         configuration = original.configuration.clone();
         cacheStatus.changeState(Status.STATUS_UNINITIALISED);

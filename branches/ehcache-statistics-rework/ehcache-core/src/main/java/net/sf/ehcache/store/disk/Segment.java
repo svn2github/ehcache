@@ -26,10 +26,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 
 import net.sf.ehcache.Element;
@@ -129,7 +127,7 @@ public class Segment extends ReentrantReadWriteLock {
      */
     public Segment(int initialCapacity, float loadFactor, DiskStorageFactory primary,
                    CacheConfiguration cacheConfiguration,
-                   PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor, 
+                   PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor,
                    RegisteredEventListeners cacheEventNotificationService,
                    OperationObserver<EvictionOutcome> evictionObserver) {
         this.onHeapPoolAccessor = onHeapPoolAccessor;

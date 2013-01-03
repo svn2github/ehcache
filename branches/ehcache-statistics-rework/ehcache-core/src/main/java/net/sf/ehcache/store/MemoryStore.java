@@ -102,7 +102,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("local-heap").build();
     private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("local-heap").build();
-    protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
     private final boolean storePinned;
     private final boolean elementPinningEnabled;
@@ -127,6 +126,11 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
      */
 
     private volatile CacheLockProvider lockProvider;
+
+    /**
+     * Eviction outcome observer
+     */
+    protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
     /**
      * Constructs things that all MemoryStores have in common.

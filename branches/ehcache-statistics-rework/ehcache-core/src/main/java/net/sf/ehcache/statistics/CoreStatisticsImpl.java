@@ -31,6 +31,11 @@ import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
+/**
+ * The CoreStatisticsImpl class.
+ *
+ * @author cschanck
+ */
 public class CoreStatisticsImpl implements CoreStatistics {
 
     private final ExtendedStatistics extended;
@@ -39,6 +44,7 @@ public class CoreStatisticsImpl implements CoreStatistics {
     private final CountOperation cacheRemove;
     private final CountOperation localHeapGet;
     private final CountOperation localHeapPut;
+
     private final CountOperation localHeapRemove;
     private final CountOperation localOffHeapGet;
     private final CountOperation localOffHeapPut;
@@ -52,6 +58,11 @@ public class CoreStatisticsImpl implements CoreStatistics {
     private final CountOperation evicted;
     private final CountOperation expired;
 
+    /**
+     * Instantiates a new core statistics impl.
+     *
+     * @param extended the extended
+     */
     public CoreStatisticsImpl(ExtendedStatistics extended) {
         this.extended = extended;
         this.cacheGet = asCountOperation(extended.get());
@@ -94,85 +105,136 @@ public class CoreStatisticsImpl implements CoreStatistics {
         };
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#get()
+     */
     @Override
     public CountOperation<CacheOperationOutcomes.GetOutcome> get() {
         return cacheGet;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#put()
+     */
     @Override
     public CountOperation<CacheOperationOutcomes.PutOutcome> put() {
         return cachePut;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#remove()
+     */
     @Override
     public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove() {
         return cachePut;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localHeapGet()
+     */
     @Override
     public CountOperation<GetOutcome> localHeapGet() {
         return localHeapGet;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localHeapPut()
+     */
     @Override
     public CountOperation<PutOutcome> localHeapPut() {
         return localHeapPut;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localHeapRemove()
+     */
     @Override
     public CountOperation<RemoveOutcome> localHeapRemove() {
         return localHeapRemove;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localOffHeapGet()
+     */
     @Override
     public CountOperation<GetOutcome> localOffHeapGet() {
         return localOffHeapGet;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localOffHeapPut()
+     */
     @Override
     public CountOperation<PutOutcome> localOffHeapPut() {
         return localOffHeapPut;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localOffHeapRemove()
+     */
     @Override
     public CountOperation<RemoveOutcome> localOffHeapRemove() {
         return localOffHeapRemove;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localDiskGet()
+     */
     @Override
     public CountOperation<GetOutcome> localDiskGet() {
         return localDiskGet;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localDiskPut()
+     */
     @Override
     public CountOperation<PutOutcome> localDiskPut() {
         return localDiskPut;
     }
 
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#localDiskRemove()
+     */
     @Override
     public CountOperation<RemoveOutcome> localDiskRemove() {
         return localDiskRemove;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public CountOperation<XaCommitOutcome> xaCommit() {
         return xaCommit;
     }
 
+    /**
+     *  {@inheritDoc}
+     */
     @Override
     public CountOperation<XaRecoveryOutcome> xaRecovery() {
         return xaRecovery;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CountOperation<XaRollbackOutcome> xaRollback() {
         return xaRollback;
     }
 
+    /*
+     * {@inheritDoc}
+     */
     @Override
     public CountOperation<EvictionOutcome> cacheEviction() {
         return evicted;
     }
 
+    /*
+     * {@inheritDoc}
+     */
     @Override
     public CountOperation<ExpiredOutcome> cacheExpiration() {
         return expired;

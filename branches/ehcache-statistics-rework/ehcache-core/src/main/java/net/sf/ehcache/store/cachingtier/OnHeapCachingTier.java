@@ -33,7 +33,7 @@ import org.terracotta.context.annotations.ContextChild;
 import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.*;
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * An instance of this class will delegate the storage to the backing HeapCacheBackEnd.<br/>
@@ -51,7 +51,7 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
 
     @ContextChild
     private final HeapCacheBackEnd<K, Object> backEnd;
-    
+
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("local-heap").build();
     private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("local-heap").build();
@@ -78,10 +78,10 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
 
     @Override
     public V get(final K key, final Callable<V> source, final boolean updateStats) {
-        if (updateStats) getObserver.begin();
+        if (updateStats) { getObserver.begin(); }
         Object cachedValue = backEnd.get(key);
         if (cachedValue == null) {
-            if (updateStats) getObserver.end(GetOutcome.MISS);
+            if (updateStats) { getObserver.end(GetOutcome.MISS); }
             Fault<V> f = new Fault<V>(source);
             cachedValue = backEnd.putIfAbsent(key, f);
             if (cachedValue == null && !f.complete) {
@@ -105,7 +105,7 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
                 }
             }
         } else {
-            if (updateStats) getObserver.end(GetOutcome.HIT);
+            if (updateStats) { getObserver.end(GetOutcome.HIT); }
         }
 
         return getValue(cachedValue);

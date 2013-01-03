@@ -1,7 +1,19 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ *  Copyright Terracotta, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+
 package net.sf.ehcache.statistics.extended;
 
 import java.util.Arrays;
@@ -23,7 +35,9 @@ import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 import org.terracotta.statistics.OperationStatistic;
 
 /**
+ * The Class CompoundOperationImpl.
  *
+ * @param <T> the generic type
  * @author cdennis
  */
 class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
@@ -43,9 +57,20 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
 
     private volatile boolean alwaysOn = false;
 
-    public CompoundOperationImpl(OperationStatistic<T> source, Class<T> type,
-            long averagePeriod, TimeUnit averageUnit, ScheduledExecutorService executor,
-            int historySize, long historyPeriod, TimeUnit historyUnit) {
+    /**
+     * Instantiates a new compound operation impl.
+     *
+     * @param source the source
+     * @param type the type
+     * @param averagePeriod the average period
+     * @param averageUnit the average unit
+     * @param executor the executor
+     * @param historySize the history size
+     * @param historyPeriod the history period
+     * @param historyUnit the history unit
+     */
+    public CompoundOperationImpl(OperationStatistic<T> source, Class<T> type, long averagePeriod, TimeUnit averageUnit,
+            ScheduledExecutorService executor, int historySize, long historyPeriod, TimeUnit historyUnit) {
         this.type = type;
         this.source = source;
 
@@ -60,16 +85,31 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#type()
+     */
     @Override
     public Class<T> type() {
         return type;
     }
-    
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#component(java.lang.Enum)
+     */
     @Override
     public Result component(T result) {
         return operations.get(result);
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#compound(java.util.Set)
+     */
     @Override
     public Result compound(Set<T> results) {
         if (results.size() == 1) {
@@ -91,12 +131,18 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#ratioOf(java.util.Set, java.util.Set)
+     */
     @Override
     public Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator) {
-        List<Set<T>> key = Arrays.<Set<T>>asList(EnumSet.copyOf(numerator), EnumSet.copyOf(denomiator));
+        List<Set<T>> key = Arrays.<Set<T>> asList(EnumSet.copyOf(numerator), EnumSet.copyOf(denomiator));
         RatioStatistic existing = ratios.get(key);
         if (existing == null) {
-            RatioStatistic created = new RatioStatistic(compound(numerator).rate(), compound(denomiator).rate(), executor, historySize, historyNanos);
+            RatioStatistic created = new RatioStatistic(compound(numerator).rate(), compound(denomiator).rate(), executor, historySize,
+                    historyNanos);
             RatioStatistic racer = ratios.putIfAbsent(key, created);
             if (racer == null) {
                 return created;
@@ -108,6 +154,11 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#setAlwaysOn(boolean)
+     */
     @Override
     public void setAlwaysOn(boolean enable) {
         alwaysOn = enable;
@@ -118,6 +169,21 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#isAlwaysOn()
+     */
+    @Override
+    public boolean isAlwaysOn() {
+        return alwaysOn;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#setWindow(long, java.util.concurrent.TimeUnit)
+     */
     @Override
     public void setWindow(long time, TimeUnit unit) {
         averageNanos = unit.toNanos(time);
@@ -129,6 +195,11 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#setHistory(int, long, java.util.concurrent.TimeUnit)
+     */
     @Override
     public void setHistory(int samples, long time, TimeUnit unit) {
         historySize = samples;
@@ -144,6 +215,38 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#getWindowSize(java.util.concurrent.TimeUnit)
+     */
+    @Override
+    public long getWindowSize(TimeUnit unit) {
+        return unit.convert(averageNanos, TimeUnit.NANOSECONDS);
+    }
+
+    /**
+     * Get the history sample size.
+     */
+    @Override
+    public int getHistorySampleSize() {
+        return historySize;
+    }
+
+    /**
+     * Get the history sample time.
+     */
+    @Override
+    public long getHistorySampleTime(TimeUnit unit) {
+        return unit.convert(historySize, TimeUnit.NANOSECONDS);
+    }
+
+    /**
+     * Expire.
+     *
+     * @param expiryTime the expiry time
+     * @return true, if successful
+     */
     boolean expire(long expiryTime) {
         if (alwaysOn) {
             return false;
@@ -152,12 +255,12 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
             for (OperationImpl<?> o : operations.values()) {
                 expired &= o.expire(expiryTime);
             }
-            for (Iterator<OperationImpl<T>> it = compounds.values().iterator(); it.hasNext(); ) {
+            for (Iterator<OperationImpl<T>> it = compounds.values().iterator(); it.hasNext();) {
                 if (it.next().expire(expiryTime)) {
                     it.remove();
                 }
             }
-            for (Iterator<RatioStatistic> it = ratios.values().iterator(); it.hasNext(); ) {
+            for (Iterator<RatioStatistic> it = ratios.values().iterator(); it.hasNext();) {
                 if (it.next().expire(expiryTime)) {
                     it.remove();
                 }
@@ -165,4 +268,5 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
             return expired & compounds.isEmpty() & ratios.isEmpty();
         }
     }
+
 }

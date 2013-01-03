@@ -17,7 +17,8 @@
 package net.sf.ehcache;
 
 /**
- * Interface containing cache operation outcome enums
+ * Interface containing cache operation outcome enums.
+ *
  * @author cschanck
  */
 public interface CacheOperationOutcomes {
@@ -37,18 +38,20 @@ public interface CacheOperationOutcomes {
     };
 
     /**
-     * The outcomes for Put Outcomes
+     * The outcomes for Put Outcomes.
      */
     enum PutOutcome {
         /** added. */
         ADDED,
         /** updated. */
         UPDATED,
+
+        /** ignored. */
         IGNORED
     };
 
     /**
-     * The outcomes for remove operations
+     * The outcomes for remove operations.
      */
     enum RemoveOutcome {
         /** success. */
@@ -56,7 +59,7 @@ public interface CacheOperationOutcomes {
     };
 
     /**
-     * The outcomes for GetAll operations
+     * The outcomes for GetAll operations.
      */
     enum GetAllOutcome {
         /** all miss. */
@@ -68,23 +71,29 @@ public interface CacheOperationOutcomes {
     };
 
     /**
-     * The outcomes for GetAll operations
+     * The outcomes for GetAll operations.
      */
     enum PutAllOutcome {
+
+        /** The ignored. */
         IGNORED,
+        /** The completed. */
         COMPLETED
     };
 
     /**
-     * The outcomes for GetAll operations
+     * The outcomes for GetAll operations.
      */
     enum RemoveAllOutcome {
+
+        /** The ignored. */
         IGNORED,
+        /** The completed. */
         COMPLETED
     };
 
     /**
-     * The outcomes for the store search operation
+     * The outcomes for the store search operation.
      */
     enum SearchOutcome {
         /** success. */
@@ -94,7 +103,7 @@ public interface CacheOperationOutcomes {
     };
 
     /**
-     * The eviction outcomes
+     * The eviction outcomes.
      */
     enum EvictionOutcome {
         /** success. */
@@ -102,11 +111,12 @@ public interface CacheOperationOutcomes {
     };
 
     /**
-     * The expiration outcomes
+     * The expiration outcomes.
      */
     enum ExpiredOutcome {
         /** success. */
         SUCCESS,
+        /** The failure. */
         FAILURE
     };
 }

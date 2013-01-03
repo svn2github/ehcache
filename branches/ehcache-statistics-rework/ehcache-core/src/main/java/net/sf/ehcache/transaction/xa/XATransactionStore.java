@@ -72,7 +72,7 @@ public class XATransactionStore extends AbstractTransactionStore {
     private final TransactionIDFactory transactionIdFactory;
     private final SoftLockManager softLockManager;
     private final Ehcache cache;
-    private final EhcacheXAResourceImpl recoveryResource;    
+    private final EhcacheXAResourceImpl recoveryResource;
 
     private final ConcurrentHashMap<Transaction, EhcacheXAResource> transactionToXAResourceMap =
             new ConcurrentHashMap<Transaction, EhcacheXAResource>();
@@ -107,7 +107,8 @@ public class XATransactionStore extends AbstractTransactionStore {
         this.cache = cache;
 
         // this xaresource is for initial registration and recovery
-        this.recoveryResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup, softLockManager, transactionIdFactory, copyStrategy, commitObserver, rollbackObserver, recoveryObserver);
+        this.recoveryResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup, softLockManager, transactionIdFactory,
+                copyStrategy, commitObserver, rollbackObserver, recoveryObserver);
         transactionManagerLookup.register(recoveryResource, true);
     }
 

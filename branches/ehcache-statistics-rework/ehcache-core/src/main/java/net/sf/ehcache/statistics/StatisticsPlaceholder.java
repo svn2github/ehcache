@@ -16,13 +16,32 @@
 
 package net.sf.ehcache.statistics;
 
+import java.lang.management.ManagementFactory;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.statistics.beans.ExtendedStatisticsMBean;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
-import net.sf.ehcache.statistics.extended.FlatExtendedStatisticsImpl;
+import net.sf.ehcache.store.StoreOperationOutcomes;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
+import net.sf.ehcache.transaction.xa.XaCommitOutcome;
+import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
+import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
 import org.terracotta.statistics.StatisticsManager;
 
@@ -31,7 +50,7 @@ import org.terracotta.statistics.StatisticsManager;
  *
  * @author cschanck
  */
-public class StatisticsPlaceholder extends DelegateFlatStatistics {
+public class StatisticsPlaceholder implements FlatStatistics {
 
     /** The Constant DEFAULT_HISTORY_SIZE. */
     public static final int DEFAULT_HISTORY_SIZE = 30;
@@ -57,7 +76,7 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
      * Instantiates a new statistics placeholder.
      *
      * @param ehcache the ehcache
-     * @param statisticsManager the statistics manager
+     * @param executor the executor
      */
     public StatisticsPlaceholder(Ehcache ehcache, ScheduledExecutorService executor) {
         StatisticsManager statsManager = new StatisticsManager();
@@ -65,7 +84,26 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
         this.assocCacheName = ehcache.getName();
         this.extended = new ExtendedStatisticsImpl(statsManager, executor, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
         this.core = new CoreStatisticsImpl(extended);
-        init(new FlatCoreStatisticsImpl(core), new FlatExtendedStatisticsImpl(extended));
+        ExtendedStatisticsMBean bean = new ExtendedStatisticsMBean(ehcache, extended);
+        MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+        try {
+            mbeanServer.registerMBean(bean, new ObjectName(bean.getBeanName() + ":type=" + bean.getClass().getSimpleName()));
+        } catch (InstanceAlreadyExistsException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (MBeanRegistrationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (NotCompliantMBeanException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (MalformedObjectNameException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -157,4 +195,426 @@ public class StatisticsPlaceholder extends DelegateFlatStatistics {
         return false;
     }
 
+
+    @Override
+    public void setStatisticsTimeToDisable(long time, TimeUnit unit) {
+        extended.setTimeToDisable(time, unit);
+    }
+
+    @Override
+    public Result cacheGetOperation() {
+        return extended.allGet();
+    }
+
+    @Override
+    public Result cacheHitOperation() {
+        return extended.get().component(CacheOperationOutcomes.GetOutcome.HIT);
+    }
+
+    @Override
+    public Result cacheMissExpiredOperation() {
+        return extended.get().component(CacheOperationOutcomes.GetOutcome.MISS_EXPIRED);
+    }
+
+    @Override
+    public Result cacheMissNotFoundOperation() {
+        return extended.get().component(CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND);
+    }
+
+    @Override
+    public Result cacheMissOperation() {
+        return extended.allMiss();
+    }
+
+    @Override
+    public Result cachePutAddedOperation() {
+        return extended.put().component(CacheOperationOutcomes.PutOutcome.ADDED);
+    }
+
+    @Override
+    public Result cachePutReplacedOperation() {
+        return extended.put().component(CacheOperationOutcomes.PutOutcome.UPDATED);
+    }
+
+    @Override
+    public Result cachePutOperation() {
+        return extended.allPut();
+    }
+
+    @Override
+    public Result cacheRemoveOperation() {
+        return extended.remove().component(CacheOperationOutcomes.RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public Result localHeapHitOperation() {
+        return extended.heapGet().component(GetOutcome.HIT);
+    }
+
+    @Override
+    public Result localHeapMissOperation() {
+        return extended.heapGet().component(GetOutcome.MISS);
+    }
+
+    @Override
+    public Result localHeapPutAddedOperation() {
+
+        return extended.heapPut().component(StoreOperationOutcomes.PutOutcome.ADDED);
+    }
+
+    @Override
+    public Result localHeapPutReplacedOperation() {
+        return extended.heapPut().component(PutOutcome.ADDED);
+    }
+
+    @Override
+    public Result localHeapPutOperation() {
+        return extended.heapAllPut();
+    }
+
+    @Override
+    public Result localHeapRemoveOperation() {
+        return extended.heapRemove().component(RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public Result localOffHeapHitOperation() {
+        return extended.offheapGet().component(GetOutcome.HIT);
+    }
+
+    @Override
+    public Result localOffHeapMissOperation() {
+        return extended.offheapGet().component(GetOutcome.MISS);
+    }
+
+    @Override
+    public Result localOffHeapPutAddedOperation() {
+        return extended.offheapPut().component(PutOutcome.ADDED);
+    }
+
+    @Override
+    public Result localOffHeapPutReplacedOperation() {
+        return extended.offheapPut().component(PutOutcome.UPDATED);
+    }
+
+    @Override
+    public Result localOffHeapPutOperation() {
+        return extended.offHeapAllPut();
+    }
+
+    @Override
+    public Result localOffHeapRemoveOperation() {
+        return extended.offheapRemove().component(RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public Result localDiskHitOperation() {
+        return extended.diskGet().component(GetOutcome.HIT);
+    }
+
+    @Override
+    public Result localDiskMissOperation() {
+        return extended.diskGet().component(GetOutcome.MISS);
+    }
+
+    @Override
+    public Result localDiskPutAddedOperation() {
+        return extended.diskPut().component(PutOutcome.ADDED);
+    }
+
+    @Override
+    public Result localDiskPutReplacedOperation() {
+        return extended.diskPut().component(PutOutcome.UPDATED);
+    }
+
+    @Override
+    public Result localDiskPutOperation() {
+        return extended.diskAllPut();
+    }
+
+    @Override
+    public Result localDiskRemoveOperation() {
+        return extended.diskRemove().component(RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public Result cacheSearchOperation() {
+        return extended.search().component(SearchOutcome.SUCCESS);
+    }
+
+    @Override
+    public Result xaCommitSuccessOperation() {
+        return extended.xaCommit().component(XaCommitOutcome.COMMITTED);
+    }
+
+    @Override
+    public Result xaCommitExceptionOperation() {
+        return extended.xaCommit().component(XaCommitOutcome.EXCEPTION);
+    }
+
+    @Override
+    public Result xaCommitReadOnlyOperation() {
+        return extended.xaCommit().component(XaCommitOutcome.READ_ONLY);
+    }
+
+    @Override
+    public Result xaRollbackOperation() {
+        return extended.xaRollback().component(XaRollbackOutcome.ROLLEDBACK);
+    }
+
+    @Override
+    public Result xaRollbackExceptionOperation() {
+        return extended.xaRollback().component(XaRollbackOutcome.EXCEPTION);
+    }
+
+    @Override
+    public Result xaRecoveryOperation() {
+        return extended.xaRecovery().component(XaRecoveryOutcome.RECOVERED);
+    }
+
+    @Override
+    public Result cacheEvictionOperation() {
+        return extended.eviction().component(EvictionOutcome.SUCCESS);
+    }
+
+    @Override
+    public Result cacheExpiredOperation() {
+        return extended.expiry().component(CacheOperationOutcomes.ExpiredOutcome.SUCCESS);
+    }
+
+    @Override
+    public long getLocalHeapSizeInBytes() {
+        return extended.getLocalHeapSizeInBytes().value().longValue();
+    }
+
+    @Override
+    public long getLocalHeapSize() {
+        return extended.getLocalHeapSize().value().longValue();
+    }
+
+    @Override
+    public long getWriterQueueLength() {
+        return extended.getWriterQueueLength().value().longValue();
+    }
+
+    @Override
+    public long getLocalDiskSize() {
+        return extended.getLocalDiskSize().value().longValue();
+    }
+
+    @Override
+    public long getLocalOffHeapSize() {
+        return extended.getLocalHeapSize().value().longValue();
+    }
+
+    @Override
+    public long getLocalDiskSizeInBytes() {
+        return extended.getLocalDiskSizeInBytes().value().longValue();
+    }
+
+    @Override
+    public long getLocalOffHeapSizeInBytes() {
+        return extended.getLocalOffHeapSizeInBytes().value().longValue();
+    }
+
+    @Override
+    public long getRemoteSize() {
+        return extended.getRemoteSize().value().longValue();
+    }
+
+    @Override
+    public long getSize() {
+        return extended.getSize().value().longValue();
+    }
+
+
+    @Override
+    public long cacheHitCount() {
+        return core.get().value(CacheOperationOutcomes.GetOutcome.HIT);
+    }
+
+    @Override
+    public long cacheMissExpiredCount() {
+        return core.get().value(CacheOperationOutcomes.GetOutcome.MISS_EXPIRED);
+    }
+
+    @Override
+    public long cacheMissNotFoundCount() {
+        return core.get().value(CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND);
+    }
+
+    @Override
+    public long cacheMissCount() {
+        return cacheMissExpiredCount() + cacheMissNotFoundCount();
+    }
+
+    @Override
+    public long cachePutAddedCount() {
+        return core.put().value(CacheOperationOutcomes.PutOutcome.ADDED);
+    }
+
+    @Override
+    public long cachePutUpdatedCount() {
+        return core.put().value(CacheOperationOutcomes.PutOutcome.UPDATED);
+    }
+
+    @Override
+    public long cachePutCount() {
+        return cachePutAddedCount() + cachePutUpdatedCount();
+    }
+
+    @Override
+    public long cacheRemoveCount() {
+        return core.remove().value(CacheOperationOutcomes.RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public long localHeapHitCount() {
+        return core.localHeapGet().value(GetOutcome.HIT);
+    }
+
+    @Override
+    public long localHeapMissCount() {
+        return core.localHeapGet().value(GetOutcome.MISS);
+    }
+
+    @Override
+    public long localHeapPutAddedCount() {
+        return core.localHeapPut().value(PutOutcome.ADDED);
+    }
+
+    @Override
+    public long localHeapPutUpdatedCount() {
+        return core.localHeapPut().value(PutOutcome.UPDATED);
+    }
+
+    @Override
+    public long localHeapPutCount() {
+        return localHeapPutAddedCount() + localHeapPutUpdatedCount();
+    }
+
+    @Override
+    public long localHeapRemoveCount() {
+        return core.localOffHeapRemove().value(RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public long localOffHeapHitCount() {
+        return core.localOffHeapGet().value(GetOutcome.HIT);
+    }
+
+    @Override
+    public long localOffHeapMissCount() {
+        return core.localOffHeapGet().value(GetOutcome.MISS);
+    }
+
+    @Override
+    public long localOffHeapPutAddedCount() {
+        return core.localOffHeapGet().value(GetOutcome.MISS);
+    }
+
+    @Override
+    public long localOffHeapPutUpdatedCount() {
+        return core.localOffHeapPut().value(PutOutcome.UPDATED);
+    }
+
+    @Override
+    public long localOfHeapPutCount() {
+        return localOffHeapPutAddedCount() + localOffHeapPutUpdatedCount();
+    }
+
+    @Override
+    public long localOffHeapRemoveCount() {
+        return core.localOffHeapRemove().value(RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public long localDiskHitCount() {
+        return core.localDiskGet().value(GetOutcome.HIT);
+    }
+
+    @Override
+    public long localDiskMissCount() {
+        return core.localDiskGet().value(GetOutcome.MISS);
+    }
+
+    @Override
+    public long localDiskPutAddedCount() {
+        return core.localDiskPut().value(PutOutcome.ADDED);
+    }
+
+    @Override
+    public long localDiskPutUpdatedCount() {
+        return core.localDiskPut().value(PutOutcome.UPDATED);
+    }
+
+    @Override
+    public long localDiskPutCount() {
+        return localDiskPutAddedCount() + localDiskPutUpdatedCount();
+    }
+
+    @Override
+    public long localDiskRemoveCount() {
+        return core.localDiskRemove().value(RemoveOutcome.SUCCESS);
+    }
+
+    @Override
+    public long xaCommitReadOnlyCount() {
+        return core.xaCommit().value(XaCommitOutcome.READ_ONLY);
+    }
+
+    @Override
+    public long xaCommitExceptionCount() {
+        return core.xaCommit().value(XaCommitOutcome.EXCEPTION);
+    }
+
+    @Override
+    public long xaCommitCommittedCount() {
+        return core.xaCommit().value(XaCommitOutcome.COMMITTED);
+    }
+
+    @Override
+    public long xaCommitCount() {
+        return xaCommitCommittedCount() + xaCommitExceptionCount() + xaCommitReadOnlyCount();
+    }
+
+    @Override
+    public long xaRecoveryNothingCount() {
+        return core.xaRecovery().value(XaRecoveryOutcome.NOTHING);
+    }
+
+    @Override
+    public long xaRecoveryRecoveredCount() {
+        return core.xaRecovery().value(XaRecoveryOutcome.RECOVERED);
+    }
+
+    @Override
+    public long xaRecoveryCount() {
+        return xaRecoveryNothingCount() + xaRecoveryRecoveredCount();
+    }
+
+    @Override
+    public long xaRollbackExceptionCount() {
+        return core.xaRollback().value(XaRollbackOutcome.EXCEPTION);
+    }
+
+    @Override
+    public long xaRollbackSuccessCount() {
+        return core.xaRollback().value(XaRollbackOutcome.ROLLEDBACK);
+    }
+
+    @Override
+    public long xaRollbackCount() {
+        return xaRollbackExceptionCount() + xaRollbackSuccessCount();
+    }
+
+    @Override
+    public long cacheExpiredCount() {
+        return core.cacheExpiration().value(CacheOperationOutcomes.ExpiredOutcome.SUCCESS);
+    }
+
+    @Override
+    public long cacheEvictedCount() {
+        return core.cacheEviction().value(CacheOperationOutcomes.EvictionOutcome.SUCCESS);
+    }
 }
