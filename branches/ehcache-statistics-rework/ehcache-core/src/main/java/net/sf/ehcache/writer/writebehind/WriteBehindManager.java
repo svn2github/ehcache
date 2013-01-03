@@ -20,6 +20,8 @@ import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -37,15 +39,15 @@ public class WriteBehindManager implements CacheWriterManager {
      *
      * @param cache cache
      */
-    public WriteBehindManager(final Cache cache) {
-      if (cache.isTerracottaClustered()) {
-        writeBehind = cache.getCacheManager().createTerracottaWriteBehind(cache);
-      } else if (cache.getCacheConfiguration().getPersistenceConfiguration() != null &&
-              cache.getCacheConfiguration().getPersistenceConfiguration().getStrategy() == Strategy.LOCALRESTARTABLE) {
-        writeBehind = cache.getCacheManager().getFeaturesManager().createWriteBehind(cache);
-      } else {
-        writeBehind = new WriteBehindQueueManager(cache.getCacheConfiguration());
-      }
+    public WriteBehindManager(final Cache cache, final Store store) {
+        if (cache.isTerracottaClustered()) {
+            writeBehind = ((TerracottaStore)store).createWriteBehind();
+        } else if (cache.getCacheConfiguration().getPersistenceConfiguration() != null
+                && cache.getCacheConfiguration().getPersistenceConfiguration().getStrategy() == Strategy.LOCALRESTARTABLE) {
+            writeBehind = cache.getCacheManager().getFeaturesManager().createWriteBehind(cache);
+        } else {
+            writeBehind = new WriteBehindQueueManager(cache.getCacheConfiguration());
+        }
     }
 
     /**
@@ -91,6 +93,7 @@ public class WriteBehindManager implements CacheWriterManager {
     /**
      * Gets the best estimate for items in the queue still awaiting processing.
      * Not including elements currently processed
+     *
      * @return the amount of elements still awaiting processing.
      */
     public long getQueueSize() {

@@ -31,6 +31,7 @@ import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,7 @@ public class ClusteredStore implements TerracottaStore {
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache,
                         BulkLoadShutdownHook bulkLoadShutdownHook) {
     validateConfig(cache);
+
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.cache = cache;
     this.fullyQualifiedCacheName = toolkitInstanceFactory.getFullyQualifiedCacheName(cache);
@@ -133,9 +135,9 @@ public class ClusteredStore implements TerracottaStore {
     registeredEventListeners = cache.getCacheEventNotificationService();
     evictionListener = new CacheEventListener();
     backend.addListener(evictionListener);
-    CacheLockProvider cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler, toolkitInstanceFactory,
-                                                                  terracottaConfiguration);
+    CacheLockProvider cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
     internalContext = new ClusteredCacheInternalContext(toolkitInstanceFactory.getToolkit(), cacheLockProvider);
+    bulkLoadShutdownHook.init();
   }
 
   public String getFullyQualifiedCacheName() {
@@ -697,4 +699,8 @@ public class ClusteredStore implements TerracottaStore {
     return "Cache [" + name + "] using concurrency: " + concurrency;
   }
 
+  @Override
+  public WriteBehind createWriteBehind() {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -11,14 +11,13 @@ import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.monitoring.OperatorEventLevel;
 
 public class FireRejoinOperatorEventClusterListener implements ClusterTopologyListener {
-  private static final String EHCACHE_OPERATOR_EVENT_APP_NAME = "ehcache";
-  private volatile boolean    clusterOnline                   = true;
-  private final ClusterNode   currentNode;
-  private final Toolkit       toolkit;
+  private static final String  EHCACHE_OPERATOR_EVENT_APP_NAME = "ehcache";
+  private volatile boolean     clusterOnline                   = true;
+  private volatile ClusterNode currentNode;
+  private final Toolkit        toolkit;
 
   public FireRejoinOperatorEventClusterListener(ToolkitInstanceFactory toolkitInstanceFactory) {
     this.toolkit = toolkitInstanceFactory.getToolkit();
-    this.currentNode = new TerracottaNodeImpl(toolkit.getClusterInfo().getCurrentNode());
   }
 
   @Override
@@ -29,6 +28,7 @@ public class FireRejoinOperatorEventClusterListener implements ClusterTopologyLi
   @Override
   public void clusterOnline(ClusterNode node) {
     this.clusterOnline = true;
+    this.currentNode = new TerracottaNodeImpl(toolkit.getClusterInfo().getCurrentNode());
   }
 
   @Override

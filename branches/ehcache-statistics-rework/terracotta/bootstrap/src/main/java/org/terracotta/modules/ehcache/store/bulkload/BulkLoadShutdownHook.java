@@ -19,15 +19,24 @@ public class BulkLoadShutdownHook implements Runnable {
 
   private final Set<BulkLoadToolkitCache>      registeredCaches = new HashSet<BulkLoadToolkitCache>();
   private final ClusterInfo                    terracottaClusterInfo;
+  private final ToolkitInternal           toolkit;
+  private boolean                         init             = false;
 
   public BulkLoadShutdownHook(ToolkitInternal toolkit) {
+    this.toolkit = toolkit;
     terracottaClusterInfo = toolkit.getClusterInfo();
+  }
+
+  public synchronized void init() {
+    if (init) { return; }
+
     toolkit.registerBeforeShutdownHook(new Runnable() {
       @Override
       public void run() {
         shutdownRegisteredCaches();
       }
     });
+    init = true;
   }
 
   @Override

@@ -16,9 +16,10 @@
 
 package net.sf.ehcache.terracotta;
 
+import java.util.concurrent.Callable;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
-import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
@@ -121,8 +122,8 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     }
 
     @Override
-    public TerracottaStore createNonStopStore(TerracottaStore store, NonstopConfiguration nonstopConfiguration) {
-       return delegate.createNonStopStore(store, nonstopConfiguration);
+    public TerracottaStore createNonStopStore(Callable<TerracottaStore> store, Ehcache cache) {
+       return delegate.createNonStopStore(store, cache);
     }
 
 }

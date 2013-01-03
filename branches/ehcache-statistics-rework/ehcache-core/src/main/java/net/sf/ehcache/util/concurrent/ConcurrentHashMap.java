@@ -7,7 +7,6 @@
 package net.sf.ehcache.util.concurrent;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
-import net.sf.ehcache.pool.impl.AbstractPoolAccessor;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.util.concurrent.ThreadLocalRandom;
 import sun.misc.Unsafe;
@@ -16,7 +15,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.Comparator;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -220,6 +218,7 @@ import java.io.Serializable;
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  */
+@SuppressWarnings("restriction")
 public class ConcurrentHashMap<K, V>
     implements ConcurrentMap<K, V>, Serializable {
     private static final long serialVersionUID = 7249069246763182397L;

@@ -11,7 +11,6 @@ import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.event.CacheEventListenerAdapter;
 import net.sf.ehcache.store.CacheStore;
 import net.sf.ehcache.store.CopyingCacheStore;
 import net.sf.ehcache.store.Store;
@@ -29,7 +28,6 @@ import javax.transaction.Status;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**

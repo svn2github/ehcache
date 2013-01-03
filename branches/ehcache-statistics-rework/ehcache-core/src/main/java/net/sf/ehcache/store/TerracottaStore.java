@@ -20,6 +20,7 @@ import java.util.Set;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
  * Use for internal purpose only. Teaser: Stores of Terracotta clustered caches implements this interface.
@@ -58,5 +59,10 @@ public interface TerracottaStore extends Store {
      * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
      */
     public CacheConfiguration.TransactionalMode getTransactionalMode();
+
+    /**
+     * {@link WriteBehind} createWriteBehind
+     */
+    public WriteBehind createWriteBehind();
 
 }

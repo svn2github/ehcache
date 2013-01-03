@@ -27,4 +27,7 @@ public class ClusteredCacheInternalContext implements ToolkitLookup, CacheLockPr
     return toolkit;
   }
 
+  public CacheLockProvider getCacheLockProvider() {
+    return cacheLockProvider;
+  }
 }

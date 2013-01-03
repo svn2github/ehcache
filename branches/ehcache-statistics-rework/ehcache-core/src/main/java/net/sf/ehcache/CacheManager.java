@@ -473,11 +473,18 @@ public class CacheManager {
             INITIALIZING_CACHE_MANAGERS_MAP.remove(runtimeCfg.getCacheManagerName());
         }
 
-        try {
-            mbeanRegistrationProvider.initialize(this, terracottaClient.getClusteredInstanceFactory());
-        } catch (MBeanRegistrationProviderException e) {
-            LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
-        }
+        Thread t = new Thread("mbean registration") {
+            @Override
+            public void run() {
+                try {
+                    mbeanRegistrationProvider.initialize(CacheManager.this, terracottaClient.getClusteredInstanceFactory());
+                } catch (MBeanRegistrationProviderException e) {
+                    LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
+                }
+            }
+        };
+        t.setDaemon(true);
+        t.start();
 
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
         if (managementRESTService == null && clustered && ManagementServerLoader.isManagementAvailable()) {

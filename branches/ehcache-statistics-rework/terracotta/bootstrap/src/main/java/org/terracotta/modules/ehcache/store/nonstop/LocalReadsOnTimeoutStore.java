@@ -23,6 +23,7 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -625,6 +626,11 @@ public class LocalReadsOnTimeoutStore implements TerracottaStore {
    */
   @Override
   public void recalculateSize(Object key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public WriteBehind createWriteBehind() {
     throw new UnsupportedOperationException();
   }
 }

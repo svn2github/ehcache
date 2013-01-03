@@ -5,7 +5,6 @@ package org.terracotta.modules.ehcache.concurrency;
 
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
-import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoinException;
 import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonstopException;
 
@@ -20,10 +19,10 @@ public class NonStopSyncWrapper implements Sync {
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
 
   public NonStopSyncWrapper(Sync delegate, ToolkitInstanceFactory toolkitInstanceFactory,
-                            NonstopConfiguration nonStopConfiguration) {
+                            ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration) {
     this.delegate = delegate;
     this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
-    this.toolkitNonStopConfiguration = new ToolkitNonStopExceptionOnTimeoutConfiguration(nonStopConfiguration);
+    this.toolkitNonStopConfiguration = toolkitNonStopConfiguration;
   }
 
   /**

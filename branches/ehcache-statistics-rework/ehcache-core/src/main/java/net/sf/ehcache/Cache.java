@@ -35,6 +35,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -96,7 +97,6 @@ import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.StatisticsPlaceholder;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
-import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
@@ -1099,19 +1099,40 @@ public class Cache implements InternalEhcache, StoreListener {
                              "non-zero value or remove the attribute.", getName());
 
                 }
-                Store tempStore = cacheManager.createTerracottaStore(this);
-                if (!(tempStore instanceof TerracottaStore)) {
-                    throw new CacheException(
-                            "CacheManager should create instances of TerracottaStore for Terracotta Clustered caches instead of - "
-                                    + (tempStore == null ? "null" : tempStore.getClass().getName()));
-                }
-                CacheConfiguration.TransactionalMode clusteredTransactionalMode = ((TerracottaStore)tempStore).getTransactionalMode();
-                if (clusteredTransactionalMode != null && !clusteredTransactionalMode.equals(configuration.getTransactionalMode())) {
-                    throw new InvalidConfigurationException("Transactional mode cannot be changed on clustered caches. "
-                        + "Please reconfigure cache '" + getName() + "' with transactionalMode = " + clusteredTransactionalMode
-                    );
-                }
-                TerracottaStore terracottaStore = (TerracottaStore) makeTransactionalIfNeeded(tempStore, copyStrategy);
+
+                final ReadWriteCopyStrategy<Element> copyStrategyTemp = copyStrategy;
+
+                Callable<TerracottaStore> callable = new Callable<TerracottaStore>() {
+                    @Override
+                    public TerracottaStore call() throws Exception {
+                        Store tempStore = cacheManager.createTerracottaStore(Cache.this);
+                        if (!(tempStore instanceof TerracottaStore)) {
+                            throw new CacheException(
+                                    "CacheManager should create instances of TerracottaStore for Terracotta Clustered caches instead of - "
+                                            + (tempStore == null ? "null" : tempStore.getClass().getName()));
+                        }
+
+                        CacheConfiguration.TransactionalMode clusteredTransactionalMode = ((TerracottaStore) tempStore)
+                                .getTransactionalMode();
+                        if (clusteredTransactionalMode != null
+                                && !clusteredTransactionalMode.equals(getCacheConfiguration().getTransactionalMode())) {
+                            throw new InvalidConfigurationException("Transactional mode cannot be changed on clustered caches. "
+                                    + "Please reconfigure cache '" + getName() + "' with transactionalMode = " + clusteredTransactionalMode);
+                        }
+                        
+                        TerracottaStore terracottaStore = (TerracottaStore) makeTransactionalIfNeeded(tempStore, copyStrategyTemp);
+
+                        if (isSearchable()) {
+                            Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
+                            for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
+                                extractors.put(sa.getName(), sa.constructExtractor());
+                            }
+
+                            terracottaStore.setAttributeExtractors(extractors);
+                        }
+                        return terracottaStore;
+                    }
+                };
 
                 NonstopConfiguration nonstopConfig = getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration();
                 // freeze the config whether nonstop is enabled or not
@@ -1119,7 +1140,7 @@ public class Cache implements InternalEhcache, StoreListener {
                     nonstopConfig.freezeConfig();
                 }
 
-                store = cacheManager.getClusteredInstanceFactory(this).createNonStopStore(terracottaStore, nonstopConfig);
+                store = cacheManager.getClusteredInstanceFactory(this).createNonStopStore(callable, this);
             } else {
                 FeaturesManager featuresManager = cacheManager.getFeaturesManager();
                 if (featuresManager == null) {
@@ -1153,9 +1174,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
             this.compoundStore = store;
 
-            if (isSearchable()) {
-                this.compoundStore = new ElementIdAssigningStore(compoundStore);
-
+            if (!isTerracottaClustered() && isSearchable()) {
                 Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
                 for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
                     extractors.put(sa.getName(), sa.constructExtractor());
@@ -1163,19 +1182,13 @@ public class Cache implements InternalEhcache, StoreListener {
 
                 compoundStore.setAttributeExtractors(extractors);
             }
-            this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this);
+            this.cacheWriterManager = configuration.getCacheWriterConfiguration().getWriteMode().createWriterManager(this, compoundStore);
             StatisticsManager.associate(this).withChild(cacheWriterManager);
             cacheStatus.changeState(Status.STATUS_ALIVE);
             initialiseRegisteredCacheWriter();
             initialiseCacheWriterManager(false);
             initialiseRegisteredCacheExtensions();
             initialiseRegisteredCacheLoaders();
-
-            if (isTerracottaClustered()) {
-                // create this to be sure that it's present on each node to receive clustered events,
-                // even if this node is not sending out its events
-                cacheManager.createTerracottaEventReplicator(this);
-            }
 
             Object context = compoundStore.getInternalContext();
             if (context instanceof CacheLockProvider) {
@@ -1188,7 +1201,9 @@ public class Cache implements InternalEhcache, StoreListener {
             statistics = new StatisticsPlaceholder(this, cacheManager.statisticsExecutor);
         }
 
-        compoundStore.addStoreListener(this);
+        if (!isTerracottaClustered()) {
+            compoundStore.addStoreListener(this);
+        }
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialised cache: " + configuration.getName());

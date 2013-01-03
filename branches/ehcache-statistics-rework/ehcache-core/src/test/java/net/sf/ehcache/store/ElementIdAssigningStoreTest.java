@@ -27,12 +27,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementIdHelper;
 import net.sf.ehcache.store.ElementIdAssigningStore;
 import net.sf.ehcache.store.NullStore;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.util.LongSequence;
 
 import org.junit.Test;
 
@@ -112,7 +114,13 @@ public class ElementIdAssigningStoreTest {
     }
 
     private static class Handler implements InvocationHandler {
-        private final Store store = new ElementIdAssigningStore(NullStore.create());
+        private final Store store = new ElementIdAssigningStore(NullStore.create(), new LongSequence() {
+            private final AtomicLong seq = new AtomicLong(1);
+            @Override
+            public long next() {
+                return seq.getAndIncrement();
+            }
+        });
         private final Set<String> methodsCalled = new HashSet<String>();
 
         @Override

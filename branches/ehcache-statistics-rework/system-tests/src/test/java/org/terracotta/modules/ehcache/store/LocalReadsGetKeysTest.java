@@ -29,7 +29,7 @@ public class LocalReadsGetKeysTest extends AbstractTerracottaActivePassiveTestBa
     String timeout = "120000";
     testConfig.addTcProperty(TCPropertiesConsts.L2_L1RECONNECT_ENABLED, "true");
     testConfig.addTcProperty(TCPropertiesConsts.L2_L1RECONNECT_TIMEOUT_MILLS, timeout);
-    timebombTest("2012-12-30");
+    timebombTest("2013-01-30");
   }
 
   public static class App extends ClientBase {

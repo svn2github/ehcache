@@ -17,6 +17,7 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.terracotta.toolkit.nonstop.NonStopException;
 import org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException;
@@ -110,6 +111,11 @@ public class ClusteredSafeStore implements TerracottaStore {
         out.println("");
       }
     }
+  }
+
+  @Override
+  public WriteBehind createWriteBehind() {
+    throw new UnsupportedOperationException();
   }
 
   private static class ClusteredSafeStoreExceptionHandler implements ClusteredStoreExceptionHandler {
@@ -1160,5 +1166,4 @@ public class ClusteredSafeStore implements TerracottaStore {
       throw new CacheException("Uncaught exception in recalculateSize() - " + t.getMessage(), t);
     }
   }
-
 }

@@ -77,7 +77,7 @@ public abstract class ClientBase extends AbstractClientBase {
     return toolkit;
   }
 
-  private Toolkit createToolkit() {
+  protected Toolkit createToolkit() {
     try {
       return ToolkitFactory.createToolkit("toolkit:terracotta://" + getTerracottaUrl());
     } catch (ToolkitInstantiationException e) {

@@ -6,7 +6,6 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.CacheWriterConfiguration;
-import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
@@ -35,7 +34,8 @@ import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.ToolkitLogger;
+
+import java.util.concurrent.Callable;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
 
@@ -74,9 +74,9 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
 
   private void logEhcacheBuildInfo() {
     final ProductInfo ehcacheCoreProductInfo = new ProductInfo();
-    ToolkitLogger logger = ((ToolkitInternal) toolkitInstanceFactory.getToolkit())
-        .getLogger(TerracottaClusteredInstanceFactory.class.getName());
-    logger.info(ehcacheCoreProductInfo.toString());
+    // ToolkitLogger logger = ((ToolkitInternal) toolkitInstanceFactory.getToolkit())
+    // .getLogger(TerracottaClusteredInstanceFactory.class.getName());
+    LOGGER.info(ehcacheCoreProductInfo.toString());
   }
 
   protected ToolkitInstanceFactory createToolkitInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -92,16 +92,14 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     return new ClusteredSafeStore(newStore(cache));
   }
 
-  @Override
-  public final TerracottaStore createNonStopStore(TerracottaStore store, NonstopConfiguration nonstopConfiguration) {
-    return new NonStopStoreWrapper(store, toolkitInstanceFactory, nonstopConfiguration);
+  protected ClusteredStore newStore(final Ehcache cache) {
+    return new ClusteredStore(toolkitInstanceFactory, cache, bulkLoadShutdownHook);
   }
 
-  /**
-   * Override to use different implementations
-   */
-  protected ClusteredStore newStore(Ehcache cache) {
-    return new ClusteredStore(toolkitInstanceFactory, cache, bulkLoadShutdownHook);
+  @Override
+  public final TerracottaStore createNonStopStore(Callable<TerracottaStore> store,
+ Ehcache cache) {
+    return new NonStopStoreWrapper(store, toolkitInstanceFactory, cache);
   }
 
   @Override

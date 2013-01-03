@@ -38,6 +38,7 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
  * All operations in this Store never returns
@@ -364,6 +365,12 @@ public class BlockingMockStore implements TerracottaStore {
 
     public void recalculateSize(Object key) {
         neverReturn();
+    }
+
+    @Override
+    public WriteBehind createWriteBehind() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

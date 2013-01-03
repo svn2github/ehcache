@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -30,6 +29,7 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
+import net.sf.ehcache.util.LongSequence;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.terracotta.context.annotations.ContextChild;
 
@@ -40,22 +40,28 @@ import org.terracotta.context.annotations.ContextChild;
  */
 public class ElementIdAssigningStore implements Store {
 
-    // start at one (zero is a magic value for "not set" and will throw exception if used)
-    private final AtomicLong valueIdSequence = new AtomicLong(1);
     @ContextChild
     private final Store delegate;
+    private final LongSequence elementIdSequence;
 
     /**
      * Constructor
      *
      * @param delegate underlying Store
+     * @param sequence id sequence
      */
-    public ElementIdAssigningStore(Store delegate) {
+    public ElementIdAssigningStore(Store delegate, LongSequence sequence) {
         this.delegate = delegate;
+        this.elementIdSequence = sequence;
     }
 
     private void setId(Element element) {
-        ElementIdHelper.setId(element, valueIdSequence.getAndIncrement());
+        long id = elementIdSequence.next();
+        if (id <= 0) {
+            throw new CacheException("Element ID must be > 0");
+        }
+
+        ElementIdHelper.setId(element, id);
     }
 
     /**
@@ -482,4 +488,5 @@ public class ElementIdAssigningStore implements Store {
     public void recalculateSize(Object key) {
         delegate.recalculateSize(key);
     }
+
 }
