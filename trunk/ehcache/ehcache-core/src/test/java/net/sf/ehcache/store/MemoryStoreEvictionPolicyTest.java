@@ -13,12 +13,12 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Alex Snaps
  */
-public class MemoryOnlyStoreTest {
+public class MemoryStoreEvictionPolicyTest {
 
     @Test
     public void testSetsMemoryEvictionPolicy() {
         final String name = "FAKE!";
-        Store store = MemoryOnlyStore.create(new Cache(new CacheConfiguration("fakeCache", 100)), new UnboundedPool());
+        Store store = NotifyingMemoryStore.createNotifyingStore(new Cache(new CacheConfiguration("fakeCache", 100)), new UnboundedPool());
         store.setInMemoryEvictionPolicy(new AbstractPolicy() {
             public String getName() {
                 return name;

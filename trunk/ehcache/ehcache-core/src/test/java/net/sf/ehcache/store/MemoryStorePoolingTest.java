@@ -37,7 +37,7 @@ public class MemoryStorePoolingTest {
         .copyOnRead(true).copyOnWrite(false));
     private volatile Cache cache;
     private volatile Pool onHeapPool;
-    private volatile MemoryStore memoryStore;
+    private volatile Store memoryStore;
     private volatile Element lastEvicted;
 
     private void dump() {
@@ -86,7 +86,7 @@ public class MemoryStorePoolingTest {
                 )
         );
 
-        memoryStore = NotifyingMemoryStore.create(cache, onHeapPool);
+        memoryStore = NotifyingMemoryStore.createNotifyingStore(cache, onHeapPool);
     }
 
     @After
@@ -99,7 +99,7 @@ public class MemoryStorePoolingTest {
     @Test
     public void testElementPinning() throws Exception {
         Cache cache2 = new Cache(new CacheConfiguration("myCache2", 0).eternal(true));
-        MemoryStore memoryOnlyStore2 = MemoryStore.create(cache2, onHeapPool);
+        Store memoryOnlyStore2 = MemoryStore.create(cache2, onHeapPool);
 
         for (int i = 0; i < 100; i++) {
             memoryStore.put(new Element(i, i));

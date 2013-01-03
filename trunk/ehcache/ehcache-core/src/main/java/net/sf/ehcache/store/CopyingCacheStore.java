@@ -18,6 +18,7 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -33,11 +34,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Copies elements, either on read, write or both before using the underlying store to actually store things
+ * When copying both ways, the store might not see the same types being stored
+ * @param <T> the store type it wraps
  * @author Alex Snaps
  */
-public final class CopyingCacheStore implements Store {
+public final class CopyingCacheStore<T extends Store> implements Store {
 
-    private final Store store;
+    private final T store;
     private final boolean copyOnRead;
     private final boolean copyOnWrite;
     private final ReadWriteCopyStrategy<Element> copyStrategy;
@@ -49,7 +53,7 @@ public final class CopyingCacheStore implements Store {
      * @param copyOnWrite whether to copy on writes
      * @param copyStrategyInstance the copy strategy to use on every copy operation
      */
-    public CopyingCacheStore(final Store store, final boolean copyOnRead, final boolean copyOnWrite,
+    public CopyingCacheStore(final T store, final boolean copyOnRead, final boolean copyOnWrite,
                              final ReadWriteCopyStrategy<Element> copyStrategyInstance) {
 
         this.store = store;
@@ -332,6 +336,14 @@ public final class CopyingCacheStore implements Store {
     }
 
     /**
+     * Accessor to the underlying store
+     * @return
+     */
+    public T getUnderlyingStore() {
+        return store;
+    }
+
+    /**
      * Perform copy on read on an element if configured
      *
      * @param element the element to copy for read
@@ -383,4 +395,38 @@ public final class CopyingCacheStore implements Store {
         }
     }
 
+    /**
+     * Wraps the Store instance passed in, should any copy occur
+     * @param cacheStore the store
+     * @param cacheConfiguration the cache config for that store
+     * @return the wrapped Store if copying is required, or the Store instance passed in
+     */
+    public static Store wrapIfCopy(final Store cacheStore, final CacheConfiguration cacheConfiguration) {
+        if (requiresCopy(cacheConfiguration)) {
+            return wrap(cacheStore, cacheConfiguration);
+        }
+        return cacheStore;
+    }
+
+    /**
+     * Wraps (always) with the proper configured CopyingCacheStore
+     * @param cacheStore the store to wrap
+     * @param cacheConfiguration the cache config backed by this store
+     * @param <T> the Store type
+     * @return the wrapped store
+     */
+    public static <T extends Store> CopyingCacheStore<T> wrap(final T cacheStore, final CacheConfiguration cacheConfiguration) {
+        final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
+            .getCopyStrategyInstance();
+        return new CopyingCacheStore(cacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance);
+    }
+
+    /**
+     * Checks whether copying and hence wrapping is required
+     * @param cacheConfiguration the cache config
+     * @return true is copying is required, otherwise false
+     */
+    public static boolean requiresCopy(final CacheConfiguration cacheConfiguration) {
+        return cacheConfiguration.isCopyOnRead() || cacheConfiguration.isCopyOnWrite();
+    }
 }

@@ -34,8 +34,22 @@ import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.aggregator.AggregatorInstance;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.expression.Criteria;
+import net.sf.ehcache.search.impl.AggregateOnlyResult;
+import net.sf.ehcache.search.impl.BaseResult;
+import net.sf.ehcache.search.impl.GroupedResultImpl;
+import net.sf.ehcache.search.impl.OrderComparator;
+import net.sf.ehcache.search.impl.ResultImpl;
+import net.sf.ehcache.search.impl.ResultsImpl;
+import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
+import net.sf.ehcache.store.compound.NullReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.StoreUpdateException;
+import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
 import net.sf.ehcache.util.ratestatistics.RateStatistic;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -44,10 +58,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+
+import static net.sf.ehcache.search.expression.BaseCriteria.getExtractor;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -70,6 +91,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     private static final int CONCURRENCY_LEVEL = 100;
 
     private static final int MAX_EVICTION_RATIO = 5;
+
+    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
@@ -114,13 +137,26 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     private volatile CacheLockProvider lockProvider;
 
     /**
-     * Constructs things that all MemoryStores have in common.
+     * Constructs things that all MemoryStores have in common. But without search capabilities
      *
      * @param cache the cache
      * @param pool the pool tracking the on-heap usage
      * @param notify whether to notify the Cache's EventNotificationService on eviction and expiry
      */
     protected MemoryStore(Ehcache cache, Pool pool, boolean notify, BackingFactory factory) {
+        this(cache, pool, notify, factory, null);
+    }
+
+    /**
+     * Constructs things that all MemoryStores have in common.
+     *
+     * @param cache the cache
+     * @param pool the pool tracking the on-heap usage
+     * @param notify whether to notify the Cache's EventNotificationService on eviction and expiry
+     * @param searchManager the search manager
+     */
+    protected MemoryStore(Ehcache cache, Pool pool, boolean notify, BackingFactory factory, final SearchManager searchManager) {
+        super(searchManager);
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
@@ -192,7 +228,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * @return an instance of a MemoryStore, configured with the appropriate eviction policy
      */
     public static MemoryStore create(final Ehcache cache, Pool pool) {
-        MemoryStore memoryStore = new MemoryStore(cache, pool, false, new BasicBackingFactory());
+        final MemoryStore.BruteForceSearchManager searchManager = new MemoryStore.BruteForceSearchManager();
+        MemoryStore memoryStore = new MemoryStore(cache, pool, false, new BasicBackingFactory(), searchManager);
         cache.getCacheConfiguration().addConfigurationListener(memoryStore);
         return memoryStore;
     }
@@ -998,6 +1035,230 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      */
     public Collection<Element> elementSet() {
         return map.values();
+    }
+
+    /**
+     * Brute force search implementation
+     *
+     * @author teck
+     */
+    public static class BruteForceSearchManager implements SearchManager {
+
+        private volatile MemoryStore memoryStore;
+        private volatile CopyingCacheStore<? extends MemoryStore> copyingStore;
+
+        /**
+         * Create a BruteForceSearchManager
+         */
+        public BruteForceSearchManager() {
+            //
+        }
+
+        /**
+         * set the memory store
+         *
+         * @param memoryStore
+         */
+        public void setMemoryStore(MemoryStore memoryStore) {
+            this.memoryStore = memoryStore;
+            this.copyingStore = new CopyingCacheStore<MemoryStore>(memoryStore, false, false, new NullReadWriteCopyStrategy());
+        }
+
+        /**
+         * set the memory store, keeping a ref to the copying wrapping instance
+         *
+         * @param copyingCacheStore
+         */
+        public void setMemoryStore(CopyingCacheStore<? extends MemoryStore> copyingCacheStore) {
+            this.memoryStore = copyingCacheStore.getUnderlyingStore();
+            this.copyingStore = copyingCacheStore;
+        }
+
+        @Override
+        public void put(String cacheName, int segmentId, String uniqueKey, byte[] serializedKey, Element element,
+                Map<String, AttributeExtractor> extractors) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors) {
+            Criteria c = query.getCriteria();
+
+            List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();
+
+            final Set<Attribute<?>> groupByAttributes = query.groupByAttributes();
+            final boolean isGroupBy = !groupByAttributes.isEmpty();
+            boolean includeResults = query.requestsKeys() || query.requestsValues() || !query.requestedAttributes().isEmpty() || isGroupBy;
+
+            boolean hasOrder = !query.getOrdering().isEmpty();
+
+            final Map<Set<?>, BaseResult> groupByResults = new HashMap<Set<?>, BaseResult>();
+            final Map<Set, List<AggregatorInstance<?>>> groupByAggregators = new HashMap<Set, List<AggregatorInstance<?>>>();
+
+            Collection<Element> matches = new LinkedList<Element>();
+
+            for (Element element : memoryStore.elementSet()) {
+                element = copyingStore.copyElementForReadIfNeeded(element);
+
+                if (element.getObjectValue() instanceof SoftLockID) {
+                    continue;
+                }
+
+                if (c.execute(element, extractors)) {
+                    if (!isGroupBy && !hasOrder && query.maxResults() >= 0 && matches.size() == query.maxResults()) {
+                        break;
+                    }
+
+                    matches.add(element);
+                }
+            }
+
+            Collection<BaseResult> results = isGroupBy ? groupByResults.values() : new ArrayList<BaseResult>();
+
+            boolean anyMatches = !matches.isEmpty();
+            for (Element element : matches) {
+                if (includeResults) {
+                    final Map<String, Object> attributes = getAttributeValues(query.requestedAttributes(), extractors, element);
+                    final Object[] sortAttributes = getSortAttributes(query, extractors, element);
+
+                    if (!isGroupBy) {
+                        results.add(new ResultImpl(element.getObjectKey(), element.getObjectValue(), query, attributes, sortAttributes));
+                    } else {
+                        Map<String, Object> groupByValues = getAttributeValues(groupByAttributes, extractors, element);
+                        Set<?> groupId = new HashSet(groupByValues.values());
+                        BaseResult group = groupByResults.get(groupId);
+                        if (group == null) {
+                            group = new GroupedResultImpl(query, attributes, sortAttributes, Collections.EMPTY_LIST /* placeholder for now */,
+                                    groupByValues);
+                            groupByResults.put(groupId, group);
+                        }
+                        List<AggregatorInstance<?>> groupAggrs = groupByAggregators.get(groupId);
+                        if (groupAggrs == null) {
+                            groupAggrs = new ArrayList<AggregatorInstance<?>>(aggregators.size());
+                            for (AggregatorInstance<?> aggr : aggregators) {
+                                groupAggrs.add(aggr.createClone());
+                            }
+                            groupByAggregators.put(groupId, groupAggrs);
+                        }
+                        // Switch to per-record aggregators
+                        aggregators = groupAggrs;
+                    }
+                }
+
+                aggregate(aggregators, extractors, element);
+
+            }
+
+            if (hasOrder || isGroupBy) {
+                if (isGroupBy) {
+                    results = new ArrayList<BaseResult>(results);
+                }
+
+                if (hasOrder) {
+                    Collections.sort((List<BaseResult>)results, new OrderComparator(query.getOrdering()));
+                }
+                // trim results to max length if necessary
+                int max = query.maxResults();
+                if (max >= 0 && (results.size() > max)) {
+                    results = ((List<BaseResult>)results).subList(0, max);
+                }
+            }
+
+            if (!aggregators.isEmpty()) {
+                for (BaseResult result : results) {
+                    if (isGroupBy) {
+                        GroupedResultImpl group = (GroupedResultImpl)result;
+                        Set<?> groupId = new HashSet(group.getGroupByValues().values());
+                        aggregators = groupByAggregators.get(groupId);
+                    }
+                    setResultAggregators(aggregators, result);
+                }
+            }
+
+            if (!isGroupBy && anyMatches && !includeResults && !aggregators.isEmpty()) {
+                // add one row in the results if the only thing included was aggregators and anything matched
+                BaseResult aggOnly = new AggregateOnlyResult(query);
+                setResultAggregators(aggregators, aggOnly);
+                results.add(aggOnly);
+            }
+
+            return new ResultsImpl((List)results, query.requestsKeys(), query.requestsValues(), !query.requestedAttributes().isEmpty(), anyMatches
+                    && !aggregators.isEmpty());
+        }
+
+        private Element copyIfRequired(final Element element) {
+            return copyingStore != null ? copyingStore.copyElementForReadIfNeeded(element) : element;
+        }
+
+        private void setResultAggregators(List<AggregatorInstance<?>> aggregators, BaseResult result)
+        {
+            List<Object> aggregateResults = new ArrayList<Object>();
+            for (AggregatorInstance<?> aggregator : aggregators) {
+                aggregateResults.add(aggregator.aggregateResult());
+            }
+
+            if (!aggregateResults.isEmpty()) {
+                result.setAggregateResults(aggregateResults);
+            }
+        }
+
+        private Map<String, Object> getAttributeValues(Set<Attribute<?>> attributes, Map<String, AttributeExtractor> extractors, Element element) {
+            final Map<String, Object> values;
+            if (attributes.isEmpty()) {
+                values = Collections.emptyMap();
+            } else {
+                values = new HashMap<String, Object>();
+                for (Attribute attribute : attributes) {
+                    String name = attribute.getAttributeName();
+                    values.put(name, getExtractor(name, extractors).attributeFor(element, name));
+                }
+            }
+            return values;
+        }
+
+        private void aggregate(List<AggregatorInstance<?>> aggregators, Map<String, AttributeExtractor> extractors, Element element) {
+            for (AggregatorInstance<?> aggregator : aggregators) {
+                Attribute<?> attribute = aggregator.getAttribute();
+                if (attribute == null) {
+                    aggregator.accept(null);
+                } else {
+                    Object val = getExtractor(attribute.getAttributeName(), extractors).attributeFor(element, attribute.getAttributeName());
+                    aggregator.accept(val);
+                }
+            }
+        }
+
+        private Object[] getSortAttributes(StoreQuery query, Map<String, AttributeExtractor> extractors, Element element) {
+            Object[] sortAttributes;
+            List<StoreQuery.Ordering> orderings = query.getOrdering();
+            if (orderings.isEmpty()) {
+                sortAttributes = MemoryStore.EMPTY_OBJECT_ARRAY;
+            } else {
+                sortAttributes = new Object[orderings.size()];
+                for (int i = 0; i < sortAttributes.length; i++) {
+                    String name = orderings.get(i).getAttribute().getAttributeName();
+                    sortAttributes[i] = getExtractor(name, extractors).attributeFor(element, name);
+                }
+            }
+
+            return sortAttributes;
+        }
+
+        @Override
+        public void remove(String cacheName, String uniqueKey, int segmentId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void clear(String cacheName, int segmentId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void move(String cacheName, int segmentId, String existingKey, String newKey) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
     /**
