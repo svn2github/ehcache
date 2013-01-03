@@ -227,7 +227,7 @@ public class CacheManager {
     /**
      * statistics thread pool.
      */
-    final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
+    private final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
             new ThreadFactory() {
 
         @Override
@@ -568,6 +568,15 @@ public class CacheManager {
         }
     }
 
+    /**
+     * Return this cache manager's statistics executor
+     *
+     * @return this cache manager's statistics executor
+     */
+    ScheduledExecutorService getStatisticsExecutor() {
+        return statisticsExecutor;
+    }
+    
     /**
      * Return this cache manager's shared on-heap pool
      *

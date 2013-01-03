@@ -86,6 +86,11 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
+    /**
+     * Eviction outcome observer
+     */
+    protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+
     private final boolean alwaysPutOnHeap;
 
     /**
@@ -126,11 +131,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
      */
 
     private volatile CacheLockProvider lockProvider;
-
-    /**
-     * Eviction outcome observer
-     */
-    final protected OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
     /**
      * Constructs things that all MemoryStores have in common.

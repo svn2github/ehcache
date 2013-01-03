@@ -1198,7 +1198,7 @@ public class Cache implements InternalEhcache, StoreListener {
             }
 
             StatisticsManager.associate(this).withChild(compoundStore);
-            statistics = new StatisticsPlaceholder(this, cacheManager.statisticsExecutor);
+            statistics = new StatisticsPlaceholder(this, cacheManager.getStatisticsExecutor());
         }
 
         if (!isTerracottaClustered()) {

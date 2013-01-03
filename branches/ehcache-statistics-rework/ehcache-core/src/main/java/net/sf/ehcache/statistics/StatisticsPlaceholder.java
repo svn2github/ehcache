@@ -20,11 +20,7 @@ import java.lang.management.ManagementFactory;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheOperationOutcomes;
@@ -52,8 +48,6 @@ import org.terracotta.statistics.StatisticsManager;
  */
 public class StatisticsPlaceholder implements FlatStatistics {
 
-    private static final boolean PUBLISH_MBEAN = false;
-
     /** The Constant DEFAULT_HISTORY_SIZE. */
     public static final int DEFAULT_HISTORY_SIZE = 30;
 
@@ -63,6 +57,7 @@ public class StatisticsPlaceholder implements FlatStatistics {
     /** The Constant DEFAULT_SEARCH_INTERVAL_SECS. */
     public static final int DEFAULT_SEARCH_INTERVAL_SECS = 10;
 
+    private static final boolean PUBLISH_MBEAN = false;
     private static final int DEFAULT_TIME_TO_DISABLE_MINS = 5;
 
     /** The core. */
@@ -86,7 +81,7 @@ public class StatisticsPlaceholder implements FlatStatistics {
         this.assocCacheName = ehcache.getName();
         this.extended = new ExtendedStatisticsImpl(statsManager, executor, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
         this.core = new CoreStatisticsImpl(extended);
-        if(PUBLISH_MBEAN) {
+        if (PUBLISH_MBEAN) {
             ExtendedStatisticsMBean bean = new ExtendedStatisticsMBean(ehcache, extended);
             MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
             try {
