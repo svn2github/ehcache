@@ -151,13 +151,15 @@ final class NullCompoundOperation<T extends Enum<T>> implements Operation<T> {
     }
 }
 
+/**
+ * Null result object
+ *
+ * @author cdennis
+ *
+ */
 final class NullOperation implements Result {
 
     private static final Result INSTANCE = new NullOperation();
-
-    static final Result instance() {
-        return INSTANCE;
-    }
 
     /**
      * Instantiates a new null operation.
@@ -166,63 +168,144 @@ final class NullOperation implements Result {
         //singleton
     }
 
+    /**
+     * Instance method
+     * @return
+     */
+    static final Result instance() {
+        return INSTANCE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Statistic<Long> count() {
         return NullStatistic.instance(0L);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Statistic<Double> rate() {
         return NullStatistic.instance(Double.NaN);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Latency latency() throws UnsupportedOperationException {
         return NullLatency.instance();
     }
 }
 
-
-class NullLatency implements Latency {
+/**
+ * Noop latency class
+ *
+ * @author cdennis
+ *
+ */
+final class NullLatency implements Latency {
 
     private static final Latency INSTANCE = new NullLatency();
 
+    /**
+     * Private constructor
+     */
+    private NullLatency() {
+    }
+
+    /**
+     * Instance accessor
+     * @return
+     */
     static Latency instance() {
         return INSTANCE;
     }
 
-    private NullLatency() {
-        //singleton
-    }
-
+    /**
+     * minimum
+     */
     @Override
     public Statistic<Long> minimum() {
         return NullStatistic.instance(null);
     }
 
+    /**
+     * maximum
+     */
     @Override
     public Statistic<Long> maximum() {
         return NullStatistic.instance(null);
     }
 
+    /**
+     * average
+     */
     @Override
     public Statistic<Double> average() {
         return NullStatistic.instance(Double.NaN);
     }
 }
 
-class NullStatistic<T> implements Statistic {
+/**
+ * Null statistic class
+ * @author cdennis
+ *
+ * @param <T>
+ */
+final class NullStatistic<T> implements Statistic {
 
-    private static final Map<Object, Statistic<?>> common = new HashMap<Object, Statistic<?>>();
+    private static final Map<Object, Statistic<?>> COMMON = new HashMap<Object, Statistic<?>>();
     static {
-        common.put(Double.NaN, new NullStatistic<Double>(Double.NaN));
-        common.put(Float.NaN, new NullStatistic<Float>(Float.NaN));
-        common.put(Long.valueOf(0L), new NullStatistic<Long>(0L));
-        common.put(null, new NullStatistic(null));
+        COMMON.put(Double.NaN, new NullStatistic<Double>(Double.NaN));
+        COMMON.put(Float.NaN, new NullStatistic<Float>(Float.NaN));
+        COMMON.put(Long.valueOf(0L), new NullStatistic<Long>(0L));
+        COMMON.put(null, new NullStatistic(null));
     }
 
+    private final T value;
+
+    /**
+     * Constructor
+     * @param value initial value
+     */
+    private NullStatistic(T value) {
+        this.value = value;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean active() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public T value() {
+        return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Timestamped<T>> history() throws UnsupportedOperationException {
+        return Collections.emptyList();
+    }
+
+    /**
+     * instance
+     * @param value
+     * @return
+     */
     static <T> Statistic<T> instance(T value) {
-        Statistic<T> cached = (Statistic<T>) common.get(value);
+        Statistic<T> cached = (Statistic<T>) COMMON.get(value);
         if (cached == null) {
             return new NullStatistic<T>(value);
         } else {
@@ -230,24 +313,4 @@ class NullStatistic<T> implements Statistic {
         }
     }
 
-    private final T value;
-
-    private NullStatistic(T value) {
-        this.value = value;
-    }
-
-    @Override
-    public boolean active() {
-        return false;
-    }
-
-    @Override
-    public T value() {
-        return value;
-    }
-
-    @Override
-    public List<Timestamped<T>> history() throws UnsupportedOperationException {
-        return Collections.emptyList();
-    }
 }

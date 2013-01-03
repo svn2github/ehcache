@@ -103,11 +103,7 @@ class OperationImpl<T extends Enum<T>> implements Result {
      * @return true, if successful
      */
     boolean expire(long expiryTime) {
-        if (count.expire(expiryTime) & rate.expire(expiryTime) & latency.expire(expiryTime)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (count.expire(expiryTime) & rate.expire(expiryTime) & latency.expire(expiryTime));
     }
 
     /**

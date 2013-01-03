@@ -130,7 +130,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     /**
      * Eviction outcome observer
      */
-    protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+    final protected OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
     /**
      * Constructs things that all MemoryStores have in common.

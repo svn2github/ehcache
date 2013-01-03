@@ -775,6 +775,57 @@ public class Cache implements InternalEhcache, StoreListener {
                 bootstrapCacheLoader);
     }
 
+    /**
+     * Constructor for cloning.
+     * @param original
+     * @throws CloneNotSupportedException
+     */
+    private Cache(Cache original) throws CloneNotSupportedException {
+        if (original.compoundStore != null) {
+            throw new CloneNotSupportedException("Cannot clone an initialized cache.");
+        }
+
+        // create new copies of the statistics
+        configuration = original.configuration.clone();
+        cacheStatus.changeState(Status.STATUS_UNINITIALISED);
+        configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
+        //XXX - should this be here?
+        elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
+        for (PropertyChangeListener propertyChangeListener : original.propertyChangeSupport.getPropertyChangeListeners()) {
+            addPropertyChangeListener(propertyChangeListener);
+        }
+
+        RegisteredEventListeners registeredEventListenersFromOriginal = original.getCacheEventNotificationService();
+        if (registeredEventListenersFromOriginal == null || registeredEventListenersFromOriginal.getCacheEventListeners().size() == 0) {
+            registeredEventListeners = new RegisteredEventListeners(this);
+        } else {
+            registeredEventListeners = new RegisteredEventListeners(this);
+            Set cacheEventListeners = original.registeredEventListeners.getCacheEventListeners();
+            for (Object cacheEventListener1 : cacheEventListeners) {
+                CacheEventListener cacheEventListener = (CacheEventListener) cacheEventListener1;
+                CacheEventListener cacheEventListenerClone = (CacheEventListener) cacheEventListener.clone();
+                registeredEventListeners.registerListener(cacheEventListenerClone);
+            }
+        }
+
+
+        for (CacheExtension registeredCacheExtension : original.registeredCacheExtensions) {
+            registerCacheExtension(registeredCacheExtension.clone(this));
+        }
+
+        for (CacheLoader registeredCacheLoader : original.registeredCacheLoaders) {
+            registerCacheLoader(registeredCacheLoader.clone(this));
+        }
+
+        if (original.registeredCacheWriter != null) {
+            registerCacheWriter(registeredCacheWriter.clone(this));
+        }
+
+        if (original.bootstrapCacheLoader != null) {
+            BootstrapCacheLoader bootstrapCacheLoaderClone = (BootstrapCacheLoader) original.bootstrapCacheLoader.clone();
+            this.setBootstrapCacheLoader(bootstrapCacheLoaderClone);
+        }
+    }
 
     /**
      * A factory method to create a RegisteredEventListeners
@@ -2656,53 +2707,6 @@ public class Cache implements InternalEhcache, StoreListener {
     @Override
     public final Cache clone() throws CloneNotSupportedException {
         return new Cache(this);
-    }
-
-    private Cache(Cache original) throws CloneNotSupportedException {
-        if (original.compoundStore != null) {
-            throw new CloneNotSupportedException("Cannot clone an initialized cache.");
-        }
-
-        // create new copies of the statistics
-        configuration = original.configuration.clone();
-        cacheStatus.changeState(Status.STATUS_UNINITIALISED);
-        configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
-        //XXX - should this be here?
-        elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
-        for (PropertyChangeListener propertyChangeListener : original.propertyChangeSupport.getPropertyChangeListeners()) {
-            addPropertyChangeListener(propertyChangeListener);
-        }
-
-        RegisteredEventListeners registeredEventListenersFromOriginal = original.getCacheEventNotificationService();
-        if (registeredEventListenersFromOriginal == null || registeredEventListenersFromOriginal.getCacheEventListeners().size() == 0) {
-            registeredEventListeners = new RegisteredEventListeners(this);
-        } else {
-            registeredEventListeners = new RegisteredEventListeners(this);
-            Set cacheEventListeners = original.registeredEventListeners.getCacheEventListeners();
-            for (Object cacheEventListener1 : cacheEventListeners) {
-                CacheEventListener cacheEventListener = (CacheEventListener) cacheEventListener1;
-                CacheEventListener cacheEventListenerClone = (CacheEventListener) cacheEventListener.clone();
-                registeredEventListeners.registerListener(cacheEventListenerClone);
-            }
-        }
-
-
-        for (CacheExtension registeredCacheExtension : original.registeredCacheExtensions) {
-            registerCacheExtension(registeredCacheExtension.clone(this));
-        }
-
-        for (CacheLoader registeredCacheLoader : original.registeredCacheLoaders) {
-            registerCacheLoader(registeredCacheLoader.clone(this));
-        }
-
-        if (original.registeredCacheWriter != null) {
-            registerCacheWriter(registeredCacheWriter.clone(this));
-        }
-
-        if (original.bootstrapCacheLoader != null) {
-            BootstrapCacheLoader bootstrapCacheLoaderClone = (BootstrapCacheLoader) original.bootstrapCacheLoader.clone();
-            this.setBootstrapCacheLoader(bootstrapCacheLoaderClone);
-        }
     }
 
     /**
