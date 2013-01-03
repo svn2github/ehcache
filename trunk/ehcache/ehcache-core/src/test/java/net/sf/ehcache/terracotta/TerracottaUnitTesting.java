@@ -21,7 +21,9 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.concurrent.CacheLockProvider;
@@ -62,7 +64,8 @@ public class TerracottaUnitTesting {
         when(mockFactory.getTopology()).thenReturn(mockCacheCluster);
         CacheLockProvider mockCacheLockProvider = Mockito.mock(CacheLockProvider.class);
         when(terracottaStore.getInternalContext()).thenReturn(mockCacheLockProvider);
-        when(mockFactory.createNonStopStore((TerracottaStore) any(),(NonstopConfiguration) any())).thenReturn(terracottaStore);
+        when(mockFactory.createNonStopStore((Callable<TerracottaStore>) any(), (Cache) any())).thenReturn(
+                terracottaStore);
 
         TerracottaClusteredInstanceHelper mockHelper = Mockito.mock(TerracottaClusteredInstanceHelper.class);
         when(mockHelper.newClusteredInstanceFactory((Map<String, CacheConfiguration>) any(), (TerracottaClientConfiguration) any()))

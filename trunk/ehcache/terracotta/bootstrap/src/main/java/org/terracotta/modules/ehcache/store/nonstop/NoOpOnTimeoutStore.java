@@ -23,6 +23,7 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -522,6 +523,11 @@ public final class NoOpOnTimeoutStore implements TerracottaStore {
    */
   @Override
   public void recalculateSize(Object key) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public WriteBehind createWriteBehind() {
     throw new UnsupportedOperationException();
   }
 

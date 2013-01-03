@@ -16,12 +16,13 @@
 
 package net.sf.ehcache.config;
 
+import java.util.Collection;
+
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import net.sf.ehcache.writer.writethrough.WriteThroughManager;
-
-import java.util.Collection;
 
 /**
  * Class to hold the CacheWriterManager configuration
@@ -93,7 +94,7 @@ public class CacheWriterConfiguration implements Cloneable {
              * {@inheritDoc}
              */
             @Override
-            public CacheWriterManager createWriterManager(Cache cache) {
+            public CacheWriterManager createWriterManager(Cache cache, Store store) {
                 return new WriteThroughManager();
             }
         },
@@ -106,8 +107,8 @@ public class CacheWriterConfiguration implements Cloneable {
              * {@inheritDoc}
              */
             @Override
-            public CacheWriterManager createWriterManager(Cache cache) {
-                return new WriteBehindManager(cache);
+            public CacheWriterManager createWriterManager(Cache cache, Store store) {
+                return new WriteBehindManager(cache, store);
             }
         };
 
@@ -117,7 +118,7 @@ public class CacheWriterConfiguration implements Cloneable {
          * @param cache the cache instance for which the {@code WriterManager} should be created
          * @return the newly created {@code WriterManager}
          */
-        public abstract CacheWriterManager createWriterManager(Cache cache);
+        public abstract CacheWriterManager createWriterManager(Cache cache, Store store);
     }
 
     private WriteMode writeMode = DEFAULT_WRITE_MODE;

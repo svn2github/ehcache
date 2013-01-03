@@ -40,6 +40,7 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
  * Abstract transactional store which provides implementation of all non-transactional methods
@@ -685,4 +686,11 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
         }
     }
 
+    @Override
+    public WriteBehind createWriteBehind() {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore)underlyingStore).createWriteBehind();
+        }
+        throw new UnsupportedOperationException();
+    }
 }

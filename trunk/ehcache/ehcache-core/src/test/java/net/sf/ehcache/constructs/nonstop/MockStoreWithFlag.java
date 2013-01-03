@@ -38,6 +38,7 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 public class MockStoreWithFlag implements TerracottaStore {
 
@@ -357,6 +358,11 @@ public class MockStoreWithFlag implements TerracottaStore {
 
     public void recalculateSize(Object key) {
         markAccessFlag();
+    }
+
+    @Override
+    public WriteBehind createWriteBehind() {
+        throw new UnsupportedOperationException();
     }
 
 }

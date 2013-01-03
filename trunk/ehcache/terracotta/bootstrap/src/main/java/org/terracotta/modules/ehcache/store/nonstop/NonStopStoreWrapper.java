@@ -4,14 +4,17 @@
 package org.terracotta.modules.ehcache.store.nonstop;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.StoreListener;
@@ -19,9 +22,14 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
+import net.sf.ehcache.writer.writebehind.NonStopWriteBehind;
+import net.sf.ehcache.writer.writebehind.WriteBehind;
 
+import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
+import org.terracotta.modules.ehcache.concurrency.NonStopCacheLockProvider;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.nonstop.NonStopException;
 import org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException;
@@ -34,25 +42,197 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 public class NonStopStoreWrapper implements TerracottaStore {
-  private final TerracottaStore                               delegate;
+  private volatile TerracottaStore                            delegate;
   private final NonStop                                       nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
   private final NonstopConfiguration                          ehcacheNonStopConfiguration;
   private volatile TerracottaStore                            localReadDelegate;
   private final BulkOpsToolkitNonStopConfiguration            bulkOpsToolkitNonStopConfiguration;
+  private final ClusteredCacheInternalContext                 clusteredCacheInternalContext;
 
-  public NonStopStoreWrapper(TerracottaStore delegate, ToolkitInstanceFactory toolkitInstanceFactory,
-                             NonstopConfiguration ehcacheNonStopConfiguration) {
-    this.delegate = delegate;
+  private final Ehcache                                       cache;
+
+  private WriteBehind                                         writeBehind;
+
+  public NonStopStoreWrapper(Callable<TerracottaStore> clusteredStoreCreator,
+                             ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
+    this.cache = cache;
     this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
-    this.ehcacheNonStopConfiguration = ehcacheNonStopConfiguration;
+    this.ehcacheNonStopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
+        .getNonstopConfiguration();
     this.toolkitNonStopConfiguration = new ToolkitNonStopExceptionOnTimeoutConfiguration(ehcacheNonStopConfiguration);
     this.bulkOpsToolkitNonStopConfiguration = new BulkOpsToolkitNonStopConfiguration(ehcacheNonStopConfiguration);
+
+    Toolkit toolkit = toolkitInstanceFactory.getToolkit();
+    CacheLockProvider cacheLockProvider = createCacheLockProvider(toolkit, toolkitInstanceFactory);
+    this.clusteredCacheInternalContext = new ClusteredCacheInternalContext(toolkit, cacheLockProvider);
+    if (ehcacheNonStopConfiguration != null && ehcacheNonStopConfiguration.isEnabled()) {
+      createStoreAsynchronously(toolkit, clusteredStoreCreator);
+    } else {
+      doInit(clusteredStoreCreator);
+    }
+  }
+
+  private CacheLockProvider createCacheLockProvider(Toolkit toolkit, ToolkitInstanceFactory toolkitInstanceFactory) {
+    return new NonStopCacheLockProvider(toolkit.getFeature(NonStop.class), ehcacheNonStopConfiguration,
+                                        toolkitInstanceFactory);
+  }
+
+  private void createStoreAsynchronously(final Toolkit toolkit, Callable<TerracottaStore> clusteredStoreCreator) {
+    Thread t = new Thread(createInitRunnable(clusteredStoreCreator), "init Store asynchronously " + cache.getName());
+    t.setDaemon(true);
+    t.start();
+  }
+
+  private Runnable createInitRunnable(final Callable<TerracottaStore> clusteredStoreCreator) {
+    final Runnable initRunnable = new Runnable() {
+      @Override
+      public void run() {
+        doInit(clusteredStoreCreator);
+        synchronized (NonStopStoreWrapper.this) {
+          NonStopStoreWrapper.this.notifyAll();
+        }
+      }
+    };
+    return initRunnable;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Object getInternalContext() {
+    return clusteredCacheInternalContext;
+  }
+
+  @Override
+  public WriteBehind createWriteBehind() {
+    if (ehcacheNonStopConfiguration != null && ehcacheNonStopConfiguration.isEnabled()) {
+      synchronized (this) {
+        if (writeBehind != null) { throw new IllegalStateException(); }
+
+        writeBehind = new NonStopWriteBehind();
+        if (delegate != null) {
+          ((NonStopWriteBehind) writeBehind).init(cache.getCacheManager().createTerracottaWriteBehind(cache));
+        }
+        return writeBehind;
+      }
+    }
+
+    writeBehind = cache.getCacheManager().createTerracottaWriteBehind(cache);
+    return writeBehind;
+  }
+
+  private TerracottaStore createStore(Callable<TerracottaStore> clusteredStoreCreator) {
+    try {
+      return clusteredStoreCreator.call();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void doInit(Callable<TerracottaStore> clusteredStoreCreator) {
+    TerracottaStore delegateTemp = createStore(clusteredStoreCreator);
+
+    if (clusteredCacheInternalContext.getCacheLockProvider() instanceof NonStopCacheLockProvider) {
+      ((NonStopCacheLockProvider) clusteredCacheInternalContext.getCacheLockProvider())
+          .init((CacheLockProvider) delegateTemp.getInternalContext());
+    }
+
+    // create this to be sure that it's present on each node to receive clustered events,
+    // even if this node is not sending out its events
+    cache.getCacheManager().createTerracottaEventReplicator(cache);
+
+    synchronized (this) {
+      if (delegate == null) {
+        this.delegate = delegateTemp;
+
+        if (writeBehind != null && writeBehind instanceof NonStopWriteBehind) {
+          ((NonStopWriteBehind) writeBehind).init(cache.getCacheManager().createTerracottaWriteBehind(cache));
+        }
+      }
+    }
+  }
+
+  private void waitUntilDelegateIsSet() {
+    if (delegate != null) { return; }
+
+    boolean interrupted = false;
+    synchronized (this) {
+      while (delegate == null) {
+        try {
+          this.wait();
+        } catch (InterruptedException e) {
+          interrupted = true;
+        }
+      }
+    }
+
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Object getMBean() {
+    waitUntilDelegateIsSet();
+    return this.delegate.getMBean();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void removeStoreListener(StoreListener arg0) {
+    // TODO: better fix needed ... put here because of CacheManager shutdown
+    if (delegate != null) {
+      delegate.removeStoreListener(arg0);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void dispose() {
+    if (delegate != null) {
+      this.delegate.dispose();
+    }
+  }
+
+  private void throwNonStopExceptionWhenClusterNotInit() throws NonStopException {
+    if (delegate == null && ehcacheNonStopConfiguration != null && ehcacheNonStopConfiguration.isEnabled()) {
+      if (ehcacheNonStopConfiguration.isImmediateTimeout()) {
+        throw new NonStopException("Cluster not up OR still in the process of connecting ");
+      } else {
+        long timeout = ehcacheNonStopConfiguration.getTimeoutMillis();
+        waitForTimeout(timeout);
+      }
+    }
+  }
+
+  private void waitForTimeout(long timeout) {
+    synchronized (this) {
+      while (delegate == null) {
+        try {
+          this.wait(timeout);
+        } catch (InterruptedException e) {
+          // TODO: remove this ... Interrupted here means aborted
+          throw new NonStopException("Cluster not up OR still in the process of connecting ");
+        }
+      }
+    }
   }
 
   private TerracottaStore getTimeoutBehavior() {
+    if (ehcacheNonStopConfiguration == null) { throw new AssertionError("Ehcache NonStopConfig cannot be null"); }
+
     TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfiguration.getTimeoutBehavior();
     switch (behaviorConfiguration.getTimeoutBehaviorType()) {
       case EXCEPTION:
@@ -143,6 +323,8 @@ public class NonStopStoreWrapper implements TerracottaStore {
         }
         out.println("      try {");
 
+        out.println("      throwNonStopExceptionWhenClusterNotInit();");
+
         out.print("        ");
         if (m.getReturnType() != Void.TYPE) {
           out.print("return ");
@@ -193,10 +375,30 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
+  public TransactionalMode getTransactionalMode() {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStop.start(toolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      return this.delegate.getTransactionalMode();
+    } catch (NonStopException e) {
+      return getTimeoutBehavior().getTransactionalMode();
+    } catch (InvalidLockStateAfterRejoinException e) {
+      return getTimeoutBehavior().getTransactionalMode();
+    } finally {
+      nonStop.finish();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Element unsafeGet(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.unsafeGet(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().unsafeGet(arg0);
@@ -215,6 +417,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getLocalKeys();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getLocalKeys();
@@ -229,28 +432,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public TransactionalMode getTransactionalMode() {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      return this.delegate.getTransactionalMode();
-    } catch (NonStopException e) {
-      return getTimeoutBehavior().getTransactionalMode();
-    } catch (InvalidLockStateAfterRejoinException e) {
-      return getTimeoutBehavior().getTransactionalMode();
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public Element get(Object arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.get(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().get(arg0);
@@ -269,6 +455,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.put(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().put(arg0);
@@ -287,6 +474,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.replace(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().replace(arg0);
@@ -306,6 +494,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.replace(arg0, arg1, arg2);
     } catch (NonStopException e) {
       return getTimeoutBehavior().replace(arg0, arg1, arg2);
@@ -324,6 +513,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.putAll(arg0);
     } catch (NonStopException e) {
       getTimeoutBehavior().putAll(arg0);
@@ -342,6 +532,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.remove(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().remove(arg0);
@@ -360,6 +551,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.flush();
     } catch (NonStopException e) {
       getTimeoutBehavior().flush();
@@ -378,6 +570,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.containsKey(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().containsKey(arg0);
@@ -396,6 +589,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getSize();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getSize();
@@ -410,28 +604,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void removeAll(Collection arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(bulkOpsToolkitNonStopConfiguration);
-    try {
-      this.delegate.removeAll(arg0);
-    } catch (NonStopException e) {
-      getTimeoutBehavior().removeAll(arg0);
-    } catch (InvalidLockStateAfterRejoinException e) {
-      getTimeoutBehavior().removeAll(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void removeAll() throws CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.removeAll();
     } catch (NonStopException e) {
       getTimeoutBehavior().removeAll();
@@ -446,10 +623,30 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
+  public void removeAll(Collection arg0) {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      this.delegate.removeAll(arg0);
+    } catch (NonStopException e) {
+      getTimeoutBehavior().removeAll(arg0);
+    } catch (InvalidLockStateAfterRejoinException e) {
+      getTimeoutBehavior().removeAll(arg0);
+    } finally {
+      nonStop.finish();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Element removeElement(Element arg0, ElementValueComparator arg1) throws NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.removeElement(arg0, arg1);
     } catch (NonStopException e) {
       return getTimeoutBehavior().removeElement(arg0, arg1);
@@ -468,6 +665,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.putIfAbsent(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().putIfAbsent(arg0);
@@ -482,10 +680,30 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
+  public void setAttributeExtractors(Map<String, AttributeExtractor> arg0) {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStop.start(toolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      this.delegate.setAttributeExtractors(arg0);
+    } catch (NonStopException e) {
+      getTimeoutBehavior().setAttributeExtractors(arg0);
+    } catch (InvalidLockStateAfterRejoinException e) {
+      getTimeoutBehavior().setAttributeExtractors(arg0);
+    } finally {
+      nonStop.finish();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void setNodeCoherent(boolean arg0) throws UnsupportedOperationException, TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.setNodeCoherent(arg0);
     } catch (NonStopException e) {
       getTimeoutBehavior().setNodeCoherent(arg0);
@@ -504,6 +722,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getAllQuiet(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().getAllQuiet(arg0);
@@ -522,6 +741,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getAll(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().getAll(arg0);
@@ -536,28 +756,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Object getInternalContext() {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      return this.delegate.getInternalContext();
-    } catch (NonStopException e) {
-      return getTimeoutBehavior().getInternalContext();
-    } catch (InvalidLockStateAfterRejoinException e) {
-      return getTimeoutBehavior().getInternalContext();
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean hasAbortedSizeOf() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.hasAbortedSizeOf();
     } catch (NonStopException e) {
       return getTimeoutBehavior().hasAbortedSizeOf();
@@ -576,6 +779,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getOnDiskSize();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getOnDiskSize();
@@ -594,6 +798,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.containsKeyOffHeap(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().containsKeyOffHeap(arg0);
@@ -612,6 +817,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.containsKeyInMemory(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().containsKeyInMemory(arg0);
@@ -630,6 +836,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.setInMemoryEvictionPolicy(arg0);
     } catch (NonStopException e) {
       getTimeoutBehavior().setInMemoryEvictionPolicy(arg0);
@@ -648,6 +855,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.executeQuery(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().executeQuery(arg0);
@@ -666,6 +874,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.putWithWriter(arg0, arg1);
     } catch (NonStopException e) {
       return getTimeoutBehavior().putWithWriter(arg0, arg1);
@@ -684,6 +893,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.recalculateSize(arg0);
     } catch (NonStopException e) {
       getTimeoutBehavior().recalculateSize(arg0);
@@ -702,6 +912,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getQuiet(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().getQuiet(arg0);
@@ -720,6 +931,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getInMemorySize();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getInMemorySize();
@@ -738,6 +950,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.isCacheCoherent();
     } catch (NonStopException e) {
       return getTimeoutBehavior().isCacheCoherent();
@@ -756,6 +969,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getOffHeapSizeInBytes();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getOffHeapSizeInBytes();
@@ -770,28 +984,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Object getMBean() {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      return this.delegate.getMBean();
-    } catch (NonStopException e) {
-      return getTimeoutBehavior().getMBean();
-    } catch (InvalidLockStateAfterRejoinException e) {
-      return getTimeoutBehavior().getMBean();
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void setPinned(Object arg0, boolean arg1) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.setPinned(arg0, arg1);
     } catch (NonStopException e) {
       getTimeoutBehavior().setPinned(arg0, arg1);
@@ -810,6 +1007,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getOnDiskSizeInBytes();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getOnDiskSizeInBytes();
@@ -824,28 +1022,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void removeStoreListener(StoreListener arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      this.delegate.removeStoreListener(arg0);
-    } catch (NonStopException e) {
-      getTimeoutBehavior().removeStoreListener(arg0);
-    } catch (InvalidLockStateAfterRejoinException e) {
-      getTimeoutBehavior().removeStoreListener(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public long getInMemorySizeInBytes() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getInMemorySizeInBytes();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getInMemorySizeInBytes();
@@ -864,6 +1045,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.isPinned(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().isPinned(arg0);
@@ -882,6 +1064,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getTerracottaClusteredSize();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getTerracottaClusteredSize();
@@ -896,28 +1079,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void dispose() {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      this.delegate.dispose();
-    } catch (NonStopException e) {
-      getTimeoutBehavior().dispose();
-    } catch (InvalidLockStateAfterRejoinException e) {
-      getTimeoutBehavior().dispose();
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void expireElements() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.expireElements();
     } catch (NonStopException e) {
       getTimeoutBehavior().expireElements();
@@ -936,6 +1102,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.bufferFull();
     } catch (NonStopException e) {
       return getTimeoutBehavior().bufferFull();
@@ -954,6 +1121,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.isNodeCoherent();
     } catch (NonStopException e) {
       return getTimeoutBehavior().isNodeCoherent();
@@ -972,6 +1140,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.addStoreListener(arg0);
     } catch (NonStopException e) {
       getTimeoutBehavior().addStoreListener(arg0);
@@ -990,6 +1159,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.isClusterCoherent();
     } catch (NonStopException e) {
       return getTimeoutBehavior().isClusterCoherent();
@@ -1009,6 +1179,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.waitUntilClusterCoherent();
     } catch (NonStopException e) {
       getTimeoutBehavior().waitUntilClusterCoherent();
@@ -1027,6 +1198,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getInMemoryEvictionPolicy();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getInMemoryEvictionPolicy();
@@ -1045,6 +1217,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.removeWithWriter(arg0, arg1);
     } catch (NonStopException e) {
       return getTimeoutBehavior().removeWithWriter(arg0, arg1);
@@ -1063,6 +1236,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getKeys();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getKeys();
@@ -1081,6 +1255,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getStatus();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getStatus();
@@ -1099,6 +1274,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getOffHeapSize();
     } catch (NonStopException e) {
       return getTimeoutBehavior().getOffHeapSize();
@@ -1117,6 +1293,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.getSearchAttribute(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().getSearchAttribute(arg0);
@@ -1135,6 +1312,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       return this.delegate.containsKeyOnDisk(arg0);
     } catch (NonStopException e) {
       return getTimeoutBehavior().containsKeyOnDisk(arg0);
@@ -1153,6 +1331,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     nonStop.start(toolkitNonStopConfiguration);
     try {
+      throwNonStopExceptionWhenClusterNotInit();
       this.delegate.unpinAll();
     } catch (NonStopException e) {
       getTimeoutBehavior().unpinAll();
@@ -1162,23 +1341,4 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonStop.finish();
     }
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setAttributeExtractors(Map arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      this.delegate.setAttributeExtractors(arg0);
-    } catch (NonStopException e) {
-      getTimeoutBehavior().setAttributeExtractors(arg0);
-    } catch (InvalidLockStateAfterRejoinException e) {
-      getTimeoutBehavior().setAttributeExtractors(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
 }
