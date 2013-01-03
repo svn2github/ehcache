@@ -52,6 +52,8 @@ import org.terracotta.statistics.StatisticsManager;
  */
 public class StatisticsPlaceholder implements FlatStatistics {
 
+    private static final boolean PUBLISH_MBEAN = false;
+
     /** The Constant DEFAULT_HISTORY_SIZE. */
     public static final int DEFAULT_HISTORY_SIZE = 30;
 
@@ -84,25 +86,14 @@ public class StatisticsPlaceholder implements FlatStatistics {
         this.assocCacheName = ehcache.getName();
         this.extended = new ExtendedStatisticsImpl(statsManager, executor, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
         this.core = new CoreStatisticsImpl(extended);
-        ExtendedStatisticsMBean bean = new ExtendedStatisticsMBean(ehcache, extended);
-        MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-        try {
-            mbeanServer.registerMBean(bean, new ObjectName(bean.getBeanName() + ":type=" + bean.getClass().getSimpleName()));
-        } catch (InstanceAlreadyExistsException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (MBeanRegistrationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NotCompliantMBeanException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (MalformedObjectNameException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if(PUBLISH_MBEAN) {
+            ExtendedStatisticsMBean bean = new ExtendedStatisticsMBean(ehcache, extended);
+            MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+            try {
+                mbeanServer.registerMBean(bean, new ObjectName(bean.getBeanName() + ":type=" + bean.getClass().getSimpleName()));
+            } catch (Exception e) {
+                // TODO need to log
+            }
         }
     }
 
