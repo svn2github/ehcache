@@ -57,12 +57,12 @@ class RealObjectKeySet extends AbstractSet {
     }
 
     private void advance() {
-      next = NO_OBJECT;
-
       if (keysIterator.hasNext()) {
         final Object real;
         real = mode.getRealKeyObject((String) keysIterator.next());
         next = real;
+      } else {
+        next = NO_OBJECT;
       }
     }
 
