@@ -26,7 +26,6 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
-import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.IOException;
