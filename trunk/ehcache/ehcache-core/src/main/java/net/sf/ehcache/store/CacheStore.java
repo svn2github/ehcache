@@ -49,9 +49,6 @@ public class CacheStore implements Store {
     private final CachingTier<Object, Element> cachingTier;
     private final AuthoritativeTier authoritativeTier;
 
-    private final Map keySetEver = new ConcurrentHashMap();
-
-
     @Deprecated
     private final StripedReadWriteLock masterLocks;
 
