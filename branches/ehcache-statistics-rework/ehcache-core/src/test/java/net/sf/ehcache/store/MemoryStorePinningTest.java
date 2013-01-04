@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class MemoryStorePinningTest {
 
     private volatile Cache cache;
-    private volatile MemoryStore memoryStore;
+    private volatile Store memoryStore;
 
     @Before
     public void setUp() {
@@ -38,7 +38,7 @@ public class MemoryStorePinningTest {
                 )
         );
 
-        memoryStore = NotifyingMemoryStore.create(cache, onHeapPool);
+        memoryStore = NotifyingMemoryStore.createNotifyingStore(cache, onHeapPool);
     }
 
     @After

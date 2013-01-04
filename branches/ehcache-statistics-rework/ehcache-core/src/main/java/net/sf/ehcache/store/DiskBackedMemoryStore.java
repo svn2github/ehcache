@@ -27,7 +27,6 @@ import net.sf.ehcache.store.cachingtier.CountBasedBackEnd;
 import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
 import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.store.cachingtier.PooledBasedBackEnd;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
 
 /**
@@ -64,7 +63,7 @@ public abstract class DiskBackedMemoryStore extends AbstractStore {
             memCacheBackEnd = pooledBasedBackEnd;
         }
 
-        return wrapIfCopy(new CacheStore(
+        return CopyingCacheStore.wrapIfCopy(new CacheStore(
             new OnHeapCachingTier<Object, Element>(
                 memCacheBackEnd),
             diskStore, cache.getCacheConfiguration()
@@ -79,20 +78,7 @@ public abstract class DiskBackedMemoryStore extends AbstractStore {
         return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
     }
 
-    private static Store wrapIfCopy(final CacheStore diskCacheStore, final CacheConfiguration cacheConfiguration) {
-        if (cacheConfiguration.isCopyOnRead() || cacheConfiguration.isCopyOnWrite()) {
-            final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
-                .getCopyStrategyInstance();
-            return new CopyingCacheStore(diskCacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance);
-        }
-        return diskCacheStore;
-    }
-
-    private static MemoryStore createMemoryStore(Ehcache cache, Pool onHeapPool) {
-        return MemoryStore.create(cache, onHeapPool);
-    }
-
-    private static DiskStore createDiskStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
+  private static DiskStore createDiskStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         CacheConfiguration config = cache.getCacheConfiguration();
         if (config.isOverflowToDisk()) {
             return DiskStore.create(cache, onHeapPool, onDiskPool);

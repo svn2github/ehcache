@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.Pool;
+import net.sf.ehcache.search.impl.SearchManager;
 
 /**
  * @author Alex Snaps
@@ -33,9 +34,10 @@ public final class NotifyingMemoryStore extends MemoryStore {
      *
      * @param cache the cache
      * @param pool  the pool tracking the on-heap usage
+     * @param searchManager
      */
-    private NotifyingMemoryStore(final Ehcache cache, Pool pool) {
-        super(cache, pool, true, new BasicBackingFactory());
+    private NotifyingMemoryStore(final Ehcache cache, Pool pool, final SearchManager searchManager) {
+        super(cache, pool, true, new BasicBackingFactory(), searchManager);
         this.cache = cache;
     }
 
@@ -46,9 +48,20 @@ public final class NotifyingMemoryStore extends MemoryStore {
      * @param pool the pool tracking the on-heap usage
      * @return an instance of a NotifyingMemoryStore, configured with the appropriate eviction policy
      */
-    public static NotifyingMemoryStore create(final Ehcache cache, Pool pool) {
-        NotifyingMemoryStore store = new NotifyingMemoryStore(cache, pool);
-        cache.getCacheConfiguration().addConfigurationListener(store);
+    public static Store createNotifyingStore(final Ehcache cache, Pool pool) {
+        final MemoryStore.BruteForceSearchManager searchManager = new MemoryStore.BruteForceSearchManager();
+        NotifyingMemoryStore memoryStore = new NotifyingMemoryStore(cache, pool, searchManager);
+        cache.getCacheConfiguration().addConfigurationListener(memoryStore);
+        final Store store;
+        if (CopyingCacheStore.requiresCopy(cache.getCacheConfiguration())) {
+            final CopyingCacheStore<NotifyingMemoryStore> copyingCacheStore = CopyingCacheStore.wrap(memoryStore, cache.getCacheConfiguration());
+            searchManager.setMemoryStore(copyingCacheStore);
+            store = copyingCacheStore;
+        } else {
+            searchManager.setMemoryStore(memoryStore);
+            store = memoryStore;
+        }
+
         return store;
     }
 

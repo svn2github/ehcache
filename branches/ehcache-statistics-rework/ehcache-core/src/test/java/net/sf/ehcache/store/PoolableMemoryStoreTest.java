@@ -36,13 +36,13 @@ public class PoolableMemoryStoreTest {
     private static final int ENTRIES = 2;
     private volatile Cache cache;
     private volatile BoundedPool onHeapPool;
-    private volatile MemoryStore memoryStore;
+    private volatile Store memoryStore;
 
-    private static Collection<Object> keysOfOnHeapElements(MemoryStore store) {
+    private static Collection<Object> keysOfOnHeapElements(Store store) {
         return (Collection<Object>) store.getKeys();
     }
 
-    private static int countElementsOnHeap(MemoryStore store) {
+    private static int countElementsOnHeap(Store store) {
         return keysOfOnHeapElements(store).size();
     }
 

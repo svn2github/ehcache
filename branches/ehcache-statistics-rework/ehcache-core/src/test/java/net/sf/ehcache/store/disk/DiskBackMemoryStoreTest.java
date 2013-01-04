@@ -24,7 +24,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.impl.UnboundedPool;
-import net.sf.ehcache.store.MemoryOnlyStore;
+import net.sf.ehcache.store.NotifyingMemoryStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.RetryAssert;
 
@@ -53,7 +53,7 @@ public class DiskBackMemoryStoreTest {
         cache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true));
         cacheManager.addCache(cache);
         xaCache = new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("xa_strict"));
-        xaStore = MemoryOnlyStore.create(xaCache, new UnboundedPool());
+        xaStore = NotifyingMemoryStore.createNotifyingStore(xaCache, new UnboundedPool());
     }
 
     @After

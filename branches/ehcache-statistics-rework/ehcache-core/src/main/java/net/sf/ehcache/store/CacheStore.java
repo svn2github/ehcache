@@ -26,7 +26,6 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
-import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 import net.sf.ehcache.writer.CacheWriterManager;
 
 import java.io.IOException;
@@ -50,9 +49,6 @@ public class CacheStore implements Store {
     private final CachingTier<Object, Element> cachingTier;
     @ContextChild
     private final AuthoritativeTier authoritativeTier;
-
-    private final Map keySetEver = new ConcurrentHashMap();
-
 
     @Deprecated
     private final StripedReadWriteLock masterLocks;

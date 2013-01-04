@@ -138,6 +138,14 @@ public class NonStopStoreWrapper implements TerracottaStore {
     return writeBehind;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean bufferFull() {
+    return false;
+  }
+
   private TerracottaStore createStore(Callable<TerracottaStore> clusteredStoreCreator) {
     try {
       return clusteredStoreCreator.call();
@@ -1115,25 +1123,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
       getTimeoutBehavior().expireElements();
     } catch (InvalidLockStateAfterRejoinException e) {
       getTimeoutBehavior().expireElements();
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean bufferFull() {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      throwNonStopExceptionWhenClusterNotInit();
-      return this.delegate.bufferFull();
-    } catch (NonStopException e) {
-      return getTimeoutBehavior().bufferFull();
-    } catch (InvalidLockStateAfterRejoinException e) {
-      return getTimeoutBehavior().bufferFull();
     } finally {
       nonStop.finish();
     }
