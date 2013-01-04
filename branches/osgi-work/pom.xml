@@ -7,7 +7,7 @@
   <name>EhCache core OSGi bundle example</name>
   <description>This POM project should be copied, along with its depencies, ehcache-core-dependencies-bundle and ehcache-core-example-osgi-consumer in the ehcache directory, next to the core folder for ease of use
 Then, cd into its directory, should be ehcache-core-osgi-modules and run the command :
-mvn -Dmaven.test.skip=true  clean install org.ops4j:maven-pax-plugin:run -Dframework=felix
+mvn clean install org.ops4j:maven-pax-plugin:run -Dframework=felix
 It will build all the modules, and run a felix osgi runtime, where ehcache-core-example-osgi-consumer will interact with the OSGi'fied Ehcache</description>
   <organization>
 	<name>Anthony Dahanne</name>
