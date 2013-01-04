@@ -217,7 +217,9 @@ public class ResourceClassLoader extends ClassLoader {
                 unpackVfsResourceToPhysicalURLLocation(physicalUrl, vfsVirtualFile, recursiveCopy);
             }
         } catch (ClassNotFoundException e) {
-            // ignore, jboss-5 and below doesn't have this class
+            // jboss-5 and below doesn't have this class, so just return the vfsUrl,
+            // in case the library loading this resource knows how to handle it
+          physicalUrl = vfsUrl;
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
