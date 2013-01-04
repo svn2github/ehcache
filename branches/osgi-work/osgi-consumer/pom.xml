@@ -34,7 +34,7 @@
 					<instructions>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Import-Package>net.sf.ehcache,org.osgi.framework</Import-Package>
+						<Import-Package>net.sf.ehcache,org.osgi.framework,org.slf4j</Import-Package>
 						<Private-Package>net.dahanne.osgi.ehcache.consumer.*</Private-Package>
 						<Bundle-Activator>net.dahanne.osgi.ehcache.consumer.Activator</Bundle-Activator>
 						<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>           

@@ -15,9 +15,10 @@ It will build all the modules, and run a felix osgi runtime, where ehcache-core-
   </organization>
   <properties>
     <org.osgi.framework.bootdelegation>sun.misc</org.osgi.framework.bootdelegation>
+    <vmOptions>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000</vmOptions>
   </properties>
   <modules>
-    <module>ehcache-osgi</module>
+    <!--module>ehcache-osgi</module-->
   	<module>dependencies-bundle</module>
   	<module>osgi-consumer</module>
   </modules>
