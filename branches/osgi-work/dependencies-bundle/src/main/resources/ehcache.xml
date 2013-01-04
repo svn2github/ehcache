@@ -14,7 +14,6 @@
             overflowToDisk="true"
             />
 
-
     <!-- Sample cache named sampleCache1 -->
     <cache name="sampleCache1"
            maxElementsInMemory="10000"
@@ -24,7 +23,6 @@
            timeToLiveSeconds="1000"
            overflowToDisk="true"
            memoryStoreEvictionPolicy="LRU">
-        <cacheEventListenerFactory class="net.sf.ehcache.event.NullCacheEventListenerFactory"/>
     </cache>
 
     <!-- Sample cache named sampleCache2. Is eternal. Is diskPersistent but does not overflow to disk -->
