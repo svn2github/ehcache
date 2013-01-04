@@ -15,8 +15,8 @@ public class Activator implements BundleActivator {
     LOG.info("hello !!!");
 
 
-    //Thread.currentThread().setContextClassLoader(Activator.class.getClassLoader());
-    //ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(Activator.class.getClassLoader());
+    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
 
     Demo demo = new Demo();
 		try {
