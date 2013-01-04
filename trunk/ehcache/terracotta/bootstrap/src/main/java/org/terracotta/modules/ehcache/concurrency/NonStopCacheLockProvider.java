@@ -62,7 +62,7 @@ public class NonStopCacheLockProvider implements CacheLockProvider {
 
   private void waitForTimeout(long timeout) {
     synchronized (this) {
-      while (delegate != null) {
+      while (delegate == null) {
         try {
           this.wait(timeout);
         } catch (InterruptedException e) {
