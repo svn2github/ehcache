@@ -18,8 +18,8 @@ It will build all the modules, and run a felix osgi runtime, where ehcache-core-
     <!--vmOptions>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000</vmOptions-->
   </properties>
   <modules>
-    <!--module>ehcache-osgi</module-->
-  	<module>dependencies-bundle</module>
+    <module>ehcache-osgi</module>
+  	<!--module>dependencies-bundle</module--> <!-- not needed -->
   	<module>osgi-consumer</module>
   </modules>
 </project>
