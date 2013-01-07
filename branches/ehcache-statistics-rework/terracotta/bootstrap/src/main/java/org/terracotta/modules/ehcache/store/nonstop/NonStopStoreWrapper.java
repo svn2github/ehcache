@@ -9,6 +9,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.search.Attribute;
@@ -149,6 +150,8 @@ public class NonStopStoreWrapper implements TerracottaStore {
   private TerracottaStore createStore(Callable<TerracottaStore> clusteredStoreCreator) {
     try {
       return clusteredStoreCreator.call();
+    } catch (InvalidConfigurationException e) {
+      throw e;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -441,7 +444,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
       }
     }
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -465,7 +468,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return NoOpOnTimeoutStore.getInstance().getLocalKeys();
     }
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -1337,6 +1340,5 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonStop.finish();
     }
   }
-
 
 }
