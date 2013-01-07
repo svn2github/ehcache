@@ -11,6 +11,11 @@
 		<name>Anthony Dahanne</name>
 		<url>http://blog.dahanne.net</url>
 	</organization>
+  
+  <properties>
+    <org.osgi.framework.bootdelegation>sun.misc</org.osgi.framework.bootdelegation>
+  </properties>
+  
 	<dependencies>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -22,18 +27,16 @@
 			<artifactId>ehcache</artifactId>
 			<version>2.7.0-SNAPSHOT</version>
 		</dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.6.6</version>
+      <version>1.7.2</version>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.6.6</version>
-    </dependency>
-
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.0.9</version>
+    </dependency>      
   </dependencies>
 	<build>
 		<plugins>
@@ -44,6 +47,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+            <Embed-Transitive>true</Embed-Transitive>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Import-Package>net.sf.ehcache,org.osgi.framework,org.slf4j</Import-Package>

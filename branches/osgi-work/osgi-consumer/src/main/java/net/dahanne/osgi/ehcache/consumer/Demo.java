@@ -7,9 +7,7 @@ public class Demo {
 
 	public void go() {
       System.out.println("Starting demo....");
-//      System.out.println("URL: " + Demo.class.getResource("ehcache.xml"));
 			CacheManager manager = CacheManager.newInstance(Demo.class.getResourceAsStream("/ehcache.xml"));
-//			manager.addCache("sampleCache1");
 			Cache cache = manager.getCache("sampleCache1");
 			Element element = new Element("key1", "value1");
 			cache.put(element);
