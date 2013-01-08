@@ -58,7 +58,8 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       DSOClientMBeanCoordinator coordinator = new DSOClientMBeanCoordinator();
       coordinator.startDSOClientMBeanCoordinator();
-
+      // call a put before calculating initial locks. So that internal cache gets initialized.
+      cache.put(new Element("key", "value"));
       int initialLocks = coordinator.getLocks().size();
       for (int i = 0; i < 1000; i++) {
         cache.put(new Element("key" + i, "value" + i));

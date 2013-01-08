@@ -63,13 +63,13 @@ public abstract class FactorySelector extends Selector {
             Method method = factoryClass.getMethod(factoryMethodName, signature);
             transactionManager = (TransactionManager) method.invoke(null, args);
         } catch (ClassNotFoundException e) {
-            LOG.debug("FactorySelector failed lookup", e);
+            LOG.debug("FactorySelector failed lookup: {}", (Object) e);
         } catch (NoSuchMethodException e) {
-            LOG.debug("FactorySelector failed lookup", e);
+            LOG.debug("FactorySelector failed lookup: {}", (Object) e);
         } catch (InvocationTargetException e) {
-            LOG.debug("FactorySelector failed lookup", e);
+            LOG.debug("FactorySelector failed lookup: {}", (Object) e);
         } catch (IllegalAccessException e) {
-            LOG.debug("FactorySelector failed lookup", e);
+            LOG.debug("FactorySelector failed lookup: {}", (Object) e);
         }
         return transactionManager;
     }
