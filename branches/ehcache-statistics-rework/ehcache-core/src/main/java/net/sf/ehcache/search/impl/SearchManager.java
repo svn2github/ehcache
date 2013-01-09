@@ -45,13 +45,10 @@ public interface SearchManager {
      *
      * @param cacheName cache name
      * @param segmentId segment of cache
-     * @param uniqueKey unique key of element
-     * @param serializedKey serialized form of the element key
      * @param element element being added to cache
      * @param extractors the attribute extractors for the cache
      */
-    void put(String cacheName, int segmentId, String uniqueKey, byte[] serializedKey, Element element,
-            Map<String, AttributeExtractor> extractors);
+    void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors);
 
     /**
      * Notify an element removed from a segment of a given cache
@@ -59,8 +56,9 @@ public interface SearchManager {
      * @param cacheName cache name
      * @param uniqueKey unique key of element
      * @param segmentId segment of cache
+     * @param isRemoval true if called as a result of actual storage engine removal (as opposed to move), false otherwise
      */
-    void remove(String cacheName, String uniqueKey, int segmentId);
+    void remove(String cacheName, Object uniqueKey, int segmentId, boolean isRemoval);
 
     /**
      * Clear a segment of the given cache
@@ -69,15 +67,5 @@ public interface SearchManager {
      * @param segmentId segment of cache
      */
     void clear(String cacheName, int segmentId);
-
-    /**
-     * Update the unqiue key for an existing entry
-     *
-     * @param cacheName cache name to update
-     * @param segmentId segment of cache
-     * @param existingKey the existing unique key
-     * @param newKey the new unique key
-     */
-    void move(String cacheName, int segmentId, String existingKey, String newKey);
 
 }

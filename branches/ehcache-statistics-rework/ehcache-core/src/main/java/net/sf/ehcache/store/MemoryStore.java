@@ -1064,12 +1064,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         }
 
         @Override
-        public void put(String cacheName, int segmentId, String uniqueKey, byte[] serializedKey, Element element,
-                Map<String, AttributeExtractor> extractors) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors) {
             Criteria c = query.getCriteria();
 
@@ -1234,17 +1228,17 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         }
 
         @Override
-        public void remove(String cacheName, String uniqueKey, int segmentId) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public void clear(String cacheName, int segmentId) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void move(String cacheName, int segmentId, String existingKey, String newKey) {
+        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void remove(String cacheName, Object key, int segmentId, boolean isRemoval) {
             throw new UnsupportedOperationException();
         }
 

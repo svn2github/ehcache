@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.store.bulkload;
 
+import net.sf.ehcache.store.StoreListener;
+
 import org.terracotta.toolkit.cache.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheConfigFields;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
@@ -40,12 +42,12 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   private final boolean                    loggingEnabled;
 
   public BulkLoadToolkitCache(ToolkitInternal toolkit, String name, ToolkitCacheInternal<K, V> aggregateServerMap,
-                              BulkLoadShutdownHook bulkLoadShutdownHook) {
+                              BulkLoadShutdownHook bulkLoadShutdownHook, StoreListener listener) {
     this.toolkitInternal = toolkit;
     this.name = name;
     this.logger = toolkit.getLogger(BulkLoadToolkitCache.class.getName());
     this.toolkitCache = aggregateServerMap;
-    this.bulkLoadEnabledNodesSet = new BulkLoadEnabledNodesSet(toolkit, name);
+    this.bulkLoadEnabledNodesSet = new BulkLoadEnabledNodesSet(toolkit, name, listener);
     this.localBufferedMap = new LocalBufferedMap(name, this, aggregateServerMap, toolkit);
     this.bulkLoadShutdownHook = bulkLoadShutdownHook;
     this.loggingEnabled = BulkLoadConstants.isLoggingEnabled(toolkit.getProperties());
