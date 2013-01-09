@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import net.sf.ehcache.store.StoreListener;
+
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
@@ -30,9 +32,9 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   private final ReadWriteLock              lock = new ReentrantReadWriteLock();
 
   public ClusteredStoreBackend(ToolkitInternal toolkit, ToolkitCacheInternal<K, V> cache,
-                               BulkLoadShutdownHook bulkLoadShutdownHook) {
+                               BulkLoadShutdownHook bulkLoadShutdownHook, StoreListener listener) {
     this.cache = cache;
-    this.bulkloadCache = new BulkLoadToolkitCache<K, V>(toolkit, cache.getName(), cache, bulkLoadShutdownHook);
+    this.bulkloadCache = new BulkLoadToolkitCache<K, V>(toolkit, cache.getName(), cache, bulkLoadShutdownHook, listener);
     this.activeDelegate = cache;
   }
 
@@ -608,5 +610,4 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
       lock.readLock().unlock();
     }
   }
-
 }

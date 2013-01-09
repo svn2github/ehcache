@@ -3,6 +3,8 @@
  */
 package org.terracotta.modules.ehcache.store.bulkload;
 
+import net.sf.ehcache.store.StoreListener;
+
 import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.cluster.ClusterListener;
@@ -29,9 +31,13 @@ public class BulkLoadEnabledNodesSet {
   private final CleanupOnNodeLeftListener cleanupOnNodeLeftListener;
   private final boolean                   loggingEnabled;
 
-  protected BulkLoadEnabledNodesSet(ToolkitInternal toolkit, String name) {
+  private final StoreListener             listener;
+
+  protected BulkLoadEnabledNodesSet(ToolkitInternal toolkit, String name, StoreListener listener) {
     this.name = name;
     this.clusterInfo = toolkit.getClusterInfo();
+    this.listener = listener;
+
     bulkLoadEnabledNodesSet = toolkit.getSet(BULK_LOAD_NODES_SET_PREFIX + name, String.class);
     clusteredLock = bulkLoadEnabledNodesSet.getReadWriteLock().writeLock();
 
@@ -204,7 +210,14 @@ public class BulkLoadEnabledNodesSet {
       }
       nodesSet.clusteredLock.lock();
       try {
+        boolean shouldSend = !nodesSet.bulkLoadEnabledNodesSet.isEmpty();
+
         nodesSet.removeNodeIdAndNotifyAll(offlineNode);
+
+        if (shouldSend && nodesSet.bulkLoadEnabledNodesSet.isEmpty()) {
+          nodesSet.listener.clusterCoherent(true);
+        }
+
       } finally {
         nodesSet.clusteredLock.unlock();
       }

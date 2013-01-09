@@ -60,7 +60,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.event.EventListenerList;
 
-public class ClusteredStore implements TerracottaStore {
+public class ClusteredStore implements TerracottaStore, StoreListener {
 
   private static final Logger                                 LOG                                     = LoggerFactory
                                                                                                           .getLogger(ClusteredStore.class
@@ -121,7 +121,7 @@ public class ClusteredStore implements TerracottaStore {
     checkContainsKeyOnPut = toolkitInternal.getProperties().getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
     backend = new ClusteredStoreBackend<String, Serializable>(toolkitInternal,
                                                               toolkitInstanceFactory.getOrCreateToolkitCache(cache),
-                                                              bulkLoadShutdownHook);
+                                                              bulkLoadShutdownHook, this);
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
                                        backend.getConfiguration()
                                            .getInt(ToolkitStoreConfigFields.CONCURRENCY_FIELD_NAME)));
@@ -221,6 +221,16 @@ public class ClusteredStore implements TerracottaStore {
       // TODO: do we still need to support sending notifications when bulk-load turns on/off
     }
     return listenerList;
+  }
+
+  @Override
+  public void clusterCoherent(final boolean clusterCoherent) {
+    Object[] listeners = getEventListenerList().getListenerList();
+    for (int i = listeners.length - 2; i >= 0; i -= 2) {
+      if (listeners[i] == StoreListener.class) {
+        ((StoreListener) listeners[i + 1]).clusterCoherent(clusterCoherent);
+      }
+    }
   }
 
   @Override
