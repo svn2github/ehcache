@@ -8,10 +8,6 @@
 	<packaging>bundle</packaging>
 	<description>Ehcache core depends on several APIs, such as org.hibernate, org.slf4j, javax.servlet
 This Maven module provides those APIs in a OSGi bundle, so that the Ehcache core bundle find all its dependencies in an OSGi runtime environment</description>
-	<organization>
-		<name>Anthony Dahanne</name>
-		<url>http://blog.dahanne.net</url>
-	</organization>
 	<build>
 		<plugins>
 			<plugin>

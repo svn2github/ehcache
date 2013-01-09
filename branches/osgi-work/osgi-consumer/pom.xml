@@ -7,11 +7,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Ehcache core example OSGi consumer</name>
 	<description>This module, when built with the maven bundle plugin, will turn into an OSGi bundle, consuming the Ehcache core OSGi bundle to put elements in a cache and fetch them from the same cache</description>
-	<organization>
-		<name>Anthony Dahanne</name>
-		<url>http://blog.dahanne.net</url>
-	</organization>
-  
   <properties>
     <org.osgi.framework.bootdelegation>sun.misc,sun.reflect</org.osgi.framework.bootdelegation>
   </properties>
