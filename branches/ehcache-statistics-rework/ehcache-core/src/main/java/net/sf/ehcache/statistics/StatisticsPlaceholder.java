@@ -390,7 +390,7 @@ public class StatisticsPlaceholder implements FlatStatistics {
 
     @Override
     public long getLocalOffHeapSize() {
-        return extended.getLocalHeapSize().value().longValue();
+        return extended.getLocalOffHeapSize().value().longValue();
     }
 
     @Override
