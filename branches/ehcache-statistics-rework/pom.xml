@@ -22,6 +22,7 @@
   </properties>  
 
   <modules>
+    <module>ehcache-core</module>
     <module>terracotta</module>
     <module>ehcache</module>
     <module>management-ehcache</module>
