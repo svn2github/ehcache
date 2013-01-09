@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <document>
     <body>
+     <release version="2.5.7" date="2013-01" description="Bug Fix Release">
+        	<action dev="" type="update" issue="">
+        	Version updated to be compatible with Terracotta 3.6.6 release
+                </action>
+           </release>
     <release version="2.5.5" date="2012-09" description="Bug Fix Release">
         	<action dev="" type="update" issue="">
                 </action>
