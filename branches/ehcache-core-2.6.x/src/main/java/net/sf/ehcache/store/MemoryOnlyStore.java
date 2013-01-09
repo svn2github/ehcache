@@ -177,8 +177,7 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
         }
 
         @Override
-        public void put(String cacheName, int segmentId, String uniqueKey, byte[] serializedKey, Element element,
-                Map<String, AttributeExtractor> extractors) {
+        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors) {
             throw new UnsupportedOperationException();
         }
 
@@ -344,17 +343,12 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
         }
 
         @Override
-        public void remove(String cacheName, String uniqueKey, int segmentId) {
+        public void remove(String cacheName, Object uniqueKey, int segmentId, boolean isRemoval) {
             throw new UnsupportedOperationException();
         }
 
         @Override
         public void clear(String cacheName, int segmentId) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void move(String cacheName, int segmentId, String existingKey, String newKey) {
             throw new UnsupportedOperationException();
         }
 
