@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.statistics.extended;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.terracotta.context.query.Matchers.allOf;
 import static org.terracotta.context.query.Matchers.attributes;
 import static org.terracotta.context.query.Matchers.context;
@@ -67,9 +68,12 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedStatisticsImpl.class);
 
-    private final ConcurrentMap<StandardPassThroughStatistic, ValueStatistic> standardPassThroughs = new ConcurrentHashMap<StandardPassThroughStatistic, ValueStatistic>();
-    private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations = new ConcurrentHashMap<StandardOperationStatistic, Operation<?>>();
-    private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations = new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
+    private final ConcurrentMap<StandardPassThroughStatistic, ValueStatistic> standardPassThroughs =
+            new ConcurrentHashMap<StandardPassThroughStatistic, ValueStatistic>();
+    private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations =
+            new ConcurrentHashMap<StandardOperationStatistic, Operation<?>>();
+    private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations =
+            new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
     private final StatisticsManager manager;
     private final ScheduledExecutorService executor;
     private final Runnable disableTask = new Runnable() {
@@ -144,7 +148,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                     standardOperations.put(t, NullCompoundOperation.instance());
                 }
             } else {
-                standardOperations.put(t, new CompoundOperationImpl(statistic, t.type(), t.window(), TimeUnit.SECONDS, executor, t.history(), t.interval(), TimeUnit.SECONDS));
+                standardOperations.put(t, new CompoundOperationImpl(statistic, t.type(),
+                        t.window(), SECONDS, executor, t.history(), t.interval(), SECONDS));
             }
         }
     }
@@ -448,7 +453,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public <T extends Enum<T>> Set<Operation<T>> operations(Class<T> outcome, String name, String... tags) {
-        Set<OperationStatistic<T>> sources = findOperationStatistic(manager, queryBuilder().descendants().build(), outcome, name, new HashSet<String>(Arrays.asList(tags)));
+        Set<OperationStatistic<T>> sources = findOperationStatistic(manager, queryBuilder().descendants().build(),
+                outcome, name, new HashSet<String>(Arrays.asList(tags)));
         if (sources.isEmpty()) {
             return Collections.emptySet();
         } else {
@@ -456,7 +462,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             for (OperationStatistic<T> source : sources) {
                 CompoundOperationImpl<T> operation = (CompoundOperationImpl<T>) customOperations.get(source);
                 if (operation == null) {
-                    operation = new CompoundOperationImpl<T>(source, source.type(), 1, TimeUnit.SECONDS, executor, 0, 1, TimeUnit.SECONDS);
+                    operation = new CompoundOperationImpl<T>(source, source.type(), 1, SECONDS, executor, 0, 1, SECONDS);
                     CompoundOperationImpl<T> racer = (CompoundOperationImpl<T>) customOperations.putIfAbsent(source, operation);
                     if (racer != null) {
                         operation = racer;
@@ -565,7 +571,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             if (discovered == null) {
                 return operation;
             } else {
-                Operation<?> newOperation = new CompoundOperationImpl(discovered, statistic.type(), statistic.window(), TimeUnit.SECONDS, executor, statistic.history(), statistic.interval(), TimeUnit.SECONDS);
+                Operation<?> newOperation = new CompoundOperationImpl(discovered, statistic.type(),
+                        statistic.window(), SECONDS, executor, statistic.history(), statistic.interval(), SECONDS);
                 if (standardOperations.replace(statistic, operation, newOperation)) {
                     return newOperation;
                 } else {
@@ -596,7 +603,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     }
     
     private static OperationStatistic findOperationStatistic(StatisticsManager manager, StandardOperationStatistic statistic) {
-        Set<OperationStatistic> results = findOperationStatistic(manager, statistic.context(), statistic.type(), statistic.operationName(), statistic.tags());
+        Set<OperationStatistic> results = findOperationStatistic(manager, statistic.context(),
+                statistic.type(), statistic.operationName(), statistic.tags());
         switch (results.size()) {
             case 0:
                 return null;
@@ -653,7 +661,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
-    private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, Query contextQuery, String name, final Set<String> tags) {
+    private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, Query contextQuery,
+            String name, final Set<String> tags) {
         Set<TreeNode> passThroughStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(ValueStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()

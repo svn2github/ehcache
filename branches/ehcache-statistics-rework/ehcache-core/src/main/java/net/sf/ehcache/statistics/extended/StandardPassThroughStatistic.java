@@ -22,7 +22,7 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import org.terracotta.context.query.Query;
 
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.*;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
 
 /**
  *

@@ -1338,11 +1338,8 @@ public class CacheManager {
         if (!registerCacheConfig && cache.getName().startsWith(shadowPrefix)) {
             String parentCacheName = cache.getName().substring(shadowPrefix.length());
             Ehcache parentCache = parentCaches.remove(parentCacheName);
-            if (parentCache == null) {
+            if (parentCache != null) {
                 //caches get created for all sorts of non Ehcache related stores/caches
-                System.out.println("No Parent Cache For " + cache.getName());
-            } else {
-                System.out.println("Found Parent Cache For " + cache.getName());
                 StatisticsManager.associate(cache).withParent(parentCache);
             }
         }

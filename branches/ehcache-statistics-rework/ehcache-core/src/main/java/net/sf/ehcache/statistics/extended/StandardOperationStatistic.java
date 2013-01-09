@@ -29,7 +29,8 @@ import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 import org.terracotta.context.query.Query;
 
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.*;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.descendants;
 
 /**
  * The Enum OperationType.
