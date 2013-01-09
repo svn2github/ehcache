@@ -7,23 +7,22 @@ import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Activator.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(Activator.class.getName());
 
+	public void start(BundleContext context) throws Exception {
 
-  public void start(BundleContext context) throws Exception {
-    
 		System.out.println(String.format("Start - %s", this.getClass().getName()));
-    LOG.info("hello !!!");
+		LOG.info("hello !!!");
 
+		//Thread.currentThread().setContextClassLoader(Activator.class.getClassLoader());
+		// ClassLoader contextClassLoader =
+		// Thread.currentThread().getContextClassLoader();
 
-//    Thread.currentThread().setContextClassLoader(Activator.class.getClassLoader());
-//    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-
-    Demo demo = new Demo();
+		Demo demo = new Demo();
 		try {
 			demo.go();
 		} catch (Exception e) {
-      e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 

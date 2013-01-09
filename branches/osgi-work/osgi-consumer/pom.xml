@@ -13,7 +13,7 @@
 	</organization>
   
   <properties>
-    <org.osgi.framework.bootdelegation>sun.misc</org.osgi.framework.bootdelegation>
+    <org.osgi.framework.bootdelegation>sun.misc,sun.reflect</org.osgi.framework.bootdelegation>
   </properties>
   
 	<dependencies>
@@ -37,6 +37,11 @@
       <artifactId>logback-classic</artifactId>
       <version>1.0.6</version>
     </dependency>      
+    <dependency>
+      <groupId>org.terracotta</groupId>
+      <artifactId>terracotta-toolkit-runtime</artifactId>
+      <version>4.0.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 	<build>
 		<plugins>
@@ -50,7 +55,7 @@
             <Embed-Transitive>true</Embed-Transitive>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Import-Package>net.sf.ehcache,org.osgi.framework,org.slf4j</Import-Package>
+						<Import-Package>net.sf.ehcache,org.terracotta.toolkit,org.osgi.framework,org.slf4j</Import-Package>
 						<Private-Package>net.dahanne.osgi.ehcache.consumer.*</Private-Package>
 						<Bundle-Activator>net.dahanne.osgi.ehcache.consumer.Activator</Bundle-Activator>
 						<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>           
