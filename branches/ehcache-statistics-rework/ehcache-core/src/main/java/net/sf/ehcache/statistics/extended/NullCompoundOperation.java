@@ -256,7 +256,7 @@ final class NullLatency implements Latency {
  *
  * @param <T>
  */
-final class NullStatistic<T> implements Statistic {
+final class NullStatistic<T extends Number> implements Statistic<T> {
 
     private static final Map<Object, Statistic<?>> COMMON = new HashMap<Object, Statistic<?>>();
     static {
@@ -304,7 +304,7 @@ final class NullStatistic<T> implements Statistic {
      * @param value
      * @return
      */
-    static <T> Statistic<T> instance(T value) {
+    static <T extends Number> Statistic<T> instance(T value) {
         Statistic<T> cached = (Statistic<T>) COMMON.get(value);
         if (cached == null) {
             return new NullStatistic<T>(value);

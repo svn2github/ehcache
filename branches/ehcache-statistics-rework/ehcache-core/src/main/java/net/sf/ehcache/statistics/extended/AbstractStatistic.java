@@ -30,7 +30,7 @@ import org.terracotta.statistics.archive.Timestamped;
  * @param <T> the generic type
  * @author cdennis
  */
-abstract class AbstractStatistic<T> implements Statistic<T> {
+abstract class AbstractStatistic<T extends Number> implements Statistic<T> {
 
     /** The history. */
     private final SampledStatistic<T> history;

@@ -20,12 +20,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import net.sf.ehcache.Cache;
 
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
+import org.terracotta.context.query.Query;
+
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.*;
 
 /**
  * The Enum OperationType.
@@ -35,20 +39,20 @@ import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 enum StandardOperationStatistic {
 
     /** The cache get. */
-    CACHE_GET(true, CacheOperationOutcomes.GetOutcome.class, "get", "cache"),
+    CACHE_GET(true, cache(), CacheOperationOutcomes.GetOutcome.class, "get", "cache"),
     /** The cache put. */
-    CACHE_PUT(true, CacheOperationOutcomes.PutOutcome.class, "put", "cache"),
+    CACHE_PUT(true, cache(), CacheOperationOutcomes.PutOutcome.class, "put", "cache"),
     /** The cache remove. */
-    CACHE_REMOVE(true, CacheOperationOutcomes.RemoveOutcome.class, "remove", "cache"),
+    CACHE_REMOVE(true, cache(), CacheOperationOutcomes.RemoveOutcome.class, "remove", "cache"),
 
     /** The heap get. */
-    HEAP_GET(true, StoreOperationOutcomes.GetOutcome.class, "get", "local-heap"),
+    HEAP_GET(StoreOperationOutcomes.GetOutcome.class, "get", "local-heap"),
 
     /** The heap put. */
-    HEAP_PUT(true, StoreOperationOutcomes.PutOutcome.class, "put", "local-heap"),
+    HEAP_PUT(StoreOperationOutcomes.PutOutcome.class, "put", "local-heap"),
 
     /** The heap remove. */
-    HEAP_REMOVE(true, StoreOperationOutcomes.RemoveOutcome.class, "remove", "local-heap"),
+    HEAP_REMOVE(StoreOperationOutcomes.RemoveOutcome.class, "remove", "local-heap"),
 
     /** The offheap get. */
     OFFHEAP_GET(StoreOperationOutcomes.GetOutcome.class, "get", "local-offheap"),
@@ -78,7 +82,7 @@ enum StandardOperationStatistic {
     XA_RECOVERY(XaRecoveryOutcome.class, "xa-recovery", "xa-transactional"),
 
     /** The search. */
-    SEARCH(true, CacheOperationOutcomes.SearchOutcome.class, "search", "cache") {
+    SEARCH(true, cache(), CacheOperationOutcomes.SearchOutcome.class, "search", "cache") {
         @Override
         long interval() {
             return TEN;
@@ -91,14 +95,16 @@ enum StandardOperationStatistic {
     },
 
     /** The evicted. */
-    EVICTION(true, CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
+    EVICTION(false, cache().children().exclude(Cache.class).addDescendants(), CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
 
     /** The expired. */
-    EXPIRY(true, CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
+    EXPIRY(true, cache().children(Object.class), CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
 
     private static final int THIRTY = 30;
     private static final int TEN = 10;
+    
     private final boolean required;
+    private final Query context;
     private final Class<? extends Enum> type;
     private final String name;
     private final Set<String> tags;
@@ -108,12 +114,17 @@ enum StandardOperationStatistic {
     }
 
     private StandardOperationStatistic(boolean required, Class<? extends Enum> type, String name, String ... tags) {
+        this(required, descendants(), type, name, tags);
+    }
+
+    private StandardOperationStatistic(boolean required, Query context, Class<? extends Enum> type, String name, String ... tags) {
         this.required = required;
+        this.context = context;
         this.type = type;
         this.name = name;
         this.tags = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(tags)));
     }
-
+    
     /**
      * If this statistic is required.
      * <p>
@@ -125,6 +136,15 @@ enum StandardOperationStatistic {
         return required;
     }
 
+    /**
+     * Query that select context nodes for this statistic.
+     * 
+     * @return context query
+     */
+    final Query context() {
+        return context;
+    }
+    
     /**
      * Operation result type.
      *

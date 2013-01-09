@@ -29,7 +29,7 @@ import org.terracotta.statistics.archive.Timestamped;
  * @param <T> the generic type
  * @author cdennis
  */
-class SampledStatistic<T> {
+class SampledStatistic<T extends Number> {
 
     /** The sampler. */
     private final StatisticSampler<T> sampler;

@@ -26,10 +26,8 @@ import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -53,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.context.TreeNode;
 import org.terracotta.context.query.Matcher;
+import org.terracotta.context.query.Query;
 import org.terracotta.statistics.ConstantValueStatistic;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
@@ -68,14 +67,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedStatisticsImpl.class);
 
-    private final Map<StandardPassThroughStatistic, ValueStatistic<?>> standardPassThroughs =
-            new EnumMap<StandardPassThroughStatistic, ValueStatistic<?>>(
-                    StandardPassThroughStatistic.class);
-    private final Map<StandardOperationStatistic, Operation<?>> standardOperations =
-            new EnumMap<StandardOperationStatistic, Operation<?>>(
-                    StandardOperationStatistic.class);
-    private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations =
-            new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
+    private final ConcurrentMap<StandardPassThroughStatistic, ValueStatistic> standardPassThroughs = new ConcurrentHashMap<StandardPassThroughStatistic, ValueStatistic>();
+    private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations = new ConcurrentHashMap<StandardOperationStatistic, Operation<?>>();
+    private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations = new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
     private final StatisticsManager manager;
     private final ScheduledExecutorService executor;
     private final Runnable disableTask = new Runnable() {
@@ -126,9 +120,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         this.timeToDisableUnit = unit;
         this.disableStatus = this.executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, unit);
 
-        findStandardPassThruStatistics(manager);
-
-        findStandardOperationStatistics(manager, executor);
+        findStandardPassThruStatistics();
+        findStandardOperationStatistics();
 
         // well known compound results.
         this.allCacheGet = get().compound(ALL_CACHE_GET_OUTCOMES);
@@ -140,44 +133,30 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     }
 
-    private void findStandardOperationStatistics(StatisticsManager manager, ScheduledExecutorService executor) {
+    private void findStandardOperationStatistics() {
         for (final StandardOperationStatistic t : StandardOperationStatistic.values()) {
-            Set<OperationStatistic> results = findOperationStatistic(manager, t.type(), t.operationName(), t.tags());
-            switch (results.size()) {
-                case 0:
-                    if (t.required()) {
-                        throw new IllegalStateException("Required statistic " + t + " not found");
-                    } else {
-                        LOGGER.debug("Mocking Operation Statistic: {}", t);
-                        standardOperations.put(t, NullCompoundOperation.instance());
-                    }
-                    break;
-                case 1:
-                    OperationStatistic source = results.iterator().next();
-                    standardOperations.put(t,
-                            new CompoundOperationImpl(source, t.type(), t.window(), TimeUnit.SECONDS, executor, t.history(), t.interval(),
-                                    TimeUnit.SECONDS));
-                    break;
-                default:
-                    throw new IllegalStateException("Duplicate statistics found for " + t);
+            OperationStatistic statistic = findOperationStatistic(manager, t);
+            if (statistic == null) {
+                if (t.required()) {
+                    throw new IllegalStateException("Required statistic " + t + " not found");
+                } else {
+                    LOGGER.debug("Mocking Operation Statistic: {}", t);
+                    standardOperations.put(t, NullCompoundOperation.instance());
+                }
+            } else {
+                standardOperations.put(t, new CompoundOperationImpl(statistic, t.type(), t.window(), TimeUnit.SECONDS, executor, t.history(), t.interval(), TimeUnit.SECONDS));
             }
         }
     }
 
-    private void findStandardPassThruStatistics(StatisticsManager manager) {
+    private void findStandardPassThruStatistics() {
         for (final StandardPassThroughStatistic t : StandardPassThroughStatistic.values()) {
-            Set<ValueStatistic<?>> results = findPassThroughStatistic(manager, t.statisticName(), t.tags());
-            switch (results.size()) {
-                case 0:
-                    LOGGER.debug("Mocking Pass-Through Statistic: {}", t);
-                    standardPassThroughs.put(t, ConstantValueStatistic.instance(t.absentValue()));
-                    break;
-                case 1:
-                    ValueStatistic<?> statistic = results.iterator().next();
-                    standardPassThroughs.put(t, statistic);
-                    break;
-                default:
-                    throw new IllegalStateException("Duplicate statistics found for " + t);
+            ValueStatistic statistic = findPassThroughStatistic(manager, t);
+            if (statistic == null) {
+                LOGGER.debug("Mocking Pass-Through Statistic: {}", t);
+                standardPassThroughs.put(t, ConstantValueStatistic.instance(t.absentValue()));
+            } else {
+                standardPassThroughs.put(t, statistic);
             }
         }
     }
@@ -229,7 +208,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<GetOutcome> get() {
-        return (Operation<GetOutcome>) standardOperations.get(StandardOperationStatistic.CACHE_GET);
+        return (Operation<GetOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_GET);
     }
 
     /*
@@ -239,7 +218,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<PutOutcome> put() {
-        return (Operation<PutOutcome>) standardOperations.get(StandardOperationStatistic.CACHE_PUT);
+        return (Operation<PutOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_PUT);
     }
 
     /*
@@ -249,7 +228,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<RemoveOutcome> remove() {
-        return (Operation<RemoveOutcome>) standardOperations.get(StandardOperationStatistic.CACHE_REMOVE);
+        return (Operation<RemoveOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_REMOVE);
     }
 
     /*
@@ -259,7 +238,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<SearchOutcome> search() {
-        return (Operation<CacheOperationOutcomes.SearchOutcome>) standardOperations.get(StandardOperationStatistic.SEARCH);
+        return (Operation<CacheOperationOutcomes.SearchOutcome>) getStandardOperation(StandardOperationStatistic.SEARCH);
     }
 
     /*
@@ -269,7 +248,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<StoreOperationOutcomes.GetOutcome> heapGet() {
-        return (Operation<StoreOperationOutcomes.GetOutcome>) standardOperations.get(StandardOperationStatistic.HEAP_GET);
+        return (Operation<StoreOperationOutcomes.GetOutcome>) getStandardOperation(StandardOperationStatistic.HEAP_GET);
     }
 
     /*
@@ -279,7 +258,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> heapPut() {
-        return (Operation<StoreOperationOutcomes.PutOutcome>) standardOperations.get(StandardOperationStatistic.HEAP_PUT);
+        return (Operation<StoreOperationOutcomes.PutOutcome>) getStandardOperation(StandardOperationStatistic.HEAP_PUT);
     }
 
     /*
@@ -289,7 +268,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> heapRemove() {
-        return (Operation<StoreOperationOutcomes.RemoveOutcome>) standardOperations.get(StandardOperationStatistic.HEAP_REMOVE);
+        return (Operation<StoreOperationOutcomes.RemoveOutcome>) getStandardOperation(StandardOperationStatistic.HEAP_REMOVE);
     }
 
     /*
@@ -299,7 +278,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<StoreOperationOutcomes.GetOutcome> offheapGet() {
-        return (Operation<StoreOperationOutcomes.GetOutcome>) standardOperations.get(StandardOperationStatistic.OFFHEAP_GET);
+        return (Operation<StoreOperationOutcomes.GetOutcome>) getStandardOperation(StandardOperationStatistic.OFFHEAP_GET);
     }
 
     /*
@@ -309,7 +288,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> offheapPut() {
-        return (Operation<StoreOperationOutcomes.PutOutcome>) standardOperations.get(StandardOperationStatistic.OFFHEAP_PUT);
+        return (Operation<StoreOperationOutcomes.PutOutcome>) getStandardOperation(StandardOperationStatistic.OFFHEAP_PUT);
     }
 
     /*
@@ -319,7 +298,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> offheapRemove() {
-        return (Operation<StoreOperationOutcomes.RemoveOutcome>) standardOperations.get(StandardOperationStatistic.OFFHEAP_REMOVE);
+        return (Operation<StoreOperationOutcomes.RemoveOutcome>) getStandardOperation(StandardOperationStatistic.OFFHEAP_REMOVE);
     }
 
     /*
@@ -329,7 +308,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<StoreOperationOutcomes.GetOutcome> diskGet() {
-        return (Operation<StoreOperationOutcomes.GetOutcome>) standardOperations.get(StandardOperationStatistic.DISK_GET);
+        return (Operation<StoreOperationOutcomes.GetOutcome>) getStandardOperation(StandardOperationStatistic.DISK_GET);
     }
 
     /*
@@ -339,7 +318,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome> diskPut() {
-        return (Operation<StoreOperationOutcomes.PutOutcome>) standardOperations.get(StandardOperationStatistic.DISK_PUT);
+        return (Operation<StoreOperationOutcomes.PutOutcome>) getStandardOperation(StandardOperationStatistic.DISK_PUT);
     }
 
     /*
@@ -349,7 +328,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome> diskRemove() {
-        return (Operation<StoreOperationOutcomes.RemoveOutcome>) standardOperations.get(StandardOperationStatistic.DISK_REMOVE);
+        return (Operation<StoreOperationOutcomes.RemoveOutcome>) getStandardOperation(StandardOperationStatistic.DISK_REMOVE);
     }
 
     /*
@@ -359,7 +338,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<XaCommitOutcome> xaCommit() {
-        return (Operation<XaCommitOutcome>) standardOperations.get(StandardOperationStatistic.XA_COMMIT);
+        return (Operation<XaCommitOutcome>) getStandardOperation(StandardOperationStatistic.XA_COMMIT);
     }
 
     /*
@@ -369,7 +348,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<XaRollbackOutcome> xaRollback() {
-        return (Operation<XaRollbackOutcome>) standardOperations.get(StandardOperationStatistic.XA_ROLLBACK);
+        return (Operation<XaRollbackOutcome>) getStandardOperation(StandardOperationStatistic.XA_ROLLBACK);
     }
 
     /*
@@ -379,7 +358,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<XaRecoveryOutcome> xaRecovery() {
-        return (Operation<XaRecoveryOutcome>) standardOperations.get(StandardOperationStatistic.XA_RECOVERY);
+        return (Operation<XaRecoveryOutcome>) getStandardOperation(StandardOperationStatistic.XA_RECOVERY);
     }
 
     /*
@@ -389,7 +368,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<EvictionOutcome> eviction() {
-        return (Operation<CacheOperationOutcomes.EvictionOutcome>) standardOperations.get(StandardOperationStatistic.EVICTION);
+        return (Operation<CacheOperationOutcomes.EvictionOutcome>) getStandardOperation(StandardOperationStatistic.EVICTION);
     }
 
     /*
@@ -399,7 +378,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public Operation<ExpiredOutcome> expiry() {
-        return (Operation<CacheOperationOutcomes.ExpiredOutcome>) standardOperations.get(StandardOperationStatistic.EXPIRY);
+        return (Operation<CacheOperationOutcomes.ExpiredOutcome>) getStandardOperation(StandardOperationStatistic.EXPIRY);
     }
 
     /*
@@ -469,7 +448,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      */
     @Override
     public <T extends Enum<T>> Set<Operation<T>> operations(Class<T> outcome, String name, String... tags) {
-        Set<OperationStatistic<T>> sources = findOperationStatistic(manager, outcome, name, new HashSet<String>(Arrays.asList(tags)));
+        Set<OperationStatistic<T>> sources = findOperationStatistic(manager, queryBuilder().descendants().build(), outcome, name, new HashSet<String>(Arrays.asList(tags)));
         if (sources.isEmpty()) {
             return Collections.emptySet();
         } else {
@@ -495,8 +474,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalHeapSize()
      */
     @Override
-    public ValueStatistic<Long> getLocalHeapSize() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.LOCAL_HEAP_SIZE);
+    public ValueStatistic<Number> getLocalHeapSize() {
+        return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_HEAP_SIZE);
     }
 
     /*
@@ -505,8 +484,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalHeapSizeInBytes()
      */
     @Override
-    public ValueStatistic<Long> getLocalHeapSizeInBytes() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.LOCAL_HEAP_SIZE_BYTES);
+    public ValueStatistic<Number> getLocalHeapSizeInBytes() {
+        return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_HEAP_SIZE_BYTES);
     }
 
     /*
@@ -515,8 +494,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalOffHeapSize()
      */
     @Override
-    public ValueStatistic<Long> getLocalOffHeapSize() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.LOCAL_OFFHEAP_SIZE);
+    public ValueStatistic<Number> getLocalOffHeapSize() {
+        return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_OFFHEAP_SIZE);
     }
 
     /*
@@ -525,8 +504,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalOffHeapSizeInBytes()
      */
     @Override
-    public ValueStatistic<Long> getLocalOffHeapSizeInBytes() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.LOCAL_OFFHEAP_SIZE_BYTES);
+    public ValueStatistic<Number> getLocalOffHeapSizeInBytes() {
+        return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_OFFHEAP_SIZE_BYTES);
     }
 
     /*
@@ -535,8 +514,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalDiskSize()
      */
     @Override
-    public ValueStatistic<Long> getLocalDiskSize() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.LOCAL_DISK_SIZE);
+    public ValueStatistic<Number> getLocalDiskSize() {
+        return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_DISK_SIZE);
     }
 
     /*
@@ -545,8 +524,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalDiskSizeInBytes()
      */
     @Override
-    public ValueStatistic<Long> getLocalDiskSizeInBytes() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.LOCAL_DISK_SIZE_BYTES);
+    public ValueStatistic<Number> getLocalDiskSizeInBytes() {
+        return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_DISK_SIZE_BYTES);
     }
 
     /*
@@ -555,8 +534,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getRemoteSize()
      */
     @Override
-    public ValueStatistic<Long> getRemoteSize() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.REMOTE_SIZE);
+    public ValueStatistic<Number> getRemoteSize() {
+        return getStandardPassThrough(StandardPassThroughStatistic.REMOTE_SIZE);
     }
 
     /*
@@ -565,8 +544,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getSize()
      */
     @Override
-    public ValueStatistic<Long> getSize() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.CACHE_SIZE);
+    public ValueStatistic<Number> getSize() {
+        return getStandardPassThrough(StandardPassThroughStatistic.CACHE_SIZE);
     }
 
     /*
@@ -575,10 +554,71 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getWriterQueueLength()
      */
     @Override
-    public ValueStatistic<Long> getWriterQueueLength() {
-        return (ValueStatistic<Long>) standardPassThroughs.get(StandardPassThroughStatistic.WRITER_QUEUE_LENGTH);
+    public ValueStatistic<Number> getWriterQueueLength() {
+        return getStandardPassThrough(StandardPassThroughStatistic.WRITER_QUEUE_LENGTH);
     }
 
+    private Operation<?> getStandardOperation(StandardOperationStatistic statistic) {
+        Operation<?> operation = standardOperations.get(statistic);
+        if (operation instanceof NullCompoundOperation<?>) {
+            OperationStatistic<?> discovered = findOperationStatistic(manager, statistic);
+            if (discovered == null) {
+                return operation;
+            } else {
+                Operation<?> newOperation = new CompoundOperationImpl(discovered, statistic.type(), statistic.window(), TimeUnit.SECONDS, executor, statistic.history(), statistic.interval(), TimeUnit.SECONDS);
+                if (standardOperations.replace(statistic, operation, newOperation)) {
+                    return newOperation;
+                } else {
+                    return standardOperations.get(statistic);
+                }
+            }
+        } else {
+            return operation;
+        }
+    }
+    
+    private ValueStatistic<Number> getStandardPassThrough(StandardPassThroughStatistic statistic) {
+        ValueStatistic<Number> passThrough = standardPassThroughs.get(statistic);
+        if (passThrough instanceof ConstantValueStatistic<?>) {
+            ValueStatistic discovered = findPassThroughStatistic(manager, statistic);
+            if (discovered == null) {
+                return passThrough;
+            } else {
+                if (standardPassThroughs.replace(statistic, passThrough, discovered)) {
+                    return discovered;
+                } else {
+                    return standardPassThroughs.get(statistic);
+                }
+            }
+        } else {
+            return passThrough;
+        }
+    }
+    
+    private static OperationStatistic findOperationStatistic(StatisticsManager manager, StandardOperationStatistic statistic) {
+        Set<OperationStatistic> results = findOperationStatistic(manager, statistic.context(), statistic.type(), statistic.operationName(), statistic.tags());
+        switch (results.size()) {
+            case 0:
+                return null;
+            case 1:
+                return results.iterator().next();
+            default:
+                throw new IllegalStateException("Duplicate statistics found for " + statistic);
+        }
+    }
+    
+    private static ValueStatistic findPassThroughStatistic(StatisticsManager manager, StandardPassThroughStatistic statistic) {
+        Set<ValueStatistic<?>> results = findPassThroughStatistic(manager, statistic.context(), statistic.statisticName(), statistic.tags());
+        switch (results.size()) {
+            case 0:
+                return null;
+            case 1:
+                return results.iterator().next();
+            default:
+                throw new IllegalStateException("Duplicate statistics found for " + statistic);
+        }
+    }
+    
     /**
      * Find operation statistic.
      *
@@ -589,9 +629,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @param tags the tags
      * @return the sets the
      */
-    private static <T extends Enum<T>> Set<OperationStatistic<T>> findOperationStatistic(StatisticsManager manager, Class<T> type,
+    private static <T extends Enum<T>> Set<OperationStatistic<T>> findOperationStatistic(StatisticsManager manager, Query contextQuery, Class<T> type,
             String name, final Set<String> tags) {
-        Set<TreeNode> operationStatisticNodes = manager.query(queryBuilder().descendants()
+        Set<TreeNode> operationStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(OperationStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()
                 .filter(context(attributes(allOf(hasAttribute("type", type), hasAttribute("name", name),
@@ -613,8 +653,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
-    private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, String name, final Set<String> tags) {
-        Set<TreeNode> passThroughStatisticNodes = manager.query(queryBuilder().descendants()
+    private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, Query contextQuery, String name, final Set<String> tags) {
+        Set<TreeNode> passThroughStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(ValueStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()
                 .filter(context(attributes(allOf(hasAttribute("name", name), hasAttribute("tags", new Matcher<Set<String>>() {

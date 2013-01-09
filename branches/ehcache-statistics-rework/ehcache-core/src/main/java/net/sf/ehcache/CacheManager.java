@@ -81,6 +81,7 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.StatisticsManager;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -1311,6 +1312,8 @@ public class CacheManager {
         }
     }
 
+    private final Map<String, Ehcache> parentCaches = new ConcurrentHashMap<String, Ehcache>();
+    
     /**
      * Initialize the given {@link Ehcache} without adding it to the {@link CacheManager}.
      *
@@ -1322,10 +1325,26 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
+            parentCaches.put(cache.getName(), cache);
+        }
         cache.initialise();
 
         if (!runtimeCfg.allowsDynamicCacheConfig()) {
             cache.disableDynamicFeatures();
+        }
+
+        String shadowPrefix = "local_shadow_cache_for_" + getName() + "___tc_clustered-ehcache|" + getName() + "|";
+        if (!registerCacheConfig && cache.getName().startsWith(shadowPrefix)) {
+            String parentCacheName = cache.getName().substring(shadowPrefix.length());
+            Ehcache parentCache = parentCaches.remove(parentCacheName);
+            if (parentCache == null) {
+                //caches get created for all sorts of non Ehcache related stores/caches
+                System.out.println("No Parent Cache For " + cache.getName());
+            } else {
+                System.out.println("Found Parent Cache For " + cache.getName());
+                StatisticsManager.associate(cache).withParent(parentCache);
+            }
         }
 
         try {

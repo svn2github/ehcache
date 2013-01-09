@@ -31,11 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.terracotta.context.annotations.ContextChild;
+
 /**
  * Wrapper over ClusteredStore to have custom exception handlers for Store operations.
  */
 public class ClusteredSafeStore implements TerracottaStore {
   private static final ClusteredStoreExceptionHandler EXCEPTION_HANDLER = new ClusteredSafeStoreExceptionHandler();
+
+  @ContextChild
   private final TerracottaStore                       delegateClusteredStore;
 
   public ClusteredSafeStore(final TerracottaStore delegateClusteredStore) {

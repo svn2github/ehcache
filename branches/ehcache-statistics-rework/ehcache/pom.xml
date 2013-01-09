@@ -228,6 +228,7 @@
           <artifactSet>
             <includes>
               <include>net.sf.ehcache.internal:*</include>
+              <include>org.terracotta.internal:statistics</include>
             </includes>
           </artifactSet>       
           <filters>

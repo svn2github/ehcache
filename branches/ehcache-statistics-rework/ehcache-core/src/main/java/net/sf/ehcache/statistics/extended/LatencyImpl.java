@@ -158,7 +158,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
      *
      * @param <T> the generic type
      */
-    class StatisticImpl<T> implements Statistic<T> {
+    class StatisticImpl<T extends Number> implements Statistic<T> {
 
         private final ValueStatistic<T> value;
         private final SampledStatistic<T> history;

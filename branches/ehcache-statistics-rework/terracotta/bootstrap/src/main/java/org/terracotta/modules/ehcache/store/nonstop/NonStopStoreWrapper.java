@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import org.terracotta.statistics.StatisticsManager;
+
 public class NonStopStoreWrapper implements TerracottaStore {
   private static final Set<String>                            LOCAL_METHODS = new HashSet<String>();
 
@@ -181,6 +183,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     synchronized (this) {
       if (delegate == null) {
         this.delegate = delegateTemp;
+        StatisticsManager.associate(this).withChild(delegateTemp);
 
         if (writeBehind != null && writeBehind instanceof NonStopWriteBehind) {
           ((NonStopWriteBehind) writeBehind).init(cache.getCacheManager().createTerracottaWriteBehind(cache));

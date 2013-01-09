@@ -398,7 +398,7 @@ public interface ExtendedStatistics {
      *
      * @param <T> the generic type
      */
-    public interface Statistic<T> {
+    public interface Statistic<T extends Number> {
 
         /**
          * Active.
@@ -427,61 +427,61 @@ public interface ExtendedStatistics {
      *
      * @return the size
      */
-    ValueStatistic<Long> getSize();
+    ValueStatistic<Number> getSize();
 
     /**
      * Gets the local heap size.
      *
      * @return the local heap size
      */
-    ValueStatistic<Long> getLocalHeapSize();
+    ValueStatistic<Number> getLocalHeapSize();
 
     /**
      * Gets the local heap size in bytes.
      *
      * @return the local heap size in bytes
      */
-    ValueStatistic<Long> getLocalHeapSizeInBytes();
+    ValueStatistic<Number> getLocalHeapSizeInBytes();
 
     /**
      * Gets the local off heap size.
      *
      * @return the local off heap size
      */
-    ValueStatistic<Long> getLocalOffHeapSize();
+    ValueStatistic<Number> getLocalOffHeapSize();
 
     /**
      * Gets the local off heap size in bytes.
      *
      * @return the local off heap size in bytes
      */
-    ValueStatistic<Long> getLocalOffHeapSizeInBytes();
+    ValueStatistic<Number> getLocalOffHeapSizeInBytes();
 
     /**
      * Gets the local disk size.
      *
      * @return the local disk size
      */
-    ValueStatistic<Long> getLocalDiskSize();
+    ValueStatistic<Number> getLocalDiskSize();
 
     /**
      * Gets the local disk size in bytes.
      *
      * @return the local disk size in bytes
      */
-    ValueStatistic<Long> getLocalDiskSizeInBytes();
+    ValueStatistic<Number> getLocalDiskSizeInBytes();
 
     /**
      * Gets the remote size.
      *
      * @return the remote size
      */
-    ValueStatistic<Long> getRemoteSize();
+    ValueStatistic<Number> getRemoteSize();
 
     /**
      * Gets the writer queue length.
      *
      * @return the writer queue length
      */
-    ValueStatistic<Long> getWriterQueueLength();
+    ValueStatistic<Number> getWriterQueueLength();
 }
