@@ -42,7 +42,6 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
 
     private void doTestLocalSize(Cache cache) throws Throwable {
       final int maxElementsInMemory = 1000;
-      cache.getStatistics().setSampledStatisticsEnabled(true);
       for (int i = 0; i < maxElementsInMemory; i++) {
         cache.put(new Element("key-" + i, "value-" + i));
       }

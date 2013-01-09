@@ -55,8 +55,6 @@ public class StatisticsTest extends AbstractCacheTest {
         cache.getCacheConfiguration().setMaxEntriesLocalDisk(2);
         manager.addCache(cache);
 
-        cache.getStatistics().setStatisticsEnabled(true);
-
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 

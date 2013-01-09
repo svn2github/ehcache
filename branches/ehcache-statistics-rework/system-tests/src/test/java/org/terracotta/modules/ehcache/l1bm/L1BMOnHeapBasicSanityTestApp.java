@@ -38,22 +38,18 @@ public class L1BMOnHeapBasicSanityTestApp extends ClientBase {
 
     Cache dcv2EventualSerializationWithStats = createCache("dcv2EventualSerializationWithStats", cacheManager,
                                                             Consistency.EVENTUAL, ValueMode.SERIALIZATION);
-    dcv2EventualSerializationWithStats.getStatistics().setStatisticsEnabled(true);
     testL1BigMemorySanity(dcv2EventualSerializationWithStats, true);
 
     Cache dcv2EventualSerializationWithoutStats = createCache("dcv2EventualSerializationWithoutStats", cacheManager,
                                                                Consistency.EVENTUAL, ValueMode.SERIALIZATION);
-    dcv2EventualSerializationWithoutStats.getStatistics().setStatisticsEnabled(false);
     testL1BigMemorySanity(dcv2EventualSerializationWithoutStats, true);
 
     Cache dcv2StrongSerializationWithStats = createCache("dcv2StrongSerializationWithStats", cacheManager,
                                                           Consistency.STRONG, ValueMode.SERIALIZATION);
-    dcv2StrongSerializationWithStats.getStatistics().setStatisticsEnabled(true);
     testL1BigMemorySanity(dcv2StrongSerializationWithStats, false);
 
     Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
                                                 ValueMode.SERIALIZATION);
-    dcv2StrongWithoutStats.getStatistics().setStatisticsEnabled(false);
     testL1BigMemorySanity(dcv2StrongWithoutStats, false);
 
   }

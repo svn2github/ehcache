@@ -172,31 +172,6 @@ public interface CacheManagerSampler {
     long getCacheAverageSearchTime();
 
     /**
-     * Clears statistics of all caches for the associated cacheManager
-     */
-    void clearStatistics();
-
-    /**
-     * Enable statistics for each cache contained by cacheManager
-     */
-    void enableStatistics();
-
-    /**
-     * Disable statistics for each cache contained by cacheManager
-     */
-    void disableStatistics();
-
-    /**
-     * Enables/disables each contained cache
-     */
-    void setStatisticsEnabled(boolean enabled);
-
-    /**
-     * Returns true iff each contained cache has statistics enabled
-     */
-    boolean isStatisticsEnabled();
-
-    /**
      * generateActiveConfigDeclaration
      *
      * @return CacheManager configuration as String

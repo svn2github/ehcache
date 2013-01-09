@@ -1,18 +1,18 @@
 /* All content copyright (c) 2003-2012 Terracotta, Inc., except as may otherwise be noted in a separate copyright notice.  All rights reserved.*/
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.resource.CacheEntity;
+import java.util.Collection;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-import java.util.Collection;
+
+import net.sf.ehcache.management.resource.CacheEntity;
 
 /**
  * <p>
@@ -64,13 +64,4 @@ public interface CachesResourceService {
   @DELETE
   void deleteCache(@Context UriInfo info);
 
-  /**
-   * Delete all cache statistics gathered. The request path that does not identify a unique cache resource for deletion
-   * will constitute a bad request and will be denied, resulting in a response with a 400 status.
-   *
-   * @param info for this resource request
-   */
-  @DELETE
-  @Path("/statistics")
-  void wipeStatistics(@Context UriInfo info);
 }

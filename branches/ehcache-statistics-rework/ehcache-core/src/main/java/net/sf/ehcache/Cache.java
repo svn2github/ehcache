@@ -338,8 +338,6 @@ public class Cache implements InternalEhcache, StoreListener {
             this.registeredEventListeners = registeredEventListeners;
         }
 
-        // initialize statistics
-
         RegisteredEventListeners listeners = getCacheEventNotificationService();
         registerCacheListeners(configuration, listeners);
         registerCacheExtensions(configuration, this);

@@ -111,24 +111,6 @@ public class StatisticsPlaceholder implements FlatStatistics {
     }
 
     /**
-     * Sets the statistics enabled.
-     *
-     * @param b the new statistics enabled
-     */
-    public void setStatisticsEnabled(boolean b) {
-        //no-op
-    }
-
-    /**
-     * Sets the sampled statistics enabled.
-     *
-     * @param b the new sampled statistics enabled
-     */
-    public void setSampledStatisticsEnabled(boolean b) {
-        //no-op
-    }
-
-    /**
      * Gets the associated cache name.
      *
      * @return the associated cache name
@@ -136,51 +118,6 @@ public class StatisticsPlaceholder implements FlatStatistics {
     public String getAssociatedCacheName() {
         return assocCacheName;
     }
-
-    /**
-     * Clear statistics.
-     */
-    public void clearStatistics() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Checks if is statistics enabled.
-     *
-     * @return true, if is statistics enabled
-     */
-    public boolean isStatisticsEnabled() {
-        return true;
-    }
-
-    /**
-     * Gets the statistics accuracy.
-     *
-     * @return the statistics accuracy
-     */
-    public int getStatisticsAccuracy() {
-        return 0;
-    }
-
-    /**
-     * Gets the statistics accuracy description.
-     *
-     * @return the statistics accuracy description
-     */
-    public String getStatisticsAccuracyDescription() {
-        return "default";
-    }
-
-    /**
-     * Checks if is sampled statistics enabled.
-     *
-     * @return true, if is sampled statistics enabled
-     */
-    public boolean isSampledStatisticsEnabled() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
 
     @Override
     public void setStatisticsTimeToDisable(long time, TimeUnit unit) {

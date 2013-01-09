@@ -22,22 +22,22 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.util.CacheTransactionHelper;
+import net.sf.ehcache.util.counter.sampled.SampledCounter;
+import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link CacheSampler}
- *
+ * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
- *
+ * 
  *         There is stupid here -- *Sample() is the same as *Rate()
  */
 public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListener {
     private static final int PERCENTAGE_DIVISOR = 100;
-    private static final int MILLIS_PER_SECOND = 1000;
-    private static final int NANOS_PER_MILLI = MILLIS_PER_SECOND * MILLIS_PER_SECOND;
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheSamplerImpl.class);
 
@@ -45,7 +45,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     /**
      * Constructor accepting the backing {@link Ehcache}
-     *
+     * 
      * @param cache the cache object to use in initializing this sampled representation
      */
     public CacheSamplerImpl(Ehcache cache) {
@@ -388,30 +388,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public void clearStatistics() {
-        LOG.warn("Clearing statistics is no longer supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isStatisticsEnabled() {
-        return cache.getStatistics().isStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isSampledStatisticsEnabled() {
-        return cache.getStatistics().isSampledStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void dispose() {
         cache.getCacheConfiguration().removeConfigurationListener(this);
     }
@@ -431,79 +407,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     public String getTerracottaConsistency() {
         Consistency consistency = this.cache.getCacheConfiguration().getTerracottaConsistency();
         return consistency != null ? consistency.name() : "na";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enableStatistics() {
-        if (!cache.getStatistics().isStatisticsEnabled()) {
-            try {
-                cache.getStatistics().setSampledStatisticsEnabled(true);
-                cache.getStatistics().setStatisticsEnabled(true);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
-    }
-
-    /**a
-     * {@inheritDoc}
-     */
-    @Override
-    public void disableStatistics() {
-        if (cache.getStatistics().isStatisticsEnabled()) {
-            try {
-                cache.getStatistics().setSampledStatisticsEnabled(false);
-                cache.getStatistics().setStatisticsEnabled(false);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setStatisticsEnabled(boolean statsEnabled) {
-        boolean oldValue = isStatisticsEnabled();
-        if (oldValue != statsEnabled) {
-            if (statsEnabled) {
-                enableStatistics();
-            } else {
-                disableStatistics();
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enableSampledStatistics() {
-        if (!cache.getStatistics().isSampledStatisticsEnabled()) {
-            try {
-                cache.getStatistics().setSampledStatisticsEnabled(true);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void disableSampledStatistics() {
-        if (cache.getStatistics().isSampledStatisticsEnabled()) {
-            try {
-                cache.getStatistics().setSampledStatisticsEnabled(false);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
     }
 
     /**
@@ -1140,7 +1043,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @deprecated use {@link #getLocalOffHeapSize()}
      */
     @Deprecated
@@ -1163,7 +1066,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @deprecated use {@link #getLocalDiskSize()}
      */
     @Deprecated
@@ -1482,7 +1385,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * in order to allow {@link SampledCache} objects to continue to provide deprecated methods on the {@link SampledCacheMBean} interface,
      * rather than burdening {@link CacheSampler} with these now irrelevant methods. This helper method
      * should be removed if we are ever able to discontinue support for the deprecated methods on dependant interfaces.
-     *
+     * 
      * @return the underlying {@code Ehcache} object
      */
     Ehcache getCache() {
@@ -1509,5 +1412,181 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public long getCacheAverageGetTimeNanos() {
         return cache.getStatistics().cacheGetOperation().latency().average().value().longValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitRatioSample() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitInMemorySample() {
+        return new SampledCounterProxy(cache.getStatistics().localHeapHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitOffHeapSample() {
+        return new SampledCounterProxy(cache.getStatistics().localOffHeapHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitOnDiskSample() {
+        return new SampledCounterProxy(cache.getStatistics().localDiskHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissInMemorySample() {
+        return new SampledCounterProxy(cache.getStatistics().localHeapMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissOffHeapSample() {
+        return new SampledCounterProxy(cache.getStatistics().localOffHeapMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissOnDiskSample() {
+        return new SampledCounterProxy(cache.getStatistics().localDiskMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissExpiredSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheMissExpiredOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissNotFoundSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheMissNotFoundOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementEvictedSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheEvictionOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementRemovedSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheRemoveOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementExpiredSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheExpiredOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementPutSample() {
+        return new SampledCounterProxy(cache.getStatistics().cachePutOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementUpdatedSample() {
+        return new SampledCounterProxy(cache.getStatistics().cachePutReplacedOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageGetTimeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheGetOperation().latency().average());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageGetTimeNanosSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheGetOperation().latency().average());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageSearchTimeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheSearchOperation().latency().average());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getSearchesPerSecondSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheSearchOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheXaCommitsSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().xaCommitSuccessOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheXaRollbacksSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().xaRollbackOperation().rate());
     }
 }

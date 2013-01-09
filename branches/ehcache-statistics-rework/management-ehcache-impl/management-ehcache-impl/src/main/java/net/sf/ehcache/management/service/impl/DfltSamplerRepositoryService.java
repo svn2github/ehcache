@@ -4,35 +4,6 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
-import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.management.resource.CacheConfigEntity;
-import net.sf.ehcache.management.resource.CacheEntity;
-import net.sf.ehcache.management.resource.CacheManagerConfigEntity;
-import net.sf.ehcache.management.resource.CacheManagerEntity;
-import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
-import net.sf.ehcache.management.sampled.CacheManagerSampler;
-import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
-import net.sf.ehcache.management.sampled.ComprehensiveCacheSampler;
-import net.sf.ehcache.management.sampled.ComprehensiveCacheSamplerImpl;
-import net.sf.ehcache.management.service.AgentService;
-import net.sf.ehcache.management.service.CacheManagerService;
-import net.sf.ehcache.management.service.CacheService;
-import net.sf.ehcache.management.service.EntityResourceFactory;
-import net.sf.ehcache.management.service.SamplerRepositoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.management.ServiceExecutionException;
-import org.terracotta.management.ServiceLocator;
-import org.terracotta.management.resource.AgentEntity;
-import org.terracotta.management.resource.AgentMetadataEntity;
-import org.terracotta.management.resource.services.LicenseService;
-import org.terracotta.management.resource.services.Utils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -52,6 +23,36 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.management.resource.CacheConfigEntity;
+import net.sf.ehcache.management.resource.CacheEntity;
+import net.sf.ehcache.management.resource.CacheManagerConfigEntity;
+import net.sf.ehcache.management.resource.CacheManagerEntity;
+import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
+import net.sf.ehcache.management.sampled.CacheManagerSampler;
+import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
+import net.sf.ehcache.management.sampled.CacheSampler;
+import net.sf.ehcache.management.sampled.CacheSamplerImpl;
+import net.sf.ehcache.management.service.AgentService;
+import net.sf.ehcache.management.service.CacheManagerService;
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EntityResourceFactory;
+import net.sf.ehcache.management.service.SamplerRepositoryService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.AgentEntity;
+import org.terracotta.management.resource.AgentMetadataEntity;
+import org.terracotta.management.resource.services.LicenseService;
+import org.terracotta.management.resource.services.Utils;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -281,7 +282,7 @@ public class DfltSamplerRepositoryService
     try {
       if (cacheManagerNames == null) {
         for (Map.Entry<String, SamplerRepoEntry> entry : cacheManagerSamplerRepo.entrySet()) {
-          for (ComprehensiveCacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
+          for (CacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
             builder = builder == null ? CacheEntityBuilder.createWith(sampler, entry.getKey()) : builder
                 .add(sampler, entry.getKey());
           }
@@ -290,7 +291,7 @@ public class DfltSamplerRepositoryService
         for (String cmName : cacheManagerNames) {
           SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cmName);
           if (entry != null) {
-            for (ComprehensiveCacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
+            for (CacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
               builder = builder == null ? CacheEntityBuilder.createWith(sampler, cmName) : builder.add(sampler, cmName);
             }
           }
@@ -316,7 +317,7 @@ public class DfltSamplerRepositoryService
     try {
       if (cacheManagerNames == null) {
         for (Map.Entry<String, SamplerRepoEntry> entry : cacheManagerSamplerRepo.entrySet()) {
-          for (ComprehensiveCacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
+          for (CacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
             builder = builder == null ? CacheConfigurationEntityBuilder
                 .createWith(entry.getValue().getCacheManagerSampler(), sampler.getCacheName()) : builder
                 .add(entry.getValue().getCacheManagerSampler(), sampler.getCacheName());
@@ -326,7 +327,7 @@ public class DfltSamplerRepositoryService
         for (String cmName : cacheManagerNames) {
           SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cmName);
           if (entry != null) {
-            for (ComprehensiveCacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
+            for (CacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
               builder = builder == null ? CacheConfigurationEntityBuilder
                   .createWith(entry.getCacheManagerSampler(), sampler.getCacheName()) : builder
                   .add(entry.getCacheManagerSampler(), sampler.getCacheName());
@@ -354,7 +355,7 @@ public class DfltSamplerRepositoryService
     try {
       if (cacheManagerNames == null) {
         for (Map.Entry<String, SamplerRepoEntry> entry : cacheManagerSamplerRepo.entrySet()) {
-          for (ComprehensiveCacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
+          for (CacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
             builder.add(sampler, entry.getKey());
           }
         }
@@ -362,7 +363,7 @@ public class DfltSamplerRepositoryService
         for (String cmName : cacheManagerNames) {
           SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cmName);
           if (entry != null) {
-            for (ComprehensiveCacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
+            for (CacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
               builder.add(sampler, cmName);
             }
           }
@@ -375,21 +376,6 @@ public class DfltSamplerRepositoryService
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void clearCacheStats(String cacheManagerName,
-                              String cacheName) {
-    cacheManagerSamplerRepoLock.readLock().lock();
-
-    try {
-      SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
-      if (entry != null) entry.clearStats(cacheName);
-    } finally {
-      cacheManagerSamplerRepoLock.readLock().unlock();
-    }
-  }
 
   @Override
   public void createOrUpdateCache(String cacheManagerName,
@@ -556,7 +542,7 @@ public class DfltSamplerRepositoryService
     /**
      * Guarded by cacheSamplerMapLock
      */
-    private Map<String, ComprehensiveCacheSampler> cacheSamplersByName;
+    private Map<String, CacheSampler> cacheSamplersByName;
 
     private volatile Status status = Status.STATUS_UNINITIALISED;
 
@@ -569,10 +555,10 @@ public class DfltSamplerRepositoryService
       this.cacheManager = cacheManager;
 
       String[] cNames = cacheManager.getCacheNames();
-      this.cacheSamplersByName = new HashMap<String, ComprehensiveCacheSampler>(cNames.length);
+      this.cacheSamplersByName = new HashMap<String, CacheSampler>(cNames.length);
 
       for (String cName : cNames) {
-        cacheSamplersByName.put(cName, new ComprehensiveCacheSamplerImpl(cacheManager.getEhcache(cName)));
+        cacheSamplersByName.put(cName, new CacheSamplerImpl(cacheManager.getEhcache(cName)));
       }
     }
 
@@ -580,18 +566,18 @@ public class DfltSamplerRepositoryService
       return cacheManagerSampler;
     }
 
-    public Collection<ComprehensiveCacheSampler> getComprehensiveCacheSamplers(Set<String> cacheSamplerNames) {
-      Collection<ComprehensiveCacheSampler> samplers = new HashSet<ComprehensiveCacheSampler>();
+    public Collection<CacheSampler> getComprehensiveCacheSamplers(Set<String> cacheSamplerNames) {
+      Collection<CacheSampler> samplers = new HashSet<CacheSampler>();
 
       cacheSamplerMapLock.readLock().lock();
       try {
         if (cacheSamplerNames == null) {
-          for (ComprehensiveCacheSampler cs : cacheSamplersByName.values()) {
+          for (CacheSampler cs : cacheSamplersByName.values()) {
             samplers.add(cs);
           }
         } else {
           for (String cName : cacheSamplerNames) {
-            ComprehensiveCacheSampler cs = cacheSamplersByName.get(cName);
+            CacheSampler cs = cacheSamplersByName.get(cName);
             if (cs != null) samplers.add(cs);
           }
         }
@@ -601,23 +587,11 @@ public class DfltSamplerRepositoryService
 
       return samplers;
     }
-
-    public void clearStats(String cacheSamplerName) {
-      cacheSamplerMapLock.writeLock().lock();
-
-      ComprehensiveCacheSampler cs;
-      try {
-        cs = cacheSamplersByName.get(cacheSamplerName);
-        if (cs != null) cs.clearStatistics();
-      } finally {
-        cacheSamplerMapLock.writeLock().unlock();
-      }
-    }
-
+    
     public void clearCache(String cacheSamplerName) {
       cacheSamplerMapLock.writeLock().lock();
 
-      ComprehensiveCacheSampler cs;
+      CacheSampler cs;
       try {
         cs = cacheSamplersByName.get(cacheSamplerName);
         if (cs != null) cs.removeAll();
@@ -630,7 +604,7 @@ public class DfltSamplerRepositoryService
                             CacheEntity cacheResource) throws ServiceExecutionException {
       cacheSamplerMapLock.writeLock().lock();
 
-      ComprehensiveCacheSampler cs;
+      CacheSampler cs;
       try {
         cs = cacheSamplersByName.get(cacheSamplerName);
 
@@ -643,13 +617,8 @@ public class DfltSamplerRepositoryService
             if (enabledBlkLoad != null) cs.setNodeBulkLoadEnabled(enabledBlkLoad);
 
             Boolean enabledStatsAttr = (Boolean) cacheResource.getAttributes().get(STATS_ENABLED_ATTR);
-            if (enabledStatsAttr != null) cs.setStatisticsEnabled(enabledStatsAttr);
 
             Boolean enabledSampledStatsAttr = (Boolean) cacheResource.getAttributes().get(SAMPLED_STATS_ENABLED_ATTR);
-            if (enabledSampledStatsAttr != null) {
-              if (enabledSampledStatsAttr) cs.enableSampledStatistics();
-              else cs.disableSampledStatistics();
-            }
 
             Integer maxElementsOnDiskAttr = (Integer) cacheResource.getAttributes().get(MAX_ELEMENTS_ON_DISK);
             if (maxElementsOnDiskAttr != null) cs.setMaxElementsOnDisk(maxElementsOnDiskAttr);
@@ -731,7 +700,7 @@ public class DfltSamplerRepositoryService
         Cache c = cacheManager.getCache(cacheName);
 
         if (c != null) {
-          cacheSamplersByName.put(cacheName, new ComprehensiveCacheSamplerImpl(c));
+          cacheSamplersByName.put(cacheName, new CacheSamplerImpl(c));
         }
       } finally {
         cacheSamplerMapLock.writeLock().unlock();

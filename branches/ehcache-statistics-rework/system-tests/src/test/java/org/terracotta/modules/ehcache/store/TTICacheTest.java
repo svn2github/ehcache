@@ -49,8 +49,6 @@ public class TTICacheTest extends AbstractCacheTestBase {
       Cache cache2 = cacheManager.getCache("test2"); // TTI = 20s
       cache1.removeAll();
       cache2.removeAll();
-      cache1.getStatistics().setStatisticsEnabled(statisticsEnabled);
-      cache2.getStatistics().setStatisticsEnabled(statisticsEnabled);
       barrier.await();
 
       if (index == 0) {

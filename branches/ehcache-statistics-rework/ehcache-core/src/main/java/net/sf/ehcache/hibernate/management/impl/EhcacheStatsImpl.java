@@ -67,35 +67,6 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
     /**
      * {@inheritDoc}
      */
-    public boolean isStatisticsEnabled() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void clearStats() {
-        sampledCacheManager.clearStatistics();
-        statsSince = System.currentTimeMillis();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void disableStats() {
-        setStatisticsEnabled(false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void enableStats() {
-        setStatisticsEnabled(true);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void flushRegionCache(String region) {
         Cache cache = this.cacheManager.getCache(region);
         if (cache != null) {
@@ -557,22 +528,6 @@ public class EhcacheStatsImpl extends BaseEmitterBean implements EhcacheStats {
         } else {
             return -1;
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setStatisticsEnabled(boolean flag) {
-        for (String cacheName : cacheManager.getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.getStatistics().setStatisticsEnabled(flag);
-            }
-        }
-        if (flag) {
-            clearStats();
-        }
-        sendNotification(CACHE_STATISTICS_ENABLED, flag);
     }
 
     /**

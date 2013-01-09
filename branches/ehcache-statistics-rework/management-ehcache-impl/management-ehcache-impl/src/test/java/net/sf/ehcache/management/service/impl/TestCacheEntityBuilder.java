@@ -4,15 +4,16 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import junit.framework.Assert;
-import net.sf.ehcache.management.resource.CacheEntity;
-import net.sf.ehcache.management.sampled.ComprehensiveCacheSampler;
-import org.easymock.EasyMock;
-import org.junit.Test;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import junit.framework.Assert;
+import net.sf.ehcache.management.resource.CacheEntity;
+import net.sf.ehcache.management.sampled.CacheSampler;
+
+import org.easymock.EasyMock;
+import org.junit.Test;
 
 /**
  * @author brandony
@@ -23,15 +24,15 @@ public class TestCacheEntityBuilder {
   public void testMultipleSamplersForSingleCM() {
     String cmName = "CM1";
 
-    ComprehensiveCacheSampler samplerFoo = EasyMock.createMock(ComprehensiveCacheSampler.class);
+    CacheSampler samplerFoo = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerFoo.getCacheName()).andReturn("FOO");
     EasyMock.expect(samplerFoo.getExpiredCount()).andReturn(1L);
 
-    ComprehensiveCacheSampler samplerGoo = EasyMock.createMock(ComprehensiveCacheSampler.class);
+    CacheSampler samplerGoo = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerGoo.getCacheName()).andReturn("GOO");
     EasyMock.expect(samplerGoo.getExpiredCount()).andReturn(2L);
 
-    ComprehensiveCacheSampler samplerBar = EasyMock.createMock(ComprehensiveCacheSampler.class);
+    CacheSampler samplerBar = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerBar.getCacheName()).andReturn("BAR");
     EasyMock.expect(samplerBar.getExpiredCount()).andReturn(3L);
 

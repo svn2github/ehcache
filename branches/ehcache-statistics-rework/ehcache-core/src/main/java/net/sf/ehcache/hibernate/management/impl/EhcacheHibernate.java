@@ -90,10 +90,8 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      */
     public void setStatisticsEnabled(boolean flag) {
         if (flag) {
-            ehcacheStats.enableStats();
             hibernateStats.enableStats();
         } else {
-            ehcacheStats.disableStats();
             hibernateStats.disableStats();
         }
         statsEnabled.set(flag);
@@ -111,7 +109,6 @@ public class EhcacheHibernate extends BaseEmitterBean implements EhcacheHibernat
      * {@inheritDoc}
      */
     public void clearStats() {
-        ehcacheStats.clearStats();
         hibernateStats.clearStats();
     }
 

@@ -4,15 +4,6 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
-import net.sf.ehcache.management.sampled.ComprehensiveCacheSampler;
-import net.sf.ehcache.management.service.AccessorPrefix;
-import net.sf.ehcache.util.counter.sampled.SampledCounter;
-import net.sf.ehcache.util.counter.sampled.TimeStampedCounterValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.management.resource.AgentEntity;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -22,6 +13,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
+import net.sf.ehcache.management.sampled.CacheSampler;
+import net.sf.ehcache.management.service.AccessorPrefix;
+import net.sf.ehcache.util.counter.sampled.SampledCounter;
+import net.sf.ehcache.util.counter.sampled.TimeStampedCounterValue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.management.resource.AgentEntity;
 
 /**
  * A builder for {@link CacheStatisticSampleEntity} resource objects.
@@ -35,7 +36,7 @@ final class CacheStatisticSampleEntityBuilder {
 
   private final Set<String> sampleNames;
 
-  private final Map<String, Set<ComprehensiveCacheSampler>> samplersByCMName = new HashMap<String, Set<ComprehensiveCacheSampler>>();
+  private final Map<String, Set<CacheSampler>> samplersByCMName = new HashMap<String, Set<CacheSampler>>();
 
   static CacheStatisticSampleEntityBuilder createWith(Set<String> statisticSampleName) {
     return new CacheStatisticSampleEntityBuilder(statisticSampleName);
@@ -45,7 +46,7 @@ final class CacheStatisticSampleEntityBuilder {
     this.sampleNames = sampleNames;
   }
 
-  CacheStatisticSampleEntityBuilder add(ComprehensiveCacheSampler sampler,
+  CacheStatisticSampleEntityBuilder add(CacheSampler sampler,
                                         String cacheManagerName) {
     addSampler(sampler, cacheManagerName);
     return this;
@@ -54,10 +55,10 @@ final class CacheStatisticSampleEntityBuilder {
   Collection<CacheStatisticSampleEntity> build() {
     Collection<CacheStatisticSampleEntity> csses = new ArrayList<CacheStatisticSampleEntity>();
 
-    for (Map.Entry<String, Set<ComprehensiveCacheSampler>> entry : samplersByCMName.entrySet()) {
-      for (ComprehensiveCacheSampler sampler : entry.getValue()) {
+    for (Map.Entry<String, Set<CacheSampler>> entry : samplersByCMName.entrySet()) {
+      for (CacheSampler sampler : entry.getValue()) {
         if (sampleNames == null) {
-          for (Method m : ComprehensiveCacheSampler.class.getMethods()) {
+          for (Method m : CacheSampler.class.getMethods()) {
             if (AccessorPrefix.isAccessor(m.getName()) && SampledCounter.class.isAssignableFrom(m.getReturnType())) {
               CacheStatisticSampleEntity csse = makeStatResource(m, sampler, entry.getKey());
               if (csse != null) csses.add(csse);
@@ -67,7 +68,7 @@ final class CacheStatisticSampleEntityBuilder {
           for (String sampleName : sampleNames) {
             Method sampleMethod;
             try {
-              sampleMethod = ComprehensiveCacheSampler.class.getMethod(AccessorPrefix.get + sampleName + SAMPLE_SUFFIX);
+              sampleMethod = CacheSampler.class.getMethod(AccessorPrefix.get + sampleName + SAMPLE_SUFFIX);
             } catch (NoSuchMethodException e) {
               LOG.warn("A statistic sample with the name '{}' does not exist.", sampleName);
               continue;
@@ -86,7 +87,7 @@ final class CacheStatisticSampleEntityBuilder {
   }
 
   private CacheStatisticSampleEntity makeStatResource(Method sampleMethod,
-                                                      ComprehensiveCacheSampler sampler,
+                                                      CacheSampler sampler,
                                                       String cmName) {
     SampledCounter sCntr;
     try {
@@ -120,16 +121,16 @@ final class CacheStatisticSampleEntityBuilder {
     return null;
   }
 
-  private void addSampler(ComprehensiveCacheSampler sampler,
+  private void addSampler(CacheSampler sampler,
                           String cacheManagerName) {
     if (sampler == null) throw new IllegalArgumentException("sampler == null");
 
     if (cacheManagerName == null) throw new IllegalArgumentException("cacheManagerName == null");
 
-    Set<ComprehensiveCacheSampler> samplers = samplersByCMName.get(cacheManagerName);
+    Set<CacheSampler> samplers = samplersByCMName.get(cacheManagerName);
 
     if (samplers == null) {
-      samplers = new HashSet<ComprehensiveCacheSampler>();
+      samplers = new HashSet<CacheSampler>();
       samplersByCMName.put(cacheManagerName, samplers);
     }
 

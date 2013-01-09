@@ -18,7 +18,6 @@ package net.sf.ehcache.management.sampled;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -466,70 +465,6 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
      */
     public String getClusterUUID() {
         return cacheManager.getClusterUUID();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void clearStatistics() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.getStatistics().clearStatistics();
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void enableStatistics() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                // enables regular statistics also
-                cache.getStatistics().setSampledStatisticsEnabled(true);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void disableStatistics() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                // disables regular statistics also
-                cache.getStatistics().setStatisticsEnabled(false);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setStatisticsEnabled(boolean enabled) {
-        if (enabled) {
-            enableStatistics();
-        } else {
-            disableStatistics();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isStatisticsEnabled() {
-        for (String cacheName : getCacheNames()) {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                if (!cache.getStatistics().isSampledStatisticsEnabled()) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     /**

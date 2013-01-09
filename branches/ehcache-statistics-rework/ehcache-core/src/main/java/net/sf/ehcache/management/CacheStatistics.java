@@ -54,7 +54,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     private StatisticsPlaceholder statistics;
 
     private final ObjectName objectName;
-    private long lastUpdated;
 
     /**
      * Constructs an object from an ehcache statistics object
@@ -80,35 +79,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         }
         return objectName;
     }
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting used
-     * in the creation of these statistics.
-     *
-     * @return one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
-     */
-    public int getStatisticsAccuracy() {
-        updateIfNeeded();
-        return statistics.getStatisticsAccuracy();
-    }
-
-    private void updateIfNeeded() {
-        if (System.currentTimeMillis() != lastUpdated) {
-            statistics = ehcache.getStatistics();
-            lastUpdated = System.currentTimeMillis();
-        }
-    }
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
-     *
-     * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
-     */
-    public String getStatisticsAccuracyDescription() {
-        updateIfNeeded();
-        return statistics.getStatisticsAccuracyDescription();
-    }
-
+    
     /**
      * @return the name of the Ehcache, or null is there no associated cache
      */
@@ -121,32 +92,11 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     }
 
     /**
-     * Clears the statistic counters to 0 for the associated Cache.
-     */
-    public void clearStatistics() {
-        statistics.clearStatistics();
-    }
-
-    /**
-     * The number of times a requested item was found in the cache.
-     * <p/>
-     * Warning. This statistic is recorded as a long. If the statistic is large than Integer#MAX_VALUE
-     * precision will be lost.
-     *
-     * @return the number of times a requested item was found in the cache
-     */
-    public long getCacheHits() {
-        updateIfNeeded();
-        return statistics.cacheHitCount();
-    }
-
-    /**
      * Number of times a requested item was found in the Memory Store.
      *
      * @return the number of times a requested item was found in memory
      */
     public long getInMemoryHits() {
-        updateIfNeeded();
         return statistics.localHeapHitCount();
     }
 
@@ -156,7 +106,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested item was found in off-heap
      */
     public long getOffHeapHits() {
-        updateIfNeeded();
         return statistics.localOffHeapHitCount();
     }
 
@@ -166,7 +115,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested item was found on Disk, or 0 if there is no disk storage configured.
      */
     public long getOnDiskHits() {
-        updateIfNeeded();
         return statistics.localDiskHitCount();
     }
 
@@ -177,25 +125,21 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested element was not found in the cache
      */
     public long getCacheMisses() {
-        updateIfNeeded();
         return statistics.cacheHitCount();
     }
 
     /** {@inheritDoc} */
     public long getInMemoryMisses() {
-        updateIfNeeded();
         return statistics.cacheMissCount();
     }
 
     /** {@inheritDoc} */
     public long getOffHeapMisses() {
-        updateIfNeeded();
         return statistics.localOffHeapMissCount();
     }
 
     /** {@inheritDoc} */
     public long getOnDiskMisses() {
-        updateIfNeeded();
         return statistics.localDiskMissCount();
     }
 
@@ -233,7 +177,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      */
     public long getObjectCount() {
-        updateIfNeeded();
         return statistics.getSize();
     }
 
@@ -243,7 +186,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return Elements waiting to be processed by the write behind writer. -1 if no write-behind
      */
     public long getWriterQueueLength() {
-        updateIfNeeded();
         return statistics.getWriterQueueLength();
     }
 
@@ -259,7 +201,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the MemoryStore size which is always a count unadjusted for duplicates or expiries
      */
     public long getMemoryStoreObjectCount() {
-        updateIfNeeded();
         return statistics.getLocalHeapSize();
     }
 
@@ -267,7 +208,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * {@inheritDoc}
      */
     public long getOffHeapStoreObjectCount() {
-        updateIfNeeded();
         return statistics.getLocalOffHeapSize();
     }
 
@@ -276,7 +216,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
      */
     public long getDiskStoreObjectCount() {
-        updateIfNeeded();
         return statistics.getLocalDiskSize();
     }
 
@@ -309,7 +248,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * {@inheritDoc}
      */
     public double getCacheHitPercentage() {
-        updateIfNeeded();
         long hits = statistics.cacheHitCount();
         long misses = statistics.cacheMissCount();
 
@@ -321,7 +259,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * {@inheritDoc}
      */
     public double getCacheMissPercentage() {
-        updateIfNeeded();
         long hits = statistics.cacheHitCount();
         long misses = statistics.cacheMissCount();
 
@@ -333,7 +270,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * {@inheritDoc}
      */
     public double getInMemoryHitPercentage() {
-        updateIfNeeded();
         long hits = statistics.localHeapHitCount();
         long misses = statistics.localHeapMissCount();
 
@@ -345,7 +281,6 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * {@inheritDoc}
      */
     public double getOffHeapHitPercentage() {
-        updateIfNeeded();
         long hits = statistics.localOffHeapHitCount();
         long misses = statistics.localOffHeapMissCount();
 
@@ -357,11 +292,18 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * {@inheritDoc}
      */
     public double getOnDiskHitPercentage() {
-        updateIfNeeded();
         long hits = statistics.localDiskHitCount();
         long misses = statistics.localDiskMissCount();
 
         long total = hits + misses;
         return getPercentage(hits, total);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getCacheHits() {
+        return statistics.cacheHitCount();
     }
 }

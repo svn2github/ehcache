@@ -24,11 +24,6 @@ package net.sf.ehcache.management;
 public interface CacheStatisticsMBean {
 
     /**
-     * Clears the statistic counters to 0 for the associated Cache.
-     */
-    void clearStatistics();
-
-    /**
      * The number of times a requested item was found in the cache.
      *
      * @return the number of times a requested item was found in the cache
@@ -129,22 +124,6 @@ public interface CacheStatisticsMBean {
      * @return the DiskStore size which is always a count unadjusted for duplicates or expiries
      */
     long getDiskStoreObjectCount();
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
-     *
-     * @return one of {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
-     *         {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_GUARANTEED},
-     *         {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_NONE}
-     */
-    int getStatisticsAccuracy();
-
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
-     * @return a human readable description of the accuracy setting. One of "None", "Best Effort" or "Guaranteed".
-     */
-    String getStatisticsAccuracyDescription();
 
     /**
      * @return the name of the Ehcache, or null is there no associated cache

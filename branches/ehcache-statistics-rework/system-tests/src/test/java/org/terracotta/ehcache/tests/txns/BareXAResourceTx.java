@@ -6,10 +6,10 @@ package org.terracotta.ehcache.tests.txns;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.transaction.xa.DummyTransactionManagerLookup;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terracotta.ehcache.tests.xa.DummyTransactionManagerLookup;
 import org.terracotta.ehcache.tests.xa.DummyXid;
 import org.terracotta.ehcache.tests.xa.EhCacheXAResourceExtractor;
 import org.terracotta.toolkit.Toolkit;

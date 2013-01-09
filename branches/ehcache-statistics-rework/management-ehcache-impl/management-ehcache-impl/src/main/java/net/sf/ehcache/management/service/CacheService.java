@@ -1,6 +1,7 @@
 package net.sf.ehcache.management.service;
 
 import net.sf.ehcache.management.resource.CacheEntity;
+
 import org.terracotta.management.ServiceExecutionException;
 
 /**
@@ -9,15 +10,6 @@ import org.terracotta.management.ServiceExecutionException;
  * @author brandony
  */
 public interface CacheService {
-
-  /**
-   * Clears the stats for the specified cache.
-   *
-   * @param cacheManagerName the name of the {@link CacheManager} managing the {@link Cache} to have statistics cleared
-   * @param cacheName        the name of the {@link Cache} to have sampled statistics cleared
-   */
-  void clearCacheStats(String cacheManagerName,
-                       String cacheName) throws ServiceExecutionException;
 
   /**
    * Create or update a cache represented by the submitted entity.

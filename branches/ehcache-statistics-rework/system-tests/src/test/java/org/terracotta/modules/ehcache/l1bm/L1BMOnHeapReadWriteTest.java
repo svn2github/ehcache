@@ -116,7 +116,6 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
 
       Cache cache = new Cache(cacheConfiguration);
       cm.addCache(cache);
-      cache.getStatistics().setStatisticsEnabled(isWithStats);
       return cache;
     }
 

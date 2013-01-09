@@ -50,11 +50,9 @@ public class StrongCacheInvalidationTest extends AbstractCacheTestBase {
       Cache myCache = null;
 
       myCache = cacheManager.getCache("dcv2StrongWithStats");
-      myCache.getStatistics().setStatisticsEnabled(true);
       caches.add(myCache);
 
       myCache = cacheManager.getCache("dcv2StrongWithoutStats");
-      myCache.getStatistics().setStatisticsEnabled(false);
       caches.add(myCache);
 
       testCaches(caches, barrier, false);

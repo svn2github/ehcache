@@ -1,24 +1,26 @@
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.resource.CacheEntity;
-import net.sf.ehcache.management.service.CacheService;
-import net.sf.ehcache.management.service.EntityResourceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.management.ServiceLocator;
-import org.terracotta.management.ServiceExecutionException;
-import org.terracotta.management.resource.services.validator.RequestValidator;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import net.sf.ehcache.management.resource.CacheEntity;
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EntityResourceFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.services.validator.RequestValidator;
 
 /**
  * @author brandony
@@ -105,26 +107,6 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     //todo: implement
     throw new WebApplicationException(
         Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Not yet implemented").build());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void wipeStatistics(final UriInfo info) {
-    LOG.info(String.format("Invoking CachesResourceServiceImpl.wipeStatistics: %s", info.getRequestUri()));
-
-    validator.validate(info);
-    String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
-    String cacheName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
-
-    try {
-      cacheSvc.clearCacheStats(cacheManagerName, cacheName);
-    } catch (ServiceExecutionException e) {
-      LOG.error("Failed to wipe statistics.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
-    }
   }
 
 }

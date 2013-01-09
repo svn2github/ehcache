@@ -50,7 +50,6 @@ public class CachePinningFaultInvalidatedEntriesTest extends AbstractCacheTestBa
     }
 
     private void basicTestInvalidatedEntriesFaulted(final Cache cache, boolean tierPinned) throws Exception {
-      cache.getStatistics().setStatisticsEnabled(true);
       int index = getBarrierForAllClients().await();
       if (index == 0) {
         for (int i = 0; i < ELEMENT_COUNT; i++) {
