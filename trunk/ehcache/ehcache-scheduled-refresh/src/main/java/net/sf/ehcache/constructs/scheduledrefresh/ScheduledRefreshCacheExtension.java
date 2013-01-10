@@ -104,9 +104,9 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
 
    @Override
    public void init() {
-      if (config.getUniqueNamePart() != null) {
+      if (config.getScheduledRefreshName() != null) {
          this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
-               + underlyingCache.getName() + "_" + config.getUniqueNamePart();
+               + underlyingCache.getName() + "_" + config.getScheduledRefreshName();
       } else {
          this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
                + underlyingCache.getName();

@@ -51,7 +51,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    public static final String PROP_LOCAL_QUARTZ_JOB_COUNT = "quartzJobCount";
 
    /** Properties key for the unique name identifier. */
-   public static final String PROP_UNIQUE_NAME = "uniqueName";
+   public static final String PROP_SCHEDULED_REFRESH_NAME = "scheduledRefreshName";
 
    /** Properties key for the seed job polling interval. */
    public static final String PROP_POLL_TIME_MS = "pollTimeMs";
@@ -112,7 +112,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    private String keyGeneratorClass = DEFAULT_KEY_GENERATOR_CLASS;
 
    /** The unique name part. */
-   private String uniqueNamePart = null;
+   private String scheduledRefreshName = null;
 
    /** The job store factory class name. */
    private String jobStoreFactoryClassName = DEFAULT_JOB_STORE_FACTORY_CLASS;
@@ -411,8 +411,8 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * 
     * @return An additional unique identifier for the scheduler and it's jobs
     */
-   public String getUniqueNamePart() {
-      return uniqueNamePart;
+   public String getScheduledRefreshName() {
+      return scheduledRefreshName;
    }
 
    /**
@@ -424,8 +424,8 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param part
     *           the new unique name part
     */
-   public void setUniqueNamePart(String part) {
-      this.uniqueNamePart = part;
+   public void setScheduledRefreshName(String part) {
+      this.scheduledRefreshName = part;
    }
 
    /**
@@ -439,8 +439,8 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     *           instance from others on the same cache
     * @return this configuration
     */
-   public ScheduledRefreshConfiguration uniqueNamePart(String part) {
-      setUniqueNamePart(part);
+   public ScheduledRefreshConfiguration scheduledRefreshName(String part) {
+      setScheduledRefreshName(part);
       return this;
    }
 
@@ -583,7 +583,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    public String toString() {
       return "ScheduledRefreshConfiguration{" + "batchSize=" + batchSize + ", useBulkload=" + useBulkload
             + ", cronExpression='" + cronExpression + '\'' + ", quartzThreadCount=" + quartzThreadCount
-            + ", keyGeneratorClass='" + keyGeneratorClass + '\'' + ", uniqueNamePart='" + uniqueNamePart + '\''
+            + ", keyGeneratorClass='" + keyGeneratorClass + '\'' + ", uniqueNamePart='" + scheduledRefreshName + '\''
             + ", pollTimeMs=" + pollTimeMs + ", loadMissEvicts=" + evictOnLoadMiss + ", valid=" + valid + '}';
    }
 
