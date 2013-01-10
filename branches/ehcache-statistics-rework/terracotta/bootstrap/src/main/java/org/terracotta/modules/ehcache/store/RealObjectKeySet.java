@@ -17,10 +17,12 @@ class RealObjectKeySet extends AbstractSet {
 
   private final ValueModeHandler mode;
   private final Collection       keys;
+  private final boolean          localOnly;
 
-  public RealObjectKeySet(ValueModeHandler mode, Collection keys) {
+  public RealObjectKeySet(ValueModeHandler mode, Collection keys, boolean localOnly) {
     this.mode = mode;
     this.keys = keys;
+    this.localOnly = localOnly;
   }
 
   @Override
@@ -39,10 +41,10 @@ class RealObjectKeySet extends AbstractSet {
 
   @Override
   public Iterator iterator() {
-    return new KeyIterator(mode, keys.iterator());
+    return new KeyIterator(mode, keys.iterator(), localOnly);
   }
 
-  static class KeyIterator implements Iterator {
+  private static class KeyIterator implements Iterator {
 
     private static final Object    NO_OBJECT = new Object();
 
@@ -50,16 +52,19 @@ class RealObjectKeySet extends AbstractSet {
     private final ValueModeHandler mode;
     private Object                 next;
 
-    private KeyIterator(ValueModeHandler mode, Iterator iterator) {
+    private final boolean          localOnly;
+
+    private KeyIterator(ValueModeHandler mode, Iterator iterator, boolean localOnly) {
       this.mode = mode;
       this.keysIterator = iterator;
+      this.localOnly = localOnly;
       advance();
     }
 
     private void advance() {
       if (keysIterator.hasNext()) {
         final Object real;
-        real = mode.getRealKeyObject((String) keysIterator.next());
+        real = mode.getRealKeyObject((String) keysIterator.next(), localOnly);
         next = real;
       } else {
         next = NO_OBJECT;

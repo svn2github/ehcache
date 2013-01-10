@@ -166,7 +166,7 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
             }
 
             // Select an Element for "eviction".
-            Element element = (Element)FIND_EVICTION_CANDIDATE.invoke(AUTHORITY.get(store), new Object[] { null });
+            Element element = (Element)FIND_EVICTION_CANDIDATE.invoke(store, new Object[] { null });
             // This shouldn't be the newly added Element as it is the "most hit"
             assertTrue(!element.equals(newElement));
             // In fact since the sample size is > 10, the hit count should be 0
@@ -192,7 +192,7 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
         for (int i = 0; i < 5000; i++) {
             stopWatch.getElapsedTime();
             // Select an Element for "eviction"
-            Element e = (Element)FIND_EVICTION_CANDIDATE.invoke(AUTHORITY.get(store), new Object[] { null });
+            Element e = (Element)FIND_EVICTION_CANDIDATE.invoke(store, new Object[] { null });
             findTime += stopWatch.getElapsedTime();
             long lowest = e.getHitCount();
             // See if it is outside the lowest quartile (i.e. it has an abnormaly

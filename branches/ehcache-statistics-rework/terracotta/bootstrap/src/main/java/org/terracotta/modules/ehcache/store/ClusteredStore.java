@@ -114,7 +114,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     }
     transactionalMode = transactionalModeTemp;
 
-    valueModeHandler = ValueModeHandlerFactory.createValueModeHandler(this, ehcacheConfig);
+    valueModeHandler = ValueModeHandlerFactory.createValueModeHandler(this, ehcacheConfig,
+                                                                      toolkitInstanceFactory.getToolkitSerializer());
 
     if (terracottaConfiguration.getLocalKeyCache()) {
       localKeyCacheMaxsize = terracottaConfiguration.getLocalKeyCacheSize();
@@ -306,7 +307,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public List getKeys() {
-    return Collections.unmodifiableList(new SetAsList(new RealObjectKeySet(this.valueModeHandler, backend.keySet())));
+    return Collections.unmodifiableList(new SetAsList(new RealObjectKeySet(this.valueModeHandler, backend.keySet(),
+                                                                           false)));
   }
 
   @Override
@@ -616,7 +618,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     Map<Object, Element> elements = new HashMap();
     Set<Entry<String, Serializable>> entrySet = values.entrySet();
     for (Map.Entry<String, Serializable> entry : entrySet) {
-      Object key = this.valueModeHandler.getRealKeyObject(entry.getKey());
+      Object key = this.valueModeHandler.getRealKeyObject(entry.getKey(), false);
       elements.put(key, this.valueModeHandler.createElement(key, entry.getValue()));
     }
     return elements;
@@ -688,7 +690,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public Set getLocalKeys() {
-    return Collections.unmodifiableSet(new RealObjectKeySet(valueModeHandler, backend.localKeySet()));
+    return Collections.unmodifiableSet(new RealObjectKeySet(valueModeHandler, backend.localKeySet(), true));
   }
 
   @Override
@@ -706,13 +708,13 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     public void onEviction(Object key) {
       evictionObserver.begin();
       evictionObserver.end(EvictionOutcome.SUCCESS);
-      Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
+      Element element = new Element(valueModeHandler.getRealKeyObject((String) key, false), null);
       registeredEventListeners.notifyElementEvicted(element, false);
     }
 
     @Override
     public void onExpiration(Object key) {
-      Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
+      Element element = new Element(valueModeHandler.getRealKeyObject((String) key, false), null);
       registeredEventListeners.notifyElementExpiry(element, false);
     }
 
