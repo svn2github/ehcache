@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -87,9 +89,27 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
         assertCacheManagerMBeansRegistered("cacheManagerOn", 1);
     }
 
-    private void assertSampledMBeansGroupRegistered(int size) throws Exception {
+    private void assertSampledMBeansGroupRegistered(final int size) throws Exception {
+        waitUntil(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return mbeanServer.queryNames(new ObjectName(SampledEhcacheMBeans.GROUP_ID + ":*"), null).size() == size;
+            }
+        }, TimeUnit.SECONDS.toMillis(10));
+
         Set queryNames = mbeanServer.queryNames(new ObjectName(SampledEhcacheMBeans.GROUP_ID + ":*"), null);
         assertEquals(size, queryNames.size());
+    }
+    
+    private void waitUntil(Callable<Boolean> callable, long millis) {
+        long endTime = System.currentTimeMillis() + millis;
+        try {
+            while (System.currentTimeMillis() < endTime && !callable.call()) {
+                Thread.sleep(500);
+            }
+        } catch (Exception e) {
+            //
+        }
     }
 
     private void assertCacheManagerMBeansRegistered(String cacheManagerName, int size) throws Exception {
