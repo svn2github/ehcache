@@ -32,6 +32,8 @@ import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ToolkitCacheConfigBuilderInternal;
 import org.terracotta.toolkit.nonstop.NonStop;
+import org.terracotta.toolkit.serialization.Serialization;
+import org.terracotta.toolkit.serialization.ToolkitSerializer;
 import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
 
@@ -69,8 +71,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   protected final Toolkit     toolkit;
 
+  private final ToolkitSerializer toolkitSerializer;
+
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
+    Serialization serializationFeature = toolkit.getFeature(Serialization.class);
+    if (serializationFeature == null) { throw new AssertionError(); }
+    toolkitSerializer = serializationFeature.getDefaultToolkitSerializer();
   }
 
   private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -230,7 +237,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     ToolkitCache<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
         .getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
                   config, SerializedReadCommittedClusteredSoftLock.class);
-    return new SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
+    return new SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map,
+                                                                                                        toolkitSerializer);
 
   }
 
@@ -275,7 +283,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
                                                               + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config,
                                                           Decision.class);
-    return new SerializedToolkitCache<TransactionID, Decision>(map);
+    return new SerializedToolkitCache<TransactionID, Decision>(map, toolkitSerializer);
   }
 
   @Override
@@ -377,4 +385,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
 
   }
+
+  @Override
+  public ToolkitSerializer getToolkitSerializer() {
+    return toolkitSerializer;
+  }
+
 }
