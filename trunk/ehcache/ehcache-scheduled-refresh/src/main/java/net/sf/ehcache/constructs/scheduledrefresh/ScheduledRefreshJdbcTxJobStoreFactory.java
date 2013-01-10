@@ -20,12 +20,13 @@ import java.util.Properties;
 import net.sf.ehcache.Ehcache;
 
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.simpl.RAMJobStore;
 
 /**
- * An example factory for creating Jdbc TX quartz job stores. Relies on proper configuration elements being
- * set in the config via the ehcache.xml config. Or, a subclass of this class could easily define them 
- * from other sources.
+ * An example factory for creating Jdbc TX quartz job stores. Relies on proper
+ * configuration elements being set in the config via the ehcache.xml config.
+ * Or, a subclass of this class could easily define them from other sources.
+ * 
+ * @author cschanck
  */
 public class ScheduledRefreshJdbcTxJobStoreFactory implements ScheduledRefreshJobStorePropertiesFactory {
 
@@ -36,7 +37,7 @@ public class ScheduledRefreshJdbcTxJobStoreFactory implements ScheduledRefreshJo
    @Override
    public Properties jobStoreProperties(Ehcache underlyingCache, ScheduledRefreshConfiguration config) {
       // get the exces properties -- should have everything you need for JDBC
-      Properties p=new Properties(config.getExcessProperties());
+      Properties p = new Properties(config.getExcessProperties());
       // enforce the JDBC job store class
       p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, org.quartz.impl.jdbcjobstore.JobStoreTX.class.getName());
       return p;

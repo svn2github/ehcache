@@ -24,16 +24,18 @@ import org.quartz.simpl.RAMJobStore;
 
 /**
  * A factory for creating RAM job stores.
+ * 
+ * @author cschanck
  */
 public class ScheduledRefreshRAMJobStoreFactory implements ScheduledRefreshJobStorePropertiesFactory {
 
    /**
-    * Return the necessary job store proprties to initialize a RAM job store
-    * in Quartz.
+    * Return the necessary job store proprties to initialize a RAM job store in
+    * Quartz.
     */
    @Override
    public Properties jobStoreProperties(Ehcache underlyingCache, ScheduledRefreshConfiguration config) {
-      Properties p=new Properties();
+      Properties p = new Properties();
       p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, RAMJobStore.class.getName());
       return p;
    }

@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-// TODO: Auto-generated Javadoc
 /**
  * Configuration for a {@link ScheduledRefreshCacheExtension}. Can be
  * initialized from a {@link Properties} object. Currently, the use of a
@@ -32,12 +31,6 @@ import java.util.concurrent.TimeUnit;
  * @author cschanck
  */
 public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
-
-   /** The Constant DEFAULT_KEY_GENERATOR_CLASS. */
-   private static final String DEFAULT_KEY_GENERATOR_CLASS = SimpleScheduledRefreshKeyGenerator.class.getName();
-
-   /** The Constant DEFAULT_JOB_STORE_FACTORY_CLASS. */ 
-   private static final String DEFAULT_JOB_STORE_FACTORY_CLASS = ScheduledRefreshRAMJobStoreFactory.class.getName();
 
    /** Properties key for the batch size attribute. */
    public static final String PROP_BATCH_SIZE_KEY = "batchSize";
@@ -94,6 +87,12 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     */
    public static final int DEFAULT_POLL_TIME_MS = (int) TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS);
 
+   /** The Constant DEFAULT_KEY_GENERATOR_CLASS. */
+   private static final String DEFAULT_KEY_GENERATOR_CLASS = SimpleScheduledRefreshKeyGenerator.class.getName();
+
+   /** The Constant DEFAULT_JOB_STORE_FACTORY_CLASS. */
+   private static final String DEFAULT_JOB_STORE_FACTORY_CLASS = ScheduledRefreshRAMJobStoreFactory.class.getName();
+
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = -6877036694574988955L;
 
@@ -130,7 +129,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    /**
     * Excess properties passed to the extension
     */
-   private Properties excessProperties=new Properties();
+   private Properties excessProperties = new Properties();
 
    /**
     * Create a default, valid configuration.
@@ -566,8 +565,9 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    }
 
    /**
-    * Get any unrecognized properties that were passed to this config when constructed via
-    * a Properties object.
+    * Get any unrecognized properties that were passed to this config when
+    * constructed via a Properties object.
+    * 
     * @return properties
     */
    public Properties getExcessProperties() {
