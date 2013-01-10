@@ -85,7 +85,8 @@ public class RefreshBatchJob implements Job {
         }
     }
 
-    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+   @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap jdm = context.getMergedJobDataMap();
         ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm.get(ScheduledRefreshCacheExtension
@@ -122,7 +123,7 @@ public class RefreshBatchJob implements Job {
             }
         }
         // assume we got here ok, now evict any that don't evict
-        if (config.isLoadMissEvicts() && !keysToProcess.isEmpty()) {
+        if (config.isEvictOnLoadMiss() && !keysToProcess.isEmpty()) {
             underlyingCache.removeAll(keysToProcess);
         }
 

@@ -89,8 +89,6 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
     private String groupName;
     private Status status;
 
-    private boolean isLocalJobStore;
-
     /**
      * Constructor. Create an extension with the specified config object against the specified cache.
      *
@@ -146,10 +144,6 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
         // build our trigger
         CronScheduleBuilder cronSchedule = CronScheduleBuilder.cronSchedule(config
                 .getCronExpression());
-
-        if (config.isScheduleMisfiresNow()) {
-            cronSchedule = cronSchedule.withMisfireHandlingInstructionFireAndProceed();
-        }
 
         CronTrigger trigger = TriggerBuilder
                 .newTrigger()
@@ -221,14 +215,11 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
         props.put(StdSchedulerFactory.PROP_SCHED_MAKE_SCHEDULER_THREAD_DAEMON, Boolean.TRUE.toString());
         props.put("org.quartz.threadPool.threadCount",
                 Integer.toString(config.getQuartzThreadCount() + 1));
-        if (config.getTerracottaConfigUrl() != null) {
-            this.isLocalJobStore = false;
-            props.put(PROP_QUARTZ_JOB_STORE_TC_CONFIG_URL, config.getTerracottaConfigUrl());
-            throw new UnsupportedOperationException("Terracotta Job Store not supported");
-            //props.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, TerracottaJobStore.class.getName());
-        } else {
-            this.isLocalJobStore = true;
-            props.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, RAMJobStore.class.getName());
+        Properties jsProps = getJobStoreProperties();
+        for(Object key:props.keySet()) {
+           if(!props.containsKey(key)) {
+              props.put(key, jsProps.get(key));
+           }
         }
 
         StdSchedulerFactory factory = new StdSchedulerFactory(props);
@@ -236,6 +227,18 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
 
         scheduler.start();
     }
+
+   private Properties getJobStoreProperties() throws SchedulerException {
+      try {
+         String clzName = config.getJobStoreFactoryClass();
+         Class<?> clz = Class.forName(clzName);
+         ScheduledRefreshJobStorePropertiesFactory fact = (ScheduledRefreshJobStorePropertiesFactory) clz.newInstance();
+         Properties jsProps = fact.jobStoreProperties(underlyingCache,config);
+         return jsProps;
+      } catch (Throwable t) {
+         throw new SchedulerException(t);
+      }
+   }
 
     /**
      * Note that this will not stop other instances of this refresh extension on
