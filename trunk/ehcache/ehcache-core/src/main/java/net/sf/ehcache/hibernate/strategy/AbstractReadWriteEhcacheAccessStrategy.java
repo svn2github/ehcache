@@ -168,7 +168,7 @@ abstract class AbstractReadWriteEhcacheAccessStrategy<T extends EhcacheTransacti
 
     private void putLock(final Object key, final Lock newLock) {
         if (newLock.isLocked()) {
-            region.putPinned(key, newLock);
+            region.putEternal(key, newLock);
         } else {
             region.put(key, newLock);
         }

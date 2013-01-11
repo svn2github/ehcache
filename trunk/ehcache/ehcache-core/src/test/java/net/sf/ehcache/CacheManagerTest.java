@@ -746,6 +746,7 @@ public class CacheManagerTest {
                     .persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP)));
         }
         CacheManager manager = new CacheManager(config);
+
         try {
             Collection<Thread> spawnedThreads = JVMUtil.enumerateThreads();
             spawnedThreads.removeAll(initialThreads);

@@ -112,36 +112,6 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void unpinAll() {
-    lock.readLock().lock();
-    try {
-      activeDelegate.unpinAll();
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public boolean isPinned(K key) {
-    lock.readLock().lock();
-    try {
-      return activeDelegate.isPinned(key);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  public void setPinned(K key, boolean pinned) {
-    lock.readLock().lock();
-    try {
-      activeDelegate.setPinned(key, pinned);
-    } finally {
-      lock.readLock().unlock();
-    }
-  }
-
-  @Override
   public void removeNoReturn(Object key) {
     lock.readLock().lock();
     try {

@@ -185,19 +185,17 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public void unpinAll() {
-    backend.unpinAll();
+    throw new UnsupportedOperationException("See EHC-980 ... this is about to be gone!");
   }
 
   @Override
   public boolean isPinned(Object key) {
-    String pKey = generatePortableKeyFor(key);
-    return backend.isPinned(pKey);
+    throw new UnsupportedOperationException("See EHC-980 ... this is about to be gone!");
   }
 
   @Override
   public void setPinned(Object key, boolean pinned) {
-    String pKey = generatePortableKeyFor(key);
-    backend.setPinned(pKey, pinned);
+    throw new UnsupportedOperationException("See EHC-980 ... this is about to be gone!");
   }
 
   @Override
