@@ -156,7 +156,9 @@ public class CacheWriterConfigurationTest {
         try {
             CacheManager cm = new CacheManager(getClass().getResourceAsStream
                     ("/ehcache-invalid-cachewriter-batching.xml"));
+            Assert.fail("Should have failed with cache writer config error");
         } catch(InvalidConfigurationException ie) {
+            // pass
         }
 
     }
