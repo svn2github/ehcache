@@ -54,7 +54,7 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
     /**
      * Properties key for the batch size attribute
      */
-    public static final String LOAD_MISS_EVICTS = "loadMissEvicts";
+    public static final String EVICT_ON_LOAD_MISS = "evictOnLoadMiss";
 
     private static final int DEFAULT_NUMBER_THREADS = 1;
     private static final int DEFAULT_BATCHSIZE = 100;
@@ -64,7 +64,7 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
     private long timeToRefreshMillis = 0L;
     private int maximumRefreshBacklogItems = DEFAULT_BACKLOG_MAX;
     private int batchSize = DEFAULT_BATCHSIZE;
-    private boolean loadMissEvicts = false;
+    private boolean evictOnLoadMiss = false;
     private int numberOfThreads = DEFAULT_NUMBER_THREADS;
     private String name = null;
 
@@ -96,8 +96,8 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
                     setNumberOfThreads(Integer.parseInt(stringValue));
                 } else if (BATCH_SIZE_KEY.equals(property)) {
                     setBatchSize(Integer.parseInt(stringValue));
-                } else if (LOAD_MISS_EVICTS.equals(property)) {
-                    setLoadMissEvicts(Boolean.parseBoolean(stringValue));
+                } else if (EVICT_ON_LOAD_MISS.equals(property)) {
+                    setEvictOnLoadMiss(Boolean.parseBoolean(stringValue));
                 } else if (MAX_BACKLOG.equals(property)) {
                     setMaximumRefreshBacklogItems(Integer.parseInt(stringValue));
                 } else {
@@ -119,7 +119,7 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
         p.setProperty(NUMBER_OF_THREADS_KEY, Long.toString(getNumberOfThreads()));
         p.setProperty(TIME_TO_REFRESH_SECONDS_KEY, Long.toString(getTimeToRefreshSeconds()));
         p.setProperty(BATCH_SIZE_KEY, Long.toString(getBatchSize()));
-        p.setProperty(LOAD_MISS_EVICTS, Boolean.toString(isLoadMissEvicts()));
+        p.setProperty(EVICT_ON_LOAD_MISS, Boolean.toString(isEvictOnLoadMiss()));
         p.setProperty(MAX_BACKLOG, Long.toString(getMaximumRefreshBacklogItems()));
         return p;
     }
@@ -318,8 +318,8 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
      * Get whether no return for a key from all CacheLoaders will force
      * an eviction prematurely from the underlying cache.
      */
-    public boolean isLoadMissEvicts() {
-        return loadMissEvicts;
+    public boolean isEvictOnLoadMiss() {
+        return evictOnLoadMiss;
     }
 
     /**
@@ -328,9 +328,9 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
      *
      * @param loadMissEvicts true to evict
      */
-    public void setLoadMissEvicts(boolean loadMissEvicts) {
+    public void setEvictOnLoadMiss(boolean loadMissEvicts) {
         valid = false;
-        this.loadMissEvicts = loadMissEvicts;
+        this.evictOnLoadMiss = loadMissEvicts;
     }
 
     /**
@@ -340,8 +340,8 @@ public class RefreshAheadCacheConfiguration implements Cloneable {
      * @param loadMissEvicts true to evict
      * @return this config
      */
-    public RefreshAheadCacheConfiguration loadMissEvicts(boolean loadMissEvicts) {
-        setLoadMissEvicts(loadMissEvicts);
+    public RefreshAheadCacheConfiguration evictOnLoadMiss(boolean loadMissEvicts) {
+        setEvictOnLoadMiss(loadMissEvicts);
         return this;
     }
 

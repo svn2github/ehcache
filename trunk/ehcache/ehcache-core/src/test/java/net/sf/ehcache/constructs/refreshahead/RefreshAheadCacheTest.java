@@ -93,7 +93,6 @@ public class RefreshAheadCacheTest {
 
         Ehcache decorator=cacheManager.getEhcache("testRefreshAhead1");
 
-
         decorator.put(new Element(new Integer(1), new String("1")));
         decorator.put(new Element(new Integer(2), new String("2")));
         decorator.put(new Element(new Integer(3), new String("3")));
