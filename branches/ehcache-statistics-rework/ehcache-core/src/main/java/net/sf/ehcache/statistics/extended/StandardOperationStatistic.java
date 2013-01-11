@@ -20,9 +20,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import net.sf.ehcache.Cache;
 
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
@@ -96,10 +96,10 @@ enum StandardOperationStatistic {
     },
 
     /** The evicted. */
-    EVICTION(false, cache().children().exclude(Cache.class).addDescendants(), CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
+    EVICTION(false, cache().children().exclude(Ehcache.class).addDescendants(), CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
 
     /** The expired. */
-    EXPIRY(true, cache().children(Object.class), CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
+    EXPIRY(true, cache().children(), CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
 
     private static final int THIRTY = 30;
     private static final int TEN = 10;

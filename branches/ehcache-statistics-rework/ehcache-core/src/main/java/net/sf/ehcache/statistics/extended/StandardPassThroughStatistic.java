@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import net.sf.ehcache.Cache;
+import net.sf.ehcache.Ehcache;
 import org.terracotta.context.query.Query;
 
 import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
@@ -34,22 +34,22 @@ public enum StandardPassThroughStatistic {
     CACHE_SIZE(cache(), Integer.TYPE, null, "size", "cache"),
 
     /** local heap size in entries */
-    LOCAL_HEAP_SIZE(cache().children().exclude(Cache.class).addDescendants(), Integer.TYPE, 0, "size", "local-heap"),
+    LOCAL_HEAP_SIZE(cache().children().exclude(Ehcache.class).addDescendants(), Integer.TYPE, 0, "size", "local-heap"),
 
     /** local hea size in bytes*/
-    LOCAL_HEAP_SIZE_BYTES(cache().children().exclude(Cache.class).addDescendants(), Long.TYPE, 0L, "size-in-bytes", "local-heap"),
+    LOCAL_HEAP_SIZE_BYTES(cache().children().exclude(Ehcache.class).addDescendants(), Long.TYPE, 0L, "size-in-bytes", "local-heap"),
 
     /** local off heap size in entry count */
-    LOCAL_OFFHEAP_SIZE(cache().children().exclude(Cache.class).addDescendants(), Long.TYPE, 0L, "size", "local-offheap"),
+    LOCAL_OFFHEAP_SIZE(cache().children().exclude(Ehcache.class).addDescendants(), Long.TYPE, 0L, "size", "local-offheap"),
 
     /** local offheap size in bytes */
-    LOCAL_OFFHEAP_SIZE_BYTES(cache().children().exclude(Cache.class).addDescendants(), Long.TYPE, 0L, "size-in-bytes", "local-offheap"),
+    LOCAL_OFFHEAP_SIZE_BYTES(cache().children().exclude(Ehcache.class).addDescendants(), Long.TYPE, 0L, "size-in-bytes", "local-offheap"),
 
     /** local disk size in entries */
-    LOCAL_DISK_SIZE(cache().children().exclude(Cache.class).addDescendants(), Integer.TYPE, 0, "size", "local-disk"),
+    LOCAL_DISK_SIZE(cache().children().exclude(Ehcache.class).addDescendants(), Integer.TYPE, 0, "size", "local-disk"),
 
     /** local disk size in bytes */
-    LOCAL_DISK_SIZE_BYTES(cache().children().exclude(Cache.class).addDescendants(), Long.TYPE, 0L, "size-in-bytes", "local-disk"),
+    LOCAL_DISK_SIZE_BYTES(cache().children().exclude(Ehcache.class).addDescendants(), Long.TYPE, 0L, "size-in-bytes", "local-disk"),
 
     /** writer queue length */
     WRITER_QUEUE_LENGTH(cache().descendants(), Long.TYPE, 0L, "queue-length", "write-behind"),

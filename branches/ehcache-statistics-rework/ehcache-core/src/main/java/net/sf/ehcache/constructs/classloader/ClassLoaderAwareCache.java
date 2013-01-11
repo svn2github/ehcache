@@ -45,6 +45,7 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
+import org.terracotta.context.annotations.ContextChild;
 
 /**
  * A cache decorator that adjusts the Thread context classloader (TCCL) for every cache operation. The TCCL is reset to its original value
@@ -62,6 +63,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
      * Used by InternalClassLoaderAwareCache
      */
+    @ContextChild
     protected final Ehcache cache;
 
     /**
