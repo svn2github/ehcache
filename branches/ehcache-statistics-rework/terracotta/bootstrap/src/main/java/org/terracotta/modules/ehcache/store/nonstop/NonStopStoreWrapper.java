@@ -192,32 +192,12 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
-  private void waitUntilDelegateIsSet() {
-    if (delegate != null) { return; }
-
-    boolean interrupted = false;
-    synchronized (this) {
-      while (delegate == null) {
-        try {
-          this.wait();
-        } catch (InterruptedException e) {
-          interrupted = true;
-        }
-      }
-    }
-
-    if (interrupted) {
-      Thread.currentThread().interrupt();
-    }
-  }
-
   /**
    * {@inheritDoc}
    */
   @Override
   public Object getMBean() {
-    waitUntilDelegateIsSet();
-    return this.delegate.getMBean();
+    return null;
   }
 
   /**

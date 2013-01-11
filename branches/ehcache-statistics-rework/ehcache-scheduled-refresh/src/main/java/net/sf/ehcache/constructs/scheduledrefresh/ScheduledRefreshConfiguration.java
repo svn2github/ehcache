@@ -24,574 +24,578 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Configuration for a {@link ScheduledRefreshCacheExtension}. Can be
- * initialized from a {@link Properties} object. Currently, the use of a clustered
- * {@link org.terracotta.quartz.TerracottaJobStore} is not supported. This usage
- * will be supported in the future.
- *
+ * initialized from a {@link Properties} object. Currently, the use of a
+ * clustered {@link org.terracotta.quartz.TerracottaJobStore} is not supported.
+ * This usage will be supported in the future.
+ * 
  * @author cschanck
  */
 public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
 
-    /**
-     * Properties key for the batch size attribute
-     */
-    public static final String PROP_BATCH_SIZE_KEY = "batchSize";
+   /** Properties key for the batch size attribute. */
+   public static final String PROP_BATCH_SIZE_KEY = "batchSize";
 
-    /**
-     * Properties key for the key generator class name
-     */
-    public static final String PROP_KEY_GENERATOR_CLASS = "keyGenerator";
+   /** Properties key for the key generator class name. */
+   public static final String PROP_KEY_GENERATOR_CLASS = "keyGenerator";
 
-    /**
-     * Properties key for cron expression used to schedule this job
-     */
-    public static final String PROP_CRON_SCHEDULE = "cronExpression";
+   /** Properties key for cron expression used to schedule this job. */
+   public static final String PROP_CRON_SCHEDULE = "cronExpression";
 
-    /**
-     * Properties key for enabling bulk load mode prior to exection of the
-     * refresh
-     */
-    public static final String PROP_USE_BULKLOAD = "useBulkload";
+   /**
+    * Properties key for enabling bulk load mode prior to exection of the
+    * refresh.
+    */
+   public static final String PROP_USE_BULKLOAD = "useBulkload";
 
-    /**
-     * Properties key for the quartz job count attribute
-     */
-    public static final String PROP_LOCAL_QUARTZ_JOB_COUNT = "quartzJobCount";
+   /** Properties key for the quartz job count attribute. */
+   public static final String PROP_LOCAL_QUARTZ_JOB_COUNT = "quartzJobCount";
 
-    /**
-     * Properties key for Terracotta configuration url
-     */
-    public static final String PROP_TC_CONFIG_URL = "tcConfigUrl";
+   /** Properties key for the unique name identifier. */
+   public static final String PROP_SCHEDULED_REFRESH_NAME = "scheduledRefreshName";
 
-    /**
-     * Properties key for the unique name identifier
-     */
-    public static final String PROP_UNIQUE_NAME = "uniqueName";
+   /** Properties key for the seed job polling interval. */
+   public static final String PROP_POLL_TIME_MS = "pollTimeMs";
 
-    /**
-     * Properties key for the seed job polling interval
-     */
-    public static final String PROP_POLL_TIME_MS = "pollTimeMs";
+   /** Properties key for evictions on refresh fail. */
+   public static final String PROP_EVICT_ON_LOAD_MISS = "evictOnLoadMiss";
 
-    /**
-     * Properties key for evictions on refresh fail
-     */
-    public static final String PROP_LOAD_MISS_EVICTS = "loadMissEvicts";
+   /** Properties key for the job store factory. */
+   public static final String PROP_JOBSTORE_FACTORY_CLASS = "jobStoreFactory";
 
-    /**
-     * Properties key for misfires being scheduled immediately
-     */
-    public static final String PROP_SCHEDULE_MISFIRES_NOW = "scheduleMisfiresNow";
+   /**
+    * Default setting for null eviction.
+    */
+   public static final boolean DEFAULT_NULL_EVICTS = true;
 
-    /**
-     * Default setting for null eviction.
-     */
-    public static final boolean DEFAULT_NULL_EVICTS = true;
+   /**
+    * Default setting for using bulkload.
+    */
+   public static final boolean DEFAULT_USE_BULKLOAD = false;
 
-    /**
-     * Default setting for using bulkload.
-     */
-    public static final boolean DEFAULT_USE_BULKLOAD = false;
+   /**
+    * Default batch size for key refresh processing.
+    */
+   public static final int DEFAULT_BATCHSIZE = 100;
 
-    /**
-     * Default batch size for key refresh processing.
-     */
-    public static final int DEFAULT_BATCHSIZE = 100;
+   /**
+    * Default simultaneous Quartz thread count.
+    */
+   public static final int DEFAULT_QUARTZ_THREADCOUNT = 2;
 
-    /**
-     * Default simultaneous Quartz thread count.
-     */
-    public static final int DEFAULT_QUARTZ_THREADCOUNT = 2;
+   /**
+    * Default polling timeout for monitoring refresh jobs.
+    */
+   public static final int DEFAULT_POLL_TIME_MS = (int) TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS);
 
-    /**
-     * Default setting for whterh job misfires are scheduled as soon as possible.
-     */
-    public static final boolean DEFAULT_SCHEDULE_MISFIRES_NOW = false;
+   /** The Constant DEFAULT_KEY_GENERATOR_CLASS. */
+   private static final String DEFAULT_KEY_GENERATOR_CLASS = SimpleScheduledRefreshKeyGenerator.class.getName();
 
-    /**
-     * Default polling timeout for monitoring refresh jobs.
-     */
-    public static final int DEFAULT_POLL_TIME_MS = (int) TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS);
+   /** The Constant DEFAULT_JOB_STORE_FACTORY_CLASS. */
+   private static final String DEFAULT_JOB_STORE_FACTORY_CLASS = ScheduledRefreshRAMJobStoreFactory.class.getName();
 
-    private static final long serialVersionUID = -6877036694574988955L;
+   /** The Constant serialVersionUID. */
+   private static final long serialVersionUID = -6877036694574988955L;
 
-    private int batchSize = DEFAULT_BATCHSIZE;
-    private boolean useBulkload = DEFAULT_USE_BULKLOAD;
-    private String cronExpression = null;
-    private int quartzThreadCount = DEFAULT_QUARTZ_THREADCOUNT;
-    private String terracottaConfigUrl = null;
-    private String keyGeneratorClass = SimpleScheduledRefreshKeyGenerator.class.getName();
-    private String uniqueNamePart = null;
-    private int pollTimeMs = DEFAULT_POLL_TIME_MS;
-    private boolean loadMissEvicts = DEFAULT_NULL_EVICTS;
-    private boolean scheduleMisfiresNow = DEFAULT_SCHEDULE_MISFIRES_NOW;
-    private volatile boolean valid = false;
+   /** The batch size. */
+   private int batchSize = DEFAULT_BATCHSIZE;
 
-    /**
-     * Create a default, valid configuration
-     */
-    public ScheduledRefreshConfiguration() {
-    }
+   /** The use bulkload. */
+   private boolean useBulkload = DEFAULT_USE_BULKLOAD;
 
-    /**
-     * Initialize this configuration from a {@link Properties} object. Will be
-     * validated before returning.
-     *
-     * @param properties
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration fromProperties(Properties properties) {
-        valid = false;
-        if (properties != null) {
-            for (String property : properties.stringPropertyNames()) {
-                String stringValue = properties.getProperty(property).trim();
-                if (PROP_BATCH_SIZE_KEY.equals(property)) {
-                    setBatchSize(Integer.parseInt(stringValue));
-                } else if (PROP_USE_BULKLOAD.equals(property)) {
-                    setUseBulkload(Boolean.parseBoolean(stringValue));
-                } else if (PROP_CRON_SCHEDULE.equals(property)) {
-                    setCronExpression(stringValue);
-                } else if (PROP_LOCAL_QUARTZ_JOB_COUNT.equals(property)) {
-                    setQuartzThreadCount(Integer.parseInt(stringValue));
-                } else if (PROP_POLL_TIME_MS.equals(property)) {
-                    setPollTimeMs(Integer.parseInt(stringValue));
-                } else if (PROP_TC_CONFIG_URL.equals(property)) {
-                    setTerracottaConfigUrl(stringValue);
-                } else if (PROP_LOAD_MISS_EVICTS.equals(property)) {
-                    setLoadMissEvicts(Boolean.parseBoolean(stringValue));
-                } else if (PROP_SCHEDULE_MISFIRES_NOW.equals(property)) {
-                    setScheduleMisfiresNow(Boolean.parseBoolean(stringValue));
-                } else if (PROP_KEY_GENERATOR_CLASS.equals(property)) {
-                    setKeyGeneratorClass(stringValue);
-                } else {
-                    throw new IllegalArgumentException("Unrecognized Schedule Refresh cache config key: " + property);
-                }
+   /** The cron expression. */
+   private String cronExpression = null;
+
+   /** The quartz thread count. */
+   private int quartzThreadCount = DEFAULT_QUARTZ_THREADCOUNT;
+
+   /** The key generator class. */
+   private String keyGeneratorClass = DEFAULT_KEY_GENERATOR_CLASS;
+
+   /** The unique name part. */
+   private String scheduledRefreshName = null;
+
+   /** The job store factory class name. */
+   private String jobStoreFactoryClassName = DEFAULT_JOB_STORE_FACTORY_CLASS;
+
+   /** The poll time ms. */
+   private int pollTimeMs = DEFAULT_POLL_TIME_MS;
+
+   /** The load miss evicts. */
+   private boolean evictOnLoadMiss = DEFAULT_NULL_EVICTS;
+
+   /** The valid. */
+   private volatile boolean valid = false;
+
+   /**
+    * Excess properties passed to the extension
+    */
+   private Properties excessProperties = new Properties();
+
+   /**
+    * Create a default, valid configuration.
+    */
+   public ScheduledRefreshConfiguration() {
+   }
+
+   /**
+    * Initialize this configuration from a {@link Properties} object. Will be
+    * validated before returning.
+    * 
+    * @param properties
+    *           the properties
+    * @return this configuration
+    */
+   public ScheduledRefreshConfiguration fromProperties(Properties properties) {
+      valid = false;
+      excessProperties.clear();
+      if (properties != null) {
+         for (String property : properties.stringPropertyNames()) {
+            String stringValue = properties.getProperty(property).trim();
+            if (PROP_BATCH_SIZE_KEY.equals(property)) {
+               setBatchSize(Integer.parseInt(stringValue));
+            } else if (PROP_USE_BULKLOAD.equals(property)) {
+               setUseBulkload(Boolean.parseBoolean(stringValue));
+            } else if (PROP_CRON_SCHEDULE.equals(property)) {
+               setCronExpression(stringValue);
+            } else if (PROP_JOBSTORE_FACTORY_CLASS.equals(property)) {
+               setJobStoreFactoryClassName(stringValue);
+            } else if (PROP_LOCAL_QUARTZ_JOB_COUNT.equals(property)) {
+               setQuartzThreadCount(Integer.parseInt(stringValue));
+            } else if (PROP_POLL_TIME_MS.equals(property)) {
+               setPollTimeMs(Integer.parseInt(stringValue));
+            } else if (PROP_EVICT_ON_LOAD_MISS.equals(property)) {
+               setEvictOnLoadMiss(Boolean.parseBoolean(stringValue));
+            } else if (PROP_KEY_GENERATOR_CLASS.equals(property)) {
+               setKeyGeneratorClass(stringValue);
+            } else {
+               excessProperties.put(property, stringValue);
             }
-        }
-        return build();
-    }
+         }
+      }
+      return build();
+   }
 
-    /**
-     * Express this configuration as a {@link Properties} object.
-     *
-     * @return properties version of this config
-     */
-    public Properties toProperties() {
-        Properties p = new Properties();
-        p.setProperty(PROP_BATCH_SIZE_KEY, Long.toString(getBatchSize()));
-        p.setProperty(PROP_USE_BULKLOAD, Boolean.toString(isUseBulkload()));
-        p.setProperty(PROP_LOAD_MISS_EVICTS, Boolean.toString(isLoadMissEvicts()));
-        p.setProperty(PROP_SCHEDULE_MISFIRES_NOW, Boolean.toString(isScheduleMisfiresNow()));
-        p.setProperty(PROP_CRON_SCHEDULE, getCronExpression());
-        p.setProperty(PROP_LOCAL_QUARTZ_JOB_COUNT, Integer.toString(getQuartzThreadCount()));
-        p.setProperty(PROP_POLL_TIME_MS, Integer.toString(getPollTimeMs()));
-        p.setProperty(PROP_KEY_GENERATOR_CLASS, getKeyGeneratorClass());
-        if (getTerracottaConfigUrl() != null) {
-            p.setProperty(PROP_TC_CONFIG_URL, getTerracottaConfigUrl());
-        }
-        return p;
-    }
+   /**
+    * Express this configuration as a {@link Properties} object.
+    * 
+    * @return properties version of this config
+    */
+   public Properties toProperties() {
+      Properties p = new Properties();
+      p.setProperty(PROP_BATCH_SIZE_KEY, Long.toString(getBatchSize()));
+      p.setProperty(PROP_USE_BULKLOAD, Boolean.toString(isUseBulkload()));
+      p.setProperty(PROP_EVICT_ON_LOAD_MISS, Boolean.toString(isEvictOnLoadMiss()));
+      p.setProperty(PROP_CRON_SCHEDULE, getCronExpression());
+      p.setProperty(PROP_CRON_SCHEDULE, getJobStoreFactoryClass());
+      p.setProperty(PROP_LOCAL_QUARTZ_JOB_COUNT, Integer.toString(getQuartzThreadCount()));
+      p.setProperty(PROP_POLL_TIME_MS, Integer.toString(getPollTimeMs()));
+      p.setProperty(PROP_KEY_GENERATOR_CLASS, getKeyGeneratorClass());
+      for (String property : excessProperties.stringPropertyNames()) {
+         String stringValue = excessProperties.getProperty(property).trim();
+         p.put(property, stringValue);
+      }
+      return p;
+   }
 
-    /**
-     * Validate and mark this configuration good to use.
-     *
-     * @return validated configuration
-     * @throws IllegalStateException
-     */
-    public ScheduledRefreshConfiguration build() {
-        validate();
-        return this;
-    }
+   /**
+    * Validate and mark this configuration good to use.
+    * 
+    * @return validated configuration
+    */
+   public ScheduledRefreshConfiguration build() {
+      validate();
+      return this;
+   }
 
-    /**
-     * Validate this configuration.
-     */
-    public void validate() {
-        if (cronExpression == null) {
-            throw new IllegalArgumentException("Cron Schedule cannot be unspecified");
-        }
-        valid = true;
-    }
+   /**
+    * Validate this configuration.
+    */
+   public void validate() {
+      if (cronExpression == null) {
+         throw new IllegalArgumentException("Cron Schedule cannot be unspecified");
+      }
+      if (jobStoreFactoryClassName == null) {
+         jobStoreFactoryClassName = DEFAULT_JOB_STORE_FACTORY_CLASS;
+      }
+      if (keyGeneratorClass == null) {
+         keyGeneratorClass = DEFAULT_KEY_GENERATOR_CLASS;
+      }
+      valid = true;
+   }
 
-    /**
-     * is this configuration valid to use?
-     *
-     * @return true if it is valid
-     */
-    public boolean isValid() {
-        return valid;
-    }
+   /**
+    * is this configuration valid to use?.
+    * 
+    * @return true if it is valid
+    */
+   public boolean isValid() {
+      return valid;
+   }
 
-    /**
-     * Get the batch size with which refresh requests will be processed.
-     *
-     * @return batch size
-     */
-    public int getBatchSize() {
-        return batchSize;
-    }
+   /**
+    * Get the batch size with which refresh requests will be processed.
+    * 
+    * @return batch size
+    */
+   public int getBatchSize() {
+      return batchSize;
+   }
 
-    /**
-     * Set the batch size for processing refresh requests. This is the number of
-     * keys will be processed in a batch.
-     *
-     * @param batchSize maximum batch size
-     */
-    public void setBatchSize(int batchSize) {
-        valid = false;
-        this.batchSize = batchSize;
-    }
+   /**
+    * Set the batch size for processing refresh requests. This is the number of
+    * keys will be processed in a batch.
+    * 
+    * @param batchSize
+    *           maximum batch size
+    */
+   public void setBatchSize(int batchSize) {
+      valid = false;
+      this.batchSize = batchSize;
+   }
 
-    /**
-     * Fluently set the batch size for processing refresh requests.
-     *
-     * @param batchSize maximum batch size
-     * @return this configuration object
-     */
-    public ScheduledRefreshConfiguration batchSize(int batchSize) {
-        setBatchSize(batchSize);
-        return this;
-    }
+   /**
+    * Fluently set the batch size for processing refresh requests.
+    * 
+    * @param batchSize
+    *           maximum batch size
+    * @return this configuration object
+    */
+   public ScheduledRefreshConfiguration batchSize(int batchSize) {
+      setBatchSize(batchSize);
+      return this;
+   }
 
-    /**
-     * Get whether the cache will be put in bulk load mode prior to refresh.
-     *
-     * @return true if bulk load mode will be used for loading
-     */
-    public boolean isUseBulkload() {
-        return useBulkload;
-    }
+   /**
+    * Get whether the cache will be put in bulk load mode prior to refresh.
+    * 
+    * @return true if bulk load mode will be used for loading
+    */
+   public boolean isUseBulkload() {
+      return useBulkload;
+   }
 
-    /**
-     * Set the flag to use bulk load for refreshing the keys. If true, the cache
-     * will be put in bulkLoade mode prior to running the refresh, and after all
-     * the jobs are finished, it will be restored to it's prior state.
-     *
-     * @param useBulkload
-     */
-    public void setUseBulkload(boolean useBulkload) {
-        valid = false;
-        this.useBulkload = useBulkload;
-    }
+   /**
+    * Set the flag to use bulk load for refreshing the keys. If true, the cache
+    * will be put in bulkLoade mode prior to running the refresh, and after all
+    * the jobs are finished, it will be restored to it's prior state.
+    * 
+    * @param useBulkload
+    *           the new use bulkload
+    */
+   public void setUseBulkload(boolean useBulkload) {
+      valid = false;
+      this.useBulkload = useBulkload;
+   }
 
-    /**
-     * Fluently set the bulk load flag.
-     *
-     * @param yes
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration useBulkload(boolean yes) {
-        setUseBulkload(yes);
-        return this;
-    }
+   /**
+    * Fluently set the bulk load flag.
+    * 
+    * @param yes
+    *           the yes
+    * @return this configuration
+    */
+   public ScheduledRefreshConfiguration useBulkload(boolean yes) {
+      setUseBulkload(yes);
+      return this;
+   }
 
-    /**
-     * Return the string cron expression which will be passed to Quartz to
-     * schedule the refresh.
-     *
-     * @return cron expression string
-     */
-    public String getCronExpression() {
-        return cronExpression;
-    }
+   /**
+    * Return the string cron expression which will be passed to Quartz to
+    * schedule the refresh.
+    * 
+    * @return cron expression string
+    */
+   public String getCronExpression() {
+      return cronExpression;
+   }
 
-    /**
-     * Set the cron expression Quartz will use for scheduling this refresh job.
-     * See Quartz documentation for a further explanation.
-     *
-     * @param cronExpression
-     */
-    public void setCronExpression(String cronExpression) {
-        valid = false;
-        this.cronExpression = cronExpression;
-    }
+   /**
+    * Set the cron expression Quartz will use for scheduling this refresh job.
+    * See Quartz documentation for a further explanation.
+    * 
+    * @param cronExpression
+    *           the new cron expression
+    */
+   public void setCronExpression(String cronExpression) {
+      valid = false;
+      this.cronExpression = cronExpression;
+   }
 
-    /**
-     * Fluently set the cron expression Quartz will use for scheduling this
-     * refresh job
-     *
-     * @param cronExpression
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration cronExpression(String cronExpression) {
-        setCronExpression(cronExpression);
-        return this;
-    }
+   /**
+    * Fluently set the cron expression Quartz will use for scheduling this
+    * refresh job.
+    * 
+    * @param cronExpression
+    *           the cron expression
+    * @return this configuration
+    */
+   public ScheduledRefreshConfiguration cronExpression(String cronExpression) {
+      setCronExpression(cronExpression);
+      return this;
+   }
 
-    /**
-     * Get the quartz thread count.
-     *
-     * @return the quartz thread count
-     */
-    public int getQuartzThreadCount() {
-        return quartzThreadCount;
-    }
+   /**
+    * Get the quartz thread count.
+    * 
+    * @return the quartz thread count
+    */
+   public int getQuartzThreadCount() {
+      return quartzThreadCount;
+   }
 
-    /**
-     * Set the Quartz thread count. This is the number of concurrent refresh
-     * batches which can be processed at one time. The overseeing job will poll
-     * and not schedule more than this many jobs at one time.
-     *
-     * @param quartzThreadCount
-     */
-    public void setQuartzThreadCount(int quartzThreadCount) {
-        valid = false;
-        this.quartzThreadCount = quartzThreadCount;
-    }
+   /**
+    * Set the Quartz thread count. This is the number of concurrent refresh
+    * batches which can be processed at one time. The overseeing job will poll
+    * and not schedule more than this many jobs at one time.
+    * 
+    * @param quartzThreadCount
+    *           the new quartz thread count
+    */
+   public void setQuartzThreadCount(int quartzThreadCount) {
+      valid = false;
+      this.quartzThreadCount = quartzThreadCount;
+   }
 
-    /**
-     * Fluently set the Quartz thread count.
-     *
-     * @param quartzThreadCount
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration quartzThreadCount(int quartzThreadCount) {
-        setQuartzThreadCount(quartzThreadCount);
-        return this;
-    }
+   /**
+    * Fluently set the Quartz thread count.
+    * 
+    * @param quartzThreadCount
+    *           the quartz thread count
+    * @return this configuration
+    */
+   public ScheduledRefreshConfiguration quartzThreadCount(int quartzThreadCount) {
+      setQuartzThreadCount(quartzThreadCount);
+      return this;
+   }
 
-    /**
-     * Get the key generator class used to generate the list of keys to refresh.
-     *
-     * @return the fully qualified class name of the {@link ScheduledRefreshKeyGenerator} class
-     */
-    public String getKeyGeneratorClass() {
-        return keyGeneratorClass;
-    }
+   /**
+    * Get the key generator class used to generate the list of keys to refresh.
+    * 
+    * @return the fully qualified class name of the
+    *         {@link ScheduledRefreshKeyGenerator} class
+    */
+   public String getKeyGeneratorClass() {
+      return keyGeneratorClass;
+   }
 
-    /**
-     * Set the key generator class used to generate the list of keys to refresh.
-     * This is the class used to generate keys from the target cache. A simple
-     * implementation of the naive getKeys() approach is supplied.
-     *
-     * @param keyGeneratorClass
-     */
-    public void setKeyGeneratorClass(String keyGeneratorClass) {
-        this.keyGeneratorClass = keyGeneratorClass;
-    }
+   /**
+    * Set the key generator class used to generate the list of keys to refresh.
+    * This is the class used to generate keys from the target cache. A simple
+    * implementation of the naive getKeys() approach is supplied.
+    * 
+    * @param keyGeneratorClass
+    *           the new key generator class
+    */
+   public void setKeyGeneratorClass(String keyGeneratorClass) {
+      this.keyGeneratorClass = keyGeneratorClass;
+   }
 
-    /**
-     * Fluently set the key generator class used to generate the list of keys to
-     * refresh.
-     *
-     * @param keyGeneratorClass
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration keyGeneratorClass(String keyGeneratorClass) {
-        setKeyGeneratorClass(keyGeneratorClass);
-        return this;
-    }
+   /**
+    * Fluently set the key generator class used to generate the list of keys to
+    * refresh.
+    * 
+    * @param keyGeneratorClass
+    *           the key generator class
+    * @return this configuration
+    */
+   public ScheduledRefreshConfiguration keyGeneratorClass(String keyGeneratorClass) {
+      setKeyGeneratorClass(keyGeneratorClass);
+      return this;
+   }
 
-    /**
-     * Get the Terracotta configuration url, to use a TerracottaJobStore. If
-     * this is not set, a RamJobStore will be used.
-     *
-     * @return the Terracotta cluster url used for the TerracottJobStore
-     */
-    public String getTerracottaConfigUrl() {
-        return terracottaConfigUrl;
-    }
+   /**
+    * Get an additional identifier used in addition to the cache manager and
+    * cache name for this extension, and for the job scheduler, and job group.
+    * If you are going to have multiple scheduled refresh extensions on the same
+    * cache, this is necessary.
+    * 
+    * @return An additional unique identifier for the scheduler and it's jobs
+    */
+   public String getScheduledRefreshName() {
+      return scheduledRefreshName;
+   }
 
-    /**
-     * Set the Terracotta configuration url, to use a TerracottaJobStore. If
-     * this is not set, a RamJobStore will be used. Currently not supported.
-     */
-    @Deprecated
-    public void setTerracottaConfigUrl(String terracottaClusterURL) {
-        if (terracottaClusterURL != null) {
-            throw new UnsupportedOperationException("Scheduled Refresh cannot be used in a clustered manner yet.");
-        }
-        this.terracottaConfigUrl = terracottaClusterURL;
-    }
+   /**
+    * Set an additional identifier used in addition to the cache manager and
+    * cache name for this extension, and for the job scheduler, and job group.
+    * If you are going to have multiple scheduled refresh extensions on the same
+    * cache, this is necessary.
+    * 
+    * @param part
+    *           the new unique name part
+    */
+   public void setScheduledRefreshName(String part) {
+      this.scheduledRefreshName = part;
+   }
 
-    /**
-     * Fluently, set the Terracotta configuration url, to use a
-     * TerracottaJobStore. If this is not set, a RamJobStore will be used.
-     * Currently not supported.
-     */
-    @Deprecated
-    public ScheduledRefreshConfiguration terracottaConfigUrl(String terracottaClusterURL) {
-        setTerracottaConfigUrl(terracottaClusterURL);
-        return this;
-    }
+   /**
+    * Fluently set an additional identifier used in addition to the cache
+    * manager and cache name for this extension, and for the job scheduler, and
+    * job group. If you are going to have multiple scheduled refresh extensions
+    * on the same cache, this is necessary.
+    * 
+    * @param part
+    *           unique identifier used to distinguish this scheduled refresh
+    *           instance from others on the same cache
+    * @return this configuration
+    */
+   public ScheduledRefreshConfiguration scheduledRefreshName(String part) {
+      setScheduledRefreshName(part);
+      return this;
+   }
 
-    /**
-     * Get an additional identifier used in addition to the cache manager and
-     * cache name for this extension, and for the job scheduler, and job group.
-     * If you are going to have multiple scheduled refresh extensions on the
-     * same cache, this is necessary.
-     *
-     * @return An additional unique identifier for the scheduler and it's jobs
-     */
-    public String getUniqueNamePart() {
-        return uniqueNamePart;
-    }
+   /**
+    * Get whether now value found in all CacheLoaders will force an eviction
+    * prematurely from the underlying cache.
+    * 
+    * @return true if refresh will remove keys it annot load through the cache
+    *         loaders
+    */
+   public boolean isEvictOnLoadMiss() {
+      return evictOnLoadMiss;
+   }
 
-    /**
-     * Set an additional identifier used in addition to the cache manager and
-     * cache name for this extension, and for the job scheduler, and job group.
-     * If you are going to have multiple scheduled refresh extensions on the
-     * same cache, this is necessary.
-     */
-    public void setUniqueNamePart(String part) {
-        this.uniqueNamePart = part;
-    }
+   /**
+    * Set whether now value found in all CacheLoaders will force an eviction
+    * prematurely from the underlying cache.
+    * 
+    * @param loadMissEvicts
+    *           true to evict
+    */
+   public void setEvictOnLoadMiss(boolean loadMissEvicts) {
+      valid = false;
+      this.evictOnLoadMiss = loadMissEvicts;
+   }
 
-    /**
-     * Fluently set an additional identifier used in addition to the cache
-     * manager and cache name for this extension, and for the job scheduler, and
-     * job group. If you are going to have multiple scheduled refresh extensions
-     * on the same cache, this is necessary.
-     *
-     * @param part unique identifier used to distinguish this scheduled refresh instance
-     *             from others on the same cache
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration uniqueNamePart(String part) {
-        setUniqueNamePart(part);
-        return this;
-    }
+   /**
+    * Fluently set whether now value found in all CacheLoaders will force an
+    * eviction eviction prematurely from the underlying cache.
+    * 
+    * @param loadMissEvicts
+    *           true to evict
+    * @return this configuration
+    */
+   public ScheduledRefreshConfiguration evictOnLoadMiss(boolean loadMissEvicts) {
+      setEvictOnLoadMiss(loadMissEvicts);
+      return this;
+   }
 
-    /**
-     * Get whether now value found in all CacheLoaders will force an eviction
-     * prematurely from the underlying cache.
-     *
-     * @return true if refresh will remove keys it annot load through the cache loaders
-     */
-    public boolean isLoadMissEvicts() {
-        return loadMissEvicts;
-    }
+   /**
+    * Get the time interval the {@link OverseerJob} will use to poll for job
+    * completion.
+    * 
+    * @return time in milliseconds the controlling job will poll the scheduler's
+    *         {@link org.quartz.spi.JobStore} in order to schedule the next
+    *         batch of keys.
+    */
+   public int getPollTimeMs() {
+      return pollTimeMs;
+   }
 
-    /**
-     * Set whether now value found in all CacheLoaders will force an eviction
-     * prematurely from the underlying cache.
-     *
-     * @param loadMissEvicts true to evict
-     */
-    public void setLoadMissEvicts(boolean loadMissEvicts) {
-        valid = false;
-        this.loadMissEvicts = loadMissEvicts;
-    }
+   /**
+    * Set the time interval the {@link OverseerJob} will use to poll for job
+    * completion.
+    * 
+    * @param pollTimeMs
+    *           time in milliseconds the controlling job will poll the
+    *           scheduler's {@link org.quartz.spi.JobStore} in order to schedule
+    *           the next batch of keys.
+    */
+   public void setPollTimeMs(int pollTimeMs) {
+      valid = false;
+      this.pollTimeMs = pollTimeMs;
+   }
 
-    /**
-     * Fluently set whether now value found in all CacheLoaders will force an eviction
-     * eviction prematurely from the underlying cache.
-     *
-     * @param loadMissEvicts true to evict
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration loadMissEvicts(boolean loadMissEvicts) {
-        setLoadMissEvicts(loadMissEvicts);
-        return this;
-    }
+   /**
+    * Fluently set the time interval the {@link OverseerJob} will use to poll
+    * for job completion.
+    * 
+    * @param pollTimeMs
+    *           time in milliseconds the controlling job will poll the
+    *           scheduler's
+    * @return this configuration {@link org.quartz.spi.JobStore} in order to
+    *         schedule the next batch of keys.
+    */
+   public ScheduledRefreshConfiguration pollTimeMs(int pollTimeMs) {
+      setPollTimeMs(pollTimeMs);
+      return this;
+   }
 
-    /**
-     * Get the time interval the {@link OverseerJob} will use to poll for job
-     * completion.
-     *
-     * @return time in milliseconds the controlling job will poll the scheduler's
-     *         {@link org.quartz.spi.JobStore} in order to schedule the next batch of keys.
-     */
-    public int getPollTimeMs() {
-        return pollTimeMs;
-    }
+   /**
+    * Gets the job store factory class.
+    * 
+    * @return the job store factory class
+    */
+   public String getJobStoreFactoryClass() {
+      return jobStoreFactoryClassName;
+   }
 
-    /**
-     * Set the time interval the {@link OverseerJob} will use to poll for job
-     * completion.
-     *
-     * @param pollTimeMs time in milliseconds the controlling job will poll the scheduler's
-     *                   {@link org.quartz.spi.JobStore} in order to schedule the next batch of keys.
-     */
-    public void setPollTimeMs(int pollTimeMs) {
-        valid = false;
-        this.pollTimeMs = pollTimeMs;
-    }
+   /**
+    * Sets the job store factory class name.
+    * 
+    * @param className
+    *           the new job store factory class name
+    */
+   public void setJobStoreFactoryClassName(String className) {
+      this.jobStoreFactoryClassName = className;
+   }
 
-    /**
-     * Fluently set the time interval the {@link OverseerJob} will use to poll
-     * for job completion.
-     *
-     * @param pollTimeMs time in milliseconds the controlling job will poll the scheduler's
-     *                   {@link org.quartz.spi.JobStore} in order to schedule the next batch of keys.
-     * @return this configuration
-     */
-    public ScheduledRefreshConfiguration pollTimeMs(int pollTimeMs) {
-        setPollTimeMs(pollTimeMs);
-        return this;
-    }
+   /**
+    * Fluently set the Job store factory.
+    * 
+    * @param className
+    *           the class name
+    * @return the scheduled refresh configuration
+    */
+   public ScheduledRefreshConfiguration jobStoreFactory(String className) {
+      setJobStoreFactoryClassName(className);
+      return this;
+   }
 
-    /**
-     * Whether Job misfires (for example if the cluster is down) are fired immediately or
-     * wait until their next scheduled time.
-     *
-     * @return true if refiring will take place immediately
-     */
-    public boolean isScheduleMisfiresNow() {
-        return scheduleMisfiresNow;
-    }
+   /**
+    * toString() variant for a specific cache.
+    * 
+    * @param targetCache
+    *           the target cache
+    * @return the string
+    */
+   public String toString(Ehcache targetCache) {
+      return "Cache manager: " + targetCache.getCacheManager().getName() + " Cache: " + targetCache.getName() + " "
+            + this.toString();
+   }
 
-    /**
-     * Set whether Job misfires (for example if the cluster is down) are fired immediately or
-     * wait until their next scheduled time. Currently not supported.
-     *
-     * @param scheduleMisfiresNow true to schedule misfires immediately
-     */
-    @Deprecated
-    public void setScheduleMisfiresNow(boolean scheduleMisfiresNow) {
-        if (scheduleMisfiresNow != DEFAULT_SCHEDULE_MISFIRES_NOW) {
-            throw new UnsupportedOperationException("Scheduled Refresh cannot be used in a clustered manner yet; " +
-                    "misfire settings are ignored.");
-        }
+   /**
+    * Get any unrecognized properties that were passed to this config when
+    * constructed via a Properties object.
+    * 
+    * @return properties
+    */
+   public Properties getExcessProperties() {
+      return excessProperties;
+   }
 
-        this.scheduleMisfiresNow = scheduleMisfiresNow;
-    }
+   /*
+    * (non-Javadoc)
+    * 
+    * @see java.lang.Object#toString()
+    */
+   @Override
+   public String toString() {
+      return "ScheduledRefreshConfiguration{" + "batchSize=" + batchSize + ", useBulkload=" + useBulkload
+            + ", cronExpression='" + cronExpression + '\'' + ", quartzThreadCount=" + quartzThreadCount
+            + ", keyGeneratorClass='" + keyGeneratorClass + '\'' + ", uniqueNamePart='" + scheduledRefreshName + '\''
+            + ", pollTimeMs=" + pollTimeMs + ", loadMissEvicts=" + evictOnLoadMiss + ", valid=" + valid + '}';
+   }
 
-    /**
-     * Set whether Job misfires (for example if the cluster is down) are fired immediately or
-     * wait until their next scheduled time. Currently not supported.
-     *
-     * @param scheduleMisfiresNow true to schedule misfires immediately
-     * @return this configuration
-     */
-    @Deprecated
-    public ScheduledRefreshConfiguration scheduleMisfiresNow(boolean scheduleMisfiresNow) {
-        this.scheduleMisfiresNow = scheduleMisfiresNow;
-        return this;
-    }
-
-    /**
-     * toString() variant for a specific cache
-     *
-     * @param targetCache
-     * @return
-     */
-    public String toString(Ehcache targetCache) {
-        return "Cache manager: " + targetCache.getCacheManager().getName() + " Cache: " + targetCache.getName() + " " +
-                this.toString();
-    }
-
-    @Override
-    public String toString() {
-        return "ScheduledRefreshConfiguration{" +
-                "batchSize=" + batchSize +
-                ", useBulkload=" + useBulkload +
-                ", cronExpression='" + cronExpression + '\'' +
-                ", quartzThreadCount=" + quartzThreadCount +
-                ", terracottaConfigUrl='" + terracottaConfigUrl + '\'' +
-                ", keyGeneratorClass='" + keyGeneratorClass + '\'' +
-                ", uniqueNamePart='" + uniqueNamePart + '\'' +
-                ", pollTimeMs=" + pollTimeMs +
-                ", loadMissEvicts=" + loadMissEvicts +
-                ", scheduleMisfiresNow=" + scheduleMisfiresNow +
-                ", valid=" + valid +
-                '}';
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        ScheduledRefreshConfiguration clone = (ScheduledRefreshConfiguration) super.clone();
-        clone.fromProperties(toProperties());
-        return clone;
-    }
+   /*
+    * (non-Javadoc)
+    * 
+    * @see java.lang.Object#clone()
+    */
+   @Override
+   protected Object clone() throws CloneNotSupportedException {
+      ScheduledRefreshConfiguration clone = (ScheduledRefreshConfiguration) super.clone();
+      clone.fromProperties(toProperties());
+      return clone;
+   }
 }
