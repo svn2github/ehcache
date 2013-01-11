@@ -1,27 +1,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.dahanne.osgi.ehcache</groupId>
-	<artifactId>ehcache-core-example-osgi-consumer</artifactId>
-	<packaging>bundle</packaging>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Ehcache core example OSGi consumer</name>
-	<description>This module, when built with the maven bundle plugin, will turn into an OSGi bundle, consuming the Ehcache core OSGi bundle to put elements in a cache and fetch them from the same cache</description>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.dahanne.osgi.ehcache</groupId>
+  <artifactId>ehcache-core-example-osgi-consumer</artifactId>
+  <packaging>bundle</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Ehcache core example OSGi consumer</name>
+  <description>This module, when built with the maven bundle plugin, will turn into an OSGi bundle, consuming the Ehcache core OSGi bundle to put elements in a cache and fetch them from the same cache</description>
   <properties>
     <org.osgi.framework.bootdelegation>sun.misc,sun.reflect</org.osgi.framework.bootdelegation>
   </properties>
-  
-	<dependencies>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<version>4.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-			<version>2.7.0-SNAPSHOT</version>
-		</dependency>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>4.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>2.7.0-SNAPSHOT</version>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -31,33 +31,33 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.0.6</version>
-    </dependency>      
+    </dependency>
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>terracotta-toolkit-runtime</artifactId>
       <version>4.0.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.3.7</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
             <Embed-Transitive>true</Embed-Transitive>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Import-Package>net.sf.ehcache,org.terracotta.toolkit,org.osgi.framework,org.slf4j</Import-Package>
-						<Private-Package>net.dahanne.osgi.ehcache.consumer.*</Private-Package>
-						<Bundle-Activator>net.dahanne.osgi.ehcache.consumer.Activator</Bundle-Activator>
-						<Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>           
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Import-Package>net.sf.ehcache,org.terracotta.toolkit,org.osgi.framework,org.slf4j</Import-Package>
+            <Private-Package>net.dahanne.osgi.ehcache.consumer.*</Private-Package>
+            <Bundle-Activator>net.dahanne.osgi.ehcache.consumer.Activator</Bundle-Activator>
+            <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
