@@ -2661,17 +2661,6 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testRemoveOfPinnedKey() {
-        Cache cache = new Cache(new CacheConfiguration("sampleCacheForPinnedRemove", 2));
-        manager.addCache(cache);
-        cache.setPinned("key", true);
-        assertNull(cache.removeAndReturnElement("key"));
-        cache.put(new Element("key", "value"));
-        assertNotNull(cache.removeAndReturnElement("key"));
-        assertNull(cache.removeAndReturnElement("key"));
-    }
-
-    @Test
     public void testRedundantDiskReads() throws Exception {
         final Cache cache = new Cache("testRedundantDiskReads", 1, true, true, 0, 0);
         manager.addCache(cache);

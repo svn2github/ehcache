@@ -142,21 +142,6 @@ class DelegatingStoreAuthority implements AuthoritativeTier {
     }
 
     @Override
-    public void unpinAll() {
-        delegate.unpinAll();
-    }
-
-    @Override
-    public boolean isPinned(final Object key) {
-        return delegate.isPinned(key);
-    }
-
-    @Override
-    public void setPinned(final Object key, final boolean pinned) {
-        delegate.setPinned(key, pinned);
-    }
-
-    @Override
     public void addStoreListener(final StoreListener listener) {
         delegate.addStoreListener(listener);
     }

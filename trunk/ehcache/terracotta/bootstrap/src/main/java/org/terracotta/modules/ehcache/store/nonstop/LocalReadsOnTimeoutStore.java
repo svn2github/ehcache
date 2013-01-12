@@ -50,32 +50,7 @@ public class LocalReadsOnTimeoutStore implements TerracottaStore {
     this.delegate = delegate;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void unpinAll() {
-    // no-op
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isPinned(Object key) {
-    // no-op
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setPinned(Object key, boolean pinned) {
-    // no-op
-  }
-
-  /**
+    /**
    * {@inheritDoc}.
    * <p>
    * Uses the underlying store to get the local value present in the VM

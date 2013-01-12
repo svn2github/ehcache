@@ -183,22 +183,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
 
-  @Override
-  public void unpinAll() {
-    throw new UnsupportedOperationException("See EHC-980 ... this is about to be gone!");
-  }
-
-  @Override
-  public boolean isPinned(Object key) {
-    throw new UnsupportedOperationException("See EHC-980 ... this is about to be gone!");
-  }
-
-  @Override
-  public void setPinned(Object key, boolean pinned) {
-    throw new UnsupportedOperationException("See EHC-980 ... this is about to be gone!");
-  }
-
-  @Override
+    @Override
   public void recalculateSize(Object key) {
     throw new UnsupportedOperationException("Recalculate size is not supported for Terracotta clustered caches.");
   }

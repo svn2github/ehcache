@@ -32,7 +32,6 @@ public final class SoftLockID implements Serializable {
     private final Object key;
     private final Element newElement;
     private final Element oldElement;
-    private final boolean wasPinned;
 
     /**
      * Create a new SoftLockID instance
@@ -40,22 +39,12 @@ public final class SoftLockID implements Serializable {
      * @param key the element's key this soft lock is going to protect
      * @param newElement the new element, can be null
      * @param oldElement the old element, can be null
-     * @param wasPinned true if the key whose element is about to be replaced by this soft lock was pinned in the underlying store
      */
-    public SoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean wasPinned) {
+    public SoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
         this.transactionID = transactionID;
         this.key = key;
         this.newElement = newElement;
         this.oldElement = oldElement;
-        this.wasPinned = wasPinned;
-    }
-
-    /**
-     * Check if the key was pinned in the underlying store before its element was replaced by this soft lock
-     * @return true if the key was pinned, false otherwise
-     */
-    public boolean wasPinned() {
-        return wasPinned;
     }
 
     /**

@@ -66,11 +66,10 @@ public abstract class AbstractStoreCommand implements Command {
     public boolean prepare(Store store, SoftLockManager softLockManager, XidTransactionID transactionId,
                            ElementValueComparator comparator) {
         Object objectKey = getObjectKey();
-        final boolean wasPinned = store.isPinned(objectKey);
 
-        SoftLockID softLockId = softLockManager.createSoftLockID(transactionId, objectKey, newElement, oldElement, wasPinned);
+        SoftLockID softLockId = softLockManager.createSoftLockID(transactionId, objectKey, newElement, oldElement);
         SoftLock softLock = softLockManager.findSoftLockById(softLockId);
-        softLockedElement = createElement(objectKey, softLockId, store, wasPinned);
+        softLockedElement = createElement(objectKey, softLockId, store, false);
         softLock.lock();
         softLock.freeze();
 
@@ -108,10 +107,6 @@ public abstract class AbstractStoreCommand implements Command {
         SoftLockID softLockId = (SoftLockID) softLockedElement.getObjectValue();
         SoftLock softLock = softLockManager.findSoftLockById(softLockId);
 
-        if (!softLockId.wasPinned()) {
-            store.setPinned(softLockId.getKey(), false);
-        }
-
         softLock.unfreeze();
         softLock.unlock();
         softLockedElement = null;
@@ -120,9 +115,6 @@ public abstract class AbstractStoreCommand implements Command {
     private Element createElement(Object key, SoftLockID softLockId, Store store, boolean wasPinned) {
         Element element = new Element(key, softLockId);
         element.setEternal(true);
-        if (!wasPinned) {
-            store.setPinned(key, true);
-        }
         return element;
     }
 

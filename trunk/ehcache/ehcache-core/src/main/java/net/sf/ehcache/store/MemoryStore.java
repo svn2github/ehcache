@@ -113,7 +113,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
 
     private final boolean storePinned;
-    private final boolean elementPinningEnabled;
 
     /**
      * The maximum size of the store (0 == no limit)
@@ -169,14 +168,12 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.storePinned = determineStorePinned(cache.getCacheConfiguration());
 
-        this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
-
         // create the CHM with initialCapacity sufficient to hold maximumSize
         final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
         int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, loadFactor);
         int maximumCapacity = isClockEviction() && !storePinned ? maximumSize : 0;
         RegisteredEventListeners eventListener = notify ? cache.getCacheEventNotificationService() : null;
-        this.map = factory.newBackingMap(poolAccessor, elementPinningEnabled, initialCapacity,
+        this.map = factory.newBackingMap(poolAccessor, initialCapacity,
                 loadFactor, CONCURRENCY_LEVEL, maximumCapacity, eventListener);
 
         this.status = Status.STATUS_ALIVE;
@@ -237,37 +234,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     /**
      * {@inheritDoc}
      */
-    public void unpinAll() {
-        if (elementPinningEnabled) {
-            map.unpinAll();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPinned(Object key, boolean pinned) {
-        if (elementPinningEnabled) {
-            map.setPinned(key, pinned);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPinned(Object key) {
-        return elementPinningEnabled && map.isPinned(key);
-    }
-
-    private boolean isPinningEnabled(Element element) {
-        return storePinned || isPinned(element.getObjectKey());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void fill(Element element) {
-        if (alwaysPutOnHeap || isPinningEnabled(element) || remove(element.getObjectKey()) != null || canPutWithoutEvicting(element)) {
+        if (alwaysPutOnHeap || isTierPinned() || remove(element.getObjectKey()) != null || canPutWithoutEvicting(element)) {
             put(element);
         }
     }
@@ -276,7 +244,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * {@inheritDoc}
      */
     public boolean removeIfNotPinned(final Object key) {
-        return !storePinned && !isPinned(key) && remove(key) != null;
+        return !storePinned && remove(key) != null;
     }
 
     /**
@@ -289,7 +257,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
             return false;
         }
 
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
             Element old = map.put(element.getObjectKey(), element, delta);
             checkCapacity(element);
@@ -304,7 +272,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
             Element old = map.put(element.getObjectKey(), element, delta);
             if (writerManager != null) {
@@ -380,13 +348,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      */
     public boolean isTierPinned() {
         return storePinned;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set getPresentPinnedKeys() {
-        return map.pinnedKeySet();
     }
 
     /**
@@ -622,7 +583,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
             return true;
         }
 
-        if (isPinningEnabled(element)) {
+        if (isTierPinned()) {
             return false;
         }
 
@@ -859,7 +820,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
             return null;
         }
 
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
             Element old = map.putIfAbsent(element.getObjectKey(), element, delta);
             if (old == null) {
@@ -925,7 +886,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
 
         Object key = element.getObjectKey();
 
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
             Lock lock = getWriteLock(key);
             lock.lock();
@@ -957,7 +918,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
 
         Object key = element.getObjectKey();
 
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
             Lock lock = getWriteLock(key);
             lock.lock();
@@ -1180,10 +1141,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
                     && !aggregators.isEmpty());
         }
 
-        private Element copyIfRequired(final Element element) {
-            return copyingStore != null ? copyingStore.copyElementForReadIfNeeded(element) : element;
-        }
-
         private void setResultAggregators(List<AggregatorInstance<?>> aggregators, BaseResult result)
         {
             List<Object> aggregateResults = new ArrayList<Object>();
@@ -1290,7 +1247,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
          * Create a MemoryStore backing map.
          *
          * @param poolAccessor on-heap pool accessor
-         * @param elementPinning element pinning in this store
          * @param initialCapacity initial store capacity
          * @param loadFactor map load factor
          * @param concurrency map concurrency
@@ -1298,7 +1254,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
          * @param eventListener event listener (or {@code null} for no notifications)
          * @return a backing map
          */
-        SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, boolean elementPinning, int initialCapacity,
+        SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, int initialCapacity,
                 float loadFactor, int concurrency, int maximumCapacity, RegisteredEventListeners eventListener);
     }
 
@@ -1308,9 +1264,9 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     static class BasicBackingFactory implements BackingFactory {
 
         @Override
-        public SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, boolean elementPinning, int initialCapacity,
+        public SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, int initialCapacity,
                 float loadFactor, int concurrency, int maximumCapacity, RegisteredEventListeners eventListener) {
-            return new SelectableConcurrentHashMap(poolAccessor, elementPinning, initialCapacity,
+            return new SelectableConcurrentHashMap(poolAccessor, initialCapacity,
                     loadFactor, concurrency, maximumCapacity, eventListener);
         }
     }

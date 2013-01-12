@@ -66,30 +66,6 @@ public class ElementIdAssigningStore implements Store {
      * {@inheritDoc}
      */
     @Override
-    public void unpinAll() {
-        delegate.unpinAll();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isPinned(Object key) {
-        return delegate.isPinned(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPinned(Object key, boolean pinned) {
-        delegate.setPinned(key, pinned);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void addStoreListener(StoreListener listener) {
         delegate.addStoreListener(listener);
     }

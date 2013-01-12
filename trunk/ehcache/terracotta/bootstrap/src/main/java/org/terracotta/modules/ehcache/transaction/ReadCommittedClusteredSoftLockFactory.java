@@ -47,14 +47,13 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   }
 
   @Override
-  public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement,
-                                     boolean pinned) {
+  public SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement) {
     if (newElement != null && newElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError(
                                                                                                             "newElement must not contain a soft lock ID"); }
     if (oldElement != null && oldElement.getObjectValue() instanceof SoftLockID) { throw new AssertionError(
                                                                                                             "oldElement must not contain a soft lock ID"); }
 
-    SoftLockID lockId = new SoftLockID(transactionID, key, newElement, oldElement, pinned);
+    SoftLockID lockId = new SoftLockID(transactionID, key, newElement, oldElement);
     ClusteredSoftLockIDKey clusteredId = new ClusteredSoftLockIDKey(lockId);
 
     if (allLocks.containsKey(clusteredId)) {

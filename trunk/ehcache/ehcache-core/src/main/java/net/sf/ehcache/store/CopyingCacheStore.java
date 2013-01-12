@@ -63,21 +63,6 @@ public final class CopyingCacheStore<T extends Store> implements Store {
     }
 
     @Override
-    public void unpinAll() {
-        store.unpinAll();
-    }
-
-    @Override
-    public boolean isPinned(final Object key) {
-        return store.isPinned(key);
-    }
-
-    @Override
-    public void setPinned(final Object key, final boolean pinned) {
-        store.setPinned(key, pinned);
-    }
-
-    @Override
     public void addStoreListener(final StoreListener listener) {
         store.addStoreListener(listener);
     }

@@ -595,40 +595,6 @@ public class MemoryStoreTester extends AbstractCacheTest {
         }
     }
 
-    @Test
-    public void testElementPinning() throws Exception {
-        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU, 20);
-
-        for (int i = 0; i < 200; i++) {
-            Element element = new Element("Ku-" + i, "@" + i);
-            store.put(element);
-        }
-
-        Assert.assertEquals(20, store.getSize());
-
-        for (int i = 0; i < 200; i++) {
-            Element element = new Element("Kp-" + i, "#" + i);
-            element.setTimeToIdle(1);
-            element.setTimeToLive(1);
-            store.setPinned(element.getObjectKey(), true);
-            store.put(element);
-        }
-
-        for (int i = 0; i < 200; i++) {
-            assertTrue("missing key Kp-" + i, store.containsKey("Kp-" + i));
-        }
-
-        // wait until all pinned elements expire
-        Thread.sleep(1100);
-
-        for (int i = 1000; i < 1200; i++) {
-            Element element = new Element("Ku-" + i, "#" + i);
-            store.put(element);
-        }
-
-        Assert.assertEquals(20, store.getSize());
-    }
-
     static class ThreadDumpException extends Throwable {
 
         private final Thread thread;

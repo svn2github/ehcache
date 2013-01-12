@@ -97,47 +97,6 @@ public class MemoryStorePoolingTest {
 
 
     @Test
-    public void testElementPinning() throws Exception {
-        Cache cache2 = new Cache(new CacheConfiguration("myCache2", 0).eternal(true));
-        Store memoryOnlyStore2 = MemoryStore.create(cache2, onHeapPool);
-
-        for (int i = 0; i < 100; i++) {
-            memoryStore.put(new Element(i, i));
-        }
-
-        assertEquals(0, memoryOnlyStore2.getSize());
-        assertEquals(0, memoryOnlyStore2.getInMemorySizeInBytes());
-        assertEquals(2, memoryStore.getSize());
-        assertEquals(16384 * 2, memoryStore.getInMemorySizeInBytes());
-
-        for (int i = 0; i < 100; i++) {
-            Element element = new Element(-i, i);
-            element.setTimeToIdle(1);
-            element.setTimeToLive(1);
-            memoryOnlyStore2.setPinned(element.getObjectKey(), true);
-            memoryOnlyStore2.put(element);
-        }
-
-        assertEquals(0, memoryStore.getSize());
-        assertEquals(0, memoryStore.getInMemorySizeInBytes());
-        assertEquals(100, memoryOnlyStore2.getSize());
-        assertEquals(16384 * 100, memoryOnlyStore2.getInMemorySizeInBytes());
-
-        // wait until the elements expired
-        Thread.sleep(1200);
-
-        for (int i = 0; i < 100; i++) {
-            memoryStore.put(new Element(i, i));
-        }
-
-        assertEquals(1, memoryOnlyStore2.getSize());
-        assertEquals(16384, memoryOnlyStore2.getInMemorySizeInBytes());
-        assertEquals(1, memoryStore.getSize());
-        assertEquals(16384, memoryStore.getInMemorySizeInBytes());
-        assertEquals(16384 * 2, onHeapPool.getSize());
-    }
-
-    @Test
     public void testPutNew() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             putNew();

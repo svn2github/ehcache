@@ -20,8 +20,6 @@ import java.util.logging.Filter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import junit.framework.Assert;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -100,64 +98,6 @@ public class EvictionListenerTest {
                 fail(message);
             }
         }
-    }
-
-    @Test
-    public void testEvictedForL2() throws InterruptedException {
-        CacheConfiguration configuration = new CacheConfiguration().name("testEvictedForL2").maxBytesLocalHeap(1, MemoryUnit.KILOBYTES);
-        Cache noDiskCache = new Cache(configuration);
-        cacheManager.addCache(noDiskCache);
-
-        CountingCacheEventListener countingCacheEventListener = new CountingCacheEventListener();
-        noDiskCache.getCacheEventNotificationService().registerListener(countingCacheEventListener);
-        int amountOfEntries = 10000;
-        for (int i = 0; i < amountOfEntries; i++) {
-            // cache.get("key" + (1000 + (i % 10)));
-            Element element = new Element("key" + i, UUID.randomUUID().toString());
-            noDiskCache.setPinned(element.getObjectKey(), true);
-            element.setEternal(true);
-            noDiskCache.put(element);
-        }
-        Thread.sleep(2000);
-        System.out.println("\n\n ****");
-        System.out.println("Memory store size before  : " + noDiskCache.getMemoryStoreSize());
-        System.out.println(" ****\n\n");
-
-        // Try putting an unpinned element and we should see an eviction
-        Element element = new Element("key" + amountOfEntries, UUID.randomUUID().toString());
-        noDiskCache.put(element);
-
-        Element expectedElement = null;
-        assertThat(noDiskCache.get("key" + amountOfEntries), is(expectedElement));
-
-        Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
-
-        System.out.println("\n\n ****");
-        System.out.println("Memory store size after : " + noDiskCache.getMemoryStoreSize());
-        System.out.println(" ****\n\n");
-
-        assertThat(cacheElementsEvicted.isEmpty(), is(false));
-        assertThat(cacheElementsEvicted.size(), is(1));
-        for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
-            assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
-        }
-
-        noDiskCache.unpinAll();
-        for (int i = 0; i < amountOfEntries; i++) {
-            Object key = "key"+i;
-            Assert.assertFalse("key "+key+" still pinned", noDiskCache.isPinned(key));
-        }
-
-        // triggering eviction via this put
-        element = new Element("key" + amountOfEntries, UUID.randomUUID().toString());
-        noDiskCache.put(element);
-
-        // now eviction should have happened for all keys which are unpinned just above
-        cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
-        System.out.println("after eviction, Memory store size : " + noDiskCache.getMemoryStoreSize()+" size "+noDiskCache.getSize()+" evicted "+cacheElementsEvicted.size());
-        Assert.assertTrue(cacheElementsEvicted.size() > 1);
-        Assert.assertTrue("cache size "+noDiskCache.getSize(), noDiskCache.getSize() < amountOfEntries);
-        Assert.assertTrue("memoryStore size "+noDiskCache.getMemoryStoreSize(), noDiskCache.getMemoryStoreSize() < amountOfEntries);
     }
 
     @Test
