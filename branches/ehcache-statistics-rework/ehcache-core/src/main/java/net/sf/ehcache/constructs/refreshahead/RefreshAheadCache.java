@@ -200,7 +200,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
                         }
                     }
                     // assume we got here ok, now evict any that don't evict
-                    if (refreshAheadConfig.isLoadMissEvicts() && !keysToProcess.isEmpty()) {
+                    if (refreshAheadConfig.isEvictOnLoadMiss() && !keysToProcess.isEmpty()) {
                         underlyingCache.removeAll(keysToProcess);
                     }
                 } finally {

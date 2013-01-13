@@ -56,37 +56,7 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
     return INSTANCE;
   }
 
-  /**
-   * {@inheritDoc}
-   * <p>
-   * Throws {@link NonStopCacheException}
-   */
-  @Override
-  public void unpinAll() {
-    throw new NonStopCacheException("unpinAll timed out");
-  }
-
-  /**
-   * {@inheritDoc}
-   * <p>
-   * Throws {@link NonStopCacheException}
-   */
-  @Override
-  public boolean isPinned(Object key) {
-    throw new NonStopCacheException("isPinned timed out");
-  }
-
-  /**
-   * {@inheritDoc}
-   * <p>
-   * Throws {@link NonStopCacheException}
-   */
-  @Override
-  public void setPinned(Object key, boolean pinned) {
-    throw new NonStopCacheException("setPinned timed out");
-  }
-
-  /**
+    /**
    * {@inheritDoc}.
    * <p>
    * Throws {@link NonStopCacheException}

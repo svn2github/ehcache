@@ -695,7 +695,7 @@ public class CacheWriterConfiguration implements Cloneable {
     public void validate(Collection<ConfigError> errors) {
         if (writeMode.equals(WriteMode.WRITE_BEHIND)) {
             if (!getWriteBatching() && getWriteBatchSize() != 1) {
-                errors.add(new ConfigError("Write Batch Size !=1 with Write Batching turned off."));
+                errors.add(new ConfigError("Configured Write Batch Size is not equal to 1 with Write Batching turned off."));
             }
         }
     }

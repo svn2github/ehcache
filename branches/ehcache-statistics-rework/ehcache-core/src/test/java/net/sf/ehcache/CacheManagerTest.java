@@ -746,6 +746,7 @@ public class CacheManagerTest {
         managerThreads += 1; //cache manager timer thread
         managerThreads += 1; //local transactions recovery thread
         CacheManager manager = new CacheManager(config);
+
         try {
             Collection<Thread> spawnedThreads = JVMUtil.enumerateThreads();
             spawnedThreads.removeAll(initialThreads);

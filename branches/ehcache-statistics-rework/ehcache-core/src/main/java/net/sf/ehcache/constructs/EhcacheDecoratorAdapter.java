@@ -806,27 +806,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
         underlyingCache.waitUntilClusterBulkLoadComplete();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void unpinAll() {
-        underlyingCache.unpinAll();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPinned(Object key) {
-        return underlyingCache.isPinned(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPinned(Object key, boolean pinned) {
-        underlyingCache.setPinned(key, pinned);
-    }
-
     private InternalEhcache asInternalEhcache() {
         return (InternalEhcache) underlyingCache;
     }

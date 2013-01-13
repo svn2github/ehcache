@@ -51,24 +51,7 @@ public class LocalTransactionTest extends TestCase {
         cacheManager.shutdown();
     }
 
-    // DEV-8308
-    public void testEvictionOfSoftLockIds() throws Exception {
-        transactionController.begin();
-        for (int i = 0; i < 15; i++) {
-            cache1.put(new Element(i, "value-" + i));
-            cache1.setPinned(i, false);
-        }
-        transactionController.commit();
-
-        transactionController.begin();
-        for (int i = 0; i < 15; i++) {
-            cache2.put(new Element(i, "value-" + i));
-            cache2.setPinned(i, false);
-        }
-        transactionController.rollback();
-    }
-
-    public void testTransactionContextLifeCycle() throws Exception {
+  public void testTransactionContextLifeCycle() throws Exception {
         assertNull(transactionController.getCurrentTransactionContext());
         transactionController.begin();
         try {
@@ -271,20 +254,7 @@ public class LocalTransactionTest extends TestCase {
         transactionController.commit();
     }
 
-    public void testPinning() throws Exception {
-        transactionController.begin();
-        cache1.put(new Element(1, new Object[]{"one"}));
-        transactionController.commit();
-        assertFalse(cache1.isPinned(1));
-
-        transactionController.begin();
-        cache1.setPinned(2, true);
-        cache1.put(new Element(2, new Object[]{"two"}));
-        transactionController.commit();
-        assertTrue(cache1.isPinned(2));
-    }
-
-    public void testTwoPuts() throws Exception {
+  public void testTwoPuts() throws Exception {
         transactionController.begin();
         cache1.put(new Element(1, new Object[]{"one#1"}));
         transactionController.commit();

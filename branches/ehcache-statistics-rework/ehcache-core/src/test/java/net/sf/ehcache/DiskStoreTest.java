@@ -174,46 +174,6 @@ public class DiskStoreTest extends AbstractCacheTest {
         //just tests setup and teardown
     }
 
-    @Test
-    public void testPinningFaultsInMem() throws Exception {
-
-        DiskStore diskStore = getDiskStore(createNonExpiringDiskStore());
-        assertThat(diskStore.getInMemorySize(), is(0));
-        assertThat(diskStore.getOnDiskSize(), is(0));
-        assertThat(diskStore.getSize(), is(0));
-
-        diskStore.setPinned("myKey", true);
-        assertThat(diskStore.getInMemorySize(), is(0));
-        assertThat(diskStore.getOnDiskSize(), is(0));
-        assertThat(diskStore.getSize(), is(0));
-
-        diskStore.put(new Element("myKey", "value"));
-        assertThat(diskStore.getInMemorySize(), is(1));
-        assertThat(diskStore.getOnDiskSize(), is(0));
-        assertThat(diskStore.getSize(), is(1));
-
-        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
-        assertThat(diskStore.getInMemorySize(), is(1));
-        assertThat(diskStore.getOnDiskSize(), is(0));
-        assertThat(diskStore.getSize(), is(1));
-
-        diskStore.setPinned("myKey", false);
-        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
-        assertThat(diskStore.getInMemorySize(), is(0));
-        assertThat(diskStore.getOnDiskSize(), is(1));
-        assertThat(diskStore.getSize(), is(1));
-
-        diskStore.setPinned("myKey", true);
-        assertThat(diskStore.getInMemorySize(), is(1));
-        assertThat(diskStore.getOnDiskSize(), is(0));
-        assertThat(diskStore.getSize(), is(1));
-
-        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
-        assertThat(diskStore.getInMemorySize(), is(1));
-        assertThat(diskStore.getOnDiskSize(), is(0));
-        assertThat(diskStore.getSize(), is(1));
-    }
-
     /**
      * Tests that a file is created with the right size after puts, and that the file is
      * deleted on disposal

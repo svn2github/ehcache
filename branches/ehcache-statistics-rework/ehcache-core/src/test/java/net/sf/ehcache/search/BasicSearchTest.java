@@ -1075,39 +1075,6 @@ public class BasicSearchTest {
     }
 
     @Test
-    public void testSearchWithPinnedKeys() {
-        Ehcache cache1 = cacheManager.getEhcache("cache1");
-        Ehcache cache2 = cacheManager.getEhcache("cache2");
-        Ehcache bean_attributes = cacheManager.getEhcache("bean-attributes");
-        cache1.setPinned(0, true);
-        cache2.setPinned(0, true);
-        bean_attributes.setPinned(0, true);
-
-        // uses expression attribute extractors
-        basicQueries(cache1);
-
-        // uses a "custom" attribute extractor too
-        basicQueries(cache2);
-
-        // uses bean attributes
-        basicQueries(bean_attributes);
-
-        cache1.setPinned(1, true);
-        cache2.setPinned(1, true);
-        bean_attributes.setPinned(1, true);
-
-        // uses expression attribute extractors
-        basicQueries(cache1);
-
-        // uses a "custom" attribute extractor too
-        basicQueries(cache2);
-
-        // uses bean attributes
-        basicQueries(bean_attributes);
-
-    }
-
-    @Test
     public void testBasicGroupBy() {
         Ehcache cache = cacheManager.getEhcache("cache1");
         assertTrue(cache.isSearchable());

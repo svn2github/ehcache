@@ -21,11 +21,8 @@ package net.sf.ehcache.store.disk;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -104,7 +101,6 @@ public class Segment extends ReentrantReadWriteLock {
     private final RegisteredEventListeners cacheEventNotificationService;
     private volatile boolean cachePinned;
 
-    private final Set<Object> pinnedKeys = new HashSet<Object>();
     private final OperationObserver<EvictionOutcome> evictionObserver;
 
     /**
@@ -334,7 +330,7 @@ public class Segment extends ReentrantReadWriteLock {
                 }
 
                 e.element = encoded;
-                installed = !pinnedKeys.contains(key);
+                installed = true;
                 free(onDiskSubstitute);
 
                 if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
@@ -388,7 +384,7 @@ public class Segment extends ReentrantReadWriteLock {
                 }
 
                 e.element = encoded;
-                installed = !pinnedKeys.contains(key);
+                installed = true;
                 oldElement = decode(onDiskSubstitute);
                 free(onDiskSubstitute);
 
@@ -455,7 +451,7 @@ public class Segment extends ReentrantReadWriteLock {
                 DiskSubstitute onDiskSubstitute = e.element;
                 if (!onlyIfAbsent) {
                     e.element = encoded;
-                    installed = !pinnedKeys.contains(key);
+                    installed = true;
                     oldElement = decode(onDiskSubstitute);
 
                     free(onDiskSubstitute);
@@ -478,7 +474,7 @@ public class Segment extends ReentrantReadWriteLock {
                 oldElement = null;
                 ++modCount;
                 tab[index] = new HashEntry(key, hash, first, encoded, new AtomicBoolean(faulted));
-                installed = !pinnedKeys.contains(key);
+                installed = true;
                 // write-volatile
                 count = count + 1;
             }
@@ -780,7 +776,7 @@ public class Segment extends ReentrantReadWriteLock {
     boolean fault(Object key, int hash, Placeholder expect, DiskMarker fault, final boolean skipFaulted) {
         writeLock().lock();
         try {
-            return !(isPinned(key, hash) && !skipFaulted) && faultInternal(key, hash, expect, fault, skipFaulted);
+            return faultInternal(key, hash, expect, fault, skipFaulted);
         } finally {
             writeLock().unlock();
         }
@@ -790,14 +786,12 @@ public class Segment extends ReentrantReadWriteLock {
     private boolean faultInternal(final Object key, final int hash, final Placeholder expect, final DiskMarker fault, final boolean skipFaulted) {
         boolean faulted = cachePinned;
         if (count != 0 && !faulted) {
-            if (count != 0) {
-                HashEntry e = getFirst(hash);
-                while (e != null) {
-                    if (e.hash == hash && key.equals(e.key)) {
-                        faulted = e.faulted.get();
-                    }
-                    e = e.next;
+            HashEntry e = getFirst(hash);
+            while (e != null) {
+                if (e.hash == hash && key.equals(e.key)) {
+                    faulted = e.faulted.get();
                 }
+                e = e.next;
             }
 
             if (skipFaulted && faulted) {
@@ -900,9 +894,6 @@ public class Segment extends ReentrantReadWriteLock {
             evictionObserver.begin();
             Element evictedElement = null;
             try {
-                if (pinnedKeys.contains(key)) {
-                    return null;
-                }
                 HashEntry[] tab = table;
                 int index = hash & (tab.length - 1);
                 HashEntry first = tab[index];
@@ -976,7 +967,7 @@ public class Segment extends ReentrantReadWriteLock {
      * @param seed random seed for the selection
      */
     void addRandomSample(ElementSubstituteFilter filter, int sampleSize, Collection<DiskStorageFactory.DiskSubstitute> sampled, int seed) {
-        if (count == inMemSize()) {
+        if (count == 0) {
             return;
         }
         final HashEntry[] tab = table;
@@ -985,7 +976,7 @@ public class Segment extends ReentrantReadWriteLock {
         do {
             for (HashEntry e = tab[tableIndex]; e != null; e = e.next) {
                 Object value = e.element;
-                if (!e.faulted.get() && !pinnedKeys.contains(e.key) && filter.allows(value)) {
+                if (!e.faulted.get() && filter.allows(value)) {
                     sampled.add((DiskStorageFactory.DiskSubstitute) value);
                 }
             }
@@ -1094,76 +1085,6 @@ public class Segment extends ReentrantReadWriteLock {
     }
 
     /**
-     * Marks a key as pinned
-     * @param key the key
-     * @param hash its hash
-     * @param pinned whether its pinned or not
-     */
-    void setPinned(final Object key, final int hash, final boolean pinned) {
-        DiskSubstitute installed = null;
-        writeLock().lock();
-        try {
-            if (pinned) {
-                if (pinnedKeys.add(key) && count != 0) {
-                    HashEntry e = getFirst(hash);
-                    while (e != null) {
-                        if (e.hash == hash && key.equals(e.key) && e.element instanceof DiskMarker) {
-                            put(key, hash, decodeHit(e.element), false, false);
-                            break;
-                        }
-                        e = e.next;
-                    }
-                    // get this thing faulted in again, w/o pending write task
-                }
-            } else {
-                // If this key was pinned and a mapping is present, reschedule a write task
-                if (pinnedKeys.remove(key) && count != 0) {
-                    HashEntry e = getFirst(hash);
-                    while (e != null) {
-                        if (e.hash == hash && key.equals(e.key)) {
-                            installed = e.element;
-                            break;
-                        }
-                        e = e.next;
-                    }
-                }
-            }
-        } finally {
-            writeLock().unlock();
-            if (installed != null) {
-                installed.installed();
-            }
-        }
-    }
-
-    /**
-     * Checks whether a key is pinned
-     * @param key the key
-     * @param hash its hash
-     * @return true if pinned, false otherwise
-     */
-    boolean isPinned(final Object key, final int hash) {
-        readLock().lock();
-        try {
-            return pinnedKeys.contains(key);
-        } finally {
-            readLock().unlock();
-        }
-    }
-
-    /**
-     * Unpins all pinned keys
-     */
-    void unpinAll() {
-        writeLock().lock();
-        try {
-            pinnedKeys.clear();
-        } finally {
-            writeLock().unlock();
-        }
-    }
-
-    /**
      * Clears the faulted but on all entries
      */
     void clearFaultedBit() {
@@ -1181,35 +1102,6 @@ public class Segment extends ReentrantReadWriteLock {
             writeLock().unlock();
         }
 
-    }
-
-    /**
-     * TODO might want to eagerly do this!
-     * Returns the amount of mappings held in memory
-     * @return the amount of things in memory
-     */
-    int inMemSize() {
-        readLock().lock();
-        try {
-            int pinnedEntries = 0;
-            final Iterator<HashEntry> hashEntryIterator = hashIterator();
-            while (hashEntryIterator.hasNext()) {
-                if (pinnedKeys.contains(hashEntryIterator.next().element.getKey())) {
-                    pinnedEntries++;
-                }
-            }
-            return pinnedEntries;
-        } finally {
-            readLock().unlock();
-        }
-    }
-
-    /**
-     * A collection of pinned keys
-     * @return the pinned keySet
-     */
-    Collection pinnedKeys() {
-        return Collections.unmodifiableSet(pinnedKeys);
     }
 
     /**

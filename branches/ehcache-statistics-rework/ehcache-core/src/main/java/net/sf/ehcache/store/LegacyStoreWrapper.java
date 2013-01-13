@@ -67,27 +67,6 @@ public class LegacyStoreWrapper extends AbstractStore {
     /**
      * {@inheritDoc}
      */
-    public void unpinAll() {
-        memory.unpinAll();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPinned(Object key) {
-        return memory.isPinned(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPinned(Object key, boolean pinned) {
-        memory.setPinned(key, pinned);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean bufferFull() {
         if (disk == null) {
             return false;

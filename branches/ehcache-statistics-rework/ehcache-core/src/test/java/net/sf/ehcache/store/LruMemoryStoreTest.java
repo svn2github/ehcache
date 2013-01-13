@@ -67,15 +67,6 @@ public class LruMemoryStoreTest extends MemoryStoreTester {
         createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU);
     }
 
-    @Test
-    public void testContainsKey() {
-        final Object key = new Object();
-        assertThat(store.containsKey(key), is(false));
-        store.setPinned(key, true);
-        assertThat(store.get(key), nullValue());
-        assertThat(store.containsKey(key), is(false));
-    }
-
     /**
      * Test the LRU policy
      */

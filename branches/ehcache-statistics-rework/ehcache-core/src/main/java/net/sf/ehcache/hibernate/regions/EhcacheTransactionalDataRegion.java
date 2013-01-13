@@ -130,15 +130,14 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
      * Map the given value to the given key, replacing any existing mapping for this key,
      * pinning the key in the cache
      */
-    public final void putPinned(Object key, Object value) throws CacheException {
+    public final void putEternal(Object key, Object value) throws CacheException {
         put(key, value, true);
     }
 
-    private void put(Object key, Object value, boolean pinned) throws CacheException {
+    private void put(Object key, Object value, boolean eternal) throws CacheException {
         try {
             Element element = new Element(key, value);
-            element.setEternal(pinned);
-            cache.setPinned(key, pinned);
+            element.setEternal(eternal);
             cache.put(element);
         } catch (IllegalArgumentException e) {
             throw new CacheException(e);
@@ -159,7 +158,6 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
     public final void remove(Object key) throws CacheException {
         try {
             cache.remove(key);
-            cache.setPinned(key, false);
         } catch (ClassCastException e) {
             throw new CacheException(e);
         } catch (IllegalStateException e) {
@@ -179,7 +177,6 @@ public class EhcacheTransactionalDataRegion extends EhcacheDataRegion implements
     public final void clear() throws CacheException {
         try {
             cache.removeAll();
-            cache.unpinAll();
         } catch (IllegalStateException e) {
             throw new CacheException(e);
         } catch (net.sf.ehcache.CacheException e) {

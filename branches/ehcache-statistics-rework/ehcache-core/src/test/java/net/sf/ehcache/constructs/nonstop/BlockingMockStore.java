@@ -84,28 +84,6 @@ public class BlockingMockStore implements TerracottaStore {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void unpinAll() {
-        neverReturn();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPinned(Object key) {
-        neverReturn();
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPinned(Object key, boolean pinned) {
-        neverReturn();
-    }
-
 
     public boolean bufferFull() {
         neverReturn();

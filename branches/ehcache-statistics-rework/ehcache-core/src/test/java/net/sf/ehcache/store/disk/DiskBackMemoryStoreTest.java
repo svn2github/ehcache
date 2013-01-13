@@ -17,12 +17,10 @@ import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.NotifyingMemoryStore;
 import net.sf.ehcache.store.Store;
@@ -59,48 +57,6 @@ public class DiskBackMemoryStoreTest {
     @After
     public void tearDown() {
         cacheManager.shutdown();
-    }
-
-    @Test
-    public void testPersistenceWithPinnedElements() {
-        final Element[] lastEvicted = new Element[1];
-
-        cache.getCacheEventNotificationService().registerListener(new CacheEventListener() {
-            @Override
-            public Object clone() throws CloneNotSupportedException {
-                return super.clone();
-            }
-            public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-            }
-            public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-            }
-            public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-            }
-            public void notifyElementExpired(Ehcache cache, Element element) {
-            }
-            public void notifyElementEvicted(Ehcache cache, Element element) {
-                lastEvicted[0] = element;
-            }
-            public void notifyRemoveAll(Ehcache cache) {
-            }
-            public void dispose() {
-            }
-        });
-
-        cache.put(new Element(1, "one"));
-        Element element2 = new Element(2, new Object());
-        cache.setPinned(element2.getObjectKey(), true);
-        cache.put(element2);
-        cacheManager.shutdown();
-
-        assertNull("element should not have been evicted: " + lastEvicted[0], lastEvicted[0]);
-
-        cacheManager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskBackMemoryStoreTest")));
-        cache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true));
-        cacheManager.addCache(cache);
-
-        assertEquals("one", cache.get(1).getObjectValue());
-        assertNull(cache.get(2));
     }
 
     @Test
@@ -191,61 +147,6 @@ public class DiskBackMemoryStoreTest {
             assertTrue("Expected " + CacheException.class.getName() + ", but was " + e.getClass().getName(), e instanceof CacheException);
         }
         assertNull(xaStore.get(KEY));
-    }
-
-    @Test
-    public void testGetKeys() throws InterruptedException {
-        int unpinCount = 500;
-        int pinCount = 500; //please make sure that pinCount is even
-        Set<Object> pinnedKeys = new HashSet<Object>();
-        Set<Object> removedPinnedKeys = new HashSet<Object>();
-        Set<Object> unpinnedKeys = new HashSet<Object>();
-        Object key = null;
-        for (int i = 0; i < unpinCount; i++) {
-            key = "Ku-" + i;
-            unpinnedKeys.add(key);
-            Element element = new Element(key, i);
-            xaStore.put(element);
-        }
-
-        Thread.sleep(1000);
-
-        Assert.assertEquals(unpinCount, xaStore.getSize());
-
-        for (int i = 0; i < pinCount; i++) {
-            key = "Kp-" + i;
-            pinnedKeys.add(key);
-            Element element = new Element(key, i);
-            xaStore.setPinned(element.getObjectKey(), true);
-            xaStore.put(element);
-        }
-        Assert.assertEquals(pinCount+unpinCount, xaStore.getSize());
-        int halfPinned = pinCount/2;
-        for (int i = 0; i < halfPinned; i++) {
-            key = "Kp-" + i;
-            removedPinnedKeys.add(key);
-            xaStore.remove(key);
-        }
-
-        Thread.sleep(1000);
-        pinnedKeys.removeAll(removedPinnedKeys);
-        Assert.assertEquals(pinCount-halfPinned, pinnedKeys.size());
-        Assert.assertEquals(unpinCount+halfPinned, xaStore.getSize());
-
-        List keys = xaStore.getKeys();
-        Assert.assertEquals(unpinCount+halfPinned, xaStore.getSize());
-        Assert.assertEquals(unpinCount+halfPinned, keys.size());
-
-        for(Object okey : keys) {
-            System.out.println(okey);
-            Assert.assertFalse(removedPinnedKeys.contains(okey));
-            Assert.assertTrue(pinnedKeys.contains(okey) || unpinnedKeys.contains(okey));
-        }
-
-        xaStore.removeAll();
-        keys = xaStore.getKeys();
-        Assert.assertEquals(0, xaStore.getSize());
-        Assert.assertEquals(0, keys.size());
     }
 
 }

@@ -97,21 +97,6 @@ public class CacheStore implements Store {
     }
 
     @Override
-    public void unpinAll() {
-        authoritativeTier.unpinAll();
-    }
-
-    @Override
-    public boolean isPinned(final Object key) {
-        return authoritativeTier.isPinned(key);
-    }
-
-    @Override
-    public void setPinned(final Object key, final boolean pinned) {
-        authoritativeTier.setPinned(key, pinned);
-    }
-
-    @Override
     public void addStoreListener(final StoreListener listener) {
         authoritativeTier.addStoreListener(listener);
     }

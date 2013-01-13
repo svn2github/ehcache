@@ -61,31 +61,7 @@ public final class NoOpOnTimeoutStore implements TerracottaStore {
     return INSTANCE;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void unpinAll() {
-    // no-op
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isPinned(Object key) {
-    return false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setPinned(Object key, boolean pinned) {
-    // no-op
-  }
-
-  /**
+    /**
    * {@inheritDoc}
    */
   @Override

@@ -15,7 +15,6 @@
  */
 package net.sf.ehcache.store.chm;
 
-import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -31,12 +30,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.PoolAccessor;
-import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
@@ -50,9 +47,8 @@ import static net.sf.ehcache.statistics.StatisticBuilder.operation;
  *
  * @author Chris Dennis
  */
+@SuppressWarnings("ForLoopReplaceableByForEach")
 public class SelectableConcurrentHashMap {
-
-    protected static final Element DUMMY_PINNED_ELEMENT = new Element(new DummyPinnedKey(), new DummyPinnedValue());
 
     /**
      * The maximum capacity, used if a higher value is implicitly
@@ -94,9 +90,7 @@ public class SelectableConcurrentHashMap {
 
     private final Random rndm = new Random();
     private final PoolAccessor poolAccessor;
-    private final boolean elementPinningEnabled;
     private volatile long maxSize;
-    private volatile SelectableConcurrentHashMap.PinnedKeySet pinnedKeySet;
     private final RegisteredEventListeners cacheEventNotificationService;
 
     private Set<Object> keySet;
@@ -105,7 +99,7 @@ public class SelectableConcurrentHashMap {
 
     private final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
     
-    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
+    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
         if (!(loadFactor > 0) || initialCapacity < 0 || concurrency <= 0)
             throw new IllegalArgumentException();
 
@@ -136,10 +130,8 @@ public class SelectableConcurrentHashMap {
             this.segments[i] = createSegment(cap, loadFactor);
 
         this.poolAccessor = poolAccessor;
-        this.elementPinningEnabled = elementPinningEnabled;
         this.maxSize = maximumSize;
         this.cacheEventNotificationService = cacheEventNotificationService;
-        pinnedKeySet = new PinnedKeySet();
     }
 
     public void setMaxSize(final long maxSize) {
@@ -167,7 +159,7 @@ public class SelectableConcurrentHashMap {
             do {
                 for (HashEntry e = table[tableIndex]; e != null; e = e.next) {
                     Element value = e.value;
-                    if (value != null && (!(e.pinned && elementPinningEnabled) || value.isExpired())) {
+                    if (value != null) {
                         sampled.add(value);
                     }
                 }
@@ -194,7 +186,7 @@ public class SelectableConcurrentHashMap {
      * @return an object looking-alike the stored one
      */
     public Object storedObject(Element e) {
-        return new HashEntry(null, 0, null, e, 0, false);
+        return new HashEntry(null, 0, null, e, 0);
     }
 
     /**
@@ -302,57 +294,6 @@ public class SelectableConcurrentHashMap {
         }
     }
 
-    public int pinnedSize() {
-        final Segment[] segments = this.segments;
-
-        for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
-            int[] mc = new int[segments.length];
-            long check = 0;
-            long sum = 0;
-            int mcsum = 0;
-            for (int i = 0; i < segments.length; ++i) {
-                sum += segments[i].pinnedCount - segments[i].numDummyPinnedKeys;
-                mcsum += mc[i] = segments[i].modCount;
-            }
-            if (mcsum != 0) {
-                for (int i = 0; i < segments.length; ++i) {
-                    check += segments[i].pinnedCount - segments[i].numDummyPinnedKeys;
-                    if (mc[i] != segments[i].modCount) {
-                        check = -1; // force retry
-                        break;
-                    }
-                }
-            }
-            if (check == sum) {
-                if (sum > Integer.MAX_VALUE) {
-                    return Integer.MAX_VALUE;
-                } else {
-                    return (int)sum;
-                }
-            }
-        }
-
-        long sum = 0;
-        for (int i = 0; i < segments.length; ++i) {
-            segments[i].readLock().lock();
-        }
-        try {
-            for (int i = 0; i < segments.length; ++i) {
-                sum += segments[i].pinnedCount - segments[i].numDummyPinnedKeys;
-            }
-        } finally {
-            for (int i = 0; i < segments.length; ++i) {
-                segments[i].readLock().unlock();
-            }
-        }
-
-        if (sum > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        } else {
-            return (int)sum;
-        }
-    }
-
     public ReentrantReadWriteLock lockFor(Object key) {
         int hash = hash(key.hashCode());
         return segmentFor(hash);
@@ -423,12 +364,12 @@ public class SelectableConcurrentHashMap {
 
     public Element put(Object key, Element element, long sizeOf) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, element, sizeOf, false, false, true);
+        return segmentFor(hash).put(key, hash, element, sizeOf, false, true);
     }
 
     public Element putIfAbsent(Object key, Element element, long sizeOf) {
         int hash = hash(key.hashCode());
-        return segmentFor(hash).put(key, hash, element, sizeOf, true, false, true);
+        return segmentFor(hash).put(key, hash, element, sizeOf, true, true);
     }
 
     public Element remove(Object key) {
@@ -446,22 +387,6 @@ public class SelectableConcurrentHashMap {
     public void clear() {
         for (int i = 0; i < segments.length; ++i)
             segments[i].clear();
-    }
-
-    public void unpinAll() {
-        for (Segment segment : this.segments) {
-            segment.unpinAll();
-        }
-    }
-
-    public void setPinned(Object key, boolean pinned) {
-        int hash = hash(key.hashCode());
-        segmentFor(hash).setPinned(key, pinned, hash);
-    }
-
-    public boolean isPinned(Object key) {
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).isPinned(key, hash);
     }
 
     public Set<Object> keySet() {
@@ -495,11 +420,6 @@ public class SelectableConcurrentHashMap {
     public void recalculateSize(Object key) {
         int hash = hash(key.hashCode());
         segmentFor(hash).recalculateSize(key, hash);
-    }
-
-    public Set pinnedKeySet() {
-        Set<Object> pks = pinnedKeySet;
-        return (pks != null) ? pks : (pinnedKeySet = new PinnedKeySet());
     }
 
     /**
@@ -555,7 +475,6 @@ public class SelectableConcurrentHashMap {
         final float loadFactor;
 
         private Iterator<HashEntry> evictionIterator = iterator();
-        private boolean fullyPinned;
         protected volatile int pinnedCount;
         protected volatile int numDummyPinnedKeys;
 
@@ -568,7 +487,7 @@ public class SelectableConcurrentHashMap {
 
         }
 
-        protected void postInstall(Object key, Element value, boolean pinned) {
+        protected void postInstall(Object key, Element value) {
 
         }
 
@@ -589,42 +508,6 @@ public class SelectableConcurrentHashMap {
             return tab[hash & (tab.length - 1)];
         }
 
-        public void setPinned(Object key, boolean pinned, int hash) {
-            writeLock().lock();
-            try {
-                HashEntry e = getFirst(hash);
-                while (e != null && (e.hash != hash || !key.equals(e.key)))
-                    e = e.next;
-                if (e != null) {
-                    if (pinned && !e.pinned) {
-                        pinnedCount++;
-                        e.pinned = true;
-                        postInstall(e.key, e.value, true);
-                    } else if (!pinned && e.pinned) {
-                        pinnedCount--;
-                        if(!e.checkAndAssertDummyPinnedEntry()) {
-                            e.pinned = false;
-                            postInstall(e.key, e.value, false);
-                        } else {
-                            HashEntry[] tab = table;
-                            int index = hash & (tab.length - 1);
-                            HashEntry first = tab[index];
-                            tab[index] = removeAndGetFirst(e, first);
-                            --count;
-                            --numDummyPinnedKeys;
-                            ++modCount;
-                        }
-                    }
-                } else if (pinned) {
-                    put(key, hash, DUMMY_PINNED_ELEMENT, 0, false, true, true);
-                    pinnedCount++;
-                    numDummyPinnedKeys++;
-                }
-            } finally {
-                writeLock().unlock();
-            }
-        }
-
         private HashEntry removeAndGetFirst(HashEntry e, HashEntry first) {
             preRemove(e);
             // All entries following removed node can stay
@@ -636,66 +519,12 @@ public class SelectableConcurrentHashMap {
             return newFirst;
         }
 
-        public boolean isPinned(Object key, int hash) {
-            readLock().lock();
-            try {
-                HashEntry e = getFirst(hash);
-                while (e != null && (e.hash != hash || !key.equals(e.key)))
-                    e = e.next;
-                if (e != null) {
-                    return e.pinned;
-                }
-                return false;
-            } finally {
-                readLock().unlock();
-            }
-        }
-
-        public void unpinAll() {
-            writeLock().lock();
-            try {
-                if(numDummyPinnedKeys == count) {
-                    clear();
-                    return;
-                }
-                // using clock iterator here so maintaining number of visited entries
-                int numVisited = 0;
-                int dummyPinnedKeys = 0;
-                for(int i=0; i < table.length && numVisited < count; ++i) {
-                    HashEntry newFirst = null;
-                    HashEntry current = table[i];
-                    while(current != null && numVisited < count) {
-                        if(!current.checkAndAssertDummyPinnedEntry()) {
-                            current.pinned = false;
-                            newFirst = relinkHashEntry(current, newFirst);
-                        } else {
-                            preRemove(current);
-                            ++dummyPinnedKeys;
-                        }
-                        ++numVisited;
-                        current = current.next;
-                    }
-                    table[i] = newFirst;
-                }
-                if (numDummyPinnedKeys != dummyPinnedKeys) {
-                    throw new IllegalStateException("numDummyPinnedKeys "+numDummyPinnedKeys+" but dummyPinnedKeys "+dummyPinnedKeys);
-                }
-                if(dummyPinnedKeys > 0) {
-                    count -= dummyPinnedKeys;
-                    ++modCount;
-                }
-                pinnedCount = numDummyPinnedKeys = 0;
-            } finally {
-                writeLock().unlock();
-            }
-        }
-
-        protected HashEntry createHashEntry(Object key, int hash, HashEntry next, Element value, long sizeOf, boolean pinned) {
-            return new HashEntry(key, hash, next, value, sizeOf, pinned);
+        protected HashEntry createHashEntry(Object key, int hash, HashEntry next, Element value, long sizeOf) {
+            return new HashEntry(key, hash, next, value, sizeOf);
         }
 
         protected HashEntry relinkHashEntry(HashEntry e, HashEntry next) {
-            return new HashEntry(e.key, e.hash, next, e.value, e.sizeOf, e.pinned);
+            return new HashEntry(e.key, e.hash, next, e.value, e.sizeOf);
         }
 
         protected void clear() {
@@ -732,18 +561,7 @@ public class SelectableConcurrentHashMap {
                     if (value == null || value.equals(v)) {
                         oldValue = v;
                         ++modCount;
-                        if(!e.pinned) {
-                            tab[index] = removeAndGetFirst(e, first);
-                        } else {
-                            ++c;
-                            if (oldValue == DUMMY_PINNED_ELEMENT) {
-                               oldValue = null;
-                            } else {
-                                preRemove(e);
-                                e.value = DUMMY_PINNED_ELEMENT;
-                                ++numDummyPinnedKeys;
-                            }
-                        }
+                        tab[index] = removeAndGetFirst(e, first);
                         count = c; // write-volatile
                         poolAccessor.delete(e.sizeOf);
                     }
@@ -794,7 +612,7 @@ public class SelectableConcurrentHashMap {
             }
         }
 
-        protected Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean pinned, boolean fire) {
+        protected Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean fire) {
             Element[] evicted = new Element[MAX_EVICTION];
             writeLock().lock();
             try {
@@ -811,33 +629,26 @@ public class SelectableConcurrentHashMap {
                 Element oldValue;
                 if (e != null) {
                     oldValue = e.value;
-                    if (e.value == DUMMY_PINNED_ELEMENT || !onlyIfAbsent) {
+                    if (!onlyIfAbsent) {
                         poolAccessor.delete(e.sizeOf);
                         e.value = value;
                         e.sizeOf = sizeOf;
-                        if (oldValue == DUMMY_PINNED_ELEMENT && value != DUMMY_PINNED_ELEMENT) {
-                            --numDummyPinnedKeys;
-                            oldValue = null;
-                        }
                         if (fire) {
-                            postInstall(key, value, e.pinned);
+                            postInstall(key, value);
                         }
                     }
                 } else {
                     oldValue = null;
                     ++modCount;
-                    tab[index] = createHashEntry(key, hash, first, value, sizeOf, pinned);
+                    tab[index] = createHashEntry(key, hash, first, value, sizeOf);
                     count = c; // write-volatile
                     if (fire) {
-                        postInstall(key, value, pinned);
+                        postInstall(key, value);
                     }
                 }
 
-                if(!pinned && (onlyIfAbsent && oldValue != null || !onlyIfAbsent)) {
-                    if (!isPinned(key, hash)) {
-                        this.fullyPinned = false;
-                    }
-                    if (!fullyPinned && SelectableConcurrentHashMap.this.maxSize > 0) {
+                if((onlyIfAbsent && oldValue != null || !onlyIfAbsent)) {
+                    if (SelectableConcurrentHashMap.this.maxSize > 0) {
                         int runs = Math.min(MAX_EVICTION, SelectableConcurrentHashMap.this.quickSize() - (int) SelectableConcurrentHashMap.this.maxSize);
                         while (runs-- > 0) {
                             evictionObserver.begin();
@@ -881,7 +692,7 @@ public class SelectableConcurrentHashMap {
                 if (count != 0) { // read-volatile
                     HashEntry e = getFirst(hash);
                     while (e != null) {
-                        if (e.hash == hash && key.equals(e.key) && !e.value.equals(DUMMY_PINNED_ELEMENT)) {
+                        if (e.hash == hash && key.equals(e.key)) {
                             e.accessed = true;
                             return e.value;
                         }
@@ -900,7 +711,7 @@ public class SelectableConcurrentHashMap {
                 if (count != 0) { // read-volatile
                     HashEntry e = getFirst(hash);
                     while (e != null) {
-                        if (e.hash == hash && key.equals(e.key) && !e.value.equals(DUMMY_PINNED_ELEMENT))
+                        if (e.hash == hash && key.equals(e.key))
                             return true;
                         e = e.next;
                     }
@@ -936,7 +747,7 @@ public class SelectableConcurrentHashMap {
             Element lastUnpinned = null;
             int i = 0;
 
-            while (!fullyPinned && i++ < count) {
+            while (i++ < count) {
                 if (!evictionIterator.hasNext()) {
                     evictionIterator = iterator();
                 }
@@ -944,15 +755,12 @@ public class SelectableConcurrentHashMap {
                 if (!next.accessed || next.value.isExpired()) {
                     return next.value;
                 } else {
-                    final boolean pinned = next.pinned;
-                    if (!pinned && next.value != justAdded) {
+                    if (next.value != justAdded) {
                         lastUnpinned = next.value;
                     }
-                    next.accessed = pinned;
+                    next.accessed = false;
                 }
             }
-
-            this.fullyPinned = !this.fullyPinned && i >= count && lastUnpinned == null;
 
             return lastUnpinned;
         }
@@ -1053,25 +861,17 @@ public class SelectableConcurrentHashMap {
 
         public volatile Element value;
 
-        public volatile boolean pinned;
         public volatile long sizeOf;
         public volatile boolean accessed = true;
 
-        protected HashEntry(Object key, int hash, HashEntry next, Element value, long sizeOf, boolean pinned) {
+        protected HashEntry(Object key, int hash, HashEntry next, Element value, long sizeOf) {
             this.key = key;
             this.hash = hash;
             this.next = next;
             this.value = value;
             this.sizeOf = sizeOf;
-            this.pinned = pinned;
         }
 
-        boolean checkAndAssertDummyPinnedEntry() {
-            if(value == DUMMY_PINNED_ELEMENT && !pinned) {
-                throw new IllegalStateException("HashEntry value is DUMMY_PINNED_ELEMENT but pinned "+pinned);
-            }
-            return value == DUMMY_PINNED_ELEMENT;
-        }
     }
 
     private class SegmentIterator implements Iterator<HashEntry> {
@@ -1121,16 +921,6 @@ public class SelectableConcurrentHashMap {
                 }
             }
         }
-    }
-
-    @IgnoreSizeOf
-    protected static class DummyPinnedKey implements Serializable {
-
-    }
-
-    @IgnoreSizeOf
-    protected static class DummyPinnedValue implements Serializable {
-
     }
 
     final class KeySet extends AbstractSet<Object> {
@@ -1351,7 +1141,7 @@ public class SelectableConcurrentHashMap {
             HashEntry myEntry = null;
             while (super.hasNext()) {
                 myEntry = super.nextEntry();
-                if (myEntry != null && !hideValue(myEntry)) {
+                if (myEntry != null) {
                     break;
                 } else {
                     myEntry = null;
@@ -1360,9 +1150,6 @@ public class SelectableConcurrentHashMap {
             return myEntry;
         }
 
-        protected boolean hideValue(HashEntry hashEntry) {
-            return hashEntry.value == DUMMY_PINNED_ELEMENT;
-        }
     }
 
     abstract class HashIterator {
@@ -1377,8 +1164,6 @@ public class SelectableConcurrentHashMap {
             nextTableIndex = -1;
             advance();
         }
-
-        public boolean hasMoreElements() { return hasNext(); }
 
         final void advance() {
             if (nextEntry != null && (nextEntry = nextEntry.next) != null)
@@ -1418,30 +1203,6 @@ public class SelectableConcurrentHashMap {
                 throw new IllegalStateException();
             SelectableConcurrentHashMap.this.remove(lastReturned.key);
             lastReturned = null;
-        }
-    }
-
-    private class PinnedKeySet extends AbstractSet<Object> {
-        @Override
-        public Iterator<Object> iterator() {
-            return new PinnedKeyIterator();
-        }
-
-        @Override
-        public int size() {
-            return pinnedSize();
-        }
-
-        @Override
-        public boolean contains(final Object o) {
-            return SelectableConcurrentHashMap.this.isPinned(o) && SelectableConcurrentHashMap.this.containsKey(o);
-        }
-    }
-
-    private class PinnedKeyIterator extends KeyIterator {
-        @Override
-        protected boolean hideValue(final HashEntry hashEntry) {
-            return super.hideValue(hashEntry) || !hashEntry.pinned;
         }
     }
 

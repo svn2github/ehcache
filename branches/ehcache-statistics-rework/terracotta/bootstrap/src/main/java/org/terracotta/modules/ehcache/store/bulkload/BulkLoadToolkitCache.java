@@ -192,21 +192,6 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void unpinAll() {
-    toolkitCache.unpinAll();
-  }
-
-  @Override
-  public boolean isPinned(K key) {
-    return toolkitCache.isPinned(key);
-  }
-
-  @Override
-  public void setPinned(K key, boolean pinned) {
-    toolkitCache.setPinned(key, pinned);
-  }
-
-  @Override
   public boolean containsLocalKey(Object key) {
     return localBufferedMap.containsKey(key) || toolkitCache.containsLocalKey(key);
   }

@@ -115,27 +115,6 @@ public class LruMemoryStore extends AbstractStore {
         status = Status.STATUS_ALIVE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void unpinAll() {
-        ((SpoolingLinkedHashMap)map).unpinAll();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized boolean isPinned(Object key) {
-        return ((SpoolingLinkedHashMap)map).isPinned(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public synchronized void setPinned(Object key, boolean pinned) {
-        ((SpoolingLinkedHashMap)map).setPinning(key, pinned);
-    }
-
     private boolean determineCachePinned(CacheConfiguration cacheConfiguration) {
         PinningConfiguration pinningConfiguration = cacheConfiguration.getPinningConfiguration();
         if (pinningConfiguration == null) {

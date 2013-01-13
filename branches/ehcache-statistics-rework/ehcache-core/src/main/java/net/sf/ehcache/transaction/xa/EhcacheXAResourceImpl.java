@@ -331,10 +331,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 } else {
                     underlyingStore.remove(softLock.getKey());
                 }
-
-                if (!softLockId.wasPinned()) {
-                    underlyingStore.setPinned(softLock.getKey(), false);
-                }
             }
 
             for (SoftLock softLock : softLocks) {
@@ -441,10 +437,6 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     underlyingStore.put(frozenElement);
                 } else {
                     underlyingStore.remove(softLock.getKey());
-                }
-
-                if (!softLockId.wasPinned()) {
-                    underlyingStore.setPinned(softLock.getKey(), false);
                 }
             }
 

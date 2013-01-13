@@ -18,24 +18,6 @@ package net.sf.ehcache.store.disk;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
@@ -74,6 +56,23 @@ import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Implements a persistent-to-disk store.
@@ -164,31 +163,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     public static DiskStore create(Cache cache) {
         return create(cache, new UnboundedPool(), new UnboundedPool());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void unpinAll() {
-        for (Segment segment : segments) {
-            segment.unpinAll();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPinned(Object key) {
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).isPinned(key, hash);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPinned(Object key, boolean pinned) {
-        int hash = hash(key.hashCode());
-        segmentFor(hash).setPinned(key, hash, pinned);
     }
 
 
@@ -398,11 +372,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      * {@inheritDoc}
      */
     public int getInMemorySize() {
-        int size = 0;
-        for (Segment segment : segments) {
-            size += segment.inMemSize();
-        }
-        return size;
+        return 0;
     }
 
     /**
@@ -495,13 +465,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     public void fill(Element e) {
         put(e);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean removeIfNotPinned(final Object key) {
-        return !tierPinned && remove(key) != null;
     }
 
     /**
@@ -645,24 +608,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     /**
      * {@inheritDoc}
      */
-    public boolean isTierPinned() {
-        return tierPinned;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set getPresentPinnedKeys() {
-        Set set = new HashSet();
-        for (Segment segment : segments) {
-            set.addAll(segment.pinnedKeys());
-        }
-        return set;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean isPersistent() {
         return persistent;
     }
@@ -692,7 +637,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     public void dispose() {
         if (status.compareAndSet(Status.STATUS_ALIVE, Status.STATUS_SHUTDOWN)) {
-            unpinAll();
             clearFaultedBit();
             disk.unbind();
             onHeapPoolAccessor.unlink();
@@ -1086,14 +1030,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
             currentIterator.remove();
         }
 
-        /**
-         * Get the current segment index of this iterator
-         *
-         * @return the current segment index
-         */
-        int getCurrentSegmentIndex() {
-            return segmentIndex;
-        }
     }
 
     /**

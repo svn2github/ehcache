@@ -1057,26 +1057,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setPinned(Object arg0, boolean arg1) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      throwNonStopExceptionWhenClusterNotInit();
-      this.delegate.setPinned(arg0, arg1);
-    } catch (NonStopException e) {
-      getTimeoutBehavior().setPinned(arg0, arg1);
-    } catch (InvalidLockStateAfterRejoinException e) {
-      getTimeoutBehavior().setPinned(arg0, arg1);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
+    /**
    * {@inheritDoc}
    */
   @Override
@@ -1095,26 +1076,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isPinned(Object arg0) {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      throwNonStopExceptionWhenClusterNotInit();
-      return this.delegate.isPinned(arg0);
-    } catch (NonStopException e) {
-      return getTimeoutBehavior().isPinned(arg0);
-    } catch (InvalidLockStateAfterRejoinException e) {
-      return getTimeoutBehavior().isPinned(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
+    /**
    * {@inheritDoc}
    */
   @Override
@@ -1338,25 +1300,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return getTimeoutBehavior().containsKeyOnDisk(arg0);
     } catch (InvalidLockStateAfterRejoinException e) {
       return getTimeoutBehavior().containsKeyOnDisk(arg0);
-    } finally {
-      nonStop.finish();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void unpinAll() {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    nonStop.start(toolkitNonStopConfiguration);
-    try {
-      throwNonStopExceptionWhenClusterNotInit();
-      this.delegate.unpinAll();
-    } catch (NonStopException e) {
-      getTimeoutBehavior().unpinAll();
-    } catch (InvalidLockStateAfterRejoinException e) {
-      getTimeoutBehavior().unpinAll();
     } finally {
       nonStop.finish();
     }

@@ -52,18 +52,15 @@ public class MemoryStorePinningTest {
     public void testPutIfAbsent() throws Exception {
         final Element ELEMENT = new Element(1, "one");
 
-        memoryStore.setPinned(1, true);
         assertEquals(0, memoryStore.getSize());
         assertNull(memoryStore.putIfAbsent(ELEMENT));
         assertSame(ELEMENT, memoryStore.get(1));
         assertEquals(1, memoryStore.getSize());
 
         memoryStore.removeAll();
-        assertTrue(memoryStore.isPinned(1));
         assertEquals(0, memoryStore.getSize());
 
         assertNull(memoryStore.putIfAbsent(ELEMENT));
-        memoryStore.setPinned(1, false);
         assertSame(ELEMENT, memoryStore.get(1));
         assertEquals(1, memoryStore.getSize());
     }

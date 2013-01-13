@@ -3880,39 +3880,6 @@ public class Cache implements InternalEhcache, StoreListener {
     /**
      * {@inheritDoc}
      */
-    public void unpinAll() {
-        checkStatus();
-        if (disabled) {
-            return;
-        }
-        compoundStore.unpinAll();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPinned(Object key) {
-        checkStatus();
-        if (disabled || key == null) {
-            return false;
-        }
-        return compoundStore.isPinned(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setPinned(Object key, boolean pinned) {
-        checkStatus();
-        if (disabled || key == null) {
-            return;
-        }
-        compoundStore.setPinned(key, pinned);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void recalculateSize(Object key) {
         checkStatus();
         this.compoundStore.recalculateSize(key);

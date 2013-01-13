@@ -190,24 +190,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
 
-  @Override
-  public void unpinAll() {
-    backend.unpinAll();
-  }
-
-  @Override
-  public boolean isPinned(Object key) {
-    String pKey = generatePortableKeyFor(key);
-    return backend.isPinned(pKey);
-  }
-
-  @Override
-  public void setPinned(Object key, boolean pinned) {
-    String pKey = generatePortableKeyFor(key);
-    backend.setPinned(pKey, pinned);
-  }
-
-  @Override
+    @Override
   public void recalculateSize(Object key) {
     throw new UnsupportedOperationException("Recalculate size is not supported for Terracotta clustered caches.");
   }

@@ -442,61 +442,7 @@ public class ClusteredSafeStore implements TerracottaStore {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setPinned(Object arg0, boolean arg1) throws NonStopException, InvalidLockStateAfterRejoinException {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    try {
-      this.delegateClusteredStore.setPinned(arg0, arg1);
-    } catch (NonStopException e) {
-      throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
-      throw e;
-    } catch (Throwable t) {
-      EXCEPTION_HANDLER.handleException(t);
-      throw new CacheException("Uncaught exception in setPinned() - " + t.getMessage(), t);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void unpinAll() throws NonStopException, InvalidLockStateAfterRejoinException {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    try {
-      this.delegateClusteredStore.unpinAll();
-    } catch (NonStopException e) {
-      throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
-      throw e;
-    } catch (Throwable t) {
-      EXCEPTION_HANDLER.handleException(t);
-      throw new CacheException("Uncaught exception in unpinAll() - " + t.getMessage(), t);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isPinned(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    try {
-      return this.delegateClusteredStore.isPinned(arg0);
-    } catch (NonStopException e) {
-      throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
-      throw e;
-    } catch (Throwable t) {
-      EXCEPTION_HANDLER.handleException(t);
-      throw new CacheException("Uncaught exception in isPinned() - " + t.getMessage(), t);
-    }
-  }
-
-  /**
+    /**
    * {@inheritDoc}
    */
   @Override

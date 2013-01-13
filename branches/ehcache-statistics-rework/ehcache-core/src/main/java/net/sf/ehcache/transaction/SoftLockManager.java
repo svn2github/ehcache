@@ -35,10 +35,9 @@ public interface SoftLockManager {
      * @param key the key of the Element this soft lock is protecting
      * @param newElement the new Element
      * @param oldElement the actual Element
-     * @param pinned true if the actual Element is pinned
      * @return the soft lock ID
      */
-    SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement, boolean pinned);
+    SoftLockID createSoftLockID(TransactionID transactionID, Object key, Element newElement, Element oldElement);
 
     /**
      * Clear a soft lock

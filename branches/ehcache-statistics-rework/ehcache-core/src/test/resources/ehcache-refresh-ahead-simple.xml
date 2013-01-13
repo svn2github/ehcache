@@ -23,7 +23,7 @@
         <cacheLoaderFactory class="net.sf.ehcache.constructs.refreshahead.NullLoaderFactory" />
         <cacheDecoratorFactory
                 class="net.sf.ehcache.constructs.refreshahead.RefreshAheadCacheFactory"
-                properties=" timeToRefreshSeconds=7, maximumBacklogItems=1000, loadMissEvicts=true" />
+                properties=" timeToRefreshSeconds=7, maximumBacklogItems=1000, evictOnLoadMiss=true" />
     </cache>
 
 </ehcache>
