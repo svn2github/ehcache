@@ -87,11 +87,11 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
             if (cachedValue == null && !f.complete) {
                 try {
                     V value = source.call();
+                    putObserver.begin();
                     if (value == null) {
                         backEnd.remove(key, f);
-                    } else {
-                        // This can fail if the fault was evicted
-                        backEnd.replace(key, f, value);
+                    } else if (backEnd.replace(key, f, value)) {
+                        putObserver.end(PutOutcome.ADDED);
                     }
                     f.complete(value);
                     return value;
@@ -113,7 +113,12 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
 
     @Override
     public V remove(final K key) {
-        return getValue(backEnd.remove(key));
+        removeObserver.begin();
+        try {
+            return getValue(backEnd.remove(key));
+        } finally {
+            removeObserver.end(RemoveOutcome.SUCCESS);
+        }
     }
 
     @Override

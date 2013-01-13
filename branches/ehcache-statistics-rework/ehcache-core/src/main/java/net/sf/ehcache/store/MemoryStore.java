@@ -311,13 +311,21 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
             return false;
         }
 
+        putObserver.begin();
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isPinningEnabled(element));
         if (delta > -1) {
             Element old = map.put(element.getObjectKey(), element, delta);
             checkCapacity(element);
-            return old == null;
+            if (old == null) {
+                putObserver.end(PutOutcome.ADDED);
+                return true;
+            } else {
+                putObserver.end(PutOutcome.UPDATED);
+                return false;
+            }
         } else {
             notifyDirectEviction(element);
+            putObserver.end(PutOutcome.ADDED);
             return true;
         }
     }
@@ -389,8 +397,12 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         if (key == null) {
             return null;
         }
-
-        return map.remove(key);
+        removeObserver.begin();
+        try {
+            return map.remove(key);
+        } finally {
+            removeObserver.end(RemoveOutcome.SUCCESS);
+        }
     }
 
     /**

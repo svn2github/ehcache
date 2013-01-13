@@ -62,7 +62,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      */
     public CacheStatistics(Ehcache ehcache) {
         this.ehcache = ehcache;
-        this.statistics=ehcache.getStatistics();
+        this.statistics = ehcache.getStatistics();
         objectName = createObjectName(ehcache.getCacheManager().getName(),
                 ehcache.getName());
     }

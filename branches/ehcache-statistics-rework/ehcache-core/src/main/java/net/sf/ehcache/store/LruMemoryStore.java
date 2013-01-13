@@ -175,6 +175,7 @@ public class LruMemoryStore extends AbstractStore {
     }
 
     private synchronized boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
+        putObserver.begin();
         boolean newPut = true;
         if (element != null) {
             newPut = map.put(element.getObjectKey(), element) == null;
@@ -182,6 +183,11 @@ public class LruMemoryStore extends AbstractStore {
                 writerManager.put(element);
             }
             doPut(element);
+        }
+        if (newPut) {
+            putObserver.end(PutOutcome.ADDED);
+        } else {
+            putObserver.end(PutOutcome.UPDATED);
         }
         return newPut;
     }
@@ -244,10 +250,12 @@ public class LruMemoryStore extends AbstractStore {
 
     private synchronized Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
         // remove single item.
+        removeObserver.begin();
         Element element = (Element) map.remove(key);
         if (writerManager != null) {
             writerManager.remove(new CacheEntry(key, element));
         }
+        removeObserver.end(RemoveOutcome.SUCCESS);
         if (element != null) {
             return element;
         } else {

@@ -188,6 +188,8 @@ public class CacheManager {
      */
     private final ConcurrentMap<String, Ehcache> ehcaches = new ConcurrentHashMap<String, Ehcache>();
 
+    private final Map<String, Ehcache> initializingCaches = new ConcurrentHashMap<String, Ehcache>();
+    
 
     /**
      * Default cache cache.
@@ -1305,8 +1307,6 @@ public class CacheManager {
         }
     }
 
-    private final Map<String, Ehcache> parentCaches = new ConcurrentHashMap<String, Ehcache>();
-    
     /**
      * Initialize the given {@link Ehcache} without adding it to the {@link CacheManager}.
      *
@@ -1318,23 +1318,14 @@ public class CacheManager {
         cache.setCacheManager(this);
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
-        if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            parentCaches.put(cache.getName(), cache);
-        }
         cache.initialise();
 
         if (!runtimeCfg.allowsDynamicCacheConfig()) {
             cache.disableDynamicFeatures();
         }
 
-        String shadowPrefix = "local_shadow_cache_for_" + getName() + "___tc_clustered-ehcache|" + getName() + "|";
-        if (!registerCacheConfig && cache.getName().startsWith(shadowPrefix)) {
-            String parentCacheName = cache.getName().substring(shadowPrefix.length());
-            Ehcache parentCache = parentCaches.remove(parentCacheName);
-            if (parentCache != null) {
-                //caches get created for all sorts of non Ehcache related stores/caches
-                StatisticsManager.associate(cache).withParent(parentCache);
-            }
+        if (!registerCacheConfig) {
+            associateShadowCache(cache);
         }
 
         try {
@@ -1344,6 +1335,21 @@ public class CacheManager {
         }
     }
 
+    private void associateShadowCache(Ehcache shadow) {
+        String shadowPrefix = "local_shadow_cache_for_" + getName() + "___tc_clustered-ehcache|" + getName() + "|";
+        if (shadow.getName().startsWith(shadowPrefix)) {
+            String parentCacheName = shadow.getName().substring(shadowPrefix.length());
+            Ehcache parent = initializingCaches.get(parentCacheName);
+            if (parent == null) {
+                parent = ehcaches.get(parentCacheName);
+            }
+            if (parent != null) {
+                StatisticsManager.associate(shadow).withParent(parent);
+            }
+        }
+        
+    }
+    
     private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
             CacheException {
 
@@ -1361,11 +1367,16 @@ public class CacheManager {
             }
         }
 
-        initializeEhcache(cache, true);
+        initializingCaches.put(cache.getName(), cache);
+        try {
+            initializeEhcache(cache, true);
 
-        ehcache = ehcaches.putIfAbsent(cache.getName(), cache);
-        if (ehcache != null) {
-            throw new AssertionError();
+            ehcache = ehcaches.putIfAbsent(cache.getName(), cache);
+            if (ehcache != null) {
+                throw new AssertionError();
+            }
+        } finally {
+            initializingCaches.remove(cache.getName());
         }
 
         // Don't notify initial config. The init method of each listener should take care of this.
