@@ -27,6 +27,7 @@ import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEv
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
@@ -45,6 +46,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -729,15 +731,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         }
 
         // Wait for expiry and expiry thread
-        Thread.sleep(6999);
-
-        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
-        List<CacheEvent> notifications = listener.getCacheElementsExpired();
-        for (int i = 0; i < notifications.size(); i++) {
-            Element element = notifications.get(i).getElement();
-            element.getObjectKey();
-        }
-        assertThat(notifications, hasSize(20));
+        RetryAssert.assertBy(15, TimeUnit.SECONDS, new Callable<List<CacheEvent>>() {
+            @Override
+            public List<CacheEvent> call() throws Exception {
+                return getCountingCacheEventListener(cache).getCacheElementsExpired();
+            }
+        }, hasSize(20));
     }
 
 
