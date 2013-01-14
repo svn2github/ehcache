@@ -6,13 +6,14 @@ package org.terracotta.modules.ehcache.store.bulkload;
 import net.sf.ehcache.store.StoreListener;
 
 import org.terracotta.toolkit.cluster.ClusterEvent;
+import org.terracotta.toolkit.cluster.ClusterEvent.Type;
 import org.terracotta.toolkit.cluster.ClusterInfo;
-import org.terracotta.toolkit.cluster.ClusterListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.collections.ToolkitSet;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
+import org.terracotta.toolkit.internal.cluster.OutOfBandClusterListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -168,17 +169,14 @@ public class BulkLoadEnabledNodesSet {
     }
   }
 
-  private static class CleanupOnNodeLeftListener implements ClusterListener {
+  private static class CleanupOnNodeLeftListener implements OutOfBandClusterListener {
 
     private final BulkLoadEnabledNodesSet nodesSet;
-    private final ClusterNode             currentNode;
-
     private final ClusterInfo             clusterInfo;
 
     public CleanupOnNodeLeftListener(BulkLoadEnabledNodesSet nodesSet, ClusterInfo clusterInfo, ToolkitInternal toolkit) {
       this.nodesSet = nodesSet;
       this.clusterInfo = clusterInfo;
-      this.currentNode = clusterInfo.getCurrentNode();
     }
 
     @Override
@@ -196,7 +194,7 @@ public class BulkLoadEnabledNodesSet {
     private void handleNodeLeft(ClusterEvent event) {
       String offlineNode = getIdForNode(event.getNode());
       nodesSet.logger.info("Received node left event for: " + offlineNode);
-      if (getIdForNode(currentNode).equals(offlineNode)) {
+      if (getIdForNode(clusterInfo.getCurrentNode()).equals(offlineNode)) {
         // nothing to do on "this" node left
         if (nodesSet.loggingEnabled) {
           nodesSet.logger.info("Ignoring node left of current node itself - " + offlineNode);
@@ -221,6 +219,12 @@ public class BulkLoadEnabledNodesSet {
       } finally {
         nodesSet.clusteredLock.unlock();
       }
+    }
+
+    @Override
+    public boolean useOutOfBandNotification(ClusterEvent event) {
+      if (event.getType() == Type.NODE_LEFT) { return true; }
+      return false;
     }
   }
 
