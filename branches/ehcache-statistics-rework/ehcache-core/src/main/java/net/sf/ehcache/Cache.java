@@ -2409,12 +2409,13 @@ public class Cache implements InternalEhcache, StoreListener {
 
         disposeRegisteredCacheExtensions();
         disposeRegisteredCacheLoaders();
-        disposeRegisteredCacheWriter();
-        registeredEventListeners.dispose();
 
         if (cacheWriterManager != null) {
             cacheWriterManager.dispose();
         }
+
+        disposeRegisteredCacheWriter();
+        registeredEventListeners.dispose();
 
         if (compoundStore != null) {
             compoundStore.removeStoreListener(this);

@@ -22,20 +22,21 @@ import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitObjectType;
+import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
+import org.terracotta.toolkit.builder.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCache;
-import org.terracotta.toolkit.cache.ToolkitCacheConfigFields.PinningStore;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.internal.store.ToolkitCacheConfigBuilderInternal;
+import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
 import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.serialization.Serialization;
 import org.terracotta.toolkit.serialization.ToolkitSerializer;
-import org.terracotta.toolkit.store.ToolkitStoreConfigBuilder;
-import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
+import org.terracotta.toolkit.store.ToolkitConfigFields;
+import org.terracotta.toolkit.store.ToolkitConfigFields.PinningStore;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -124,7 +125,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private static Configuration createClusteredCacheConfig(Ehcache cache) {
-    ToolkitCacheConfigBuilderInternal builder = new ToolkitCacheConfigBuilderInternal();
+    ToolkitCacheConfigBuilder builder = new ToolkitCacheConfigBuilder();
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
@@ -133,11 +134,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
 
     if (terracottaConfiguration.isSynchronousWrites()) {
-      builder.consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.SYNCHRONOUS_STRONG);
+      builder.consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG);
     } else if (terracottaConfiguration.getConsistency() == Consistency.EVENTUAL) {
-      builder.consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.EVENTUAL);
+      builder.consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.EVENTUAL);
     } else {
-      builder.consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG);
+      builder.consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.STRONG);
     }
 
     if (terracottaConfiguration.getConcurrency() == TerracottaConfiguration.DEFAULT_CONCURRENCY) {
@@ -149,7 +150,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String cmName = cache.getCacheManager().isNamed() ? cache.getCacheManager().getName()
         : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
-    builder.localStoreManagerName(cmName);
+    builder.configField(ConfigFieldsInternal.LOCAL_STORE_MANAGER_NAME_NAME, cmName);
     if (ehcacheConfig.getPinningConfiguration() != null) {
       builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
     }
@@ -165,7 +166,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private static int calculateCorrectConcurrency(CacheConfiguration cacheConfiguration) {
     int maxElementOnDisk = cacheConfiguration.getMaxElementsOnDisk();
-    if (maxElementOnDisk <= 0 || maxElementOnDisk >= ToolkitStoreConfigFields.DEFAULT_CONCURRENCY) { return ToolkitStoreConfigFields.DEFAULT_CONCURRENCY; }
+    if (maxElementOnDisk <= 0 || maxElementOnDisk >= ToolkitConfigFields.DEFAULT_CONCURRENCY) { return ToolkitConfigFields.DEFAULT_CONCURRENCY; }
     int concurrency = 1;
     while (concurrency * 2 <= maxElementOnDisk) {// this while loop is not very time consuming, maximum it will do 8
                                                  // iterations
@@ -233,7 +234,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                                                             String cacheName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = new ToolkitStoreConfigBuilder()
-        .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
+        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
         .getCache(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
                   config, SerializedReadCommittedClusteredSoftLock.class);
@@ -279,7 +280,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public SerializedToolkitCache<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = new ToolkitStoreConfigBuilder()
-        .consistency(org.terracotta.toolkit.store.ToolkitStoreConfigFields.Consistency.STRONG).build();
+        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
                                                               + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config,
                                                           Decision.class);

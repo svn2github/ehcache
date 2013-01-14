@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.writer;
 
+import net.sf.ehcache.CacheException;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractTestCacheWriter extends AbstractCacheWriter {
@@ -31,4 +33,8 @@ public abstract class AbstractTestCacheWriter extends AbstractCacheWriter {
         return this.initialized.get();
     }
 
+    @Override
+    public void dispose() throws CacheException {
+        this.initialized.set(false);
+    }
 }

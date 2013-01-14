@@ -66,6 +66,8 @@ public class TerracottaClient {
             terracottaClientConfiguration.freezeConfig();
 
             // if we're going clustered and secured, it's time to wrap the secret provider before the L1 can use it
+            // we must set this secret provider as both the L1 and the agent have a default console password fetcher
+            // and we do not want to ask for the password twice
             String secretProviderClassname = System.getProperty(CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY);
             String tcUrl = terracottaClientConfiguration.getUrl();
             if (tcUrl != null && tcUrl.contains("@")) {

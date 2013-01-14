@@ -5,8 +5,7 @@ package org.terracotta.modules.ehcache.store.bulkload;
 
 import net.sf.ehcache.store.StoreListener;
 
-import org.terracotta.toolkit.cache.ToolkitCacheConfigBuilder;
-import org.terracotta.toolkit.cache.ToolkitCacheConfigFields;
+import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -16,7 +15,7 @@ import org.terracotta.toolkit.internal.ToolkitLogger;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.search.QueryBuilder;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
-import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
+import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -83,7 +82,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
             debug("Enabling bulk-load");
           }
           localCacheEnabledBeforeBulkloadEnabled = toolkitCache.getConfiguration()
-              .getBoolean(ToolkitStoreConfigFields.LOCAL_CACHE_ENABLED_FIELD_NAME);
+              .getBoolean(ToolkitConfigFields.LOCAL_CACHE_ENABLED_FIELD_NAME);
 
           // add current node
           bulkLoadEnabledNodesSet.addCurrentNode();
@@ -408,8 +407,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public V put(K key, V value) {
-    return put(key, value, now(), ToolkitCacheConfigFields.NO_MAX_TTI_SECONDS,
-               ToolkitCacheConfigFields.NO_MAX_TTL_SECONDS);
+    return put(key, value, now(), ToolkitConfigFields.NO_MAX_TTI_SECONDS, ToolkitConfigFields.NO_MAX_TTL_SECONDS);
   }
 
   @Override

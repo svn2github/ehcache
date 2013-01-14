@@ -43,7 +43,7 @@ import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
+import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
                                                               bulkLoadShutdownHook, this);
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
                                        backend.getConfiguration()
-                                           .getInt(ToolkitStoreConfigFields.CONCURRENCY_FIELD_NAME)));
+                                           .getInt(ToolkitConfigFields.CONCURRENCY_FIELD_NAME)));
     // connect configurations
     cacheConfigChangeBridge = createConfigChangeBridge(toolkitInstanceFactory, cache, backend);
     cacheConfigChangeBridge.connectConfigs();

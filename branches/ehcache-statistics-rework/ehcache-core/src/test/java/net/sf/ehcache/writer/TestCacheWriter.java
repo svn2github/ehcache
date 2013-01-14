@@ -52,13 +52,21 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
         return keyPrefix + key + keySuffix;
     }
 
+    private void throwIfDisposed() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Trying to perform write/delete on cache writer not initialized");
+        }
+    }
+
     @Override
     public synchronized void write(Element element) throws CacheException {
+        throwIfDisposed();
         writtenElements.put(getAdaptedKey(element.getObjectKey()), element);
     }
 
     @Override
     public synchronized void writeAll(Collection<Element> elements) throws CacheException {
+        throwIfDisposed();
         for (Element element : elements) {
             writtenElements.put(getAdaptedKey(element.getObjectKey()) + "-batched", element);
         }
@@ -66,11 +74,13 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
 
     @Override
     public synchronized void delete(CacheEntry entry) throws CacheException {
+        throwIfDisposed();
         deletedElements.put(getAdaptedKey(entry.getKey()), entry.getElement());
     }
 
     @Override
     public synchronized void deleteAll(Collection<CacheEntry> entries) throws CacheException {
+        throwIfDisposed();
         for (CacheEntry entry : entries) {
             deletedElements.put(getAdaptedKey(entry.getKey()) + "-batched", entry.getElement());
         }
