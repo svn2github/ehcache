@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 public interface ValueModeHandler {
 
-  public Object getRealKeyObject(String portableKey, boolean localOnly);
+  public Object getRealKeyObject(String portableKey);
 
   public String createPortableKey(Object key) throws IOException;
 

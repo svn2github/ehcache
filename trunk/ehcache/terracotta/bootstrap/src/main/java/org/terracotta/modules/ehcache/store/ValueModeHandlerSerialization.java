@@ -3,33 +3,30 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import org.terracotta.modules.ehcache.collections.SerializationHelper;
+
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
 
-import org.terracotta.toolkit.serialization.ToolkitSerializer;
-
+import java.io.IOException;
 import java.io.Serializable;
 
 public class ValueModeHandlerSerialization implements ValueModeHandler {
 
-  private final ToolkitSerializer toolkitSerializer;
-
-  public ValueModeHandlerSerialization(ToolkitSerializer toolkitSerializer) {
-    this.toolkitSerializer = toolkitSerializer;
-  }
-
   @Override
-  public Object getRealKeyObject(String portableKey, boolean localOnly) {
-    if (localOnly) {
-      return toolkitSerializer.deserializeFromStringLocally(portableKey);
-    } else {
-      return toolkitSerializer.deserializeFromString(portableKey);
+  public Object getRealKeyObject(String portableKey) {
+    try {
+      return SerializationHelper.deserializeFromString(portableKey);
+    } catch (IOException e) {
+      return null;
+    } catch (ClassNotFoundException e) {
+      return null;
     }
   }
 
   @Override
-  public String createPortableKey(Object key) {
-    return toolkitSerializer.serializeToString(key);
+  public String createPortableKey(Object key) throws IOException {
+    return SerializationHelper.serializeToString(key);
   }
 
   @Override

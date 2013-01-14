@@ -5,15 +5,12 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.config.CacheConfiguration;
 
-import org.terracotta.toolkit.serialization.ToolkitSerializer;
-
 public abstract class ValueModeHandlerFactory {
 
   // private static final Logger LOG = LoggerFactory.getLogger(ValueModeHandlerFactory.class.getName());
 
   public static ValueModeHandler createValueModeHandler(final ClusteredStore store,
-                                                        final CacheConfiguration cacheConfiguration,
-                                                        ToolkitSerializer toolkitSerializer) {
+                                                        final CacheConfiguration cacheConfiguration) {
 
     // TODO: fix this
     // final TerracottaConfiguration terracottaConfiguration = cacheConfiguration.getTerracottaConfiguration();
@@ -25,7 +22,7 @@ public abstract class ValueModeHandlerFactory {
     // return new ValueModeHandlerSerialization(store, cacheConfiguration.isCopyOnRead(),
     // terracottaConfiguration.isCompressionEnabled());
     // }
-    return new ValueModeHandlerSerialization(toolkitSerializer);
+    return new ValueModeHandlerSerialization();
   }
 
   // private static boolean hibernateTypesPresent() {

@@ -15,8 +15,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.search.QueryBuilder;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
-import org.terracotta.toolkit.serialization.ToolkitSerializer;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,11 +31,9 @@ import java.util.Set;
  */
 public class SerializedToolkitCache<K, V extends Serializable> implements ToolkitCache<K, V> {
   private final ToolkitCache<String, V> toolkitCache;
-  private final ToolkitSerializer       toolkitSerializer;
 
-  public SerializedToolkitCache(ToolkitCache toolkitMap, ToolkitSerializer toolkitSerializer) {
+  public SerializedToolkitCache(ToolkitCache toolkitMap) {
     this.toolkitCache = toolkitMap;
-    this.toolkitSerializer = toolkitSerializer;
   }
 
   @Override
@@ -48,12 +46,22 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
     return this.toolkitCache.isEmpty();
   }
 
-  private String serializeToString(Object key) {
-    return toolkitSerializer.serializeToString(key);
+  private static String serializeToString(Object key) {
+    try {
+      return SerializationHelper.serializeToString(key);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  private Object deserializeFromString(String key) {
-    return toolkitSerializer.deserializeFromString(key);
+  private static Object deserializeFromString(String key) {
+    try {
+      return SerializationHelper.deserializeFromString(key);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -93,7 +101,7 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
 
   @Override
   public Set<K> keySet() {
-    return new ToolkitKeySet(toolkitCache.keySet(), toolkitSerializer);
+    return new ToolkitKeySet(toolkitCache.keySet());
   }
 
   @Override
@@ -165,7 +173,7 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
 
   @Override
   public Set<java.util.Map.Entry<K, V>> entrySet() {
-    return new ToolkitEntrySet(this.toolkitCache.entrySet(), toolkitSerializer);
+    return new ToolkitEntrySet(this.toolkitCache.entrySet());
   }
 
   @Override
@@ -190,11 +198,9 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
 
   private static class ToolkitEntrySet<K, V> implements Set<java.util.Map.Entry<K, V>> {
     private final Set<java.util.Map.Entry<String, V>> set;
-    private final ToolkitSerializer                   serializer;
 
-    public ToolkitEntrySet(Set<java.util.Map.Entry<String, V>> set, ToolkitSerializer serializer) {
+    public ToolkitEntrySet(Set<java.util.Map.Entry<String, V>> set) {
       this.set = set;
-      this.serializer = serializer;
     }
 
     @Override
@@ -213,13 +219,13 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
 
       Map.Entry<K, V> entry = (java.util.Map.Entry<K, V>) o;
       ToolkitCacheEntry<String, V> toolkitEntry = null;
-      toolkitEntry = new ToolkitCacheEntry<String, V>(serializer.serializeToString(entry.getKey()), entry.getValue());
+      toolkitEntry = new ToolkitCacheEntry<String, V>(serializeToString(entry.getKey()), entry.getValue());
       return this.set.contains(toolkitEntry);
     }
 
     @Override
     public Iterator<java.util.Map.Entry<K, V>> iterator() {
-      return new ToolkitEntryIterator<K, V>(set.iterator(), serializer);
+      return new ToolkitEntryIterator<K, V>(set.iterator());
     }
 
     @Override
@@ -271,11 +277,9 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   private static class ToolkitEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 
     private final Iterator<Map.Entry<String, V>> iter;
-    private final ToolkitSerializer              serializer;
 
-    public ToolkitEntryIterator(Iterator<Map.Entry<String, V>> iter, ToolkitSerializer serializer) {
+    public ToolkitEntryIterator(Iterator<Map.Entry<String, V>> iter) {
       this.iter = iter;
-      this.serializer = serializer;
     }
 
     @Override
@@ -287,7 +291,7 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
     public java.util.Map.Entry<K, V> next() {
       Map.Entry<String, V> entry = iter.next();
       if (entry == null) { return null; }
-      return new ToolkitCacheEntry(serializer.deserializeFromString(entry.getKey()), entry.getValue());
+      return new ToolkitCacheEntry(deserializeFromString(entry.getKey()), entry.getValue());
     }
 
     @Override
@@ -326,11 +330,9 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   private static class ToolkitKeySet<K> implements Set<K> {
 
     private final Set<String> set;
-    private final ToolkitSerializer serializer;
 
-    public ToolkitKeySet(Set<String> set, ToolkitSerializer serializer) {
+    public ToolkitKeySet(Set<String> set) {
       this.set = set;
-      this.serializer = serializer;
     }
 
     @Override
@@ -345,12 +347,12 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
 
     @Override
     public boolean contains(Object o) {
-      return set.contains(serializer.serializeToString(o));
+      return set.contains(serializeToString(o));
     }
 
     @Override
     public Iterator<K> iterator() {
-      return new ToolkitKeyIterator<K>(set.iterator(), serializer);
+      return new ToolkitKeyIterator<K>(set.iterator());
     }
 
     @Override
@@ -402,11 +404,9 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   private static class ToolkitKeyIterator<K> implements Iterator<K> {
 
     private final Iterator<String> iter;
-    private final ToolkitSerializer serializer;
 
-    public ToolkitKeyIterator(Iterator<String> iter, ToolkitSerializer serializer) {
+    public ToolkitKeyIterator(Iterator<String> iter) {
       this.iter = iter;
-      this.serializer = serializer;
     }
 
     @Override
@@ -418,7 +418,7 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
     public K next() {
       String k = iter.next();
       if (k == null) { return null; }
-      return (K) serializer.deserializeFromString(k);
+      return (K) deserializeFromString(k);
     }
 
     @Override
@@ -453,14 +453,14 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
   @Override
   public void putNoReturn(K key, V value, long createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
     this.toolkitCache.putNoReturn(serializeToString(key), value, createTimeInSecs, customMaxTTISeconds,
-                                  customMaxTTLSeconds);
+                                       customMaxTTLSeconds);
 
   }
 
   @Override
   public V putIfAbsent(K key, V value, long createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
     return this.toolkitCache.putIfAbsent(serializeToString(key), value, createTimeInSecs, customMaxTTISeconds,
-                                         customMaxTTLSeconds);
+                                       customMaxTTLSeconds);
   }
 
   @Override

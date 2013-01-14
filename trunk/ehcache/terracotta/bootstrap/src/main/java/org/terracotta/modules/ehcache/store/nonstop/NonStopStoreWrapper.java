@@ -93,8 +93,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   }
 
   private CacheLockProvider createCacheLockProvider(Toolkit toolkit, ToolkitInstanceFactory toolkitInstanceFactory) {
-    return new NonStopCacheLockProvider(toolkit.getFeature(NonStop.class), ehcacheNonStopConfiguration,
-                                        toolkitInstanceFactory);
+    return new NonStopCacheLockProvider(ehcacheNonStopConfiguration, toolkitInstanceFactory);
   }
 
   private void createStoreAsynchronously(final Toolkit toolkit, Callable<TerracottaStore> clusteredStoreCreator) {
@@ -1054,7 +1053,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
-    /**
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -1073,7 +1072,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
-    /**
+  /**
    * {@inheritDoc}
    */
   @Override
