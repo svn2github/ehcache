@@ -288,7 +288,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             assertThat(cache.getSize(), CombinableMatcher.<Integer>both(lessThanOrEqualTo(30)).and(greaterThan(10)));
             assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10L));
-            assertThat(cache.getStatistics().getLocalDiskSize(), CombinableMatcher.both(lessThanOrEqualTo(20L + DISK_WIGGLE)).and(greaterThan(10L)));
+            assertThat(cache.getStatistics().getLocalDiskSize(), CombinableMatcher.<Long>both(lessThanOrEqualTo(20L + DISK_WIGGLE)).and(greaterThan(10L)));
         }
 
         cache.getCacheConfiguration().setMaxElementsOnDisk(10);

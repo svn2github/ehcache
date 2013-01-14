@@ -17,7 +17,6 @@
 package net.sf.ehcache.statistics.extended;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.terracotta.context.query.Matchers.allOf;
 import static org.terracotta.context.query.Matchers.attributes;
 import static org.terracotta.context.query.Matchers.context;
 import static org.terracotta.context.query.Matchers.hasAttribute;
@@ -29,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.context.TreeNode;
 import org.terracotta.context.query.Matcher;
+import org.terracotta.context.query.Matchers;
 import org.terracotta.context.query.Query;
 import org.terracotta.statistics.ConstantValueStatistic;
 import org.terracotta.statistics.OperationStatistic;
@@ -145,7 +146,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                     throw new IllegalStateException("Required statistic " + t + " not found");
                 } else {
                     LOGGER.debug("Mocking Operation Statistic: {}", t);
-                    standardOperations.put(t, NullCompoundOperation.instance());
+                    standardOperations.put(t, NullCompoundOperation.instance(t.type()));
                 }
             } else {
                 standardOperations.put(t, new CompoundOperationImpl(statistic, t.type(),
@@ -642,7 +643,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         Set<TreeNode> operationStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(OperationStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()
-                .filter(context(attributes(allOf(hasAttribute("type", type), hasAttribute("name", name),
+                .filter(context(attributes(Matchers.<Map<String, Object>>allOf(hasAttribute("type", type), hasAttribute("name", name),
                         hasAttribute("tags", new Matcher<Set<String>>() {
                             @Override
                             protected boolean matchesSafely(Set<String> object) {
@@ -666,7 +667,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         Set<TreeNode> passThroughStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(ValueStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()
-                .filter(context(attributes(allOf(hasAttribute("name", name), hasAttribute("tags", new Matcher<Set<String>>() {
+                .filter(context(attributes(Matchers.<Map<String, Object>>allOf(hasAttribute("name", name), 
+                hasAttribute("tags", new Matcher<Set<String>>() {
                     @Override
                     protected boolean matchesSafely(Set<String> object) {
                         return object.containsAll(tags);

@@ -51,7 +51,7 @@ final class NullCompoundOperation<T extends Enum<T>> implements Operation<T> {
      * @param <T> the generic type
      * @return the operation
      */
-    static <T extends Enum<T>> Operation<T> instance() {
+    static <T extends Enum<T>> Operation<T> instance(Class<T> klazz) {
         return INSTANCE;
     }
 
