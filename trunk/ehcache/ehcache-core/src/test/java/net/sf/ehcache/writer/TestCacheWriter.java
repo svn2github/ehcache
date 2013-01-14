@@ -29,7 +29,6 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
     private final Properties properties;
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
     private final Map<Object, Element> deletedElements = new HashMap<Object, Element>();
-    private volatile boolean isDisposed = false;
 
     public TestCacheWriter(Properties properties) {
         this.properties = properties;
@@ -54,14 +53,9 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
     }
 
     private void throwIfDisposed() {
-        if (isDisposed) {
-            throw new IllegalStateException("Trying to perform write/delete after dispose");
+        if (!isInitialized()) {
+            throw new IllegalStateException("Trying to perform write/delete on cache writer not initialized");
         }
-    }
-
-    @Override
-    public void dispose() throws CacheException {
-        isDisposed = true;
     }
 
     @Override
