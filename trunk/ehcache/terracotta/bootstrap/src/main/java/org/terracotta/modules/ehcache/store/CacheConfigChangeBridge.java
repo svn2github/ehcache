@@ -10,12 +10,11 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.toolkit.cache.ToolkitCache;
-import org.terracotta.toolkit.cache.ToolkitCacheConfigFields;
 import org.terracotta.toolkit.events.ToolkitNotificationEvent;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
-import org.terracotta.toolkit.store.ToolkitStoreConfigFields;
+import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import java.io.Serializable;
 
@@ -153,11 +152,10 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   }
 
   private static enum DynamicConfigType {
-    MAX_TOTAL_COUNT(ToolkitCacheConfigFields.MAX_TOTAL_COUNT_FIELD_NAME), MAX_COUNT_LOCAL_HEAP(
-        ToolkitStoreConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME), MAX_BYTES_LOCAL_HEAP(
-        ToolkitStoreConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME), MAX_TTI_SECONDS(
-        ToolkitCacheConfigFields.MAX_TTI_SECONDS_FIELD_NAME), MAX_TTL_SECONDS(
-        ToolkitCacheConfigFields.MAX_TTL_SECONDS_FIELD_NAME);
+    MAX_TOTAL_COUNT(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME), MAX_COUNT_LOCAL_HEAP(
+        ToolkitConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME), MAX_BYTES_LOCAL_HEAP(
+        ToolkitConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME), MAX_TTI_SECONDS(
+        ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME), MAX_TTL_SECONDS(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME);
 
     private final String toolkitConfigName;
 
