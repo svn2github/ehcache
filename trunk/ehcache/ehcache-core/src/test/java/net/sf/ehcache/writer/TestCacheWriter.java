@@ -29,7 +29,7 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
     private final Properties properties;
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
     private final Map<Object, Element> deletedElements = new HashMap<Object, Element>();
-    private boolean isDisposed = false;
+    private volatile boolean isDisposed = false;
 
     public TestCacheWriter(Properties properties) {
         this.properties = properties;
