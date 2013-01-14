@@ -29,6 +29,7 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
     private final Properties properties;
     private final Map<Object, Element> writtenElements = new HashMap<Object, Element>();
     private final Map<Object, Element> deletedElements = new HashMap<Object, Element>();
+    private boolean isDisposed = false;
 
     public TestCacheWriter(Properties properties) {
         this.properties = properties;
@@ -52,13 +53,26 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
         return keyPrefix + key + keySuffix;
     }
 
+    private void throwIfDisposed() {
+        if (isDisposed) {
+            throw new IllegalStateException("Trying to perform write/delete after dispose");
+        }
+    }
+
+    @Override
+    public void dispose() throws CacheException {
+        isDisposed = true;
+    }
+
     @Override
     public synchronized void write(Element element) throws CacheException {
+        throwIfDisposed();
         writtenElements.put(getAdaptedKey(element.getObjectKey()), element);
     }
 
     @Override
     public synchronized void writeAll(Collection<Element> elements) throws CacheException {
+        throwIfDisposed();
         for (Element element : elements) {
             writtenElements.put(getAdaptedKey(element.getObjectKey()) + "-batched", element);
         }
@@ -66,11 +80,13 @@ public class TestCacheWriter extends AbstractTestCacheWriter {
 
     @Override
     public synchronized void delete(CacheEntry entry) throws CacheException {
+        throwIfDisposed();
         deletedElements.put(getAdaptedKey(entry.getKey()), entry.getElement());
     }
 
     @Override
     public synchronized void deleteAll(Collection<CacheEntry> entries) throws CacheException {
+        throwIfDisposed();
         for (CacheEntry entry : entries) {
             deletedElements.put(getAdaptedKey(entry.getKey()) + "-batched", entry.getElement());
         }
