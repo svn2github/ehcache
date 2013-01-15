@@ -189,7 +189,7 @@ public class RotatingSnapshotFileTest {
             assertThat(key + " is missing!", values.contains(key), is(true));
         }
         assertThat(values.contains(keyPrefix + keyAmount), is(false));
-        assertThat(values.size() > keyAmount, is(true));
+        assertThat(values.size() >= keyAmount, is(true));
         assertThat(file.currentSnapshotFile().exists(), is(true));
         assertThat(file.newSnapshotFile().exists(), is(false));
         assertThat(file.tempSnapshotFile().exists(), is(false));
