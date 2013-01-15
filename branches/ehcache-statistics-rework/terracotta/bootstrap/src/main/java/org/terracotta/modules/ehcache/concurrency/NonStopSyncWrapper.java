@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.concurrency;
 
+import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.constructs.nonstop.concurrency.InvalidLockStateAfterRejoinException;
@@ -13,16 +14,64 @@ import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConf
 import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.nonstop.NonStopException;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 public class NonStopSyncWrapper implements Sync {
-  private final Sync                                          delegate;
+  private volatile Sync                                       delegate;
+  private final Future<CacheLockProvider>                     cacheLockProvider;
   private final NonStop                                       nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
+  private volatile Object                                     key;
 
-  public NonStopSyncWrapper(Sync delegate, ToolkitInstanceFactory toolkitInstanceFactory,
+  public NonStopSyncWrapper(Future<CacheLockProvider> cacheLockProvider, Object key,
+                            ToolkitInstanceFactory toolkitInstanceFactory,
                             ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration) {
-    this.delegate = delegate;
+    this.cacheLockProvider = cacheLockProvider;
     this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
     this.toolkitNonStopConfiguration = toolkitNonStopConfiguration;
+  }
+
+  private Sync getDelegate() {
+    if (delegate == null) {
+      synchronized (this) {
+        if (delegate == null) {
+          delegate = getCacheLockProvider().getSyncForKey(key);
+          key = null;
+        }
+      }
+    }
+
+    return delegate;
+  }
+
+  private CacheLockProvider getCacheLockProvider() {
+    boolean isInterrupted = false;
+    while (true) {
+
+      try {
+        if (!cacheLockProvider.isDone() && toolkitNonStopConfiguration.isEnabled()
+            && toolkitNonStopConfiguration.isImmediateTimeoutEnabled()) { throw new NonStopException(); }
+
+        if (isInterrupted) {
+          Thread.currentThread().interrupt();
+        }
+        return cacheLockProvider.get();
+      } catch (InterruptedException e) {
+        if (toolkitNonStopConfiguration.isEnabled()) {
+          throw new NonStopException();
+        } else {
+          // TODO: do this properly
+          isInterrupted = true;
+        }
+      } catch (ExecutionException e) {
+        if (toolkitNonStopConfiguration.isEnabled()) {
+          throw new NonStopException();
+        } else {
+          throw new RuntimeException(e);
+        }
+      }
+    }
   }
 
   /**
@@ -32,7 +81,7 @@ public class NonStopSyncWrapper implements Sync {
   public void lock(LockType type) {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      this.delegate.lock(type);
+      this.getDelegate().lock(type);
     } catch (NonStopException e) {
       throw new LockOperationTimedOutNonstopException("Lock timed out");
     } finally {
@@ -47,7 +96,7 @@ public class NonStopSyncWrapper implements Sync {
   public void unlock(LockType type) {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      this.delegate.unlock(type);
+      this.getDelegate().unlock(type);
     } catch (org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException e) {
       throw new InvalidLockStateAfterRejoinException(e);
     } finally {
@@ -62,9 +111,10 @@ public class NonStopSyncWrapper implements Sync {
   public boolean tryLock(LockType type, long msec) throws InterruptedException {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      return this.delegate.tryLock(type, msec);
+      return this.getDelegate().tryLock(type, msec);
     } catch (NonStopException e) {
-      throw new LockOperationTimedOutNonstopException("try lock timed out");
+      return false;
+      // throw new LockOperationTimedOutNonstopException("try lock timed out");
     } finally {
       nonStop.finish();
     }
@@ -77,7 +127,7 @@ public class NonStopSyncWrapper implements Sync {
   public boolean isHeldByCurrentThread(LockType type) {
     nonStop.start(toolkitNonStopConfiguration);
     try {
-      return this.delegate.isHeldByCurrentThread(type);
+      return this.getDelegate().isHeldByCurrentThread(type);
     } catch (NonStopException e) {
       throw new LockOperationTimedOutNonstopException("isHeldByCurrentThread timed out");
     } finally {
