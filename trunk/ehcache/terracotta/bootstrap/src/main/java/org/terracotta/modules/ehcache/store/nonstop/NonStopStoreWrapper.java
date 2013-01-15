@@ -36,6 +36,7 @@ import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopReadTime
 import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopWriteTimeoutBehavior;
 import org.terracotta.toolkit.nonstop.NonStopException;
 import org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException;
+import org.terracotta.toolkit.rejoin.RejoinException;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -46,9 +47,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class NonStopStoreWrapper implements TerracottaStore {
-  private static final Set<String>                            LOCAL_METHODS = new HashSet<String>();
+  private static final long                                   TIME_TO_WAIT_FOR_ASYNC_STORE_INIT = Long
+                                                                                                    .parseLong(System
+                                                                                                        .getProperty("com.tc.non.stop.async.store.init",
+                                                                                                                     String
+                                                                                                                         .valueOf(TimeUnit.MINUTES
+                                                                                                                             .toMillis(5))));
+  private static final Set<String>                            LOCAL_METHODS                     = new HashSet<String>();
 
   static {
     LOCAL_METHODS.add("unsafeGet");
@@ -106,14 +114,22 @@ public class NonStopStoreWrapper implements TerracottaStore {
     final Runnable initRunnable = new Runnable() {
       @Override
       public void run() {
-        nonStop.start(new ToolkitNonstopDisableConfig());
-        try {
-          doInit(clusteredStoreCreator);
-          synchronized (NonStopStoreWrapper.this) {
-            NonStopStoreWrapper.this.notifyAll();
+        long startTime = System.currentTimeMillis();
+        while (true) {
+          nonStop.start(new ToolkitNonstopDisableConfig());
+          try {
+            doInit(clusteredStoreCreator);
+            synchronized (NonStopStoreWrapper.this) {
+              NonStopStoreWrapper.this.notifyAll();
+            }
+            return;
+          } catch (RejoinException e) {
+            if (startTime + TIME_TO_WAIT_FOR_ASYNC_STORE_INIT < System.currentTimeMillis()) { throw new RuntimeException(
+                                                                                                                         "Unable to create clusteredStore in time",
+                                                                                                                         e); }
+          } finally {
+            nonStop.finish();
           }
-        } finally {
-          nonStop.finish();
         }
       }
 
@@ -159,6 +175,9 @@ public class NonStopStoreWrapper implements TerracottaStore {
     try {
       return clusteredStoreCreator.call();
     } catch (InvalidConfigurationException e) {
+      throw e;
+    } catch (RejoinException e) {
+      // can get RejoinException If Rejoin starts during initialization. since NonStop is disabled here.
       throw e;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -223,12 +242,12 @@ public class NonStopStoreWrapper implements TerracottaStore {
         throw new NonStopException("Cluster not up OR still in the process of connecting ");
       } else {
         long timeout = ehcacheNonStopConfiguration.getTimeoutMillis();
-        waitForTimeout(timeout);
+        waitForInit(timeout);
       }
     }
   }
 
-  private void waitForTimeout(long timeout) {
+  private void waitForInit(long timeout) {
     synchronized (this) {
       while (delegate == null) {
         try {
