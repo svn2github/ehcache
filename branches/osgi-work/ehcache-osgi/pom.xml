@@ -84,8 +84,7 @@
             <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
             <Import-Package>bitronix.tm;resolution:=optional,
               bitronix.tm.resource.ehcache;resolution:=optional,
-              com.atomikos;resolution:=optional,
-              com.atomikos.icatch.jta;resolution:=optional,
+              com.atomikos.*;resolution:=optional,
               weblogic.transaction;resolution:=optional,
               javax.transaction;resolution:=optional,
               javax.servlet;resolution:=optional,
