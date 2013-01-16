@@ -1,13 +1,12 @@
 package net.dahanne.osgi.ehcache.consumer;
 
-import javax.transaction.TransactionManager;
-
-import bitronix.tm.TransactionManagerServices;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import javax.transaction.TransactionManager;
 
 public class Demo {
 	private TransactionManager tm;
@@ -42,15 +41,8 @@ public class Demo {
 
 	public void txEhcache() throws Exception {
 		// set up
-		TransactionManagerServices.getConfiguration().setJournal("null").setGracefulShutdownInterval(0)
-		    .setBackgroundRecoveryIntervalSeconds(1);
-
-		try {
-			tm = TransactionManagerServices.getTransactionManager();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+		final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
+		tm = lookup.getTransactionManager();
 		cacheManager = new CacheManager(Demo.class.getResourceAsStream("/ehcache.xml"));
 
 		cache1 = cacheManager.getEhcache("txCache1");
@@ -85,7 +77,6 @@ public class Demo {
 		tm.rollback();
 
 		cacheManager.shutdown();
-		TransactionManagerServices.getTransactionManager().shutdown();
 	}
 
 }
