@@ -47,7 +47,7 @@ public class CacheCopyOnRwTest {
 
     @Test
     public void testCopyOnReadWriteCache() throws Exception {
-        cacheManager.addCache(new Cache(new CacheConfiguration().statistics(true).name("copyOnReadWriteCache").copyOnRead(true)
+        cacheManager.addCache(new Cache(new CacheConfiguration().name("copyOnReadWriteCache").copyOnRead(true)
             .copyOnWrite(true)));
         Ehcache cache = cacheManager.getCache("copyOnReadWriteCache");
         testReplaceElement(cache);
@@ -57,7 +57,7 @@ public class CacheCopyOnRwTest {
     @Test
     public void testSimpleCache() throws Exception {
         cacheManager
-                .addCache(new Cache(new CacheConfiguration().statistics(true).name("simpleCache").copyOnRead(false).copyOnWrite(false)));
+                .addCache(new Cache(new CacheConfiguration().name("simpleCache").copyOnRead(false).copyOnWrite(false)));
         Ehcache cache = cacheManager.getCache("simpleCache");
         testReplaceElement(cache);
         testRemoveElement(cache);
@@ -66,7 +66,7 @@ public class CacheCopyOnRwTest {
 
     @Test
     public void testCopyOnReadOnlyCache() throws Exception {
-        cacheManager.addCache(new Cache(new CacheConfiguration().statistics(true).name("copyOnReadOnlyCache").copyOnRead(true)
+        cacheManager.addCache(new Cache(new CacheConfiguration().name("copyOnReadOnlyCache").copyOnRead(true)
                 .copyOnWrite(false)));
         Ehcache cache = cacheManager.getCache("copyOnReadOnlyCache");
         testReplaceElement(cache);
@@ -75,7 +75,7 @@ public class CacheCopyOnRwTest {
 
     @Test
     public void testCopyOnWriteOnlyCache() throws Exception {
-        cacheManager.addCache(new Cache(new CacheConfiguration().statistics(true).name("copyOnWriteOnlyCache").copyOnRead(false)
+        cacheManager.addCache(new Cache(new CacheConfiguration().name("copyOnWriteOnlyCache").copyOnRead(false)
                 .copyOnWrite(true)));
         Ehcache cache = cacheManager.getCache("copyOnWriteOnlyCache");
         testReplaceElement(cache);

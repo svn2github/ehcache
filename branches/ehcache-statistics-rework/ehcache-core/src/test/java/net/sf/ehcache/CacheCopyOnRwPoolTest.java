@@ -58,14 +58,12 @@ public class CacheCopyOnRwPoolTest {
     public void testMemoryOnly() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("memoryOnlyCache")
                         .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
                         .overflowToDisk(false)
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("memoryOnlyCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)
@@ -94,13 +92,11 @@ public class CacheCopyOnRwPoolTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache")
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)
@@ -137,14 +133,12 @@ public class CacheCopyOnRwPoolTest {
                 new CacheConfiguration()
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache")
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)

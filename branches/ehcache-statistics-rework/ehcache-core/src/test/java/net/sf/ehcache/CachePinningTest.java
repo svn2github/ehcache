@@ -78,7 +78,6 @@ public class CachePinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
-                        .statistics(true)
                         .name("memoryOnlyCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -87,7 +86,6 @@ public class CachePinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
-                        .statistics(true)
                         .name("memoryOnlyCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -96,7 +94,6 @@ public class CachePinningTest {
         cacheManager.addCache(new Cache(
             new CacheConfiguration()
                 .maxEntriesLocalHeap(10)
-                .statistics(true)
                 .name("memoryOnlyCache_inCache")
                 .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -110,7 +107,6 @@ public class CachePinningTest {
                 .maxEntriesLocalHeap(10)
                 .maxElementsOnDisk(20)
                 .overflowToDisk(true)
-                .statistics(true)
                 .name("overflowToDiskCache_onHeap")
                 .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -121,7 +117,6 @@ public class CachePinningTest {
                         .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -132,7 +127,6 @@ public class CachePinningTest {
                         .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -147,7 +141,6 @@ public class CachePinningTest {
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -159,7 +152,6 @@ public class CachePinningTest {
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -171,7 +163,6 @@ public class CachePinningTest {
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));

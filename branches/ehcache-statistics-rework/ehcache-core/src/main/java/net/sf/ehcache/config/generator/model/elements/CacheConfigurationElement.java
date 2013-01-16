@@ -125,8 +125,6 @@ public class CacheConfigurationElement extends SimpleNodeElement {
                 .optional(true).defaultValue(0L));
         element.addAttribute(new SimpleNodeAttribute("transactionalMode", cacheConfiguration.getTransactionalMode()).optional(true)
                 .defaultValue(CacheConfiguration.DEFAULT_TRANSACTIONAL_MODE));
-        element.addAttribute(new SimpleNodeAttribute("statistics", cacheConfiguration.getStatistics()).optional(true).defaultValue(
-                CacheConfiguration.DEFAULT_STATISTICS));
         element.addAttribute(new SimpleNodeAttribute("memoryStoreEvictionPolicy", cacheConfiguration.getMemoryStoreEvictionPolicy()
                 .toString().toUpperCase()).optional(true).defaultValue(
                 CacheConfiguration.DEFAULT_MEMORY_STORE_EVICTION_POLICY.toString().toUpperCase()));

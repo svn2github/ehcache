@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -94,17 +95,37 @@ public class AllConfigurationGeneratedTest extends TestCase {
                 break;
             }
         }
+        for (Entry<NodeElement, Set<NodeAttribute>> entry : unvisited.unvisitedAttributes.entrySet()) {
+            String eltName = entry.getKey().getName();
+            if ("cache".equals(eltName) || "defaultCache".equals(eltName)) {
+                Set<NodeAttribute> attributes = entry.getValue();
+                for (NodeAttribute attribute : attributes) {
+                    if ("statistics".equals(attribute.getName())) {
+                        attributes.remove(attribute);
+                        break;
+                    }
+                }
+            }
+        }
         checkUnvisited(unvisited);
 
         String ehcacheXmlWithoutTCUrl = writeEhcacheXmlWithoutTcURL(ehcacheCompleteXsdElement);
         unvisited = getUnvisited(ehcacheCompleteXsdElement, ehcacheXmlWithoutTCUrl);
-        for (NodeElement element : unvisited.unvisitedAttributes.keySet()) {
-            String eltName = element.getName();
+        for (Entry<NodeElement, Set<NodeAttribute>> entry : unvisited.unvisitedAttributes.entrySet()) {
+            String eltName = entry.getKey().getName();
+            Set<NodeAttribute> attributes = entry.getValue();
             // it is known attribute "url" of "terracottaConfig" element will not be thr
             if ("terracottaConfig".equals(eltName)) {
-                Set<NodeAttribute> attributes = unvisited.unvisitedAttributes.get(element);
                 for (NodeAttribute attribute : attributes) {
                     if ("url".equals(attribute.getName())) {
+                        attributes.remove(attribute);
+                        break;
+                    }
+                }
+            }
+            if ("cache".equals(eltName) || "defaultCache".equals(eltName)) {
+                for (NodeAttribute attribute : attributes) {
+                    if ("statistics".equals(attribute.getName())) {
                         attributes.remove(attribute);
                         break;
                     }

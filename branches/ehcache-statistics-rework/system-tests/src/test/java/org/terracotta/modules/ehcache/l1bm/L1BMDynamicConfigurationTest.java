@@ -179,8 +179,6 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
       tcConfiguration.setValueMode(ValueMode.SERIALIZATION.toString());
       cacheConfiguration.addTerracotta(tcConfiguration);
 
-      cacheConfiguration.setStatistics(true);
-
       Cache cache = new Cache(cacheConfiguration);
       cm.addCache(cache);
       return cache;
