@@ -8,7 +8,7 @@
   <name>Ehcache core example OSGi consumer</name>
   <description>This module, when built with the maven bundle plugin, will turn into an OSGi bundle, consuming the Ehcache core OSGi bundle to put elements in a cache and fetch them from the same cache</description>
   <properties>
-    <org.osgi.framework.bootdelegation>sun.misc,sun.reflect</org.osgi.framework.bootdelegation>
+    <org.osgi.framework.bootdelegation>sun.misc,sun.reflect,javax.naming,javax.management</org.osgi.framework.bootdelegation>
   </properties>
 
   <dependencies>
@@ -32,10 +32,12 @@
       <artifactId>logback-classic</artifactId>
       <version>1.0.6</version>
     </dependency>
+    <!-- <dependency> <groupId>org.terracotta</groupId> <artifactId>terracotta-toolkit-runtime</artifactId> 
+      <version>4.0.0-SNAPSHOT</version> </dependency> -->
     <dependency>
-      <groupId>org.terracotta</groupId>
-      <artifactId>terracotta-toolkit-runtime</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
+      <groupId>org.codehaus.btm</groupId>
+      <artifactId>btm</artifactId>
+      <version>2.1.3</version>
     </dependency>
   </dependencies>
   <build>
@@ -47,10 +49,17 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Embed-Dependency>btm,jta</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Import-Package>net.sf.ehcache,org.terracotta.toolkit,org.osgi.framework,org.slf4j</Import-Package>
+            <Import-Package>!javax.crypto, !javax.crypto.spec,
+              !javax.jms, !javax.management, !javax.naming,
+              !javax.naming.spi, !javax.rmi, !javax.sql, !javax.swing,
+              !javax.swing.border, !javax.swing.event,
+              !javax.swing.table, !javax.swing.tree,
+              net.sf.ehcache,org.osgi.framework,org.slf4j</Import-Package>
+            <Export-Package>bitronix.tm.*,javax.transaction.*</Export-Package>
             <Private-Package>net.dahanne.osgi.ehcache.consumer.*</Private-Package>
             <Bundle-Activator>net.dahanne.osgi.ehcache.consumer.Activator</Bundle-Activator>
             <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>

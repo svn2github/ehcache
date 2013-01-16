@@ -10,7 +10,6 @@ public class Activator implements BundleActivator {
 	private static final Logger LOG = LoggerFactory.getLogger(Activator.class.getName());
 
 	public void start(BundleContext context) throws Exception {
-
 		System.out.println(String.format("Start - %s", this.getClass().getName()));
 		LOG.info("hello !!!");
 
@@ -20,7 +19,7 @@ public class Activator implements BundleActivator {
 
 		Demo demo = new Demo();
 		try {
-			demo.go();
+			demo.txEhcache();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
