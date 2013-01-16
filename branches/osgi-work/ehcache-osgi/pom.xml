@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -34,29 +35,17 @@
     <skipJavadoc>false</skipJavadoc>
   </properties>
 
-  <dependencies>  
-    <!-- With slf4j, users must choose a concrete logging implementation
-      at deploy time, which they provide The maven dependency declarations are
-      reproduced here for convenience.
+  <dependencies>
+    <!-- With slf4j, users must choose a concrete logging implementation 
+      at deploy time, which they provide The maven dependency declarations are 
+      reproduced here for convenience. <dependency> <groupId>org.slf4j</groupId> 
+      <artifactId>slf4j-jdk14</artifactId> <version>1.6.6</version> </dependency> 
+      <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
+      <version>1.6.6</version> </dependency> <dependency> <groupId>org.slf4j</groupId> 
+      <artifactId>slf4j-simple</artifactId> <version>1.6.6</version> </dependency> -->
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>1.6.6</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.6.6</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>1.6.6</version>
-      </dependency>
-    -->
-
-    <!-- internal components used for shading which will be removed in final pom -->
+    <!-- internal components used for shading which will be removed in final 
+      pom -->
     <dependency>
       <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-terracotta-bootstrap</artifactId>
@@ -71,7 +60,7 @@
       <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
-    </dependency>   
+    </dependency>
   </dependencies>
 
   <build>
@@ -83,26 +72,33 @@
     </resources>
 
     <plugins>
-
-
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <version>2.3.7</version>
-        <extensions>true</extensions>       
+        <extensions>true</extensions>
         <configuration>
           <manifestLocation>${project.build.directory}</manifestLocation>
           <instructions>
             <Bundle-Name>${project.artifactId}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
-            <Import-Package>javax.servlet;resolution:=optional,org.hibernate.*;resolution:=optional,!sun.misc,org.terracotta.toolkit.*;resolution:=optional,*</Import-Package>
+            <Import-Package>bitronix.tm;resolution:=optional,
+              bitronix.tm.resource.ehcache;resolution:=optional,
+              com.atomikos;resolution:=optional,
+              com.atomikos.icatch.jta;resolution:=optional,
+              weblogic.transaction;resolution:=optional,
+              javax.transaction;resolution:=optional,
+              javax.servlet;resolution:=optional,
+              org.hibernate.*;resolution:=optional,
+              org.terracotta.toolkit.*;resolution:=optional,
+              !sun.misc,*</Import-Package>
             <Export-Package>net.sf.ehcache.*</Export-Package>
             <Private-Package>org.terracotta.modules.ehcache.*</Private-Package>
             <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
           </instructions>
           <excludeDependencies>*;scope=provided|runtime</excludeDependencies>
         </configuration>
-      </plugin>    
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -140,7 +136,7 @@
               </artifactItems>
               <outputDirectory>${project.build.directory}</outputDirectory>
             </configuration>
-          </execution>      
+          </execution>
 
           <execution>
             <id>copy-javadoc</id>
@@ -162,7 +158,7 @@
               </artifactItems>
               <outputDirectory>${project.build.directory}</outputDirectory>
             </configuration>
-          </execution>          
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -184,12 +180,12 @@
                   <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
                   <type>jar</type>
                   <classifier>javadoc</classifier>
-                </artifact>                
+                </artifact>
               </artifacts>
             </configuration>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -224,7 +220,7 @@
                 <Terracotta-Name>${project.artifactId}</Terracotta-Name>
                 <Terracotta-Description>${project.description}</Terracotta-Description>
               </manifestEntries>
-            </configuration>            
+            </configuration>
           </execution>
           <execution>
             <id>enforce-dependencies</id>
@@ -237,7 +233,7 @@
               <enforceArtifactId>ehcache-core</enforceArtifactId>
               <enforceVersion>${project.version}</enforceVersion>
             </configuration>
-          </execution>          
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -249,7 +245,7 @@
             <includes>
               <include>net.sf.ehcache.internal:*</include>
             </includes>
-          </artifactSet>       
+          </artifactSet>
           <filters>
             <filter>
               <artifact>*:*</artifact>
@@ -259,24 +255,27 @@
                 <exclude>**/thirdpartylicenses.txt</exclude>
                 <exclude>META-INF/*.SF</exclude>
                 <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>                  
+                <exclude>META-INF/*.RSA</exclude>
               </excludes>
-            </filter>		  
-          </filters>    
+            </filter>
+          </filters>
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
-          <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>           
+          <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
           <transformers>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+            <transformer
+              implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
               <resource>MANIFEST.MF</resource>
-            </transformer>          
-            <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+            </transformer>
+            <transformer
+              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>META-INF/MANIFEST.MF</resource>
               <file>${project.build.directory}/MANIFEST.MF</file>
-            </transformer>  
-            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+            </transformer>
+            <transformer
+              implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
               <resource>devmode-classdir.txt</resource>
-            </transformer>            
-          </transformers>             
+            </transformer>
+          </transformers>
         </configuration>
         <executions>
           <execution>
@@ -287,7 +286,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
         <artifactId>gmaven-plugin</artifactId>
@@ -301,16 +300,19 @@
             </goals>
             <configuration>
               <source>
-                def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
+                def jarFile = new File(project.build.directory,
+                "${project.artifactId}-${project.version}.jar")
                 ant.jar(destfile: jarFile, update: "true") {
-                  zipfileset(file: new File(project.build.directory, "dependency-reduced-pom.xml"), 
-                             fullpath: "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml")
+                zipfileset(file: new File(project.build.directory,
+                "dependency-reduced-pom.xml"),
+                fullpath:
+                "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml")
                 }
               </source>
             </configuration>
           </execution>
         </executions>
-      </plugin>             
+      </plugin>
     </plugins>
   </build>
 
@@ -326,7 +328,7 @@
         </file>
       </activation>
     </profile>
-  </profiles>  
+  </profiles>
 
   <repositories>
     <repository>
