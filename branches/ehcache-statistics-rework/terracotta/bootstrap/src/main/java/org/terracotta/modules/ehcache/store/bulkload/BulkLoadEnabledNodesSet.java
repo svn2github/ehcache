@@ -6,14 +6,13 @@ package org.terracotta.modules.ehcache.store.bulkload;
 import net.sf.ehcache.store.StoreListener;
 
 import org.terracotta.toolkit.cluster.ClusterEvent;
-import org.terracotta.toolkit.cluster.ClusterEvent.Type;
 import org.terracotta.toolkit.cluster.ClusterInfo;
+import org.terracotta.toolkit.cluster.ClusterListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.collections.ToolkitSet;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
-import org.terracotta.toolkit.internal.cluster.OutOfBandClusterListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -169,7 +168,7 @@ public class BulkLoadEnabledNodesSet {
     }
   }
 
-  private static class CleanupOnNodeLeftListener implements OutOfBandClusterListener {
+  private static class CleanupOnNodeLeftListener implements ClusterListener {
 
     private final BulkLoadEnabledNodesSet nodesSet;
     private final ClusterInfo             clusterInfo;
@@ -219,12 +218,6 @@ public class BulkLoadEnabledNodesSet {
       } finally {
         nodesSet.clusteredLock.unlock();
       }
-    }
-
-    @Override
-    public boolean useOutOfBandNotification(ClusterEvent event) {
-      if (event.getType() == Type.NODE_LEFT) { return true; }
-      return false;
     }
   }
 

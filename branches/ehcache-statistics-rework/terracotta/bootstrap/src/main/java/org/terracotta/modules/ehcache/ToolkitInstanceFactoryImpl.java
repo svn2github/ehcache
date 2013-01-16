@@ -8,6 +8,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
 
@@ -206,13 +207,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache) {
-    // implemented in ee version
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache) {
+  public ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(Ehcache cache) {
     // implemented in ee version
     throw new UnsupportedOperationException();
   }
