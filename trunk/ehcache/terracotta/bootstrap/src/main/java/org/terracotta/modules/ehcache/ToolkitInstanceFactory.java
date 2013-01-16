@@ -4,6 +4,7 @@
 package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
 
@@ -51,13 +52,6 @@ public interface ToolkitInstanceFactory {
   ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(Ehcache cache);
 
   /**
-   * Returns a {@link ToolkitCache} for storing search attribute types
-   * 
-   * @throws UnsupportedOperationException if search is not supported
-   */
-  ToolkitMap<String, String> getOrCreateSearchAttributeTypesMap(Ehcache cache);
-
-  /**
    * Returns a {@link ToolkitReadWriteLock} for protecting the cache's store cluster wide
    */
   ToolkitLock getOrCreateStoreLock(Ehcache cache);
@@ -78,7 +72,7 @@ public interface ToolkitInstanceFactory {
    * 
    * @throws UnsupportedOperationException if search is not supported
    */
-  ToolkitMap<String, byte[]> getOrCreateSerializedExtractorsMap(Ehcache cache);
+  ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(Ehcache cache);
 
   /**
    * Shutdown
