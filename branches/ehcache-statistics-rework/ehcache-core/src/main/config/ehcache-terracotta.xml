@@ -649,7 +649,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     <nonstop> has one sub-element, <timeoutBehavior> which has the following attribute:
 
-    *  type="noop|exception|localReads" - What to do when a timeout has occurred. Exception is the default.
+    *  type="noop|exception|localReads|localReadsAndExceptionOnWrite" - What to do when a timeout has occurred. Exception is the default.
 
     Simplest example to indicate clustering:
         <terracotta/>

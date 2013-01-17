@@ -292,6 +292,7 @@
             <xs:enumeration value="noop" />
             <xs:enumeration value="exception" />
             <xs:enumeration value="localReads" />
+            <xs:enumeration value="localReadsAndExceptionOnWrite" />
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="monitoringType">

@@ -39,6 +39,10 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
      */
     public static final String LOCAL_READS_TYPE_NAME = "localReads";
     /**
+     * Type name for {@link TimeoutBehaviorType#LOCAL_READS_AND_EXCEPTION_ON_WRITES}
+     */
+    public static final String LOCAL_READS_AND_EXCEPTION_ON_WRITES_TYPE_NAME = "localReadsAndExceptionOnWrite";
+    /**
      * Type name for {@link TimeoutBehaviorType#NOOP}
      */
     public static final String NOOP_TYPE_NAME = "noop";
@@ -99,6 +103,21 @@ public class TimeoutBehaviorConfiguration implements Cloneable {
             @Override
             public String getTypeName() {
                 return LOCAL_READS_TYPE_NAME;
+            }
+
+        },
+        /**
+         * Timeout behavior type that returns local values present in the VM or otherwise null on timeout for read operations.
+         * For write operations, it throws an exception on timeout.
+         */
+        LOCAL_READS_AND_EXCEPTION_ON_WRITES() {
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public String getTypeName() {
+                return LOCAL_READS_AND_EXCEPTION_ON_WRITES_TYPE_NAME;
             }
 
         },

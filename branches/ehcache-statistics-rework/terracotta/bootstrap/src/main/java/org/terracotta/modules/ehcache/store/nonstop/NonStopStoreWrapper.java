@@ -278,6 +278,15 @@ public class NonStopStoreWrapper implements TerracottaStore {
           localReadDelegate = new LocalReadsOnTimeoutStore(delegate);
         }
         return localReadDelegate;
+      case LOCAL_READS_AND_EXCEPTION_ON_WRITES:
+        if (localReadDelegate == null) {
+          if (delegate == null) {
+            return new LocalReadsAndExceptionOnWritesTimeoutStore();
+          } else {
+            localReadDelegate = new LocalReadsAndExceptionOnWritesTimeoutStore(delegate);
+          }
+        }
+        return localReadDelegate;
       case NOOP:
         return NoOpOnTimeoutStore.getInstance();
       default:

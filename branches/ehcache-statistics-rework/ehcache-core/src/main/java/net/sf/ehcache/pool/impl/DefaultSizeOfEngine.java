@@ -31,6 +31,7 @@ import net.sf.ehcache.pool.sizeof.AgentSizeOf;
 import net.sf.ehcache.pool.sizeof.ReflectionSizeOf;
 import net.sf.ehcache.pool.sizeof.SizeOf;
 import net.sf.ehcache.pool.sizeof.UnsafeSizeOf;
+import net.sf.ehcache.pool.sizeof.MaxDepthExceededException;
 import net.sf.ehcache.pool.sizeof.filter.AnnotationSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.filter.CombinationSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
@@ -170,7 +171,18 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
      * {@inheritDoc}
      */
     public Size sizeOf(final Object key, final Object value, final Object container) {
-        Size size = sizeOf.deepSizeOf(maxDepth, abortWhenMaxDepthExceeded, key, value, container);
+        Size size;
+        try {
+            size = sizeOf.deepSizeOf(maxDepth, abortWhenMaxDepthExceeded, key, value, container);
+        } catch (MaxDepthExceededException e) {
+            LOG.warn(e.getMessage());
+            LOG.warn("key type: " + key.getClass().getName());
+            LOG.warn("key: " + key);
+            LOG.warn("value type: " + value.getClass().getName());
+            LOG.warn("value: " + value);
+            LOG.warn("container: " + container);
+            size = new Size(e.getMeasuredSize(), false);
+        }
 
         if (USE_VERBOSE_DEBUG_LOGGING && LOG.isDebugEnabled()) {
             LOG.debug("size of {}/{}/{} -> {}", new Object[]{key, value, container, size.getCalculated()});

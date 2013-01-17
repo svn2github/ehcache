@@ -69,12 +69,7 @@ public abstract class SizeOf {
      * @see #sizeOf(Object)
      */
     public Size deepSizeOf(int maxDepth, boolean abortWhenMaxDepthExceeded, Object... obj) {
-        try {
-            return new Size(walker.walk(maxDepth, abortWhenMaxDepthExceeded, obj), true);
-        } catch (MaxDepthExceededException e) {
-            LOG.warn(e.getMessage());
-            return new Size(e.getMeasuredSize(), false);
-        }
+        return new Size(walker.walk(maxDepth, abortWhenMaxDepthExceeded, obj), true);
     }
 
     /**
