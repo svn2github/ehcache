@@ -22,6 +22,7 @@ import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.ToolkitObjectType;
 import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.builder.ToolkitStoreConfigBuilder;
@@ -31,9 +32,9 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
+import org.terracotta.toolkit.feature.SerializationFeature;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
-import org.terracotta.toolkit.nonstop.NonStop;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
 import org.terracotta.toolkit.store.ToolkitConfigFields.PinningStore;
 
@@ -73,6 +74,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
+    SerializationFeature serializationFeature = toolkit.getFeature(ToolkitFeatureType.SERIALIZATION);
+    if (serializationFeature == null || !serializationFeature.isEnabled()) { throw new AssertionError(); }
   }
 
   private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -315,14 +318,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     ToolkitNonStopConfiguration nonstopConfiguration = new ToolkitNonStopConfiguration(
                                                                                        terracottaConfiguration
                                                                                            .getNonstopConfiguration());
-    toolkit.getFeature(NonStop.class).getNonStopConfigurationRegistry()
+    toolkit.getFeature(ToolkitFeatureType.NONSTOP).getNonStopConfigurationRegistry()
         .registerForInstance(nonstopConfiguration, getFullyQualifiedCacheName(cache), ToolkitObjectType.CACHE);
 
   }
 
   @Override
   public void removeNonStopConfigforCache(Ehcache cache) {
-    toolkit.getFeature(NonStop.class).getNonStopConfigurationRegistry()
+    toolkit.getFeature(ToolkitFeatureType.NONSTOP).getNonStopConfigurationRegistry()
         .deregisterForInstance(getFullyQualifiedCacheName(cache), ToolkitObjectType.CACHE);
 
   }

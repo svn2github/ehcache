@@ -30,7 +30,8 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.NonStopCacheLockProvider;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.nonstop.NonStop;
+import org.terracotta.toolkit.ToolkitFeatureType;
+import org.terracotta.toolkit.feature.NonStopFeature;
 import org.terracotta.toolkit.nonstop.NonStopConfiguration;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopReadTimeoutBehavior;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopWriteTimeoutBehavior;
@@ -72,7 +73,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   }
 
   private volatile TerracottaStore                            delegate;
-  private final NonStop                                       nonStop;
+  private final NonStopFeature                                       nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
   private final NonstopConfiguration                          ehcacheNonStopConfiguration;
   private volatile TerracottaStore                            localReadDelegate;
@@ -86,7 +87,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   public NonStopStoreWrapper(Callable<TerracottaStore> clusteredStoreCreator,
                              ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
     this.cache = cache;
-    this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
+    this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(ToolkitFeatureType.NONSTOP);
     this.ehcacheNonStopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
         .getNonstopConfiguration();
     this.toolkitNonStopConfiguration = new ToolkitNonStopExceptionOnTimeoutConfiguration(ehcacheNonStopConfiguration);
@@ -103,7 +104,8 @@ public class NonStopStoreWrapper implements TerracottaStore {
   }
 
   private CacheLockProvider createCacheLockProvider(Toolkit toolkit, ToolkitInstanceFactory toolkitInstanceFactory) {
-    return new NonStopCacheLockProvider(ehcacheNonStopConfiguration, toolkitInstanceFactory);
+    return new NonStopCacheLockProvider(toolkit.getFeature(ToolkitFeatureType.NONSTOP), ehcacheNonStopConfiguration,
+                                        toolkitInstanceFactory);
   }
 
   private void createStoreAsynchronously(final Toolkit toolkit, Callable<TerracottaStore> clusteredStoreCreator) {
