@@ -1285,14 +1285,14 @@ public class ConcurrentHashMap<K, V>
                                         t.deleteTreeNode(p);
                                     }
                                     poolAccessor.delete(p.size);
-                                    if(v != null) {
-                                        poolAccessor.add(k, v, FAKE_TREE_NODE, true);
-                                    }
                                 }
                             }
                         }
                     } finally {
                         t.release(0);
+                        if(v != null) {
+                            poolAccessor.add(k, v, FAKE_TREE_NODE, true);
+                        }
                     }
                     if (validated) {
                         if (deleted)
@@ -1331,9 +1331,6 @@ public class ConcurrentHashMap<K, V>
                                             setTabAt(tab, i, en);
                                     }
                                     poolAccessor.delete(e.size);
-                                    if(v != null) {
-                                        poolAccessor.add(k, v, FAKE_NODE, true);
-                                    }
                                 }
                                 break;
                             }
@@ -1346,6 +1343,9 @@ public class ConcurrentHashMap<K, V>
                     if (!f.casHash(fh | LOCKED, fh)) {
                         f.hash = fh;
                         synchronized (f) { f.notifyAll(); };
+                    }
+                    if(v != null) {
+                        poolAccessor.add(k, v, FAKE_NODE, true);
                     }
                 }
                 if (validated) {
