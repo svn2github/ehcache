@@ -32,6 +32,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 
 import org.junit.Assert;
@@ -56,16 +57,19 @@ public class NonStopConfigTest extends TestCase {
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream("/nonstop/nonstop-config-test.xml"));
         assertNonstopConfig(cacheManager.getCache("defaultConfig"), NonstopConfiguration.DEFAULT_ENABLED,
                 NonstopConfiguration.DEFAULT_IMMEDIATE_TIMEOUT, NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS,
-                NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getType());
+                NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getTimeoutBehaviorType());
 
         assertNonstopConfig(cacheManager.getCache("one"), false, NonstopConfiguration.DEFAULT_IMMEDIATE_TIMEOUT,
-                NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS, NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getType());
+                NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS, NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getTimeoutBehaviorType());
 
         assertNonstopConfig(cacheManager.getCache("two"), false, false, NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS,
-                NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getType());
-        assertNonstopConfig(cacheManager.getCache("three"), false, false, 12345, NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR
-                .getType());
-        assertNonstopConfig(cacheManager.getCache("four"), false, false, 12345, "localReads");
+                NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getTimeoutBehaviorType());
+        assertNonstopConfig(cacheManager.getCache("three"), false, false, 12345,
+                NonstopConfiguration.DEFAULT_TIMEOUT_BEHAVIOR.getTimeoutBehaviorType());
+        assertNonstopConfig(cacheManager.getCache("four"), false, false, 12345,
+                TimeoutBehaviorConfiguration.TimeoutBehaviorType.LOCAL_READS);
+        assertNonstopConfig(cacheManager.getCache("five"), false, false, 12345,
+                TimeoutBehaviorConfiguration.TimeoutBehaviorType.LOCAL_READS_AND_EXCEPTION_ON_WRITES);
         cacheManager.shutdown();
     }
 
@@ -102,7 +106,7 @@ public class NonStopConfigTest extends TestCase {
 
     }
 
-    private void assertNonstopConfig(Cache cache, boolean nonstop, boolean immediateTimeout, int timeoutMillis, String timeoutBehavior) {
+    private void assertNonstopConfig(Cache cache, boolean nonstop, boolean immediateTimeout, int timeoutMillis, TimeoutBehaviorConfiguration.TimeoutBehaviorType timeoutBehavior) {
         LOG.info("Checking for cache: " + cache.getName());
         CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
         assertNotNull(cacheConfiguration);
@@ -114,7 +118,7 @@ public class NonStopConfigTest extends TestCase {
         assertEquals(nonstop, nonstopConfiguration.isEnabled());
         assertEquals(immediateTimeout, nonstopConfiguration.isImmediateTimeout());
         assertEquals(timeoutMillis, nonstopConfiguration.getTimeoutMillis());
-        assertEquals(timeoutBehavior, nonstopConfiguration.getTimeoutBehavior().getType());
+        assertEquals(timeoutBehavior, nonstopConfiguration.getTimeoutBehavior().getTimeoutBehaviorType());
     }
 
 }

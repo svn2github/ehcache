@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <ehcache name="basic-cache-test" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+	xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
 
 	<defaultCache maxElementsInMemory="10000" eternal="true"
 		overflowToDisk="false" />
@@ -35,14 +35,24 @@
 		</terracotta>
 	</cache>
 
-	<cache name="four" maxElementsInMemory="10000" eternal="true"
-		overflowToDisk="false">
-		<terracotta clustered="false">
-			<nonstop enabled="false" immediateTimeout="false"
-				timeoutMillis="12345">
-				<timeoutBehavior type="localReads" />
-			</nonstop>
-		</terracotta>
-	</cache>
+  <cache name="four" maxElementsInMemory="10000" eternal="true"
+ 		overflowToDisk="false">
+ 		<terracotta clustered="false">
+ 			<nonstop enabled="false" immediateTimeout="false"
+ 				timeoutMillis="12345">
+ 				<timeoutBehavior type="localReads" />
+ 			</nonstop>
+ 		</terracotta>
+ 	</cache>
+
+  <cache name="five" maxElementsInMemory="10000" eternal="true"
+ 		overflowToDisk="false">
+ 		<terracotta clustered="false">
+ 			<nonstop enabled="false" immediateTimeout="false"
+ 				timeoutMillis="12345">
+ 				<timeoutBehavior type="localReadsAndExceptionOnWrite" />
+ 			</nonstop>
+ 		</terracotta>
+ 	</cache>
 
 </ehcache>
