@@ -63,6 +63,7 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
@@ -3328,6 +3329,13 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public CacheWriter getRegisteredCacheWriter() {
         return this.registeredCacheWriter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registerDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        this.configuration.setDynamicAttributesExtractor(extractor);
     }
 
     /**

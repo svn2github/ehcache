@@ -24,6 +24,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.impl.AggregateOnlyResult;
 import net.sf.ehcache.search.impl.BaseResult;
@@ -177,12 +178,14 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
         }
 
         @Override
-        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors) {
+        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors,
+                DynamicAttributesExtractor dynamicIndexer) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors) {
+        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors,
+                DynamicAttributesExtractor dynamicIndexer) {
             Criteria c = query.getCriteria();
 
             List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();

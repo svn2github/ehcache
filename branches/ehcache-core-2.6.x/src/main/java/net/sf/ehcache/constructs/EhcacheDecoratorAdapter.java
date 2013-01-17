@@ -36,6 +36,7 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.LiveCacheStatistics;
 import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
@@ -606,6 +607,14 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      */
     public void registerCacheWriter(CacheWriter cacheWriter) {
         underlyingCache.registerCacheWriter(cacheWriter);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registerDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        underlyingCache.registerDynamicAttributesExtractor(extractor);
     }
 
     /**
