@@ -168,6 +168,7 @@ public class NonstopTestUtil extends TestCase {
         skipMethods.add("isReadLockedByCurrentThread");
         skipMethods.add("isWriteLockedByCurrentThread");
         skipMethods.add("evictExpiredElements");
+        skipMethods.add("registerDynamicAttributesExtractor");
 
         new EhcacheMethodsInvoker() {
 
