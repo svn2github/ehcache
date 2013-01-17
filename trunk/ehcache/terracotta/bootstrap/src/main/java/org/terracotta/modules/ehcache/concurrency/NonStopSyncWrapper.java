@@ -31,6 +31,7 @@ public class NonStopSyncWrapper implements Sync {
     this.cacheLockProvider = cacheLockProvider;
     this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(ToolkitFeatureType.NONSTOP);
     this.toolkitNonStopConfiguration = toolkitNonStopConfiguration;
+    this.key = key;
   }
 
   private Sync getDelegate() {
