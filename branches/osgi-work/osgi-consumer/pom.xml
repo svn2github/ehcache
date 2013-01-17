@@ -32,8 +32,11 @@
       <artifactId>logback-classic</artifactId>
       <version>1.0.6</version>
     </dependency>
-    <!-- <dependency> <groupId>org.terracotta</groupId> <artifactId>terracotta-toolkit-runtime</artifactId> 
-      <version>4.0.0-SNAPSHOT</version> </dependency> -->
+    <!-- <dependency> -->
+    <!-- <groupId>org.terracotta</groupId> -->
+    <!-- <artifactId>terracotta-toolkit-runtime</artifactId> -->
+    <!-- <version>4.0.0-SNAPSHOT</version> -->
+    <!-- </dependency> -->
     <!-- <dependency> -->
     <!-- <groupId>org.codehaus.btm</groupId> -->
     <!-- <artifactId>btm</artifactId> -->
@@ -64,24 +67,23 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Embed-Dependency>log4j,jta</Embed-Dependency>
+            <Embed-Dependency>log4j,transactions-jta,jta</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Import-Package>
-              !javax.management, !javax.naming,
-              !javax.naming.spi, !javax.servlet, !javax.servlet.http,
-              !javax.swing, !javax.swing.event,
-              !javax.swing.filechooser,
-              !javax.swing.table,
-              !com.ibm.uvm.tools, !com.sun.jdmk.comm, !javax.jmdns,
-              !javax.jms, !javax.mail, !javax.mail.internet,
-              !javax.swing.border, !javax.swing.text, !javax.swing.tree,
-              !javax.xml.parsers, !org.w3c.dom, org.xml.sax,
-              !org.xml.sax.helpers, !javax.resource,
-              !javax.resource.spi, !javax.rmi, !javax.rmi.CORBA,
-              !javax.security.auth, !javax.sql, !org.omg.CORBA,
-              !org.omg.CORBA.portable, !org.omg.CORBA_2_3.portable,
+              !com.ibm.uvm.tools, !com.sun.jdmk.comm,
+              !javax.jmdns, !javax.jms, !javax.mail,
+              !javax.mail.internet, !javax.management, !javax.naming,
+              !javax.naming.spi, !javax.resource, !javax.resource.spi,
+              !javax.rmi, !javax.rmi.CORBA, !javax.security.auth,
+              !javax.servlet, !javax.servlet.http, !javax.sql,
+              !javax.swing, !javax.swing.border, !javax.swing.event,
+              !javax.swing.filechooser, !javax.swing.table,
+              !javax.swing.text, !javax.swing.tree, !javax.xml.parsers,
+              !org.omg.CORBA, !org.omg.CORBA.portable,
+              !org.omg.CORBA_2_3.portable, !org.w3c.dom, !org.xml.sax,
+              !org.xml.sax.helpers,
               net.sf.ehcache.*,org.osgi.framework,org.slf4j</Import-Package>
             <Export-Package>com.atomikos.*,javax.transaction.*</Export-Package>
             <Private-Package>net.dahanne.osgi.ehcache.consumer.*</Private-Package>

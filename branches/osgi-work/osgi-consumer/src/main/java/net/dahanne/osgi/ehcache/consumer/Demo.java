@@ -40,6 +40,7 @@ public class Demo {
 	}
 
 	public void txEhcache() throws Exception {
+		
 		// set up
 		final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
 		tm = lookup.getTransactionManager();
