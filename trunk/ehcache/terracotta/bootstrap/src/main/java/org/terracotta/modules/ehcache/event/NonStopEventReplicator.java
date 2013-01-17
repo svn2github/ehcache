@@ -14,7 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
-import org.terracotta.toolkit.nonstop.NonStop;
+import org.terracotta.toolkit.ToolkitFeatureType;
+import org.terracotta.toolkit.feature.NonStopFeature;
 import org.terracotta.toolkit.nonstop.NonStopException;
 
 public class NonStopEventReplicator implements CacheEventListener {
@@ -22,7 +23,7 @@ public class NonStopEventReplicator implements CacheEventListener {
   private static final Logger                                 LOGGER = LoggerFactory
                                                                          .getLogger(NonStopEventReplicator.class);
   private final CacheEventListener                            delegate;
-  private final NonStop                                       nonStop;
+  private final NonStopFeature                                       nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
   private final NonstopConfiguration                          ehcacheNonStopConfiguration;
 
@@ -32,7 +33,7 @@ public class NonStopEventReplicator implements CacheEventListener {
     this.ehcacheNonStopConfiguration = nonStopConfiguration;
     this.toolkitNonStopConfiguration = new ToolkitNonStopExceptionOnTimeoutConfiguration(
                                                                                          this.ehcacheNonStopConfiguration);
-    this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
+    this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(ToolkitFeatureType.NONSTOP);
   }
 
   private void handleNonStopException(NonStopException e, String eventType, Ehcache cache, Element element) {

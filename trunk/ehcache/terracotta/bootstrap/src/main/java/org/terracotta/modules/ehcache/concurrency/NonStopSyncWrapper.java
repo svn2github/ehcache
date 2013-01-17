@@ -11,7 +11,8 @@ import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonsto
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
-import org.terracotta.toolkit.nonstop.NonStop;
+import org.terracotta.toolkit.ToolkitFeatureType;
+import org.terracotta.toolkit.feature.NonStopFeature;
 import org.terracotta.toolkit.nonstop.NonStopException;
 
 import java.util.concurrent.ExecutionException;
@@ -20,7 +21,7 @@ import java.util.concurrent.Future;
 public class NonStopSyncWrapper implements Sync {
   private volatile Sync                                       delegate;
   private final Future<CacheLockProvider>                     cacheLockProvider;
-  private final NonStop                                       nonStop;
+  private final NonStopFeature                                       nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
   private volatile Object                                     key;
 
@@ -28,7 +29,7 @@ public class NonStopSyncWrapper implements Sync {
                             ToolkitInstanceFactory toolkitInstanceFactory,
                             ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration) {
     this.cacheLockProvider = cacheLockProvider;
-    this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(NonStop.class);
+    this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(ToolkitFeatureType.NONSTOP);
     this.toolkitNonStopConfiguration = toolkitNonStopConfiguration;
   }
 

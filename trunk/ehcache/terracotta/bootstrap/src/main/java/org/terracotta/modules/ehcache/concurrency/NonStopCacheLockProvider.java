@@ -9,6 +9,7 @@ import net.sf.ehcache.config.NonstopConfiguration;
 
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
+import org.terracotta.toolkit.feature.NonStopFeature;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -17,15 +18,17 @@ import java.util.concurrent.TimeoutException;
 
 public class NonStopCacheLockProvider implements CacheLockProvider {
   private volatile CacheLockProvider                          delegate;
+  private final NonStopFeature                                       nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
   private final ToolkitInstanceFactory                        toolkitInstanceFactory;
   private final CacheLockProviderFuture                       cacheLockProviderFuture = new CacheLockProviderFuture();
 
-  public NonStopCacheLockProvider(NonstopConfiguration nonstopConfiguration,
+  public NonStopCacheLockProvider(NonStopFeature nonStop, NonstopConfiguration nonstopConfiguration,
                                   ToolkitInstanceFactory toolkitInstanceFactory) {
     this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.toolkitNonStopConfiguration = nonstopConfiguration == null ? null
         : new ToolkitNonStopExceptionOnTimeoutConfiguration(nonstopConfiguration);
+    this.nonStop = nonStop;
   }
 
   @Override
