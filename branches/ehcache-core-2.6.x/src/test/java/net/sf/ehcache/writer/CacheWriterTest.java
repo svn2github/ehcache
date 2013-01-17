@@ -720,7 +720,7 @@ public class CacheWriterTest {
                                     .maxWriteDelay(0)
                                     .retryAttempts(3)
                                     .retryAttemptDelaySeconds(0)));
-            TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
+            final TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
             cache.registerCacheWriter(writer);
 
             manager.addCache(cache);
@@ -732,9 +732,11 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value3"));
             cache.removeWithWriter("key2");
 
-            Thread.sleep(2000);
-
-            assertEquals(4, writer.getWriterEvents().size());
+            RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Collection<?>>() {
+                public Collection<?> call() throws Exception {
+                    return writer.getWriterEvents();
+                }
+            }, hasSize(4));
             assertEquals(1, (long) writer.getWriteCount().get("key1"));
             assertEquals(1, (long) writer.getWriteCount().get("key2"));
             assertEquals(1, (long) writer.getWriteCount().get("key3"));
