@@ -184,8 +184,7 @@ public class MemoryOnlyStore extends FrontEndCacheTier<NullStore, MemoryStore> {
         }
 
         @Override
-        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors,
-                DynamicAttributesExtractor dynamicIndexer) {
+        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors) {
             Criteria c = query.getCriteria();
 
             List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();

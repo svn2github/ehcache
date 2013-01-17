@@ -37,11 +37,9 @@ public interface SearchManager {
      * @param cacheName cache name
      * @param query query to execute
      * @param attributeExtractors defined attribute extractors for the cache
-     * @param dynamicIndexer dynamic attribute extractor (if any)
      * @return search results
      */
-    Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> attributeExtractors,
-            DynamicAttributesExtractor dynamicIndexer);
+    Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> attributeExtractors);
 
     /**
      * Notify an element added to a segment of a given cache

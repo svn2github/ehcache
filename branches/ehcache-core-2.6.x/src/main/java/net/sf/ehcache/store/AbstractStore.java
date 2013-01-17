@@ -171,7 +171,7 @@ public abstract class AbstractStore implements Store {
             throw new UnsupportedOperationException("Query execution not supported by this store type: " + getClass().getName());
         }
 
-        return searchManager.executeQuery(query.getCache().getName(), query, attributeExtractors, null);
+        return searchManager.executeQuery(query.getCache().getName(), query, attributeExtractors);
     }
 
     /**
