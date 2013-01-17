@@ -195,7 +195,7 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
                     if (Thread.currentThread() == owner & !complete) {
                         try {
                             complete(source.call());
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                             fail(e);
                         }
                     } else {
