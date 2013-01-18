@@ -22,7 +22,6 @@ import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
-import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.Store;
 
@@ -31,7 +30,12 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
@@ -57,21 +61,19 @@ public class RegisteredEventListeners {
 
     private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
 
-    private final AtomicLong elementsRemovedCounter = new AtomicLong(0);
-    private final AtomicLong elementsPutCounter = new AtomicLong(0);
-    private final AtomicLong elementsUpdatedCounter = new AtomicLong(0);
-    private final AtomicLong elementsExpiredCounter = new AtomicLong(0);
-    private final AtomicLong elementsEvictedCounter = new AtomicLong(0);
-    private final AtomicLong elementsRemoveAllCounter = new AtomicLong(0);
-
     private final CacheStoreHelper helper;
 
-    /**
+    private final OperationObserver<CacheOperationOutcomes.ExpiredOutcome> expiryObserver = operation(ExpiredOutcome.class).named("expiry")
+            .of(this).tag("cache").build();
+
+   /**
      * Constructs a new notification service
      *
      * @param cache
      */
     public RegisteredEventListeners(Ehcache cache) {
+        //XXX this isn't really very nice
+        StatisticsManager.associate(this).withParent(cache);
         this.cache = cache;
         helper = new CacheStoreHelper((Cache)cache);
     }
@@ -99,7 +101,6 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementRemoved(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsRemovedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -135,7 +136,6 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementPut(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsPutCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -171,7 +171,6 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementUpdated(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsUpdatedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -207,7 +206,10 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementExpiry(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsExpiredCounter.incrementAndGet();
+        if (!remoteEvent) {
+            expiryObserver.begin();
+            expiryObserver.end(ExpiredOutcome.SUCCESS);
+        }
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -254,7 +256,6 @@ public class RegisteredEventListeners {
     }
 
     private void internalNotifyElementEvicted(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        elementsEvictedCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -269,11 +270,14 @@ public class RegisteredEventListeners {
     private void invokeListener(CacheEventListener listener, Element element, ElementCreationCallback callback, Event eventType) {
         final Element e;
 
-        if (listener instanceof LiveCacheStatisticsData) {
-            // These listeners don't touch the element and since this is an internal listener there might not be
-            // an appropriate loader for resolving it
-            e = null;
-        } else if (callback != null) {
+// TODOD CRSS
+//        if (listener instanceof LiveCacheStatisticsData) {
+//            // These listeners don't touch the element and since this is an internal listener there might not be
+//            // an appropriate loader for resolving it
+//            e = null;
+//        } else
+
+            if (callback != null) {
             e = callback.createElement(listener.getClass().getClassLoader());
         } else {
             e = element;
@@ -318,7 +322,6 @@ public class RegisteredEventListeners {
      * @see CacheEventListener#notifyElementEvicted
      */
     public final void notifyRemoveAll(boolean remoteEvent) {
-        elementsRemoveAllCounter.incrementAndGet();
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -458,72 +461,6 @@ public class RegisteredEventListeners {
             sb.append(listenerWrapper.getListener().getClass().getName()).append(" ");
         }
         return sb.toString();
-    }
-
-    /**
-     * Clears all event counters
-     */
-    public void clearCounters() {
-        elementsRemovedCounter.set(0);
-        elementsPutCounter.set(0);
-        elementsUpdatedCounter.set(0);
-        elementsExpiredCounter.set(0);
-        elementsEvictedCounter.set(0);
-        elementsRemoveAllCounter.set(0);
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsRemovedCounter() {
-        return elementsRemovedCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsPutCounter() {
-        return elementsPutCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsUpdatedCounter() {
-        return elementsUpdatedCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsExpiredCounter() {
-        return elementsExpiredCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsEvictedCounter() {
-        return elementsEvictedCounter.get();
-    }
-
-    /**
-     * Gets the number of events, irrespective of whether there are any registered listeners.
-     *
-     * @return the number of events since cache creation or last clearing of counters
-     */
-    public long getElementsRemoveAllCounter() {
-        return elementsRemoveAllCounter.get();
     }
 
     /**

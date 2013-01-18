@@ -31,6 +31,7 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.LongSequence;
 import net.sf.ehcache.writer.CacheWriterManager;
+import org.terracotta.context.annotations.ContextChild;
 
 /**
  * Store wrapper that assigns sequential IDs to elements as they are added to the underlying store
@@ -39,6 +40,7 @@ import net.sf.ehcache.writer.CacheWriterManager;
  */
 public class ElementIdAssigningStore implements Store {
 
+    @ContextChild
     private final Store delegate;
     private final LongSequence elementIdSequence;
 

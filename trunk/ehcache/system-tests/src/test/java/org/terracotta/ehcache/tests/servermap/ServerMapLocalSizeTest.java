@@ -8,9 +8,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -42,18 +42,17 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
 
     private void doTestLocalSize(Cache cache) throws Throwable {
       final int maxElementsInMemory = 1000;
-      cache.setSampledStatisticsEnabled(true);
       for (int i = 0; i < maxElementsInMemory; i++) {
         cache.put(new Element("key-" + i, "value-" + i));
       }
 
       System.out.println("Size: " + cache.getSize());
-      System.out.println("In Memory size: " + cache.getLiveCacheStatistics().getLocalHeapSize());
+      System.out.println("In Memory size: " + cache.getStatistics().getLocalHeapSize());
 
       // eventual - can't assert size
       // Assert.assertEquals(maxElementsInMemory, cache.getSize());
-      Assert.assertEquals(maxElementsInMemory, cache.getLiveCacheStatistics().getLocalHeapSize());
-      Assert.assertEquals(maxElementsInMemory, cache.getMemoryStoreSize());
+      Assert.assertEquals(maxElementsInMemory, cache.getStatistics().getLocalHeapSize());
+      Assert.assertEquals(maxElementsInMemory, cache.getStatistics().getLocalHeapSize());
 
       for (int i = 1; i <= 100; i++) {
         cache.put(new Element("new-key-" + i, "new-value-" + i));
@@ -62,11 +61,11 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
         // Assert.assertEquals(maxElementsInMemory + i, cache.getSize());
         // assert range as though eviction will happen, new puts can happen earlier before space becomes available (by
         // freeing meta-info mapping) in which case more key-value mapping are evicted
-        long actual = cache.getLiveCacheStatistics().getLocalHeapSize();
+        long actual = cache.getStatistics().getLocalHeapSize();
         final int delta = 100;
         Assert.assertTrue("Failed at i=" + i + ", actual: " + actual, (maxElementsInMemory - delta) < actual
                                                                       && (actual - delta) <= maxElementsInMemory);
-        actual = cache.getMemoryStoreSize();
+        actual = cache.getStatistics().getLocalHeapSize();
         Assert.assertTrue("Failed at i=" + i + ", actual: " + actual, maxElementsInMemory - delta < actual
                                                                       && (actual - delta) <= maxElementsInMemory);
         Thread.sleep(100);
@@ -90,7 +89,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
       }
       // MNK-3020, calling getSize() to make sure that no entries are SMLCImpl.pendingTransactionEntries
       cache.getSize();
-      long newSize = cache.getMemoryStoreSize();
+      long newSize = cache.getStatistics().getLocalHeapSize();
       System.out.println("After adding first time, size: " + newSize);
       Assert.assertEquals(1, newSize);
       Element element = null;
@@ -112,7 +111,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
         clp.getSyncForKey(key).unlock(LockType.WRITE);
       }
 
-      newSize = cache.getMemoryStoreSize();
+      newSize = cache.getStatistics().getLocalHeapSize();
       System.out.println("After replace, size: " + newSize);
       Assert.assertEquals(1, newSize);
       element = cache.get(key);

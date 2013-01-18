@@ -36,6 +36,8 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 
+import org.terracotta.context.annotations.ContextChild;
+
 /**
  * Abstract class for stores which combine two other stores, one caching the other (aka authority)'s elements.
  *
@@ -51,11 +53,13 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
     /**
      * The cache tier store
      */
+    @ContextChild
     protected final T cache;
 
     /**
      * The authority tier store
      */
+    @ContextChild
     protected final U authority;
 
     private final StripedReadWriteLock masterLocks;

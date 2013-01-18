@@ -350,48 +350,6 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public void clearStatistics() {
-        sampledCacheManagerDelegate.clearStatistics();
-        sendNotification(STATISTICS_RESET);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void enableStatistics() {
-        sampledCacheManagerDelegate.enableStatistics();
-        sendNotification(STATISTICS_ENABLED, Boolean.TRUE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void disableStatistics() {
-        sampledCacheManagerDelegate.disableStatistics();
-        sendNotification(STATISTICS_ENABLED, Boolean.FALSE);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setStatisticsEnabled(boolean enabled) {
-        if (enabled) {
-            enableStatistics();
-        } else {
-            disableStatistics();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isStatisticsEnabled() {
-        return sampledCacheManagerDelegate.isStatisticsEnabled();
-    }
-
-    /**
      * generateActiveConfigDeclaration
      *
      * @return CacheManager configuration as String

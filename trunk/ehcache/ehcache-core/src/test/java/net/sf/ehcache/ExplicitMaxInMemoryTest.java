@@ -50,14 +50,14 @@ public class ExplicitMaxInMemoryTest extends TestCase {
 
         for (int i = 0; i < 20; i++) {
             cache.put(new Element("key-" + i, new byte[MB]));
-            LOGGER.info("After put: i=" + i + ", size: " + cache.getSize() + ", sizeBytes: " + cache.calculateInMemorySize());
+            LOGGER.info("After put: i=" + i + ", size: " + cache.getSize() + ", sizeBytes: " + cache.getStatistics().getLocalHeapSizeInBytes());
         }
 
-        Assert.assertTrue(9 <= cache.getMemoryStoreSize());
-        Assert.assertTrue(11 >= cache.getMemoryStoreSize());
+        Assert.assertTrue(9 <= cache.getStatistics().getLocalHeapSize());
+        Assert.assertTrue(11 >= cache.getStatistics().getLocalHeapSize());
 
-        Assert.assertTrue(cache.calculateInMemorySize() > 9 * MB);
-        Assert.assertTrue(cache.calculateInMemorySize() < 11 * MB);
+        Assert.assertTrue(cache.getStatistics().getLocalHeapSizeInBytes() > 9 * MB);
+        Assert.assertTrue(cache.getStatistics().getLocalHeapSizeInBytes() < 11 * MB);
 
         Assert.assertTrue(9 <= countingEvictionListener.evictionCounter.get());
         Assert.assertTrue(11 >= countingEvictionListener.evictionCounter.get());

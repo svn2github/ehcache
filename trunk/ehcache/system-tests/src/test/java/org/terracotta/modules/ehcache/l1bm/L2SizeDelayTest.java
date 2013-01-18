@@ -40,14 +40,14 @@ public class L2SizeDelayTest extends AbstractTerracottaActivePassiveTestBase {
 
       cache.put(new Element(1, b));
 
-      while (cache.calculateInMemorySize() < size) {
+      while (cache.getStatistics().getLocalHeapSizeInBytes() < size) {
         Thread.sleep(1);
       }
 
       time = System.currentTimeMillis() - time;
 
-      System.err.println("time taken = " + time + " " + cache.calculateOffHeapSize() + " "
-                         + cache.calculateInMemorySize());
+      System.err.println("time taken = " + time + " " + cache.getStatistics().getLocalOffHeapSizeInBytes() + " "
+                         + cache.getStatistics().getLocalHeapSizeInBytes());
     }
   }
 

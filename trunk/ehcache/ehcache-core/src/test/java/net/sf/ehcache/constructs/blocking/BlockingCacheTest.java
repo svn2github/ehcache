@@ -16,6 +16,25 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -24,31 +43,19 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
+import net.sf.ehcache.statistics.StatisticsGateway;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
+import org.hamcrest.collection.IsCollectionWithSize;
+
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
-
-import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -60,7 +67,7 @@ import static org.junit.Assert.fail;
 public final class BlockingCacheTest {
 
     private static final String DISK_STORE_PATH = "target/BlockingCacheTest";
-    
+
     @BeforeClass
     public static void cleanupDisk() {
         File diskStorePath = new File(DISK_STORE_PATH);
@@ -71,12 +78,12 @@ public final class BlockingCacheTest {
             }
         }
     }
-    
+
     @Before
     public void noCacheManagersBefore() {
         assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
     }
-    
+
     @After
     public void noCacheManagersAfter() {
         assertThat(CacheManager.ALL_CACHE_MANAGERS, IsEmptyCollection.<CacheManager>empty());
@@ -91,7 +98,7 @@ public final class BlockingCacheTest {
                 .overflowToDisk(true)
                 .diskPersistent(true));
     }
-    
+
     private CacheManager createCacheManager(CacheConfiguration config) {
         CacheManager manager = new CacheManager(new Configuration()
                 .name("BlockingCacheTest")
@@ -99,26 +106,29 @@ public final class BlockingCacheTest {
         manager.addCache(new Cache(config));
         return manager;
     }
-    
+
     @Test
     public void testSupportsStatsCorrectly() {
         CacheManager manager = createCacheManager("testSupportsStatsCorrectly");
         try {
             BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testSupportsStatsCorrectly"));
-            blockingCache.setStatisticsEnabled(true);
-            LiveCacheStatistics statistics = blockingCache.getLiveCacheStatistics();
-            long cacheMisses = statistics.getCacheMissCount();
-            long cacheHits = statistics.getCacheHitCount();
+            ExtendedStatistics statistics = blockingCache.getStatistics().getExtended();
+            Set<Operation<GetOutcome>> stats = statistics.operations(GetOutcome.class, "get", "blocking-cache");
+            assertThat(stats, IsCollectionWithSize.hasSize(1));
+            Operation<GetOutcome> blockingGet = stats.iterator().next();
+            Result misses = blockingGet.component(GetOutcome.MISS_AND_LOCKED);
+            Result hits = blockingGet.component(GetOutcome.HIT);
+            long baselineMisses = misses.count().value();
+            long baselineHits = hits.count().value();
             String key = "123451234";
             blockingCache.get(key);
-            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
-            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+            assertEquals("Misses stat should have incremented by one", Long.valueOf(baselineMisses + 1L), misses.count().value());
+            assertEquals("Hits stat should have remain the same", Long.valueOf(baselineHits), hits.count().value());
             blockingCache.put(new Element(key, "value"));
-            assertEquals("Misses stat should have incremented by one", cacheMisses + 1, statistics.getCacheMissCount());
-            assertEquals("Hits stat should have remain the same", cacheHits, statistics.getCacheHitCount());
+            assertEquals("Misses stat should have incremented by one", Long.valueOf(baselineMisses + 1), misses.count().value());
+            assertEquals("Hits stat should have remain the same", Long.valueOf(baselineHits), hits.count().value());
             assertNotNull(blockingCache.get(key));
-            assertEquals("Hits stat should have incremented by one", cacheHits + 1, statistics.getCacheHitCount());
-            blockingCache.setStatisticsEnabled(false);
+            assertEquals("Hits stat should have incremented by one", Long.valueOf(baselineHits + 1), hits.count().value());
             blockingCache.remove(key);
         } finally {
             manager.shutdown();
@@ -162,7 +172,7 @@ public final class BlockingCacheTest {
         CacheManager manager = createCacheManager("testGetEntries");
         try {
             BlockingCache blockingCache = new BlockingCache(manager.getEhcache("testGetEntries"));
-            
+
             Ehcache cache = blockingCache.getCache();
             for (int i = 0; i < 100; i++) {
                 cache.put(new Element(Integer.valueOf(i), "value" + i));
@@ -484,7 +494,7 @@ public final class BlockingCacheTest {
             Cache cache = manager.getCache("testInlineEviction");
             manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
             Ehcache blockingCache = manager.getEhcache("testInlineEviction");
-            
+
             blockingCache.put(new Element(KEY, "VALUE"));
             assertNotNull(blockingCache.get(KEY));
             // This tests inline eviction (EHC-420)
@@ -590,7 +600,7 @@ public final class BlockingCacheTest {
             manager.replaceCacheWithDecoratedCache(cache, new BlockingCache(cache));
             Ehcache blockingCache = manager.getEhcache("testUseCacheAfterManagerShutdown");
 
-            assertEquals(0, blockingCache.getMemoryStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getLocalHeapSize());
 
             for (int i = 0; i < 10010; i++) {
                 blockingCache.put(new Element("key" + i, "value1"));
@@ -598,9 +608,9 @@ public final class BlockingCacheTest {
 
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             assertThat(cache.getSize(), lessThanOrEqualTo(10000));
-            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
             // TODO Lower tier will _never_ be smaller than higher ones now
-//            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+//            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000));
 
             //NonSerializable
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
@@ -608,9 +618,9 @@ public final class BlockingCacheTest {
 
             int size = cache.getSize();
             assertThat(size, lessThanOrEqualTo(10000));
-            assertThat(cache.getMemoryStoreSize(), lessThanOrEqualTo(10000L));
+            assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
             // TODO Lower tier will _never_ be smaller than higher ones now
-//            assertThat(cache.getDiskStoreSize(), lessThanOrEqualTo(1000));
+//            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000));
 
             if(cache.remove("key4")) {
                 size--;
@@ -624,16 +634,16 @@ public final class BlockingCacheTest {
             assertEquals(size, cache.getSize());
 
             //cannot make any guarantees as no elements have been getted, and all are equally likely to be evicted.
-            //assertEquals(10000, cache.getMemoryStoreSize());
-            //assertEquals(9, cache.getDiskStoreSize());
+            //assertEquals(10000, cache.getStatistics().getLocalHeapSize());
+            //assertEquals(9, cache.getStatistics().getLocalDiskSize());
 
 
             DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
             blockingCache.removeAll();
             assertEquals(0, blockingCache.getSize());
-            assertEquals(0, blockingCache.getMemoryStoreSize());
-            assertEquals(0, blockingCache.getDiskStoreSize());
+            assertEquals(0, blockingCache.getStatistics().getLocalHeapSize());
+            assertEquals(0, blockingCache.getStatistics().getLocalDiskSize());
         } finally {
             manager.shutdown();
         }

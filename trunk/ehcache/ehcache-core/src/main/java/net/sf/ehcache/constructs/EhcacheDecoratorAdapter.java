@@ -26,7 +26,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -36,15 +35,13 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
-import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
+import org.terracotta.statistics.StatisticsManager;
 
 /**
  * Adapter class for Ehcache interface decorators. Implements all method in {@link Ehcache} by delegating all calls to the decorated
@@ -67,6 +64,7 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      * @param underlyingCache
      */
     public EhcacheDecoratorAdapter(Ehcache underlyingCache) {
+        StatisticsManager.associate(this).withParent(underlyingCache);
         this.underlyingCache = underlyingCache;
     }
 
@@ -207,21 +205,21 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+    @Deprecated public long calculateInMemorySize() throws IllegalStateException, CacheException {
         return underlyingCache.calculateInMemorySize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public long calculateOffHeapSize() throws IllegalStateException, CacheException {
+    @Deprecated public long calculateOffHeapSize() throws IllegalStateException, CacheException {
         return underlyingCache.calculateOffHeapSize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public long calculateOnDiskSize() throws IllegalStateException, CacheException {
+    @Deprecated public long calculateOnDiskSize() throws IllegalStateException, CacheException {
         return underlyingCache.calculateOnDiskSize();
     }
 
@@ -230,13 +228,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      */
     public boolean hasAbortedSizeOf() {
         return underlyingCache.hasAbortedSizeOf();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void clearStatistics() {
-        underlyingCache.clearStatistics();
     }
 
     /**
@@ -312,13 +303,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public float getAverageGetTime() {
-        return underlyingCache.getAverageGetTime();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public BootstrapCacheLoader getBootstrapCacheLoader() {
         return underlyingCache.getBootstrapCacheLoader();
     }
@@ -354,14 +338,14 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public long getOffHeapStoreSize() throws IllegalStateException {
+    @Deprecated public long getOffHeapStoreSize() throws IllegalStateException {
         return underlyingCache.getOffHeapStoreSize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getDiskStoreSize() throws IllegalStateException {
+    @Deprecated public int getDiskStoreSize() throws IllegalStateException {
         return underlyingCache.getDiskStoreSize();
     }
 
@@ -403,21 +387,7 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException {
-        return underlyingCache.getLiveCacheStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public CacheStatisticsSampler getCacheStatisticsSampler() {
-        return underlyingCache.getCacheStatisticsSampler();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getMemoryStoreSize() throws IllegalStateException {
+    @Deprecated public long getMemoryStoreSize() throws IllegalStateException {
         return underlyingCache.getMemoryStoreSize();
     }
 
@@ -452,36 +422,8 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public SampledCacheStatistics getSampledCacheStatistics() {
-        return underlyingCache.getSampledCacheStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public int getSize() throws IllegalStateException, CacheException {
         return underlyingCache.getSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getSizeBasedOnAccuracy(int statisticsAccuracy) throws IllegalArgumentException, IllegalStateException, CacheException {
-        return underlyingCache.getSizeBasedOnAccuracy(statisticsAccuracy);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Statistics getStatistics() throws IllegalStateException {
-        return underlyingCache.getStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getStatisticsAccuracy() {
-        return underlyingCache.getStatisticsAccuracy();
     }
 
     /**
@@ -577,20 +519,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public boolean isSampledStatisticsEnabled() {
-        return underlyingCache.isSampledStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isStatisticsEnabled() {
-        return underlyingCache.isStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean isValueInCache(Object value) {
         return underlyingCache.isValueInCache(value);
     }
@@ -605,22 +533,8 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public void registerCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
-        underlyingCache.registerCacheUsageListener(cacheUsageListener);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void registerCacheWriter(CacheWriter cacheWriter) {
         underlyingCache.registerCacheWriter(cacheWriter);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeCacheUsageListener(CacheUsageListener cacheUsageListener) throws IllegalStateException {
-        underlyingCache.removeCacheUsageListener(cacheUsageListener);
     }
 
     /**
@@ -687,27 +601,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     @Deprecated
     public void setNodeCoherent(boolean coherent) throws UnsupportedOperationException {
         underlyingCache.setNodeCoherent(coherent);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSampledStatisticsEnabled(boolean enableStatistics) {
-        underlyingCache.setSampledStatisticsEnabled(enableStatistics);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setStatisticsAccuracy(int statisticsAccuracy) {
-        underlyingCache.setStatisticsAccuracy(statisticsAccuracy);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setStatisticsEnabled(boolean enableStatistics) {
-        underlyingCache.setStatisticsEnabled(enableStatistics);
     }
 
     /**
@@ -832,20 +725,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     /**
      * {@inheritDoc}
      */
-    public long getAverageSearchTime() {
-        return underlyingCache.getAverageSearchTime();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getSearchesPerSecond() {
-        return underlyingCache.getSearchesPerSecond();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public void acquireReadLockOnKey(Object key) {
         underlyingCache.acquireReadLockOnKey(key);
     }
@@ -951,5 +830,10 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
         } else {
             throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public StatisticsGateway getStatistics() throws IllegalStateException {
+       return underlyingCache.getStatistics();
     }
 }

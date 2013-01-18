@@ -508,7 +508,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Date()));
         }
         cache.put(new Element(11 + "", new Date()));
-        
+
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
         assertThat(listener.getCacheElementsEvicted(), hasSize(1));
         assertThat(listener.getCacheElementsExpired(), hasSize(0));
@@ -522,7 +522,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     @Test
     public void testEvictionFromLRUMemoryStoreNotSerializable() throws IOException, CacheException, InterruptedException, ExecutionException {
         RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
-        long elementsEvictedCounter = cacheEventNotificationService.getElementsEvictedCounter();
 
         //should trigger a removal notification because it is not Serializable when it is evicted
         cache.put(new Element(12 + "", new Object()));
@@ -532,13 +531,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
-        assertThat(cache.getMemoryStoreSize(), equalTo(10L));
+        assertThat(cache.getStatistics().getLocalHeapSize(), equalTo(10L));
         DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
-        assertThat(cache.getMemoryStoreSize(), equalTo(10L));
+        assertThat(cache.getStatistics().getLocalHeapSize(), equalTo(10L));
 
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
         assertThat(listener.getCacheElementsEvicted(), hasSize(1));
-        assertEquals(cacheEventNotificationService.getElementsEvictedCounter(), elementsEvictedCounter + 1);
         assertThat(listener.getCacheElementsExpired(), hasSize(0));
     }
 
@@ -676,7 +674,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
 
         //Check expiry from memory store in 1 second
         cache.put(element);
-        
+
         RetryAssert.assertBy(5, TimeUnit.SECONDS, RetryAssert.elementAt(cache, key), nullValue());
         if (cache.getSize() != 0) {
           assertThat(listener.getCacheElementsExpired(), hasSize(0));

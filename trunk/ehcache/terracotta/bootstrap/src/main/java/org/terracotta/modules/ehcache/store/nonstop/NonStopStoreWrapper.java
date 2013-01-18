@@ -50,6 +50,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import org.terracotta.statistics.StatisticsManager;
+
 public class NonStopStoreWrapper implements TerracottaStore {
   private static final long                                   TIME_TO_WAIT_FOR_ASYNC_STORE_INIT = Long
                                                                                                     .parseLong(System
@@ -201,6 +203,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     synchronized (this) {
       if (delegate == null) {
         this.delegate = delegateTemp;
+        StatisticsManager.associate(this).withChild(delegateTemp);
 
         if (writeBehind != null && writeBehind instanceof NonStopWriteBehind) {
           ((NonStopWriteBehind) writeBehind).init(cache.getCacheManager().createTerracottaWriteBehind(cache));

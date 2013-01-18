@@ -36,7 +36,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.statistics.StatisticBuilder;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import org.terracotta.statistics.Statistic;
+import org.terracotta.statistics.observer.OperationObserver;
 
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 
 /**
  * An implementation of a LruMemoryStore.
@@ -79,6 +86,15 @@ public class LruMemoryStore extends AbstractStore {
     private final boolean cachePinned;
     private final boolean elementPinningEnabled;
 
+    private final OperationObserver<GetOutcome> getObserver = StatisticBuilder.operation(GetOutcome.class).named("get").of(this)
+            .tag("local-heap").build();
+    private final OperationObserver<PutOutcome> putObserver = StatisticBuilder.operation(PutOutcome.class).named("put").of(this)
+            .tag("local-heap").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = StatisticBuilder.operation(RemoveOutcome.class).named("remove").of(this)
+            .tag("local-heap").build();
+    private final OperationObserver<EvictionOutcome> evictionObserver;
+
+
     /**
      * Constructor for the LruMemoryStore object
      * The backing {@link java.util.LinkedHashMap} is created with LRU by access order.
@@ -90,6 +106,11 @@ public class LruMemoryStore extends AbstractStore {
         this.elementPinningEnabled = !cache.getCacheConfiguration().isOverflowToOffHeap();
         this.cache = cache;
         this.diskStore = diskStore;
+        if (cache.getCacheConfiguration().isOverflowToDisk()) {
+            evictionObserver = null;
+        } else {
+            evictionObserver = StatisticBuilder.operation(EvictionOutcome.class).named("eviction").of(this).build();
+        }
         map = new SpoolingLinkedHashMap();
         status = Status.STATUS_ALIVE;
     }
@@ -133,6 +154,7 @@ public class LruMemoryStore extends AbstractStore {
     }
 
     private synchronized boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
+        putObserver.begin();
         boolean newPut = true;
         if (element != null) {
             newPut = map.put(element.getObjectKey(), element) == null;
@@ -140,6 +162,11 @@ public class LruMemoryStore extends AbstractStore {
                 writerManager.put(element);
             }
             doPut(element);
+        }
+        if (newPut) {
+            putObserver.end(PutOutcome.ADDED);
+        } else {
+            putObserver.end(PutOutcome.UPDATED);
         }
         return newPut;
     }
@@ -162,7 +189,15 @@ public class LruMemoryStore extends AbstractStore {
      * @return the element, or null if there was no match for the key
      */
     public final synchronized Element get(Object key) {
-        return (Element) map.get(key);
+        getObserver.begin();
+        Element e = (Element) map.get(key);
+        if (e == null) {
+            getObserver.end(GetOutcome.MISS);
+            return null;
+        } else {
+            getObserver.end(GetOutcome.HIT);
+            return e;
+        }
     }
 
     /**
@@ -172,7 +207,7 @@ public class LruMemoryStore extends AbstractStore {
      * @return the element, or null if there was no match for the key
      */
     public final synchronized Element getQuiet(Object key) {
-        return get(key);
+        return (Element) map.get(key);
     }
 
     /**
@@ -194,10 +229,12 @@ public class LruMemoryStore extends AbstractStore {
 
     private synchronized Element removeInternal(Object key, CacheWriterManager writerManager) throws CacheException {
         // remove single item.
+        removeObserver.begin();
         Element element = (Element) map.remove(key);
         if (writerManager != null) {
             writerManager.remove(new CacheEntry(key, element));
         }
+        removeObserver.end(RemoveOutcome.SUCCESS);
         if (element != null) {
             return element;
         } else {
@@ -382,20 +419,19 @@ public class LruMemoryStore extends AbstractStore {
      * @param element the <code>Element</code> to be evicted.
      */
     protected final void evict(Element element) throws CacheException {
-        boolean spooled = false;
         if (cache.getCacheConfiguration().isOverflowToDisk()) {
             if (!element.isSerializable()) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn(new StringBuilder("Object with key ").append(element.getObjectKey())
                             .append(" is not Serializable and cannot be overflowed to disk").toString());
                 }
+                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
             } else {
                 spoolToDisk(element);
-                spooled = true;
             }
-        }
-
-        if (!spooled) {
+        } else {
+            evictionObserver.begin();
+            evictionObserver.end(EvictionOutcome.SUCCESS);
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
     }
@@ -627,6 +663,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "size", tags = "local-heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -634,6 +671,7 @@ public class LruMemoryStore extends AbstractStore {
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "size-in-bytes", tags = "local-heap")
     public long getInMemorySizeInBytes() {
         return getSizeInBytes();
     }

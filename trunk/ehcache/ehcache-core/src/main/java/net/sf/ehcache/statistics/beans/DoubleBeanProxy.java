@@ -14,7 +14,25 @@
  *  limitations under the License.
  */
 
+package net.sf.ehcache.statistics.beans;
+
 /**
- * Contains rate monitoring statistics objects.
+ * A Class for Double proxies.
+ *
+ * @author cschanck
  */
-package net.sf.ehcache.util.ratestatistics;
+public class DoubleBeanProxy extends AttributeProxy<Double> {
+
+    /**
+     * Instantiates a new double bean proxy.
+     *
+     * @param name the name
+     * @param description the description
+     * @param isRead the is read
+     * @param isWrite the is write
+     */
+    public DoubleBeanProxy(String name, String description, boolean isRead, boolean isWrite) {
+        super(Double.class, name, description, isRead, isWrite);
+    }
+
+}

@@ -80,7 +80,7 @@ public class EvictionListenerTest {
             cache.put(new Element("key" + i, UUID.randomUUID().toString()));
         }
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
-        final int diskStoreSize = cache.getDiskStoreSize();
+        final long diskStoreSize = cache.getStatistics().getLocalDiskSize();
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(cache);
         System.out.println("\n\n ****");
         System.out.println("DiskStore store size : " + diskStoreSize);
@@ -94,7 +94,7 @@ public class EvictionListenerTest {
             if (!cache.isKeyInCache(key) && !cacheElementsEvicted.containsKey(key)) {
                 final String message = "Key '" + key + "' isn't in cache & we didn't get notified about its eviction!";
                 System.out.println(message);
-                assertThat(cacheElementsEvicted.size(), is((amountOfEntries - diskStoreSize)));
+                assertThat(cacheElementsEvicted.size(), is((int) (amountOfEntries - diskStoreSize)));
                 fail(message);
             }
         }
@@ -134,7 +134,7 @@ public class EvictionListenerTest {
         final Cache noDiskCache = new Cache(configuration);
         cacheManager.addCache(noDiskCache);
         CountingCacheEventListener countingCacheEventListener = accessCache(noDiskCache);
-        assertThat(noDiskCache.getMemoryStoreSize() <= noDiskCache.getCacheConfiguration().getMaxBytesLocalHeap(), is(true));
+        assertThat(noDiskCache.getStatistics().getLocalHeapSize() <= noDiskCache.getCacheConfiguration().getMaxBytesLocalHeap(), is(true));
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(noDiskCache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));
@@ -168,7 +168,7 @@ public class EvictionListenerTest {
         final Cache diskCache = new Cache(configuration);
         cacheManager.addCache(diskCache);
         CountingCacheEventListener countingCacheEventListener = accessCache(diskCache);
-//        assertThat(diskCache.getMemoryStoreSize(), is(100L));
+//        assertThat(diskCache.getStatistics().getLocalHeapSize(), is(100L));
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(diskCache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
             assertThat("Evicted multiple times: " + entry.getKey(), entry.getValue().get(), equalTo(1));

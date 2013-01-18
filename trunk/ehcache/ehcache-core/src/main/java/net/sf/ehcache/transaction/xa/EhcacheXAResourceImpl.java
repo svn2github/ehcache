@@ -15,32 +15,6 @@
  */
 package net.sf.ehcache.transaction.xa;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
-import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.transaction.TransactionIDNotFoundException;
-import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockManager;
-import net.sf.ehcache.transaction.SoftLockID;
-import net.sf.ehcache.transaction.TransactionIDFactory;
-import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.commands.Command;
-import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
-import net.sf.ehcache.transaction.xa.processor.XARequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +24,34 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.transaction.SoftLock;
+import net.sf.ehcache.transaction.SoftLockID;
+import net.sf.ehcache.transaction.SoftLockManager;
+import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.TransactionIDNotFoundException;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.commands.Command;
+import net.sf.ehcache.transaction.xa.processor.XARequest;
+import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.observer.OperationObserver;
 
 /**
  * The EhcacheXAResource implementation
@@ -73,6 +75,10 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
     private final List<XAExecutionListener> listeners = new ArrayList<XAExecutionListener>();
     private final ElementValueComparator comparator;
 
+    private final OperationObserver<XaCommitOutcome> commitObserver;
+    private final OperationObserver<XaRollbackOutcome> rollbackObserver;
+    private final OperationObserver<XaRecoveryOutcome> recoveryObserver;
+
     /**
      * Constructor
      * @param cache the cache
@@ -83,7 +89,8 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      */
     public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup,
                                  SoftLockManager softLockManager, TransactionIDFactory transactionIDFactory,
-                                 ReadWriteCopyStrategy<Element> copyStrategy) {
+                                 ReadWriteCopyStrategy<Element> copyStrategy, OperationObserver<XaCommitOutcome> commitObserver,
+                                 OperationObserver<XaRollbackOutcome> rollbackObserver, OperationObserver<XaRecoveryOutcome> recoveryObserver) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;
         this.transactionIDFactory = transactionIDFactory;
@@ -93,6 +100,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
         this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
             .createElementComparatorInstance(cache.getCacheConfiguration());
+        this.commitObserver = commitObserver;
+        this.rollbackObserver = rollbackObserver;
+        this.recoveryObserver = recoveryObserver;
     }
 
     /**
@@ -270,10 +280,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void commitInternal(Xid xid, boolean onePhase) throws XAException {
+        commitObserver.begin();
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid, cache);
         try {
-            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-            liveCacheStatisticsWrapper.xaCommit();
             if (onePhase) {
                 XATransactionContext twopcTransactionContext = xidToContextMap.get(xid);
                 if (twopcTransactionContext == null) {
@@ -282,6 +291,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
                 int rc = prepareInternal(xid);
                 if (rc == XA_RDONLY) {
+                    commitObserver.end(XaCommitOutcome.READ_ONLY);
                     return;
                 }
             }
@@ -298,9 +308,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             try {
                 transactionIDFactory.markForCommit(xidTransactionID);
             } catch (TransactionIDNotFoundException tnfe) {
+                commitObserver.end(XaCommitOutcome.EXCEPTION);
                 throw new EhcacheXAException("cannot find XID, it might have been duplicated and cleaned up earlier on: " + xid,
                     XAException.XAER_NOTA, tnfe);
             } catch (IllegalStateException ise) {
+                commitObserver.end(XaCommitOutcome.EXCEPTION);
                 throw new EhcacheXAException("XID already was rolling back: " + xid, XAException.XAER_RMERR);
             }
 
@@ -327,6 +339,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             fireAfterCommitOrRollback();
+            commitObserver.end(XaCommitOutcome.COMMITTED);
         } finally {
             transactionIDFactory.clear(xidTransactionID);
         }
@@ -336,6 +349,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * {@inheritDoc}
      */
     public Xid[] recover(int flags) throws XAException {
+        recoveryObserver.begin();
         LOG.debug("recover [{}]", prettyPrintXAResourceFlags(flags));
 
         if ((flags & TMSTARTRSCAN) != TMSTARTRSCAN) {
@@ -364,11 +378,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             t.interrupt();
         }
 
-        if (!xids.isEmpty()) {
-            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-            liveCacheStatisticsWrapper.xaRecovered(xids.size());
+        if (xids.isEmpty()) {
+            recoveryObserver.end(XaRecoveryOutcome.NOTHING);
+        } else {
+            recoveryObserver.end(XaRecoveryOutcome.RECOVERED, xids.size());
         }
-
         return xids.toArray(new Xid[0]);
     }
 
@@ -387,10 +401,9 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @throws XAException when an error occurs
      */
     public void rollbackInternal(Xid xid) throws XAException {
+        rollbackObserver.begin();
         XidTransactionID xidTransactionID = transactionIDFactory.createXidTransactionID(xid, cache);
         try {
-            LiveCacheStatisticsWrapper liveCacheStatisticsWrapper = (LiveCacheStatisticsWrapper) cache.getLiveCacheStatistics();
-            liveCacheStatisticsWrapper.xaRollback();
             Set<SoftLock> softLocks = softLockManager.collectAllSoftLocksForTransactionID(xidTransactionID);
             for (SoftLock softLock : softLocks) {
                 if (softLock.isExpired()) {
@@ -402,9 +415,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             try {
                 transactionIDFactory.markForRollback(xidTransactionID);
             } catch (TransactionIDNotFoundException tnfe) {
+                rollbackObserver.end(XaRollbackOutcome.EXCEPTION);
                 throw new EhcacheXAException("cannot find XID, it might have been duplicated an cleaned up earlier on: " + xid,
                     XAException.XAER_NOTA, tnfe);
             } catch (IllegalStateException ise) {
+                rollbackObserver.end(XaRollbackOutcome.EXCEPTION);
                 throw new EhcacheXAException("XID already was committing: " + xid, XAException.XAER_RMERR);
             }
 
@@ -434,6 +449,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             xidToContextMap.remove(xid);
 
             fireAfterCommitOrRollback();
+            rollbackObserver.end(XaRollbackOutcome.ROLLEDBACK);
         } finally {
             transactionIDFactory.clear(xidTransactionID);
         }

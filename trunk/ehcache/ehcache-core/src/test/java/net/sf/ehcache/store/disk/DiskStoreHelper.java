@@ -9,6 +9,7 @@ import net.sf.ehcache.store.Store;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.Future;
+import net.sf.ehcache.store.LegacyStoreWrapper;
 
 /**
  * @author Alex Snaps
@@ -33,6 +34,9 @@ public class DiskStoreHelper {
         } else if (store instanceof DiskStore) {
             final DiskStorageFactory factory = getField("disk", store);
             return factory.flush();
+        } else if (store instanceof LegacyStoreWrapper) {
+            final DiskStore disk = getField("disk", store);
+            return flushAllEntriesToDisk(disk);
         } else {
             return null;
         }

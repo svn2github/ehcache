@@ -16,17 +16,18 @@
 
 package net.sf.ehcache.management.sampled;
 
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.util.counter.sampled.SampledCounter;
+import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
+
 
 /**
  * An interface for exposing cache statistics.
- * Extends from both {@link LiveCacheStatistics} and {@link SampledCacheStatistics}
+ * Extends from both {@link LiveCacheStatistics} and {@link LegacyCacheStatistics}
  *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
  */
-public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistics {
+public interface CacheSampler extends LegacyCacheStatistics {
     /**
      * Is the cache enabled?
      */
@@ -83,39 +84,6 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
      * @return "STRONG", "EVENTUAL", or "na" if the cache is not Terracotta-clustered
      */
     String getTerracottaConsistency();
-
-    /**
-     * Clear both sampled and cumulative statistics
-     */
-    void clearStatistics();
-
-    /**
-     * Enables statistics collection
-     */
-    void enableStatistics();
-
-    /**
-     * Disables statistics collection. Also disables sampled statistics if it is
-     * enabled.
-     */
-    void disableStatistics();
-
-    /**
-     * Controls the statistics. Also controls sampled statistics if it is
-     * enabled.
-     */
-    void setStatisticsEnabled(boolean statsEnabled);
-
-    /**
-     * Enables statistics collection. As it requires that normal statistics
-     * collection to be enabled, it enables it if its not already
-     */
-    void enableSampledStatistics();
-
-    /**
-     * Disables statistics collection
-     */
-    void disableSampledStatistics();
 
     /**
      * Configuration property accessor
@@ -431,7 +399,7 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     /**
      * @return search time
      */
-    long getCacheAverageSearchTime();
+    long getCacheAverageSearchTimeNanos();
 
     /**
      * @return hit rate
@@ -501,5 +469,166 @@ public interface CacheSampler extends LiveCacheStatistics, SampledCacheStatistic
     /**
      * @return average get time (nanos.)
      */
-    long getCacheAverageGetTime();
+    long getCacheAverageGetTimeNanos();
+    
+
+    /**
+     * Get the {@link SampledCounter} for cache hit
+     *
+     * @return the {@code SampledCounter} for cache hit count
+     */
+    SampledCounter getCacheHitSample();
+
+    /**
+     * Get the {@link SampledCounter} for cache hit ratio
+     *
+     * @return the {@code SampledCounter} for cache hit ratio
+     */
+    SampledCounter getCacheHitRatioSample();
+
+    /**
+     * Get the {@link SampledCounter} for in-memory cache hit
+     *
+     * @return the {@code SampledCounter} for cache hit count in memory
+     */
+    SampledCounter getCacheHitInMemorySample();
+
+    /**
+     * Get the {@link SampledCounter} for off-heap cache hit
+     *
+     * @return the {@code SampledCounter} for cache hit count in off-heap
+     */
+    SampledCounter getCacheHitOffHeapSample();
+
+    /**
+     * Get the {@link SampledCounter} for on-disk cache hit
+     *
+     * @return the {@code SampledCounter} for cache hit count on disk
+     */
+    SampledCounter getCacheHitOnDiskSample();
+
+    /**
+     * Get the {@link SampledCounter} for cache miss
+     *
+     * @return the {@code SampledCounter} for cache miss count
+     */
+    SampledCounter getCacheMissSample();
+
+    /**
+     * Get the {@link SampledCounter} for in-memory cache miss
+     *
+     * @return the {@code SampledCounter} for cache miss count in memory
+     */
+    SampledCounter getCacheMissInMemorySample();
+
+    /**
+     * Get the {@link SampledCounter} for off-heap cache miss
+     *
+     * @return the {@code SampledCounter} for cache miss count in off-heap
+     */
+    SampledCounter getCacheMissOffHeapSample();
+
+    /**
+     * Get the {@link SampledCounter} for on-disk cache miss
+     *
+     * @return the {@code SampledCounter} for cache miss count on disk
+     */
+    SampledCounter getCacheMissOnDiskSample();
+
+    /**
+     * Get the {@link SampledCounter} for cache miss as result of the element getting
+     * expired
+     *
+     * @return the {@code SampledCounter} for cache miss count and the reason for miss
+     *         being the element got expired
+     */
+    SampledCounter getCacheMissExpiredSample();
+
+    /**
+     * Get the {@link SampledCounter} for cache miss as result of the element not found
+     * in cache
+     *
+     * @return the {@code SampledCounter} for cache miss not found count
+     */
+    SampledCounter getCacheMissNotFoundSample();
+
+    /**
+     * Get the {@link SampledCounter} element evicted from cache
+     *
+     * @return the {@code SampledCounter} for element evicted count
+     */
+    SampledCounter getCacheElementEvictedSample();
+
+    /**
+     * Get the {@link SampledCounter} element removed from cache
+     *
+     * @return the {@code SampledCounter} for element removed count
+     */
+    SampledCounter getCacheElementRemovedSample();
+
+    /**
+     * Get the {@link SampledCounter} element expired from cache
+     *
+     * @return Most recent value for element expired count
+     */
+    SampledCounter getCacheElementExpiredSample();
+
+    /**
+     * Get the {@link SampledCounter} element puts in the cache
+     *
+     * @return the {@code SampledCounter} for number of element puts
+     */
+    SampledCounter getCacheElementPutSample();
+
+    /**
+     * Get the {@link SampledCounter} element updates , i.e. put() on elements with
+     * already existing keys in the cache
+     *
+     * @return the {@code SampledCounter}d value for element update count
+     */
+    SampledCounter getCacheElementUpdatedSample();
+
+    /**
+     * Get the {@link SampledRateCounter} for average time taken for get() operation in the
+     * cache
+     *
+     * @return the {@code SampledRateCounter} of average get time taken for a get operation
+     */
+    SampledRateCounter getAverageGetTimeSample();
+
+    /**
+     * Get the {@link SampledRateCounter} for average time taken for get() operation in the
+     * cache
+     *
+     * @return the {@code SampledRateCounter} of average get time taken for a get operation
+     */
+    SampledRateCounter getAverageGetTimeNanosSample();
+
+    /**
+     * Get the {@link SampledRateCounter} for average search execution time for searches finishing within the last sample period
+     *
+     * @return the {@code SampledRateCounter} of average search time taken
+     */
+    SampledRateCounter getAverageSearchTimeSample();
+
+    /**
+     * Get the {@link SampledCounter} for number of searches that have finished in the interval
+     *
+     * @return the {@code SampledCounter} for number of searches
+     */
+    SampledCounter getSearchesPerSecondSample();
+
+    /**
+     * Get the {@link SampledCounter} for number of XA Transaction commits that have completed in the interval
+     *
+     * @return the {@code SampledCounter} for number XA Transaction commits
+     */
+    SampledCounter getCacheXaCommitsSample();
+
+    /**
+     * Get the {@link SampledCounter} for number of XA Transaction rollbacks that have completed in the interval
+     *
+     * @return the {@code SampledCounter} for number XA Transaction rollbacks
+     */
+    SampledCounter getCacheXaRollbacksSample();
 }

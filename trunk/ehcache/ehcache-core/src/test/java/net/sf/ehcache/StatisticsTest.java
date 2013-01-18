@@ -16,21 +16,24 @@
 
 package net.sf.ehcache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.util.concurrent.ExecutionException;
+import net.sf.ehcache.statistics.FlatStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.hamcrest.core.Is.*;
+import static org.hamcrest.core.IsNot.*;
+import static org.hamcrest.core.IsNull.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for the statistics class
@@ -46,97 +49,56 @@ public class StatisticsTest extends AbstractCacheTest {
      * Test statistics directly from Statistics Object
      */
     @Test
-    public void testStatisticsFromStatisticsObject()
-            throws InterruptedException {
+    public void testStatisticsFromStatisticsObject() throws InterruptedException, ExecutionException {
         // Set size so the second element overflows to disk.
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         cache.getCacheConfiguration().setMaxEntriesLocalDisk(2);
         manager.addCache(cache);
 
-        cache.setStatisticsEnabled(true);
-
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
 
         // allow disk write thread to complete
-        Thread.sleep(100);
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
         cache.get("key2");
         cache.get("key1");
 
-        Statistics statistics = cache.getStatistics();
-        assertEquals(2, statistics.getCacheHits());
-        assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(1, statistics.getInMemoryHits());
-        assertEquals(0, statistics.getCacheMisses());
-        assertEquals(2, statistics.getObjectCount());
-        assertEquals(1, statistics.getMemoryStoreObjectCount());
-        assertEquals(2, statistics.getDiskStoreObjectCount());
+        FlatStatistics statistics = cache.getStatistics();
+        assertEquals(2, statistics.cacheHitCount());
+        assertEquals(1, statistics.localDiskHitCount());
+        assertEquals(1, statistics.localHeapHitCount());
+        assertEquals(0, statistics.cacheMissCount());
+        assertEquals(2, statistics.getSize());
+        assertEquals(1, statistics.getLocalHeapSize());
+        assertEquals(2, statistics.getLocalDiskSize());
 
         // key 2 should now be in the MemoryStore
         cache.get("key1");
 
-        statistics = cache.getStatistics();
-        assertEquals(3, statistics.getCacheHits());
-        assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(2, statistics.getInMemoryHits());
-        assertEquals(0, statistics.getCacheMisses());
+        assertEquals(3, statistics.cacheHitCount());
+        assertEquals(1, statistics.localDiskHitCount());
+        assertEquals(2, statistics.localHeapHitCount());
+        assertEquals(0, statistics.cacheMissCount());
 
         // Let the idle expire
         Thread.sleep(6000);
 
         // key 1 should now be expired
-        cache.get("key1");
-        statistics = cache.getStatistics();
-        assertEquals(3, statistics.getCacheHits());
-        assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(2, statistics.getInMemoryHits());
-        assertEquals(1, statistics.getCacheMisses());
+        assertThat(cache.get("key1"), nullValue());
+        assertEquals(3, statistics.cacheHitCount());
+        assertEquals(1, statistics.localDiskHitCount());
+        assertEquals(3, statistics.localHeapHitCount());
+        assertEquals(1, statistics.cacheMissCount());
 
         // key 2 should also be expired
-        cache.get("key2");
-        statistics = cache.getStatistics();
-        assertEquals(3, statistics.getCacheHits());
-        assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(2, statistics.getInMemoryHits());
-        assertEquals(2, statistics.getCacheMisses());
+        assertThat(cache.get("key2"), nullValue());
+        assertEquals(3, statistics.cacheHitCount());
+        assertEquals(2, statistics.localDiskHitCount());
+        assertEquals(3, statistics.localHeapHitCount());
+        assertEquals(2, statistics.cacheMissCount());
 
         assertNotNull(statistics.toString());
-    }
-
-    /**
-     * Test statistics directly from Statistics Object
-     */
-    @Test
-    public void testClearStatistics() throws InterruptedException {
-        // Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
-        manager.addCache(cache);
-
-        cache.setStatisticsEnabled(true);
-
-        cache.put(new Element("key1", "value1"));
-        cache.put(new Element("key2", "value1"));
-
-        // allow disk write thread to complete
-        Thread.sleep(100);
-
-        cache.get("key2");
-        cache.get("key1");
-
-        Statistics statistics = cache.getStatistics();
-        assertEquals(2, statistics.getCacheHits());
-        assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(1, statistics.getInMemoryHits());
-        assertEquals(0, statistics.getCacheMisses());
-
-        // clear stats
-        statistics.clearStatistics();
-        statistics = cache.getStatistics();
-        assertEquals(0, statistics.getCacheHits());
-        assertEquals(0, statistics.getOnDiskHits());
-        assertEquals(0, statistics.getInMemoryHits());
-        assertEquals(0, statistics.getCacheMisses());
     }
 
     /**
@@ -146,64 +108,11 @@ public class StatisticsTest extends AbstractCacheTest {
     public void testCacheStatisticsDegradesElegantlyWhenCacheDisposed() {
         Cache cache = new Cache("test", 1, true, false, 5, 2);
         try {
-            Statistics statistics = cache.getStatistics();
+            cache.getStatistics();
             fail();
         } catch (IllegalStateException e) {
             assertEquals("The test Cache is not alive (STATUS_UNINITIALISED)", e.getMessage());
         }
-
-    }
-
-    /**
-     * We want to be able to use Statistics as a value object.
-     * We need to do some magic with the refernence held to Cache
-     */
-    @Test
-    public void testSerialization() throws IOException, ClassNotFoundException, InterruptedException {
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
-        manager.addCache(cache);
-
-        cache.setStatisticsEnabled(true);
-
-        cache.put(new Element("key1", "value1"));
-        cache.put(new Element("key2", "value1"));
-
-        // allow disk write thread to complete
-        Thread.sleep(100);
-
-        cache.get("key2");
-        cache.get("key1");
-
-        Statistics statistics = cache.getStatistics();
-        assertEquals("test", statistics.getAssociatedCacheName());
-        assertEquals(2, statistics.getCacheHits());
-        assertEquals(1, statistics.getOnDiskHits());
-        assertEquals(1, statistics.getInMemoryHits());
-        assertEquals(0, statistics.getCacheMisses());
-        assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, statistics
-                .getStatisticsAccuracy());
-        statistics.clearStatistics();
-
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bout);
-        oos.writeObject(statistics);
-        byte[] serializedValue = bout.toByteArray();
-        oos.close();
-        Statistics afterDeserializationStatistics = null;
-        ByteArrayInputStream bin = new ByteArrayInputStream(serializedValue);
-        ObjectInputStream ois = new ObjectInputStream(bin);
-        afterDeserializationStatistics = (Statistics) ois.readObject();
-        ois.close();
-
-        // Check after Serialization
-        assertEquals("test", afterDeserializationStatistics.getAssociatedCacheName());
-        assertEquals(2, afterDeserializationStatistics.getCacheHits());
-        assertEquals(1, afterDeserializationStatistics.getOnDiskHits());
-        assertEquals(1, afterDeserializationStatistics.getInMemoryHits());
-        assertEquals(0, afterDeserializationStatistics.getCacheMisses());
-        assertEquals(Statistics.STATISTICS_ACCURACY_BEST_EFFORT, statistics
-                .getStatisticsAccuracy());
-        statistics.clearStatistics();
 
     }
 
@@ -215,27 +124,20 @@ public class StatisticsTest extends AbstractCacheTest {
         Ehcache cache = new Cache("test", 0, true, false, 5, 2);
         manager.addCache(cache);
 
-        cache.setStatisticsEnabled(true);
-
-        Statistics statistics = cache.getStatistics();
-        float averageGetTime = statistics.getAverageGetTime();
-        assertTrue(0 == statistics.getAverageGetTime());
+        StatisticsGateway statistics = cache.getStatistics();
+        Statistic<Double> averageGetTime = statistics.cacheGetOperation().latency().average();
+        assertThat(averageGetTime.value(), is(Double.NaN));
 
         for (int i = 0; i < 10000; i++) {
-            cache.put(new Element("" + i, "value1"));
+            cache.put(new Element(Integer.valueOf(i), "value1"));
         }
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
         for (int i = 0; i < 110000; i++) {
-            cache.get("" + i);
+            cache.get(Integer.valueOf(i));
         }
 
-        statistics = cache.getStatistics();
-        averageGetTime = statistics.getAverageGetTime();
-        assertTrue(averageGetTime >= .000001);
-        statistics.clearStatistics();
-        statistics = cache.getStatistics();
-        assertTrue(0 == statistics.getAverageGetTime());
+        assertThat(averageGetTime.value(), not(Double.NaN));
     }
 
     /**
@@ -244,32 +146,20 @@ public class StatisticsTest extends AbstractCacheTest {
     @Test
     public void testEvictionStatistics() throws InterruptedException {
         // set to 0 to make it run slow
-        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2,
-                2);
+        Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);
         manager.addCache(ehcache);
 
-        ehcache.setStatisticsEnabled(true);
-
-        Statistics statistics = ehcache.getStatistics();
-        assertEquals(0, statistics.getEvictionCount());
+        StatisticsGateway statistics = ehcache.getStatistics();
+        assertEquals(0, statistics.cacheEvictedCount());
 
         for (int i = 0; i < 10000; i++) {
             ehcache.put(new Element("" + i, "value1"));
         }
-        statistics = ehcache.getStatistics();
-        assertEquals(9990, statistics.getEvictionCount());
+        assertEquals(9990, statistics.cacheEvictedCount());
 
         Thread.sleep(2010);
 
         // expiries do not count
-        statistics = ehcache.getStatistics();
-        assertEquals(9990, statistics.getEvictionCount());
-
-        statistics.clearStatistics();
-
-        statistics = ehcache.getStatistics();
-        assertEquals(0, statistics.getEvictionCount());
-
+        assertEquals(9990, statistics.cacheEvictedCount());
     }
-
 }

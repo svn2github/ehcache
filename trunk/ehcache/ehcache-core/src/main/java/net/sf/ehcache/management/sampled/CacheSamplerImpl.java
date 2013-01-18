@@ -22,20 +22,22 @@ import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.util.CacheTransactionHelper;
+import net.sf.ehcache.util.counter.sampled.SampledCounter;
+import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link CacheSampler}
- *
+ * 
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
+ * 
+ *         There is stupid here -- *Sample() is the same as *Rate()
  */
 public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListener {
     private static final int PERCENTAGE_DIVISOR = 100;
-    private static final int MILLIS_PER_SECOND = 1000;
-    private static final int NANOS_PER_MILLI = MILLIS_PER_SECOND * MILLIS_PER_SECOND;
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheSamplerImpl.class);
 
@@ -43,7 +45,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     /**
      * Constructor accepting the backing {@link Ehcache}
-     *
+     * 
      * @param cache the cache object to use in initializing this sampled representation
      */
     public CacheSamplerImpl(Ehcache cache) {
@@ -54,6 +56,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isEnabled() {
         return !cache.isDisabled();
     }
@@ -61,6 +64,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setEnabled(boolean enabled) {
         try {
             cache.setDisabled(!enabled);
@@ -72,6 +76,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isClusterBulkLoadEnabled() {
         try {
             return cache.isClusterBulkLoadEnabled();
@@ -83,6 +88,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isNodeBulkLoadEnabled() {
         return cache.isNodeBulkLoadEnabled();
     }
@@ -90,6 +96,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setNodeBulkLoadEnabled(boolean bulkLoadEnabled) {
         if (bulkLoadEnabled && getTransactional()) {
             LOG.warn("a transactional cache cannot be put into bulk-load mode");
@@ -101,6 +108,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void flush() {
         try {
             cache.flush();
@@ -112,6 +120,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getCacheName() {
         return cache.getName();
     }
@@ -119,6 +128,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getStatus() {
         return cache.getStatus().toString();
     }
@@ -126,6 +136,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeAll() {
         CacheTransactionHelper.beginTransactionIfNeeded(cache);
         try {
@@ -144,255 +155,239 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
-    public long getAverageGetTimeMostRecentSample() {
-        return cache.getSampledCacheStatistics().getAverageGetTimeMostRecentSample();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public long getAverageGetTimeNanosMostRecentSample() {
-        return cache.getSampledCacheStatistics().getAverageGetTimeNanosMostRecentSample();
+        return getAverageGetTimeNanos();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheEvictionRate() {
-        return getCacheElementEvictedMostRecentSample();
+        return cache.getStatistics().cacheEvictionOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheElementEvictedMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheElementEvictedMostRecentSample();
+        return getCacheEvictionRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheExpirationRate() {
-        return getCacheElementExpiredMostRecentSample();
+        return cache.getStatistics().cacheExpiredOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheElementExpiredMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheElementExpiredMostRecentSample();
+        return getCacheExpirationRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCachePutRate() {
-        return getCacheElementPutMostRecentSample();
+        return cache.getStatistics().cachePutOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheElementPutMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheElementPutMostRecentSample();
+        return getCachePutRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheRemoveRate() {
-        return getCacheElementRemovedMostRecentSample();
+        return cache.getStatistics().cacheRemoveOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheElementRemovedMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheElementRemovedMostRecentSample();
+        return getCacheRemoveRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheUpdateRate() {
-        return getCacheElementUpdatedMostRecentSample();
+        return cache.getStatistics().cachePutReplacedOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheElementUpdatedMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheElementUpdatedMostRecentSample();
+        return getCacheUpdateRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheInMemoryHitRate() {
-        return getCacheHitInMemoryMostRecentSample();
+        return cache.getStatistics().localHeapHitOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheHitInMemoryMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheHitInMemoryMostRecentSample();
+        return getCacheInMemoryHitRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheOffHeapHitRate() {
-        return getCacheHitOffHeapMostRecentSample();
+        return cache.getStatistics().localOffHeapHitOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheHitOffHeapMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheHitOffHeapMostRecentSample();
+        return getCacheOffHeapHitRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheHitRate() {
-        return getCacheHitMostRecentSample();
+        return cache.getStatistics().cacheHitOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheHitMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheHitMostRecentSample();
+        return getCacheHitRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheOnDiskHitRate() {
-        return getCacheHitOnDiskMostRecentSample();
+        return cache.getStatistics().localDiskHitOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheHitOnDiskMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheHitOnDiskMostRecentSample();
+        return getCacheOnDiskHitRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissExpiredMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheMissExpiredMostRecentSample();
+        return cache.getStatistics().cacheMissExpiredOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissRate() {
-        return getCacheMissMostRecentSample();
+        return cache.getStatistics().cacheMissOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheMissMostRecentSample();
+        return getCacheMissRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheInMemoryMissRate() {
-        return getCacheMissInMemoryMostRecentSample();
+        return cache.getStatistics().localHeapMissOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissInMemoryMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheMissInMemoryMostRecentSample();
+        return getCacheInMemoryMissRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheOffHeapMissRate() {
-        return getCacheMissOffHeapMostRecentSample();
+        return cache.getStatistics().localOffHeapMissOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissOffHeapMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheMissOffHeapMostRecentSample();
+        return getCacheOffHeapMissRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheOnDiskMissRate() {
-        return getCacheMissOnDiskMostRecentSample();
+        return cache.getStatistics().localDiskMissOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissOnDiskMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheMissOnDiskMostRecentSample();
+        return getCacheOnDiskMissRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissNotFoundMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheMissNotFoundMostRecentSample();
+        return cache.getStatistics().cacheMissNotFoundOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getStatisticsAccuracy() {
-        return cache.getSampledCacheStatistics().getStatisticsAccuracy();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getStatisticsAccuracyDescription() {
-        return cache.getSampledCacheStatistics().getStatisticsAccuracyDescription();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void clearStatistics() {
-        try {
-            cache.clearStatistics();
-        } catch (RuntimeException e) {
-            throw Utils.newPlainException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isStatisticsEnabled() {
-        return cache.isStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isSampledStatisticsEnabled() {
-        return cache.getSampledCacheStatistics().isSampledStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void dispose() {
         cache.getCacheConfiguration().removeConfigurationListener(this);
     }
@@ -400,6 +395,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isTerracottaClustered() {
         return this.cache.getCacheConfiguration().isTerracottaClustered();
     }
@@ -407,6 +403,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getTerracottaConsistency() {
         Consistency consistency = this.cache.getCacheConfiguration().getTerracottaConsistency();
         return consistency != null ? consistency.name() : "na";
@@ -415,95 +412,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
-    public void enableStatistics() {
-        if (!cache.isStatisticsEnabled()) {
-            try {
-                cache.setSampledStatisticsEnabled(true);
-                cache.setStatisticsEnabled(true);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void disableStatistics() {
-        if (cache.isStatisticsEnabled()) {
-            try {
-                cache.setSampledStatisticsEnabled(false);
-                cache.setStatisticsEnabled(false);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setStatisticsEnabled(boolean statsEnabled) {
-        boolean oldValue = isStatisticsEnabled();
-        if (oldValue != statsEnabled) {
-            if (statsEnabled) {
-                enableStatistics();
-            } else {
-                disableStatistics();
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void enableSampledStatistics() {
-        if (!cache.isSampledStatisticsEnabled()) {
-            try {
-                cache.setSampledStatisticsEnabled(true);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void disableSampledStatistics() {
-        if (cache.isSampledStatisticsEnabled()) {
-            try {
-                cache.setSampledStatisticsEnabled(false);
-            } catch (RuntimeException e) {
-                throw Utils.newPlainException(e);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getCacheAverageGetTime() {
-        return getAverageGetTimeNanos();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getAverageGetTimeMillis() {
-        try {
-            return getAverageGetTimeNanos() / (float) NANOS_PER_MILLI;
-        } catch (RuntimeException e) {
-            throw Utils.newPlainException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public long getAverageGetTimeNanos() {
         try {
-            return getAverageGetTimeNanosMostRecentSample();
+            return cache.getStatistics().cacheSearchOperation().latency().average().value().longValue();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -512,31 +424,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
-    public long getMaxGetTimeMillis() {
-        try {
-            return cache.getLiveCacheStatistics().getMaxGetTimeMillis();
-        } catch (RuntimeException e) {
-            throw Utils.newPlainException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getMinGetTimeMillis() {
-        try {
-            return cache.getLiveCacheStatistics().getMinGetTimeMillis();
-        } catch (RuntimeException e) {
-            throw Utils.newPlainException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public long getMaxGetTimeNanos() {
         try {
-            return cache.getLiveCacheStatistics().getMaxGetTimeNanos();
+            return cache.getStatistics().cacheGetOperation().latency().maximum().value().longValue();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -545,9 +436,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getMinGetTimeNanos() {
         try {
-            return cache.getLiveCacheStatistics().getMinGetTimeNanos();
+            return cache.getStatistics().cacheGetOperation().latency().minimum().value().longValue();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -556,9 +448,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getXaCommitCount() {
         try {
-            return cache.getLiveCacheStatistics().getXaCommitCount();
+            return cache.getStatistics().xaCommitCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -567,9 +460,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getXaRollbackCount() {
         try {
-            return cache.getLiveCacheStatistics().getXaRollbackCount();
+            return cache.getStatistics().xaRollbackCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -578,9 +472,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getXaRecoveredCount() {
         try {
-            return cache.getLiveCacheStatistics().getXaRecoveredCount();
+            return cache.getStatistics().xaRecoveryCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -589,17 +484,18 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean getHasWriteBehindWriter() {
-        return cache.getWriterManager() instanceof WriteBehindManager &&
-               cache.getRegisteredCacheWriter() != null;
+        return cache.getWriterManager() instanceof WriteBehindManager && cache.getRegisteredCacheWriter() != null;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getWriterQueueLength() {
         try {
-            return cache.getLiveCacheStatistics().getWriterQueueLength();
+            return cache.getStatistics().getWriterQueueLength();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -608,6 +504,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getWriterMaxQueueSize() {
         return cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindMaxQueueSize();
     }
@@ -615,15 +512,18 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getWriterConcurrency() {
         return cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindConcurrency();
     }
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheHitCount() {
         try {
-            return cache.getLiveCacheStatistics().getCacheHitCount();
+            return cache.getStatistics().cacheHitCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -632,9 +532,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissCount() {
         try {
-            return cache.getLiveCacheStatistics().getCacheMissCount();
+            return cache.getStatistics().cacheMissCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -643,9 +544,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getInMemoryMissCount() {
         try {
-            return cache.getLiveCacheStatistics().getInMemoryMissCount();
+            return cache.getStatistics().localHeapMissCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -654,9 +556,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getOffHeapMissCount() {
         try {
-            return cache.getLiveCacheStatistics().getOffHeapMissCount();
+            return cache.getStatistics().localOffHeapMissCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -665,9 +568,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getOnDiskMissCount() {
         try {
-            return cache.getLiveCacheStatistics().getOnDiskMissCount();
+            return cache.getStatistics().localDiskMissCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -676,9 +580,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheMissCountExpired() {
         try {
-            return cache.getLiveCacheStatistics().getCacheMissCountExpired();
+            return cache.getStatistics().cacheMissExpiredCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -687,6 +592,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getDiskExpiryThreadIntervalSeconds() {
         return cache.getCacheConfiguration().getDiskExpiryThreadIntervalSeconds();
     }
@@ -694,6 +600,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setDiskExpiryThreadIntervalSeconds(long seconds) {
         if (getDiskExpiryThreadIntervalSeconds() != seconds) {
             try {
@@ -707,6 +614,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getMaxEntriesLocalHeap() {
         return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
     }
@@ -714,6 +622,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxEntriesLocalHeap(long maxEntries) {
         if (getMaxEntriesLocalHeap() != maxEntries) {
             try {
@@ -727,6 +636,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getMaxBytesLocalHeap() {
         return cache.getCacheConfiguration().getMaxBytesLocalHeap();
     }
@@ -734,14 +644,14 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxBytesLocalHeap(long maxBytes) {
         try {
             if (cache.getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()) {
                 long heapPoolSize = cache.getCacheManager().getConfiguration().getMaxBytesLocalHeap();
                 if (maxBytes > heapPoolSize) {
-                    throw new IllegalArgumentException("Requested maxBytesLocalHeap ("
-                                                       + maxBytes + ") greater than available CacheManager heap pool size ("
-                                                       + heapPoolSize + ")");
+                    throw new IllegalArgumentException("Requested maxBytesLocalHeap (" + maxBytes
+                            + ") greater than available CacheManager heap pool size (" + heapPoolSize + ")");
                 }
             }
             cache.getCacheConfiguration().setMaxBytesLocalHeap(maxBytes);
@@ -753,6 +663,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxBytesLocalHeapAsString(String maxBytes) {
         try {
             cache.getCacheConfiguration().setMaxBytesLocalHeap(maxBytes);
@@ -761,8 +672,8 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         }
 
         if (cache.getCacheConfiguration().isMaxBytesLocalHeapPercentageSet()) {
-            long cacheAssignedMem = cache.getCacheManager().getConfiguration().getMaxBytesLocalHeap() *
-                                    cache.getCacheConfiguration().getMaxBytesLocalHeapPercentage() / PERCENTAGE_DIVISOR;
+            long cacheAssignedMem = cache.getCacheManager().getConfiguration().getMaxBytesLocalHeap()
+                    * cache.getCacheConfiguration().getMaxBytesLocalHeapPercentage() / PERCENTAGE_DIVISOR;
             setMaxBytesLocalHeap(cacheAssignedMem);
         }
 
@@ -771,6 +682,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getMaxBytesLocalHeapAsString() {
         return cache.getCacheConfiguration().getMaxBytesLocalHeapAsString();
     }
@@ -778,6 +690,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getMaxEntriesLocalDisk() {
         return cache.getCacheConfiguration().getMaxEntriesLocalDisk();
     }
@@ -785,6 +698,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxEntriesLocalDisk(long maxEntries) {
         if (getMaxEntriesLocalDisk() != maxEntries) {
             try {
@@ -798,14 +712,14 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxBytesLocalDisk(long maxBytes) {
         try {
             if (cache.getCacheManager().getConfiguration().isMaxBytesLocalDiskSet()) {
                 long diskPoolSize = cache.getCacheManager().getConfiguration().getMaxBytesLocalDisk();
                 if (maxBytes > diskPoolSize) {
-                    throw new IllegalArgumentException("Requested maxBytesLocalDisk ("
-                                                       + maxBytes + ") greater than available CacheManager disk pool size ("
-                                                       + diskPoolSize + ")");
+                    throw new IllegalArgumentException("Requested maxBytesLocalDisk (" + maxBytes
+                            + ") greater than available CacheManager disk pool size (" + diskPoolSize + ")");
                 }
             }
             cache.getCacheConfiguration().setMaxBytesLocalDisk(maxBytes);
@@ -817,6 +731,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxBytesLocalDiskAsString(String maxBytes) {
         try {
             cache.getCacheConfiguration().setMaxBytesLocalDisk(maxBytes);
@@ -825,8 +740,8 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         }
 
         if (cache.getCacheConfiguration().isMaxBytesLocalDiskPercentageSet()) {
-            long cacheAssignedMem = cache.getCacheManager().getConfiguration().getMaxBytesLocalDisk() *
-                                    cache.getCacheConfiguration().getMaxBytesLocalDiskPercentage() / PERCENTAGE_DIVISOR;
+            long cacheAssignedMem = cache.getCacheManager().getConfiguration().getMaxBytesLocalDisk()
+                    * cache.getCacheConfiguration().getMaxBytesLocalDiskPercentage() / PERCENTAGE_DIVISOR;
             setMaxBytesLocalDisk(cacheAssignedMem);
         }
     }
@@ -834,6 +749,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getMaxBytesLocalDiskAsString() {
         return cache.getCacheConfiguration().getMaxBytesLocalDiskAsString();
     }
@@ -841,6 +757,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getMaxElementsOnDisk() {
         return cache.getCacheConfiguration().getMaxElementsOnDisk();
     }
@@ -848,6 +765,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getMaxEntriesInCache() {
         return cache.getCacheConfiguration().getMaxEntriesInCache();
     }
@@ -855,6 +773,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxElementsOnDisk(int maxElements) {
         if (getMaxElementsOnDisk() != maxElements) {
             try {
@@ -868,6 +787,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMaxEntriesInCache(int maxEntries) {
         if (getMaxEntriesInCache() != maxEntries) {
             try {
@@ -881,6 +801,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getMaxBytesLocalDisk() {
         return cache.getCacheConfiguration().getMaxBytesLocalDisk();
     }
@@ -888,6 +809,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getMaxBytesLocalOffHeap() {
         return cache.getCacheConfiguration().getMaxBytesLocalOffHeap();
     }
@@ -895,6 +817,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getMaxBytesLocalOffHeapAsString() {
         return cache.getCacheConfiguration().getMaxBytesLocalOffHeapAsString();
     }
@@ -902,6 +825,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getMemoryStoreEvictionPolicy() {
         return cache.getCacheConfiguration().getMemoryStoreEvictionPolicy().toString();
     }
@@ -909,6 +833,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setMemoryStoreEvictionPolicy(String evictionPolicy) {
         if (!getMemoryStoreEvictionPolicy().equals(evictionPolicy)) {
             try {
@@ -922,6 +847,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getTimeToIdleSeconds() {
         return cache.getCacheConfiguration().getTimeToIdleSeconds();
     }
@@ -929,6 +855,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setTimeToIdleSeconds(long tti) {
         if (getTimeToIdleSeconds() != tti) {
             try {
@@ -942,6 +869,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getTimeToLiveSeconds() {
         return cache.getCacheConfiguration().getTimeToLiveSeconds();
     }
@@ -949,6 +877,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setTimeToLiveSeconds(long ttl) {
         if (getTimeToLiveSeconds() != ttl) {
             try {
@@ -962,6 +891,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isDiskPersistent() {
         return cache.getCacheConfiguration().isDiskPersistent();
     }
@@ -969,6 +899,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setDiskPersistent(boolean diskPersistent) {
         if (isDiskPersistent() != diskPersistent) {
             try {
@@ -982,6 +913,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isEternal() {
         return cache.getCacheConfiguration().isEternal();
     }
@@ -989,6 +921,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setEternal(boolean eternal) {
         if (isEternal() != eternal) {
             try {
@@ -1002,6 +935,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isOverflowToDisk() {
         return cache.getCacheConfiguration().isOverflowToDisk();
     }
@@ -1009,6 +943,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setOverflowToDisk(boolean overflowToDisk) {
         if (isOverflowToDisk() != overflowToDisk) {
             try {
@@ -1022,6 +957,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isLoggingEnabled() {
         return cache.getCacheConfiguration().getLogging();
     }
@@ -1029,6 +965,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setLoggingEnabled(boolean enabled) {
         if (isLoggingEnabled() != enabled) {
             try {
@@ -1042,6 +979,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isPinned() {
         return cache.getCacheConfiguration().getPinningConfiguration() != null;
     }
@@ -1049,6 +987,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getPinnedToStore() {
         PinningConfiguration pinningConfig = cache.getCacheConfiguration().getPinningConfiguration();
         return pinningConfig != null ? pinningConfig.getStore().name() : "na";
@@ -1057,9 +996,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getEvictedCount() {
         try {
-            return cache.getLiveCacheStatistics().getEvictedCount();
+            return cache.getStatistics().cacheEvictedCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1068,9 +1008,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getExpiredCount() {
         try {
-            return cache.getLiveCacheStatistics().getExpiredCount();
+            return cache.getStatistics().cacheExpiredCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1079,9 +1020,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getInMemoryHitCount() {
         try {
-            return cache.getLiveCacheStatistics().getInMemoryHitCount();
+            return cache.getStatistics().localHeapHitCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1090,9 +1032,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getOffHeapHitCount() {
         try {
-            return cache.getLiveCacheStatistics().getOffHeapHitCount();
+            return cache.getStatistics().localOffHeapHitCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1100,10 +1043,11 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @deprecated use {@link #getLocalOffHeapSize()}
      */
     @Deprecated
+    @Override
     public long getOffHeapSize() {
         return getLocalOffHeapSize();
     }
@@ -1111,9 +1055,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getOnDiskHitCount() {
         try {
-            return cache.getLiveCacheStatistics().getOnDiskHitCount();
+            return cache.getStatistics().localDiskHitCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1121,10 +1066,11 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @deprecated use {@link #getLocalDiskSize()}
      */
     @Deprecated
+    @Override
     public long getOnDiskSize() {
         return getLocalDiskSize();
     }
@@ -1132,9 +1078,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getLocalDiskSize() {
         try {
-            return cache.getLiveCacheStatistics().getLocalDiskSize();
+            return cache.getStatistics().getLocalDiskSize();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1143,9 +1090,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getLocalHeapSize() {
         try {
-            return cache.getLiveCacheStatistics().getLocalHeapSize();
+            return cache.getStatistics().getLocalHeapSize();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1154,9 +1102,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getLocalOffHeapSize() {
         try {
-            return cache.getLiveCacheStatistics().getLocalOffHeapSize();
+            return cache.getStatistics().getLocalOffHeapSize();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1165,9 +1114,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getLocalDiskSizeInBytes() {
         try {
-            return cache.getLiveCacheStatistics().getLocalDiskSizeInBytes();
+            return cache.getStatistics().getLocalDiskSizeInBytes();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1176,9 +1126,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getLocalHeapSizeInBytes() {
         try {
-            return cache.getLiveCacheStatistics().getLocalHeapSizeInBytes();
+            return cache.getStatistics().getLocalHeapSizeInBytes();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1187,9 +1138,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getLocalOffHeapSizeInBytes() {
         try {
-            return cache.getLiveCacheStatistics().getLocalOffHeapSizeInBytes();
+            return cache.getStatistics().getLocalOffHeapSizeInBytes();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1198,9 +1150,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getPutCount() {
         try {
-            return cache.getLiveCacheStatistics().getPutCount();
+            return cache.getStatistics().cachePutCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1209,9 +1162,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getRemovedCount() {
         try {
-            return cache.getLiveCacheStatistics().getRemovedCount();
+            return cache.getStatistics().cacheRemoveCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1220,9 +1174,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getSize() {
         try {
-            return cache.getLiveCacheStatistics().getSize();
+            return cache.getStatistics().getSize();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1231,6 +1186,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getInMemorySize() {
         return getLocalHeapSize();
     }
@@ -1238,9 +1194,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getUpdateCount() {
         try {
-            return cache.getLiveCacheStatistics().getUpdateCount();
+            return cache.getStatistics().cachePutUpdatedCount();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1249,6 +1206,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void deregistered(CacheConfiguration config) {
         /**/
     }
@@ -1256,6 +1214,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
         if (oldValue != newValue) {
             setMaxBytesLocalHeap(newValue);
@@ -1265,6 +1224,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
         if (oldValue != newValue) {
             setMaxBytesLocalDisk(newValue);
@@ -1274,6 +1234,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
         if (oldCapacity != newCapacity) {
             setMaxElementsOnDisk(newCapacity);
@@ -1283,6 +1244,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
         if (oldCapacity != newCapacity) {
             setMaxEntriesInCache(newCapacity);
@@ -1292,6 +1254,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void loggingChanged(boolean oldValue, boolean newValue) {
         if (oldValue != newValue) {
             setLoggingEnabled(newValue);
@@ -1301,6 +1264,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
         if (oldCapacity != newCapacity) {
             setMaxEntriesLocalHeap(newCapacity);
@@ -1310,6 +1274,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void registered(CacheConfiguration config) {
         /**/
     }
@@ -1317,6 +1282,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
         if (oldTimeToIdle != newTimeToIdle) {
             setTimeToIdleSeconds(newTimeToIdle);
@@ -1326,6 +1292,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
         if (oldTimeToLive != newTimeToLive) {
             setTimeToLiveSeconds(newTimeToLive);
@@ -1335,20 +1302,24 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
-    public long getAverageSearchTime() {
-        return cache.getAverageSearchTime();
+    @Override
+    public long getAverageSearchTimeNanos() {
+        return cache.getStatistics().cacheSearchOperation().latency().average().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getSearchesPerSecond() {
-        return cache.getSearchesPerSecond();
+        // TODO I can't math.
+        return 0;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean getTransactional() {
         return cache.getCacheConfiguration().getTransactionalMode().isTransactional();
     }
@@ -1356,6 +1327,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean getSearchable() {
         return cache.getCacheConfiguration().getSearchable() != null;
     }
@@ -1363,51 +1335,57 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheSearchRate() {
-        return cache.getSampledCacheStatistics().getSearchesPerSecond();
+        return cache.getStatistics().cacheSearchOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
-    public long getCacheAverageSearchTime() {
-        return cache.getSampledCacheStatistics().getAverageSearchTime();
+    @Override
+    public long getCacheAverageSearchTimeNanos() {
+        return cache.getStatistics().cacheSearchOperation().latency().average().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getTransactionCommitRate() {
-        return getCacheXaCommitsMostRecentSample();
+        return cache.getStatistics().xaRecoveryOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheXaCommitsMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheXaCommitsMostRecentSample();
+        return getTransactionCommitRate();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getTransactionRollbackRate() {
-        return getCacheXaRollbacksMostRecentSample();
+        return cache.getStatistics().xaRollbackOperation().rate().value().longValue();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public long getCacheXaRollbacksMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheXaRollbacksMostRecentSample();
+        return getTransactionRollbackRate();
     }
 
     /**
      * A package friendly method to allow dependants access to the underlying {@link Ehcache} object. This is available
-     * in order to allow {@link SampledCache} objects to continue to provide deprecated methods on the {@link SampledCacheMBean}
-     * interface, rather than burdening {@link CacheSampler} with these now irrelevant methods. This helper method
+     * in order to allow {@link SampledCache} objects to continue to provide deprecated methods on the {@link SampledCacheMBean} interface,
+     * rather than burdening {@link CacheSampler} with these now irrelevant methods. This helper method
      * should be removed if we are ever able to discontinue support for the deprecated methods on dependant interfaces.
-     *
+     * 
      * @return the underlying {@code Ehcache} object
      */
     Ehcache getCache() {
@@ -1417,16 +1395,198 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getCacheHitRatio() {
-        return getCacheHitRatioMostRecentSample();
+        final long oneHundred = 100L;
+        return (int) ((getCacheHitCount() * oneHundred) / (getCacheHitCount() + getCacheMissCount()));
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getCacheHitRatioMostRecentSample() {
-        return cache.getSampledCacheStatistics().getCacheHitRatioMostRecentSample();
+        return getCacheHitRatio();
+    }
+
+    @Override
+    public long getCacheAverageGetTimeNanos() {
+        return cache.getStatistics().cacheGetOperation().latency().average().value().longValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitRatioSample() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitInMemorySample() {
+        return new SampledCounterProxy(cache.getStatistics().localHeapHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitOffHeapSample() {
+        return new SampledCounterProxy(cache.getStatistics().localOffHeapHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitOnDiskSample() {
+        return new SampledCounterProxy(cache.getStatistics().localDiskHitOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissInMemorySample() {
+        return new SampledCounterProxy(cache.getStatistics().localHeapMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissOffHeapSample() {
+        return new SampledCounterProxy(cache.getStatistics().localOffHeapMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissOnDiskSample() {
+        return new SampledCounterProxy(cache.getStatistics().localDiskMissOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissExpiredSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheMissExpiredOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheMissNotFoundSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheMissNotFoundOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementEvictedSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheEvictionOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementRemovedSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheRemoveOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementExpiredSample() {
+        return new SampledCounterProxy(cache.getStatistics().cacheExpiredOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementPutSample() {
+        return new SampledCounterProxy(cache.getStatistics().cachePutOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheElementUpdatedSample() {
+        return new SampledCounterProxy(cache.getStatistics().cachePutReplacedOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageGetTimeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheGetOperation().latency().average());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageGetTimeNanosSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheGetOperation().latency().average());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledRateCounter getAverageSearchTimeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheSearchOperation().latency().average());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getSearchesPerSecondSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().cacheSearchOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheXaCommitsSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().xaCommitSuccessOperation().rate());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheXaRollbacksSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().xaRollbackOperation().rate());
     }
 }
-
-

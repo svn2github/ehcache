@@ -58,14 +58,12 @@ public class CacheCopyOnRwPoolTest {
     public void testMemoryOnly() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("memoryOnlyCache")
                         .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
                         .overflowToDisk(false)
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("memoryOnlyCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)
@@ -80,10 +78,10 @@ public class CacheCopyOnRwPoolTest {
         cache.put(new Element(1000, new CrazyObject()));
         copyCache.put(new Element(1000, new CrazyObject()));
 
-        long cacheSize = cache.calculateInMemorySize();
+        long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
-        long copyCacheSize = copyCache.calculateInMemorySize();
+        long copyCacheSize = copyCache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
@@ -94,13 +92,11 @@ public class CacheCopyOnRwPoolTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache")
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)
@@ -114,18 +110,18 @@ public class CacheCopyOnRwPoolTest {
 
         Thread.sleep(1000);
 
-        long cacheSize = cache.calculateInMemorySize();
+        long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
-        long copyCacheSize = copyCache.calculateInMemorySize();
+        long copyCacheSize = copyCache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
 
-        long cacheDiskSize = cache.calculateOnDiskSize();
+        long cacheDiskSize = cache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("cache disk size : " + cacheDiskSize);
         assertTrue(cacheDiskSize != 0);
-        long copyCacheDiskSize = copyCache.calculateOnDiskSize();
+        long copyCacheDiskSize = copyCache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("copyCache disk size : " + copyCacheDiskSize);
         assertTrue(copyCacheDiskSize != 0);
         assertTrue(cacheDiskSize != copyCacheDiskSize);
@@ -137,14 +133,12 @@ public class CacheCopyOnRwPoolTest {
                 new CacheConfiguration()
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache")
         ));
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_copy")
                         .copyOnRead(true)
                         .copyOnWrite(true)
@@ -158,18 +152,18 @@ public class CacheCopyOnRwPoolTest {
 
         Thread.sleep(1000);
 
-        long cacheSize = cache.calculateInMemorySize();
+        long cacheSize = cache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("cache size : " + cacheSize);
         assertTrue(cacheSize != 0);
-        long copyCacheSize = copyCache.calculateInMemorySize();
+        long copyCacheSize = copyCache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("copyCache size : " + copyCacheSize);
         assertTrue(copyCacheSize != 0);
         assertTrue(cacheSize != copyCacheSize);
 
-        long cacheDiskSize = cache.calculateOnDiskSize();
+        long cacheDiskSize = cache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("cache disk size : " + cacheDiskSize);
         assertTrue(cacheDiskSize != 0);
-        long copyCacheDiskSize = copyCache.calculateOnDiskSize();
+        long copyCacheDiskSize = copyCache.getStatistics().getLocalDiskSizeInBytes();
         System.out.println("copyCache disk size : " + copyCacheDiskSize);
         assertTrue(copyCacheDiskSize != 0);
         assertTrue(cacheDiskSize != copyCacheDiskSize);

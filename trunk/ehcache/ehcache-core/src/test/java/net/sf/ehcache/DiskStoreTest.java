@@ -324,7 +324,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                 }
             }, Is.is(100));
 
-            assertEquals(100, cache.getDiskStoreSize());
+            assertEquals(100, cache.getStatistics().getLocalDiskSize());
             assertEquals(100, cache.getKeysNoDuplicateCheck().size());
             assertEquals(100, cache.getKeys().size());
             assertEquals(100, cache.getKeysWithExpiryCheck().size());
@@ -337,7 +337,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             assertNull(cache.getQuiet("key100"));
             cache.removeAll();
             assertEquals(0, cache.getSize());
-            assertEquals(0, cache.getDiskStoreSize());
+            assertEquals(0, cache.getStatistics().getLocalDiskSize());
 
             manager.shutdown();
         }

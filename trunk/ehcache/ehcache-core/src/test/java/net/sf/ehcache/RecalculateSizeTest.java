@@ -69,7 +69,7 @@ public class RecalculateSizeTest extends TestCase {
         cm.addCache(createCache("test-cache-growing"));
 
         Cache cache = cm.getCache("test-cache-growing");
-        Assert.assertEquals(0, cache.calculateInMemorySize());
+        Assert.assertEquals(0, cache.getStatistics().getLocalHeapSizeInBytes());
 
         DynamicSizedValue value = new DynamicSizedValue('A');
         value.shrinkSize();
@@ -80,13 +80,13 @@ public class RecalculateSizeTest extends TestCase {
 
         value.shrinkSize();
         cache.put(new Element("key", value));
-        long shrinkedSize = cache.calculateInMemorySize();
+        long shrinkedSize = cache.getStatistics().getLocalHeapSizeInBytes();
 
         value.expandSize();
-        long expandedSizeBeforeRecalculate = cache.calculateInMemorySize();
+        long expandedSizeBeforeRecalculate = cache.getStatistics().getLocalHeapSizeInBytes();
 
         cache.recalculateSize("key");
-        long expandedSize = cache.calculateInMemorySize();
+        long expandedSize = cache.getStatistics().getLocalHeapSizeInBytes();
 
         long expectedExpandedSize = shrinkedSize + valueSizeDiff;
 
@@ -107,7 +107,7 @@ public class RecalculateSizeTest extends TestCase {
         cm.addCache(createCache("test-cache-shrinking"));
 
         Cache cache = cm.getCache("test-cache-shrinking");
-        Assert.assertEquals(0, cache.calculateInMemorySize());
+        Assert.assertEquals(0, cache.getStatistics().getLocalHeapSizeInBytes());
 
         DynamicSizedValue value = new DynamicSizedValue('A');
         value.shrinkSize();
@@ -118,13 +118,13 @@ public class RecalculateSizeTest extends TestCase {
 
         value.expandSize();
         cache.put(new Element("key", value));
-        long expandedSize = cache.calculateInMemorySize();
+        long expandedSize = cache.getStatistics().getLocalHeapSizeInBytes();
 
         value.shrinkSize();
-        long shrinkedSizeBeforeRecalculate = cache.calculateInMemorySize();
+        long shrinkedSizeBeforeRecalculate = cache.getStatistics().getLocalHeapSizeInBytes();
 
         cache.recalculateSize("key");
-        long shrinkedSize = cache.calculateInMemorySize();
+        long shrinkedSize = cache.getStatistics().getLocalHeapSizeInBytes();
 
         long expectedShrinkedSize = expandedSize - valueSizeDiff;
 
@@ -161,7 +161,7 @@ public class RecalculateSizeTest extends TestCase {
         DynamicSizedValue value = new DynamicSizedValue('A');
         value.setSize(random.nextInt(100000) + 100000);
         cache.put(new Element(key, value));
-        long initialInMemorySizeBytes = cache.calculateInMemorySize();
+        long initialInMemorySizeBytes = cache.getStatistics().getLocalHeapSizeInBytes();
         System.out.println("Initial: inMemorySizeBytes: " + initialInMemorySizeBytes);
 
         final int numThreads = 50;
@@ -189,10 +189,10 @@ public class RecalculateSizeTest extends TestCase {
 
         for (int i = 0; i < 10; i++) {
             cache.recalculateSize(key);
-            long inMemorySizeBytes = cache.calculateInMemorySize();
+            long inMemorySizeBytes = cache.getStatistics().getLocalHeapSizeInBytes();
             System.out.println("initialInMemorySizeBytes: " + initialInMemorySizeBytes + ", calculatedInMemorySizeBytes: "
                     + inMemorySizeBytes + ", numRecalculates: " + numRecalculates.get());
-            Assert.assertEquals(initialInMemorySizeBytes, cache.calculateInMemorySize());
+            Assert.assertEquals(initialInMemorySizeBytes, cache.getStatistics().getLocalHeapSizeInBytes());
             Thread.sleep(1000);
         }
 
@@ -201,7 +201,7 @@ public class RecalculateSizeTest extends TestCase {
             t.join();
         }
 
-        Assert.assertEquals(initialInMemorySizeBytes, cache.calculateInMemorySize());
+        Assert.assertEquals(initialInMemorySizeBytes, cache.getStatistics().getLocalHeapSizeInBytes());
 
         cacheManager.shutdown();
     }
@@ -251,7 +251,7 @@ public class RecalculateSizeTest extends TestCase {
             value = new DynamicSizedValue('A');
             value.setSize(lastValueSize);
             cache.put(new Element(key, value));
-            long calculatedInMemorySizeBytes = cache.calculateInMemorySize();
+            long calculatedInMemorySizeBytes = cache.getStatistics().getLocalHeapSizeInBytes();
             if (numChanges % 10 == 0) {
                 System.out.println("numChanges: " + numChanges + ", numRecalculates: " + numRecalculates.get() + ", InMemorySizeBytes: "
                         + calculatedInMemorySizeBytes + ", lastValueSize: " + lastValueSize);
@@ -262,7 +262,7 @@ public class RecalculateSizeTest extends TestCase {
 
         for (int i = 0; i < 3; i++) {
             cache.recalculateSize(key);
-            long calculatedMemorySizeBytes = cache.calculateInMemorySize();
+            long calculatedMemorySizeBytes = cache.getStatistics().getLocalHeapSizeInBytes();
             System.out.println("calculatedMemorySizeBytes: " + calculatedMemorySizeBytes + ", lastValueSize: " + lastValueSize
                     + ", numRecalculates: " + numRecalculates.get());
             valueSizeToCalculatedSizeList.add(new ValueSizeToCalculatedSizeTuple(lastValueSize, calculatedMemorySizeBytes));
@@ -277,18 +277,18 @@ public class RecalculateSizeTest extends TestCase {
         }
 
         cache.remove(key);
-        long sizeAfterRemove = cache.calculateInMemorySize();
+        long sizeAfterRemove = cache.getStatistics().getLocalHeapSizeInBytes();
         Assert.assertEquals(0, sizeAfterRemove);
 
         for (ValueSizeToCalculatedSizeTuple tuple : valueSizeToCalculatedSizeList) {
             int valueSize = tuple.valueSize;
             long calculatedMemorySizeBytes = tuple.calculatedInMemorySizeBytes;
 
-            Assert.assertEquals(0, cache.calculateInMemorySize());
+            Assert.assertEquals(0, cache.getStatistics().getLocalHeapSizeInBytes());
             DynamicSizedValue v = new DynamicSizedValue('A');
             v.setSize(valueSize);
             cache.put(new Element(key, v));
-            long actualCaculatedInMemorySize = cache.calculateInMemorySize();
+            long actualCaculatedInMemorySize = cache.getStatistics().getLocalHeapSizeInBytes();
             System.out.println("valueSize: " + valueSize + ", expectedCalculatedMemorySizeBytes: " + calculatedMemorySizeBytes
                     + ", actual: " + actualCaculatedInMemorySize);
             Assert.assertEquals(calculatedMemorySizeBytes, actualCaculatedInMemorySize);

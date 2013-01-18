@@ -71,8 +71,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     management features for the caches within the cache manager is disabled.  Enabling this feature will
     affect cache performance.
     
-    To meaningfully use this REST monitoring feature, you should also set statistics="true" on caches.
-
     The 'bind' attribute defaults to "0.0.0.0:9888" and sets the IP Address and Port to bind the web service
     to.  "0.0.0.0" binds to all local addresses / network interfaces.
 
@@ -534,11 +532,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     clearOnFlush:
     whether the MemoryStore should be cleared when flush() is called on the cache.
     By default, this is true i.e. the MemoryStore is cleared.
-
-    statistics:
-    Whether to collect statistics. Note that this should be turned on if you are using
-    the Ehcache Monitor. By default statistics is turned off to favour raw performance.
-    To enable set statistics="true"
 
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxEntriesLocalHeap limit. Default
@@ -1047,8 +1040,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
             diskSpoolBufferSizeMB="30"
             maxEntriesLocalDisk="10000000"
             diskExpiryThreadIntervalSeconds="120"
-            memoryStoreEvictionPolicy="LRU"
-            statistics="false">
+            memoryStoreEvictionPolicy="LRU">
         <persistence strategy="localTempSwap"/>
     </defaultCache>
 

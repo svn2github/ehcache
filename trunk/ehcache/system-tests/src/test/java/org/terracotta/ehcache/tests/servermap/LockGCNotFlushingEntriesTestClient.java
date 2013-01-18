@@ -28,13 +28,13 @@ public class LockGCNotFlushingEntriesTestClient extends ServerMapClientBase {
     }
 
     System.out.println("Cache populated. Sleeping for 120 secs. size: " + cache.getSize() + " inMemorySize: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
     Thread.sleep(120 * 1000);
 
     System.out.println("After sleeping 120 secs. size: " + cache.getSize() + " inMemorySize: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
     // assert range as some may have got evicted while populating cache
     assertTrue(1000 == cache.getSize());
-    assertTrue(1000 == cache.getMemoryStoreSize());
+    assertTrue(1000 == cache.getStatistics().getLocalHeapSize());
   }
 }

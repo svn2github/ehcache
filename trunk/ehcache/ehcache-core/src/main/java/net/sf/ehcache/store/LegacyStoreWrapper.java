@@ -31,6 +31,7 @@ import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.writer.CacheWriterManager;
+import org.terracotta.context.annotations.ContextChild;
 
 /**
  * A wrapper to convert a legacy pair of stores into a new style compound store.
@@ -41,8 +42,8 @@ public class LegacyStoreWrapper extends AbstractStore {
 
     private static final int SYNC_STRIPES = 64;
 
-    private final Store memory;
-    private final Store disk;
+    @ContextChild private final Store memory;
+    @ContextChild private final Store disk;
     private final RegisteredEventListeners eventListeners;
     private final CacheConfiguration config;
 

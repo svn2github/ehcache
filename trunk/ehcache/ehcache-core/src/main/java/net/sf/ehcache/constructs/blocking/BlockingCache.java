@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
@@ -29,7 +31,10 @@ import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.StripedReadWriteLockSync;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
+import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.loader.CacheLoader;
+
+import org.terracotta.statistics.observer.OperationObserver;
 
 /**
  * A blocking decorator for an Ehcache, backed by a {@link Ehcache}.
@@ -72,7 +77,9 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
 
     private final int stripes;
     private final AtomicReference<CacheLockProvider> cacheLockProviderReference;
-    
+
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("blocking-cache").build();
+
     /**
      * Creates a BlockingCache which decorates the supplied cache.
      *
@@ -146,7 +153,7 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
      */
     @Override
     public Element get(final Object key) throws RuntimeException, LockTimeoutException {
-
+        getObserver.begin();
         Sync lock = getLockForKey(key);
         acquiredLockForKey(key, lock, LockType.READ);
         Element element;
@@ -157,15 +164,18 @@ public class BlockingCache extends EhcacheDecoratorAdapter {
         }
         if (element == null) {
             acquiredLockForKey(key, lock, LockType.WRITE);
-            element = underlyingCache.getQuiet(key);
+            element = underlyingCache.get(key);
             if (element != null) {
-                if (underlyingCache.isStatisticsEnabled()) {
-                    element = underlyingCache.get(key);
-                }
                 lock.unlock(LockType.WRITE);
+                getObserver.end(GetOutcome.HIT);
+            } else {
+                getObserver.end(GetOutcome.MISS_AND_LOCKED);
             }
+            return element;
+        } else {
+            getObserver.end(GetOutcome.HIT);
+            return element;
         }
-        return element;
     }
 
     private void acquiredLockForKey(final Object key, final Sync lock, final LockType lockType) {

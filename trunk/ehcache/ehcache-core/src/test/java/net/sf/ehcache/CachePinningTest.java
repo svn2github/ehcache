@@ -78,7 +78,6 @@ public class CachePinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
-                        .statistics(true)
                         .name("memoryOnlyCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -87,7 +86,6 @@ public class CachePinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
-                        .statistics(true)
                         .name("memoryOnlyCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -96,7 +94,6 @@ public class CachePinningTest {
         cacheManager.addCache(new Cache(
             new CacheConfiguration()
                 .maxEntriesLocalHeap(10)
-                .statistics(true)
                 .name("memoryOnlyCache_inCache")
                 .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -110,7 +107,6 @@ public class CachePinningTest {
                 .maxEntriesLocalHeap(10)
                 .maxElementsOnDisk(20)
                 .overflowToDisk(true)
-                .statistics(true)
                 .name("overflowToDiskCache_onHeap")
                 .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -121,7 +117,6 @@ public class CachePinningTest {
                         .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -132,7 +127,6 @@ public class CachePinningTest {
                         .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
-                        .statistics(true)
                         .name("overflowToDiskCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -147,7 +141,6 @@ public class CachePinningTest {
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -159,7 +152,6 @@ public class CachePinningTest {
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -171,7 +163,6 @@ public class CachePinningTest {
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -198,10 +189,10 @@ public class CachePinningTest {
         }
 
 //        Assert.assertEquals(expectedMemoryHits, );
-        Assert.assertEquals(ELEMENT_COUNT - cache.getStatistics().getInMemoryHits(), cache.getStatistics().getInMemoryMisses());
-        Assert.assertEquals(cache.getStatistics().getInMemoryMisses(), cache.getStatistics().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
-        Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
+        Assert.assertEquals(ELEMENT_COUNT - cache.getStatistics().localHeapHitCount(), cache.getStatistics().localHeapMissCount());
+        Assert.assertEquals(cache.getStatistics().localHeapMissCount(), cache.getStatistics().localDiskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
+        Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
     }
 
     @Test
@@ -256,7 +247,7 @@ public class CachePinningTest {
         cm = new CacheManager(cm.getConfiguration());
         cache = cm.getCache(cache.getName());
         long maxElements = cache.getCacheConfiguration().getMaxEntriesLocalHeap();
-        assertThat(cache.getDiskStoreSize(), is((int)cache.getCacheConfiguration().getMaxEntriesLocalDisk()));
+        assertThat(cache.getStatistics().getLocalDiskSize(), is(cache.getCacheConfiguration().getMaxEntriesLocalDisk()));
         for (int i = 0; i < firstMax; i++) {
             assertNotNull(cache.get(i));
         }

@@ -30,18 +30,6 @@ package net.sf.ehcache.statistics;
 public interface CacheUsageListener {
 
     /**
-     * Called when statistics is enabled/disabled
-     *
-     * @param enableStatistics
-     */
-    void notifyStatisticsEnabledChanged(boolean enableStatistics);
-
-    /**
-     * Called when statistics is cleared
-     */
-    void notifyStatisticsCleared();
-
-    /**
      * Called on a cache hit in the MemoryStore
      */
     void notifyCacheHitInMemory();

@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.Pool;
@@ -70,8 +71,10 @@ public final class NotifyingMemoryStore extends MemoryStore {
      */
     @Override
     protected boolean evict(final Element element) {
+        evictionObserver.begin();
         Element remove = remove(element.getObjectKey());
         if (remove != null) {
+            evictionObserver.end(EvictionOutcome.SUCCESS);
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
         return remove != null;
@@ -82,6 +85,8 @@ public final class NotifyingMemoryStore extends MemoryStore {
      */
     @Override
     protected void notifyDirectEviction(final Element element) {
+        evictionObserver.begin();
+        evictionObserver.end(EvictionOutcome.SUCCESS);
         cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
     }
 

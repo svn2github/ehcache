@@ -178,8 +178,7 @@
            eternal="false"
            timeToIdleSeconds="5"
            timeToLiveSeconds="10"
-           overflowToDisk="true"
-           statistics="false">
+           overflowToDisk="true">
     </cache>
 
 </ehcache>

@@ -47,11 +47,10 @@ public class CacheTierPinningTest extends AbstractCacheTestBase {
         Assert.assertNotNull(cache.get(i));
       }
 
-      Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().getInMemoryHits());
-      Assert.assertEquals(0, cache.getStatistics().getInMemoryMisses());
-      Assert.assertEquals(0, cache.getStatistics().getOnDiskHits());
-      Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
-      Assert.assertEquals(0, cache.getStatistics().getEvictionCount());
+      Assert.assertEquals(ELEMENT_COUNT, cache.getStatistics().localHeapHitCount());
+//      Assert.assertEquals(0, cache.getStatistics().remoteHitCount());
+//      Assert.assertEquals(0, cache.getStatistics().remoteMissCount());
+      Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
     }
 
   }

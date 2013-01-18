@@ -13,28 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package net.sf.ehcache.statistics;
+package net.sf.ehcache.management.sampled;
 
 /**
- * Interface for usage statistics of a Cache.
+ * Interface for <strong>sampled</strong> usage statistics of a Cache
  *
- * <p />
- * Implementations of this interface is different from {@link net.sf.ehcache.Statistics} in the way that values returned from this interface
- * implementations will reflect the current state of the cache and not a snapshot of the cache when the api's were called (which is the
- * behavior of {@link net.sf.ehcache.Statistics})
  * <p />
  *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
  */
-public interface LiveCacheStatistics {
-
-    /**
-     * Returns true if statistics is enabled
-     *
-     * @return true if statistics is enabled
-     */
-    boolean isStatisticsEnabled();
+public interface LegacyCacheStatistics {
 
     /**
      * The number of times a requested item was found in the cache.
@@ -185,13 +174,6 @@ public interface LiveCacheStatistics {
     long getLocalDiskSizeInBytes();
 
     /**
-     * Average time in milliseconds taken to get an element from the cache.
-     *
-     * @return Average time taken for a get operation in milliseconds
-     */
-    float getAverageGetTimeMillis();
-
-    /**
      * Average time in nanoseconds taken to get an element from the cache.
      *
      * @return Average time taken for a get operation in nanoseconds
@@ -234,51 +216,9 @@ public interface LiveCacheStatistics {
     long getRemovedCount();
 
     /**
-     * Accurately measuring statistics can be expensive. Returns the current
-     * accuracy setting.
-     *
-     * @return one of Statistics.STATISTICS_ACCURACY_BEST_EFFORT,
-     *         Statistics.STATISTICS_ACCURACY_GUARANTEED,
-     *         Statistics.STATISTICS_ACCURACY_NONE
-     */
-    int getStatisticsAccuracy();
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current
-     * accuracy setting.
-     *
-     * @return a human readable description of the accuracy setting. One of
-     *         "None", "Best Effort" or "Guaranteed".
-     */
-    String getStatisticsAccuracyDescription();
-
-    /**
      * @return the name of the Ehcache
      */
     String getCacheName();
-
-    /**
-     * Clears statistics of this cache
-     */
-    void clearStatistics();
-
-    /**
-     * Return minimum time taken for a get operation in the cache in milliseconds
-     *
-     * @return minimum time taken for a get operation in the cache in milliseconds
-     * @deprecated
-     */
-    @Deprecated
-    long getMinGetTimeMillis();
-
-    /**
-     * Return maximum time taken for a get operation in the cache in milliseconds
-     *
-     * @return maximum time taken for a get operation in the cache in milliseconds
-     * @deprecated
-     */
-    @Deprecated
-    long getMaxGetTimeMillis();
 
     /**
      * Return maximum time taken for a get operation in the cache in milliseconds
@@ -318,5 +258,152 @@ public interface LiveCacheStatistics {
      * @return the Cache's XAResource recovered XIDs count
      */
     long getXaRecoveredCount();
+    /**
+     * Get most recent value for cache hit
+     *
+     * @return Most recent sample for cache hit count
+     */
+    long getCacheHitMostRecentSample();
 
+    /**
+     * Get most recent value for in-memory cache hit
+     *
+     * @return Most recent sample for cache hit count in memory
+     */
+    long getCacheHitInMemoryMostRecentSample();
+
+    /**
+     * Get most recent value for off-heap cache hit
+     *
+     * @return Most recent sample for cache hit count in off-heap
+     */
+    long getCacheHitOffHeapMostRecentSample();
+
+    /**
+     * Get most recent value for on-disk cache hit
+     *
+     * @return Most recent sample for cache hit count on disk
+     */
+    long getCacheHitOnDiskMostRecentSample();
+
+    /**
+     * Get most recent value for cache miss
+     *
+     * @return Most recent sample for cache miss count
+     */
+    long getCacheMissMostRecentSample();
+
+    /**
+     * Get most recent value for in-memory cache miss
+     *
+     * @return Most recent sample for cache miss count in memory
+     */
+    long getCacheMissInMemoryMostRecentSample();
+
+    /**
+     * Get most recent value for off-heap cache miss
+     *
+     * @return Most recent sample for cache miss count in off-heap
+     */
+    long getCacheMissOffHeapMostRecentSample();
+
+    /**
+     * Get most recent value for on-disk cache miss
+     *
+     * @return Most recent sample for cache miss count on disk
+     */
+    long getCacheMissOnDiskMostRecentSample();
+
+    /**
+     * Get most recent value for cache miss as result of the element getting
+     * expired
+     *
+     * @return Most recent sample for cache miss count and the reason for miss
+     *         being the element got expired
+     */
+    long getCacheMissExpiredMostRecentSample();
+
+    /**
+     * Get most recent value for cache miss as result of the element not found
+     * in cache
+     *
+     * @return Most recent sample for cache miss not found count
+     */
+    long getCacheMissNotFoundMostRecentSample();
+
+    /**
+     * Get most recent value for cache hit ratio
+     *
+     * @return Most recent value for cache hit ratio
+     */
+    int getCacheHitRatioMostRecentSample();
+
+    /**
+     * Get most recent value element evicted from cache
+     *
+     * @return Most recent sample for element evicted count
+     */
+    long getCacheElementEvictedMostRecentSample();
+
+    /**
+     * Get most recent value element removed from cache
+     *
+     * @return Most recent sample for element removed count
+     */
+    long getCacheElementRemovedMostRecentSample();
+
+    /**
+     * Get most recent value element expired from cache
+     *
+     * @return Most recent value for element expired count
+     */
+    long getCacheElementExpiredMostRecentSample();
+
+    /**
+     * Get most recent value element puts in the cache
+     *
+     * @return Most recent sample for number of element puts
+     */
+    long getCacheElementPutMostRecentSample();
+
+    /**
+     * Get most recent value element updates , i.e. put() on elements with
+     * already existing keys in the cache
+     *
+     * @return Most recent sampled value for element update count
+     */
+    long getCacheElementUpdatedMostRecentSample();
+
+    /**
+     * Get most recent value for average time taken for get() operation in the
+     * cache
+     *
+     * @return Most recent sample of average get time taken for a get operation
+     */
+    long getAverageGetTimeNanosMostRecentSample();
+
+    /**
+     * Method used to dispose this statistics
+     */
+    void dispose();
+
+    /**
+     * Get the average search execution time for searches finishing within the last sample period
+     */
+    long getAverageSearchTimeNanos();
+
+    /**
+     * Get the number of searches that have finished execution in the last second
+     */
+    long getSearchesPerSecond();
+
+    /**
+     * Get most recent value of XA commits
+     */
+    long getCacheXaCommitsMostRecentSample();
+
+    /**
+     * Get most recent value of XA rollbacks
+     */
+    long getCacheXaRollbacksMostRecentSample();
 }

@@ -48,7 +48,6 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
                                                    "SERIALIZATION");
-      dcv2StrongSerialization.setStatisticsEnabled(false);
       testBulkOpsSanity(dcv2StrongSerialization, false);
     }
 

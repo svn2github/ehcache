@@ -71,7 +71,6 @@ public class CachePoolPinningTest {
     public void testMemoryOnly() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("memoryOnlyCache_onHeap")
                         .overflowToDisk(false)
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
@@ -80,7 +79,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("memoryOnlyCache_inMemory")
                         .overflowToDisk(false)
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
@@ -89,7 +87,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("memoryOnlyCache_inCache")
                         .overflowToDisk(false)
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
@@ -102,7 +99,6 @@ public class CachePoolPinningTest {
     public void testOverflowToDisk() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("overflowToDiskCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -110,7 +106,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("overflowToDiskCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -118,7 +113,6 @@ public class CachePoolPinningTest {
 
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .statistics(true)
                         .name("overflowToDiskCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -131,7 +125,6 @@ public class CachePoolPinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_onHeap")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
         ));
@@ -140,7 +133,6 @@ public class CachePoolPinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -149,7 +141,6 @@ public class CachePoolPinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .diskPersistent(true)
-                        .statistics(true)
                         .name("diskPersistentCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -167,10 +158,10 @@ public class CachePoolPinningTest {
             assertNotNull(cache.get(i));
         }
 
-        Assert.assertEquals(expectedMemoryHits, cache.getStatistics().getInMemoryHits());
-        Assert.assertEquals(ELEMENT_COUNT - expectedMemoryHits, cache.getStatistics().getInMemoryMisses());
-        Assert.assertEquals(expectedDiskHits, cache.getStatistics().getOnDiskHits());
-        Assert.assertEquals(0, cache.getStatistics().getOnDiskMisses());
+        Assert.assertEquals(expectedMemoryHits, cache.getStatistics().localHeapHitCount());
+        Assert.assertEquals(ELEMENT_COUNT - expectedMemoryHits, cache.getStatistics().localHeapMissCount());
+        Assert.assertEquals(expectedDiskHits, cache.getStatistics().localDiskHitCount());
+        Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
     }
 
 }

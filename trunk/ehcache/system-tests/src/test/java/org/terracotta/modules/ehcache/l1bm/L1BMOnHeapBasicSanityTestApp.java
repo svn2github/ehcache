@@ -38,22 +38,18 @@ public class L1BMOnHeapBasicSanityTestApp extends ClientBase {
 
     Cache dcv2EventualSerializationWithStats = createCache("dcv2EventualSerializationWithStats", cacheManager,
                                                             Consistency.EVENTUAL, ValueMode.SERIALIZATION);
-    dcv2EventualSerializationWithStats.setStatisticsEnabled(true);
     testL1BigMemorySanity(dcv2EventualSerializationWithStats, true);
 
     Cache dcv2EventualSerializationWithoutStats = createCache("dcv2EventualSerializationWithoutStats", cacheManager,
                                                                Consistency.EVENTUAL, ValueMode.SERIALIZATION);
-    dcv2EventualSerializationWithoutStats.setStatisticsEnabled(false);
     testL1BigMemorySanity(dcv2EventualSerializationWithoutStats, true);
 
     Cache dcv2StrongSerializationWithStats = createCache("dcv2StrongSerializationWithStats", cacheManager,
                                                           Consistency.STRONG, ValueMode.SERIALIZATION);
-    dcv2StrongSerializationWithStats.setStatisticsEnabled(true);
     testL1BigMemorySanity(dcv2StrongSerializationWithStats, false);
 
     Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
                                                 ValueMode.SERIALIZATION);
-    dcv2StrongWithoutStats.setStatisticsEnabled(false);
     testL1BigMemorySanity(dcv2StrongWithoutStats, false);
 
   }
@@ -76,11 +72,11 @@ public class L1BMOnHeapBasicSanityTestApp extends ClientBase {
     }
     Assert.assertEquals(numOfElements, cache.getSize());
     System.out.println("XXXXXX client " + index + " cache size: " + cache.getSize() + " local: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
     if (index == 0) {
-      Assert.assertTrue(cache.getMemoryStoreSize() > 0);
+      Assert.assertTrue(cache.getStatistics().getLocalHeapSize() > 0);
     } else {
-      Assert.assertEquals(0, cache.getMemoryStoreSize());
+      Assert.assertEquals(0, cache.getStatistics().getLocalHeapSize());
     }
 
     barrier.await();
@@ -89,7 +85,7 @@ public class L1BMOnHeapBasicSanityTestApp extends ClientBase {
     for (int i = 0; i < numOfElements; i++) {
       Assert.assertNotNull("value for key" + i + " is null", cache.get("key" + i));
     }
-    Assert.assertTrue(cache.getMemoryStoreSize() > 0);
+    Assert.assertTrue(cache.getStatistics().getLocalHeapSize() > 0);
 
     barrier.await();
     System.out.println("XXXX done with basic get, now removing random entries...");

@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.terracotta.context.annotations.ContextChild;
 
 /**
  * Copies elements, either on read, write or both before using the underlying store to actually store things
@@ -41,6 +42,7 @@ import java.util.Map;
  */
 public final class CopyingCacheStore<T extends Store> implements Store {
 
+    @ContextChild
     private final T store;
     private final boolean copyOnRead;
     private final boolean copyOnWrite;

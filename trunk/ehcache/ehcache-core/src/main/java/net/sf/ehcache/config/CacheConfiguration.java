@@ -159,7 +159,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Default value for statistics
      */
-    public static final boolean DEFAULT_STATISTICS = false;
+    public static final boolean DEFAULT_STATISTICS = true;
 
     /**
      * Default value for diskPersistent
@@ -2282,7 +2282,12 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets whether the cache's statistics are enabled. at startup
      */
+    @Deprecated
     public final void setStatistics(boolean enabled) {
+        if (!enabled) {
+            LOG.warn("Statistics can no longer be enabled via configuration.");
+            return;
+        }
         this.statistics = enabled;
     }
 
@@ -2292,6 +2297,7 @@ public class CacheConfiguration implements Cloneable {
      * @return this configuration instance
      * @see #setStatistics(boolean)
      */
+    @Deprecated
     public final CacheConfiguration statistics(boolean statistics) {
         setStatistics(statistics);
         return this;
@@ -2301,7 +2307,7 @@ public class CacheConfiguration implements Cloneable {
      * Gets whether the cache's statistics will be enabled at startup
      */
     public final boolean getStatistics() {
-        return statistics;
+        return true;
     }
 
     /**

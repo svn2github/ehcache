@@ -16,9 +16,12 @@
 
 package net.sf.ehcache.store.disk;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -38,11 +41,21 @@ import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.AuthoritativeTier;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.store.StripedReadWriteLockProvider;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
 import net.sf.ehcache.writer.CacheWriterManager;
+
+import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.Statistic;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
+import org.terracotta.statistics.derived.OperationResultFilter;
+import org.terracotta.statistics.observer.OperationObserver;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +64,7 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -90,12 +104,15 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
     private final boolean tierPinned;
     private final boolean persistent;
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).of(this).named("get").tag("local-disk").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).of(this).named("put").tag("local-disk").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).of(this).named("remove").tag("local-disk").build();
+    private final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+    private final PoolAccessor onHeapPoolAccessor;
+    private final PoolAccessor onDiskPoolAccessor;
 
     private volatile CacheLockProvider lockProvider;
     private volatile Set<Object> keySet;
-    private volatile PoolAccessor onHeapPoolAccessor;
-    private volatile PoolAccessor onDiskPoolAccessor;
-
 
     private DiskStore(DiskStorageFactory disk, Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
@@ -107,7 +124,8 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
-                    disk, cache.getCacheConfiguration(), onHeapPoolAccessor, onDiskPoolAccessor, cache.getCacheEventNotificationService());
+                    disk, cache.getCacheConfiguration(), onHeapPoolAccessor, onDiskPoolAccessor,
+                    cache.getCacheEventNotificationService(), evictionObserver);
         }
 
         this.disk = disk;
@@ -168,12 +186,20 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
 
     @Override
     public Element fault(final Object key, final boolean updateStats) {
+        getObserver.begin();
         if (key == null) {
+            getObserver.end(GetOutcome.MISS);
             return null;
+        } else {
+            int hash = hash(key.hashCode());
+            Element e = segmentFor(hash).get(key, hash, true);
+            if (e == null) {
+                getObserver.end(GetOutcome.MISS);
+            } else {
+                getObserver.end(GetOutcome.HIT);
+            }
+            return e;
         }
-
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).get(key, hash, true);
     }
 
 
@@ -378,6 +404,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "size", tags = "local-disk")
     public int getOnDiskSize() {
         return disk.getOnDiskSize();
     }
@@ -385,6 +412,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "size-in-bytes", tags = "local-disk")
     public long getOnDiskSizeInBytes() {
         long size = onDiskPoolAccessor.getSize();
         if (size < 0) {
@@ -446,10 +474,17 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         if (element == null) {
             return false;
         } else {
+            putObserver.begin();
             Object key = element.getObjectKey();
             int hash = hash(key.hashCode());
             Element oldElement = segmentFor(hash).put(key, hash, element, false, false);
-            return oldElement == null;
+            if (oldElement == null) {
+                putObserver.end(PutOutcome.ADDED);
+                return true;
+            } else {
+                putObserver.end(PutOutcome.UPDATED);
+                return false;
+            }
         }
     }
 
@@ -472,19 +507,27 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      * {@inheritDoc}
      */
     public Element get(Object key) {
-        if (key == null) {
+        getObserver.begin();
+        Element e = getQuiet(key);
+        if (e == null) {
+            getObserver.end(GetOutcome.MISS);
             return null;
+        } else {
+            getObserver.end(GetOutcome.HIT);
+            return e;
         }
-
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).get(key, hash, false);
     }
 
     /**
      * {@inheritDoc}
      */
     public Element getQuiet(Object key) {
-        return get(key);
+        if (key == null) {
+            return null;
+        } else {
+            int hash = hash(key.hashCode());
+            return segmentFor(hash).get(key, hash, false);
+        }
     }
 
     /**
@@ -543,9 +586,13 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         if (key == null) {
             return null;
         }
-
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).remove(key, hash, null, null);
+        removeObserver.begin();
+        try {
+            int hash = hash(key.hashCode());
+            return segmentFor(hash).remove(key, hash, null, null);
+        } finally {
+            removeObserver.end(RemoveOutcome.SUCCESS);
+        }
     }
 
     /**
@@ -1144,27 +1191,28 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     private class DiskStoreDiskPoolParticipant implements PoolParticipant {
 
+        private final EventRateSimpleMovingAverage hitRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+        private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+
+        DiskStoreDiskPoolParticipant() {
+            OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.HIT), hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.MISS), missRate));
+        }
+
         @Override
-        public boolean evict(final int count, final long size) {
+        public boolean evict(int count, long size) {
             return disk.evict(count) == count;
         }
 
         @Override
         public float getApproximateHitRate() {
-            float sum = 0;
-            for (Segment s : segments) {
-                sum += s.getDiskHitRate();
-            }
-            return sum;
+            return hitRate.rate(TimeUnit.SECONDS).floatValue();
         }
 
         @Override
         public float getApproximateMissRate() {
-            float sum = 0;
-            for (Segment s : segments) {
-                sum += s.getDiskMissRate();
-            }
-            return sum;
+            return hitRate.rate(TimeUnit.SECONDS).floatValue();
         }
 
         @Override

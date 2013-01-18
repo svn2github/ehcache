@@ -29,6 +29,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
@@ -78,6 +81,7 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.StatisticsManager;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -112,6 +116,7 @@ public class CacheManager {
      * System property to enable creation of a shutdown hook for CacheManager.
      */
     public static final String ENABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.enableShutdownHook";
+
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
@@ -183,6 +188,9 @@ public class CacheManager {
      */
     private final ConcurrentMap<String, Ehcache> ehcaches = new ConcurrentHashMap<String, Ehcache>();
 
+    private final Map<String, Ehcache> initializingCaches = new ConcurrentHashMap<String, Ehcache>();
+    
+
     /**
      * Default cache cache.
      */
@@ -218,6 +226,20 @@ public class CacheManager {
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     private String registeredMgmtSvrBind;
+
+    /**
+     * statistics thread pool.
+     */
+    private final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
+            new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r, "Statistics Thread");
+            t.setDaemon(true);
+            return t;
+        }
+    });
 
     /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -542,6 +564,15 @@ public class CacheManager {
         }
     }
 
+    /**
+     * Return this cache manager's statistics executor
+     *
+     * @return this cache manager's statistics executor
+     */
+    ScheduledExecutorService getStatisticsExecutor() {
+        return statisticsExecutor;
+    }
+    
     /**
      * Return this cache manager's shared on-heap pool
      *
@@ -1293,6 +1324,10 @@ public class CacheManager {
             cache.disableDynamicFeatures();
         }
 
+        if (!registerCacheConfig) {
+            associateShadowCache(cache);
+        }
+
         try {
             cache.bootstrap();
         } catch (CacheException e) {
@@ -1300,6 +1335,21 @@ public class CacheManager {
         }
     }
 
+    private void associateShadowCache(Ehcache shadow) {
+        String shadowPrefix = "local_shadow_cache_for_" + getName() + "___tc_clustered-ehcache|" + getName() + "|";
+        if (shadow.getName().startsWith(shadowPrefix)) {
+            String parentCacheName = shadow.getName().substring(shadowPrefix.length());
+            Ehcache parent = initializingCaches.get(parentCacheName);
+            if (parent == null) {
+                parent = ehcaches.get(parentCacheName);
+            }
+            if (parent != null) {
+                StatisticsManager.associate(shadow).withParent(parent);
+            }
+        }
+        
+    }
+    
     private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
             CacheException {
 
@@ -1317,11 +1367,16 @@ public class CacheManager {
             }
         }
 
-        initializeEhcache(cache, true);
+        initializingCaches.put(cache.getName(), cache);
+        try {
+            initializeEhcache(cache, true);
 
-        ehcache = ehcaches.putIfAbsent(cache.getName(), cache);
-        if (ehcache != null) {
-            throw new AssertionError();
+            ehcache = ehcaches.putIfAbsent(cache.getName(), cache);
+            if (ehcache != null) {
+                throw new AssertionError();
+            }
+        } finally {
+            initializingCaches.remove(cache.getName());
         }
 
         // Don't notify initial config. The init method of each listener should take care of this.
@@ -1455,6 +1510,8 @@ public class CacheManager {
             if (diskStorePathManager != null) {
                 diskStorePathManager.releaseLock();
             }
+
+            statisticsExecutor.shutdown();
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);

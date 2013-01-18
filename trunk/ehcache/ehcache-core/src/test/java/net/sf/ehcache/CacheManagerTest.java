@@ -17,9 +17,10 @@
 package net.sf.ehcache;
 
 import static net.sf.ehcache.util.RetryAssert.assertBy;
-
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.collection.IsArrayContainingInOrder.arrayContaining;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -27,9 +28,6 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.hamcrest.collection.IsArrayContainingInOrder.arrayContaining;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -84,13 +82,11 @@ import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
-import net.sf.ehcache.statistics.LiveCacheStatisticsData;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.MemorySizeParser;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.CombinableMatcher;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -745,12 +741,16 @@ public class CacheManagerTest {
             config.cache(new CacheConfiguration().name(Integer.toString(i)).maxEntriesLocalHeap(100).maxEntriesLocalDisk(1000)
                     .persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP)));
         }
+        int managerThreads = 0;
+        managerThreads += Runtime.getRuntime().availableProcessors(); //statistics executor
+        managerThreads += 1; //cache manager timer thread
+        managerThreads += 1; //local transactions recovery thread
         CacheManager manager = new CacheManager(config);
 
         try {
             Collection<Thread> spawnedThreads = JVMUtil.enumerateThreads();
             spawnedThreads.removeAll(initialThreads);
-            assertThat("Spawned Threads", spawnedThreads, hasSize(CombinableMatcher.<Integer>both(greaterThan(0)).and(lessThanOrEqualTo(manager.getCacheNames().length + 2))));
+            assertThat("Spawned Threads", spawnedThreads, hasSize(CombinableMatcher.<Integer>both(greaterThan(0)).and(lessThanOrEqualTo(manager.getCacheNames().length + managerThreads))));
         } finally {
             manager.shutdown();
         }
@@ -1124,12 +1124,10 @@ public class CacheManagerTest {
 
             Set listeners = cache.getCacheEventNotificationService()
                     .getCacheEventListeners();
-            assertEquals(2, listeners.size());
+            assertEquals(1, listeners.size());
             for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-                CacheEventListener cacheEventListener = (CacheEventListener) iterator
-                        .next();
-                assertTrue(cacheEventListener instanceof CountingCacheEventListener
-                        || cacheEventListener instanceof LiveCacheStatisticsData);
+                CacheEventListener cacheEventListener = (CacheEventListener) iterator.next();
+                assertTrue(cacheEventListener instanceof CountingCacheEventListener);
             }
         } finally {
             manager.shutdown();

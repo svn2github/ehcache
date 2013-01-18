@@ -74,15 +74,15 @@ public class CacheClassicLruMemoryStorePerfTest extends CachePerfTest {
         manager.addCache(cache);
         StopWatch stopWatch = new StopWatch();
 
-        assertEquals(0, cache.getMemoryStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
         for (int i = 0; i < 80000; i++) {
             cache.put(new Element("" + i, new byte[480]));
         }
         LOG.info("Put time: " + stopWatch.getElapsedTime());
         Thread.sleep(2000);
-        assertEquals(40000, cache.getMemoryStoreSize());
-        assertEquals(40000, cache.getDiskStoreSize());
+        assertEquals(40000, cache.getStatistics().getLocalHeapSize());
+        assertEquals(40000, cache.getStatistics().getLocalDiskSize());
 
         long beforeMemory = measureMemoryUse();
         stopWatch.getElapsedTime();
@@ -96,8 +96,8 @@ public class CacheClassicLruMemoryStorePerfTest extends CachePerfTest {
         long memoryIncrease = afterMemory - beforeMemory;
         assertTrue(memoryIncrease < 40000000);
 
-        assertEquals(0, cache.getMemoryStoreSize());
-        assertEquals(40000, cache.getDiskStoreSize());
+        assertEquals(0, cache.getStatistics().getLocalHeapSize());
+        assertEquals(40000, cache.getStatistics().getLocalDiskSize());
 
     }
 

@@ -1667,8 +1667,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
 
         //Don't set cache name
         CacheConfiguration cacheConfigurationTest3Cache = new CacheConfiguration().maxElementsInMemory(10)
-                .eternal(true).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).overflowToDisk(false)
-                .statistics(false);
+                .eternal(true).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).overflowToDisk(false);
 
         try {
             Cache cache = new Cache(cacheConfigurationTest3Cache);

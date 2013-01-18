@@ -60,35 +60,6 @@ public interface EhcacheStats extends NotificationEmitter {
     public static final String CACHE_STATISTICS_RESET = "CacheStatisticsReset";
 
     /**
-     * Returns true if statistics collection is enabled
-     * 
-     * @return true if statistics collection is enabled
-     */
-    boolean isStatisticsEnabled();
-
-    /**
-     * Enable/Disable statistics collection for all cache of the related session-factory
-     * 
-     * @param flag
-     */
-    void setStatisticsEnabled(boolean flag);
-
-    /**
-     * Enables statistics collection
-     */
-    void enableStats();
-
-    /**
-     * Disables statistics collection
-     */
-    void disableStats();
-
-    /**
-     * Clears current statistics, resets all counters to zero
-     */
-    void clearStats();
-
-    /**
      * Get the original cache configuration
      * 
      * @return the original cache configuration

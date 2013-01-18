@@ -13,32 +13,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package net.sf.ehcache.util.ratestatistics;
+package net.sf.ehcache.constructs.blocking;
 
 /**
- * Rate monitoring statistic.
+ * The Class BlockingCacheOperationOutcomes.
  *
- * @author Chris Dennis
+ * @author cdennis
  */
-public interface RateStatistic {
+public class BlockingCacheOperationOutcomes {
 
     /**
-     * Fired to record the occurrence of a monitored event.
+     * The operation outcome for {@link BlockingCache} gets
      */
-    void event();
+    public enum GetOutcome {
 
-    /**
-     * Returns the total number of events that have occurred in the lifetime of this statistic.
-     *
-     * @return total number of events
-     */
-    long getCount();
-
-    /**
-     * Return the rate of events per unit time.
-     *
-     * @return event rate
-     */
-    float getRate();
+        /**
+         * Blocking Cache Hit.
+         */
+        HIT,
+        /** 
+         * Blocking Cache Miss and left locked.
+         */
+        MISS_AND_LOCKED;
+    }
 }

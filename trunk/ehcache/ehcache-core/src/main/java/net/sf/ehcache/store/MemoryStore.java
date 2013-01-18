@@ -50,14 +50,13 @@ import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
 import net.sf.ehcache.store.compound.NullReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.transaction.SoftLockID;
-import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
-import net.sf.ehcache.util.ratestatistics.RateStatistic;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,6 +66,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import net.sf.ehcache.pool.impl.UnboundedPool;
+
+import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
+import org.terracotta.statistics.derived.OperationResultFilter;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
+import org.terracotta.statistics.Statistic;
 
 import static net.sf.ehcache.search.expression.BaseCriteria.getExtractor;
 
@@ -77,7 +90,7 @@ import static net.sf.ehcache.search.expression.BaseCriteria.getExtractor;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore extends AbstractStore implements TierableStore, PoolParticipant, CacheConfigurationListener {
+public class MemoryStore extends AbstractStore implements TierableStore, CacheConfigurationListener {
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because we size
@@ -96,6 +109,11 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
+    /**
+     * Eviction outcome observer
+     */
+    protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+
     private final boolean alwaysPutOnHeap;
 
     /**
@@ -109,8 +127,9 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     private final SelectableConcurrentHashMap map;
     private final PoolAccessor poolAccessor;
 
-    private final RateStatistic hitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
-    private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("get").of(this).tag("local-heap").build();
+    private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).named("put").of(this).tag("local-heap").build();
+    private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).named("remove").of(this).tag("local-heap").build();
 
     private final boolean storePinned;
 
@@ -160,10 +179,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
         this.cache = cache;
         this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
         this.policy = determineEvictionPolicy(cache);
-
-        this.poolAccessor = pool.createPoolAccessor(this,
-            SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-            SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+        if (pool instanceof UnboundedPool) {
+            this.poolAccessor = pool.createPoolAccessor(null, null);
+        } else {
+            this.poolAccessor = pool.createPoolAccessor(new Participant(),
+                SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+        }
 
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.storePinned = determineStorePinned(cache.getCacheConfiguration());
@@ -257,13 +279,21 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
             return false;
         }
 
+        putObserver.begin();
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
             Element old = map.put(element.getObjectKey(), element, delta);
             checkCapacity(element);
-            return old == null;
+            if (old == null) {
+                putObserver.end(PutOutcome.ADDED);
+                return true;
+            } else {
+                putObserver.end(PutOutcome.UPDATED);
+                return false;
+            }
         } else {
             notifyDirectEviction(element);
+            putObserver.end(PutOutcome.ADDED);
             return true;
         }
     }
@@ -299,16 +329,19 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * @return the element, or null if there was no match for the key
      */
     public final Element get(final Object key) {
+        getObserver.begin();
         if (key == null) {
+            getObserver.end(GetOutcome.MISS);
             return null;
         } else {
             final Element e = map.get(key);
             if (e == null) {
-                missRate.event();
+                getObserver.end(GetOutcome.MISS);
+                return null;
             } else {
-                hitRate.event();
+                getObserver.end(GetOutcome.HIT);
+                return e;
             }
-            return e;
         }
     }
 
@@ -319,7 +352,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * @return the element, or null if there was no match for the key
      */
     public final Element getQuiet(Object key) {
-        return get(key);
+        return map.get(key);
     }
 
     /**
@@ -332,8 +365,12 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
         if (key == null) {
             return null;
         }
-
-        return map.remove(key);
+        removeObserver.begin();
+        try {
+            return map.remove(key);
+        } finally {
+            removeObserver.end(RemoveOutcome.SUCCESS);
+        }
     }
 
     /**
@@ -743,6 +780,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "size", tags = "local-heap")
     public int getInMemorySize() {
         return getSize();
     }
@@ -750,15 +788,14 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
     /**
      * {@inheritDoc}
      */
+    @Statistic(name = "size-in-bytes", tags = "local-heap")
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
-            DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
-                SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-                SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT)
-            );
+            DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                    SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
             long sizeInBytes = 0;
             for (Object o : map.values()) {
-                Element element = (Element)o;
+                Element element = (Element) o;
                 if (element != null) {
                     Size size = defaultSizeOfEngine.sizeOf(element.getObjectKey(), element, map.storedObject(element));
                     sizeInBytes += size.getCalculated();
@@ -841,11 +878,13 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      * @return true if succeeded, false otherwise
      */
     protected boolean evict(final Element element) {
+        evictionObserver.begin();
         final Element remove = remove(element.getObjectKey());
         RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
         final FrontEndCacheTier frontEndCacheTier = cacheEventNotificationService.getFrontEndCacheTier();
         if (remove != null && frontEndCacheTier != null && frontEndCacheTier.notifyEvictionFromCache(remove.getKey())) {
             cacheEventNotificationService.notifyElementEvicted(remove, false);
+            evictionObserver.end(EvictionOutcome.SUCCESS);
         }
         return remove != null;
     }
@@ -945,44 +984,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
      */
     public Object getMBean() {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean evict(int count, long size) {
-        if (storePinned) {
-            return false;
-        }
-
-        for (int i = 0; i < count; i++) {
-            boolean removed = removeElementChosenByEvictionPolicy(null);
-            if (!removed) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateHitRate() {
-        return hitRate.getRate();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public float getApproximateMissRate() {
-        return missRate.getRate();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getApproximateCountSize() {
-        return map.quickSize();
     }
 
     private Lock getWriteLock(Object key) {
@@ -1237,6 +1238,51 @@ public class MemoryStore extends AbstractStore implements TierableStore, PoolPar
             return;
         }
         map.recalculateSize(key);
+    }
+
+    /**
+     * PoolParticipant that is used with the HeapPool.
+     */
+    private final class Participant implements PoolParticipant {
+
+        private final EventRateSimpleMovingAverage hitRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+        private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+
+        private Participant() {
+            OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.HIT), hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.MISS), missRate));
+        }
+
+        @Override
+        public boolean evict(int count, long size) {
+            if (storePinned) {
+                return false;
+            }
+
+            for (int i = 0; i < count; i++) {
+                boolean removed = removeElementChosenByEvictionPolicy(null);
+                if (!removed) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public float getApproximateHitRate() {
+            return hitRate.rate(TimeUnit.SECONDS).floatValue();
+        }
+
+        @Override
+        public float getApproximateMissRate() {
+            return missRate.rate(TimeUnit.SECONDS).floatValue();
+        }
+
+        @Override
+        public long getApproximateCountSize() {
+            return map.quickSize();
+        }
     }
 
     /**

@@ -20,14 +20,23 @@ import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
-import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
-import net.sf.ehcache.util.ratestatistics.RateStatistic;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.terracotta.statistics.observer.OperationObserver;
+
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
+import org.terracotta.statistics.derived.OperationResultFilter;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * A backend to a OnHeapCachingTier that will be cap'ed using a pool
@@ -41,14 +50,11 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
 
     private static final int MAX_EVICTIONS = 5;
 
-    private final RateStatistic hitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
-    private final RateStatistic missRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
-
-
     private volatile Policy policy;
     private volatile EvictionCallback<K, V> evictionCallback;
-    private AtomicReference<PoolAccessor> poolAccessor = new AtomicReference<PoolAccessor>();
+    private final AtomicReference<PoolAccessor> poolAccessor = new AtomicReference<PoolAccessor>();
 
+    private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("arc-get").of(this).tag("private").build();
 
     /**
      * Constructs a Pooled backend
@@ -71,11 +77,12 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
 
     @Override
     public V get(final Object key) {
+        getObserver.begin();
         final V value = super.get(key);
         if (value != null) {
-            hitRate.event();
+            getObserver.end(GetOutcome.HIT);
         } else {
-            missRate.event();
+            getObserver.end(GetOutcome.MISS);
         }
         return value;
     }
@@ -187,22 +194,6 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     }
 
     /**
-     * hit rate for this backend
-     * @return the hit rate
-     */
-    public float getHitRate() {
-        return hitRate.getRate();
-    }
-
-    /**
-     * miss rate for this backend
-     * @return the miss rate
-     */
-    public float getMissRate() {
-        return missRate.getRate();
-    }
-
-    /**
      * tries to evict as many entries as specified
      * @param evictions amount of entries to be evicted
      * @return return true if exactly the right amount of evictions could happen, false otherwise
@@ -275,6 +266,8 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
      */
     public static class PoolParticipant implements net.sf.ehcache.pool.PoolParticipant {
 
+        private final EventRateSimpleMovingAverage hitRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+        private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
         private final PooledBasedBackEnd<Object, Object> pooledBasedBackEnd;
 
         /**
@@ -283,6 +276,9 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
          */
         public PoolParticipant(final PooledBasedBackEnd<Object, Object> pooledBasedBackEnd) {
             this.pooledBasedBackEnd = pooledBasedBackEnd;
+            OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(pooledBasedBackEnd.getObserver);
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.HIT), hitRate));
+            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.MISS), missRate));
         }
 
         @Override
@@ -292,12 +288,12 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
 
         @Override
         public float getApproximateHitRate() {
-            return pooledBasedBackEnd.getHitRate();
+            return hitRate.rateUsingSeconds().floatValue();
         }
 
         @Override
         public float getApproximateMissRate() {
-            return pooledBasedBackEnd.getMissRate();
+            return missRate.rateUsingSeconds().floatValue();
         }
 
         @Override

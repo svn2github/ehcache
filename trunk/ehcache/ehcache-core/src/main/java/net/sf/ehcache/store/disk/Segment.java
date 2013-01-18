@@ -23,9 +23,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -37,11 +37,10 @@ import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
 import net.sf.ehcache.util.FindBugsSuppressWarnings;
-import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
-import net.sf.ehcache.util.ratestatistics.RateStatistic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.observer.OperationObserver;
 
 /**
  * Segment implementation used in LocalStore.
@@ -97,12 +96,12 @@ public class Segment extends ReentrantReadWriteLock {
      */
     private int threshold;
 
-    private final RateStatistic diskHitRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
-    private final RateStatistic diskMissRate = new AtomicRateStatistic(1000, TimeUnit.MILLISECONDS);
     private final PoolAccessor onHeapPoolAccessor;
     private final PoolAccessor onDiskPoolAccessor;
     private final RegisteredEventListeners cacheEventNotificationService;
     private volatile boolean cachePinned;
+
+    private final OperationObserver<EvictionOutcome> evictionObserver;
 
     /**
      * Create a Segment with the given initial capacity, load-factor, primary element substitute factory, and identity element substitute factory.
@@ -124,11 +123,13 @@ public class Segment extends ReentrantReadWriteLock {
      */
     public Segment(int initialCapacity, float loadFactor, DiskStorageFactory primary,
                    CacheConfiguration cacheConfiguration,
-                   PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor, 
-                   RegisteredEventListeners cacheEventNotificationService) {
+                   PoolAccessor onHeapPoolAccessor, PoolAccessor onDiskPoolAccessor,
+                   RegisteredEventListeners cacheEventNotificationService,
+                   OperationObserver<EvictionOutcome> evictionObserver) {
         this.onHeapPoolAccessor = onHeapPoolAccessor;
         this.onDiskPoolAccessor = onDiskPoolAccessor;
         this.cacheEventNotificationService = cacheEventNotificationService;
+        this.evictionObserver = evictionObserver;
         this.table = new HashEntry[initialCapacity];
         this.threshold = (int) (table.length * loadFactor);
         this.modCount = 0;
@@ -229,7 +230,6 @@ public class Segment extends ReentrantReadWriteLock {
                     e = e.next;
                 }
             }
-            miss();
             return null;
         } finally {
             readLock().unlock();
@@ -891,6 +891,7 @@ public class Segment extends ReentrantReadWriteLock {
     Element evict(Object key, int hash, DiskSubstitute value, boolean notify) {
 
         if (writeLock().tryLock()) {
+            evictionObserver.begin();
             Element evictedElement = null;
             try {
                 HashEntry[] tab = table;
@@ -947,6 +948,7 @@ public class Segment extends ReentrantReadWriteLock {
                     if (evictedElement.isExpired()) {
                         cacheEventNotificationService.notifyElementExpiry(evictedElement, false);
                     } else {
+                        evictionObserver.end(EvictionOutcome.SUCCESS);
                         cacheEventNotificationService.notifyElementEvicted(evictedElement, false);
                     }
                 }
@@ -1173,35 +1175,5 @@ public class Segment extends ReentrantReadWriteLock {
             Segment.this.remove(lastReturned.key, lastReturned.hash, null, null);
             lastReturned = null;
         }
-    }
-
-    /**
-     * Return the disk hit rate
-     * @return the disk hit rate
-     */
-    public float getDiskHitRate() {
-        return diskHitRate.getRate();
-    }
-
-    /**
-     * Return the disk miss rate
-     * @return the disk miss rate
-     */
-    public float getDiskMissRate() {
-        return diskMissRate.getRate();
-    }
-
-    /**
-     * Record a hit in the disk tier
-     */
-    protected void diskHit() {
-        diskHitRate.event();
-    }
-
-    /**
-     * Record a miss in the disk tier
-     */
-    protected void miss() {
-        diskMissRate.event();
     }
 }

@@ -312,9 +312,9 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          if (cache.getMemoryStoreSize() <= max && cache.getMemoryStoreSize() >= min) { return true; }
+          if (cache.getStatistics().getLocalHeapSize() <= max && cache.getStatistics().getLocalHeapSize() >= min) { return true; }
           System.out.println("Still waiting for memory store size to fall in bounds [" + lowerBound + ", " + upperBound
-                             + "] current=" + cache.getMemoryStoreSize());
+                             + "] current=" + cache.getStatistics().getLocalHeapSize());
           return false;
         }
       }, 30000);

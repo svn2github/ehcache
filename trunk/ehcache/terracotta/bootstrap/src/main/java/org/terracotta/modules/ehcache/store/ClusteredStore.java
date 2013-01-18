@@ -64,7 +64,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
+import org.terracotta.statistics.observer.OperationObserver;
+import org.terracotta.statistics.Statistic;
 import javax.swing.event.EventListenerList;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 public class ClusteredStore implements TerracottaStore, StoreListener {
 
@@ -95,6 +100,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   private EventListenerList                                   listenerList;
   private final ToolkitLock                                   eventualConcurrentLock;
   private final boolean                                       isEventual;
+
+  private final OperationObserver<EvictionOutcome>            evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache,
                         BulkLoadShutdownHook bulkLoadShutdownHook) {
@@ -464,11 +471,13 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   }
 
   @Override
+  @Statistic(name="size", tags="local-heap")
   public int getInMemorySize() {
     return backend.localOnHeapSize();
   }
 
   @Override
+  @Statistic(name="size", tags="local-offheap")
   public int getOffHeapSize() {
     return backend.localOffHeapSize();
   }
@@ -479,16 +488,19 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   }
 
   @Override
+  @Statistic(name="size", tags="remote")
   public int getTerracottaClusteredSize() {
     return backend.size();
   }
 
   @Override
+  @Statistic(name="size-in-bytes", tags="local-heap")
   public long getInMemorySizeInBytes() {
     return backend.localOnHeapSizeInBytes();
   }
 
   @Override
+  @Statistic(name="size-in-bytes", tags="local-offheap")
   public long getOffHeapSizeInBytes() {
     return backend.localOffHeapSizeInBytes();
   }
@@ -763,6 +775,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
     @Override
     public void onEviction(Object key) {
+      evictionObserver.begin();
+      evictionObserver.end(EvictionOutcome.SUCCESS);
       Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
       registeredEventListeners.notifyElementEvicted(element, false);
     }

@@ -8,6 +8,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
@@ -82,11 +83,11 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
       }
       Assert.assertEquals(NUM_OF_ELEMENTS, cache.getSize());
       System.out.println("XXXXXX client " + index + " cache size: " + cache.getSize() + " local: "
-                         + cache.getMemoryStoreSize());
+                         + cache.getStatistics().getLocalHeapSize());
       if (index == 0) {
-        Assert.assertTrue(cache.getMemoryStoreSize() > 0);
+        Assert.assertTrue(cache.getStatistics().getLocalHeapSize() > 0);
       } else {
-        Assert.assertEquals(0, cache.getMemoryStoreSize());
+        Assert.assertEquals(0, cache.getStatistics().getLocalHeapSize());
       }
 
       System.out.println("XXXXX starting test threads....");
@@ -115,7 +116,6 @@ public class L1BMOnHeapReadWriteTest extends AbstractCacheTestBase {
 
       Cache cache = new Cache(cacheConfiguration);
       cm.addCache(cache);
-      cache.setStatisticsEnabled(isWithStats);
       return cache;
     }
 

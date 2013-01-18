@@ -61,7 +61,7 @@ public class ClockMemoryStoreTest extends MemoryStoreTester {
         }
 
         System.out.println(TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start));
-        System.out.println(cache.getMemoryStoreSize());
+        System.out.println(cache.getStatistics().getLocalHeapSize());
     }
 
     @Test
@@ -70,6 +70,6 @@ public class ClockMemoryStoreTest extends MemoryStoreTester {
         for(int i = 0; i < 1000; i++) {
             cache.put(new Element(i, i));
         }
-        assertThat(cache.getMemoryStoreSize(), is(150L));
+        assertThat(cache.getStatistics().getLocalHeapSize(), is(150L));
     }
 }

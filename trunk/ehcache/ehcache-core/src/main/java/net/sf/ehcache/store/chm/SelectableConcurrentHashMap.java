@@ -30,9 +30,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.PoolAccessor;
+import org.terracotta.statistics.observer.OperationObserver;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * SelectableConcurrentHashMap subclasses a repackaged version of ConcurrentHashMap
@@ -93,6 +97,8 @@ public class SelectableConcurrentHashMap {
     private Set<Map.Entry<Object,Element>> entrySet;
     private Collection<Element> values;
 
+    private final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+    
     public SelectableConcurrentHashMap(PoolAccessor poolAccessor, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
         if (!(loadFactor > 0) || initialCapacity < 0 || concurrency <= 0)
             throw new IllegalArgumentException();
@@ -645,6 +651,7 @@ public class SelectableConcurrentHashMap {
                     if (SelectableConcurrentHashMap.this.maxSize > 0) {
                         int runs = Math.min(MAX_EVICTION, SelectableConcurrentHashMap.this.quickSize() - (int) SelectableConcurrentHashMap.this.maxSize);
                         while (runs-- > 0) {
+                            evictionObserver.begin();
                             Element evict = nextExpiredOrToEvict(value);
                             if (evict != null) {
                                 Element removed;
@@ -656,6 +663,7 @@ public class SelectableConcurrentHashMap {
                                 }
                                 evicted[runs] = removed;
                             }
+                            evictionObserver.end(EvictionOutcome.SUCCESS);
                         }
                     }
                 }
@@ -767,7 +775,13 @@ public class SelectableConcurrentHashMap {
             try {
                 Element evict = nextExpiredOrToEvict(null);
                 if (evict != null) {
-                    remove = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                    if (cacheEventNotificationService != null) {
+                        evictionObserver.begin();
+                        remove = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                        evictionObserver.end(EvictionOutcome.SUCCESS);
+                    } else {
+                        remove = remove(evict.getKey(), hash(evict.getKey().hashCode()), null);
+                    }
                 }
             } finally {
                 writeLock().unlock();

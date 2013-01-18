@@ -41,7 +41,6 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
     private volatile Policy policy;
     private volatile EvictionCallback<K, V> evictionCallback;
 
-
     /**
      * Constructs a cap'ed backend
      * @param maxEntriesLocalHeap amount of mappings this should hold before it starts evicting

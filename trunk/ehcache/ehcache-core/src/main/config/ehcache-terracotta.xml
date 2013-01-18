@@ -289,11 +289,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     whether the MemoryStore should be cleared when flush() is called on the cache.
     By default, this is true i.e. the MemoryStore is cleared.
 
-    statistics:
-    Whether to collect statistics. Note that this should be turned on if you are using
-    the Ehcache Monitor. By default statistics is turned off to favour raw performance.
-    To enable set statistics="true"
-
     memoryStoreEvictionPolicy:
     Policy would be enforced upon reaching the maxEntriesLocalHeap limit. Default
     policy is Least Recently Used (specified as LRU). Other policies available -

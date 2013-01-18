@@ -18,6 +18,9 @@ package net.sf.ehcache.management.sampled;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
+import net.sf.ehcache.util.counter.sampled.SampledCounter;
+import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +49,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     private final String immutableCacheName;
 
     static {
-        final String[] notifTypes = new String[] {CACHE_ENABLED, CACHE_CHANGED, CACHE_FLUSHED, CACHE_STATISTICS_ENABLED,
-            CACHE_STATISTICS_RESET};
+        final String[] notifTypes = new String[] {CACHE_ENABLED, CACHE_CHANGED, CACHE_FLUSHED, };
         final String name = Notification.class.getName();
         final String description = "Ehcache SampledCache Event";
         NOTIFICATION_INFO = new MBeanNotificationInfo[] {new MBeanNotificationInfo(notifTypes, name, description)};
@@ -140,13 +142,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     public void removeAll() {
         sampledCacheDelegate.removeAll();
         sendNotification(CACHE_CLEARED, getCacheAttributes(), getImmutableCacheName());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getAverageGetTimeMostRecentSample() {
-        return sampledCacheDelegate.getAverageGetTimeMostRecentSample();
     }
 
     @Override
@@ -353,42 +348,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
-    public int getStatisticsAccuracy() {
-        return sampledCacheDelegate.getStatisticsAccuracy();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getStatisticsAccuracyDescription() {
-        return sampledCacheDelegate.getStatisticsAccuracyDescription();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void clearStatistics() {
-        sampledCacheDelegate.clearStatistics();
-        sendNotification(CACHE_STATISTICS_RESET, getCacheAttributes(), getImmutableCacheName());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isStatisticsEnabled() {
-        return sampledCacheDelegate.isStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isSampledStatisticsEnabled() {
-        return sampledCacheDelegate.isSampledStatisticsEnabled();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean isTerracottaClustered() {
         return sampledCacheDelegate.isTerracottaClustered();
     }
@@ -398,51 +357,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public String getTerracottaConsistency() {
         return sampledCacheDelegate.getTerracottaConsistency();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableStatistics()
-     */
-    public void enableStatistics() {
-        sampledCacheDelegate.enableStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#disableStatistics()
-     */
-    public void disableStatistics() {
-        sampledCacheDelegate.disableStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#setStatisticsEnabled(boolean)
-     */
-    public void setStatisticsEnabled(boolean statsEnabled) {
-        sampledCacheDelegate.setStatisticsEnabled(statsEnabled);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#enableSampledStatistics()
-     */
-    public void enableSampledStatistics() {
-        sampledCacheDelegate.enableSampledStatistics();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#disableSampledStatistics ()
-     */
-    public void disableSampledStatistics() {
-        sampledCacheDelegate.disableSampledStatistics();
     }
 
     /**
@@ -492,45 +406,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
 
     /**
      * {@inheritDoc}
-     */
-    public long getCacheAverageGetTime() {
-        return sampledCacheDelegate.getCacheAverageGetTime();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeMillis()
-     */
-    public float getAverageGetTimeMillis() {
-        return sampledCacheDelegate.getAverageGetTimeMillis();
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getAverageGetTimeNanos()
      */
     public long getAverageGetTimeNanos() {
         return sampledCacheDelegate.getAverageGetTimeNanos();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeMillis()
-     */
-    public long getMaxGetTimeMillis() {
-        return sampledCacheDelegate.getMaxGetTimeMillis();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeMillis()
-     */
-    public long getMinGetTimeMillis() {
-        return sampledCacheDelegate.getMinGetTimeMillis();
     }
 
     /**
@@ -1218,7 +1098,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
             result.put("ClusterBulkLoadEnabled", isClusterBulkLoadEnabled());
             result.put("ClusterCoherent", isClusterCoherent());
         }
-        result.put("StatisticsEnabled", isStatisticsEnabled());
         result.put("WriterConcurrency", getWriterConcurrency());
         result.put("Transactional", getTransactional());
         result.put("PinnedToStore", getPinnedToStore());
@@ -1246,13 +1125,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     @Override
     protected void doDispose() {
         sampledCacheDelegate.dispose();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getAverageSearchTime() {
-        return sampledCacheDelegate.getAverageSearchTime();
     }
 
     /**
@@ -1286,8 +1158,8 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
-    public long getCacheAverageSearchTime() {
-        return sampledCacheDelegate.getCacheAverageSearchTime();
+    public long getCacheAverageSearchTimeNanos() {
+        return sampledCacheDelegate.getCacheAverageSearchTimeNanos();
     }
 
     /**
@@ -1330,5 +1202,125 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      */
     public int getCacheHitRatioMostRecentSample() {
         return sampledCacheDelegate.getCacheHitRatioMostRecentSample();
+    }
+
+    @Override
+    public long getAverageSearchTimeNanos() {
+        return sampledCacheDelegate.getAverageSearchTimeNanos();
+    }
+
+    @Override
+    public long getCacheAverageGetTimeNanos() {
+        return sampledCacheDelegate.getCacheAverageGetTimeNanos();
+    }
+
+    @Override
+    public SampledCounter getCacheHitSample() {
+        return sampledCacheDelegate.getCacheHitSample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitRatioSample() {
+        return sampledCacheDelegate.getCacheHitRatioSample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitInMemorySample() {
+        return sampledCacheDelegate.getCacheHitInMemorySample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitOffHeapSample() {
+        return sampledCacheDelegate.getCacheHitOffHeapSample();
+    }
+
+    @Override
+    public SampledCounter getCacheHitOnDiskSample() {
+        return sampledCacheDelegate.getCacheHitOnDiskSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissSample() {
+        return sampledCacheDelegate.getCacheMissSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissInMemorySample() {
+        return sampledCacheDelegate.getCacheMissInMemorySample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissOffHeapSample() {
+        return sampledCacheDelegate.getCacheMissOffHeapSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissOnDiskSample() {
+        return sampledCacheDelegate.getCacheMissOnDiskSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissExpiredSample() {
+        return sampledCacheDelegate.getCacheMissExpiredSample();
+    }
+
+    @Override
+    public SampledCounter getCacheMissNotFoundSample() {
+        return sampledCacheDelegate.getCacheMissNotFoundSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementEvictedSample() {
+        return sampledCacheDelegate.getCacheElementEvictedSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementRemovedSample() {
+        return sampledCacheDelegate.getCacheElementRemovedSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementExpiredSample() {
+        return sampledCacheDelegate.getCacheElementExpiredSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementPutSample() {
+        return sampledCacheDelegate.getCacheElementPutSample();
+    }
+
+    @Override
+    public SampledCounter getCacheElementUpdatedSample() {
+        return sampledCacheDelegate.getCacheElementUpdatedSample();
+    }
+
+    @Override
+    public SampledRateCounter getAverageGetTimeSample() {
+        return sampledCacheDelegate.getAverageGetTimeSample();
+    }
+
+    @Override
+    public SampledRateCounter getAverageGetTimeNanosSample() {
+        return sampledCacheDelegate.getAverageGetTimeNanosSample();
+    }
+
+    @Override
+    public SampledRateCounter getAverageSearchTimeSample() {
+        return sampledCacheDelegate.getAverageSearchTimeSample();
+    }
+
+    @Override
+    public SampledCounter getSearchesPerSecondSample() {
+        return sampledCacheDelegate.getSearchesPerSecondSample();
+    }
+
+    @Override
+    public SampledCounter getCacheXaCommitsSample() {
+        return sampledCacheDelegate.getCacheXaCommitsSample();
+    }
+
+    @Override
+    public SampledCounter getCacheXaRollbacksSample() {
+        return sampledCacheDelegate.getCacheXaRollbacksSample();
     }
 }

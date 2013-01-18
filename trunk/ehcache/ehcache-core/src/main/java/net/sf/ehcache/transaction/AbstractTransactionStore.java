@@ -40,6 +40,7 @@ import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
+import org.terracotta.context.annotations.ContextChild;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
 /**
@@ -52,7 +53,7 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
     /**
      * The underlying store wrapped by this store
      */
-    protected final Store underlyingStore;
+    @ContextChild protected final Store underlyingStore;
 
     /**
      * The copy strategy for this store

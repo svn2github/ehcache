@@ -895,7 +895,6 @@ public class DiskStorageFactory {
         if (object instanceof DiskMarker) {
             try {
                 DiskMarker marker = (DiskMarker) object;
-                segment.diskHit();
                 Element e = read(marker);
                 marker.hit(e);
                 return e;
@@ -905,10 +904,8 @@ public class DiskStorageFactory {
                 throw new CacheException(e);
             }
         } else if (object instanceof DiskStorageFactory.Placeholder) {
-            segment.diskHit();
             return ((Placeholder) object).getElement();
         } else {
-            segment.miss();
             return null;
         }
     }

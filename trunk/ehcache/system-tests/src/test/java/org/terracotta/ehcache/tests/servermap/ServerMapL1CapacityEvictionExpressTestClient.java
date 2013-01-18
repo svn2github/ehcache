@@ -31,14 +31,14 @@ public class ServerMapL1CapacityEvictionExpressTestClient extends ServerMapClien
     }
 
     System.out.println("Cache populated. Sleeping for 3 secs. size: " + cache.getSize() + " inMemorySize: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
     Thread.sleep(3000);
 
     System.out.println("After sleeping 3 secs. size: " + cache.getSize() + " inMemorySize: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
     // assert range as some may have got evicted while populating cache
     assertRange(4500, 5100, cache.getSize());
-    assertRange(0, 5100, cache.getMemoryStoreSize());
+    assertRange(0, 5100, cache.getStatistics().getLocalHeapSize());
 
     // add some more elements, to get eviction kicking if not already
     for (int i = 5100; i < 5200; i++) {
@@ -46,16 +46,16 @@ public class ServerMapL1CapacityEvictionExpressTestClient extends ServerMapClien
     }
 
     System.out.println("After adding 100 more. size: " + cache.getSize() + " inMemorySize: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
 
     System.out.println("Sleeping for 1.5 mins (now=" + new Date() + ") ... ");
     // Wait a bit for the capacity evictor to do its thing.
     Thread.sleep(15 * 6 * 1000);
 
     System.out.println("After sleeping for 1.5 mins. Size: " + cache.getSize() + " inMemorySize: "
-                       + cache.getMemoryStoreSize());
+                       + cache.getStatistics().getLocalHeapSize());
     // l1 cacacity evicts 20% extra of maxInMemory
-    assertRange(0, 5000, cache.getMemoryStoreSize());
+    assertRange(0, 5000, cache.getStatistics().getLocalHeapSize());
 
   }
 

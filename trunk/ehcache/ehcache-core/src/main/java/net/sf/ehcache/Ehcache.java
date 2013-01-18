@@ -32,9 +32,7 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
@@ -510,25 +508,6 @@ public interface Ehcache extends Cloneable {
     int getSize() throws IllegalStateException, CacheException;
 
     /**
-     * Accurately measuring statistics can be expensive. Returns the size of the
-     * cache based on the accuracy setting
-     *
-     * @param statisticsAccuracy
-     *            one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT},
-     *            {@link Statistics#STATISTICS_ACCURACY_GUARANTEED},
-     *            {@link Statistics#STATISTICS_ACCURACY_NONE}
-     * @return the size of the cache based on the current accuracy setting
-     * @throws IllegalArgumentException
-     *             if the statisticsAccuracy is not one of the above
-     * @throws IllegalStateException
-     *             if the cache is not
-     *             {@link net.sf.ehcache.Status#STATUS_ALIVE}
-     */
-    int getSizeBasedOnAccuracy(int statisticsAccuracy)
-            throws IllegalArgumentException, IllegalStateException,
-            CacheException;
-
-    /**
      * Gets the size of the memory store for this cache
      * <p/>
      * Warning: This method can be very expensive to run. Allow approximately 1 second
@@ -539,7 +518,7 @@ public interface Ehcache extends Cloneable {
      * @return the approximate size of the memory store in bytes
      * @throws IllegalStateException
      */
-    long calculateInMemorySize() throws IllegalStateException, CacheException;
+    @Deprecated long calculateInMemorySize() throws IllegalStateException, CacheException;
 
     /**
      * Gets the size of the off-heap store for this cache
@@ -547,7 +526,7 @@ public interface Ehcache extends Cloneable {
      * @return the size of the off-heap store in bytes
      * @throws IllegalStateException
      */
-    long calculateOffHeapSize() throws IllegalStateException, CacheException;
+    @Deprecated long calculateOffHeapSize() throws IllegalStateException, CacheException;
 
     /**
      * Gets the size of the on-disk store for this cache
@@ -555,7 +534,7 @@ public interface Ehcache extends Cloneable {
      * @return the size of the on-disk store in bytes
      * @throws IllegalStateException
      */
-    long calculateOnDiskSize() throws IllegalStateException, CacheException;
+    @Deprecated long calculateOnDiskSize() throws IllegalStateException, CacheException;
 
     /**
      * Check if the cache may contain elements which the SizeOf engine could not fully size.
@@ -570,7 +549,7 @@ public interface Ehcache extends Cloneable {
      * @return the number of elements in the memory store
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-    long getMemoryStoreSize() throws IllegalStateException;
+    @Deprecated long getMemoryStoreSize() throws IllegalStateException;
 
     /**
      * Returns the number of elements in the off-heap store.
@@ -578,7 +557,7 @@ public interface Ehcache extends Cloneable {
      * @return the number of elements in the off-heap store
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-    long getOffHeapStoreSize() throws IllegalStateException;
+    @Deprecated long getOffHeapStoreSize() throws IllegalStateException;
 
     /**
      * Returns the number of elements in the disk store.
@@ -586,7 +565,7 @@ public interface Ehcache extends Cloneable {
      * @return the number of elements in the disk store.
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
      */
-    int getDiskStoreSize() throws IllegalStateException;
+    @Deprecated int getDiskStoreSize() throws IllegalStateException;
 
     /**
      * Gets the status attribute of the Cache.
@@ -710,27 +689,6 @@ public interface Ehcache extends Cloneable {
     CacheManager getCacheManager();
 
     /**
-     * Resets statistics counters back to 0.
-     */
-    void clearStatistics();
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
-     *
-     * @return one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
-     */
-    public int getStatisticsAccuracy();
-
-
-    /**
-     * Sets the statistics accuracy.
-     *
-     * @param statisticsAccuracy one of {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link Statistics#STATISTICS_ACCURACY_NONE}
-     */
-    public void setStatisticsAccuracy(int statisticsAccuracy);
-
-
-    /**
      * Causes all elements stored in the Cache to be synchronously checked for expiry, and if expired, evicted.
      */
     void evictExpiredElements();
@@ -788,50 +746,7 @@ public interface Ehcache extends Cloneable {
      * @return the number of elements in the ehcache, with a varying degree of accuracy, depending on accuracy setting.
      * @throws IllegalStateException if the cache is not {@link Status#STATUS_ALIVE}
      */
-    Statistics getStatistics() throws IllegalStateException;
-
-    /**
-     * This is different from {@link #getStatistics()} in the way that values
-     * returned from {@link LiveCacheStatistics} will reflect the current state
-     * of the cache (and not a snapshot of the cache when the api's were called
-     * like {@link #getStatistics()})
-     *
-     * @return The {@link LiveCacheStatistics} associated with this cache
-     * @throws IllegalStateException
-     * @since 1.7
-     */
-    LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException;
-
-    /**
-     * An access for the {@link CacheStatisticsSampler} associated to this {@code Ehcache}
-     *
-     * @return the {@code CacheStatisticsSampler}
-     */
-    CacheStatisticsSampler getCacheStatisticsSampler();
-
-    /**
-     * Registers a {@link CacheUsageListener} which will be notified of the
-     * cache
-     * usage.
-     * Implementations of {@link CacheUsageListener} should override the
-     * {@link Object#equals(Object)} and {@link Object#hashCode()} methods as it is used for
-     * equality check
-     *
-     * @throws IllegalStateException
-     * @since 1.7
-     */
-    void registerCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException;
-
-    /**
-     * Remove an already registered {@link CacheUsageListener}, if any.
-     * Depends on the {@link Object#equals(Object)} method.
-     *
-     * @throws IllegalStateException
-     * @since 1.7
-     */
-    void removeCacheUsageListener(CacheUsageListener cacheUsageListener)
-            throws IllegalStateException;
+    StatisticsGateway getStatistics() throws IllegalStateException;
 
     /**
      * Sets the CacheManager
@@ -904,11 +819,6 @@ public interface Ehcache extends Cloneable {
      * @return the cache extensions as a live list
      */
     public List<CacheExtension> getRegisteredCacheExtensions();
-
-    /**
-     * The average get time in ms.
-     */
-    public float getAverageGetTime();
 
     /**
      * Sets an ExceptionHandler on the Cache. If one is already set, it is overwritten.
@@ -1078,49 +988,6 @@ public interface Ehcache extends Cloneable {
     public void setDisabled(boolean disabled);
 
     /**
-     * Returns true if statistics collection is enabled
-     *
-     * @return true if statistics is enabled, false otherwise
-     */
-    public boolean isStatisticsEnabled();
-
-    /**
-     * Enable/disable statistics collection.
-     * Enabling statistics does not have any effect on sampled statistics. To
-     * enable sampled statistics, use
-     * {@link #setSampledStatisticsEnabled(boolean)} with
-     * parameter <tt>true</tt>.
-     * Disabling statistics also disables the sampled statistics collection if
-     * it is enabled
-     *
-     * @param enableStatistics
-     */
-    public void setStatisticsEnabled(boolean enableStatistics);
-
-    /**
-     * Returns sampled statistics for this cache.
-     *
-     * @return The sampled cache statistics
-     */
-    public SampledCacheStatistics getSampledCacheStatistics();
-
-    /**
-     * Enable/disable sampled statistics collection.
-     * Enabling sampled statistics also enables the normal statistics collection if its not already enabled.
-     * Disabling sampled statistics does not have any effect on normal statistics.
-     *
-     * @param enableStatistics
-     */
-    public void setSampledStatisticsEnabled(boolean enableStatistics);
-
-    /**
-     * Returns if sampled statistics collection is enabled or disabled
-     *
-     * @return true if sampled statistics is enabled, false otherwise
-     */
-    public boolean isSampledStatisticsEnabled();
-
-    /**
      * This should not be used
      * return some internal context (generally will be null)
      */
@@ -1240,16 +1107,6 @@ public interface Ehcache extends Cloneable {
     public boolean isSearchable();
 
     /**
-     * Get the average search execution time (in millis) for searches that have completed in the last sample period
-     */
-    public long getAverageSearchTime();
-
-    /**
-     * Get the number of search executions that have completed in the last second
-     */
-    public long getSearchesPerSecond();
-
-    /**
      * Acquires the proper read lock for a given cache key
      *
      * @param key - The key that retrieves a value that you want to protect via locking
@@ -1364,5 +1221,6 @@ public interface Ehcache extends Cloneable {
      * @throws UnsupportedOperationException if the cache is not clustered with Terracotta
      */
     public void waitUntilClusterBulkLoadComplete() throws UnsupportedOperationException, TerracottaNotRunningException;
+
 
 }

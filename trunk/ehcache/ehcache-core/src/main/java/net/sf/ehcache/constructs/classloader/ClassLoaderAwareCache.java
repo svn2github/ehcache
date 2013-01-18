@@ -31,7 +31,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -41,14 +40,12 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
-import net.sf.ehcache.statistics.CacheUsageListener;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
-import net.sf.ehcache.statistics.sampled.CacheStatisticsSampler;
-import net.sf.ehcache.statistics.sampled.SampledCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
+import org.terracotta.context.annotations.ContextChild;
 
 /**
  * A cache decorator that adjusts the Thread context classloader (TCCL) for every cache operation. The TCCL is reset to its original value
@@ -66,6 +63,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
      * Used by InternalClassLoaderAwareCache
      */
+    @ContextChild
     protected final Ehcache cache;
 
     /**
@@ -291,22 +289,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public int getSizeBasedOnAccuracy(int arg0) throws IllegalArgumentException, IllegalStateException, CacheException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getSizeBasedOnAccuracy(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public long calculateInMemorySize() throws IllegalStateException, CacheException {
+    @Deprecated public long calculateInMemorySize() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -321,7 +304,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public long calculateOffHeapSize() throws IllegalStateException, CacheException {
+    @Deprecated public long calculateOffHeapSize() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -336,7 +319,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public long calculateOnDiskSize() throws IllegalStateException, CacheException {
+    @Deprecated public long calculateOnDiskSize() throws IllegalStateException, CacheException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -366,7 +349,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public long getMemoryStoreSize() throws IllegalStateException {
+    @Deprecated public long getMemoryStoreSize() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -381,7 +364,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public long getOffHeapStoreSize() throws IllegalStateException {
+    @Deprecated public long getOffHeapStoreSize() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -396,7 +379,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public int getDiskStoreSize() throws IllegalStateException {
+    @Deprecated public int getDiskStoreSize() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
@@ -531,51 +514,6 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public void clearStatistics() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.clearStatistics();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public int getStatisticsAccuracy() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getStatisticsAccuracy();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public void setStatisticsAccuracy(int arg0) {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.setStatisticsAccuracy(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
     public void evictExpiredElements() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -621,73 +559,13 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public Statistics getStatistics() throws IllegalStateException {
+    public StatisticsGateway getStatistics() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
         t.setContextClassLoader(this.classLoader);
         try {
             return this.cache.getStatistics();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public LiveCacheStatistics getLiveCacheStatistics() throws IllegalStateException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getLiveCacheStatistics();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public CacheStatisticsSampler getCacheStatisticsSampler() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getCacheStatisticsSampler();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public void registerCacheUsageListener(CacheUsageListener arg0) throws IllegalStateException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.registerCacheUsageListener(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public void removeCacheUsageListener(CacheUsageListener arg0) throws IllegalStateException {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.removeCacheUsageListener(arg0);
         } finally {
             t.setContextClassLoader(prev);
         }
@@ -828,20 +706,6 @@ public class ClassLoaderAwareCache implements Ehcache {
         }
     }
 
-    /**
-    * {@inheritDoc}
-    */
-    public float getAverageGetTime() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getAverageGetTime();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
 
     /**
     * {@inheritDoc}
@@ -1026,81 +890,6 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public boolean isStatisticsEnabled() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.isStatisticsEnabled();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public void setStatisticsEnabled(boolean arg0) {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.setStatisticsEnabled(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public SampledCacheStatistics getSampledCacheStatistics() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getSampledCacheStatistics();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public void setSampledStatisticsEnabled(boolean arg0) {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            this.cache.setSampledStatisticsEnabled(arg0);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public boolean isSampledStatisticsEnabled() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.isSampledStatisticsEnabled();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
     public Object getInternalContext() {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
@@ -1262,37 +1051,6 @@ public class ClassLoaderAwareCache implements Ehcache {
             t.setContextClassLoader(prev);
         }
     }
-
-    /**
-    * {@inheritDoc}
-    */
-    public long getAverageSearchTime() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getAverageSearchTime();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    /**
-    * {@inheritDoc}
-    */
-    public long getSearchesPerSecond() {
-        // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return this.cache.getSearchesPerSecond();
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
     /**
     * {@inheritDoc}
     */
