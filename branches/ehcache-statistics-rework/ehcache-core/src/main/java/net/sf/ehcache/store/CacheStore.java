@@ -136,6 +136,7 @@ public class CacheStore implements Store {
     public boolean put(final Element element) throws CacheException {
         final boolean[] hack = new boolean[1];
         cachingTier.remove(element.getObjectKey());
+      try {
         if (cachingTier.get(element.getObjectKey(), new Callable<Element>() {
             @Override
             public Element call() throws Exception {
@@ -146,7 +147,14 @@ public class CacheStore implements Store {
             cachingTier.remove(element.getObjectKey());
             return authoritativeTier.put(element);
         }
-        return hack[0];
+      } catch (Throwable e) {
+        cachingTier.remove(element.getObjectKey());
+        if (e instanceof RuntimeException) {
+          throw (RuntimeException) e;
+        }
+        throw new CacheException(e);
+      }
+      return hack[0];
     }
 
     // TODO this is probably not optimum
@@ -322,7 +330,7 @@ public class CacheStore implements Store {
     @Override
     public long getOffHeapSizeInBytes() {
         // TODO delegate to pool accessors here ??
-        throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+        return cachingTier.getOnDiskSizeInBytes() + authoritativeTier.getOffHeapSizeInBytes();
     }
 
     @Override
@@ -334,7 +342,7 @@ public class CacheStore implements Store {
     @Override
     public boolean hasAbortedSizeOf() {
         // TODO delegate to pool accessors here ??
-        throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+        return authoritativeTier.hasAbortedSizeOf();
     }
 
     @Override
