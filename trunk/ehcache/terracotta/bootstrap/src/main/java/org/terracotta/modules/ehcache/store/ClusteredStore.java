@@ -151,12 +151,15 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     // This is done so that the element and elementData classes mappings are put by the toolkit internal serializer.
     // this will ensure transactions being atomic for putWithWriter and removeWithWriter.
     Configuration syncConfiguration = new ToolkitCacheConfigBuilder()
-        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).build();
-    ToolkitStore serializationHelperStore = toolkitInternal.getStore("MAP-FOR-SERIALIZATION-HELPER", syncConfiguration,
+        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).concurrency(1)
+        .build();
+    ToolkitStore<String, Object> serializationHelperStore = toolkitInternal.getStore("STORE-FOR-SERIALIZATION-HELPER",
+                                                                                     syncConfiguration,
                                                                      Object.class);
     Element element = new Element("key", "value");
-    serializationHelperStore.put(element, valueModeHandler.createElementData(element));
-    serializationHelperStore.remove(element);
+    serializationHelperStore.put("elementData", valueModeHandler.createElementData(element));
+    serializationHelperStore.put("element", element);
+    serializationHelperStore.clear();
     serializationHelperStore.destroy();
   }
 
