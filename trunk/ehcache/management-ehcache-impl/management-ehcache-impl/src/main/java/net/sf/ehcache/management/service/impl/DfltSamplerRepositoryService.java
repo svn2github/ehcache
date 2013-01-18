@@ -664,7 +664,7 @@ public class DfltSamplerRepositoryService
             if (mbldsAttr != null) cs.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
 
             Object mblhAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_HEAP);
-            if (mblhAttr != null) cs.setMaxBytesLocalDisk(Long.parseLong(mblhAttr.toString()));
+            if (mblhAttr != null) cs.setMaxBytesLocalHeap(Long.parseLong(mblhAttr.toString()));
 
             Object mblhsAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_HEAP_STRING);
             if (mblhsAttr != null) cs.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
