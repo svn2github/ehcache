@@ -10,11 +10,11 @@
     timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="true" />
 
   <!-- Sample cache named sampleCache1 -->
-  <cache name="sampleCache1" maxElementsInMemory="10000"
-    maxElementsOnDisk="1000" eternal="false" timeToIdleSeconds="360"
-    timeToLiveSeconds="1000" overflowToDisk="true"
-    memoryStoreEvictionPolicy="LRU">
-  </cache>
+<!--   <cache name="sampleCache1" maxElementsInMemory="10000" -->
+<!--     maxElementsOnDisk="1000" eternal="false" timeToIdleSeconds="360" -->
+<!--     timeToLiveSeconds="1000" overflowToDisk="true" -->
+<!--     memoryStoreEvictionPolicy="LRU"> -->
+<!--   </cache> -->
 
   <!-- Sample cache named sampleCache2. Is eternal. Is diskPersistent but 
     does not overflow to disk -->
@@ -23,13 +23,13 @@
 <!--     <terracotta /> -->
 <!--   </cache> -->
 
-  <cache name="txCache1" maxElementsInMemory="10" eternal="false"
-    timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false"
-    transactionalMode="xa_strict" />
+<!--   <cache name="txCache1" maxElementsInMemory="10" eternal="false" -->
+<!--     timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false" -->
+<!--     transactionalMode="xa_strict" /> -->
 
-  <cache name="txCache2" maxElementsInMemory="10" eternal="false"
-    timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false"
-    transactionalMode="xa_strict" />
+<!--   <cache name="txCache2" maxElementsInMemory="10" eternal="false" -->
+<!--     timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false" -->
+<!--     transactionalMode="xa_strict" /> -->
 
 <!--   <terracottaConfig rejoin="false" url="localhost:9510" /> -->
 </ehcache>
