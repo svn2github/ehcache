@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.Callback;
 import org.terracotta.modules.ehcache.async.exceptions.ProcessingException;
 import org.terracotta.toolkit.cluster.ClusterInfo;
-import org.terracotta.toolkit.collections.ToolkitList;
+import org.terracotta.toolkit.internal.collections.ToolkitListInternal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,31 +24,33 @@ public class ProcessingBucket<E extends Serializable> {
     NORMAL, STOP_REQUESTED, STOPPED
   }
 
-  private static final Logger     LOGGER                   = LoggerFactory.getLogger(ProcessingBucket.class.getName());
-  private static final int        UNLIMITED_QUEUE_SIZE     = 0;
-  private static final String     threadNamePrefix         = "ProcessingWorker|";
-  private final String            bucketName;
-  private final AsyncConfig       config;
-  private final ClusterInfo       cluster;
-  private final ItemProcessor<E>  processor;
-  private volatile ItemsFilter<E> filter;
-  private final long              baselineTimestampMillis;
-  private final Lock              bucketWriteLock;
-  private final Lock              bucketReadLock;
-  private final Condition         bucketNotEmpty;
-  private final Condition         bucketNotFull;
-  private final Condition         stoppedButBucketNotEmpty;
-  private final ToolkitList<E>    toolkitList;
-  private long                    lastProcessingTimeMillis = -1;
-  private long                    lastWorkDoneMillis       = -1;
-  private volatile STOP_STATE     stopState                = STOP_STATE.NORMAL;
-  private final AtomicLong        workDelay;
-  private final ProcessingWorker  processingWorkerRunnable;
-  private volatile Thread         processingWorkerThread;
-  private Callback                cleanupCallback;
-  private final boolean           workingOnDeadBucket;
+  private static final Logger          LOGGER                   = LoggerFactory.getLogger(ProcessingBucket.class
+                                                                    .getName());
+  private static final int             UNLIMITED_QUEUE_SIZE     = 0;
+  private static final String          threadNamePrefix         = "ProcessingWorker|";
+  private final String                 bucketName;
+  private final AsyncConfig            config;
+  private final ClusterInfo            cluster;
+  private final ItemProcessor<E>       processor;
+  private volatile ItemsFilter<E>      filter;
+  private final long                   baselineTimestampMillis;
+  private final Lock                   bucketWriteLock;
+  private final Lock                   bucketReadLock;
+  private final Condition              bucketNotEmpty;
+  private final Condition              bucketNotFull;
+  private final Condition              stoppedButBucketNotEmpty;
+  private final ToolkitListInternal<E> toolkitList;
+  private long                         lastProcessingTimeMillis = -1;
+  private long                         lastWorkDoneMillis       = -1;
+  private volatile STOP_STATE          stopState                = STOP_STATE.NORMAL;
+  private final AtomicLong             workDelay;
+  private final ProcessingWorker       processingWorkerRunnable;
+  private volatile Thread              processingWorkerThread;
+  private Callback                     cleanupCallback;
+  private final boolean                workingOnDeadBucket;
 
-  public ProcessingBucket(String bucketName, AsyncConfig config, ToolkitList toolkitList, ClusterInfo cluster,
+  public ProcessingBucket(String bucketName, AsyncConfig config, ToolkitListInternal<E> toolkitList,
+                          ClusterInfo cluster,
                           ItemProcessor<E> processor, boolean workingOnDeadBucket) {
     this.bucketName = bucketName;
     this.config = config;
@@ -172,6 +174,7 @@ public class ProcessingBucket<E extends Serializable> {
     return processingWorkerRunnable.getThreadName();
   }
 
+  // Do not take any clustered write lock in this path.
   public void add(final E item) {
     if (null == item) return;
     int maxQueueSize = config.getMaxQueueSize();
@@ -188,7 +191,7 @@ public class ProcessingBucket<E extends Serializable> {
         }
       }
       boolean signalNotEmpty = toolkitList.isEmpty();
-      toolkitList.add(item);
+      toolkitList.unlockedAdd(item);
       if (signalNotEmpty) {
         bucketNotEmpty.signalAll();
       }

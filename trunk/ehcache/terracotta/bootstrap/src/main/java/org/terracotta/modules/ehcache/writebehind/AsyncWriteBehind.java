@@ -38,11 +38,13 @@ public class AsyncWriteBehind implements WriteBehind {
     async.start(new CacheWriterProcessor(writer), concurrency, new SingleAsyncOperationItemScatterPolicy());
   }
 
+  // This method is to be called from within a clustered Lock as it does not take any clustered lock inside.
   @Override
   public void write(Element element) {
     async.add(new WriteAsyncOperation(element));
   }
 
+  // This method is to be called from within a clustered Lock as it does not take any clustered lock inside.
   @Override
   public void delete(CacheEntry entry) {
     async.add(new DeleteAsyncOperation(entry.getKey(), entry.getElement()));
@@ -69,6 +71,7 @@ public class AsyncWriteBehind implements WriteBehind {
       //
     }
 
+    @Override
     public int selectBucket(final int count, final SingleAsyncOperation item) {
       Object key;
       try {

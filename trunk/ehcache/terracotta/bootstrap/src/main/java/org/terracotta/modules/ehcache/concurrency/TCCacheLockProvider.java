@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class TCCacheLockProvider implements CacheLockProvider {
 
   private final ToolkitCache     backend;
-  private final ValueModeHandler         valueModeHandler;
+  private final ValueModeHandler valueModeHandler;
 
   public TCCacheLockProvider(ToolkitCache backend, ValueModeHandler valueModeHandler) {
     this.backend = backend;

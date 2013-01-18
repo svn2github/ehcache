@@ -422,12 +422,12 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void unlockedPutNoReturn(K k, V v, int createTime, int customTTI, int customTTL) {
-    throw new UnsupportedOperationException();
+    localBufferedMap.put(k, v, createTime, customTTI, customTTL);
   }
 
   @Override
   public void unlockedRemoveNoReturn(Object k) {
-    throw new UnsupportedOperationException();
+    localBufferedMap.remove((K) k);
   }
 
   @Override
@@ -437,11 +437,11 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public V unlockedGet(Object k, boolean quiet) {
-    throw new UnsupportedOperationException();
+    return doGet(k, quiet);
   }
 
   @Override
-  public void setAttributeExtractor(ToolkitAttributeExtractor extractor) {
+  public void setAttributeExtractor(ToolkitAttributeExtractor<K, V> extractor) {
     toolkitCache.setAttributeExtractor(extractor);
   }
 

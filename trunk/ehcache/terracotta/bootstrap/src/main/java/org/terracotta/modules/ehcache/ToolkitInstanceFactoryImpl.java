@@ -270,7 +270,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public SerializedToolkitCache<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = new ToolkitStoreConfigBuilder()
-        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.STRONG).build();
+        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).build();
     ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
                                                               + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config,
                                                           Decision.class);

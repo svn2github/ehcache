@@ -39,12 +39,10 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V putIfAbsent(K key, V value, long createTimeInSecs, int customMaxTTISeconds,
-                                   int customMaxTTLSeconds) {
+  public V putIfAbsent(K key, V value, long createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
     lock.readLock().lock();
     try {
-      return activeDelegate.putIfAbsent(key, value, createTimeInSecs, customMaxTTISeconds,
-                                                    customMaxTTLSeconds);
+      return activeDelegate.putIfAbsent(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
     } finally {
       lock.readLock().unlock();
     }
@@ -59,7 +57,6 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
       lock.readLock().unlock();
     }
   }
-
 
   @Override
   public V getQuiet(Object key) {
@@ -541,7 +538,7 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void setAttributeExtractor(ToolkitAttributeExtractor extractor) {
+  public void setAttributeExtractor(ToolkitAttributeExtractor<K, V> extractor) {
     lock.readLock().lock();
     try {
       activeDelegate.setAttributeExtractor(extractor);
@@ -580,4 +577,5 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
       lock.readLock().unlock();
     }
   }
+
 }
