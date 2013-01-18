@@ -35,7 +35,6 @@ final class LibraryInit {
         //
     }
 
-
     /**
      * Init the ehcache library
      */
@@ -62,20 +61,26 @@ final class LibraryInit {
     }
 
     private static void initService() {
-        ServiceLoader<EhcacheInit> loader = ServiceLoader.load(EhcacheInit.class, CacheManager.class.getClassLoader());
-
         List<EhcacheInit> initializers = new ArrayList<EhcacheInit>();
-        for (EhcacheInit init : loader) {
+
+        // prefer the TCCL based lookup, fallback to ehcache loader only if empty
+        for (EhcacheInit init : ServiceLoader.load(EhcacheInit.class)) {
             initializers.add(init);
+        }
+
+        if (initializers.isEmpty()) {
+            for (EhcacheInit init : ServiceLoader.load(EhcacheInit.class, CacheManager.class.getClassLoader())) {
+                initializers.add(init);
+            }
         }
 
         if (initializers.isEmpty()) {
             throw new AssertionError("No " + EhcacheInit.class.getName() + " services found");
         }
 
-        if (initializers.size() != 1) {
+        if (initializers.size() > 1) {
             throw new CacheException("Found multiple initialization services. "
-                + "Do you have multiple ehcache jars present in your classpath? " + initializers);
+                    + "Do you have multiple ehcache jars present in your classpath? " + initializers);
         }
 
         for (EhcacheInit init : initializers) {
