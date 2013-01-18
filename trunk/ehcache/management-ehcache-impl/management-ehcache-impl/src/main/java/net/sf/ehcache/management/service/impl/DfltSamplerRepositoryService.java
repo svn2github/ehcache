@@ -549,6 +549,8 @@ public class DfltSamplerRepositoryService
 
     private final static String MAX_ENTRIES_LOCAL_HEAP = "MaxEntriesLocalHeap";
 
+    private final static String MAX_ENTRIES_IN_CACHE = "MaxEntriesInCache";
+
     private CacheManager cacheManager;
 
     private CacheManagerSampler cacheManagerSampler;
@@ -671,6 +673,9 @@ public class DfltSamplerRepositoryService
 
             Integer melhAttr = (Integer) cacheResource.getAttributes().get(MAX_ENTRIES_LOCAL_HEAP);
             if (melhAttr != null) cs.setMaxEntriesLocalHeap(melhAttr);
+
+            Integer meicAttr = (Integer) cacheResource.getAttributes().get(MAX_ENTRIES_IN_CACHE);
+            if (meicAttr != null) cs.setMaxEntriesInCache(meicAttr);
 
             Object ttiAttr = cacheResource.getAttributes().get(TIME_TO_IDLE_SEC);
             if (ttiAttr != null) cs.setTimeToIdleSeconds(Long.parseLong(ttiAttr.toString()));
