@@ -150,16 +150,6 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
     }
 
     /**
-     * Pinning is is not implemented in this version
-     * @param oid
-     * @return
-     */
-    @Override
-    protected boolean pinInternal(Object oid) {
-        return pinElement(oid, true);
-    }
-
-    /**
      *
      * @param oid
      * @param pc
@@ -207,46 +197,6 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
             caches.get(cls).remove(oid);
         }
         return result;
-    }
-
-    /**
-     * Pinning and unpinning are not implemented in this version
-     * @param oid
-     * @return
-     */
-    @Override
-    protected boolean unpinInternal(Object oid) {
-        return pinElement(oid, false);
-    }
-
-    private boolean pinElement(final Object oid, final boolean pinned) {
-        Ehcache cache = null;
-        Element element = null;
-        if (oid instanceof OpenJPAId) {
-            Class cls = ((OpenJPAId) oid).getType();
-            cache = findCache(cls);
-            if (cache == null) {
-                return false;
-            } else {
-                element = cache.get(oid);
-            }
-        } else {
-            for (Ehcache c : caches.values()) {
-                element = c.get(oid);
-                if (element != null) {
-                    cache = c;
-                    break;
-                }
-            }
-        }
-
-        if (element == null) {
-            return false;
-        } else {
-            cache.setPinned(element.getObjectKey(), pinned);
-            cache.put(element);
-            return true;
-        }
     }
 
     /**
@@ -329,5 +279,25 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
             return ((OpenJPAId) oid).getType();
         }
         return null;
+    }
+
+    /**
+     * Ehcache doesn't support pinning.
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean pinInternal(Object o) {
+        throw new UnsupportedOperationException("Ehcache does not support pinning");
+    }
+
+    /**
+     * Ehcache doesn't support pinning.
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean unpinInternal(Object o) {
+        throw new UnsupportedOperationException("Ehcache does not support pinning");
     }
 }

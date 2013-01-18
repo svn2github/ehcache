@@ -85,24 +85,6 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
     /**
      *
      * @param qk
-     * @return
-     */
-    @Override
-    protected boolean pinInternal(QueryKey qk) {
-        Ehcache cache = getOrCreateCache(cacheName);
-        Element element = cache.get(qk);
-        if (element == null) {
-            return false;
-        } else {
-            cache.setPinned(element.getObjectKey(), true);
-            cache.put(element);
-            return true;
-        }
-    }
-
-    /**
-     *
-     * @param qk
      * @param oids
      * @return
      */
@@ -125,24 +107,6 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
         QueryResult queryResult = getInternal(qk);
         cache.remove(qk);
         return queryResult;
-    }
-
-    /**
-     *
-     * @param qk
-     * @return
-     */
-    @Override
-    protected boolean unpinInternal(QueryKey qk) {
-        Ehcache cache = getOrCreateCache(cacheName);
-        Element element = cache.get(qk);
-        if (element == null) {
-            return false;
-        } else {
-            cache.setPinned(element.getObjectKey(), false);
-            cache.put(element);
-            return true;
-        }
     }
 
     /**
@@ -172,5 +136,25 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
             ehCache = cacheManager.getEhcache(name);
         }
         return ehCache;
+    }
+
+    /**
+     * Ehcache doesn't support pinning.
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean pinInternal(QueryKey qk) {
+        throw new UnsupportedOperationException("Ehcache does not support pinning");
+    }
+
+    /**
+     * Ehcache doesn't support pinning.
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean unpinInternal(QueryKey qk) {
+        throw new UnsupportedOperationException("Ehcache does not support pinning");
     }
 }
