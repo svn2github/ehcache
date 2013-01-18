@@ -167,7 +167,6 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     serializationHelperStore.put("elementData", valueModeHandler.createElementData(element));
     serializationHelperStore.put("element", element);
     serializationHelperStore.clear();
-    serializationHelperStore.destroy();
   }
 
   public String getFullyQualifiedCacheName() {
