@@ -15,11 +15,9 @@ import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.cluster.ClusterListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
-import org.terracotta.toolkit.collections.ToolkitList;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
-import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
+import org.terracotta.toolkit.internal.collections.ToolkitListInternal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,6 +27,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * An AsyncCoordinator allows work to be added and processed asynchronously in a fault-tolerant and high performance
@@ -37,20 +38,16 @@ import java.util.Set;
 
 public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordinator<E> {
   private static final String             DEAD_NODES = "DEAD_NODES";
-  private static final Logger             LOGGER    = LoggerFactory.getLogger(AsyncCoordinatorImpl.class.getName());
-  private static final String             DELIMITER                                            = ToolkitInstanceFactoryImpl.DELIMITER;
+  private static final Logger             LOGGER     = LoggerFactory.getLogger(AsyncCoordinatorImpl.class.getName());
+  private static final String             DELIMITER  = ToolkitInstanceFactoryImpl.DELIMITER;
   /**
    * lock for this coordinator based on SynchronousWrite
    */
   private final ToolkitLock               commonAsyncLock;
-  private final ToolkitLock               nodeWriteLock;
-  private final ToolkitLock               nodeReadLock;
-  /**
-   * status of this coordinator like STARTED, STOPPED etc
-   */
-  private volatile Status                 status    = Status.UNINITIALIZED;
+  private final Lock                      nodeWriteLock;
+  private final Lock                      nodeReadLock;
+  private volatile Status                 status     = Status.UNINITIALIZED;
 
-  
   private final List<ProcessingBucket<E>> localBuckets;
   private final List<ProcessingBucket<E>> deadBuckets;
   private final String                    name;
@@ -82,11 +79,10 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.localBuckets = new ArrayList<ProcessingBucket<E>>();
     this.deadBuckets = new ArrayList<ProcessingBucket<E>>();
     this.bucketManager = new BucketManager(toolkitInstanceFactory);
-    ToolkitLockTypeInternal lockType = config.isSynchronousWrite() ? ToolkitLockTypeInternal.SYNCHRONOUS_WRITE
-        : ToolkitLockTypeInternal.WRITE;
     this.commonAsyncLock = toolkit.getLock(this.name);
-    this.nodeWriteLock = ((ToolkitInternal) toolkit).getLock(nodeName, lockType);
-    this.nodeReadLock = ((ToolkitInternal) toolkit).getLock(nodeName, ToolkitLockTypeInternal.READ);
+    ReadWriteLock nodeLock = new ReentrantReadWriteLock();
+    this.nodeWriteLock = nodeLock.writeLock();
+    this.nodeReadLock = nodeLock.readLock();
     this.stopCallable = stopCallable;
   }
 
@@ -165,7 +161,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   }
 
   private ProcessingBucket<E> createBucket(String bucketName, AsyncConfig processingConfig, boolean workingOnDeadBucket) {
-    ToolkitList<E> toolkitList = toolkit.getList(bucketName, null);
+    ToolkitListInternal<E> toolkitList = (ToolkitListInternal) toolkit.getList(bucketName, null);
     if (!workingOnDeadBucket && toolkitList.size() > 0) { throw new AssertionError(
                                                                                    "List created should not have size greater than 0"); }
 
@@ -204,10 +200,10 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     };
   }
 
+  // we do not take any clustered lock in this method. make sure this is always called from within a clustered lock.
   @Override
   public void add(E item) {
     if (null == item) { return; }
-    // TODO: make sure this is in sync write txn after atomic toolkit
     nodeWriteLock.lock();
     try {
       status.checkRunning();
@@ -314,7 +310,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     long totalItems = startDeadBuckets(deadNodeBuckets);
     debug("processOneDeadNode taken " + totalItems + " at " + nodeName);
   }
-
 
   private static enum Status {
     UNINITIALIZED, STARTED, STOPPED {

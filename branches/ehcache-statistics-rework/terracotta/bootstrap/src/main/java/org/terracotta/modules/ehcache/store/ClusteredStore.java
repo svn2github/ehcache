@@ -16,6 +16,7 @@ import net.sf.ehcache.config.ConfigError;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.search.Attribute;
@@ -39,11 +40,16 @@ import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
+import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
+import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
+import org.terracotta.toolkit.store.ToolkitStore;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -92,6 +98,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   // non-final private fields
   private EventListenerList                                   listenerList;
+  private final ToolkitLock                                   eventualConcurrentLock;
+  private final boolean                                       isEventual;
 
   private final OperationObserver<EvictionOutcome>            evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
@@ -130,8 +138,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
                                                               toolkitInstanceFactory.getOrCreateToolkitCache(cache),
                                                               bulkLoadShutdownHook, this);
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
-                                       backend.getConfiguration()
-                                           .getInt(ToolkitConfigFields.CONCURRENCY_FIELD_NAME)));
+                                       backend.getConfiguration().getInt(ToolkitConfigFields.CONCURRENCY_FIELD_NAME)));
     // connect configurations
     cacheConfigChangeBridge = createConfigChangeBridge(toolkitInstanceFactory, cache, backend);
     cacheConfigChangeBridge.connectConfigs();
@@ -145,6 +152,22 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     CacheLockProvider cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
     internalContext = new ClusteredCacheInternalContext(toolkitInstanceFactory.getToolkit(), cacheLockProvider);
     bulkLoadShutdownHook.init();
+    eventualConcurrentLock = toolkitInternal.getLock("EVENTUAL-CONCURRENT-LOCK-FOR-CLUSTERED-STORE",
+                                                     ToolkitLockTypeInternal.CONCURRENT);
+    isEventual = (terracottaConfiguration.getConsistency() == Consistency.EVENTUAL);
+    // This is done so that the element and elementData classes mappings are put by the toolkit internal serializer.
+    // this will ensure transactions being atomic for putWithWriter and removeWithWriter.
+    Configuration syncConfiguration = new ToolkitCacheConfigBuilder()
+        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).concurrency(1)
+        .build();
+    ToolkitStore<String, Object> serializationHelperStore = toolkitInternal.getStore("STORE-FOR-SERIALIZATION-HELPER",
+                                                                                     syncConfiguration,
+                                                                     Object.class);
+    Element element = new Element("key", "value");
+    serializationHelperStore.put("elementData", valueModeHandler.createElementData(element));
+    serializationHelperStore.put("element", element);
+    serializationHelperStore.clear();
+    serializationHelperStore.destroy();
   }
 
   public String getFullyQualifiedCacheName() {
@@ -189,7 +212,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     if (errors.size() > 0) { throw new InvalidConfigurationException(errors); }
   }
 
-    @Override
+  @Override
   public void recalculateSize(Object key) {
     throw new UnsupportedOperationException("Recalculate size is not supported for Terracotta clustered caches.");
   }
@@ -225,27 +248,39 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public boolean put(Element element) throws CacheException {
-    return putInternal(element, null);
+    return putInternal(element);
   }
 
   @Override
   public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-    return putInternal(element, writerManager);
-  }
-
-  private boolean putInternal(Element element, CacheWriterManager writerManager) throws CacheException {
     if (element == null) { return true; }
 
     String pKey = generatePortableKeyFor(element.getObjectKey());
     // extractSearchAttributes(element);
 
-    // Keep this before the backend put to ensure that a write behind operation can never be lost.
-    // This will be handled in the Terracotta L2 as an atomic operation right after the backend put since at that
-    // time a lock commit is issued that splits up the transaction. It will not be visible before either since
-    // there are no other lock boundaries in the code path.
-    if (writerManager != null) {
+    ToolkitLock lock = getLockForKey(pKey);
+    lock.lock();
+    try {
+
+      // Keep this before the backend put to ensure that a write behind operation can never be lost.
+      // This will be handled in the Terracotta L2 as an atomic operation right after the backend put since at that
+      // time a lock commit is issued that splits up the transaction. It will not be visible before either since
+      // there are no other lock boundaries in the code path.
       writerManager.put(element);
+      if (element.usesCacheDefaultLifespan()) {
+        return doUnlockedPut(pKey, element);
+      } else {
+        return doUnlockedPutWithCustomLifespan(pKey, element);
+      }
+    } finally {
+      lock.unlock();
     }
+  }
+
+  private boolean putInternal(Element element) throws CacheException {
+    if (element == null) { return true; }
+
+    String pKey = generatePortableKeyFor(element.getObjectKey());
     if (element.usesCacheDefaultLifespan()) {
       return doPut(pKey, element);
     } else {
@@ -294,7 +329,23 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public Element remove(Object key) {
-    return removeWithWriter(key, null);
+    if (key == null) { return null; }
+    String pKey = generatePortableKeyFor(key);
+    Serializable value = backend.remove(pKey);
+    Element element = this.valueModeHandler.createElement(key, value);
+    if (keyLookupCache != null) {
+      keyLookupCache.remove(key);
+    }
+
+    if (element != null) {
+      return element;
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(cache.getName() + " Cache: Cannot remove entry as key " + key + " was not found");
+      }
+      return null;
+    }
+
   }
 
   @Override
@@ -310,17 +361,23 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   @Override
   public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
     if (key == null) { return null; }
-
-    // Keep this before the backend remove to ensure that a write behind operation can never be lost.
-    // This will be handled in the Terracotta L2 as an atomic operation right after the backend remove since at that
-    // time a lock commit is issued that splits up the transaction. It will not be visible before either since there
-    // are no other lock boundaries in the code path.
-    if (writerManager != null) {
-      writerManager.remove(new CacheEntry(key, get(key)));
-    }
-
     String pKey = generatePortableKeyFor(key);
-    Serializable value = backend.remove(pKey);
+    Serializable value = null;
+    ToolkitLock lock = getLockForKey(pKey);
+    lock.lock();
+    try {
+      // Keep this before the backend remove to ensure that a write behind operation can never be lost.
+      // This will be handled in the Terracotta L2 as an atomic operation right after the backend remove since at that
+      // time a lock commit is issued that splits up the transaction. It will not be visible before either since there
+      // are no other lock boundaries in the code path.
+      writerManager.remove(new CacheEntry(key, get(key)));
+      value = backend.unlockedGet(pKey, true);
+      if (value != null) {
+        backend.unlockedRemoveNoReturn(pKey);
+      }
+    } finally {
+      lock.unlock();
+    }
     Element element = this.valueModeHandler.createElement(key, value);
     if (keyLookupCache != null) {
       keyLookupCache.remove(key);
@@ -376,7 +433,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     lock.writeLock().lock();
     try {
       Element oldElement = getQuiet(element.getKey());
-      if (comparator.equals(oldElement, old)) { return putInternal(element, null); }
+      if (comparator.equals(oldElement, old)) { return putInternal(element); }
     } finally {
       lock.writeLock().unlock();
     }
@@ -392,7 +449,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     try {
       Element oldElement = getQuiet(element.getKey());
       if (oldElement != null) {
-        putInternal(element, null);
+        putInternal(element);
       }
       return oldElement;
     } finally {
@@ -646,6 +703,21 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     }
   }
 
+  private boolean doUnlockedPut(String portableKey, Element element) {
+
+    ElementData value = valueModeHandler.createElementData(element);
+    if (checkContainsKeyOnPut) {
+      Serializable old = backend.unlockedGet(portableKey, true);
+      backend.unlockedPutNoReturn(portableKey, value, now(), ToolkitConfigFields.NO_MAX_TTI_SECONDS,
+                                  ToolkitConfigFields.NO_MAX_TTL_SECONDS);
+      return old == null ? true : false;
+    } else {
+      backend.unlockedPutNoReturn(portableKey, value, now(), ToolkitConfigFields.NO_MAX_TTI_SECONDS,
+                                  ToolkitConfigFields.NO_MAX_TTL_SECONDS);
+      return true;
+    }
+  }
+
   private boolean doPutWithCustomLifespan(String portableKey, Element element) {
 
     ElementData value = valueModeHandler.createElementData(element);
@@ -656,6 +728,22 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
       return backend.put(portableKey, value, creationTimeInSecs, customTTI, customTTL) == null ? true : false;
     } else {
       backend.putNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
+      return true;
+    }
+  }
+
+  private boolean doUnlockedPutWithCustomLifespan(String portableKey, Element element) {
+
+    ElementData value = valueModeHandler.createElementData(element);
+    int creationTimeInSecs = (int) (element.getCreationTime() / 1000);
+    int customTTI = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToIdle();
+    int customTTL = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToLive();
+    if (checkContainsKeyOnPut) {
+      Serializable old = backend.unlockedGet(portableKey, true);
+      backend.unlockedPutNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
+      return old == null ? true : false;
+    } else {
+      backend.unlockedPutNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
       return true;
     }
   }
@@ -709,5 +797,17 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   @Override
   public WriteBehind createWriteBehind() {
     throw new UnsupportedOperationException();
+  }
+
+  private final ToolkitLock getLockForKey(String pKey) {
+    if (isEventual) {
+      return eventualConcurrentLock;
+    } else {
+      return backend.createLockForKey(pKey).writeLock();
+    }
+  }
+
+  private final int now() {
+    return (int) System.currentTimeMillis() / 1000;
   }
 }

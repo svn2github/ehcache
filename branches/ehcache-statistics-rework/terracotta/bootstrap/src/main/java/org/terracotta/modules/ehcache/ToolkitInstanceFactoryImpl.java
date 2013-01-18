@@ -32,7 +32,6 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.feature.SerializationFeature;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
@@ -74,8 +73,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
-    SerializationFeature serializationFeature = toolkit.getFeature(ToolkitFeatureType.SERIALIZATION);
-    if (serializationFeature == null || !serializationFeature.isEnabled()) { throw new AssertionError(); }
   }
 
   private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -270,7 +267,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public SerializedToolkitCache<TransactionID, Decision> getOrCreateTransactionCommitStateMap(String cacheManagerName) {
     // TODO: what should be the local cache config for the map?
     Configuration config = new ToolkitStoreConfigBuilder()
-        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.STRONG).build();
+        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).build();
     ToolkitCache<String, Decision> map = toolkit.getCache(cacheManagerName + DELIMITER
                                                               + EHCACHE_TXNS_DECISION_STATE_MAP_NAME, config,
                                                           Decision.class);
