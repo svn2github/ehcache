@@ -103,6 +103,13 @@ public interface CachingTier<K, V> {
     long getOnDiskSizeInBytes();
 
     /**
+     * This is evil! Don't call this!
+     * @param key
+     */
+    @Deprecated
+    void recalculateSize(K key);
+
+    /**
      * Document me
      *
      * @param <K>

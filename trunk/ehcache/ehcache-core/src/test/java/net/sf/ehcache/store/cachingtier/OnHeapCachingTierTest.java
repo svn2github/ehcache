@@ -163,5 +163,10 @@ public class OnHeapCachingTierTest {
         public void registerEvictionCallback(final EvictionCallback<K, Object> callback) {
             this.callback = callback;
         }
+
+        @Override
+        public void recalculateSize(final Object key) {
+            // NO OP
+        }
     }
 }

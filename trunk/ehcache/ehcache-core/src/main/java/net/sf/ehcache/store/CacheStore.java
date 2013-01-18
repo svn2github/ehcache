@@ -474,7 +474,7 @@ public class CacheStore implements Store {
 
     @Override
     public void recalculateSize(final Object key) {
-        throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+        cachingTier.recalculateSize(key);
     }
 
 }

@@ -246,6 +246,11 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         return 0;
     }
 
+    @Override
+    public void recalculateSize(final K key) {
+        backEnd.recalculateSize(key);
+    }
+
     private V getValue(final Object cachedValue) {
         if (cachedValue instanceof Fault) {
             return ((Fault<V>)cachedValue).get();

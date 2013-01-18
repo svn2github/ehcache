@@ -109,6 +109,13 @@ public interface HeapCacheBackEnd<K, V> {
     void registerEvictionCallback(EvictionCallback<K, V> callback);
 
     /**
+     * This is evil! Don't call this!
+     * @param key
+     */
+    @Deprecated
+    void recalculateSize(K key);
+
+    /**
      * An eviction callback
      * @param <K> the key type
      * @param <V> the value type

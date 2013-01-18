@@ -2723,6 +2723,9 @@ public class ConcurrentHashMap<K, V>
         return (V)internalGet(key);
     }
 
+    public void recalculateSize(final K key) {
+        // TODO Do this!
+    }
 
     protected List<V> getRandomValues(int amount) {
         ArrayList<V> sampled = new ArrayList<V>(amount * 2);

@@ -90,6 +90,11 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
         this.evictionCallback = callback;
     }
 
+    @Override
+    public void recalculateSize(final K key) {
+        // NO OP!
+    }
+
     private void evictIfRequired(final K key, final V value) {
         if (maxEntriesLocalHeap == 0) {
             return;

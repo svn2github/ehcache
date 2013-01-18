@@ -117,10 +117,17 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private DiskStore(DiskStorageFactory disk, Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         this.segments = new Segment[DEFAULT_SEGMENT_COUNT];
         this.segmentShift = Integer.numberOfLeadingZeros(segments.length - 1);
-        this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(new DiskStoreHeapPoolParticipant(),
+
+        EventRateSimpleMovingAverage hitRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+        EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
+        OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
+        getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.HIT), hitRate));
+        getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.MISS), missRate));
+
+        this.onHeapPoolAccessor = onHeapPool.createPoolAccessor(new DiskStoreHeapPoolParticipant(hitRate, missRate),
             SizeOfPolicyConfiguration.resolveMaxDepth(cache),
             SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
-        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(new DiskStoreDiskPoolParticipant(), new DiskSizeOfEngine());
+        this.onDiskPoolAccessor = onDiskPool.createPoolAccessor(new DiskStoreDiskPoolParticipant(hitRate, missRate), new DiskSizeOfEngine());
 
         for (int i = 0; i < this.segments.length; ++i) {
             this.segments[i] = new Segment(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR,
@@ -1161,43 +1168,16 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     }
 
     /**
-     * PoolParticipant that is used with the HeapPool. As the DiskStore uses Heap resources
+     * PoolParticipant that encapsulate shared logic for both DiskStorePoolParticipant
      */
-    private class DiskStoreHeapPoolParticipant implements PoolParticipant {
+    private abstract class DiskStorePoolParticipant implements PoolParticipant {
 
-        @Override
-        public boolean evict(final int count, final long size) {
-            return disk.evict(count) == count;
-        }
+        protected final EventRateSimpleMovingAverage hitRate;
+        protected final EventRateSimpleMovingAverage missRate;
 
-        @Override
-        public float getApproximateHitRate() {
-            return 0f;
-        }
-
-        @Override
-        public float getApproximateMissRate() {
-            return 0f;
-        }
-
-        @Override
-        public long getApproximateCountSize() {
-            return getInMemorySize();
-        }
-    }
-
-    /**
-     * PoolParticipant that is used with the DiskPool.
-     */
-    private class DiskStoreDiskPoolParticipant implements PoolParticipant {
-
-        private final EventRateSimpleMovingAverage hitRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
-        private final EventRateSimpleMovingAverage missRate = new EventRateSimpleMovingAverage(1, TimeUnit.SECONDS);
-
-        DiskStoreDiskPoolParticipant() {
-            OperationStatistic<GetOutcome> getStatistic = StatisticsManager.getOperationStatisticFor(getObserver);
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.HIT), hitRate));
-            getStatistic.addDerivedStatistic(new OperationResultFilter<GetOutcome>(EnumSet.of(GetOutcome.MISS), missRate));
+        public DiskStorePoolParticipant(final EventRateSimpleMovingAverage missRate, final EventRateSimpleMovingAverage hitRate) {
+            this.missRate = missRate;
+            this.hitRate = hitRate;
         }
 
         @Override
@@ -1213,6 +1193,31 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         @Override
         public float getApproximateMissRate() {
             return hitRate.rate(TimeUnit.SECONDS).floatValue();
+        }
+    }
+
+    /**
+     * PoolParticipant that is used with the HeapPool. As the DiskStore uses Heap resources
+     */
+    private class DiskStoreHeapPoolParticipant extends DiskStorePoolParticipant {
+
+        public DiskStoreHeapPoolParticipant(final EventRateSimpleMovingAverage missRate, final EventRateSimpleMovingAverage hitRate) {
+            super(missRate, hitRate);
+        }
+
+        @Override
+        public long getApproximateCountSize() {
+            return getInMemorySize();
+        }
+    }
+
+    /**
+     * PoolParticipant that is used with the DiskPool.
+     */
+    private class DiskStoreDiskPoolParticipant extends DiskStorePoolParticipant {
+
+        DiskStoreDiskPoolParticipant(final EventRateSimpleMovingAverage hitRate, final EventRateSimpleMovingAverage missRate) {
+            super(missRate, hitRate);
         }
 
         @Override
