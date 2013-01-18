@@ -40,7 +40,7 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
-import net.sf.ehcache.statistics.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.writer.CacheWriter;
@@ -559,7 +559,7 @@ public class ClassLoaderAwareCache implements Ehcache {
     /**
     * {@inheritDoc}
     */
-    public StatisticsPlaceholder getStatistics() throws IllegalStateException {
+    public StatisticsGateway getStatistics() throws IllegalStateException {
         // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();

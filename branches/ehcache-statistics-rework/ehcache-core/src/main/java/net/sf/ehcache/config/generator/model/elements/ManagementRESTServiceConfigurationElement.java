@@ -20,7 +20,7 @@ import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
-import net.sf.ehcache.statistics.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsGateway;
 
 /**
  * Element representing the {@link net.sf.ehcache.config.ManagementRESTServiceConfiguration}
@@ -72,10 +72,10 @@ public class ManagementRESTServiceConfigurationElement extends SimpleNodeElement
         addAttribute(new SimpleNodeAttribute("needClientAuth", managementRESTServiceConfiguration.isNeedClientAuth())
             .optional(true).defaultValue(false));
         addAttribute(new SimpleNodeAttribute("sampleHistorySize", managementRESTServiceConfiguration.getSampleHistorySize())
-            .optional(true).defaultValue(StatisticsPlaceholder.DEFAULT_HISTORY_SIZE));
+            .optional(true).defaultValue(StatisticsGateway.DEFAULT_HISTORY_SIZE));
         addAttribute(new SimpleNodeAttribute("sampleIntervalSeconds", managementRESTServiceConfiguration
-            .getSampleIntervalSeconds()).optional(true).defaultValue(StatisticsPlaceholder.DEFAULT_INTERVAL_SECS));
+            .getSampleIntervalSeconds()).optional(true).defaultValue(StatisticsGateway.DEFAULT_INTERVAL_SECS));
         addAttribute(new SimpleNodeAttribute("sampleSearchIntervalSeconds", managementRESTServiceConfiguration
-            .getSampleSearchIntervalSeconds()).optional(true).defaultValue(StatisticsPlaceholder.DEFAULT_SEARCH_INTERVAL_SECS));
+            .getSampleSearchIntervalSeconds()).optional(true).defaultValue(StatisticsGateway.DEFAULT_SEARCH_INTERVAL_SECS));
     }
 }

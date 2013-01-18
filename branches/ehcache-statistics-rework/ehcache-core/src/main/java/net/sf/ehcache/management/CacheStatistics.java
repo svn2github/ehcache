@@ -19,7 +19,7 @@ package net.sf.ehcache.management;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
-import net.sf.ehcache.statistics.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsGateway;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -51,7 +51,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
     private static final long serialVersionUID = 8085302752781762030L;
 
     private transient Ehcache ehcache;
-    private StatisticsPlaceholder statistics;
+    private StatisticsGateway statistics;
 
     private final ObjectName objectName;
 

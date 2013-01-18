@@ -46,7 +46,7 @@ import org.terracotta.statistics.StatisticsManager;
  *
  * @author cschanck
  */
-public class StatisticsPlaceholder implements FlatStatistics {
+public class StatisticsGateway implements FlatStatistics {
 
     /** The Constant DEFAULT_HISTORY_SIZE. */
     public static final int DEFAULT_HISTORY_SIZE = 30;
@@ -75,7 +75,7 @@ public class StatisticsPlaceholder implements FlatStatistics {
      * @param ehcache the ehcache
      * @param executor the executor
      */
-    public StatisticsPlaceholder(Ehcache ehcache, ScheduledExecutorService executor) {
+    public StatisticsGateway(Ehcache ehcache, ScheduledExecutorService executor) {
         StatisticsManager statsManager = new StatisticsManager();
         statsManager.root(ehcache);
         this.assocCacheName = ehcache.getName();

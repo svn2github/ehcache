@@ -18,7 +18,7 @@ package net.sf.ehcache;
 
 import java.util.concurrent.ExecutionException;
 import net.sf.ehcache.statistics.FlatStatistics;
-import net.sf.ehcache.statistics.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
@@ -124,7 +124,7 @@ public class StatisticsTest extends AbstractCacheTest {
         Ehcache cache = new Cache("test", 0, true, false, 5, 2);
         manager.addCache(cache);
 
-        StatisticsPlaceholder statistics = cache.getStatistics();
+        StatisticsGateway statistics = cache.getStatistics();
         Statistic<Double> averageGetTime = statistics.cacheGetOperation().latency().average();
         assertThat(averageGetTime.value(), is(Double.NaN));
 
@@ -149,7 +149,7 @@ public class StatisticsTest extends AbstractCacheTest {
         Ehcache ehcache = new net.sf.ehcache.Cache("test", 10, false, false, 2, 2);
         manager.addCache(ehcache);
 
-        StatisticsPlaceholder statistics = ehcache.getStatistics();
+        StatisticsGateway statistics = ehcache.getStatistics();
         assertEquals(0, statistics.cacheEvictedCount());
 
         for (int i = 0; i < 10000; i++) {

@@ -44,7 +44,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
-import net.sf.ehcache.statistics.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;

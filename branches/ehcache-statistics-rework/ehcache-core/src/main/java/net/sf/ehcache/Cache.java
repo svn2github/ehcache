@@ -95,7 +95,7 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.statistics.StatisticsPlaceholder;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
@@ -290,7 +290,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private volatile ElementValueComparator elementValueComparator;
 
-    private StatisticsPlaceholder statistics;
+    private StatisticsGateway statistics;
 
     /**
      * 2.0 and higher Constructor
@@ -1196,7 +1196,7 @@ public class Cache implements InternalEhcache, StoreListener {
             }
 
             StatisticsManager.associate(this).withChild(compoundStore);
-            statistics = new StatisticsPlaceholder(this, cacheManager.getStatisticsExecutor());
+            statistics = new StatisticsGateway(this, cacheManager.getStatisticsExecutor());
         }
 
         if (!isTerracottaClustered()) {
@@ -2901,7 +2901,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * reported by Statistics for the statistics accuracy of
      * {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      */
-    public StatisticsPlaceholder getStatistics() throws IllegalStateException {
+    public StatisticsGateway getStatistics() throws IllegalStateException {
         checkStatus();
         return statistics;
     }
