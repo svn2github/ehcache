@@ -27,8 +27,9 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
 
   public EvictionListenerTest(TestConfig testConfig) {
     super("evict-cache-test.xml", testConfig, App.class, App.class);
-    testConfig.setDgcEnabled(true);
-    testConfig.setDgcIntervalInSec(10);
+//    testConfig.setDgcEnabled(true);
+//    testConfig.setDgcIntervalInSec(10);
+    testConfig.getL2Config().setMaxHeap(1024);
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
   }
 
