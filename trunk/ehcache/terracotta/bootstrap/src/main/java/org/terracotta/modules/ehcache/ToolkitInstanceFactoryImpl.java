@@ -32,7 +32,6 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.feature.SerializationFeature;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
@@ -74,8 +73,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
-    SerializationFeature serializationFeature = toolkit.getFeature(ToolkitFeatureType.SERIALIZATION);
-    if (serializationFeature == null || !serializationFeature.isEnabled()) { throw new AssertionError(); }
   }
 
   private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
