@@ -20,13 +20,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PinningConfiguration;
-import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
-import net.sf.ehcache.store.cachingtier.CountBasedBackEnd;
-import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
 import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
-import net.sf.ehcache.store.cachingtier.PooledBasedBackEnd;
 import net.sf.ehcache.store.disk.DiskStore;
 
 /**
@@ -46,36 +41,11 @@ public abstract class DiskBackedMemoryStore extends AbstractStore {
     public static Store create(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
         DiskStore diskStore = createDiskStore(cache, onHeapPool, onDiskPool);
 
-        final HeapCacheBackEnd<Object, Object> memCacheBackEnd;
-        final Policy memoryEvictionPolicy = MemoryStore.determineEvictionPolicy(cache);
-        if (cache.getCacheConfiguration().isCountBasedTuned()) {
-            final long maxEntriesLocalHeap = getCachingTierMaxEntryCount(cache);
-            memCacheBackEnd = new CountBasedBackEnd<Object, Object>(maxEntriesLocalHeap, memoryEvictionPolicy);
-        } else {
-            final PooledBasedBackEnd<Object, Object> pooledBasedBackEnd = new PooledBasedBackEnd<Object, Object>(memoryEvictionPolicy);
-
-            pooledBasedBackEnd.registerAccessor(
-                onHeapPool.createPoolAccessor(new PooledBasedBackEnd.PoolParticipant(pooledBasedBackEnd),
-                    SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-                    SizeOfPolicyConfiguration.resolveBehavior(cache)
-                        .equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT)));
-
-            memCacheBackEnd = pooledBasedBackEnd;
-        }
-
-        return CopyingCacheStore.wrapIfCopy(new CacheStore(
-            new OnHeapCachingTier<Object, Element>(
-                memCacheBackEnd),
+      final OnHeapCachingTier<Object, Element> onHeapCache = OnHeapCachingTier.createOnHeapCache(cache, onHeapPool);
+      return CopyingCacheStore.wrapIfCopy(new CacheStore(
+          onHeapCache,
             diskStore, cache.getCacheConfiguration()
         ), cache.getCacheConfiguration());
-    }
-
-    private static long getCachingTierMaxEntryCount(final Ehcache cache) {
-        final PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
-        if (pinningConfiguration != null && pinningConfiguration.getStore() != PinningConfiguration.Store.INCACHE) {
-            return 0;
-        }
-        return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
     }
 
   private static DiskStore createDiskStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {

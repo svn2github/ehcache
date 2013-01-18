@@ -15,12 +15,21 @@
  */
 package net.sf.ehcache.store.cachingtier;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
+import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.store.CachingTier;
+import net.sf.ehcache.store.FifoPolicy;
+import net.sf.ehcache.store.LfuPolicy;
+import net.sf.ehcache.store.LruPolicy;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Policy;
 
 import java.util.List;
 import java.util.Map;
@@ -62,6 +71,65 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         });
     }
 
+    /**
+     * Factory method
+     * @param cache the cache we're planning to back
+     * @param onHeapPool the pool, if any, to use
+     * @return the OnHeapCachingTier properly configured for this cache
+     */
+    public static OnHeapCachingTier<Object, Element> createOnHeapCache(final Ehcache cache, final Pool onHeapPool) {
+        final HeapCacheBackEnd<Object, Object> memCacheBackEnd;
+        final Policy memoryEvictionPolicy = determineEvictionPolicy(cache);
+        if (cache.getCacheConfiguration().isCountBasedTuned()) {
+            final long maxEntriesLocalHeap = getCachingTierMaxEntryCount(cache);
+            memCacheBackEnd = new CountBasedBackEnd<Object, Object>(maxEntriesLocalHeap, memoryEvictionPolicy);
+        } else {
+            final PooledBasedBackEnd<Object, Object> pooledBasedBackEnd = new PooledBasedBackEnd<Object, Object>(memoryEvictionPolicy);
+
+            pooledBasedBackEnd.registerAccessor(
+                onHeapPool.createPoolAccessor(new PooledBasedBackEnd.PoolParticipant(pooledBasedBackEnd),
+                    SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                    SizeOfPolicyConfiguration.resolveBehavior(cache)
+                        .equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT)));
+
+            memCacheBackEnd = pooledBasedBackEnd;
+        }
+
+        return new OnHeapCachingTier<Object, Element>(
+            memCacheBackEnd);
+    }
+
+    /**
+     * Chooses the Policy from the cache configuration
+     *
+     * @param cache the cache
+     * @return the chosen eviction policy
+     */
+    static Policy determineEvictionPolicy(Ehcache cache) {
+        MemoryStoreEvictionPolicy policySelection = cache.getCacheConfiguration().getMemoryStoreEvictionPolicy();
+
+        if (policySelection.equals(MemoryStoreEvictionPolicy.LRU)) {
+            return new LruPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.FIFO)) {
+            return new FifoPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
+            return new LfuPolicy();
+        } else if (policySelection.equals(MemoryStoreEvictionPolicy.CLOCK)) {
+            return null;
+        }
+
+        throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
+    }
+
+
+    private static long getCachingTierMaxEntryCount(final Ehcache cache) {
+        final PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
+        if (pinningConfiguration != null && pinningConfiguration.getStore() != PinningConfiguration.Store.INCACHE) {
+            return 0;
+        }
+        return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+    }
+
     @Override
     public V get(final K key, final Callable<V> source, final boolean updateStats) {
         Object cachedValue = backEnd.get(key);
@@ -70,22 +138,21 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
             cachedValue = backEnd.putIfAbsent(key, f);
             if (cachedValue == null && !f.complete) {
                 try {
-                    V value = source.call();
+                    V value = f.get();
                     if (value == null) {
                         backEnd.remove(key, f);
                     } else {
                         // This can fail if the fault was evicted
                         backEnd.replace(key, f, value);
                     }
-                    f.complete(value);
                     return value;
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     backEnd.remove(key, f);
-                    f.fail(e);
                     if (e instanceof RuntimeException) {
                         throw (RuntimeException)e;
+                    } else {
+                      throw new CacheException(e);
                     }
-                    throw new RuntimeException(e);
                 }
             }
         }
@@ -214,19 +281,26 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
                 }
             }
 
-            if (throwable != null) {
-                throw new RuntimeException("Faulting from repository failed on other thread", throwable);
-            }
-
-            return value;
+            return throwOrReturn();
         }
 
-        private void fail(final Throwable t) {
+      private V throwOrReturn() {
+        if (throwable != null) {
+          if (throwable instanceof RuntimeException) {
+              throw (RuntimeException) throwable;
+          }
+          throw new CacheException("Faulting from repository failed", throwable);
+        }
+        return value;
+      }
+
+      private void fail(final Throwable t) {
             synchronized (this) {
                 this.throwable = t;
                 this.complete = true;
                 notifyAll();
             }
+            throwOrReturn();
         }
     }
 }
