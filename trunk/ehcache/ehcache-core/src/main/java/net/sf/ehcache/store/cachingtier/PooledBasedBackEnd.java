@@ -18,7 +18,6 @@ package net.sf.ehcache.store.cachingtier;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.store.Policy;
-import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 
 import java.util.ArrayList;
@@ -199,7 +198,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
      * @return return true if exactly the right amount of evictions could happen, false otherwise
      */
     public boolean evict(int evictions) {
-        while (evictions > 0) {
+        while (evictions-- > 0) {
             final Element evictionCandidate = findEvictionCandidate();
             if (evictionCandidate != null && remove(evictionCandidate.getObjectKey(), evictionCandidate)) {
                 evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
