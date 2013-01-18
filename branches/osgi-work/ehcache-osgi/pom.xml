@@ -91,9 +91,20 @@
               javax.servlet;resolution:=optional,
               org.hibernate.*;resolution:=optional,
               org.terracotta.toolkit.*;resolution:=optional,
-              !sun.misc,*</Import-Package>
+              !sun.misc,
+              org.slf4j.*,
+              javax.management, 
+              javax.management.openmbean, 
+              javax.naming, 
+              javax.swing.event, 
+              javax.transaction.xa, 
+              javax.xml.datatype, 
+              javax.xml.namespace, 
+              javax.xml.parsers,
+              org.xml.sax, org.xml.sax.helpers,*
+              </Import-Package>
             <Export-Package>net.sf.ehcache.*</Export-Package>
-            <Private-Package>org.terracotta.modules.ehcache.*</Private-Package>
+            <Private-Package>org.terracotta.*</Private-Package>
             <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
           </instructions>
           <excludeDependencies>*;scope=provided|runtime</excludeDependencies>
@@ -244,6 +255,7 @@
           <artifactSet>
             <includes>
               <include>net.sf.ehcache.internal:*</include>
+              <include>org.terracotta.internal:statistics</include>
             </includes>
           </artifactSet>
           <filters>
