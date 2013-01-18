@@ -115,7 +115,7 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         } else if (policySelection.equals(MemoryStoreEvictionPolicy.LFU)) {
             return new LfuPolicy();
         } else if (policySelection.equals(MemoryStoreEvictionPolicy.CLOCK)) {
-            return null;
+            return new LruPolicy();
         }
 
         throw new IllegalArgumentException(policySelection + " isn't a valid eviction policy");
