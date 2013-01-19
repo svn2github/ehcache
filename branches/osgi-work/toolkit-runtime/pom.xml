@@ -232,12 +232,6 @@
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
           <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-<!--          <transformers>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-              <resource>META-INF/MANIFEST.MF</resource>
-              <file>${project.build.directory}/MANIFEST.MF</file>
-            </transformer>  
-         </transformers> -->
         </configuration>
         <executions>
           <execution>
@@ -298,32 +292,6 @@
           </execution>
         </executions>
       </plugin>       
-<!--       <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.3.7</version>
-        <extensions>true</extensions>
-        <executions>
-          <execution>
-            <id>default-bundle</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>bundle</goal>
-            </goals>
-        <configuration>
-          <instructions>
-            <Bundle-Name>Terracotta Toolkit Runtime</Bundle-Name>
-            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Import-Package>!*</Import-Package>
-            <Export-Package>org.terracotta.toolkit.*</Export-Package>
-            <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
-            <Bundle-ClassPath>., {maven-dependencies}</Bundle-ClassPath>            
-          </instructions>
-          <excludeDependencies>*;scope=provided|runtime</excludeDependencies>
-        </configuration>            
-          </execution>
-        </executions>
-      </plugin>  -->  
     <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
@@ -332,8 +300,6 @@
         <configuration>
           <manifestLocation>${project.build.directory}</manifestLocation>
           <instructions>
-            <!-- <Bundle-Name>Terracotta Toolkit Runtime</Bundle-Name>
-            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName> -->
             <Import-Package>javax.naming,
             javax.management,
             javax.transaction.xa,
