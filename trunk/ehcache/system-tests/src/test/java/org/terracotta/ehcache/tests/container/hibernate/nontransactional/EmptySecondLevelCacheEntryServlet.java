@@ -12,7 +12,6 @@ import org.terracotta.ehcache.tests.container.hibernate.BaseClusteredRegionFacto
 import org.terracotta.ehcache.tests.container.hibernate.domain.Item;
 
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpSession;
 
@@ -31,29 +30,9 @@ public class EmptySecondLevelCacheEntryServlet extends BaseClusteredRegionFactor
     t.commit();
     s.close();
 
-//    Statistics stats = HibernateUtil.getSessionFactory().getStatistics();
-//    final SecondLevelCacheStatistics statistics = stats.getSecondLevelCacheStatistics(Item.class.getName());
-//    Assert.assertEquals(1, statistics.getElementCountOnDisk());
-//    boolean foundInMemory = waitUntilTrue(new Callable<Boolean>() {
-//      public Boolean call() throws Exception {
-//        long elementCountInMemory = statistics.getElementCountInMemory();
-//        System.out.println("Checking stats, elementCountInMemory: " + elementCountInMemory);
-//        return elementCountInMemory == 1;
-//      }
-//    });
-//    Assert.assertEquals(true, foundInMemory);
-  }
-
-  private boolean waitUntilTrue(final Callable<Boolean> callable) throws Exception {
-
-    for (int i = 0; i < 120; i++) { // wait up to two minutes, which is a long time, but far less than the overal test
-                                    // time-out
-      Boolean rv = callable.call();
-      System.out.println("Waiting until callable returns true, returned: " + rv);
-      if (rv == true) { return true; }
-      Thread.sleep(1000);
-    }
-    return false;
+    Statistics stats = HibernateUtil.getSessionFactory().getStatistics();
+    final SecondLevelCacheStatistics statistics = stats.getSecondLevelCacheStatistics(Item.class.getName());
+    Assert.assertEquals(1, statistics.getElementCountInMemory());
   }
 
   @Override
@@ -61,13 +40,11 @@ public class EmptySecondLevelCacheEntryServlet extends BaseClusteredRegionFactor
     Statistics stats = HibernateUtil.getSessionFactory().getStatistics();
     SecondLevelCacheStatistics cacheStats = stats.getSecondLevelCacheStatistics(Item.class.getName());
 
-//    long size = cacheStats.getElementCountInMemory() + cacheStats.getElementCountOnDisk();
-//    Assert.assertEquals(1L, size);
+    Assert.assertEquals(1L, cacheStats.getElementCountInMemory());
 
     HibernateUtil.getSessionFactory().evictEntity(Item.class.getName());
 
-//    size = cacheStats.getElementCountInMemory() + cacheStats.getElementCountOnDisk();
-//    Assert.assertEquals(0L, size);
+    Assert.assertEquals(0L, cacheStats.getElementCountInMemory());
   }
 
 }

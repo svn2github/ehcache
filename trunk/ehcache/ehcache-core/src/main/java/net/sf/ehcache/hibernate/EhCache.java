@@ -258,7 +258,7 @@ public final class EhCache implements Cache {
      */
     public final long getElementCountInMemory() {
         try {
-            return cache.getStatistics().getLocalHeapSize();
+            return cache.getSize();
         } catch (net.sf.ehcache.CacheException ce) {
             throw new CacheException(ce);
         }
@@ -268,7 +268,7 @@ public final class EhCache implements Cache {
      * @return the number of elements in ehcache's DiskStore. 0 is there is no DiskStore
      */
     public final long getElementCountOnDisk() {
-        return cache.getStatistics().getLocalDiskSize();
+        return -1L;
     }
 
 

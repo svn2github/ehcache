@@ -76,7 +76,6 @@ public class NonEternalSecondLevelCacheTestServlet extends BaseClusteredRegionFa
 
     HibernateUtil.getSessionFactory().evictEntity(Item.class.getName());
 
-    long size = cacheStats.getElementCountInMemory() + cacheStats.getElementCountOnDisk();
-    Assert.assertEquals(0L, size);
+    Assert.assertEquals(0L, cacheStats.getElementCountInMemory());
   }
 }
