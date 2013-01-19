@@ -297,5 +297,4 @@ public class NonstopConfiguration implements Cloneable {
             throw new CacheException(e);
         }
     }
-
 }
