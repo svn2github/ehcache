@@ -340,6 +340,11 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
 
     @Override
+    public long getDefaultSearchTimeoutMillis() {
+      return -1;
+    }
+
+      @Override
     public boolean isEnabled() {
       return false;
     }
