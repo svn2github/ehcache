@@ -27,6 +27,7 @@
      because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
      runtime performance.-->
     <suppress checks="CyclomaticComplexity" files="Cache.java"/>
+    <suppress checks="CyclomaticComplexity" files="NonstopConfiguration"/>
     <suppress checks="CyclomaticComplexity" files="Segment.java"/>
     <suppress checks="CyclomaticComplexity" files="CacheManager.java"/>
     <suppress checks="CyclomaticComplexity" files="NonstopExecutorServiceImpl.java"/>
