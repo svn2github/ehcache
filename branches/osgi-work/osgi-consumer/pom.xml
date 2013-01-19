@@ -93,9 +93,9 @@
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Import-Package>
               javax.transaction;version=1.1, !javax.xml.namespace, !javax.xml.xpath, !org.w3c.dom,
-              net.sf.ehcache.*,javassist.util.proxy,org.hibernate.*,org.osgi.framework,org.slf4j</Import-Package>
+              net.sf.ehcache.*,javassist.util.proxy,org.hibernate.proxy,org.hibernate.*,org.osgi.framework,org.slf4j</Import-Package>
             <Export-Package></Export-Package>
-            <Private-Package>net.dahanne.osgi.ehcache.consumer.*,net.sf.ehcache.hibernate.domain</Private-Package>
+            <Private-Package>net.dahanne.osgi.ehcache.consumer.*</Private-Package>
             <Bundle-Activator>net.dahanne.osgi.ehcache.consumer.Activator</Bundle-Activator>
             <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
           </instructions>
