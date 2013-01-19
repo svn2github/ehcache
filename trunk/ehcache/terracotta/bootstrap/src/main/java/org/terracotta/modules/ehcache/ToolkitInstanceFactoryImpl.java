@@ -5,13 +5,13 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -35,7 +35,6 @@ import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
-import org.terracotta.toolkit.store.ToolkitConfigFields.PinningStore;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -145,9 +144,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
     builder.configField(ConfigFieldsInternal.LOCAL_STORE_MANAGER_NAME_NAME, cmName);
-    if (ehcacheConfig.getPinningConfiguration() != null) {
-      builder.pinningStore(getPinningStoreForConfiguration(ehcacheConfig));
-    }
+    builder.pinnedInLocalMemory(isPinnedInLocalMemory(ehcacheConfig));
     builder.maxCountLocalHeap((int) ehcacheConfig.getMaxEntriesLocalHeap());
     builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
     builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
@@ -169,17 +166,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return concurrency;
   }
 
-  private static PinningStore getPinningStoreForConfiguration(CacheConfiguration ehcacheConfig) {
-    switch (ehcacheConfig.getPinningConfiguration().getStore()) {
-      case INCACHE:
-        return PinningStore.INCACHE;
-      case LOCALHEAP:
-        return PinningStore.LOCALHEAP;
-      case LOCALMEMORY:
-        return PinningStore.LOCALMEMORY;
-    }
-    // don't do this as the "default" in the switch block so the compiler can catch errors
-    throw new AssertionError("unknown Pinning Configuration: " + ehcacheConfig.getPinningConfiguration().getStore());
+  private static boolean isPinnedInLocalMemory(CacheConfiguration ehcacheConfig) {
+    return ehcacheConfig.getPinningConfiguration() != null && ehcacheConfig.getPinningConfiguration()
+                                                                  .getStore() == PinningConfiguration.Store.LOCALMEMORY;
   }
 
   @Override
