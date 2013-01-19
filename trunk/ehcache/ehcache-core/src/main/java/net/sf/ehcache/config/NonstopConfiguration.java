@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheException;
  * Configuration class of nonstop caches
  *
  * @author Abhishek Sanoujam
+ * @author Eugene Kononov
  *
  */
 public class NonstopConfiguration implements Cloneable {
@@ -47,6 +48,11 @@ public class NonstopConfiguration implements Cloneable {
     public static final int DEFAULT_TIMEOUT_MILLIS = 30000;
 
     /**
+     * Default value of defaultSearchTimeoutMillis attribute
+     */
+    public static final int DEFAULT_SEARCH_TIMEOUT_MILLIS = 30000;
+
+    /**
      * Default value of timeout multiplication factor for bulk operations like removeAll or size
      */
     public static final int DEFAULT_BULK_OP_TIMEOUT_FACTOR = Integer.getInteger(BULK_OPS_TIMEOUT_MULTIPLY_FACTOR, 10);
@@ -59,6 +65,7 @@ public class NonstopConfiguration implements Cloneable {
     private volatile boolean enabled = DEFAULT_ENABLED;
     private volatile boolean immediateTimeout = DEFAULT_IMMEDIATE_TIMEOUT;
     private volatile long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
+    private volatile long defaultSearchTimeoutMillis = DEFAULT_SEARCH_TIMEOUT_MILLIS;
     private volatile int bulkOpsTimeoutMultiplyFactor = DEFAULT_BULK_OP_TIMEOUT_FACTOR;
     private TimeoutBehaviorConfiguration timeoutBehavior = DEFAULT_TIMEOUT_BEHAVIOR;
     private volatile boolean configFrozen;
@@ -150,6 +157,24 @@ public class NonstopConfiguration implements Cloneable {
     }
 
     /**
+     * Returns the value of the default search timeout in milliseconds
+     *
+     * @return the value of the default search timeout in milliseconds
+     */
+    public long getDefaultSearchTimeoutMillis() {
+        return defaultSearchTimeoutMillis;
+    }
+
+    /**
+     * Set the value of the default search timeout
+     *
+     * @param defaultSearchTimeoutMillis the new value
+     */
+    public void setDefaultSearchTimeoutMillis(long defaultSearchTimeoutMillis) {
+        this.defaultSearchTimeoutMillis = defaultSearchTimeoutMillis;
+    }
+
+    /**
      * returns the time out multiplication factor for bulk cache operations
      *
      * @return the value of factor
@@ -177,6 +202,18 @@ public class NonstopConfiguration implements Cloneable {
         this.setTimeoutMillis(timeoutMillis);
         return this;
     }
+
+    /**
+     * Set the value of the default search timeout
+     *
+     * @param defaultSearchTimeoutMillis the new value of the default search timeout in milliseconds
+     * @return this configuration instance
+     */
+    public NonstopConfiguration defaultSearchTimeoutMillis(long defaultSearchTimeoutMillis) {
+        this.setDefaultSearchTimeoutMillis(defaultSearchTimeoutMillis);
+        return this;
+    }
+
 
     /**
      * Returns value of timeoutBehavior configured
@@ -217,6 +254,7 @@ public class NonstopConfiguration implements Cloneable {
         result = prime * result + (immediateTimeout ? 1231 : 1237);
         result = prime * result + ((timeoutBehavior == null) ? 0 : timeoutBehavior.hashCode());
         result = prime * result + (int) (timeoutMillis ^ (timeoutMillis >>> 32));
+        result = prime * result + (int) (defaultSearchTimeoutMillis ^ (defaultSearchTimeoutMillis >>> 32));
         return result;
     }
 
@@ -232,6 +270,7 @@ public class NonstopConfiguration implements Cloneable {
             configFrozen != other.configFrozen ||
             enabled != other.enabled ||
             immediateTimeout != other.immediateTimeout ||
+            defaultSearchTimeoutMillis != other.defaultSearchTimeoutMillis ||
             timeoutMillis != other.timeoutMillis) {
             return false;
         }
