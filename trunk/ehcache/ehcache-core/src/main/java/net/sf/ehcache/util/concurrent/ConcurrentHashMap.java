@@ -1261,6 +1261,12 @@ public class ConcurrentHashMap<K, V>
     private final Object internalReplace(Object k, Object v, Object cv) {
         int h = spread(k.hashCode());
         Object oldVal = null;
+        final int newSize;
+        if (v != null) {
+            newSize = (int)poolAccessor.add(k, v, cv, true);
+        } else {
+            newSize = 0;
+        }
         for (Node[] tab = table;;) {
             Node f; int i, fh; Object fk;
             if (tab == null ||
@@ -1285,14 +1291,12 @@ public class ConcurrentHashMap<K, V>
                                         t.deleteTreeNode(p);
                                     }
                                     poolAccessor.delete(p.size);
+                                    p.size = newSize > 0 ? newSize : 0;
                                 }
                             }
                         }
                     } finally {
                         t.release(0);
-                        if(v != null) {
-                            poolAccessor.add(k, v, FAKE_TREE_NODE, true);
-                        }
                     }
                     if (validated) {
                         if (deleted)
@@ -1331,6 +1335,7 @@ public class ConcurrentHashMap<K, V>
                                             setTabAt(tab, i, en);
                                     }
                                     poolAccessor.delete(e.size);
+                                    e.size = deleted ? 0 : newSize;
                                 }
                                 break;
                             }
@@ -1344,9 +1349,6 @@ public class ConcurrentHashMap<K, V>
                         f.hash = fh;
                         synchronized (f) { f.notifyAll(); };
                     }
-                    if(v != null) {
-                        poolAccessor.add(k, v, FAKE_NODE, true);
-                    }
                 }
                 if (validated) {
                     if (deleted)
@@ -1354,6 +1356,9 @@ public class ConcurrentHashMap<K, V>
                     break;
                 }
             }
+        }
+        if(newSize > 0 && oldVal == null) {
+            poolAccessor.delete(newSize);
         }
         return oldVal;
     }
@@ -2723,11 +2728,106 @@ public class ConcurrentHashMap<K, V>
         return (V)internalGet(key);
     }
 
-    public void recalculateSize(final K key) {
-        // TODO Do this!
+    @Deprecated
+    public void recalculateSize(final K k) {
+        int h = spread(k.hashCode());
+        for (Node[] tab = table;;) {
+            Node f; int i, fh; Object fk;
+            if (tab == null ||
+                (f = tabAt(tab, i = (tab.length - 1) & h)) == null)
+                break;
+            else if ((fh = f.hash) == MOVED) {
+                if ((fk = f.key) instanceof TreeBin) {
+                    TreeBin t = (TreeBin)fk;
+                    boolean validated = false;
+                    Node node = null;
+                    Object val = null;
+                    t.acquire(0);
+                    try {
+                        if (tabAt(tab, i) == f) {
+                            validated = true;
+                            TreeNode p = t.getTreeNode(h, k, t.root);
+                            if (p != null) {
+                                node = p;
+                                val = node.val;
+                            }
+                        }
+                    } finally {
+                        t.release(0);
+                    }
+                    if (validated) {
+                        if (node != null) {
+                            final long delta = poolAccessor.replace(node.size, k, node.val, FAKE_TREE_NODE, true);
+                            t.acquire(0);
+                            try {
+                                if (node.val == val) {
+                                    node.size += delta;
+                                }
+                            } finally {
+                                t.release(0);
+                            }
+                        }
+                        break;
+                    }
+                }
+                else
+                    tab = (Node[])fk;
+            }
+            else if ((fh & HASH_BITS) != h && f.next == null) // precheck
+                break;                          // rules out possible existence
+            else if ((fh & LOCKED) != 0) {
+                checkForResize();               // try resizing if can't get lock
+                f.tryAwaitLock(tab, i);
+            }
+            else if (f.casHash(fh, fh | LOCKED)) {
+                boolean validated = false;
+                Node node = null;
+                Object val = null;
+                int size = -1;
+                try {
+                    if (tabAt(tab, i) == f) {
+                        validated = true;
+                        for (Node e = f;;) {
+                            Object ek;
+                            if ((e.hash & HASH_BITS) == h &&
+                                ((ek = e.key) == k || k.equals(ek))) {
+                                node = e;
+                                val = node.val;
+                                size = node.size;
+                                break;
+                            }
+                            if ((e = e.next) == null)
+                                break;
+                        }
+                    }
+                } finally {
+                    if (!f.casHash(fh | LOCKED, fh)) {
+                        f.hash = fh;
+                        synchronized (f) { f.notifyAll(); };
+                    }
+                }
+                if (validated) {
+                    if (node != null) {
+                        final long delta = poolAccessor.replace(node.size, k, node.val, FAKE_TREE_NODE, true);
+                        while(!f.casHash(fh, fh | LOCKED));
+                        try {
+                            if (val == node.val && node.size == size) {
+                                node.size += delta;
+                            }
+                        } finally {
+                            if (!f.casHash(fh | LOCKED, fh)) {
+                                f.hash = fh;
+                                synchronized (f) { f.notifyAll(); };
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 
-    protected List<V> getRandomValues(int amount) {
+    public List<V> getRandomValues(int amount) {
         ArrayList<V> sampled = new ArrayList<V>(amount * 2);
 
         // pick a random starting point in the table

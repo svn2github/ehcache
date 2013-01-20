@@ -102,7 +102,7 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
         int evictions = MAX_EVICTIONS;
         while (maxEntriesLocalHeap < mappingCount() && evictions-- > 0) {
             final Element evictionCandidate = findEvictionCandidate(key, value);
-            if (evictionCandidate != null && remove(evictionCandidate.getObjectKey(), evictionCandidate)) {
+            if (evictionCandidate != null && remove(evictionCandidate.getObjectKey(), evictionCandidate) && evictionCallback != null) {
                 evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
             }
         }

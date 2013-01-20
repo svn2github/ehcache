@@ -67,7 +67,11 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     public V putIfAbsent(final K key, final V value) {
         long delta = poolAccessor.get().add(key, value, FAKE_TREE_NODE, false);
         if (delta > -1) {
-            return (V)super.internalPutIfAbsent(key, value, delta > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)delta);
+            final V previous = (V)super.internalPutIfAbsent(key, value, delta > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)delta);
+            if(previous != null) {
+                poolAccessor.get().delete(delta);
+            }
+            return previous;
         } else {
             evictionCallback.evicted(key, value);
             return null;

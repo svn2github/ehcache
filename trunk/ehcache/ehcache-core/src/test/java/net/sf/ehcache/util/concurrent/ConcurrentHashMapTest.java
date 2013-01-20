@@ -81,6 +81,36 @@ public class ConcurrentHashMapTest {
         assertThings(map);
     }
 
+    @Test
+    public void testActuallyWorks() throws InterruptedException {
+        final long top = 100000000;
+        final String key = "counter";
+//        final java.util.concurrent.ConcurrentHashMap<String, Long> map = new java.util.concurrent.ConcurrentHashMap<String, Long>();
+        final ConcurrentHashMap<String, Long> map = new ConcurrentHashMap<String, Long>();
+        map.put(key, 0L);
+
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                for(Long val = map.get(key); val < top && map.replace(key, val, val + 1); val = map.get(key));
+            }
+        };
+
+        Thread[] threads = new Thread[Runtime.getRuntime().availableProcessors() * 2];
+        for (int i = 0, threadsLength = threads.length; i < threadsLength; ) {
+            threads[i] = new Thread(runnable);
+            threads[i].setName("Mutation thread #" + ++i);
+            threads[i - 1].start();
+        }
+
+        for (Thread thread : threads) {
+            thread.join();
+        }
+
+        assertThat(map.get(key), is(top));
+
+    }
+
     private void assertThings(final ConcurrentHashMap<?, ?> map) {
         assertThat(map.size(), is(ENTRIES));
 
