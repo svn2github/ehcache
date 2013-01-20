@@ -4,7 +4,6 @@ import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
 import net.sf.ehcache.store.cachingtier.PooledBasedBackEnd;
-import net.sf.ehcache.util.concurrent.ThreadLocalRandom;
 import org.junit.Test;
 
 import java.util.List;

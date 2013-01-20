@@ -68,7 +68,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
         long delta = poolAccessor.get().add(key, value, FAKE_TREE_NODE, false);
         if (delta > -1) {
             final V previous = (V)super.internalPutIfAbsent(key, value, delta > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)delta);
-            if(previous != null) {
+            if (previous != null) {
                 poolAccessor.get().delete(delta);
             }
             return previous;
