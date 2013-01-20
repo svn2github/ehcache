@@ -1001,7 +1001,7 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     *  timeoutMillis - An SLA setting, so that if a cache operation takes longer than the allowed ms, it will timeout.
 
-    *  defaultSearchTimeoutMillis - If a cache search operation takes longer than the allowed ms, it will timeout.
+    *  searchTimeoutMillis - If a cache search operation in the nonstop mode takes longer than the allowed ms, it will timeout.
 
     *  immediateTimeout="true|false" - What to do on receipt of a ClusterOffline event indicating that communications
        with the Terracotta Server Array were interrupted.

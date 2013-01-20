@@ -33,8 +33,8 @@ public class ToolkitNonStopConfiguration implements NonStopConfiguration {
   }
 
   @Override
-  public long getDefaultSearchTimeoutMillis() {
-    return ehcacheNonStopConfig.getDefaultSearchTimeoutMillis();
+  public long getSearchTimeoutMillis() {
+    return ehcacheNonStopConfig.getSearchTimeoutMillis();
   }
 
     @Override

@@ -278,7 +278,7 @@
             <xs:attribute name="enabled" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="immediateTimeout" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="timeoutMillis" use="optional" type="xs:positiveInteger" default="30000"/>
-            <xs:attribute name="defaultSearchTimeoutMillis" use="optional" type="xs:positiveInteger" default="30000"/>
+            <xs:attribute name="searchTimeoutMillis" use="optional" type="xs:positiveInteger" default="30000"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="timeoutBehavior">

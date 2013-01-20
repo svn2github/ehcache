@@ -48,7 +48,7 @@ public class NonstopConfiguration implements Cloneable {
     public static final int DEFAULT_TIMEOUT_MILLIS = 30000;
 
     /**
-     * Default value of defaultSearchTimeoutMillis attribute
+     * Default value of searchTimeoutMillis attribute
      */
     public static final int DEFAULT_SEARCH_TIMEOUT_MILLIS = 30000;
 
@@ -65,7 +65,7 @@ public class NonstopConfiguration implements Cloneable {
     private volatile boolean enabled = DEFAULT_ENABLED;
     private volatile boolean immediateTimeout = DEFAULT_IMMEDIATE_TIMEOUT;
     private volatile long timeoutMillis = DEFAULT_TIMEOUT_MILLIS;
-    private volatile long defaultSearchTimeoutMillis = DEFAULT_SEARCH_TIMEOUT_MILLIS;
+    private volatile long searchTimeoutMillis = DEFAULT_SEARCH_TIMEOUT_MILLIS;
     private volatile int bulkOpsTimeoutMultiplyFactor = DEFAULT_BULK_OP_TIMEOUT_FACTOR;
     private TimeoutBehaviorConfiguration timeoutBehavior = DEFAULT_TIMEOUT_BEHAVIOR;
     private volatile boolean configFrozen;
@@ -161,17 +161,17 @@ public class NonstopConfiguration implements Cloneable {
      *
      * @return the value of the default search timeout in milliseconds
      */
-    public long getDefaultSearchTimeoutMillis() {
-        return defaultSearchTimeoutMillis;
+    public long getSearchTimeoutMillis() {
+        return searchTimeoutMillis;
     }
 
     /**
      * Set the value of the default search timeout
      *
-     * @param defaultSearchTimeoutMillis the new value
+     * @param searchTimeoutMillis the new value
      */
-    public void setDefaultSearchTimeoutMillis(long defaultSearchTimeoutMillis) {
-        this.defaultSearchTimeoutMillis = defaultSearchTimeoutMillis;
+    public void setSearchTimeoutMillis(long searchTimeoutMillis) {
+        this.searchTimeoutMillis = searchTimeoutMillis;
     }
 
     /**
@@ -204,13 +204,13 @@ public class NonstopConfiguration implements Cloneable {
     }
 
     /**
-     * Set the value of the default search timeout
+     * Set the value of the search timeout
      *
-     * @param defaultSearchTimeoutMillis the new value of the default search timeout in milliseconds
+     * @param searchTimeoutMillis the new value of the search timeout in milliseconds
      * @return this configuration instance
      */
-    public NonstopConfiguration defaultSearchTimeoutMillis(long defaultSearchTimeoutMillis) {
-        this.setDefaultSearchTimeoutMillis(defaultSearchTimeoutMillis);
+    public NonstopConfiguration searchTimeoutMillis(long searchTimeoutMillis) {
+        this.setSearchTimeoutMillis(searchTimeoutMillis);
         return this;
     }
 
@@ -254,7 +254,7 @@ public class NonstopConfiguration implements Cloneable {
         result = prime * result + (immediateTimeout ? 1231 : 1237);
         result = prime * result + ((timeoutBehavior == null) ? 0 : timeoutBehavior.hashCode());
         result = prime * result + (int) (timeoutMillis ^ (timeoutMillis >>> 32));
-        result = prime * result + (int) (defaultSearchTimeoutMillis ^ (defaultSearchTimeoutMillis >>> 32));
+        result = prime * result + (int) (searchTimeoutMillis ^ (searchTimeoutMillis >>> 32));
         return result;
     }
 
@@ -270,7 +270,7 @@ public class NonstopConfiguration implements Cloneable {
             configFrozen != other.configFrozen ||
             enabled != other.enabled ||
             immediateTimeout != other.immediateTimeout ||
-            defaultSearchTimeoutMillis != other.defaultSearchTimeoutMillis ||
+            searchTimeoutMillis != other.searchTimeoutMillis ||
             timeoutMillis != other.timeoutMillis) {
             return false;
         }
