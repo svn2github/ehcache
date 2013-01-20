@@ -25,7 +25,6 @@ import net.sf.ehcache.server.soap.jaxws.Element;
 import net.sf.ehcache.server.soap.jaxws.IllegalStateException_Exception;
 import net.sf.ehcache.server.soap.jaxws.NoSuchCacheException_Exception;
 import net.sf.ehcache.server.soap.jaxws.Statistics;
-import net.sf.ehcache.server.soap.jaxws.StatisticsAccuracy;
 import net.sf.ehcache.server.soap.jaxws.Status;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -282,40 +281,21 @@ public class EhcacheWebServiceEndpointTest extends AbstractSoapTest {
 
     @Test
     public void testGetStatistics() throws Exception {
-        cacheService.clearStatistics("sampleCache1");
-
         Statistics statistics = cacheService.getStatistics("sampleCache1");
-        assertEquals(0L, statistics.getCacheHits());
+        long hitBaseline = statistics.getCacheHits();
+        long evictionBaseline = statistics.getEvictionCount();
+        long memoryHitBaseline = statistics.getInMemoryHits();
+        long diskHitBaseline = statistics.getOnDiskHits();
 
         putElementIntoCache();
         getElementFromCache();
 
         statistics = cacheService.getStatistics("sampleCache1");
-        assertEquals(1L, statistics.getCacheHits());
-        assertTrue(statistics.getAverageGetTime() >= 0);
-        assertEquals(0L, statistics.getEvictionCount());
-        assertEquals(1L, statistics.getInMemoryHits());
-        assertEquals(0L, statistics.getOnDiskHits());
-        assertEquals(StatisticsAccuracy.STATISTICS_ACCURACY_BEST_EFFORT, statistics.getStatisticsAccuracy());
+        assertEquals(hitBaseline + 1L, statistics.getCacheHits());
+        assertEquals(evictionBaseline + 0L, statistics.getEvictionCount());
+        assertEquals(memoryHitBaseline + 1L, statistics.getInMemoryHits());
+        assertEquals(diskHitBaseline + 0L, statistics.getOnDiskHits());
     }
-
-    @Test
-    public void testGetStatisticsAccuracy() throws NoSuchCacheException_Exception,
-            CacheException_Exception, IllegalStateException_Exception {
-        assertEquals(StatisticsAccuracy.STATISTICS_ACCURACY_BEST_EFFORT,
-                cacheService.getStatisticsAccuracy("sampleCache1"));
-    }
-
-    @Test
-    public void testClearStatistics() throws Exception {
-        putElementIntoCache();
-        getElementFromCache();
-
-        cacheService.clearStatistics("sampleCache1");
-        Statistics statistics = cacheService.getStatistics("sampleCache1");
-        assertEquals(0L, statistics.getCacheHits());
-    }
-
 
     /**
      * No loader configured. smoke test only

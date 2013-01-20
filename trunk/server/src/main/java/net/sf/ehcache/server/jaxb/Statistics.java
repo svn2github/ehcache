@@ -16,13 +16,12 @@
 
 package net.sf.ehcache.server.jaxb;
 
+import net.sf.ehcache.statistics.StatisticsGateway;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * An immutable Cache statistics implementation.
- * <p/>
- * The accuracy of these statistics are determined by the value of {#getStatisticsAccuracy()}
- * at the time the statistic was computed. This can be changed by setting {@link net.sf.ehcache.Cache#setStatisticsAccuracy}.
  * <p/>
  * Because this class maintains a reference to an Ehcache, any references held to this class will precent the Ehcache
  * from getting garbage collected.
@@ -38,9 +37,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Statistics {
 
-
-    private StatisticsAccuracy statisticsAccuracy;
-
     private long cacheHits;
 
     private long onDiskHits;
@@ -48,8 +44,6 @@ public class Statistics {
     private long inMemoryHits;
 
     private long misses;
-
-    private float averageGetTime;
 
     private long evictionCount;
 
@@ -73,18 +67,15 @@ public class Statistics {
      *
      * @param statistics the Ehcache core {@link net.sf.ehcache.Statistics} object.
      */
-    public Statistics(net.sf.ehcache.Statistics statistics) {
-        statisticsAccuracy = StatisticsAccuracy.fromCode(statistics.getStatisticsAccuracy());
-        cacheHits = statistics.getCacheHits();
-        onDiskHits = statistics.getOnDiskHits();
-        inMemoryHits = statistics.getInMemoryHits();
-        misses = statistics.getCacheMisses();
-        averageGetTime = statistics.getAverageGetTime();
-        evictionCount = statistics.getEvictionCount();
-        size = statistics.getObjectCount();
-        memoryStoreSize = statistics.getMemoryStoreObjectCount();
-        diskStoreSize = statistics.getDiskStoreObjectCount();
-
+    public Statistics(StatisticsGateway statistics) {
+        cacheHits = statistics.cacheHitCount();
+        onDiskHits = statistics.localDiskHitCount();
+        inMemoryHits = statistics.localHeapHitCount();
+        misses = statistics.cacheMissCount();
+        evictionCount = statistics.cacheEvictedCount();
+        size = statistics.getSize();
+        memoryStoreSize = statistics.getLocalHeapSize();
+        diskStoreSize = statistics.getLocalDiskSize();
     }
 
     /**
@@ -160,35 +151,10 @@ public class Statistics {
     }
 
     /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
-     *
-     * @return one of {@link StatisticsAccuracy#STATISTICS_ACCURACY_BEST_EFFORT},
-     *         {@link StatisticsAccuracy#STATISTICS_ACCURACY_GUARANTEED}, {@link StatisticsAccuracy#STATISTICS_ACCURACY_NONE}
-     */
-    public StatisticsAccuracy getStatisticsAccuracy() {
-        return statisticsAccuracy;
-    }
-
-    /**
-     * @return The average get time. Because ehcache support JDK1.4.2, each get time uses
-     * System.currentTimeMilis, rather than nanoseconds. The accuracy is thus limited.
-     */
-    public float getAverageGetTime() {
-        return averageGetTime;
-    }
-
-    /**
      * @return Gets the number of cache evictions, since the cache was created, or statistics were cleared.
      */
     public long getEvictionCount() {
         return evictionCount;
-    }
-
-    /**
-     * @param statisticsAccuracy setter
-     */
-    public void setStatisticsAccuracy(StatisticsAccuracy statisticsAccuracy) {
-        this.statisticsAccuracy = statisticsAccuracy;
     }
 
     /**
@@ -217,13 +183,6 @@ public class Statistics {
      */
     public void setMisses(long misses) {
         this.misses = misses;
-    }
-
-    /**
-     * @param averageGetTime setter
-     */
-    public void setAverageGetTime(float averageGetTime) {
-        this.averageGetTime = averageGetTime;
     }
 
     /**

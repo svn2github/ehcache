@@ -29,35 +29,17 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "statistics", propOrder = {
-        "averageGetTime",
         "cacheHits",
         "evictionCount",
         "inMemoryHits",
         "onDiskHits",
-        "statisticsAccuracy"
 })
 public class Statistics {
 
-    protected float averageGetTime;
     protected long cacheHits;
     protected long evictionCount;
     protected long inMemoryHits;
     protected long onDiskHits;
-    protected StatisticsAccuracy statisticsAccuracy;
-
-    /**
-     * Gets the value of the averageGetTime property.
-     */
-    public float getAverageGetTime() {
-        return averageGetTime;
-    }
-
-    /**
-     * Sets the value of the averageGetTime property.
-     */
-    public void setAverageGetTime(float value) {
-        this.averageGetTime = value;
-    }
 
     /**
      * Gets the value of the cacheHits property.
@@ -114,25 +96,4 @@ public class Statistics {
     public void setOnDiskHits(long value) {
         this.onDiskHits = value;
     }
-
-    /**
-     * Gets the value of the statisticsAccuracy property.
-     *
-     * @return possible object is
-     *         {@link StatisticsAccuracy }
-     */
-    public StatisticsAccuracy getStatisticsAccuracy() {
-        return statisticsAccuracy;
-    }
-
-    /**
-     * Sets the value of the statisticsAccuracy property.
-     *
-     * @param value allowed object is
-     *              {@link StatisticsAccuracy }
-     */
-    public void setStatisticsAccuracy(StatisticsAccuracy value) {
-        this.statisticsAccuracy = value;
-    }
-
 }

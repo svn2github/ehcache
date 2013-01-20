@@ -33,7 +33,7 @@ public final class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
     private final Set<Class> types;
 
-    private final Class[] classTypes = {Caches.class, Cache.class, Element.class, Statistics.class, StatisticsAccuracy.class, Status.class};
+    private final Class[] classTypes = {Caches.class, Cache.class, Element.class, Statistics.class, Status.class};
 
     /**
      * @throws Exception

@@ -23,7 +23,6 @@ import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.server.jaxb.Cache;
 import net.sf.ehcache.server.jaxb.Element;
 import net.sf.ehcache.server.jaxb.Statistics;
-import net.sf.ehcache.server.jaxb.StatisticsAccuracy;
 import net.sf.ehcache.server.jaxb.Status;
 
 import javax.annotation.Resource;
@@ -459,29 +458,6 @@ public class EhcacheWebServiceEndpoint {
     public Statistics getStatistics(String cacheName) throws IllegalStateException {
         net.sf.ehcache.Cache cache = lookupCache(cacheName);
         return new Statistics(cache.getStatistics());
-    }
-
-    /**
-     * Accurately measuring statistics can be expensive. Returns the current accuracy setting.
-     *
-     * @param cacheName the name of the cache to perform this operation on. the name of the cache to perform this operation on.
-     * @return one of {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_BEST_EFFORT}, {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_GUARANTEED}, {@link net.sf.ehcache.Statistics#STATISTICS_ACCURACY_NONE}
-     */
-    @WebMethod
-    public StatisticsAccuracy getStatisticsAccuracy(String cacheName) {
-        net.sf.ehcache.Cache cache = lookupCache(cacheName);
-        return StatisticsAccuracy.fromCode(cache.getStatisticsAccuracy());
-    }
-
-    /**
-     * Resets statistics counters back to 0.
-     *
-     * @param cacheName the name of the cache to perform this operation on.
-     */
-    @WebMethod
-    public void clearStatistics(String cacheName) {
-        net.sf.ehcache.Cache cache = lookupCache(cacheName);
-        cache.clearStatistics();
     }
 
     /**

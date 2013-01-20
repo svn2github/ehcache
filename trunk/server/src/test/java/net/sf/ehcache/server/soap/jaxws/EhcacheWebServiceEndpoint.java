@@ -217,28 +217,6 @@ public interface EhcacheWebServiceEndpoint {
             ;
 
     /**
-     * @param arg0
-     * @return returns net.sf.ehcache.server.soap.jaxws.StatisticsAccuracy
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "getStatisticsAccuracy", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatisticsAccuracy")
-    @ResponseWrapper(localName = "getStatisticsAccuracyResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.GetStatisticsAccuracyResponse")
-    public StatisticsAccuracy getStatisticsAccuracy(
-            @WebParam(name = "arg0", targetNamespace = "")
-            String arg0);
-
-    /**
-     * @param arg0
-     */
-    @WebMethod
-    @RequestWrapper(localName = "clearStatistics", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.ClearStatistics")
-    @ResponseWrapper(localName = "clearStatisticsResponse", targetNamespace = "http://soap.server.ehcache.sf.net/", className = "net.sf.ehcache.server.soap.jaxws.ClearStatisticsResponse")
-    public void clearStatistics(
-            @WebParam(name = "arg0", targetNamespace = "")
-            String arg0);
-
-    /**
      * @param arg1
      * @param arg0
      * @return returns net.sf.ehcache.server.soap.jaxws.HashMap
