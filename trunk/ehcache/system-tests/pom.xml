@@ -105,7 +105,7 @@
     <dependency>
       <groupId>com.atomikos</groupId>
       <artifactId>transactions-jta</artifactId>
-      <version>3.6.5</version>
+      <version>3.6.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -186,13 +186,7 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-    </repository>
-    <repository>
-      <id>atomikos</id>
-      <name>Atomikos Repository</name>
-      <url>http://repo.atomikos.com/</url>
-      <layout>default</layout>
-    </repository>    
+    </repository> 
   </repositories>
 
   <pluginRepositories>
