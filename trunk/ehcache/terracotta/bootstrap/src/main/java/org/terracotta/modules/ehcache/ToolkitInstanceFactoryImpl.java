@@ -12,6 +12,7 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -19,6 +20,7 @@ import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
+import org.terracotta.modules.ehcache.store.nonstop.ToolkitNonstopDisableConfig;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
@@ -34,6 +36,7 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
+import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import java.io.BufferedReader;
@@ -72,6 +75,21 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
+    updateDefaultNonStopConfig(toolkit);
+  }
+
+  private void updateDefaultNonStopConfig(Toolkit toolkitParam) {
+    ToolkitNonstopDisableConfig disableNonStop = new ToolkitNonstopDisableConfig();
+    NonStopConfigurationRegistry nonStopConfigurationRegistry = toolkitParam.getFeature(ToolkitFeatureType.NONSTOP)
+        .getNonStopConfigurationRegistry();
+    for (ToolkitObjectType t : ToolkitObjectType.values()) {
+      try {
+        nonStopConfigurationRegistry.registerForType(disableNonStop, t);
+      } catch (UnsupportedOperationException e) {
+        // expected for Barrier and BlockingQueue.
+        if (!(t == ToolkitObjectType.BARRIER || t == ToolkitObjectType.BLOCKING_QUEUE)) { throw e; }
+      }
+    }
   }
 
   private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -167,8 +185,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private static boolean isPinnedInLocalMemory(CacheConfiguration ehcacheConfig) {
-    return ehcacheConfig.getPinningConfiguration() != null && ehcacheConfig.getPinningConfiguration()
-                                                                  .getStore() == PinningConfiguration.Store.LOCALMEMORY;
+    return ehcacheConfig.getPinningConfiguration() != null
+           && ehcacheConfig.getPinningConfiguration().getStore() == PinningConfiguration.Store.LOCALMEMORY;
   }
 
   @Override

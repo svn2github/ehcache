@@ -29,12 +29,10 @@ import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.NonStopCacheLockProvider;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
+import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.feature.NonStopFeature;
-import org.terracotta.toolkit.nonstop.NonStopConfiguration;
-import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopReadTimeoutBehavior;
-import org.terracotta.toolkit.nonstop.NonStopConfigurationFields.NonStopWriteTimeoutBehavior;
 import org.terracotta.toolkit.nonstop.NonStopException;
 import org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException;
 import org.terracotta.toolkit.rejoin.RejoinException;
@@ -49,8 +47,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-
-import org.terracotta.statistics.StatisticsManager;
 
 public class NonStopStoreWrapper implements TerracottaStore {
   private static final long                                   TIME_TO_WAIT_FOR_ASYNC_STORE_INIT = Long
@@ -73,7 +69,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   }
 
   private volatile TerracottaStore                            delegate;
-  private final NonStopFeature                                       nonStop;
+  private final NonStopFeature                                nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
   private final NonstopConfiguration                          ehcacheNonStopConfiguration;
   private volatile TerracottaStore                            localReadDelegate;
@@ -320,40 +316,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
       if (m.getName().equals(method)) { return true; }
     }
     return false;
-  }
-
-  private static class ToolkitNonstopDisableConfig implements NonStopConfiguration {
-
-    @Override
-    public NonStopReadTimeoutBehavior getReadOpNonStopTimeoutBehavior() {
-      return NonStopReadTimeoutBehavior.EXCEPTION;
-    }
-
-    @Override
-    public NonStopWriteTimeoutBehavior getWriteOpNonStopTimeoutBehavior() {
-      return NonStopWriteTimeoutBehavior.EXCEPTION;
-    }
-
-    @Override
-    public long getTimeoutMillis() {
-      return -1;
-    }
-
-    @Override
-    public long getSearchTimeoutMillis() {
-      return -1;
-    }
-
-      @Override
-    public boolean isEnabled() {
-      return false;
-    }
-
-    @Override
-    public boolean isImmediateTimeoutEnabled() {
-      return false;
-    }
-
   }
 
   public static void main(String[] args) {

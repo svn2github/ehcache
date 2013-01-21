@@ -142,7 +142,7 @@ public class BulkLoadEnabledNodesSet {
         }
 
         if (loggingEnabled) {
-          debug("Waiting until bulk-load enabled nodes list is empty");
+          debug("Waiting until bulk-load enabled nodes list is empty" + bulkLoadEnabledNodesSet.size());
         }
         // wait until somebody removes from the nodes set
         clusteredLock.getCondition().await(10, TimeUnit.SECONDS);
