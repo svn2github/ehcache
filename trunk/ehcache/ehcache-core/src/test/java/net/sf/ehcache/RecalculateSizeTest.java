@@ -47,8 +47,8 @@ public class RecalculateSizeTest extends TestCase {
         System.out.println("Shrinked size: " + shrinkedSize + ", expanded size: " + expandedSize);
 
         Assert.assertTrue(expandedSize > shrinkedSize);
-        // consumes 20mb, assert diff is at least 19mb
-        Assert.assertTrue(expandedSize - shrinkedSize > MemoryUnit.MEGABYTES.toBytes(19));
+        // consumes 12mb, assert diff is at least 11mb
+        Assert.assertTrue(expandedSize - shrinkedSize > MemoryUnit.MEGABYTES.toBytes(11));
 
         value.shrinkSize();
         long shrinkedSize2 = engine.sizeOf(value, null, null).getCalculated();
@@ -323,7 +323,7 @@ public class RecalculateSizeTest extends TestCase {
         }
 
         public void expandSize() {
-            setSize((int) MemoryUnit.MEGABYTES.toBytes(10));
+            setSize((int) MemoryUnit.MEGABYTES.toBytes(6));
         }
 
         private void setSize(int bytes) {
