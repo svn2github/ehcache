@@ -141,7 +141,7 @@ public final class Configuration {
                         CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
                         errors.addAll(cacheConfiguration.validateCachePools(config.getConfiguration()));
                         errors.addAll(cacheConfiguration.verifyPoolAllocationsBeforeAddingTo(config.cacheManager,
-                            newValue, config.getConfiguration().getMaxBytesLocalOffHeap(), config.getConfiguration().getMaxBytesLocalDisk()));
+                            newValue, config.getConfiguration().getMaxBytesLocalOffHeap(), config.getConfiguration().getMaxBytesLocalDisk(), null));
                     }
                 }
                 if (!errors.isEmpty()) {

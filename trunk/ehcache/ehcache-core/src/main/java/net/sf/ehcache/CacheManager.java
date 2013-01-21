@@ -1314,7 +1314,11 @@ public class CacheManager {
      * @param registerCacheConfig
      */
     void initializeEhcache(final Ehcache cache, final boolean registerCacheConfig) {
-        cache.getCacheConfiguration().setupFor(this, registerCacheConfig);
+        if (!registerCacheConfig) {
+            cache.getCacheConfiguration().setupFor(this, registerCacheConfig, getParentCacheName(cache));
+        } else {
+            cache.getCacheConfiguration().setupFor(this);
+        }
         cache.setCacheManager(this);
         cache.setTransactionManagerLookup(transactionManagerLookup);
 
@@ -1336,18 +1340,27 @@ public class CacheManager {
     }
 
     private void associateShadowCache(Ehcache shadow) {
+        String parentCacheName = getParentCacheName(shadow);
+        if (parentCacheName == null) {
+            return;
+        }
+        Ehcache parent = initializingCaches.get(parentCacheName);
+        if (parent == null) {
+            parent = ehcaches.get(parentCacheName);
+        }
+        if (parent != null) {
+            StatisticsManager.associate(shadow).withParent(parent);
+        }
+    }
+        
+    
+    private String getParentCacheName(Ehcache shadow) {
         String shadowPrefix = "local_shadow_cache_for_" + getName() + "___tc_clustered-ehcache|" + getName() + "|";
         if (shadow.getName().startsWith(shadowPrefix)) {
-            String parentCacheName = shadow.getName().substring(shadowPrefix.length());
-            Ehcache parent = initializingCaches.get(parentCacheName);
-            if (parent == null) {
-                parent = ehcaches.get(parentCacheName);
-            }
-            if (parent != null) {
-                StatisticsManager.associate(shadow).withParent(parent);
-            }
+            return shadow.getName().substring(shadowPrefix.length());
+        } else {
+            return null;
         }
-        
     }
     
     private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,

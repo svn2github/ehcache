@@ -1604,7 +1604,7 @@ public class CacheConfiguration implements Cloneable {
      * @param cacheManager The CacheManager as part of which the cache is being setup
      */
     public void setupFor(final CacheManager cacheManager) {
-        setupFor(cacheManager, true);
+        setupFor(cacheManager, true, null);
     }
 
     /**
@@ -1612,13 +1612,13 @@ public class CacheConfiguration implements Cloneable {
      * @param cacheManager The CacheManager as part of which the cache is being setup
      * @param register true to register this cache configuration with the cache manager.
      */
-    public void setupFor(final CacheManager cacheManager, final boolean register) {
+    public void setupFor(final CacheManager cacheManager, final boolean register, final String parentCache) {
         final Collection<ConfigError> errors = validate(cacheManager.getConfiguration());
         configCachePools(cacheManager.getConfiguration());
         errors.addAll(verifyPoolAllocationsBeforeAddingTo(cacheManager,
             cacheManager.getConfiguration().getMaxBytesLocalHeap(),
             cacheManager.getConfiguration().getMaxBytesLocalOffHeap(),
-            cacheManager.getConfiguration().getMaxBytesLocalDisk()));
+            cacheManager.getConfiguration().getMaxBytesLocalDisk(), parentCache));
         if (!errors.isEmpty()) {
             throw new InvalidConfigurationException(errors);
         }
@@ -1794,12 +1794,14 @@ public class CacheConfiguration implements Cloneable {
      * @param managerMaxBytesLocalHeap bytes for local heap
      * @param managerMaxBytesLocalOffHeap bytes for local offheap
      * @param managerMaxBytesLocalDisk bytes for local disk
+     * @param parentCacheName cacheName for parentCache to be used when initializing shadow caches
      * @return a list with potential errors
      */
     List<ConfigError> verifyPoolAllocationsBeforeAddingTo(CacheManager cacheManager,
                                                      long managerMaxBytesLocalHeap,
                                                      long managerMaxBytesLocalOffHeap,
-                                                     long managerMaxBytesLocalDisk) {
+                                                     long managerMaxBytesLocalDisk, 
+                                                     String parentCacheName) {
         final List<ConfigError> configErrors = new ArrayList<ConfigError>();
 
         long totalOnHeapAssignedMemory  = 0;
@@ -1808,6 +1810,10 @@ public class CacheConfiguration implements Cloneable {
 
         boolean isUpdate = false;
         for (Cache cache : getAllActiveCaches(cacheManager)) {
+            if (cache.getName().equals(parentCacheName)) {
+                // Do not add parent cache when calculating memory requirements for shadow cache.
+                continue;
+            }
             isUpdate = cache.getName().equals(getName()) || isUpdate;
             final CacheConfiguration config = cache.getCacheConfiguration();
             totalOnHeapAssignedMemory += config.getMaxBytesLocalHeap();
