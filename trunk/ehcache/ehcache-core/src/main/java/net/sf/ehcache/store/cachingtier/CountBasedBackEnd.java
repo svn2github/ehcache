@@ -20,6 +20,9 @@ import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,8 @@ import java.util.List;
  * @author Alex Snaps
  */
 public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements HeapCacheBackEnd<K, V> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CountBasedBackEnd.class.getName());
 
     private static final int MAX_EVICTIONS = 5;
     private static final int SAMPLING_SIZE = 30;
@@ -77,7 +82,11 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
     public V putIfAbsent(final K key, final V value) {
         final V v = super.putIfAbsent(key, value);
         if (v == null) {
-            evictIfRequired(key, value);
+            try {
+                evictIfRequired(key, value);
+            } catch (Throwable e) {
+                LOG.warn("Caught throwable while evicting", e);
+            }
         }
         return v;
     }

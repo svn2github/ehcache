@@ -1,5 +1,7 @@
 package net.sf.ehcache.store.cachingtier;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.store.CachingTier;
 import org.junit.Test;
 
@@ -11,9 +13,11 @@ import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -108,6 +112,80 @@ public class OnHeapCachingTierTest {
         }
         assertThat(keys.size(), is(0));
         assertThat(evictions.size(), is(loops));
+    }
+
+    @Test
+    public void testDoesNotLeakFaults() throws InterruptedException {
+
+        final CountBasedBackEnd<Integer, Object> backEnd = new CountBasedBackEnd<Integer, Object>(10);
+        final OnHeapCachingTier<Integer, Element> cachingTier = new OnHeapCachingTier<Integer, Element>(
+            backEnd);
+        cachingTier.addListener(new CachingTier.Listener<Integer, Element>() {
+            @Override
+            public void evicted(final Integer key, final Element value) {
+                throw new RuntimeException("Just to piss you off...");
+            }
+        });
+
+        final Runnable runnable = new Runnable() {
+            
+            ThreadLocal<Integer> counter = new ThreadLocal<Integer>() {
+                @Override
+                protected Integer initialValue() {
+                    return 0;
+                }
+            };
+            
+            @Override
+            public void run() {
+                while (counter.get() < 1000) {
+                    try {
+                        final Integer val = counter.get();
+                        counter.set(val + 1);
+                        final Element element = new Element(val, val);
+                        cachingTier.get(val, new Callable<Element>() {
+                            @Override
+                            public Element call() throws Exception {
+                                if (val % 100 == 0) {
+                                    throw new OutOfMemoryError("Nope, I don't want to create this for you!") {
+                                        @Override
+                                        public synchronized Throwable fillInStackTrace() {
+                                            return null;
+                                        }
+                                    };
+                                } else if (val % 100 == 50) {
+                                    return new Element(val, val);
+                                }
+                                return element;
+                            }
+                        }, false);
+                    } catch (CacheException e) {
+                        // happily keep on doing whatever you were doing
+                    }
+                }
+                System.out.println(Thread.currentThread().getName() + " is done!");
+            }
+        };
+
+        Thread[] threads = new Thread[2];
+        for (int i = 0, threadsLength = threads.length; i < threadsLength; i++) {
+            threads[i] = new Thread(null, runnable, "Accessor thread #" + (i + 1));
+            threads[i].start();
+        }
+
+        for (Thread thread : threads) {
+            thread.join(TimeUnit.SECONDS.toMillis(10));
+            final boolean alive = thread.isAlive();
+            if(alive) {
+                thread.getStackTrace();
+            }
+            assertThat(thread.getName() + " should be done by now!", alive, is(false));
+        }
+
+        assertThat(cachingTier.getInMemorySize(), is(10));
+        for (Map.Entry<Integer, Object> entry : backEnd.entrySet()) {
+            assertThat(entry.getKey() + " should point to an element", entry.getValue(), instanceOf(Element.class));
+        }
     }
 
     /**

@@ -152,7 +152,7 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
             if (updateStats) { getObserver.end(GetOutcome.MISS); }
             Fault<V> f = new Fault<V>(source);
             cachedValue = backEnd.putIfAbsent(key, f);
-            if (cachedValue == null && !f.complete) {
+            if (cachedValue == null) {
                 try {
                     V value = f.get();
                     putObserver.begin();
