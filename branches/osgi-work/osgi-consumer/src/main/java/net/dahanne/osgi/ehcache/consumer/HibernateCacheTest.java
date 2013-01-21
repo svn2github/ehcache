@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -208,7 +209,7 @@ public class HibernateCacheTest {
 	}
 
 	@Test
-	public void testGeneralUsage() {
+	public void testGeneralUsage() throws Exception {
 		EventManager mgr = new EventManager(getSessionFactory());
 		Statistics stats = getSessionFactory().getStatistics();
 
@@ -260,5 +261,8 @@ public class HibernateCacheTest {
 		assertEquals("Cache Miss Count", 1L, queryStats.getCacheMissCount());
 		assertEquals("Cache Hit Count", 0L, queryStats.getCacheHitCount());
 		assertEquals("Cache Put Count", 1L, queryStats.getCachePutCount());
+		
+		System.out.println("XXXXXX   WAITING FOR 2 MINITES...");
+		TimeUnit.MINUTES.sleep(2);
 	}
 }
