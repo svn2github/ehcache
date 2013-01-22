@@ -19,7 +19,6 @@ package net.sf.ehcache.event;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheStoreHelper;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
 import net.sf.ehcache.store.FrontEndCacheTier;
@@ -57,7 +56,7 @@ public class RegisteredEventListeners {
      * @see CacheEventListener
      */
     private final Set<ListenerWrapper> cacheEventListeners = new CopyOnWriteArraySet<ListenerWrapper>();
-    private final Ehcache cache;
+    private final Cache cache;
 
     private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
 
@@ -71,11 +70,11 @@ public class RegisteredEventListeners {
      *
      * @param cache
      */
-    public RegisteredEventListeners(Ehcache cache) {
+    public RegisteredEventListeners(Cache cache) {
         //XXX this isn't really very nice
         StatisticsManager.associate(this).withParent(cache);
         this.cache = cache;
-        helper = new CacheStoreHelper((Cache)cache);
+        helper = new CacheStoreHelper(cache);
     }
 
     /**
