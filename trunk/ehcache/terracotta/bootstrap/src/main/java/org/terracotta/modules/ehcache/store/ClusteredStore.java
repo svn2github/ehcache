@@ -5,6 +5,7 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
@@ -33,14 +34,15 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
-import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
+import org.terracotta.statistics.Statistic;
+import org.terracotta.statistics.observer.OperationObserver;
+import org.terracotta.toolkit.builder.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -64,9 +66,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
-import org.terracotta.statistics.observer.OperationObserver;
-import org.terracotta.statistics.Statistic;
 import javax.swing.event.EventListenerList;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
@@ -157,12 +156,12 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     isEventual = (terracottaConfiguration.getConsistency() == Consistency.EVENTUAL);
     // This is done so that the element and elementData classes mappings are put by the toolkit internal serializer.
     // this will ensure transactions being atomic for putWithWriter and removeWithWriter.
-    Configuration syncConfiguration = new ToolkitCacheConfigBuilder()
+    Configuration syncConfiguration = new ToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).concurrency(1)
         .build();
     ToolkitStore<String, Object> serializationHelperStore = toolkitInternal.getStore("STORE-FOR-SERIALIZATION-HELPER",
                                                                                      syncConfiguration,
-                                                                     Object.class);
+                                                                                     Object.class);
     Element element = new Element("key", "value");
     serializationHelperStore.put("elementData", valueModeHandler.createElementData(element));
     serializationHelperStore.put("element", element);
