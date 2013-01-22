@@ -399,7 +399,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
     /**
      * @return search time
      */
-    long getCacheAverageSearchTimeNanos();
+    long getAverageSearchTime();
 
     /**
      * @return hit rate
@@ -469,7 +469,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
     /**
      * @return average get time (nanos.)
      */
-    long getCacheAverageGetTimeNanos();
+    long getAverageGetTime();
     
 
     /**
@@ -595,14 +595,6 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the {@code SampledRateCounter} of average get time taken for a get operation
      */
     SampledRateCounter getAverageGetTimeSample();
-
-    /**
-     * Get the {@link SampledRateCounter} for average time taken for get() operation in the
-     * cache
-     *
-     * @return the {@code SampledRateCounter} of average get time taken for a get operation
-     */
-    SampledRateCounter getAverageGetTimeNanosSample();
 
     /**
      * Get the {@link SampledRateCounter} for average search execution time for searches finishing within the last sample period

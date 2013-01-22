@@ -1159,7 +1159,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * {@inheritDoc}
      */
     public long getCacheAverageSearchTimeNanos() {
-        return sampledCacheDelegate.getCacheAverageSearchTimeNanos();
+        return sampledCacheDelegate.getAverageSearchTime();
     }
 
     /**
@@ -1207,11 +1207,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     @Override
     public long getAverageSearchTimeNanos() {
         return sampledCacheDelegate.getAverageSearchTimeNanos();
-    }
-
-    @Override
-    public long getCacheAverageGetTimeNanos() {
-        return sampledCacheDelegate.getCacheAverageGetTimeNanos();
     }
 
     @Override
@@ -1300,11 +1295,6 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     }
 
     @Override
-    public SampledRateCounter getAverageGetTimeNanosSample() {
-        return sampledCacheDelegate.getAverageGetTimeNanosSample();
-    }
-
-    @Override
     public SampledRateCounter getAverageSearchTimeSample() {
         return sampledCacheDelegate.getAverageSearchTimeSample();
     }
@@ -1322,5 +1312,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     @Override
     public SampledCounter getCacheXaRollbacksSample() {
         return sampledCacheDelegate.getCacheXaRollbacksSample();
+    }
+
+    @Override
+    public long getAverageSearchTime() {
+        return sampledCacheDelegate.getAverageSearchTime();
+    }
+
+    @Override
+    public long getAverageGetTime() {
+        return sampledCacheDelegate.getAverageGetTime();
     }
 }

@@ -413,9 +413,9 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public long getAverageGetTimeNanos() {
+    public long getAverageGetTime() {
         try {
-            return cache.getStatistics().cacheSearchOperation().latency().average().value().longValue();
+            return cache.getStatistics().cacheGetOperation().latency().average().value().longValue();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1303,7 +1303,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public long getAverageSearchTimeNanos() {
+    public long getAverageSearchTime() {
         return cache.getStatistics().cacheSearchOperation().latency().average().value().longValue();
     }
 
@@ -1338,14 +1338,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public long getCacheSearchRate() {
         return cache.getStatistics().cacheSearchOperation().rate().value().longValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public long getCacheAverageSearchTimeNanos() {
-        return cache.getStatistics().cacheSearchOperation().latency().average().value().longValue();
     }
 
     /**
@@ -1410,7 +1402,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     @Override
-    public long getCacheAverageGetTimeNanos() {
+    public long getAverageGetTimeNanos() {
         return cache.getStatistics().cacheGetOperation().latency().average().value().longValue();
     }
 
@@ -1427,7 +1419,8 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public SampledCounter getCacheHitRatioSample() {
-        throw new UnsupportedOperationException();
+        //throw new UnsupportedOperationException();
+        return getCacheHitSample();
     }
 
     /**
@@ -1554,14 +1547,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public SampledRateCounter getAverageGetTimeNanosSample() {
-        return new SampledRateCounterProxy(cache.getStatistics().cacheGetOperation().latency().average());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public SampledRateCounter getAverageSearchTimeSample() {
         return new SampledRateCounterProxy(cache.getStatistics().cacheSearchOperation().latency().average());
     }
@@ -1588,5 +1573,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public SampledCounter getCacheXaRollbacksSample() {
         return new SampledRateCounterProxy(cache.getStatistics().xaRollbackOperation().rate());
+    }
+
+    @Override
+    public long getAverageSearchTimeNanos() {
+        return getAverageSearchTime();
     }
 }
