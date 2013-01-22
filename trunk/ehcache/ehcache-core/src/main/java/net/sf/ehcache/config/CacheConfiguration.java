@@ -1081,21 +1081,7 @@ public class CacheConfiguration implements Cloneable {
         checkDynamicChange();
         int oldValue = this.maxEntriesInCache;
         this.maxEntriesInCache = maxEntriesInCache;
-        logIfPinningAndMaxEntriesInCacheConflict();
         fireMaxEntriesInCacheChanged(oldValue, this.maxEntriesInCache);
-    }
-
-    private void logIfPinningAndMaxEntriesInCacheConflict() {
-        PinningConfiguration pinningConfigurationLocal = getPinningConfiguration();
-        if (maxEntriesInCache == 0 && pinningConfigurationLocal != null && pinningConfigurationLocal.getStore() != null) {
-            LOG.warn("Potential configuration issue:\n" +
-                     "****************************************************************************************\n" +
-                     "**********************                  WARNING                   **********************\n" +
-                     "********************** MaxEntriesInCache set to 0 on pinned cache **********************\n" +
-                     "****************************************************************************************\n" +
-                     "********************** This might cause pinned data to be evicted **********************\n" +
-                     "****************************************************************************************");
-        }
     }
 
 
@@ -2208,7 +2194,6 @@ public class CacheConfiguration implements Cloneable {
      */
     public final void addPinning(PinningConfiguration pinningConfiguration) {
         this.pinningConfiguration = pinningConfiguration;
-        logIfPinningAndMaxEntriesInCacheConflict();
         validateConfiguration();
     }
 

@@ -13,7 +13,6 @@ import java.lang.reflect.Field;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
@@ -30,12 +29,6 @@ public class CacheConfigurationTest {
     @Before
     public void setup() {
         this.cacheManager = CacheManager.getInstance();
-    }
-
-    @Test
-    public void testMaxEntriesInCacheDoesNotDefaultsToZero() {
-        assertThat("Default MaxEntriesInCache is 0 - Adapt CacheConfiguration.logIfPinningAndMaxEntriesInCacheConflict",
-                new CacheConfiguration().getMaxEntriesInCache(), is(not(0)));
     }
 
     @Test
