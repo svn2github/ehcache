@@ -57,6 +57,8 @@ public class NonstopConfigurationElement extends SimpleNodeElement {
                 NonstopConfiguration.DEFAULT_IMMEDIATE_TIMEOUT));
         addAttribute(new SimpleNodeAttribute("timeoutMillis", nonstopConfiguration.getTimeoutMillis()).optional(true).defaultValue(
                 NonstopConfiguration.DEFAULT_TIMEOUT_MILLIS));
+        addAttribute(new SimpleNodeAttribute("searchTimeoutMillis", nonstopConfiguration.getSearchTimeoutMillis()).optional(true).defaultValue(
+                NonstopConfiguration.DEFAULT_SEARCH_TIMEOUT_MILLIS));
     }
 
     private boolean isDefault(TimeoutBehaviorConfiguration timeoutBehavior) {

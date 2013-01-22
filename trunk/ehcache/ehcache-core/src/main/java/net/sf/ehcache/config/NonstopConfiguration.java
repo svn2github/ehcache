@@ -157,16 +157,16 @@ public class NonstopConfiguration implements Cloneable {
     }
 
     /**
-     * Returns the value of the default search timeout in milliseconds
+     * Returns the value of the search timeout in milliseconds
      *
-     * @return the value of the default search timeout in milliseconds
+     * @return the value of the search timeout in milliseconds
      */
     public long getSearchTimeoutMillis() {
         return searchTimeoutMillis;
     }
 
     /**
-     * Set the value of the default search timeout
+     * Set the value of the search timeout
      *
      * @param searchTimeoutMillis the new value
      */
