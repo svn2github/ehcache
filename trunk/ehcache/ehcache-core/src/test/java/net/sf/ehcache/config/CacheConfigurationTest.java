@@ -9,8 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -96,15 +94,10 @@ public class CacheConfigurationTest {
     @Test
     public void testCanSetBothMaxWhenCacheNotRunning() {
         CacheConfiguration configuration = new CacheConfiguration();
-        try {
-            configuration.setMaxEntriesLocalHeap(10);
-            configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES);
-            configuration.setMaxEntriesLocalDisk(10);
-            configuration.maxBytesLocalDisk(10, MemoryUnit.MEGABYTES);
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-            fail("Shouldn't have thrown an exception");
-        }
+        configuration.setMaxEntriesLocalHeap(10);
+        configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES);
+        configuration.setMaxEntriesLocalDisk(10);
+        configuration.maxBytesLocalDisk(10, MemoryUnit.MEGABYTES);
     }
 
     @Test
@@ -181,11 +174,13 @@ public class CacheConfigurationTest {
         CacheConfiguration persistence = new CacheConfiguration().persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
         try {
             persistence.diskPersistent(true);
+            Assert.fail();
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
         }
         try {
             persistence.overflowToDisk(true);
+            Assert.fail();
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and overflowToDisk"));
         }
@@ -193,6 +188,7 @@ public class CacheConfigurationTest {
         CacheConfiguration diskPersistent = new CacheConfiguration().diskPersistent(true);
         try {
             diskPersistent.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+            Assert.fail();
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and diskPersistent"));
         }
@@ -200,6 +196,7 @@ public class CacheConfigurationTest {
         CacheConfiguration overflowToDisk = new CacheConfiguration().overflowToDisk(true);
         try {
             overflowToDisk.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP));
+            Assert.fail();
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("<persistence ...> and overflowToDisk"));
         }
@@ -210,18 +207,20 @@ public class CacheConfigurationTest {
         CacheConfiguration config = new CacheConfiguration().name("foo").persistence(new PersistenceConfiguration()).maxBytesLocalHeap(1, MemoryUnit.MEGABYTES);
         try {
             cacheManager.addCache(new Cache(config));
+            Assert.fail();
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("Persistence configuration found with no strategy set."));
         }
     }
 
-    private String getDiskStorePath(final Cache cache) {
+    @Test
+    public void testMaxEntriesInCacheNotClustered() {
+        CacheConfiguration config = new CacheConfiguration().name("foo").maxEntriesInCache(100).maxBytesLocalHeap(1, MemoryUnit.MEGABYTES);
         try {
-            Field declaredField = Cache.class.getDeclaredField("diskStorePath");
-            declaredField.setAccessible(true);
-            return (String)declaredField.get(cache);
-        } catch (Exception e) {
-            throw new RuntimeException("Did you rename Cache.diskStorePath ?!", e);
+            cacheManager.addCache(new Cache(config));
+            Assert.fail();
+        } catch (InvalidConfigurationException e) {
+            Assert.assertThat(e.getMessage(), StringContains.containsString("maxEntriesInCache is not applicable to unclustered caches."));
         }
     }
 }

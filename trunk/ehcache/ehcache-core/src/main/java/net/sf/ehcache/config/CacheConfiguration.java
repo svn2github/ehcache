@@ -1915,7 +1915,7 @@ public class CacheConfiguration implements Cloneable {
 
         if (maxEntriesInCache != DEFAULT_MAX_ENTRIES_IN_CACHE) {
           if (!isTerracottaClustered()) {
-            errors.add(new ConfigError("maxEntriesInCache is not applicable to unclustered caches."));
+            errors.add(new CacheConfigError("maxEntriesInCache is not applicable to unclustered caches.", getName()));
           }
         }
 
@@ -1925,7 +1925,7 @@ public class CacheConfiguration implements Cloneable {
         //}
 
         if (persistenceConfiguration != null && persistenceConfiguration.getStrategy() == null) {
-            errors.add(new ConfigError("Persistence configuration found with no strategy set."));
+            errors.add(new CacheConfigError("Persistence configuration found with no strategy set.", getName()));
         }
 
         errors.addAll(validateCachePools(configuration));
