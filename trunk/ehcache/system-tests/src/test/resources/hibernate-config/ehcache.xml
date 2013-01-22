@@ -5,7 +5,7 @@
   <defaultCache maxElementsInMemory="10000" eternal="true">
 
     <terracotta clustered="true">
-      <nonstop enabled="true" />
+      <nonstop enabled="false" />
     </terracotta>
   </defaultCache>
 
