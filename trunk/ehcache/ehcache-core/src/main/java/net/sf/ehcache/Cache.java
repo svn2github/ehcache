@@ -2377,7 +2377,18 @@ public class Cache implements InternalEhcache, StoreListener {
     public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         checkStatus();
         compoundStore.removeAll();
+        logOnRemoveAllIfPinnedCache();
         registeredEventListeners.notifyRemoveAll(doNotNotifyCacheReplicators);
+    }
+
+    private void logOnRemoveAllIfPinnedCache() {
+        PinningConfiguration pinningConfiguration = getCacheConfiguration().getPinningConfiguration();
+        if (pinningConfiguration != null && pinningConfiguration.getStore() != null) {
+            LOG.warn("Data availability impacted:" +
+                     "****************************************************************************************\n" +
+                     "************************** removeAll called on a pinned cache **************************\n" +
+                     "****************************************************************************************");
+        }
     }
 
     /**
