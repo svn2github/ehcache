@@ -1081,7 +1081,14 @@ public class CacheConfiguration implements Cloneable {
         checkDynamicChange();
         int oldValue = this.maxEntriesInCache;
         this.maxEntriesInCache = maxEntriesInCache;
+        logMaxEntriesInCacheChangeIfCachePinned();
         fireMaxEntriesInCacheChanged(oldValue, this.maxEntriesInCache);
+    }
+
+    private void logMaxEntriesInCacheChangeIfCachePinned() {
+        if (getPinningConfiguration() != null && getPinningConfiguration().getStore() != null) {
+            LOG.info("Setting maxEntriesInCache on a pinned cache has no effect");
+        }
     }
 
 
