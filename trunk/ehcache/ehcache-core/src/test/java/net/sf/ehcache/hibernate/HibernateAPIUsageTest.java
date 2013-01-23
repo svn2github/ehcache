@@ -17,10 +17,12 @@
 package net.sf.ehcache.hibernate;
 
 import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
@@ -44,6 +46,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -373,12 +376,14 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * An integration test, at the CacheManager level, to make sure persistence works
      */
     @Test
-    public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
+    public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException, ExecutionException {
 
         //initialise
         CacheManager manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache.xml");
         Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
 
+        cache.removeAll();
+        DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
         for (int i = 0; i < 100; i++) {
             byte[] data = new byte[1024];
             cache.put(new Element("key" + (i + 100), data));
@@ -391,7 +396,11 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         provider.start(null);
         org.hibernate.cache.Cache hibernateCache = provider.buildCache("persistentLongExpiryIntervalCache", null);
 
-        assertEquals(100, hibernateCache.getElementCountInMemory() + hibernateCache.getElementCountOnDisk());
+        for (int i = 0; i < 100; i++) {
+            assertNotNull(hibernateCache.get("key" + (i + 100)));
+        }
+
+        assertEquals(100, hibernateCache.getElementCountInMemory());
 
         provider.stop();
 
