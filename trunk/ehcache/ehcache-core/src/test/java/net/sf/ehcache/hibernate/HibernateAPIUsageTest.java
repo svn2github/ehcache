@@ -332,12 +332,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         for (int i = 0; i < 10010; i++) {
             cache.put("" + i, value);
         }
-        assertEquals(10000, cache.getElementCountInMemory());
-        RetryAssert.assertBy(2, SECONDS, new Callable<Long>() {
-                public Long call() throws Exception {
-                    return cache.getElementCountOnDisk();
-                }
-            }, Is.is(10010L));
+        assertEquals(10010, cache.getElementCountInMemory());
 
         //clear
         cache.clear();
@@ -497,9 +492,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         for (int i = 0; i < 10010; i++) {
             cache.put("" + i, value);
         }
-        assertEquals(10000, cache.getElementCountInMemory());
-        //objects don't overflow, only Serializable
-        assertEquals(0, cache.getElementCountOnDisk());
+        assertEquals(10010, cache.getElementCountInMemory());
 
         //clear
         cache.clear();
@@ -595,9 +588,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         for (int i = 0; i < 10010; i++) {
             cache.put("" + i, value);
         }
-        assertEquals(10000, cache.getElementCountInMemory());
-        //objects don't overflow, only Serializable
-        assertEquals(0, cache.getElementCountOnDisk());
+        assertEquals(10010, cache.getElementCountInMemory());
 
         //clear
         cache.clear();
