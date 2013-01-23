@@ -196,7 +196,7 @@ public class BulkLoadEnabledNodesSet {
       if (getIdForNode(clusterInfo.getCurrentNode()).equals(offlineNode)) {
         // nothing to do on "this" node left
         if (nodesSet.loggingEnabled) {
-          nodesSet.logger.info("Ignoring node left of current node itself - " + offlineNode);
+          nodesSet.logger.info("Ignoring " + event.getType() + " of current node itself - " + offlineNode);
         }
         return;
       }

@@ -23,7 +23,7 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
 
   @Override
   public synchronized AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config) {
-    final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache);
+    final String fullAsyncName = toolkitInstanceFactory.getFullAsyncName(cache); // contains CM name and Cache name
     final ToolkitMap<String, AsyncConfig> configMap = toolkitInstanceFactory.getOrCreateAsyncConfigMap();
       AsyncConfig oldConfig = configMap.putIfAbsent(fullAsyncName, config);
       if (oldConfig != null && !oldConfig.equals(config)) { throw new IllegalArgumentException(
