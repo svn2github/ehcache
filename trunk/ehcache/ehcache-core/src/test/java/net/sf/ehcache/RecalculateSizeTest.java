@@ -32,7 +32,14 @@ import net.sf.ehcache.pool.SizeOfEngine;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 
 public class RecalculateSizeTest extends TestCase {
-    private static final Random random = new Random(System.currentTimeMillis());
+    private static final Random random;
+
+    static {
+        final long seed = System.currentTimeMillis();
+        System.out.println("*** RANDOM SEEDED WITH " + seed + " ***");
+        random = new Random(seed);
+    }
+
     private final SizeOfEngine engine = new DefaultSizeOfEngine(1000, true);
 
     public void testCustomValue() {
