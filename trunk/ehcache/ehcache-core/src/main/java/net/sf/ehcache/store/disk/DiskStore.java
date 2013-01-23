@@ -235,6 +235,16 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     }
 
     /**
+     * Verifies if the mapping for a key is marked as faulted
+     * @param key the key to check the mapping for
+     * @return true if faulted, false otherwise (including no mapping)
+     */
+    public boolean isFaulted(final Object key) {
+        int hash = hash(key.hashCode());
+        return segmentFor(hash).isFaulted(hash, key);
+    }
+
+    /**
      *
      */
     private static final class CacheConfigurationListenerAdapter implements CacheConfigurationListener {

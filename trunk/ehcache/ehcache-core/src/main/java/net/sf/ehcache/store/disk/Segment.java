@@ -330,6 +330,7 @@ public class Segment extends ReentrantReadWriteLock {
                 }
 
                 e.element = encoded;
+                e.faulted.set(false);
                 installed = true;
                 free(onDiskSubstitute);
 
@@ -384,6 +385,7 @@ public class Segment extends ReentrantReadWriteLock {
                 }
 
                 e.element = encoded;
+                e.faulted.set(false);
                 installed = true;
                 oldElement = decode(onDiskSubstitute);
                 free(onDiskSubstitute);
@@ -1102,6 +1104,30 @@ public class Segment extends ReentrantReadWriteLock {
             writeLock().unlock();
         }
 
+    }
+
+    /**
+     * Verifies if the mapping for a key is marked as faulted
+     * @param key the key to check the mapping for
+     * @return true if faulted, false otherwise (including no mapping)
+     */
+    public boolean isFaulted(final int hash, final Object key) {
+        readLock().lock();
+        try {
+            // read-volatile
+            if (count != 0) {
+                HashEntry e = getFirst(hash);
+                while (e != null) {
+                    if (e.hash == hash && key.equals(e.key)) {
+                        return e.faulted.get();
+                    }
+                    e = e.next;
+                }
+            }
+            return false;
+        } finally {
+            readLock().unlock();
+        }
     }
 
     /**
