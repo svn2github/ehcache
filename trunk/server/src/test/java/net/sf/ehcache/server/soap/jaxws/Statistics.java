@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlType;
         "cacheHits",
         "evictionCount",
         "inMemoryHits",
-        "onDiskHits",
+        "onDiskHits"
 })
 public class Statistics {
 
