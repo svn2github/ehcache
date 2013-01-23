@@ -193,7 +193,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         try {
           list.remove(bucket);
         } finally {
-          nodeWriteLock.lock();
+          nodeWriteLock.unlock();
         }
         processOneDeadNodeIfNecessary();
       }
