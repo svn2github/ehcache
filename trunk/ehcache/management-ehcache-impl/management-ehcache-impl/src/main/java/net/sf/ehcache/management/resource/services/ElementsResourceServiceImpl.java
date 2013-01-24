@@ -38,7 +38,7 @@ public final class ElementsResourceServiceImpl implements ElementsResourceServic
    */
   @Override
   public void deleteElements(UriInfo info) {
-    LOG.info(String.format("Invoking ElementsResourceServiceImpl.deleteElements: %s", info.getRequestUri()));
+    LOG.debug(String.format("Invoking ElementsResourceServiceImpl.deleteElements: %s", info.getRequestUri()));
 
     validator.validate(info);
     String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");

@@ -38,7 +38,7 @@ public final class CacheStatisticSamplesResourceServiceImpl implements CacheStat
 
   @Override
   public Collection<CacheStatisticSampleEntity> getCacheStatisticSamples(UriInfo info) {
-    LOG.info(String.format("Invoking CacheStatisticSamplesResourceServiceImpl.getCacheStatisticSamples: %s",
+    LOG.debug(String.format("Invoking CacheStatisticSamplesResourceServiceImpl.getCacheStatisticSamples: %s",
         info.getRequestUri()));
 
     validator.validateSafe(info);

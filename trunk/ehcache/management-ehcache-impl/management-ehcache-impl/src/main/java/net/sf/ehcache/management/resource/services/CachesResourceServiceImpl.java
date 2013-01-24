@@ -46,7 +46,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
    */
   @Override
   public Collection<CacheEntity> getCaches(final UriInfo info) {
-    LOG.info(String.format("Invoking CachesResourceServiceImpl.getCaches: %s", info.getRequestUri()));
+    LOG.debug(String.format("Invoking CachesResourceServiceImpl.getCaches: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
 
@@ -77,7 +77,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
   @Override
   public void createOrUpdateCache(final UriInfo info,
                                   CacheEntity resource) {
-    LOG.info(String.format("Invoking CachesResourceServiceImpl.createOrUpdateCache: %s", info.getRequestUri()));
+    LOG.debug(String.format("Invoking CachesResourceServiceImpl.createOrUpdateCache: %s", info.getRequestUri()));
 
     validator.validate(info);
 
@@ -102,7 +102,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
    */
   @Override
   public void deleteCache(final UriInfo info) {
-    LOG.info(String.format("Invoking CachesResourceServiceImpl.deleteCache: %s", info.getRequestUri()));
+    LOG.debug(String.format("Invoking CachesResourceServiceImpl.deleteCache: %s", info.getRequestUri()));
 
     //todo: implement
     throw new WebApplicationException(

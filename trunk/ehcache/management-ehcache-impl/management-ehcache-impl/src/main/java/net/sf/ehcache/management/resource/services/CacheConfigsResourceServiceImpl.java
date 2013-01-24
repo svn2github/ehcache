@@ -37,7 +37,7 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
 
   @Override
   public Response getXMLCacheConfigs(UriInfo info) {
-    LOG.info(String.format("Invoking CacheConfigsResourceServiceImpl.getXMLCacheConfigs: %s", info.getRequestUri()));
+    LOG.debug(String.format("Invoking CacheConfigsResourceServiceImpl.getXMLCacheConfigs: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
 

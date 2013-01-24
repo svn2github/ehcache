@@ -47,7 +47,7 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
    * {@inheritDoc}
    */
   public Collection<AgentEntity> getAgents(UriInfo info) {
-    LOG.info(String.format("Invoking AgentsResourceServiceImpl.getAgents: %s", info.getRequestUri()));
+    LOG.debug(String.format("Invoking AgentsResourceServiceImpl.getAgents: %s", info.getRequestUri()));
 
     String ids = info.getPathSegments().get(0).getMatrixParameters().getFirst("ids");
     Set<String> idSet;
@@ -71,7 +71,7 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
    */
   @Override
   public Collection<AgentMetadataEntity> getAgentsMetadata(UriInfo info) {
-    LOG.info(String.format("Invoking AgentsResourceServiceImpl.getAgentsMetadata: %s", info.getRequestUri()));
+    LOG.debug(String.format("Invoking AgentsResourceServiceImpl.getAgentsMetadata: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
     String ids = info.getPathSegments().get(0).getMatrixParameters().getFirst("ids");

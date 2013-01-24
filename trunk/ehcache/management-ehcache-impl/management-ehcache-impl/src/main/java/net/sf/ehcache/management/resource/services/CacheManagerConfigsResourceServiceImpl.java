@@ -37,7 +37,7 @@ public final class CacheManagerConfigsResourceServiceImpl implements CacheManage
 
   @Override
   public Response getXMLCacheManagerConfigs(UriInfo info) {
-    LOG.info(String
+    LOG.debug(String
         .format("Invoking CacheManagerConfigsResourceServiceImpl.getXMLCacheManagerConfigs: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
