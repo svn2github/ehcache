@@ -12,7 +12,6 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -163,6 +162,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
     builder.configField(ConfigFieldsInternal.LOCAL_STORE_MANAGER_NAME_NAME, cmName);
     builder.pinnedInLocalMemory(isPinnedInLocalMemory(ehcacheConfig));
+    builder.evictionEnabled(!isPinnedInCache(ehcacheConfig));
     builder.maxCountLocalHeap((int) ehcacheConfig.getMaxEntriesLocalHeap());
     builder.maxBytesLocalHeap(ehcacheConfig.getMaxBytesLocalHeap());
     builder.maxBytesLocalOffheap(ehcacheConfig.getMaxBytesLocalOffHeap());
@@ -171,6 +171,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.copyOnReadEnabled(terracottaConfiguration.isCopyOnRead());
 
     return builder.build();
+  }
+
+  private static boolean isPinnedInCache(final CacheConfiguration ehcacheConfig) {
+    return ehcacheConfig.getPinningConfiguration() != null
+           && ehcacheConfig.getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
   }
 
   private static int calculateCorrectConcurrency(CacheConfiguration cacheConfiguration) {
