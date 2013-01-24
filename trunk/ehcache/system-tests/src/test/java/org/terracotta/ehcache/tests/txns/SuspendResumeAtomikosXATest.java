@@ -9,6 +9,7 @@ import org.terracotta.test.util.TestBaseUtil;
 import com.atomikos.icatch.config.UserTransactionService;
 import com.atomikos.icatch.config.imp.AbstractUserTransactionService;
 import com.atomikos.icatch.jta.UserTransactionManager;
+import com.atomikos.util.Atomikos;
 import com.tc.test.config.model.TestConfig;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class SuspendResumeAtomikosXATest extends AbstractCacheTestBase {
     extraJars.add(TestBaseUtil.jarFor(UserTransactionManager.class));
     extraJars.add(TestBaseUtil.jarFor(UserTransactionService.class));
     extraJars.add(TestBaseUtil.jarFor(AbstractUserTransactionService.class));
-    extraJars.add(TestBaseUtil.jarFor(com.atomikos.diagnostics.Console.class));
+    extraJars.add(TestBaseUtil.jarFor(Atomikos.class));
     return extraJars;
   }
 }
