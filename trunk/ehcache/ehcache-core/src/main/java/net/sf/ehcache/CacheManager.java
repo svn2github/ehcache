@@ -189,7 +189,7 @@ public class CacheManager {
     private final ConcurrentMap<String, Ehcache> ehcaches = new ConcurrentHashMap<String, Ehcache>();
 
     private final Map<String, Ehcache> initializingCaches = new ConcurrentHashMap<String, Ehcache>();
-    
+
 
     /**
      * Default cache cache.
@@ -377,6 +377,9 @@ public class CacheManager {
     protected synchronized void init(Configuration initialConfiguration, String configurationFileName, URL configurationURL,
             InputStream configurationInputStream) {
         Configuration configuration;
+
+        LibraryInit.init();
+
         if (initialConfiguration == null) {
             configuration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
         } else {
@@ -572,7 +575,7 @@ public class CacheManager {
     ScheduledExecutorService getStatisticsExecutor() {
         return statisticsExecutor;
     }
-    
+
     /**
      * Return this cache manager's shared on-heap pool
      *
@@ -1352,8 +1355,8 @@ public class CacheManager {
             StatisticsManager.associate(shadow).withParent(parent);
         }
     }
-        
-    
+
+
     private String getParentCacheName(Ehcache shadow) {
         String shadowPrefix = "local_shadow_cache_for_" + getName() + "___tc_clustered-ehcache|" + getName() + "|";
         if (shadow.getName().startsWith(shadowPrefix)) {
@@ -1362,7 +1365,7 @@ public class CacheManager {
             return null;
         }
     }
-    
+
     private Ehcache addCacheNoCheck(final Ehcache cache, final boolean strict) throws IllegalStateException, ObjectExistsException,
             CacheException {
 
