@@ -50,7 +50,11 @@ final class LockedPoolAccessor extends AbstractPoolAccessor {
     /**
      * {@inheritDoc}
      */
-    protected long add(long sizeOf, boolean force) {
+    protected long add(long sizeOf, boolean force) throws IllegalArgumentException {
+        if (sizeOf < 0L) {
+            throw new IllegalArgumentException("cannot add negative size");
+        }
+
         lock.lock();
         try {
             while (true) {
@@ -113,8 +117,11 @@ final class LockedPoolAccessor extends AbstractPoolAccessor {
     /**
      * {@inheritDoc}
      */
-    public long delete(long sizeOf) {
+    public long delete(long sizeOf) throws IllegalArgumentException {
         checkLinked();
+        if (sizeOf < 0L) {
+            throw new IllegalArgumentException("cannot delete negative size");
+        }
 
         // synchronized makes the size update MT-safe but slow
         lock.lock();

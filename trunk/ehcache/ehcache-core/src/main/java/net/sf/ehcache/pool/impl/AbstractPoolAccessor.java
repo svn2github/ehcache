@@ -81,8 +81,9 @@ public abstract class AbstractPoolAccessor implements PoolAccessor<PoolParticipa
      * @param sizeOf number of bytes to add
      * @param force true if the pool should accept adding the element, even if it's out of resources
      * @return how many bytes have been added to the pool or -1 if add failed.
+     * @throws IllegalArgumentException when sizeOf is negative
      */
-    protected abstract long add(long sizeOf, boolean force);
+    protected abstract long add(long sizeOf, boolean force) throws IllegalArgumentException;
 
     /**
      * Check if there is enough room in the pool to add a specific number of bytes without provoking any eviction
@@ -99,10 +100,13 @@ public abstract class AbstractPoolAccessor implements PoolAccessor<PoolParticipa
         Size sizeOf = sizeOfEngine.sizeOf(key, value, container);
 
         long delta = sizeOf.getCalculated() - currentSize;
-        if (delta < 0) {
+        if (delta == 0L) {
+            return 0L;
+        } else if (delta < 0L) {
             return -delete(-delta);
         } else {
-            return add(delta, force);
+            long added = add(delta, force);
+            return added == -1L ? Long.MIN_VALUE : added;
         }
     }
 

@@ -320,7 +320,7 @@ public class Segment extends ReentrantReadWriteLock {
                 DiskSubstitute onDiskSubstitute = e.element;
 
                 final long deltaHeapSize = onHeapPoolAccessor.replace(onDiskSubstitute.onHeapSize, key, encoded, NULL_HASH_ENTRY, cachePinned);
-                if (deltaHeapSize == Long.MAX_VALUE) {
+                if (deltaHeapSize == Long.MIN_VALUE) {
                     LOG.debug("replace3 failed to add on heap");
                     free(encoded);
                     return false;
@@ -375,7 +375,7 @@ public class Segment extends ReentrantReadWriteLock {
                 DiskSubstitute onDiskSubstitute = e.element;
 
                 final long deltaHeapSize = onHeapPoolAccessor.replace(onDiskSubstitute.onHeapSize, key, encoded, NULL_HASH_ENTRY, cachePinned);
-                if (deltaHeapSize == Long.MAX_VALUE) {
+                if (deltaHeapSize == Long.MIN_VALUE) {
                     LOG.debug("replace2 failed to add on heap");
                     free(encoded);
                     return null;
@@ -802,7 +802,7 @@ public class Segment extends ReentrantReadWriteLock {
             }
 
             final long deltaHeapSize = onHeapPoolAccessor.replace(expect.onHeapSize, key, fault, NULL_HASH_ENTRY, faulted || cachePinned);
-            if (deltaHeapSize == Long.MAX_VALUE) {
+            if (deltaHeapSize == Long.MIN_VALUE) {
                 remove(key, hash, null, null);
                 return false;
             } else {
@@ -811,7 +811,7 @@ public class Segment extends ReentrantReadWriteLock {
             }
             final long incomingDiskSize = onDiskPoolAccessor.add(key, null, fault, faulted || cachePinned);
             if (incomingDiskSize < 0) {
-                //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
+                // replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
                 // that's why it is forced, even if that could make the pool go over limit
                 long deleteSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
                 LOG.debug("fault failed to add on disk, deleted {} from heap", deleteSize);
@@ -826,7 +826,7 @@ public class Segment extends ReentrantReadWriteLock {
                 return true;
             }
 
-            //todo: replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
+            // replace must not fail here but it could if the memory freed by the previous replace has been stolen in the meantime
             // that's why it is forced, even if that could make the pool go over limit
             final long failDeltaHeapSize = onHeapPoolAccessor.replace(fault.onHeapSize, key, expect, NULL_HASH_ENTRY, true);
             LOG.debug("fault installation failed, deleted {} from heap", failDeltaHeapSize);

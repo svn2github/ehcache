@@ -48,7 +48,10 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor {
     /**
      * {@inheritDoc}
      */
-    protected long add(long sizeOf, boolean force) {
+    protected long add(long sizeOf, boolean force) throws IllegalArgumentException {
+        if (sizeOf < 0L) {
+            throw new IllegalArgumentException("cannot add negative size");
+        }
         long newSize = getPool().getSize() + sizeOf;
 
         if (newSize <= getPool().getMaxSize()) {
@@ -86,8 +89,11 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor {
     /**
      * {@inheritDoc}
      */
-    public long delete(long sizeOf) {
+    public long delete(long sizeOf) throws IllegalArgumentException {
         checkLinked();
+        if (sizeOf < 0L) {
+            throw new IllegalArgumentException("cannot delete negative size");
+        }
 
         size.addAndGet(-sizeOf);
 

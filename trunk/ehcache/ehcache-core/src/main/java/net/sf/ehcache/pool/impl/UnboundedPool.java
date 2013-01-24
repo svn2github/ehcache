@@ -131,7 +131,10 @@ public class UnboundedPool implements Pool {
         /**
          * {@inheritDoc}
          */
-        public long delete(long sizeOf) {
+        public long delete(long sizeOf) throws IllegalArgumentException {
+            if (sizeOf < 0L) {
+                throw new IllegalArgumentException("cannot delete negative size");
+            }
             return 0L;
         }
 

@@ -52,8 +52,9 @@ public interface PoolAccessor<T extends PoolParticipant> {
      *
      * @param size number of bytes
      * @return how many bytes have been freed from the pool.
+     * @throws IllegalArgumentException when sizeOf is negative
      */
-    long delete(long size);
+    long delete(long size) throws IllegalArgumentException;
 
     /**
      * Delete a fixed number of bytes from the pool with the given objects.
@@ -63,7 +64,7 @@ public interface PoolAccessor<T extends PoolParticipant> {
      * @param value the value of the element
      * @param container the element-container object
      * @param force true if the pool should accept replacing the element, even if it's out of resources
-     * @return the change in size of the pool.
+     * @return the change in size of the pool, or {@link Long#MIN_VALUE} if replace failed.
      */
     long replace(long currentSize, Object key, Object value, Object container, boolean force);
 
