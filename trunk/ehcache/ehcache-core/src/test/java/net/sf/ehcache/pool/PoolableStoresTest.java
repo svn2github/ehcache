@@ -4,14 +4,11 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
-import net.sf.ehcache.store.disk.DiskStoreHelper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -40,7 +37,6 @@ public class PoolableStoresTest {
     }
 
     @Test
-    @Ignore
     public void test() throws Exception {
         cacheManager = new CacheManager(PoolableStoresTest.class.getResourceAsStream("/pool/ehcache-heap-disk.xml"));
 
@@ -57,13 +53,24 @@ public class PoolableStoresTest {
             overflowToDiskCache.put(new Element(i, "" + i));
         }
 
-        System.out.println(memoryOnlyCache.getSize());
-        System.out.println(overflowToDiskCache.getSize());
-        System.out.println(memoryOnlyCache.getSize() + overflowToDiskCache.getSize());
+        // because of the ConstantSizeOfEngine an entry always occupies 16Kb of memory, no matter if it is
+        // in the memory store of the memoryOnly cache, in the memory tier of the overflowToDisk cache or
+        // in the disk tier of the overflowToDisk, flushed to disk or not.
+        //
+        // The reason is that this specific sizeof engine returns a constant size for the element's value no matter
+        // how big or small it is. In all those cases, the element's value always is either the actual value or
+        // a about-to-be-flushed-to-disk container or a flushed-to-disk marker.
+        //
+        // This means that since the two caches are sharing an on-heap pool of 1MB, up to 64 16KB elements can fit
+        // not matter where they are in those two caches. Since the two tiers of the disk cache consume heap,
+        // you can actually cache less with the disk cache than with the heap cache because of that synthetic sizeof engine.
 
-        assertThat(memoryOnlyCache.getSize(), greaterThan(0));
-        assertThat(overflowToDiskCache.getSize(), greaterThan(0));
-        assertThat(memoryOnlyCache.getSize() + overflowToDiskCache.getSize(), lessThanOrEqualTo(64));
+        //System.out.println(memoryOnlyCache.getSize());
+        //System.out.println(overflowToDiskCache.getMemoryStoreSize());
+        //System.out.println(overflowToDiskCache.getDiskStoreSize());
+
+        assertThat(memoryOnlyCache.getSize() + overflowToDiskCache.getMemoryStoreSize() +
+                overflowToDiskCache.getDiskStoreSize(), lessThanOrEqualTo(64L));
     }
 
 }
