@@ -54,8 +54,8 @@ public class RecalculateSizeTest extends TestCase {
         System.out.println("Shrinked size: " + shrinkedSize + ", expanded size: " + expandedSize);
 
         Assert.assertTrue(expandedSize > shrinkedSize);
-        // consumes 12mb, assert diff is at least 11mb
-        Assert.assertTrue(expandedSize - shrinkedSize > MemoryUnit.MEGABYTES.toBytes(11));
+        // consumes 6mb, assert diff is at least 5mb
+        Assert.assertTrue(expandedSize - shrinkedSize > MemoryUnit.MEGABYTES.toBytes(5));
 
         value.shrinkSize();
         long shrinkedSize2 = engine.sizeOf(value, null, null).getCalculated();
@@ -254,7 +254,7 @@ public class RecalculateSizeTest extends TestCase {
         int lastValueSize = 0;
         List<ValueSizeToCalculatedSizeTuple> valueSizeToCalculatedSizeList = new ArrayList<RecalculateSizeTest.ValueSizeToCalculatedSizeTuple>();
         while (numChanges <= maxNumChanges && !stop.get()) {
-            lastValueSize = random.nextInt((int) MemoryUnit.MEGABYTES.toBytes(6));
+            lastValueSize = random.nextInt((int) MemoryUnit.MEGABYTES.toBytes(3));
             value = new DynamicSizedValue('A');
             value.setSize(lastValueSize);
             cache.put(new Element(key, value));
@@ -330,7 +330,7 @@ public class RecalculateSizeTest extends TestCase {
         }
 
         public void expandSize() {
-            setSize((int) MemoryUnit.MEGABYTES.toBytes(6));
+            setSize((int) MemoryUnit.MEGABYTES.toBytes(3));
         }
 
         private void setSize(int bytes) {
