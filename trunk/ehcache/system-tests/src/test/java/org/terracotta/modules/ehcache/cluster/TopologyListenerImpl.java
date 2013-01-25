@@ -20,28 +20,33 @@ public class TopologyListenerImpl implements ClusterTopologyListener {
   private final AtomicInteger clusterOnline  = new AtomicInteger();
   private String              clusterId      = "UNINITIALIZED";
 
+  @Override
   public void clusterOffline(ClusterNode arg0) {
     LOG.info(arg0.getId() + " ...Cluster Offline.");
     clusterOffline.incrementAndGet();
   }
 
+  @Override
   public void clusterOnline(ClusterNode arg0) {
     LOG.info(this.clusterId + " received Cluster Online for " + arg0.getId());
     clusterOnline.incrementAndGet();
   }
 
+  @Override
   public void nodeJoined(ClusterNode arg0) {
-    LOG.info(this.clusterId + " received Noide Joined for " + arg0.getId());
+    LOG.info(this.clusterId + " received Node Joined for " + arg0.getId());
     nodesJoined.incrementAndGet();
 
   }
 
+  @Override
   public void nodeLeft(ClusterNode arg0) {
     LOG.info(arg0.getId() + " ...Node Left");
     nodesLeft.incrementAndGet();
 
   }
 
+  @Override
   public void clusterRejoined(ClusterNode oldNode, ClusterNode newNode) {
     LOG.info(oldNode.getId() + " Rejoined as " + newNode.getId());
   }
