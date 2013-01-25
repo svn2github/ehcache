@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
+import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 
 public class TestUtils {
   private static final Map<String, String> dependencies = getDependencies();
@@ -46,9 +47,15 @@ public class TestUtils {
     return dependencies.get(groupIdPlusArtifactId);
   }
 
-  public static MavenArtifactProvisionOption testMavenBundle(String groupId, String artifactId) {
+  public static MavenArtifactProvisionOption useMavenBundle(String groupId, String artifactId) {
     String version = versionOf(groupId + ":" + artifactId);
     return new MavenArtifactProvisionOption().groupId(groupId).artifactId(artifactId)
+        .version(version);
+  }
+  
+  public static MavenArtifactUrlReference useMaven(String groupId, String artifactId) {
+    String version = versionOf(groupId + ":" + artifactId);
+    return new MavenArtifactUrlReference().groupId(groupId).artifactId(artifactId)
         .version(version);
   }
 }

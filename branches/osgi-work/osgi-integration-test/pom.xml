@@ -54,6 +54,13 @@
 
     <dependency>
       <groupId>org.ops4j.pax.url</groupId>
+      <artifactId>pax-url-wrap</artifactId>
+      <version>${url.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.ops4j.pax.url</groupId>
       <artifactId>pax-url-classpath</artifactId>
       <version>${url.version}</version>
       <scope>test</scope>
@@ -74,6 +81,20 @@
     </dependency>
 
     <dependency>
+      <groupId>org.knowhowlab.osgi</groupId>
+      <artifactId>org.knowhowlab.osgi.testing.utils</artifactId>
+      <version>1.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.knowhowlab.osgi</groupId>
+      <artifactId>org.knowhowlab.osgi.testing.assertions</artifactId>
+      <version>1.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>2.7.0-SNAPSHOT</version>
@@ -87,6 +108,26 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>1.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>1.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sf.ehcache.test</groupId>
+      <artifactId>hibernate-ehcache-bundle</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
