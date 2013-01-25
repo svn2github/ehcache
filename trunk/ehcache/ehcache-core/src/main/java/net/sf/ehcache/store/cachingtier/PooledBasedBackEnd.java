@@ -15,6 +15,7 @@
  */
 package net.sf.ehcache.store.cachingtier;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.store.Policy;
@@ -27,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.observer.OperationObserver;
 
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
@@ -46,6 +49,8 @@ import static net.sf.ehcache.statistics.StatisticBuilder.operation;
  * @author Alex Snaps
  */
 public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements HeapCacheBackEnd<K, V> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CountBasedBackEnd.class.getName());
 
     private static final int MAX_EVICTIONS = 5;
 
@@ -286,7 +291,12 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
 
         @Override
         public boolean evict(final int count, final long size) {
-            return pooledBasedBackEnd.evict(count);
+            try {
+                return pooledBasedBackEnd.evict(count);
+            } catch (Throwable e) {
+                LOG.warn("Caught throwable while evicting", e);
+            }
+            return false;
         }
 
         @Override
