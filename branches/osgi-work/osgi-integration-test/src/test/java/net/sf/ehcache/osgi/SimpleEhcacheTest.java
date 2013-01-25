@@ -22,30 +22,30 @@ import org.terracotta.context.ContextManager;
 @ExamReactorStrategy(PerMethod.class)
 public class SimpleEhcacheTest {
 
-	@Configuration
-	public Option[] config() {
-		return options(testMavenBundle("net.sf.ehcache", "ehcache"), junitBundles());
-	}
+  @Configuration
+  public Option[] config() {
+    return options(testMavenBundle("net.sf.ehcache", "ehcache"), junitBundles());
+  }
 
-	@Test
-	public void testSimpleCache() throws Exception {
-		CacheManager manager = new CacheManager(
-		    SimpleEhcacheTest.class.getResource("/simple-ehcache.xml"));
-		Cache cache = manager.getCache("sampleCache1");
-		Element element = new Element("key1", "value1");
-		cache.put(element);
-		Element element1 = cache.get("key1");
-		assertEquals("value1", element1.getObjectValue());
-		assertEquals(1, cache.getSize());
-	}
+  @Test
+  public void testSimpleCache() throws Exception {
+    CacheManager manager = new CacheManager(
+        SimpleEhcacheTest.class.getResource("/simple-ehcache.xml"));
+    Cache cache = manager.getCache("sampleCache1");
+    Element element = new Element("key1", "value1");
+    cache.put(element);
+    Element element1 = cache.get("key1");
+    assertEquals("value1", element1.getObjectValue());
+    assertEquals(1, cache.getSize());
+  }
 
-	@Test
-	public void testUsingNonExportedClass() {
-		try {
-			ContextManager cm = new ContextManager();
-			fail("Expected class not found exception");
-		} catch (Throwable e) {
-			// expected
-		}
-	}
+  @Test
+  public void testUsingNonExportedClass() {
+    try {
+      ContextManager cm = new ContextManager();
+      fail("Expected class not found exception");
+    } catch (Throwable e) {
+      // expected
+    }
+  }
 }
