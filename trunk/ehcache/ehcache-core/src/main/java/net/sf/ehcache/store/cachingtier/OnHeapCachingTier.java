@@ -230,8 +230,9 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
             );
             sizeInBytes = 0;
             for (Map.Entry<K, Object> entry : backEnd.entrySet()) {
-                Element element = (Element)entry.getValue();
-                if (element != null) {
+                // This could leak Fault values... We ignore these entirely
+                if (entry.getValue() != null && entry.getValue() instanceof Element) {
+                    Element element = (Element)entry.getValue();
                     // TODO this is a lie here! Should we add a dedicated method to BackEnd to return a container ?
                     Size size = defaultSizeOfEngine.sizeOf(element.getObjectKey(), element, null);
                     sizeInBytes += size.getCalculated();
