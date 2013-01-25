@@ -55,6 +55,8 @@ public class SearchableConfigurationElement extends SimpleNodeElement {
 
         addAttribute(new SimpleNodeAttribute("keys", searchable.keys()).optional(true).defaultValue(Searchable.KEYS_DEFAULT));
         addAttribute(new SimpleNodeAttribute("values", searchable.values()).optional(true).defaultValue(Searchable.VALUES_DEFAULT));
+        addAttribute(new SimpleNodeAttribute("allowDynamicIndexing", searchable.isDynamicIndexingAllowed()).optional(true).
+                defaultValue(Searchable.DYNAMIC_INDEXING_DEFAULT));
     }
 
 }

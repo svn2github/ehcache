@@ -43,13 +43,18 @@ public class Searchable {
     public static final boolean VALUES_DEFAULT = true;
 
     /**
+     * Default for allowing dynamic indexing
+     */
+    public static final boolean DYNAMIC_INDEXING_DEFAULT = false;
+
+    /**
      * The defined search attributes (if any) indexed by name
      */
     private final Map<String, SearchAttribute> searchAttributes = new HashMap<String, SearchAttribute>();
     private boolean frozen;
     private boolean keys;
     private boolean values;
-    private boolean allowDynamicIndexing = false;
+    private boolean allowDynamicIndexing = DYNAMIC_INDEXING_DEFAULT;
 
     /**
      * Constructor
