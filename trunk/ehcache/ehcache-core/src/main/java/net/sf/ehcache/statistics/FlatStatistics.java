@@ -27,7 +27,12 @@ import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
  */
 public interface FlatStatistics  {
 
-
+    /**
+     * Cache hit ratio
+     * @return
+     */
+    double cacheHitRatio();
+    
     /**
      * Cache hit count.
      *

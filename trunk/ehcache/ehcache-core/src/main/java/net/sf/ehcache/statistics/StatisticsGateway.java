@@ -259,6 +259,8 @@ public class StatisticsGateway implements FlatStatistics {
     public Result localDiskRemoveOperation() {
         return extended.diskRemove().component(RemoveOutcome.SUCCESS);
     }
+    
+    
 
     @Override
     public Result cacheSearchOperation() {
@@ -539,5 +541,10 @@ public class StatisticsGateway implements FlatStatistics {
     @Override
     public long cacheEvictedCount() {
         return core.cacheEviction().value(CacheOperationOutcomes.EvictionOutcome.SUCCESS);
+    }
+
+    @Override
+    public double cacheHitRatio() {
+        return extended.cacheHitRatio().value().doubleValue();
     }
 }

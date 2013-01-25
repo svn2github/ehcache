@@ -26,6 +26,7 @@ import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -62,18 +63,18 @@ import org.terracotta.statistics.ValueStatistic;
 
 /**
  * The Class ExtendedStatisticsImpl.
- *
+ * 
  * @author cschanck
  */
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedStatisticsImpl.class);
 
-    private final ConcurrentMap<StandardPassThroughStatistic, ValueStatistic> standardPassThroughs =
+    private final ConcurrentMap<StandardPassThroughStatistic, ValueStatistic> standardPassThroughs = 
             new ConcurrentHashMap<StandardPassThroughStatistic, ValueStatistic>();
-    private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations =
+    private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations = 
             new ConcurrentHashMap<StandardOperationStatistic, Operation<?>>();
-    private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations =
+    private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations = 
             new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
     private final StatisticsManager manager;
     private final ScheduledExecutorService executor;
@@ -110,9 +111,11 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private final Result allDiskPut;
 
+    private Statistic<Double> cacheHitRatio;
+
     /**
      * Instantiates a new extended statistics impl.
-     *
+     * 
      * @param manager the manager
      * @param executor the executor
      * @param timeToDisable the time to disable
@@ -135,6 +138,10 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         this.allHeapPut = heapPut().compound(ALL_STORE_PUT_OUTCOMES);
         this.allOffHeapPut = offheapPut().compound(ALL_STORE_PUT_OUTCOMES);
         this.allDiskPut = diskPut().compound(ALL_STORE_PUT_OUTCOMES);
+        
+        this.cacheHitRatio = get().ratioOf(EnumSet.of(CacheOperationOutcomes.GetOutcome.HIT),
+                EnumSet.allOf(CacheOperationOutcomes.GetOutcome.class));
+        
 
     }
 
@@ -149,8 +156,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                     standardOperations.put(t, NullCompoundOperation.instance(t.type()));
                 }
             } else {
-                standardOperations.put(t, new CompoundOperationImpl(statistic, t.type(),
-                        t.window(), SECONDS, executor, t.history(), t.interval(), SECONDS));
+                standardOperations.put(t,
+                        new CompoundOperationImpl(statistic, t.type(), t.window(), SECONDS, executor, t.history(), t.interval(), SECONDS));
             }
         }
     }
@@ -169,7 +176,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#setTimeToDisable(long, java.util.concurrent.TimeUnit)
      */
     @Override
@@ -184,7 +191,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#setAlwaysOn(boolean)
      */
     @Override
@@ -209,7 +216,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#get()
      */
     @Override
@@ -219,7 +226,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#put()
      */
     @Override
@@ -229,7 +236,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#remove()
      */
     @Override
@@ -239,7 +246,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#search()
      */
     @Override
@@ -249,7 +256,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#heapGet()
      */
     @Override
@@ -259,7 +266,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#heapPut()
      */
     @Override
@@ -269,7 +276,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#heapRemove()
      */
     @Override
@@ -279,7 +286,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#offheapGet()
      */
     @Override
@@ -289,7 +296,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#offheapPut()
      */
     @Override
@@ -299,7 +306,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#offheapRemove()
      */
     @Override
@@ -309,7 +316,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#diskGet()
      */
     @Override
@@ -319,7 +326,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#diskPut()
      */
     @Override
@@ -329,7 +336,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#diskRemove()
      */
     @Override
@@ -339,7 +346,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#xaCommit()
      */
     @Override
@@ -349,7 +356,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#xaRollback()
      */
     @Override
@@ -359,7 +366,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#xaRecovery()
      */
     @Override
@@ -369,7 +376,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#eviction()
      */
     @Override
@@ -379,7 +386,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#expiry()
      */
     @Override
@@ -389,7 +396,17 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getCacheHitRatio()
+     */    
+    @Override
+    public Statistic<Double> cacheHitRatio() {
+        return cacheHitRatio;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#allGet()
      */
     @Override
@@ -399,7 +416,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#allMiss()
      */
     @Override
@@ -409,7 +426,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#allPut()
      */
     @Override
@@ -419,7 +436,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#heapAllPut()
      */
     @Override
@@ -429,7 +446,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#offHeapAllPut()
      */
     @Override
@@ -439,7 +456,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#diskAllPut()
      */
     @Override
@@ -449,13 +466,13 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#operations(java.lang.Class, java.lang.String, java.lang.String[])
      */
     @Override
     public <T extends Enum<T>> Set<Operation<T>> operations(Class<T> outcome, String name, String... tags) {
-        Set<OperationStatistic<T>> sources = findOperationStatistic(manager, queryBuilder().descendants().build(),
-                outcome, name, new HashSet<String>(Arrays.asList(tags)));
+        Set<OperationStatistic<T>> sources = findOperationStatistic(manager, queryBuilder().descendants().build(), outcome, name,
+                new HashSet<String>(Arrays.asList(tags)));
         if (sources.isEmpty()) {
             return Collections.emptySet();
         } else {
@@ -477,7 +494,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalHeapSize()
      */
     @Override
@@ -487,7 +504,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalHeapSizeInBytes()
      */
     @Override
@@ -497,7 +514,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalOffHeapSize()
      */
     @Override
@@ -507,7 +524,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalOffHeapSizeInBytes()
      */
     @Override
@@ -517,7 +534,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalDiskSize()
      */
     @Override
@@ -527,7 +544,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalDiskSizeInBytes()
      */
     @Override
@@ -537,7 +554,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getRemoteSize()
      */
     @Override
@@ -547,7 +564,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getSize()
      */
     @Override
@@ -557,7 +574,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getWriterQueueLength()
      */
     @Override
@@ -572,8 +589,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             if (discovered == null) {
                 return operation;
             } else {
-                Operation<?> newOperation = new CompoundOperationImpl(discovered, statistic.type(),
-                        statistic.window(), SECONDS, executor, statistic.history(), statistic.interval(), SECONDS);
+                Operation<?> newOperation = new CompoundOperationImpl(discovered, statistic.type(), statistic.window(), SECONDS, executor,
+                        statistic.history(), statistic.interval(), SECONDS);
                 if (standardOperations.replace(statistic, operation, newOperation)) {
                     return newOperation;
                 } else {
@@ -584,7 +601,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             return operation;
         }
     }
-    
+
     private ValueStatistic<Number> getStandardPassThrough(StandardPassThroughStatistic statistic) {
         ValueStatistic<Number> passThrough = standardPassThroughs.get(statistic);
         if (passThrough instanceof ConstantValueStatistic<?>) {
@@ -602,10 +619,10 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             return passThrough;
         }
     }
-    
+
     private static OperationStatistic findOperationStatistic(StatisticsManager manager, StandardOperationStatistic statistic) {
-        Set<OperationStatistic> results = findOperationStatistic(manager, statistic.context(),
-                statistic.type(), statistic.operationName(), statistic.tags());
+        Set<OperationStatistic> results = findOperationStatistic(manager, statistic.context(), statistic.type(), statistic.operationName(),
+                statistic.tags());
         switch (results.size()) {
             case 0:
                 return null;
@@ -615,7 +632,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 throw new IllegalStateException("Duplicate statistics found for " + statistic);
         }
     }
-    
+
     private static ValueStatistic findPassThroughStatistic(StatisticsManager manager, StandardPassThroughStatistic statistic) {
         Set<ValueStatistic<?>> results = findPassThroughStatistic(manager, statistic.context(), statistic.statisticName(), statistic.tags());
         switch (results.size()) {
@@ -627,10 +644,10 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 throw new IllegalStateException("Duplicate statistics found for " + statistic);
         }
     }
-    
+
     /**
      * Find operation statistic.
-     *
+     * 
      * @param <T> the generic type
      * @param manager the manager
      * @param type the type
@@ -638,12 +655,12 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @param tags the tags
      * @return the sets the
      */
-    private static <T extends Enum<T>> Set<OperationStatistic<T>> findOperationStatistic(StatisticsManager manager, Query contextQuery, Class<T> type,
-            String name, final Set<String> tags) {
+    private static <T extends Enum<T>> Set<OperationStatistic<T>> findOperationStatistic(StatisticsManager manager, Query contextQuery,
+            Class<T> type, String name, final Set<String> tags) {
         Set<TreeNode> operationStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(OperationStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()
-                .filter(context(attributes(Matchers.<Map<String, Object>>allOf(hasAttribute("type", type), hasAttribute("name", name),
+                .filter(context(attributes(Matchers.<Map<String, Object>> allOf(hasAttribute("type", type), hasAttribute("name", name),
                         hasAttribute("tags", new Matcher<Set<String>>() {
                             @Override
                             protected boolean matchesSafely(Set<String> object) {
@@ -662,18 +679,18 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
-    private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, Query contextQuery,
-            String name, final Set<String> tags) {
+    private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, Query contextQuery, String name,
+            final Set<String> tags) {
         Set<TreeNode> passThroughStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(ValueStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()
-                .filter(context(attributes(Matchers.<Map<String, Object>>allOf(hasAttribute("name", name), 
-                hasAttribute("tags", new Matcher<Set<String>>() {
-                    @Override
-                    protected boolean matchesSafely(Set<String> object) {
-                        return object.containsAll(tags);
-                    }
-                }))))).build().execute(passThroughStatisticNodes);
+                .filter(context(attributes(Matchers.<Map<String, Object>> allOf(hasAttribute("name", name),
+                        hasAttribute("tags", new Matcher<Set<String>>() {
+                            @Override
+                            protected boolean matchesSafely(Set<String> object) {
+                                return object.containsAll(tags);
+                            }
+                        }))))).build().execute(passThroughStatisticNodes);
 
         if (result.isEmpty()) {
             return Collections.emptySet();

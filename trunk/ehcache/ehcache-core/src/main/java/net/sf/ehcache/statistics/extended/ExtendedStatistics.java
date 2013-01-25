@@ -234,6 +234,12 @@ public interface ExtendedStatistics {
     Result diskAllPut();
 
     /**
+     * Cache hit ratio.
+     * @return
+     */
+    Statistic<Double> cacheHitRatio();
+
+    /**
      * Operations.
      *
      * @param <T> the generic type

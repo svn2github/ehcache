@@ -1389,8 +1389,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public int getCacheHitRatio() {
-        final long oneHundred = 100L;
-        return (int) ((getCacheHitCount() * oneHundred) / (getCacheHitCount() + getCacheMissCount()));
+        return (int) cache.getStatistics().getExtended().cacheHitRatio().value().intValue();
     }
 
     /**
@@ -1401,6 +1400,14 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         return getCacheHitRatio();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getCacheHitRatioSample() {
+        return new SampledCounterProxy<Double>(cache.getStatistics().getExtended().cacheHitRatio());
+    }
+    
     @Override
     public long getAverageGetTimeNanos() {
         return cache.getStatistics().cacheGetOperation().latency().average().value().longValue();
@@ -1414,14 +1421,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         return new SampledCounterProxy(cache.getStatistics().cacheHitOperation().rate());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SampledCounter getCacheHitRatioSample() {
-        //throw new UnsupportedOperationException();
-        return getCacheHitSample();
-    }
 
     /**
      * {@inheritDoc}
