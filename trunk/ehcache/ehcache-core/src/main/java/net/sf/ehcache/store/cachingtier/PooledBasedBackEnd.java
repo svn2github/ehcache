@@ -15,7 +15,6 @@
  */
 package net.sf.ehcache.store.cachingtier;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.store.Policy;
