@@ -2,6 +2,7 @@ package net.sf.ehcache.osgi;
 
 import static net.sf.ehcache.util.TestUtils.testMavenBundle;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import net.sf.ehcache.Cache;
@@ -15,6 +16,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.terracotta.context.ContextManager;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
@@ -35,5 +37,15 @@ public class SimpleEhcacheTest {
 		Element element1 = cache.get("key1");
 		assertEquals("value1", element1.getObjectValue());
 		assertEquals(1, cache.getSize());
+	}
+
+	@Test
+	public void testUsingNonExportedClass() {
+		try {
+			ContextManager cm = new ContextManager();
+			fail("Expected class not found exception");
+		} catch (Throwable e) {
+			// expected
+		}
 	}
 }

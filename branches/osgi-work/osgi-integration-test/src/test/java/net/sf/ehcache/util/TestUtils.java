@@ -18,7 +18,7 @@ public class TestUtils {
 		Map<String, String> deps = new HashMap<String, String>();
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new FileReader("target/dependencies.list"));
+			reader = new BufferedReader(new FileReader("target/dependencies.txt"));
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				Matcher m = mavenCoords.matcher(line);
