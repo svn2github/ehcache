@@ -86,7 +86,7 @@
       <version>1.1.0</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.knowhowlab.osgi</groupId>
       <artifactId>org.knowhowlab.osgi.testing.assertions</artifactId>
@@ -133,19 +133,15 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.6</version>
+        <groupId>org.apache.servicemix.tooling</groupId>
+        <artifactId>depends-maven-plugin</artifactId>
+        <version>1.2</version>
         <executions>
           <execution>
-            <id>list-dependencies</id>
-            <phase>generate-sources</phase>
+            <id>generate-depends-file</id>
             <goals>
-              <goal>resolve</goal>
+              <goal>generate-depends-file</goal>
             </goals>
-            <configuration>
-              <outputFile>target/dependencies.txt</outputFile>
-            </configuration>
           </execution>
         </executions>
       </plugin>

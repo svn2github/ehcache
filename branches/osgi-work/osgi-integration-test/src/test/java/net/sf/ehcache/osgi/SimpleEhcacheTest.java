@@ -1,9 +1,9 @@
 package net.sf.ehcache.osgi;
 
-import static net.sf.ehcache.util.TestUtils.useMavenBundle;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -24,7 +24,7 @@ public class SimpleEhcacheTest {
 
   @Configuration
   public Option[] config() {
-    return options(useMavenBundle("net.sf.ehcache", "ehcache"), junitBundles());
+    return options(mavenBundle("net.sf.ehcache", "ehcache").versionAsInProject(), junitBundles());
   }
 
   @Test
