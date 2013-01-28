@@ -4,6 +4,7 @@
  */
 package net.sf.ehcache.statistics;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.Cache;
@@ -18,6 +19,9 @@ import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.*;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
+import net.sf.ehcache.util.RetryAssert;
+
 import static org.hamcrest.core.Is.*;
 import static org.hamcrest.number.OrderingComparison.*;
 import static org.junit.Assert.assertThat;
@@ -93,11 +97,10 @@ public class ExtendedStatisticsTest {
             assertThat(missNotFound.count().value(), is(2L));
             assertThat(missNotFound.rate().value(), greaterThan(0.0));
             
-            TimeUnit.SECONDS.sleep(3);
+            assertThat(missNotFound.count().active(), is(false));
+            RetryAssert.assertBy(4, TimeUnit.SECONDS, isActive(missNotFound.rate()), is(false));
             
             foo.get("miss");
-            assertThat(missNotFound.count().active(), is(false));
-            assertThat(missNotFound.rate().active(), is(false));
             assertThat(missNotFound.count().value(), is(3L));
             assertThat(missNotFound.rate().value(), is(0.0));
         } finally {
@@ -181,9 +184,8 @@ public class ExtendedStatisticsTest {
             
             extendedStats.setAlwaysOn(false);
             
-            TimeUnit.SECONDS.sleep(1);
-            assertThat(missNotFound.count().active(), is(false));
-            assertThat(missNotFound.rate().active(), is(false));
+            RetryAssert.assertBy(4, TimeUnit.SECONDS, isActive(missNotFound.count()), is(false));
+            RetryAssert.assertBy(4, TimeUnit.SECONDS, isActive(missNotFound.rate()), is(false));
             
             foo.get("miss");
             assertThat(missNotFound.count().value(), is(3L));
@@ -221,5 +223,15 @@ public class ExtendedStatisticsTest {
         } finally {
             manager.shutdown();
         }
+    }
+    
+    static Callable<Boolean> isActive(final Statistic<?> stat) {
+      return new Callable<Boolean>() {
+
+        @Override
+        public Boolean call() throws Exception {
+          return stat.active();
+        }
+      };
     }
 }
