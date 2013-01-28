@@ -1,4 +1,4 @@
-package net.sf.ehcache.osgi.hibernate;
+package net.sf.ehcache.osgi;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -100,6 +100,7 @@ public class HibernateCacheTest {
   @ProbeBuilder
   public TestProbeBuilder extendProbe(TestProbeBuilder builder) {
     builder.setHeader(Constants.IMPORT_PACKAGE, "javax.transaction;version=1.1,org.hibernate,org.osgi.framework,org.slf4j");
+    builder.setHeader(Constants.DYNAMICIMPORT_PACKAGE, "*");
     return builder;
   }
 
