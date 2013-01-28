@@ -16,7 +16,7 @@ public abstract class AbstractAuthoritativeTierTest<T extends AuthoritativeTier>
     private T authoritativeTier;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         authoritativeTier = createAuthoritativeTier();
     }
 
@@ -59,7 +59,7 @@ public abstract class AbstractAuthoritativeTierTest<T extends AuthoritativeTier>
         assertThat(isFaulted(key, authoritativeTier), is(false));
     }
 
-    protected abstract T createAuthoritativeTier();
+    protected abstract T createAuthoritativeTier() throws Exception;
 
     protected abstract boolean isFaulted(Object key, T authoritativeTier);
 }
