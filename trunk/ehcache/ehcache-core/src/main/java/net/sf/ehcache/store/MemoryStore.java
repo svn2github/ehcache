@@ -212,9 +212,6 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         }
 
         switch (pinningConfiguration.getStore()) {
-            case LOCALHEAP:
-                return true;
-
             case LOCALMEMORY:
                 return !cacheConfiguration.isOverflowToOffHeap();
 

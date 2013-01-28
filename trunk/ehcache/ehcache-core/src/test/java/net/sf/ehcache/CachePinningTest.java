@@ -78,14 +78,6 @@ public class CachePinningTest {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
-                        .name("memoryOnlyCache_onHeap")
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
-        ));
-        doAssertions(cacheManager.getCache("memoryOnlyCache_onHeap"), ELEMENT_COUNT, 0);
-
-        cacheManager.addCache(new Cache(
-                new CacheConfiguration()
-                        .maxEntriesLocalHeap(10)
                         .name("memoryOnlyCache_inMemory")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
         ));
@@ -102,16 +94,6 @@ public class CachePinningTest {
 
     @Test
     public void testOverflowToDisk() throws Exception {
-        cacheManager.addCache(new Cache(
-            new CacheConfiguration()
-                .maxEntriesLocalHeap(10)
-                .maxElementsOnDisk(20)
-                .overflowToDisk(true)
-                .name("overflowToDiskCache_onHeap")
-                .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
-        ));
-        doAssertions(cacheManager.getCache("overflowToDiskCache_onHeap"), ELEMENT_COUNT, 0);
-
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
@@ -135,17 +117,6 @@ public class CachePinningTest {
 
     @Test
     public void testDiskPersistent() throws Exception {
-        cacheManager.addCache(new Cache(
-                new CacheConfiguration()
-                        .maxEntriesLocalHeap(10)
-                        .maxElementsOnDisk(20)
-                        .overflowToDisk(true)
-                        .diskPersistent(true)
-                        .name("diskPersistentCache_onHeap")
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
-        ));
-        doAssertions(cacheManager.getCache("diskPersistentCache_onHeap"), ELEMENT_COUNT, 0);
-
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
@@ -193,85 +164,6 @@ public class CachePinningTest {
         Assert.assertEquals(cache.getStatistics().localHeapMissCount(), cache.getStatistics().localDiskHitCount());
         Assert.assertEquals(0, cache.getStatistics().localDiskMissCount());
         Assert.assertEquals(0, cache.getStatistics().cacheEvictedCount());
-    }
-
-    @Test
-    public void testGetKeysContainsKeysOfPinnedTier() throws ExecutionException, InterruptedException {
-        final Cache cache = new Cache(new CacheConfiguration().name("getPinnedTier")
-            .diskPersistent(true)
-            .maxEntriesLocalDisk(10)
-            .maxEntriesLocalHeap(5)
-            .eternal(true)
-            .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP)));
-        cacheManager.addCache(cache);
-        cache.removeAll();
-        flushDisk(cache);
-        final long maxElements = cache.getCacheConfiguration().getMaxEntriesLocalDisk() * 2;
-        for (int i = 0; i < maxElements; i++) {
-            cache.put(new Element(i, "valueOf" + i));
-        }
-        flushDisk(cache);
-        final List allKeys = cache.getKeys();
-
-        for (int i = 0; i < maxElements; i++) {
-            assertThat(i + " should be in cache", cache.get(i), notNullValue());
-        }
-
-        for (int i = 0; i < maxElements; i++) {
-            assertThat(i + " should be recognized as being in cache", cache.isKeyInCache(i), is(true));
-            assertThat(i + " should be in the keySet", allKeys.contains(i), is(true));
-        }
-    }
-
-    @Test
-    public void testGetKeysAlsoIncludesPersistedKeys() throws ExecutionException, InterruptedException {
-        CacheManager cm = new CacheManager(new Configuration().name("persisted")
-            .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/testGetKeysAlsoIncludesPersistedKeys")));
-        Cache cache = new Cache(new CacheConfiguration().name("getPinnedKeys")
-            .diskPersistent(true)
-            .maxEntriesLocalDisk(50)
-            .maxEntriesLocalHeap(100)
-            .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALHEAP))
-            .eternal(true));
-        cm.addCache(cache);
-        cache.removeAll();
-        flushDisk(cache);
-        long firstMax = cache.getCacheConfiguration().getMaxEntriesLocalDisk();
-        for (int i = 0; i < firstMax; i++) {
-            cache.put(new Element(i, "valueOf" + i));
-        }
-        flushDisk(cache);
-        cm.shutdown();
-        System.err.println("Restarting!");
-
-        cm = new CacheManager(cm.getConfiguration());
-        cache = cm.getCache(cache.getName());
-        long maxElements = cache.getCacheConfiguration().getMaxEntriesLocalHeap();
-        assertThat(cache.getStatistics().getLocalDiskSize(), is(cache.getCacheConfiguration().getMaxEntriesLocalDisk()));
-        for (int i = 0; i < firstMax; i++) {
-            assertNotNull(cache.get(i));
-        }
-        for (int i = (int) firstMax; i < maxElements; i++) {
-            cache.put(new Element(i, "valueOf" + i));
-        }
-        int count = 0;
-        flushDisk(cache);
-
-        final List cacheKeys = cache.getKeys();
-        // We can't use cacheKeys.size() here, as this will not account for duplicated keys
-        for (Object o : cacheKeys) {
-            assertThat(o + " isn't in keySet!", cacheKeys.contains(o), Matchers.is(true));
-            assertThat(o + " is null!", cache.get(o), notNullValue());
-            ++count;
-        }
-        for(int i = 0; i < maxElements; i++) {
-            final Element element = cache.get(i);
-            if(element != null) {
-                assertThat(cacheKeys.contains(element.getKey()), Matchers.is(true));
-            }
-        }
-        assertThat(cache.getSize(), Matchers.is(count));
-        assertThat("We have " + count + " keys", count > cache.getCacheConfiguration().getMaxEntriesLocalDisk(), Matchers.is(true));
     }
 
     private void flushDisk(final Cache cache) throws InterruptedException, ExecutionException {

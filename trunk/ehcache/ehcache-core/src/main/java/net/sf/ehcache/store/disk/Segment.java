@@ -144,9 +144,6 @@ public class Segment extends ReentrantReadWriteLock {
         }
 
         switch (pinningConfiguration.getStore()) {
-            case LOCALHEAP:
-                return false;
-
             case LOCALMEMORY:
                 return false;
 

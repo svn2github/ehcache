@@ -27,10 +27,6 @@ public class PinningConfiguration implements Cloneable {
      * Possible store values
      */
     public static enum Store {
-        /**
-         * Pin the elements on-heap
-         */
-        LOCALHEAP,
 
         /**
          * Pin the elements in the local VM memory

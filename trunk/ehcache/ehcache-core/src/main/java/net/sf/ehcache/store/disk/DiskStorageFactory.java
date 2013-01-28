@@ -181,7 +181,6 @@ public class DiskStorageFactory {
         }
 
         switch (pinningConfiguration.getStore()) {
-            case LOCALHEAP:
             case LOCALMEMORY:
                 return false;
 
