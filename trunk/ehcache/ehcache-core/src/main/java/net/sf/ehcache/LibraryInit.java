@@ -78,11 +78,6 @@ final class LibraryInit {
             throw new AssertionError("No " + EhcacheInit.class.getName() + " services found");
         }
 
-        if (initializers.size() > 1) {
-            throw new CacheException("Found multiple initialization services. "
-                    + "Do you have multiple ehcache jars present in your classpath? " + initializers);
-        }
-
         for (EhcacheInit init : initializers) {
             init.init();
         }
