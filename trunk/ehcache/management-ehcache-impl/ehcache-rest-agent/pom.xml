@@ -40,6 +40,7 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.0-tc-patch</version>
         <configuration>
+          <useBaseVersion>true</useBaseVersion> 
           <shadedArtifactAttached>false</shadedArtifactAttached>
           <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
           <artifactSet>
