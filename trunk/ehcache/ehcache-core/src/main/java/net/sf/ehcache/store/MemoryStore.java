@@ -66,6 +66,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 
@@ -301,16 +303,22 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
-            Element old = map.put(element.getObjectKey(), element, delta);
-            if (writerManager != null) {
-                try {
-                    writerManager.put(element);
-                } catch (RuntimeException e) {
-                    throw new StoreUpdateException(e, old != null);
+            final ReentrantReadWriteLock lock = map.lockFor(element.getObjectKey());
+            lock.writeLock().unlock();
+            try {
+                Element old = map.put(element.getObjectKey(), element, delta);
+                if (writerManager != null) {
+                    try {
+                        writerManager.put(element);
+                    } catch (RuntimeException e) {
+                        throw new StoreUpdateException(e, old != null);
+                    }
                 }
+                checkCapacity(element);
+                return old == null;
+            } finally {
+                lock.writeLock().unlock();
             }
-            checkCapacity(element);
-            return old == null;
         } else {
             notifyDirectEviction(element);
             return true;
@@ -400,9 +408,16 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         }
 
         // remove single item.
-        Element element = map.remove(key);
-        if (writerManager != null) {
-            writerManager.remove(new CacheEntry(key, element));
+        Element element;
+        final ReentrantReadWriteLock.WriteLock writeLock = map.lockFor(key).writeLock();
+        writeLock.lock();
+        try {
+            element = map.remove(key);
+            if (writerManager != null) {
+                writerManager.remove(new CacheEntry(key, element));
+            }
+        } finally {
+            writeLock.unlock();
         }
         if (element == null && LOG.isDebugEnabled()) {
             LOG.debug(cache.getName() + "Cache: Cannot remove entry as key " + key + " was not found");

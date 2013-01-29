@@ -509,15 +509,23 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) {
-        boolean newPut = put(element);
-        if (writerManager != null) {
-            try {
-                writerManager.put(element);
-            } catch (RuntimeException e) {
-                throw new StoreUpdateException(e, !newPut);
+        Object key = element.getObjectKey();
+        int hash = hash(key.hashCode());
+        final ReentrantReadWriteLock.WriteLock writeLock = segmentFor(hash).writeLock();
+        writeLock.lock();
+        try {
+            boolean newPut = put(element);
+            if (writerManager != null) {
+                try {
+                    writerManager.put(element);
+                } catch (RuntimeException e) {
+                    throw new StoreUpdateException(e, !newPut);
+                }
             }
+            return newPut;
+        } finally {
+            writeLock.unlock();
         }
-        return newPut;
     }
 
     /**
@@ -633,11 +641,18 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      * {@inheritDoc}
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) {
-        Element removed = remove(key);
-        if (writerManager != null) {
-            writerManager.remove(new CacheEntry(key, removed));
+        int hash = hash(key.hashCode());
+        final ReentrantReadWriteLock.WriteLock writeLock = segmentFor(hash).writeLock();
+        writeLock.lock();
+        try {
+            Element removed = remove(key);
+            if (writerManager != null) {
+                writerManager.remove(new CacheEntry(key, removed));
+            }
+            return removed;
+        } finally {
+            writeLock.unlock();
         }
-        return removed;
     }
 
     /**
