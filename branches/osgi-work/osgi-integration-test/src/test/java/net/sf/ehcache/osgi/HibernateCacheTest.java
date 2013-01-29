@@ -56,6 +56,7 @@ import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
@@ -84,11 +85,11 @@ public class HibernateCacheTest {
   public Option[] config() {
     return options(
         bootDelegationPackages("sun.*,javax.naming,javax.naming.spi,javax.naming.event,javax.management"),
-        mavenBundle("net.sf.ehcache", "ehcache").versionAsInProject(),
-        mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject()
-            .noStart(),
         wrappedBundle(maven("javax.transaction", "jta").versionAsInProject()).exports(
             "javax.transaction;version=1.1"),
+        mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject()
+            .noStart(),
+        mavenBundle("net.sf.ehcache", "ehcache").versionAsInProject(),
         junitBundles(),
         systemProperty("derby.system.home").value("target/derby"),
         workingDirectory("target/pax-exam"),
