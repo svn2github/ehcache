@@ -5,6 +5,8 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 
 import org.terracotta.modules.ehcache.ToolkitClientAccessor;
 import org.terracotta.tests.base.AbstractClientBase;
@@ -15,6 +17,7 @@ import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.TimeUnit;
 
 public abstract class ClientBase extends AbstractClientBase {
 
@@ -92,6 +95,19 @@ public abstract class ClientBase extends AbstractClientBase {
   }
 
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
+
+  public void waitUntilCacheInitialized(Cache cache) throws InterruptedException {
+    while (true) {
+      try {
+        debug("===== Waiting for cache " + cache.getName() + " to be initialized =====");
+        cache.put(new Element("key", "value"));
+        cache.remove("key");
+        return;
+      } catch (NonStopCacheException e) {
+        TimeUnit.SECONDS.sleep(1L);
+      }
+    }
+  }
 
   public void waitForAllCurrentTransactionsToComplete(Cache cache) {
     // Only do waitFor All Txn for Clustered Caches
