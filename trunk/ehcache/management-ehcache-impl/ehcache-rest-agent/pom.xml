@@ -38,7 +38,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>1.6</version>
+        <version>2.0-tc-patch</version>
         <configuration>
           <shadedArtifactAttached>false</shadedArtifactAttached>
           <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
