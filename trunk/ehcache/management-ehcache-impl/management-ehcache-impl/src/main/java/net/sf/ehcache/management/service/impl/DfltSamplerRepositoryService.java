@@ -511,10 +511,6 @@ public class DfltSamplerRepositoryService
   private static final class SamplerRepoEntry implements CacheManagerEventListener {
     private final static String ENABLED_ATTR = "Enabled";
 
-    private final static String STATS_ENABLED_ATTR = "StatisticsEnabled";
-
-    private final static String SAMPLED_STATS_ENABLED_ATTR = "SampledStatisticsEnabled";
-
     private final static String BULK_LOAD_ENABLED = "ClusterBulkLoadEnabled";
 
     private final static String MAX_ELEMENTS_ON_DISK = "MaxElementsOnDisk";
@@ -617,10 +613,6 @@ public class DfltSamplerRepositoryService
 
             Boolean enabledBlkLoad = (Boolean) cacheResource.getAttributes().get(BULK_LOAD_ENABLED);
             if (enabledBlkLoad != null) cs.setNodeBulkLoadEnabled(enabledBlkLoad);
-
-            Boolean enabledStatsAttr = (Boolean) cacheResource.getAttributes().get(STATS_ENABLED_ATTR);
-
-            Boolean enabledSampledStatsAttr = (Boolean) cacheResource.getAttributes().get(SAMPLED_STATS_ENABLED_ATTR);
 
             Integer maxElementsOnDiskAttr = (Integer) cacheResource.getAttributes().get(MAX_ELEMENTS_ON_DISK);
             if (maxElementsOnDiskAttr != null) cs.setMaxElementsOnDisk(maxElementsOnDiskAttr);
