@@ -71,14 +71,6 @@ public class CachePoolPinningTest {
     public void testMemoryOnly() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .name("memoryOnlyCache_inMemory")
-                        .overflowToDisk(false)
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
-        ));
-        doAssertions(cacheManager.getCache("memoryOnlyCache_inMemory"), ELEMENT_COUNT, 0);
-
-        cacheManager.addCache(new Cache(
-                new CacheConfiguration()
                         .name("memoryOnlyCache_inCache")
                         .overflowToDisk(false)
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
@@ -91,13 +83,6 @@ public class CachePoolPinningTest {
     public void testOverflowToDisk() throws Exception {
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
-                        .name("overflowToDiskCache_inMemory")
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
-        ));
-        doAssertions(cacheManager.getCache("overflowToDiskCache_inMemory"), ELEMENT_COUNT, 0);
-
-        cacheManager.addCache(new Cache(
-                new CacheConfiguration()
                         .name("overflowToDiskCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -107,14 +92,6 @@ public class CachePoolPinningTest {
     @Test
     @Ignore
     public void testDiskPersistent() throws Exception {
-        cacheManager.addCache(new Cache(
-                new CacheConfiguration()
-                        .diskPersistent(true)
-                        .name("diskPersistentCache_inMemory")
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
-        ));
-        doAssertions(cacheManager.getCache("diskPersistentCache_inMemory"), ELEMENT_COUNT, 0);
-
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .diskPersistent(true)

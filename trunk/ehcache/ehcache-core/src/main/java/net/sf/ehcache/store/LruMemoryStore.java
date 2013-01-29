@@ -123,7 +123,7 @@ public class LruMemoryStore extends AbstractStore {
 
         switch (pinningConfiguration.getStore()) {
             case LOCALMEMORY:
-                return !cacheConfiguration.isOverflowToOffHeap();
+                return false;
 
             case INCACHE:
                 return !cacheConfiguration.isOverflowToOffHeap() && !cacheConfiguration.isOverflowToDisk();

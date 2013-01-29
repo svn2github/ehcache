@@ -76,14 +76,6 @@ public class CachePinningTest {
     @Test
     public void testMemoryOnly() throws Exception {
         cacheManager.addCache(new Cache(
-                new CacheConfiguration()
-                        .maxEntriesLocalHeap(10)
-                        .name("memoryOnlyCache_inMemory")
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
-        ));
-        doAssertions(cacheManager.getCache("memoryOnlyCache_inMemory"), ELEMENT_COUNT, 0);
-
-        cacheManager.addCache(new Cache(
             new CacheConfiguration()
                 .maxEntriesLocalHeap(10)
                 .name("memoryOnlyCache_inCache")
@@ -99,16 +91,6 @@ public class CachePinningTest {
                         .maxEntriesLocalHeap(10)
                         .maxElementsOnDisk(20)
                         .overflowToDisk(true)
-                        .name("overflowToDiskCache_inMemory")
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
-        ));
-        doAssertions(cacheManager.getCache("overflowToDiskCache_inMemory"), ELEMENT_COUNT, 0);
-
-        cacheManager.addCache(new Cache(
-                new CacheConfiguration()
-                        .maxEntriesLocalHeap(10)
-                        .maxElementsOnDisk(20)
-                        .overflowToDisk(true)
                         .name("overflowToDiskCache_inCache")
                         .pinning(new PinningConfiguration().store(PinningConfiguration.Store.INCACHE))
         ));
@@ -117,17 +99,6 @@ public class CachePinningTest {
 
     @Test
     public void testDiskPersistent() throws Exception {
-        cacheManager.addCache(new Cache(
-                new CacheConfiguration()
-                        .maxEntriesLocalHeap(10)
-                        .maxElementsOnDisk(20)
-                        .overflowToDisk(true)
-                        .diskPersistent(true)
-                        .name("diskPersistentCache_inMemory")
-                        .pinning(new PinningConfiguration().store(PinningConfiguration.Store.LOCALMEMORY))
-        ));
-        doAssertions(cacheManager.getCache("diskPersistentCache_inMemory"), ELEMENT_COUNT, 0);
-
         cacheManager.addCache(new Cache(
                 new CacheConfiguration()
                         .maxEntriesLocalHeap(10)
