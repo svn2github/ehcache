@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.writer;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -53,11 +54,14 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.writer.TestCacheWriterRetries.WriterEvent;
+import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.IsEqual;
 import org.junit.After;
@@ -622,6 +626,46 @@ public class CacheWriterTest {
 
             assertThat(writer.getDeletedElements().keySet(), hasSize(1));
             assertThat(writer.getDeletedElements(), hasKey("key1-batched"));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    @Test
+    public void testWriteBehindBatchedCoalescesProperly() throws InterruptedException {
+        CacheManager manager = new CacheManager(new Configuration().name("testWriteBehindBatchedCoalescesProperly"));
+        try {
+            final Cache cache = new Cache(
+                new CacheConfiguration("writeBehindBatchedCoalescing", 10)
+                    .cacheWriter(new CacheWriterConfiguration()
+                        .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+                        .maxWriteDelay(2)
+                        .writeBatching(true)
+                        .writeBatchSize(4)
+                        .writeCoalescing(true)
+                        .cacheWriterFactory(new CacheWriterConfiguration.CacheWriterFactoryConfiguration()
+                            .className("net.sf.ehcache.writer.MapCacheWriterFactory"))));
+            assertNotNull(cache.getRegisteredCacheWriter());
+
+            manager.addCache(cache);
+
+
+            cache.putWithWriter(new Element("key1", "one"));
+            cache.putWithWriter(new Element("key1", "two"));
+            cache.removeWithWriter("key1");
+            final Element lastElement = new Element("key1", "three");
+            cache.putWithWriter(lastElement);
+
+            assertBy(2, TimeUnit.SECONDS, new Callable<Long>() {
+                @Override
+                public Long call() throws Exception {
+                    return ((WriteBehindManager)cache.getWriterManager()).getQueueSize();
+                }
+            }, CoreMatchers.is(0L));
+
+            final Element element = (Element) MapCacheWriterFactory.map.get("key1");
+            assertThat(element.getKey(), equalTo((Object) "key1"));
+            assertThat(element.getValue(), equalTo((Object) "three"));
         } finally {
             manager.shutdown();
         }
