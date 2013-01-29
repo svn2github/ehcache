@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -34,6 +35,7 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
@@ -68,8 +70,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.event.EventListenerList;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
-
 public class ClusteredStore implements TerracottaStore, StoreListener {
 
   private static final Logger                                 LOG                                     = LoggerFactory
@@ -99,8 +99,13 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   private EventListenerList                                   listenerList;
   private final ToolkitLock                                   eventualConcurrentLock;
   private final boolean                                       isEventual;
+  private volatile boolean                                    mappingsAdded                           = false;
 
-  private final OperationObserver<EvictionOutcome>            evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+  private final OperationObserver<EvictionOutcome>            evictionObserver                        = operation(
+                                                                                                                  EvictionOutcome.class)
+                                                                                                          .named("eviction")
+                                                                                                          .of(this)
+                                                                                                          .build();
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache,
                         BulkLoadShutdownHook bulkLoadShutdownHook) {
@@ -154,18 +159,28 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     eventualConcurrentLock = toolkitInternal.getLock("EVENTUAL-CONCURRENT-LOCK-FOR-CLUSTERED-STORE",
                                                      ToolkitLockTypeInternal.CONCURRENT);
     isEventual = (terracottaConfiguration.getConsistency() == Consistency.EVENTUAL);
-    // This is done so that the element and elementData classes mappings are put by the toolkit internal serializer.
-    // this will ensure transactions being atomic for putWithWriter and removeWithWriter.
-    Configuration syncConfiguration = new ToolkitStoreConfigBuilder()
-        .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).concurrency(1)
-        .build();
-    ToolkitStore<String, Object> serializationHelperStore = toolkitInternal.getStore("STORE-FOR-SERIALIZATION-HELPER",
-                                                                                     syncConfiguration,
-                                                                                     Object.class);
-    Element element = new Element("key", "value");
-    serializationHelperStore.put("elementData", valueModeHandler.createElementData(element));
-    serializationHelperStore.put("element", element);
-    serializationHelperStore.clear();
+
+  }
+
+  private void addSerializerMappings() {
+    if (!mappingsAdded) {
+      synchronized (this) {
+        if (!mappingsAdded) {
+          // This is done so that the element and elementData classes mappings are put by the toolkit internal
+          // serializer.
+          // this will ensure transactions being atomic for putWithWriter and removeWithWriter.
+          Configuration syncConfiguration = new ToolkitStoreConfigBuilder()
+              .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG)
+              .concurrency(1).build();
+          ToolkitStore<String, Object> serializationHelperStore = toolkitInstanceFactory.getToolkit()
+              .getStore("STORE-FOR-SERIALIZATION-HELPER", syncConfiguration, Object.class);
+          Element element = new Element("key", "value");
+          serializationHelperStore.put("elementData", valueModeHandler.createElementData(element));
+          serializationHelperStore.put("element", element);
+          serializationHelperStore.clear();
+        }
+      }
+    }
   }
 
   public String getFullyQualifiedCacheName() {
@@ -252,7 +267,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   @Override
   public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
     if (element == null) { return true; }
-
+    addSerializerMappings();
     String pKey = generatePortableKeyFor(element.getObjectKey());
     // extractSearchAttributes(element);
 
@@ -469,13 +484,13 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   }
 
   @Override
-  @Statistic(name="size", tags="local-heap")
+  @Statistic(name = "size", tags = "local-heap")
   public int getInMemorySize() {
     return backend.localOnHeapSize();
   }
 
   @Override
-  @Statistic(name="size", tags="local-offheap")
+  @Statistic(name = "size", tags = "local-offheap")
   public int getOffHeapSize() {
     return backend.localOffHeapSize();
   }
@@ -486,19 +501,19 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   }
 
   @Override
-  @Statistic(name="size", tags="remote")
+  @Statistic(name = "size", tags = "remote")
   public int getTerracottaClusteredSize() {
     return backend.size();
   }
 
   @Override
-  @Statistic(name="size-in-bytes", tags="local-heap")
+  @Statistic(name = "size-in-bytes", tags = "local-heap")
   public long getInMemorySizeInBytes() {
     return backend.localOnHeapSizeInBytes();
   }
 
   @Override
-  @Statistic(name="size-in-bytes", tags="local-offheap")
+  @Statistic(name = "size-in-bytes", tags = "local-offheap")
   public long getOffHeapSizeInBytes() {
     return backend.localOffHeapSizeInBytes();
   }
