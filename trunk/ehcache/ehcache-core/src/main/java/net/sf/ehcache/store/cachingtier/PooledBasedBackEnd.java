@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -208,8 +209,14 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     public boolean evict(int evictions) {
         while (evictions-- > 0) {
             final Element evictionCandidate = findEvictionCandidate();
-            if (evictionCandidate != null && remove(evictionCandidate.getObjectKey(), evictionCandidate)) {
-                evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
+            if (evictionCandidate != null) {
+                remove(evictionCandidate.getObjectKey(), evictionCandidate, new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
+                        return null;
+                    }
+                });
             } else {
                 return false;
             }

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  *
@@ -111,8 +112,16 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
         int evictions = MAX_EVICTIONS;
         while (maxEntriesLocalHeap < mappingCount() && evictions-- > 0) {
             final Element evictionCandidate = findEvictionCandidate(key, value);
-            if (evictionCandidate != null && remove(evictionCandidate.getObjectKey(), evictionCandidate) && evictionCallback != null) {
-                evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
+            if (evictionCandidate != null) {
+                remove(evictionCandidate.getObjectKey(), evictionCandidate, new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                      if (evictionCallback != null) {
+                        evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
+                      }
+                      return null;
+                    }
+                });
             }
         }
     }

@@ -8,7 +8,6 @@ package net.sf.ehcache.util.concurrent;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.impl.UnboundedPool;
-import net.sf.ehcache.util.concurrent.ThreadLocalRandom;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -26,6 +25,7 @@ import java.util.Iterator;
 import java.util.Enumeration;
 import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.atomic.AtomicReference;
@@ -1259,7 +1259,12 @@ public class ConcurrentHashMap<K, V>
      * non-null.  If resulting value is null, delete.
      */
     private final Object internalReplace(Object k, Object v, Object cv) {
-        int h = spread(k.hashCode());
+        return internalReplace(k, v, cv, null);
+    }
+
+    private final Object internalReplace(Object k, Object v, Object cv, Callable<Void> hook) {
+      RuntimeException runtimeException = null;
+      int h = spread(k.hashCode());
         Object oldVal = null;
         final int newSize;
         if (v != null) {
@@ -1293,6 +1298,13 @@ public class ConcurrentHashMap<K, V>
                                     poolAccessor.delete(p.size);
                                     p.size = newSize > 0 ? newSize : 0;
                                 }
+                            }
+                        }
+                        if (deleted && hook != null) {
+                            try {
+                                hook.call();
+                            } catch (Throwable e) {
+                                runtimeException = e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
                             }
                         }
                     } finally {
@@ -1344,6 +1356,13 @@ public class ConcurrentHashMap<K, V>
                                 break;
                         }
                     }
+                    if (deleted && hook != null) {
+                        try {
+                            hook.call();
+                        } catch (Throwable e) {
+                            runtimeException = e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
+                        }
+                    }
                 } finally {
                     if (!f.casHash(fh | LOCKED, fh)) {
                         f.hash = fh;
@@ -1359,6 +1378,9 @@ public class ConcurrentHashMap<K, V>
         }
         if(newSize > 0 && oldVal == null) {
             poolAccessor.delete(newSize);
+        }
+        if (runtimeException != null) {
+            throw runtimeException;
         }
         return oldVal;
     }
@@ -3182,6 +3204,14 @@ public class ConcurrentHashMap<K, V>
         if (value == null)
             return false;
         return internalReplace(key, null, value) != null;
+    }
+
+    protected boolean remove(Object key, Object value, Callable<Void> hook) {
+        if (key == null)
+            throw new NullPointerException();
+        if (value == null)
+            return false;
+        return internalReplace(key, null, value, hook) != null;
     }
 
     /**
