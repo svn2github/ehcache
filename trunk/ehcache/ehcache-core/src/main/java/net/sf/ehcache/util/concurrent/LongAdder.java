@@ -129,7 +129,7 @@ public class LongAdder extends Striped64 implements Serializable {
     public long sumThenReset() {
         long sum = base;
         Cell[] as = cells;
-        base = 0L;
+        BASE_UPDATER.set(this, 0);
         if (as != null) {
             int n = as.length;
             for (int i = 0; i < n; ++i) {
@@ -193,9 +193,9 @@ public class LongAdder extends Striped64 implements Serializable {
     private void readObject(ObjectInputStream s)
         throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        busy = 0;
+        BUSY_UPDATER.set(this, 0);
         cells = null;
-        base = s.readLong();
+        BASE_UPDATER.set(this, s.readLong());
     }
 
 }

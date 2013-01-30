@@ -5,10 +5,10 @@
  */
 
 package net.sf.ehcache.util.concurrent;
-import sun.misc.Unsafe;
 
-import java.lang.reflect.Field;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
  * A package-local class holding common representation and mechanics
@@ -92,27 +92,13 @@ abstract class Striped64 extends Number {
         volatile long p0, p1, p2, p3, p4, p5, p6;
         volatile long value;
         volatile long q0, q1, q2, q3, q4, q5, q6;
-        Cell(long x) { value = x; }
+        Cell(long x) { VALUE_UPDATER.set(this, x); }
 
         final boolean cas(long cmp, long val) {
-            return UNSAFE.compareAndSwapLong(this, valueOffset, cmp, val);
+            return VALUE_UPDATER.compareAndSet(this, cmp, val);
         }
 
-        // Unsafe mechanics
-        private static final sun.misc.Unsafe UNSAFE;
-        private static final long valueOffset;
-        static {
-            try {
-                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-                unsafeField.setAccessible(true);
-                UNSAFE = (Unsafe)unsafeField.get(null);
-                Class<?> ak = Cell.class;
-                valueOffset = UNSAFE.objectFieldOffset
-                    (ak.getDeclaredField("value"));
-            } catch (Exception e) {
-                throw new Error(e);
-            }
-        }
+        private static final AtomicLongFieldUpdater<Cell> VALUE_UPDATER = AtomicLongFieldUpdater.newUpdater(Cell.class, "value");
 
     }
 
@@ -173,14 +159,14 @@ abstract class Striped64 extends Number {
      * CASes the base field.
      */
     final boolean casBase(long cmp, long val) {
-        return UNSAFE.compareAndSwapLong(this, baseOffset, cmp, val);
+        return BASE_UPDATER.compareAndSet(this, cmp, val);
     }
 
     /**
      * CASes the busy field from 0 to 1 to acquire lock.
      */
     final boolean casBusy() {
-        return UNSAFE.compareAndSwapInt(this, busyOffset, 0, 1);
+        return BUSY_UPDATER.compareAndSet(this, 0, 1);
     }
 
     /**
@@ -225,7 +211,7 @@ abstract class Striped64 extends Number {
                                     created = true;
                                 }
                             } finally {
-                                busy = 0;
+                                BUSY_UPDATER.set(this, 0);
                             }
                             if (created)
                                 break;
@@ -251,7 +237,7 @@ abstract class Striped64 extends Number {
                             cells = rs;
                         }
                     } finally {
-                        busy = 0;
+                        BUSY_UPDATER.set(this, 0);
                     }
                     collide = false;
                     continue;                   // Retry with expanded table
@@ -270,7 +256,7 @@ abstract class Striped64 extends Number {
                         init = true;
                     }
                 } finally {
-                    busy = 0;
+                    BUSY_UPDATER.set(this, 0);
                 }
                 if (init)
                     break;
@@ -287,7 +273,7 @@ abstract class Striped64 extends Number {
      */
     final void internalReset(long initialValue) {
         Cell[] as = cells;
-        base = initialValue;
+        BASE_UPDATER.set(this, initialValue);
         if (as != null) {
             int n = as.length;
             for (int i = 0; i < n; ++i) {
@@ -298,23 +284,7 @@ abstract class Striped64 extends Number {
         }
     }
 
-    // Unsafe mechanics
-    private static final sun.misc.Unsafe UNSAFE;
-    private static final long baseOffset;
-    private static final long busyOffset;
-    static {
-        try {
-            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            UNSAFE = (Unsafe)unsafeField.get(null);
-            Class<?> sk = Striped64.class;
-            baseOffset = UNSAFE.objectFieldOffset
-                (sk.getDeclaredField("base"));
-            busyOffset = UNSAFE.objectFieldOffset
-                (sk.getDeclaredField("busy"));
-        } catch (Exception e) {
-            throw new Error(e);
-        }
-    }
+    static final AtomicLongFieldUpdater<Striped64> BASE_UPDATER = AtomicLongFieldUpdater.newUpdater(Striped64.class, "base");
+    static final AtomicIntegerFieldUpdater<Striped64> BUSY_UPDATER = AtomicIntegerFieldUpdater.newUpdater(Striped64.class, "busy");
 
 }

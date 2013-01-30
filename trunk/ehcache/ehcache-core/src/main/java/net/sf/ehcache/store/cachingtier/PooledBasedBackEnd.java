@@ -106,21 +106,6 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     }
 
     @Override
-    public V computeIfAbsent(final K key, final Fun<? super K, ? extends V> mappingFunction) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public V computeIfPresent(final K key, final BiFun<? super K, ? super V, ? extends V> remappingFunction) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public V compute(final K key, final BiFun<? super K, ? super V, ? extends V> remappingFunction) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public V remove(final Object key) {
         return super.remove(key);
     }
@@ -143,62 +128,6 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     @Override
     public void clear() {
         super.clear();
-    }
-
-    @Override
-    public void forEach(final BiAction<K, V> action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <U> void forEach(final BiFun<? super K, ? super V, ? extends U> transformer, final Action<U> action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <U> U search(final BiFun<? super K, ? super V, ? extends U> searchFunction) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <U> U reduce(final BiFun<? super K, ? super V, ? extends U> transformer, final BiFun<? super U, ? super U, ? extends U> reducer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public double reduceToDouble(final ObjectByObjectToDouble<? super K, ? super V> transformer,
-                                 final double basis, final DoubleByDoubleToDouble reducer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long reduceToLong(final ObjectByObjectToLong<? super K, ? super V> transformer, final long basis, final LongByLongToLong reducer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int reduceToInt(final ObjectByObjectToInt<? super K, ? super V> transformer, final int basis, final IntByIntToInt reducer) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void forEachKey(final Action<K> action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <U> void forEachKey(final Fun<? super K, ? extends U> transformer, final Action<U> action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void forEachEntry(final Action<Entry<K, V>> action) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <U> void forEachEntry(final Fun<Entry<K, V>, ? extends U> transformer, final Action<U> action) {
-        throw new UnsupportedOperationException();
     }
 
     /**

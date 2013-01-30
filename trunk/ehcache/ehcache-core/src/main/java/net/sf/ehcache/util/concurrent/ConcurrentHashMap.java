@@ -8,9 +8,7 @@ package net.sf.ehcache.util.concurrent;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.impl.UnboundedPool;
-import sun.misc.Unsafe;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +26,10 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
-import java.util.concurrent.atomic.AtomicReference;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * A hash table supporting full concurrency of retrievals and
@@ -220,7 +219,7 @@ import java.io.Serializable;
  */
 @SuppressWarnings("restriction")
 public class ConcurrentHashMap<K, V>
-    implements ConcurrentMap<K, V>, Serializable {
+    implements ConcurrentMap<K, V> {
     private static final long serialVersionUID = 7249069246763182397L;
 
     protected static final ConcurrentHashMap.Node FAKE_NODE = new Node(0, null, null, null, 0);
@@ -561,7 +560,7 @@ public class ConcurrentHashMap<K, V>
      * The array of bins. Lazily initialized upon first insertion.
      * Size is always a power of two. Accessed directly by iterators.
      */
-    transient volatile Node[] table;
+    transient volatile AtomicReferenceArray<Node> table;
 
     private volatile PoolAccessor<PoolParticipant> poolAccessor;
 
@@ -601,16 +600,16 @@ public class ConcurrentHashMap<K, V>
      * inline assignments below.
      */
 
-    static final Node tabAt(Node[] tab, int i) { // used by Iter
-        return (Node)UNSAFE.getObjectVolatile(tab, ((long)i<<ASHIFT)+ABASE);
+    static final Node tabAt(AtomicReferenceArray<Node> tab, int i) { // used by Iter
+        return tab.get(i);
     }
 
-    private static final boolean casTabAt(Node[] tab, int i, Node c, Node v) {
-        return UNSAFE.compareAndSwapObject(tab, ((long)i<<ASHIFT)+ABASE, c, v);
+    private static final boolean casTabAt(AtomicReferenceArray<Node> tab, int i, Node c, Node v) {
+        return tab.compareAndSet(i, c, v);
     }
 
-    private static final void setTabAt(Node[] tab, int i, Node v) {
-        UNSAFE.putObjectVolatile(tab, ((long)i<<ASHIFT)+ABASE, v);
+    private static final void setTabAt(AtomicReferenceArray<Node> tab, int i, Node v) {
+        tab.set(i, v);
     }
 
     /* ---------------- Nodes -------------- */
@@ -637,7 +636,7 @@ public class ConcurrentHashMap<K, V>
         }
 
         public Node(int hash, Object key, Object val, Node next, int size) {
-            this.hash = hash;
+            HASH_UPDATER.set(this, hash);
             this.key = key;
             this.val = val;
             this.next = next;
@@ -646,7 +645,7 @@ public class ConcurrentHashMap<K, V>
 
         /** CompareAndSet the hash field */
         final boolean casHash(int cmp, int val) {
-            return UNSAFE.compareAndSwapInt(this, hashOffset, cmp, val);
+            return HASH_UPDATER.compareAndSet(this, cmp, val);
         }
 
         /** The number of spins before blocking for a lock */
@@ -670,8 +669,8 @@ public class ConcurrentHashMap<K, V>
          * necessary in the only usages of this method, but enables
          * use in other future contexts.
          */
-        final void tryAwaitLock(Node[] tab, int i) {
-            if (tab != null && i >= 0 && i < tab.length) { // sanity check
+        final void tryAwaitLock(AtomicReferenceArray<Node> tab, int i) {
+            if (tab != null && i >= 0 && i < tab.length()) { // sanity check
                 int r = ThreadLocalRandom.current().nextInt(); // randomize spins
                 int spins = MAX_SPINS, h;
                 while (tabAt(tab, i) == this && ((h = hash) & LOCKED) != 0) {
@@ -702,22 +701,7 @@ public class ConcurrentHashMap<K, V>
             }
         }
 
-        // Unsafe mechanics for casHash
-        private static final sun.misc.Unsafe UNSAFE;
-        private static final long hashOffset;
-
-        static {
-            try {
-                Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-                unsafeField.setAccessible(true);
-                UNSAFE = (Unsafe)unsafeField.get(null);
-                Class<?> k = Node.class;
-                hashOffset = UNSAFE.objectFieldOffset
-                    (k.getDeclaredField("hash"));
-            } catch (Exception e) {
-                throw new Error(e);
-            }
-        }
+        static final AtomicIntegerFieldUpdater<Node> HASH_UPDATER = AtomicIntegerFieldUpdater.newUpdater(Node.class, "hash");
     }
 
     /* ---------------- TreeBins -------------- */
@@ -1218,9 +1202,9 @@ public class ConcurrentHashMap<K, V>
      * Fails to replace if the given key is non-comparable or table
      * is, or needs, resizing.
      */
-    private final void replaceWithTreeBin(Node[] tab, int index, Object key) {
+    private final void replaceWithTreeBin(AtomicReferenceArray<Node> tab, int index, Object key) {
         if ((key instanceof Comparable) &&
-            (tab.length >= MAXIMUM_CAPACITY || counter.sum() < (long)sizeCtl)) {
+            (tab.length() >= MAXIMUM_CAPACITY || counter.sum() < (long)sizeCtl)) {
             TreeBin t = new TreeBin();
             for (Node e = tabAt(tab, index); e != null; e = e.next)
                 t.putTreeNode(e.hash & HASH_BITS, e.key, e.val);
@@ -1233,14 +1217,14 @@ public class ConcurrentHashMap<K, V>
     /** Implementation for get and containsKey */
     private final Object internalGet(Object k) {
         int h = spread(k.hashCode());
-        retry: for (Node[] tab = table; tab != null;) {
+        retry: for (AtomicReferenceArray<Node> tab = table; tab != null;) {
             Node e, p; Object ek, ev; int eh;      // locals to read fields once
-            for (e = tabAt(tab, (tab.length - 1) & h); e != null; e = e.next) {
+            for (e = tabAt(tab, (tab.length() - 1) & h); e != null; e = e.next) {
                 if ((eh = e.hash) == MOVED) {
                     if ((ek = e.key) instanceof TreeBin)  // search TreeBin
                         return ((TreeBin)ek).getValue(h, k);
                     else {                        // restart with new table
-                        tab = (Node[])ek;
+                        tab = (AtomicReferenceArray<Node>)ek;
                         continue retry;
                     }
                 }
@@ -1272,10 +1256,10 @@ public class ConcurrentHashMap<K, V>
         } else {
             newSize = 0;
         }
-        for (Node[] tab = table;;) {
+        for (AtomicReferenceArray<Node> tab = table;;) {
             Node f; int i, fh; Object fk;
             if (tab == null ||
-                (f = tabAt(tab, i = (tab.length - 1) & h)) == null)
+                (f = tabAt(tab, i = (tab.length() - 1) & h)) == null)
                 break;
             else if ((fh = f.hash) == MOVED) {
                 if ((fk = f.key) instanceof TreeBin) {
@@ -1317,7 +1301,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 }
                 else
-                    tab = (Node[])fk;
+                    tab = (AtomicReferenceArray<Node>)fk;
             }
             else if ((fh & HASH_BITS) != h && f.next == null) // precheck
                 break;                          // rules out possible existence
@@ -1365,7 +1349,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 } finally {
                     if (!f.casHash(fh | LOCKED, fh)) {
-                        f.hash = fh;
+                        Node.HASH_UPDATER.set(f, fh);
                         synchronized (f) { f.notifyAll(); };
                     }
                 }
@@ -1417,11 +1401,11 @@ public class ConcurrentHashMap<K, V>
     private final Object internalPut(Object k, Object v) {
         int h = spread(k.hashCode());
         int count = 0;
-        for (Node[] tab = table;;) {
+        for (AtomicReferenceArray<Node> tab = table;;) {
             int i; Node f; int fh; Object fk;
             if (tab == null)
                 tab = initTable();
-            else if ((f = tabAt(tab, i = (tab.length - 1) & h)) == null) {
+            else if ((f = tabAt(tab, i = (tab.length() - 1) & h)) == null) {
                 if (casTabAt(tab, i, null, new Node(h, k, v, null)))
                     break;                   // no lock when adding to empty bin
             }
@@ -1449,7 +1433,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 }
                 else
-                    tab = (Node[])fk;
+                    tab = (AtomicReferenceArray<Node>)fk;
             }
             else if ((fh & LOCKED) != 0) {
                 checkForResize();
@@ -1480,14 +1464,14 @@ public class ConcurrentHashMap<K, V>
                     }
                 } finally {                  // unlock and signal if needed
                     if (!f.casHash(fh | LOCKED, fh)) {
-                        f.hash = fh;
+                        Node.HASH_UPDATER.set(f, fh);
                         synchronized (f) { f.notifyAll(); };
                     }
                 }
                 if (count != 0) {
                     if (oldVal != null)
                         return oldVal;
-                    if (tab.length <= 64)
+                    if (tab.length() <= 64)
                         count = 2;
                     break;
                 }
@@ -1507,11 +1491,11 @@ public class ConcurrentHashMap<K, V>
     protected final Object internalPutIfAbsent(Object k, Object v, final int size) {
         int h = spread(k.hashCode());
         int count = 0;
-        for (Node[] tab = table;;) {
+        for (AtomicReferenceArray<Node> tab = table;;) {
             int i; Node f; int fh; Object fk, fv;
             if (tab == null)
                 tab = initTable();
-            else if ((f = tabAt(tab, i = (tab.length - 1) & h)) == null) {
+            else if ((f = tabAt(tab, i = (tab.length() - 1) & h)) == null) {
                 if (casTabAt(tab, i, null, new Node(h, k, v, null, size)))
                     break;
             }
@@ -1537,7 +1521,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 }
                 else
-                    tab = (Node[])fk;
+                    tab = (AtomicReferenceArray<Node>)fk;
             }
             else if ((fh & HASH_BITS) == h && (fv = f.val) != null &&
                      ((fk = f.key) == k || k.equals(fk)))
@@ -1584,14 +1568,14 @@ public class ConcurrentHashMap<K, V>
                         }
                     } finally {
                         if (!f.casHash(fh | LOCKED, fh)) {
-                            f.hash = fh;
+                            Node.HASH_UPDATER.set(f, fh);
                             synchronized (f) { f.notifyAll(); };
                         }
                     }
                     if (count != 0) {
                         if (oldVal != null)
                             return oldVal;
-                        if (tab.length <= 64)
+                        if (tab.length() <= 64)
                             count = 2;
                         break;
                     }
@@ -1602,367 +1586,6 @@ public class ConcurrentHashMap<K, V>
         if (count > 1)
             checkForResize();
         return null;
-    }
-
-    /** Implementation for computeIfAbsent */
-    private final Object internalComputeIfAbsent(K k,
-                                                 Fun<? super K, ?> mf) {
-        int h = spread(k.hashCode());
-        Object val = null;
-        int count = 0;
-        for (Node[] tab = table;;) {
-            Node f; int i, fh; Object fk, fv;
-            if (tab == null)
-                tab = initTable();
-            else if ((f = tabAt(tab, i = (tab.length - 1) & h)) == null) {
-                Node node = new Node(fh = h | LOCKED, k, null, null);
-                if (casTabAt(tab, i, null, node)) {
-                    count = 1;
-                    try {
-                        if ((val = mf.apply(k)) != null)
-                            node.val = val;
-                    } finally {
-                        if (val == null)
-                            setTabAt(tab, i, null);
-                        if (!node.casHash(fh, h)) {
-                            node.hash = h;
-                            synchronized (node) { node.notifyAll(); };
-                        }
-                    }
-                }
-                if (count != 0)
-                    break;
-            }
-            else if ((fh = f.hash) == MOVED) {
-                if ((fk = f.key) instanceof TreeBin) {
-                    TreeBin t = (TreeBin)fk;
-                    boolean added = false;
-                    t.acquire(0);
-                    try {
-                        if (tabAt(tab, i) == f) {
-                            count = 1;
-                            TreeNode p = t.getTreeNode(h, k, t.root);
-                            if (p != null)
-                                val = p.val;
-                            else if ((val = mf.apply(k)) != null) {
-                                added = true;
-                                count = 2;
-                                t.putTreeNode(h, k, val);
-                            }
-                        }
-                    } finally {
-                        t.release(0);
-                    }
-                    if (count != 0) {
-                        if (!added)
-                            return val;
-                        break;
-                    }
-                }
-                else
-                    tab = (Node[])fk;
-            }
-            else if ((fh & HASH_BITS) == h && (fv = f.val) != null &&
-                     ((fk = f.key) == k || k.equals(fk)))
-                return fv;
-            else {
-                Node g = f.next;
-                if (g != null) {
-                    for (Node e = g;;) {
-                        Object ek, ev;
-                        if ((e.hash & HASH_BITS) == h && (ev = e.val) != null &&
-                            ((ek = e.key) == k || k.equals(ek)))
-                            return ev;
-                        if ((e = e.next) == null) {
-                            checkForResize();
-                            break;
-                        }
-                    }
-                }
-                if (((fh = f.hash) & LOCKED) != 0) {
-                    checkForResize();
-                    f.tryAwaitLock(tab, i);
-                }
-                else if (tabAt(tab, i) == f && f.casHash(fh, fh | LOCKED)) {
-                    boolean added = false;
-                    try {
-                        if (tabAt(tab, i) == f) {
-                            count = 1;
-                            for (Node e = f;; ++count) {
-                                Object ek, ev;
-                                if ((e.hash & HASH_BITS) == h &&
-                                    (ev = e.val) != null &&
-                                    ((ek = e.key) == k || k.equals(ek))) {
-                                    val = ev;
-                                    break;
-                                }
-                                Node last = e;
-                                if ((e = e.next) == null) {
-                                    if ((val = mf.apply(k)) != null) {
-                                        added = true;
-                                        last.next = new Node(h, k, val, null);
-                                        if (count >= TREE_THRESHOLD)
-                                            replaceWithTreeBin(tab, i, k);
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    } finally {
-                        if (!f.casHash(fh | LOCKED, fh)) {
-                            f.hash = fh;
-                            synchronized (f) { f.notifyAll(); };
-                        }
-                    }
-                    if (count != 0) {
-                        if (!added)
-                            return val;
-                        if (tab.length <= 64)
-                            count = 2;
-                        break;
-                    }
-                }
-            }
-        }
-        if (val != null) {
-            counter.add(1L);
-            if (count > 1)
-                checkForResize();
-        }
-        return val;
-    }
-
-    /** Implementation for compute */
-    @SuppressWarnings("unchecked") private final Object internalCompute
-    (K k, boolean onlyIfPresent, BiFun<? super K, ? super V, ? extends V> mf) {
-        int h = spread(k.hashCode());
-        Object val = null;
-        int delta = 0;
-        int count = 0;
-        for (Node[] tab = table;;) {
-            Node f; int i, fh; Object fk;
-            if (tab == null)
-                tab = initTable();
-            else if ((f = tabAt(tab, i = (tab.length - 1) & h)) == null) {
-                if (onlyIfPresent)
-                    break;
-                Node node = new Node(fh = h | LOCKED, k, null, null);
-                if (casTabAt(tab, i, null, node)) {
-                    try {
-                        count = 1;
-                        if ((val = mf.apply(k, null)) != null) {
-                            node.val = val;
-                            delta = 1;
-                        }
-                    } finally {
-                        if (delta == 0)
-                            setTabAt(tab, i, null);
-                        if (!node.casHash(fh, h)) {
-                            node.hash = h;
-                            synchronized (node) { node.notifyAll(); };
-                        }
-                    }
-                }
-                if (count != 0)
-                    break;
-            }
-            else if ((fh = f.hash) == MOVED) {
-                if ((fk = f.key) instanceof TreeBin) {
-                    TreeBin t = (TreeBin)fk;
-                    t.acquire(0);
-                    try {
-                        if (tabAt(tab, i) == f) {
-                            count = 1;
-                            TreeNode p = t.getTreeNode(h, k, t.root);
-                            Object pv = (p == null) ? null : p.val;
-                            if ((val = mf.apply(k, (V)pv)) != null) {
-                                if (p != null)
-                                    p.val = val;
-                                else {
-                                    count = 2;
-                                    delta = 1;
-                                    t.putTreeNode(h, k, val);
-                                }
-                            }
-                            else if (p != null) {
-                                delta = -1;
-                                t.deleteTreeNode(p);
-                            }
-                        }
-                    } finally {
-                        t.release(0);
-                    }
-                    if (count != 0)
-                        break;
-                }
-                else
-                    tab = (Node[])fk;
-            }
-            else if ((fh & LOCKED) != 0) {
-                checkForResize();
-                f.tryAwaitLock(tab, i);
-            }
-            else if (f.casHash(fh, fh | LOCKED)) {
-                try {
-                    if (tabAt(tab, i) == f) {
-                        count = 1;
-                        for (Node e = f, pred = null;; ++count) {
-                            Object ek, ev;
-                            if ((e.hash & HASH_BITS) == h &&
-                                (ev = e.val) != null &&
-                                ((ek = e.key) == k || k.equals(ek))) {
-                                val = mf.apply(k, (V)ev);
-                                if (val != null)
-                                    e.val = val;
-                                else {
-                                    delta = -1;
-                                    Node en = e.next;
-                                    if (pred != null)
-                                        pred.next = en;
-                                    else
-                                        setTabAt(tab, i, en);
-                                }
-                                break;
-                            }
-                            pred = e;
-                            if ((e = e.next) == null) {
-                                if (!onlyIfPresent && (val = mf.apply(k, null)) != null) {
-                                    pred.next = new Node(h, k, val, null);
-                                    delta = 1;
-                                    if (count >= TREE_THRESHOLD)
-                                        replaceWithTreeBin(tab, i, k);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                } finally {
-                    if (!f.casHash(fh | LOCKED, fh)) {
-                        f.hash = fh;
-                        synchronized (f) { f.notifyAll(); };
-                    }
-                }
-                if (count != 0) {
-                    if (tab.length <= 64)
-                        count = 2;
-                    break;
-                }
-            }
-        }
-        if (delta != 0) {
-            counter.add((long)delta);
-            if (count > 1)
-                checkForResize();
-        }
-        return val;
-    }
-
-    /** Implementation for merge */
-    @SuppressWarnings("unchecked") private final Object internalMerge
-    (K k, V v, BiFun<? super V, ? super V, ? extends V> mf) {
-        int h = spread(k.hashCode());
-        Object val = null;
-        int delta = 0;
-        int count = 0;
-        for (Node[] tab = table;;) {
-            int i; Node f; int fh; Object fk, fv;
-            if (tab == null)
-                tab = initTable();
-            else if ((f = tabAt(tab, i = (tab.length - 1) & h)) == null) {
-                if (casTabAt(tab, i, null, new Node(h, k, v, null))) {
-                    delta = 1;
-                    val = v;
-                    break;
-                }
-            }
-            else if ((fh = f.hash) == MOVED) {
-                if ((fk = f.key) instanceof TreeBin) {
-                    TreeBin t = (TreeBin)fk;
-                    t.acquire(0);
-                    try {
-                        if (tabAt(tab, i) == f) {
-                            count = 1;
-                            TreeNode p = t.getTreeNode(h, k, t.root);
-                            val = (p == null) ? v : mf.apply((V)p.val, v);
-                            if (val != null) {
-                                if (p != null)
-                                    p.val = val;
-                                else {
-                                    count = 2;
-                                    delta = 1;
-                                    t.putTreeNode(h, k, val);
-                                }
-                            }
-                            else if (p != null) {
-                                delta = -1;
-                                t.deleteTreeNode(p);
-                            }
-                        }
-                    } finally {
-                        t.release(0);
-                    }
-                    if (count != 0)
-                        break;
-                }
-                else
-                    tab = (Node[])fk;
-            }
-            else if ((fh & LOCKED) != 0) {
-                checkForResize();
-                f.tryAwaitLock(tab, i);
-            }
-            else if (f.casHash(fh, fh | LOCKED)) {
-                try {
-                    if (tabAt(tab, i) == f) {
-                        count = 1;
-                        for (Node e = f, pred = null;; ++count) {
-                            Object ek, ev;
-                            if ((e.hash & HASH_BITS) == h &&
-                                (ev = e.val) != null &&
-                                ((ek = e.key) == k || k.equals(ek))) {
-                                val = mf.apply(v, (V)ev);
-                                if (val != null)
-                                    e.val = val;
-                                else {
-                                    delta = -1;
-                                    Node en = e.next;
-                                    if (pred != null)
-                                        pred.next = en;
-                                    else
-                                        setTabAt(tab, i, en);
-                                }
-                                break;
-                            }
-                            pred = e;
-                            if ((e = e.next) == null) {
-                                val = v;
-                                pred.next = new Node(h, k, val, null);
-                                delta = 1;
-                                if (count >= TREE_THRESHOLD)
-                                    replaceWithTreeBin(tab, i, k);
-                                break;
-                            }
-                        }
-                    }
-                } finally {
-                    if (!f.casHash(fh | LOCKED, fh)) {
-                        f.hash = fh;
-                        synchronized (f) { f.notifyAll(); };
-                    }
-                }
-                if (count != 0) {
-                    if (tab.length <= 64)
-                        count = 2;
-                    break;
-                }
-            }
-        }
-        if (delta != 0) {
-            counter.add((long)delta);
-            if (count > 1)
-                checkForResize();
-        }
-        return val;
     }
 
     /** Implementation for putAll */
@@ -1979,11 +1602,11 @@ public class ConcurrentHashMap<K, V>
                     break;
                 }
                 int h = spread(k.hashCode());
-                for (Node[] tab = table;;) {
+                for (AtomicReferenceArray<Node> tab = table;;) {
                     int i; Node f; int fh; Object fk;
                     if (tab == null)
                         tab = initTable();
-                    else if ((f = tabAt(tab, i = (tab.length - 1) & h)) == null){
+                    else if ((f = tabAt(tab, i = (tab.length() - 1) & h)) == null){
                         if (casTabAt(tab, i, null, new Node(h, k, v, null))) {
                             ++delta;
                             break;
@@ -2012,7 +1635,7 @@ public class ConcurrentHashMap<K, V>
                                 break;
                         }
                         else
-                            tab = (Node[])fk;
+                            tab = (AtomicReferenceArray<Node>)fk;
                     }
                     else if ((fh & LOCKED) != 0) {
                         counter.add(delta);
@@ -2045,7 +1668,7 @@ public class ConcurrentHashMap<K, V>
                             }
                         } finally {
                             if (!f.casHash(fh | LOCKED, fh)) {
-                                f.hash = fh;
+                                Node.HASH_UPDATER.set(f, fh);
                                 synchronized (f) { f.notifyAll(); };
                             }
                         }
@@ -2087,20 +1710,20 @@ public class ConcurrentHashMap<K, V>
     /**
      * Initializes table, using the size recorded in sizeCtl.
      */
-    private final Node[] initTable() {
-        Node[] tab; int sc;
+    private final AtomicReferenceArray<Node> initTable() {
+        AtomicReferenceArray<Node> tab; int sc;
         while ((tab = table) == null) {
             if ((sc = sizeCtl) < 0)
                 Thread.yield(); // lost initialization race; just spin
-            else if (UNSAFE.compareAndSwapInt(this, sizeCtlOffset, sc, -1)) {
+            else if (SIZECTL_UPDATER.compareAndSet(this, sc, -1)) {
                 try {
                     if ((tab = table) == null) {
                         int n = (sc > 0) ? sc : DEFAULT_CAPACITY;
-                        tab = table = new Node[n];
+                        tab = table = new AtomicReferenceArray<Node>(n);
                         sc = n - (n >>> 2);
                     }
                 } finally {
-                    sizeCtl = sc;
+                    SIZECTL_UPDATER.set(this, sc);
                 }
                 break;
             }
@@ -2115,18 +1738,18 @@ public class ConcurrentHashMap<K, V>
      * are lagging additions.
      */
     private final void checkForResize() {
-        Node[] tab; int n, sc;
+        AtomicReferenceArray<Node> tab; int n, sc;
         while ((tab = table) != null &&
-               (n = tab.length) < MAXIMUM_CAPACITY &&
+               (n = tab.length()) < MAXIMUM_CAPACITY &&
                (sc = sizeCtl) >= 0 && counter.sum() >= (long)sc &&
-               UNSAFE.compareAndSwapInt(this, sizeCtlOffset, sc, -1)) {
+               SIZECTL_UPDATER.compareAndSet(this, sc, -1)) {
             try {
                 if (tab == table) {
                     table = rebuild(tab);
                     sc = (n << 1) - (n >>> 1);
                 }
             } finally {
-                sizeCtl = sc;
+                SIZECTL_UPDATER.set(this, sc);
             }
         }
     }
@@ -2141,30 +1764,30 @@ public class ConcurrentHashMap<K, V>
             tableSizeFor(size + (size >>> 1) + 1);
         int sc;
         while ((sc = sizeCtl) >= 0) {
-            Node[] tab = table; int n;
-            if (tab == null || (n = tab.length) == 0) {
+            AtomicReferenceArray<Node> tab = table; int n;
+            if (tab == null || (n = tab.length()) == 0) {
                 n = (sc > c) ? sc : c;
-                if (UNSAFE.compareAndSwapInt(this, sizeCtlOffset, sc, -1)) {
+                if (SIZECTL_UPDATER.compareAndSet(this, sc, -1)) {
                     try {
                         if (table == tab) {
-                            table = new Node[n];
+                            table = new AtomicReferenceArray<Node>(n);
                             sc = n - (n >>> 2);
                         }
                     } finally {
-                        sizeCtl = sc;
+                        SIZECTL_UPDATER.set(this, sc);
                     }
                 }
             }
             else if (c <= sc || n >= MAXIMUM_CAPACITY)
                 break;
-            else if (UNSAFE.compareAndSwapInt(this, sizeCtlOffset, sc, -1)) {
+            else if (SIZECTL_UPDATER.compareAndSet(this, sc, -1)) {
                 try {
                     if (table == tab) {
                         table = rebuild(tab);
                         sc = (n << 1) - (n >>> 1);
                     }
                 } finally {
-                    sizeCtl = sc;
+                    SIZECTL_UPDATER.set(this, sc);
                 }
             }
         }
@@ -2176,9 +1799,9 @@ public class ConcurrentHashMap<K, V>
      *
      * @return the new table
      */
-    private static final Node[] rebuild(Node[] tab) {
-        int n = tab.length;
-        Node[] nextTab = new Node[n << 1];
+    private static final AtomicReferenceArray<Node> rebuild(AtomicReferenceArray<Node> tab) {
+        int n = tab.length();
+        AtomicReferenceArray<Node> nextTab = new AtomicReferenceArray<Node>(n << 1);
         Node fwd = new Node(MOVED, nextTab, null, null);
         int[] buffer = null;       // holds bins to revisit; null until needed
         Node rev = null;           // reverse forwarder; null until needed
@@ -2201,7 +1824,7 @@ public class ConcurrentHashMap<K, V>
                     setTabAt(nextTab, i + n, null);
                     setTabAt(tab, i, fwd);
                     if (!g.casHash(MOVED|LOCKED, MOVED)) {
-                        g.hash = MOVED;
+                        Node.HASH_UPDATER.set(g, MOVED);
                         synchronized (g) { g.notifyAll(); }
                     }
                 }
@@ -2235,7 +1858,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 } finally {
                     if (!f.casHash(fh | LOCKED, fh)) {
-                        f.hash = fh;
+                        Node.HASH_UPDATER.set(f, fh);
                         synchronized (f) { f.notifyAll(); };
                     }
                 }
@@ -2279,8 +1902,8 @@ public class ConcurrentHashMap<K, V>
      * Splits a normal bin with list headed by e into lo and hi parts;
      * installs in given table.
      */
-    private static void splitBin(Node[] nextTab, int i, Node e) {
-        int bit = nextTab.length >>> 1; // bit to split on
+    private static void splitBin(AtomicReferenceArray<Node> nextTab, int i, Node e) {
+        int bit = nextTab.length() >>> 1; // bit to split on
         int runBit = e.hash & bit;
         Node lastRun = e, lo = null, hi = null;
         for (Node p = e.next; p != null; p = p.next) {
@@ -2310,8 +1933,8 @@ public class ConcurrentHashMap<K, V>
     /**
      * Splits a tree bin into lo and hi parts; installs in given table.
      */
-    private static void splitTreeBin(Node[] nextTab, int i, TreeBin t) {
-        int bit = nextTab.length >>> 1;
+    private static void splitTreeBin(AtomicReferenceArray<Node> nextTab, int i, TreeBin t) {
+        int bit = nextTab.length() >>> 1;
         TreeBin lt = new TreeBin();
         TreeBin ht = new TreeBin();
         int lc = 0, hc = 0;
@@ -2353,8 +1976,8 @@ public class ConcurrentHashMap<K, V>
     private final void internalClear() {
         long delta = 0L; // negative number of deletions
         int i = 0;
-        Node[] tab = table;
-        while (tab != null && i < tab.length) {
+        AtomicReferenceArray<Node> tab = table;
+        while (tab != null && i < tab.length()) {
             int fh; Object fk;
             Node f = tabAt(tab, i);
             if (f == null)
@@ -2380,7 +2003,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 }
                 else
-                    tab = (Node[])fk;
+                    tab = (AtomicReferenceArray<Node>)fk;
             }
             else if ((fh & LOCKED) != 0) {
                 counter.add(delta); // opportunistically update count
@@ -2401,7 +2024,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 } finally {
                     if (!f.casHash(fh | LOCKED, fh)) {
-                        f.hash = fh;
+                        Node.HASH_UPDATER.set(f, fh);
                         synchronized (f) { f.notifyAll(); };
                     }
                 }
@@ -2459,12 +2082,12 @@ public class ConcurrentHashMap<K, V>
      * Serializable, but iterators need not be, we need to add warning
      * suppressions.
      */
-    @SuppressWarnings("serial") static class Traverser<K,V,R> extends CountedCompleter<R> {
+    @SuppressWarnings("serial") static class Traverser<K,V,R> {
         final ConcurrentHashMap<K, V> map;
         Node next;           // the next entry to use
         Object nextKey;      // cached key field of next
         Object nextVal;      // cached val field of next
-        Node[] tab;          // current table; updated if resized
+        AtomicReferenceArray<Node> tab;          // current table; updated if resized
         int index;           // index of bin to use next
         int baseIndex;       // current index of initial table
         int baseLimit;       // index bound for initial table
@@ -2478,13 +2101,12 @@ public class ConcurrentHashMap<K, V>
 
         /** Creates iterator for split() methods and task constructors */
         Traverser(ConcurrentHashMap<K,V> map, Traverser<K,V,?> it, int batch) {
-            super(it);
             this.batch = batch;
             if ((this.map = map) != null && it != null) { // split parent
-                Node[] t;
+                AtomicReferenceArray<Node> t;
                 if ((t = it.tab) == null &&
                     (t = it.tab = map.table) != null)
-                    it.baseLimit = it.baseSize = t.length;
+                    it.baseLimit = it.baseSize = t.length();
                 this.tab = t;
                 this.baseSize = it.baseSize;
                 int hi = this.baseLimit = it.baseLimit;
@@ -2505,11 +2127,11 @@ public class ConcurrentHashMap<K, V>
                     e = e.next;
                 while (e == null) {             // get to next non-null bin
                     ConcurrentHashMap<K, V> m;
-                    Node[] t; int b, i, n; Object ek; // checks must use locals
+                    AtomicReferenceArray<Node> t; int b, i, n; Object ek; // checks must use locals
                     if ((t = tab) != null)
-                        n = t.length;
+                        n = t.length();
                     else if ((m = map) != null && (t = tab = m.table) != null)
-                        n = baseLimit = baseSize = t.length;
+                        n = baseLimit = baseSize = t.length();
                     else
                         break outer;
                     if ((b = baseIndex) >= baseLimit ||
@@ -2519,7 +2141,7 @@ public class ConcurrentHashMap<K, V>
                         if ((ek = e.key) instanceof TreeBin)
                             e = ((TreeBin)ek).first;
                         else {
-                            tab = (Node[])ek;
+                            tab = (AtomicReferenceArray<Node>)ek;
                             continue;           // restarts due to null val
                         }
                     }                           // visit upper slots if present
@@ -2545,37 +2167,6 @@ public class ConcurrentHashMap<K, V>
         public final boolean hasMoreElements() { return hasNext(); }
 
         public void compute() { } // default no-op CountedCompleter body
-
-        /**
-         * Returns a batch value > 0 if this task should (and must) be
-         * split, if so, adding to pending count, and in any case
-         * updating batch value. The initial batch value is approx
-         * exp2 of the number of times (minus one) to split task by
-         * two before executing leaf action. This value is faster to
-         * compute and more convenient to use as a guide to splitting
-         * than is the depth, since it is used while dividing by two
-         * anyway.
-         */
-        final int preSplit() {
-            ConcurrentHashMap<K, V> m; int b; Node[] t;  ForkJoinPool pool;
-            if ((b = batch) < 0 && (m = map) != null) { // force initialization
-                if ((t = tab) == null && (t = tab = m.table) != null)
-                    baseLimit = baseSize = t.length;
-                if (t != null) {
-                    long n = m.counter.sum();
-                    int par = ((pool = getPool()) == null) ?
-                        ForkJoinPool.getCommonPoolParallelism() :
-                        pool.getParallelism();
-                    int sp = par << 3; // slack of 8
-                    b = (n <= 0L) ? 0 : (n < (long)sp) ? (int)n : sp;
-                }
-            }
-            b = (b <= 1 || baseIndex == baseLimit) ? 0 : (b >>> 1);
-            if ((batch = b) > 0)
-                addToPendingCount(1);
-            return b;
-        }
-
     }
 
     /* ---------------- Public operations -------------- */
@@ -2605,7 +2196,7 @@ public class ConcurrentHashMap<K, V>
             MAXIMUM_CAPACITY :
             tableSizeFor(initialCapacity + (initialCapacity >>> 1) + 1));
         this.counter = new LongAdder();
-        this.sizeCtl = cap;
+        SIZECTL_UPDATER.set(this, cap);
         this.poolAccessor = UnboundedPool.UNBOUNDED_ACCESSOR;
     }
 
@@ -2616,7 +2207,7 @@ public class ConcurrentHashMap<K, V>
      */
     public ConcurrentHashMap(Map<? extends K, ? extends V> m) {
         this.counter = new LongAdder();
-        this.sizeCtl = DEFAULT_CAPACITY;
+        SIZECTL_UPDATER.set(this, DEFAULT_CAPACITY);
         this.poolAccessor = UnboundedPool.UNBOUNDED_ACCESSOR;
         internalPutAll(m);
     }
@@ -2668,7 +2259,7 @@ public class ConcurrentHashMap<K, V>
         int cap = (size >= (long)MAXIMUM_CAPACITY) ?
             MAXIMUM_CAPACITY : tableSizeFor((int)size);
         this.counter = new LongAdder();
-        this.sizeCtl = cap;
+        SIZECTL_UPDATER.set(this, cap);
         this.poolAccessor = UnboundedPool.UNBOUNDED_ACCESSOR;
     }
 
@@ -2753,10 +2344,10 @@ public class ConcurrentHashMap<K, V>
     @Deprecated
     public void recalculateSize(final K k) {
         int h = spread(k.hashCode());
-        for (Node[] tab = table;;) {
+        for (AtomicReferenceArray<Node> tab = table;;) {
             Node f; int i, fh; Object fk;
             if (tab == null ||
-                (f = tabAt(tab, i = (tab.length - 1) & h)) == null)
+                (f = tabAt(tab, i = (tab.length() - 1) & h)) == null)
                 break;
             else if ((fh = f.hash) == MOVED) {
                 if ((fk = f.key) instanceof TreeBin) {
@@ -2797,7 +2388,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 }
                 else
-                    tab = (Node[])fk;
+                    tab = (AtomicReferenceArray<Node>)fk;
             }
             else if ((fh & HASH_BITS) != h && f.next == null) // precheck
                 break;                          // rules out possible existence
@@ -2828,7 +2419,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 } finally {
                     if (!f.casHash(fh | LOCKED, fh)) {
-                        f.hash = fh;
+                        Node.HASH_UPDATER.set(f, fh);
                         synchronized (f) { f.notifyAll(); };
                     }
                 }
@@ -2844,7 +2435,7 @@ public class ConcurrentHashMap<K, V>
                             }
                         } finally {
                             if (!f.casHash(fh | LOCKED, fh)) {
-                                f.hash = fh;
+                                Node.HASH_UPDATER.set(f, fh);
                                 synchronized (f) { f.notifyAll(); };
                             }
                         }
@@ -2860,11 +2451,11 @@ public class ConcurrentHashMap<K, V>
 
         // pick a random starting point in the table
         int randomHash = ThreadLocalRandom.current().nextInt();
-        Node[] tab = table;
+        AtomicReferenceArray<Node> tab = table;
         if(tab == null) {
             return sampled;
         }
-        final int tableStart = randomHash & (tab.length - 1);
+        final int tableStart = randomHash & (tab.length() - 1);
         int tableIndex = tableStart;
         outer:
         do {
@@ -2881,7 +2472,7 @@ public class ConcurrentHashMap<K, V>
                             break outer;
                         }
                     } else {
-                        tab = (Node[])ek;
+                        tab = (AtomicReferenceArray<Node>)ek;
                         break;
                     }
                 } else {
@@ -2891,7 +2482,7 @@ public class ConcurrentHashMap<K, V>
                     }
                 }
             }
-            tableIndex = (tableIndex + 1) & (tab.length - 1);
+            tableIndex = (tableIndex + 1) & (tab.length() - 1);
         } while (tableIndex != tableStart);
 
         return sampled;
@@ -3011,171 +2602,6 @@ public class ConcurrentHashMap<K, V>
      */
     public void putAll(Map<? extends K, ? extends V> m) {
         internalPutAll(m);
-    }
-
-    /**
-     * If the specified key is not already associated with a value,
-     * computes its value using the given mappingFunction and enters
-     * it into the map unless null.  This is equivalent to
-     * <pre> {@code
-     * if (map.containsKey(key))
-     *   return map.get(key);
-     * value = mappingFunction.apply(key);
-     * if (value != null)
-     *   map.put(key, value);
-     * return value;}</pre>
-     *
-     * except that the action is performed atomically.  If the
-     * function returns {@code null} no mapping is recorded. If the
-     * function itself throws an (unchecked) exception, the exception
-     * is rethrown to its caller, and no mapping is recorded.  Some
-     * attempted update operations on this map by other threads may be
-     * blocked while computation is in progress, so the computation
-     * should be short and simple, and must not attempt to update any
-     * other mappings of this Map. The most appropriate usage is to
-     * construct a new object serving as an initial mapped value, or
-     * memoized result, as in:
-     *
-     *  <pre> {@code
-     * map.computeIfAbsent(key, new Fun<K, V>() {
-     *   public V map(K k) { return new Value(f(k)); }});}</pre>
-     *
-     * @param key key with which the specified value is to be associated
-     * @param mappingFunction the function to compute a value
-     * @return the current (existing or computed) value associated with
-     *         the specified key, or null if the computed value is null
-     * @throws NullPointerException if the specified key or mappingFunction
-     *         is null
-     * @throws IllegalStateException if the computation detectably
-     *         attempts a recursive update to this map that would
-     *         otherwise never complete
-     * @throws RuntimeException or Error if the mappingFunction does so,
-     *         in which case the mapping is left unestablished
-     */
-    @SuppressWarnings("unchecked") public V computeIfAbsent
-    (K key, Fun<? super K, ? extends V> mappingFunction) {
-        if (key == null || mappingFunction == null)
-            throw new NullPointerException();
-        return (V)internalComputeIfAbsent(key, mappingFunction);
-    }
-
-    /**
-     * If the given key is present, computes a new mapping value given a key and
-     * its current mapped value. This is equivalent to
-     *  <pre> {@code
-     *   if (map.containsKey(key)) {
-     *     value = remappingFunction.apply(key, map.get(key));
-     *     if (value != null)
-     *       map.put(key, value);
-     *     else
-     *       map.remove(key);
-     *   }
-     * }</pre>
-     *
-     * except that the action is performed atomically.  If the
-     * function returns {@code null}, the mapping is removed.  If the
-     * function itself throws an (unchecked) exception, the exception
-     * is rethrown to its caller, and the current mapping is left
-     * unchanged.  Some attempted update operations on this map by
-     * other threads may be blocked while computation is in progress,
-     * so the computation should be short and simple, and must not
-     * attempt to update any other mappings of this Map.
-     *
-     * @param key key with which the specified value is to be associated
-     * @param remappingFunction the function to compute a value
-     * @return the new value associated with the specified key, or null if none
-     * @throws NullPointerException if the specified key or remappingFunction
-     *         is null
-     * @throws IllegalStateException if the computation detectably
-     *         attempts a recursive update to this map that would
-     *         otherwise never complete
-     * @throws RuntimeException or Error if the remappingFunction does so,
-     *         in which case the mapping is unchanged
-     */
-    @SuppressWarnings("unchecked") public V computeIfPresent
-    (K key, BiFun<? super K, ? super V, ? extends V> remappingFunction) {
-        if (key == null || remappingFunction == null)
-            throw new NullPointerException();
-        return (V)internalCompute(key, true, remappingFunction);
-    }
-
-    /**
-     * Computes a new mapping value given a key and
-     * its current mapped value (or {@code null} if there is no current
-     * mapping). This is equivalent to
-     *  <pre> {@code
-     *   value = remappingFunction.apply(key, map.get(key));
-     *   if (value != null)
-     *     map.put(key, value);
-     *   else
-     *     map.remove(key);
-     * }</pre>
-     *
-     * except that the action is performed atomically.  If the
-     * function returns {@code null}, the mapping is removed.  If the
-     * function itself throws an (unchecked) exception, the exception
-     * is rethrown to its caller, and the current mapping is left
-     * unchanged.  Some attempted update operations on this map by
-     * other threads may be blocked while computation is in progress,
-     * so the computation should be short and simple, and must not
-     * attempt to update any other mappings of this Map. For example,
-     * to either create or append new messages to a value mapping:
-     *
-     * <pre> {@code
-     * Map<Key, String> map = ...;
-     * final String msg = ...;
-     * map.compute(key, new BiFun<Key, String, String>() {
-     *   public String apply(Key k, String v) {
-     *    return (v == null) ? msg : v + msg;});}}</pre>
-     *
-     * @param key key with which the specified value is to be associated
-     * @param remappingFunction the function to compute a value
-     * @return the new value associated with the specified key, or null if none
-     * @throws NullPointerException if the specified key or remappingFunction
-     *         is null
-     * @throws IllegalStateException if the computation detectably
-     *         attempts a recursive update to this map that would
-     *         otherwise never complete
-     * @throws RuntimeException or Error if the remappingFunction does so,
-     *         in which case the mapping is unchanged
-     */
-    @SuppressWarnings("unchecked") public V compute
-    (K key, BiFun<? super K, ? super V, ? extends V> remappingFunction) {
-        if (key == null || remappingFunction == null)
-            throw new NullPointerException();
-        return (V)internalCompute(key, false, remappingFunction);
-    }
-
-    /**
-     * If the specified key is not already associated
-     * with a value, associate it with the given value.
-     * Otherwise, replace the value with the results of
-     * the given remapping function. This is equivalent to:
-     *  <pre> {@code
-     *   if (!map.containsKey(key))
-     *     map.put(value);
-     *   else {
-     *     newValue = remappingFunction.apply(map.get(key), value);
-     *     if (value != null)
-     *       map.put(key, value);
-     *     else
-     *       map.remove(key);
-     *   }
-     * }</pre>
-     * except that the action is performed atomically.  If the
-     * function returns {@code null}, the mapping is removed.  If the
-     * function itself throws an (unchecked) exception, the exception
-     * is rethrown to its caller, and the current mapping is left
-     * unchanged.  Some attempted update operations on this map by
-     * other threads may be blocked while computation is in progress,
-     * so the computation should be short and simple, and must not
-     * attempt to update any other mappings of this Map.
-     */
-    @SuppressWarnings("unchecked") public V merge
-    (K key, V value, BiFun<? super V, ? super V, ? extends V> remappingFunction) {
-        if (key == null || value == null || remappingFunction == null)
-            throw new NullPointerException();
-        return (V)internalMerge(key, value, remappingFunction);
     }
 
     /**
@@ -3566,664 +2992,6 @@ public class ConcurrentHashMap<K, V>
         Segment(float lf) { this.loadFactor = lf; }
     }
 
-    /**
-     * Saves the state of the {@code ConcurrentHashMap} instance to a
-     * stream (i.e., serializes it).
-     * @param s the stream
-     * @serialData
-     * the key (Object) and value (Object)
-     * for each key-value mapping, followed by a null pair.
-     * The key-value mappings are emitted in no particular order.
-     */
-    @SuppressWarnings("unchecked") private void writeObject(java.io.ObjectOutputStream s)
-        throws java.io.IOException {
-        if (segments == null) { // for serialization compatibility
-            segments = (Segment<K,V>[])
-                new Segment<?,?>[DEFAULT_CONCURRENCY_LEVEL];
-            for (int i = 0; i < segments.length; ++i)
-                segments[i] = new Segment<K,V>(LOAD_FACTOR);
-        }
-        s.defaultWriteObject();
-        Traverser<K,V,Object> it = new Traverser<K,V,Object>(this);
-        Object v;
-        while ((v = it.advance()) != null) {
-            s.writeObject(it.nextKey);
-            s.writeObject(v);
-        }
-        s.writeObject(null);
-        s.writeObject(null);
-        segments = null; // throw away
-    }
-
-    /**
-     * Reconstitutes the instance from a stream (that is, deserializes it).
-     * @param s the stream
-     */
-    @SuppressWarnings("unchecked") private void readObject(java.io.ObjectInputStream s)
-        throws java.io.IOException, ClassNotFoundException {
-        s.defaultReadObject();
-        this.segments = null; // unneeded
-        // initialize transient final field
-        UNSAFE.putObjectVolatile(this, counterOffset, new LongAdder());
-
-        // Create all nodes, then place in table once size is known
-        long size = 0L;
-        Node p = null;
-        for (;;) {
-            K k = (K) s.readObject();
-            V v = (V) s.readObject();
-            if (k != null && v != null) {
-                int h = spread(k.hashCode());
-                p = new Node(h, k, v, p);
-                ++size;
-            }
-            else
-                break;
-        }
-        if (p != null) {
-            boolean init = false;
-            int n;
-            if (size >= (long)(MAXIMUM_CAPACITY >>> 1))
-                n = MAXIMUM_CAPACITY;
-            else {
-                int sz = (int)size;
-                n = tableSizeFor(sz + (sz >>> 1) + 1);
-            }
-            int sc = sizeCtl;
-            boolean collide = false;
-            if (n > sc &&
-                UNSAFE.compareAndSwapInt(this, sizeCtlOffset, sc, -1)) {
-                try {
-                    if (table == null) {
-                        init = true;
-                        Node[] tab = new Node[n];
-                        int mask = n - 1;
-                        while (p != null) {
-                            int j = p.hash & mask;
-                            Node next = p.next;
-                            Node q = p.next = tabAt(tab, j);
-                            setTabAt(tab, j, p);
-                            if (!collide && q != null && q.hash == p.hash)
-                                collide = true;
-                            p = next;
-                        }
-                        table = tab;
-                        counter.add(size);
-                        sc = n - (n >>> 2);
-                    }
-                } finally {
-                    sizeCtl = sc;
-                }
-                if (collide) { // rescan and convert to TreeBins
-                    Node[] tab = table;
-                    for (int i = 0; i < tab.length; ++i) {
-                        int c = 0;
-                        for (Node e = tabAt(tab, i); e != null; e = e.next) {
-                            if (++c > TREE_THRESHOLD &&
-                                (e.key instanceof Comparable)) {
-                                replaceWithTreeBin(tab, i, e.key);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            if (!init) { // Can only happen if unsafely published.
-                while (p != null) {
-                    internalPut(p.key, p.val);
-                    p = p.next;
-                }
-            }
-        }
-    }
-
-
-    // -------------------------------------------------------
-
-    // Sams
-    /** Interface describing a void action of one argument */
-    public interface Action<A> { void apply(A a); }
-    /** Interface describing a void action of two arguments */
-    public interface BiAction<A,B> { void apply(A a, B b); }
-    /** Interface describing a function of one argument */
-    public interface Fun<A,T> { T apply(A a); }
-    /** Interface describing a function of two arguments */
-    public interface BiFun<A,B,T> { T apply(A a, B b); }
-    /** Interface describing a function of no arguments */
-    public interface Generator<T> { T apply(); }
-    /** Interface describing a function mapping its argument to a double */
-    public interface ObjectToDouble<A> { double apply(A a); }
-    /** Interface describing a function mapping its argument to a long */
-    public interface ObjectToLong<A> { long apply(A a); }
-    /** Interface describing a function mapping its argument to an int */
-    public interface ObjectToInt<A> {int apply(A a); }
-    /** Interface describing a function mapping two arguments to a double */
-    public interface ObjectByObjectToDouble<A,B> { double apply(A a, B b); }
-    /** Interface describing a function mapping two arguments to a long */
-    public interface ObjectByObjectToLong<A,B> { long apply(A a, B b); }
-    /** Interface describing a function mapping two arguments to an int */
-    public interface ObjectByObjectToInt<A,B> {int apply(A a, B b); }
-    /** Interface describing a function mapping a double to a double */
-    public interface DoubleToDouble { double apply(double a); }
-    /** Interface describing a function mapping a long to a long */
-    public interface LongToLong { long apply(long a); }
-    /** Interface describing a function mapping an int to an int */
-    public interface IntToInt { int apply(int a); }
-    /** Interface describing a function mapping two doubles to a double */
-    public interface DoubleByDoubleToDouble { double apply(double a, double b); }
-    /** Interface describing a function mapping two longs to a long */
-    public interface LongByLongToLong { long apply(long a, long b); }
-    /** Interface describing a function mapping two ints to an int */
-    public interface IntByIntToInt { int apply(int a, int b); }
-
-
-    // -------------------------------------------------------
-
-    /**
-     * Performs the given action for each (key, value).
-     *
-     * @param action the action
-     */
-    public void forEach(BiAction<K,V> action) {
-        ForkJoinTasks.forEach
-            (this, action).invoke();
-    }
-
-    /**
-     * Performs the given action for each non-null transformation
-     * of each (key, value).
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case the action is not applied).
-     * @param action the action
-     */
-    public <U> void forEach(BiFun<? super K, ? super V, ? extends U> transformer,
-                            Action<U> action) {
-        ForkJoinTasks.forEach
-            (this, transformer, action).invoke();
-    }
-
-    /**
-     * Returns a non-null result from applying the given search
-     * function on each (key, value), or null if none.  Upon
-     * success, further element processing is suppressed and the
-     * results of any other parallel invocations of the search
-     * function are ignored.
-     *
-     * @param searchFunction a function returning a non-null
-     * result on success, else null
-     * @return a non-null result from applying the given search
-     * function on each (key, value), or null if none
-     */
-    public <U> U search(BiFun<? super K, ? super V, ? extends U> searchFunction) {
-        return ForkJoinTasks.search
-            (this, searchFunction).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all (key, value) pairs using the given reducer to
-     * combine values, or null if none.
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case it is not combined).
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all (key, value) pairs
-     */
-    public <U> U reduce(BiFun<? super K, ? super V, ? extends U> transformer,
-                        BiFun<? super U, ? super U, ? extends U> reducer) {
-        return ForkJoinTasks.reduce
-            (this, transformer, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all (key, value) pairs using the given reducer to
-     * combine values, and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all (key, value) pairs
-     */
-    public double reduceToDouble(ObjectByObjectToDouble<? super K, ? super V> transformer,
-                                 double basis,
-                                 DoubleByDoubleToDouble reducer) {
-        return ForkJoinTasks.reduceToDouble
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all (key, value) pairs using the given reducer to
-     * combine values, and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all (key, value) pairs
-     */
-    public long reduceToLong(ObjectByObjectToLong<? super K, ? super V> transformer,
-                             long basis,
-                             LongByLongToLong reducer) {
-        return ForkJoinTasks.reduceToLong
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all (key, value) pairs using the given reducer to
-     * combine values, and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all (key, value) pairs
-     */
-    public int reduceToInt(ObjectByObjectToInt<? super K, ? super V> transformer,
-                           int basis,
-                           IntByIntToInt reducer) {
-        return ForkJoinTasks.reduceToInt
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Performs the given action for each key.
-     *
-     * @param action the action
-     */
-    public void forEachKey(Action<K> action) {
-        ForkJoinTasks.forEachKey
-            (this, action).invoke();
-    }
-
-    /**
-     * Performs the given action for each non-null transformation
-     * of each key.
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case the action is not applied).
-     * @param action the action
-     */
-    public <U> void forEachKey(Fun<? super K, ? extends U> transformer,
-                               Action<U> action) {
-        ForkJoinTasks.forEachKey
-            (this, transformer, action).invoke();
-    }
-
-    /**
-     * Returns a non-null result from applying the given search
-     * function on each key, or null if none. Upon success,
-     * further element processing is suppressed and the results of
-     * any other parallel invocations of the search function are
-     * ignored.
-     *
-     * @param searchFunction a function returning a non-null
-     * result on success, else null
-     * @return a non-null result from applying the given search
-     * function on each key, or null if none
-     */
-    public <U> U searchKeys(Fun<? super K, ? extends U> searchFunction) {
-        return ForkJoinTasks.searchKeys
-            (this, searchFunction).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating all keys using the given
-     * reducer to combine values, or null if none.
-     *
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating all keys using the given
-     * reducer to combine values, or null if none
-     */
-    public K reduceKeys(BiFun<? super K, ? super K, ? extends K> reducer) {
-        return ForkJoinTasks.reduceKeys
-            (this, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all keys using the given reducer to combine values, or
-     * null if none.
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case it is not combined).
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all keys
-     */
-    public <U> U reduceKeys(Fun<? super K, ? extends U> transformer,
-                            BiFun<? super U, ? super U, ? extends U> reducer) {
-        return ForkJoinTasks.reduceKeys
-            (this, transformer, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all keys using the given reducer to combine values, and
-     * the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return  the result of accumulating the given transformation
-     * of all keys
-     */
-    public double reduceKeysToDouble(ObjectToDouble<? super K> transformer,
-                                     double basis,
-                                     DoubleByDoubleToDouble reducer) {
-        return ForkJoinTasks.reduceKeysToDouble
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all keys using the given reducer to combine values, and
-     * the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all keys
-     */
-    public long reduceKeysToLong(ObjectToLong<? super K> transformer,
-                                 long basis,
-                                 LongByLongToLong reducer) {
-        return ForkJoinTasks.reduceKeysToLong
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all keys using the given reducer to combine values, and
-     * the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all keys
-     */
-    public int reduceKeysToInt(ObjectToInt<? super K> transformer,
-                               int basis,
-                               IntByIntToInt reducer) {
-        return ForkJoinTasks.reduceKeysToInt
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Performs the given action for each value.
-     *
-     * @param action the action
-     */
-    public void forEachValue(Action<V> action) {
-        ForkJoinTasks.forEachValue
-            (this, action).invoke();
-    }
-
-    /**
-     * Performs the given action for each non-null transformation
-     * of each value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case the action is not applied).
-     */
-    public <U> void forEachValue(Fun<? super V, ? extends U> transformer,
-                                 Action<U> action) {
-        ForkJoinTasks.forEachValue
-            (this, transformer, action).invoke();
-    }
-
-    /**
-     * Returns a non-null result from applying the given search
-     * function on each value, or null if none.  Upon success,
-     * further element processing is suppressed and the results of
-     * any other parallel invocations of the search function are
-     * ignored.
-     *
-     * @param searchFunction a function returning a non-null
-     * result on success, else null
-     * @return a non-null result from applying the given search
-     * function on each value, or null if none
-     *
-     */
-    public <U> U searchValues(Fun<? super V, ? extends U> searchFunction) {
-        return ForkJoinTasks.searchValues
-            (this, searchFunction).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating all values using the
-     * given reducer to combine values, or null if none.
-     *
-     * @param reducer a commutative associative combining function
-     * @return  the result of accumulating all values
-     */
-    public V reduceValues(BiFun<? super V, ? super V, ? extends V> reducer) {
-        return ForkJoinTasks.reduceValues
-            (this, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all values using the given reducer to combine values, or
-     * null if none.
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case it is not combined).
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all values
-     */
-    public <U> U reduceValues(Fun<? super V, ? extends U> transformer,
-                              BiFun<? super U, ? super U, ? extends U> reducer) {
-        return ForkJoinTasks.reduceValues
-            (this, transformer, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all values using the given reducer to combine values,
-     * and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all values
-     */
-    public double reduceValuesToDouble(ObjectToDouble<? super V> transformer,
-                                       double basis,
-                                       DoubleByDoubleToDouble reducer) {
-        return ForkJoinTasks.reduceValuesToDouble
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all values using the given reducer to combine values,
-     * and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all values
-     */
-    public long reduceValuesToLong(ObjectToLong<? super V> transformer,
-                                   long basis,
-                                   LongByLongToLong reducer) {
-        return ForkJoinTasks.reduceValuesToLong
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all values using the given reducer to combine values,
-     * and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all values
-     */
-    public int reduceValuesToInt(ObjectToInt<? super V> transformer,
-                                 int basis,
-                                 IntByIntToInt reducer) {
-        return ForkJoinTasks.reduceValuesToInt
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Performs the given action for each entry.
-     *
-     * @param action the action
-     */
-    public void forEachEntry(Action<Map.Entry<K,V>> action) {
-        ForkJoinTasks.forEachEntry
-            (this, action).invoke();
-    }
-
-    /**
-     * Performs the given action for each non-null transformation
-     * of each entry.
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case the action is not applied).
-     * @param action the action
-     */
-    public <U> void forEachEntry(Fun<Map.Entry<K,V>, ? extends U> transformer,
-                                 Action<U> action) {
-        ForkJoinTasks.forEachEntry
-            (this, transformer, action).invoke();
-    }
-
-    /**
-     * Returns a non-null result from applying the given search
-     * function on each entry, or null if none.  Upon success,
-     * further element processing is suppressed and the results of
-     * any other parallel invocations of the search function are
-     * ignored.
-     *
-     * @param searchFunction a function returning a non-null
-     * result on success, else null
-     * @return a non-null result from applying the given search
-     * function on each entry, or null if none
-     */
-    public <U> U searchEntries(Fun<Map.Entry<K,V>, ? extends U> searchFunction) {
-        return ForkJoinTasks.searchEntries
-            (this, searchFunction).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating all entries using the
-     * given reducer to combine values, or null if none.
-     *
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating all entries
-     */
-    public Map.Entry<K,V> reduceEntries(BiFun<Map.Entry<K,V>, Map.Entry<K,V>, ? extends Map.Entry<K,V>> reducer) {
-        return ForkJoinTasks.reduceEntries
-            (this, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all entries using the given reducer to combine values,
-     * or null if none.
-     *
-     * @param transformer a function returning the transformation
-     * for an element, or null of there is no transformation (in
-     * which case it is not combined).
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all entries
-     */
-    public <U> U reduceEntries(Fun<Map.Entry<K,V>, ? extends U> transformer,
-                               BiFun<? super U, ? super U, ? extends U> reducer) {
-        return ForkJoinTasks.reduceEntries
-            (this, transformer, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all entries using the given reducer to combine values,
-     * and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all entries
-     */
-    public double reduceEntriesToDouble(ObjectToDouble<Map.Entry<K,V>> transformer,
-                                        double basis,
-                                        DoubleByDoubleToDouble reducer) {
-        return ForkJoinTasks.reduceEntriesToDouble
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all entries using the given reducer to combine values,
-     * and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return  the result of accumulating the given transformation
-     * of all entries
-     */
-    public long reduceEntriesToLong(ObjectToLong<Map.Entry<K,V>> transformer,
-                                    long basis,
-                                    LongByLongToLong reducer) {
-        return ForkJoinTasks.reduceEntriesToLong
-            (this, transformer, basis, reducer).invoke();
-    }
-
-    /**
-     * Returns the result of accumulating the given transformation
-     * of all entries using the given reducer to combine values,
-     * and the given basis as an identity value.
-     *
-     * @param transformer a function returning the transformation
-     * for an element
-     * @param basis the identity (initial default value) for the reduction
-     * @param reducer a commutative associative combining function
-     * @return the result of accumulating the given transformation
-     * of all entries
-     */
-    public int reduceEntriesToInt(ObjectToInt<Map.Entry<K,V>> transformer,
-                                  int basis,
-                                  IntByIntToInt reducer) {
-        return ForkJoinTasks.reduceEntriesToInt
-            (this, transformer, basis, reducer).invoke();
-    }
-
     /* ----------------Views -------------- */
 
     /**
@@ -4429,120 +3197,6 @@ public class ConcurrentHashMap<K, V>
                     ((c = (Set<?>)o) == this ||
                      (containsAll(c) && c.containsAll(this))));
         }
-
-        /**
-         * Performs the given action for each key.
-         *
-         * @param action the action
-         */
-        public void forEach(Action<K> action) {
-            ForkJoinTasks.forEachKey
-                (map, action).invoke();
-        }
-
-        /**
-         * Performs the given action for each non-null transformation
-         * of each key.
-         *
-         * @param transformer a function returning the transformation
-         * for an element, or null of there is no transformation (in
-         * which case the action is not applied).
-         * @param action the action
-         */
-        public <U> void forEach(Fun<? super K, ? extends U> transformer,
-                                Action<U> action) {
-            ForkJoinTasks.forEachKey
-                (map, transformer, action).invoke();
-        }
-
-        /**
-         * Returns a non-null result from applying the given search
-         * function on each key, or null if none. Upon success,
-         * further element processing is suppressed and the results of
-         * any other parallel invocations of the search function are
-         * ignored.
-         *
-         * @param searchFunction a function returning a non-null
-         * result on success, else null
-         * @return a non-null result from applying the given search
-         * function on each key, or null if none
-         */
-        public <U> U search(Fun<? super K, ? extends U> searchFunction) {
-            return ForkJoinTasks.searchKeys
-                (map, searchFunction).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating all keys using the given
-         * reducer to combine values, or null if none.
-         *
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating all keys using the given
-         * reducer to combine values, or null if none
-         */
-        public K reduce(BiFun<? super K, ? super K, ? extends K> reducer) {
-            return ForkJoinTasks.reduceKeys
-                (map, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all keys using the given reducer to combine values, and
-         * the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return  the result of accumulating the given transformation
-         * of all keys
-         */
-        public double reduceToDouble(ObjectToDouble<? super K> transformer,
-                                     double basis,
-                                     DoubleByDoubleToDouble reducer) {
-            return ForkJoinTasks.reduceKeysToDouble
-                (map, transformer, basis, reducer).invoke();
-        }
-
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all keys using the given reducer to combine values, and
-         * the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all keys
-         */
-        public long reduceToLong(ObjectToLong<? super K> transformer,
-                                 long basis,
-                                 LongByLongToLong reducer) {
-            return ForkJoinTasks.reduceKeysToLong
-                (map, transformer, basis, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all keys using the given reducer to combine values, and
-         * the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all keys
-         */
-        public int reduceToInt(ObjectToInt<? super K> transformer,
-                               int basis,
-                               IntByIntToInt reducer) {
-            return ForkJoinTasks.reduceKeysToInt
-                (map, transformer, basis, reducer).invoke();
-        }
-
     }
 
     /**
@@ -4592,136 +3246,6 @@ public class ConcurrentHashMap<K, V>
         public final boolean addAll(Collection<? extends V> c) {
             throw new UnsupportedOperationException();
         }
-
-        /**
-         * Performs the given action for each value.
-         *
-         * @param action the action
-         */
-        public void forEach(Action<V> action) {
-            ForkJoinTasks.forEachValue
-                (map, action).invoke();
-        }
-
-        /**
-         * Performs the given action for each non-null transformation
-         * of each value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element, or null of there is no transformation (in
-         * which case the action is not applied).
-         */
-        public <U> void forEach(Fun<? super V, ? extends U> transformer,
-                                Action<U> action) {
-            ForkJoinTasks.forEachValue
-                (map, transformer, action).invoke();
-        }
-
-        /**
-         * Returns a non-null result from applying the given search
-         * function on each value, or null if none.  Upon success,
-         * further element processing is suppressed and the results of
-         * any other parallel invocations of the search function are
-         * ignored.
-         *
-         * @param searchFunction a function returning a non-null
-         * result on success, else null
-         * @return a non-null result from applying the given search
-         * function on each value, or null if none
-         *
-         */
-        public <U> U search(Fun<? super V, ? extends U> searchFunction) {
-            return ForkJoinTasks.searchValues
-                (map, searchFunction).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating all values using the
-         * given reducer to combine values, or null if none.
-         *
-         * @param reducer a commutative associative combining function
-         * @return  the result of accumulating all values
-         */
-        public V reduce(BiFun<? super V, ? super V, ? extends V> reducer) {
-            return ForkJoinTasks.reduceValues
-                (map, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all values using the given reducer to combine values, or
-         * null if none.
-         *
-         * @param transformer a function returning the transformation
-         * for an element, or null of there is no transformation (in
-         * which case it is not combined).
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all values
-         */
-        public <U> U reduce(Fun<? super V, ? extends U> transformer,
-                            BiFun<? super U, ? super U, ? extends U> reducer) {
-            return ForkJoinTasks.reduceValues
-                (map, transformer, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all values using the given reducer to combine values,
-         * and the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all values
-         */
-        public double reduceToDouble(ObjectToDouble<? super V> transformer,
-                                     double basis,
-                                     DoubleByDoubleToDouble reducer) {
-            return ForkJoinTasks.reduceValuesToDouble
-                (map, transformer, basis, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all values using the given reducer to combine values,
-         * and the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all values
-         */
-        public long reduceToLong(ObjectToLong<? super V> transformer,
-                                 long basis,
-                                 LongByLongToLong reducer) {
-            return ForkJoinTasks.reduceValuesToLong
-                (map, transformer, basis, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all values using the given reducer to combine values,
-         * and the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all values
-         */
-        public int reduceToInt(ObjectToInt<? super V> transformer,
-                               int basis,
-                               IntByIntToInt reducer) {
-            return ForkJoinTasks.reduceValuesToInt
-                (map, transformer, basis, reducer).invoke();
-        }
-
     }
 
     /**
@@ -4783,2065 +3307,7 @@ public class ConcurrentHashMap<K, V>
                     ((c = (Set<?>)o) == this ||
                      (containsAll(c) && c.containsAll(this))));
         }
-
-        /**
-         * Performs the given action for each entry.
-         *
-         * @param action the action
-         */
-        public void forEach(Action<Map.Entry<K,V>> action) {
-            ForkJoinTasks.forEachEntry
-                (map, action).invoke();
-        }
-
-        /**
-         * Performs the given action for each non-null transformation
-         * of each entry.
-         *
-         * @param transformer a function returning the transformation
-         * for an element, or null of there is no transformation (in
-         * which case the action is not applied).
-         * @param action the action
-         */
-        public <U> void forEach(Fun<Map.Entry<K,V>, ? extends U> transformer,
-                                Action<U> action) {
-            ForkJoinTasks.forEachEntry
-                (map, transformer, action).invoke();
-        }
-
-        /**
-         * Returns a non-null result from applying the given search
-         * function on each entry, or null if none.  Upon success,
-         * further element processing is suppressed and the results of
-         * any other parallel invocations of the search function are
-         * ignored.
-         *
-         * @param searchFunction a function returning a non-null
-         * result on success, else null
-         * @return a non-null result from applying the given search
-         * function on each entry, or null if none
-         */
-        public <U> U search(Fun<Map.Entry<K,V>, ? extends U> searchFunction) {
-            return ForkJoinTasks.searchEntries
-                (map, searchFunction).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating all entries using the
-         * given reducer to combine values, or null if none.
-         *
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating all entries
-         */
-        public Map.Entry<K,V> reduce(BiFun<Map.Entry<K,V>, Map.Entry<K,V>, ? extends Map.Entry<K,V>> reducer) {
-            return ForkJoinTasks.reduceEntries
-                (map, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all entries using the given reducer to combine values,
-         * or null if none.
-         *
-         * @param transformer a function returning the transformation
-         * for an element, or null of there is no transformation (in
-         * which case it is not combined).
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all entries
-         */
-        public <U> U reduce(Fun<Map.Entry<K,V>, ? extends U> transformer,
-                            BiFun<? super U, ? super U, ? extends U> reducer) {
-            return ForkJoinTasks.reduceEntries
-                (map, transformer, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all entries using the given reducer to combine values,
-         * and the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all entries
-         */
-        public double reduceToDouble(ObjectToDouble<Map.Entry<K,V>> transformer,
-                                     double basis,
-                                     DoubleByDoubleToDouble reducer) {
-            return ForkJoinTasks.reduceEntriesToDouble
-                (map, transformer, basis, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all entries using the given reducer to combine values,
-         * and the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return  the result of accumulating the given transformation
-         * of all entries
-         */
-        public long reduceToLong(ObjectToLong<Map.Entry<K,V>> transformer,
-                                 long basis,
-                                 LongByLongToLong reducer) {
-            return ForkJoinTasks.reduceEntriesToLong
-                (map, transformer, basis, reducer).invoke();
-        }
-
-        /**
-         * Returns the result of accumulating the given transformation
-         * of all entries using the given reducer to combine values,
-         * and the given basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the result of accumulating the given transformation
-         * of all entries
-         */
-        public int reduceToInt(ObjectToInt<Map.Entry<K,V>> transformer,
-                               int basis,
-                               IntByIntToInt reducer) {
-            return ForkJoinTasks.reduceEntriesToInt
-                (map, transformer, basis, reducer).invoke();
-        }
-
     }
 
-    // ---------------------------------------------------------------------
-
-    /**
-     * Predefined tasks for performing bulk parallel operations on
-     * ConcurrentHashMaps. These tasks follow the forms and rules used
-     * for bulk operations. Each method has the same name, but returns
-     * a task rather than invoking it. These methods may be useful in
-     * custom applications such as submitting a task without waiting
-     * for completion, using a custom pool, or combining with other
-     * tasks.
-     */
-    public static class ForkJoinTasks {
-        private ForkJoinTasks() {}
-
-        /**
-         * Returns a task that when invoked, performs the given
-         * action for each (key, value)
-         *
-         * @param map the map
-         * @param action the action
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Void> forEach
-        (ConcurrentHashMap<K,V> map,
-         BiAction<K,V> action) {
-            if (action == null) throw new NullPointerException();
-            return new ForEachMappingTask<K,V>(map, null, -1, action);
-        }
-
-        /**
-         * Returns a task that when invoked, performs the given
-         * action for each non-null transformation of each (key, value)
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case the action is not applied)
-         * @param action the action
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<Void> forEach
-        (ConcurrentHashMap<K,V> map,
-         BiFun<? super K, ? super V, ? extends U> transformer,
-         Action<U> action) {
-            if (transformer == null || action == null)
-                throw new NullPointerException();
-            return new ForEachTransformedMappingTask<K,V,U>
-                (map, null, -1, transformer, action);
-        }
-
-        /**
-         * Returns a task that when invoked, returns a non-null result
-         * from applying the given search function on each (key,
-         * value), or null if none. Upon success, further element
-         * processing is suppressed and the results of any other
-         * parallel invocations of the search function are ignored.
-         *
-         * @param map the map
-         * @param searchFunction a function returning a non-null
-         * result on success, else null
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> search
-        (ConcurrentHashMap<K,V> map,
-         BiFun<? super K, ? super V, ? extends U> searchFunction) {
-            if (searchFunction == null) throw new NullPointerException();
-            return new SearchMappingsTask<K,V,U>
-                (map, null, -1, searchFunction,
-                    new AtomicReference<U>());
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all (key, value) pairs
-         * using the given reducer to combine values, or null if none.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case it is not combined).
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> reduce
-        (ConcurrentHashMap<K,V> map,
-         BiFun<? super K, ? super V, ? extends U> transformer,
-         BiFun<? super U, ? super U, ? extends U> reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceMappingsTask<K,V,U>
-                (map, null, -1, null, transformer, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all (key, value) pairs
-         * using the given reducer to combine values, and the given
-         * basis as an identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Double> reduceToDouble
-        (ConcurrentHashMap<K,V> map,
-         ObjectByObjectToDouble<? super K, ? super V> transformer,
-         double basis,
-         DoubleByDoubleToDouble reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceMappingsToDoubleTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all (key, value) pairs
-         * using the given reducer to combine values, and the given
-         * basis as an identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Long> reduceToLong
-        (ConcurrentHashMap<K,V> map,
-         ObjectByObjectToLong<? super K, ? super V> transformer,
-         long basis,
-         LongByLongToLong reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceMappingsToLongTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all (key, value) pairs
-         * using the given reducer to combine values, and the given
-         * basis as an identity value.
-         *
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Integer> reduceToInt
-        (ConcurrentHashMap<K,V> map,
-         ObjectByObjectToInt<? super K, ? super V> transformer,
-         int basis,
-         IntByIntToInt reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceMappingsToIntTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, performs the given action
-         * for each key.
-         *
-         * @param map the map
-         * @param action the action
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Void> forEachKey
-        (ConcurrentHashMap<K,V> map,
-         Action<K> action) {
-            if (action == null) throw new NullPointerException();
-            return new ForEachKeyTask<K,V>(map, null, -1, action);
-        }
-
-        /**
-         * Returns a task that when invoked, performs the given action
-         * for each non-null transformation of each key.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case the action is not applied)
-         * @param action the action
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<Void> forEachKey
-        (ConcurrentHashMap<K,V> map,
-         Fun<? super K, ? extends U> transformer,
-         Action<U> action) {
-            if (transformer == null || action == null)
-                throw new NullPointerException();
-            return new ForEachTransformedKeyTask<K,V,U>
-                (map, null, -1, transformer, action);
-        }
-
-        /**
-         * Returns a task that when invoked, returns a non-null result
-         * from applying the given search function on each key, or
-         * null if none.  Upon success, further element processing is
-         * suppressed and the results of any other parallel
-         * invocations of the search function are ignored.
-         *
-         * @param map the map
-         * @param searchFunction a function returning a non-null
-         * result on success, else null
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> searchKeys
-        (ConcurrentHashMap<K,V> map,
-         Fun<? super K, ? extends U> searchFunction) {
-            if (searchFunction == null) throw new NullPointerException();
-            return new SearchKeysTask<K,V,U>
-                (map, null, -1, searchFunction,
-                    new AtomicReference<U>());
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating all keys using the given reducer to combine
-         * values, or null if none.
-         *
-         * @param map the map
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<K> reduceKeys
-        (ConcurrentHashMap<K,V> map,
-         BiFun<? super K, ? super K, ? extends K> reducer) {
-            if (reducer == null) throw new NullPointerException();
-            return new ReduceKeysTask<K,V>
-                (map, null, -1, null, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all keys using the given
-         * reducer to combine values, or null if none.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case it is not combined).
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> reduceKeys
-        (ConcurrentHashMap<K,V> map,
-         Fun<? super K, ? extends U> transformer,
-         BiFun<? super U, ? super U, ? extends U> reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceKeysTask<K,V,U>
-                (map, null, -1, null, transformer, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all keys using the given
-         * reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Double> reduceKeysToDouble
-        (ConcurrentHashMap<K,V> map,
-         ObjectToDouble<? super K> transformer,
-         double basis,
-         DoubleByDoubleToDouble reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceKeysToDoubleTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all keys using the given
-         * reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Long> reduceKeysToLong
-        (ConcurrentHashMap<K,V> map,
-         ObjectToLong<? super K> transformer,
-         long basis,
-         LongByLongToLong reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceKeysToLongTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all keys using the given
-         * reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Integer> reduceKeysToInt
-        (ConcurrentHashMap<K,V> map,
-         ObjectToInt<? super K> transformer,
-         int basis,
-         IntByIntToInt reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceKeysToIntTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, performs the given action
-         * for each value.
-         *
-         * @param map the map
-         * @param action the action
-         */
-        public static <K,V> ForkJoinTask<Void> forEachValue
-        (ConcurrentHashMap<K,V> map,
-         Action<V> action) {
-            if (action == null) throw new NullPointerException();
-            return new ForEachValueTask<K,V>(map, null, -1, action);
-        }
-
-        /**
-         * Returns a task that when invoked, performs the given action
-         * for each non-null transformation of each value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case the action is not applied)
-         * @param action the action
-         */
-        public static <K,V,U> ForkJoinTask<Void> forEachValue
-        (ConcurrentHashMap<K,V> map,
-         Fun<? super V, ? extends U> transformer,
-         Action<U> action) {
-            if (transformer == null || action == null)
-                throw new NullPointerException();
-            return new ForEachTransformedValueTask<K,V,U>
-                (map, null, -1, transformer, action);
-        }
-
-        /**
-         * Returns a task that when invoked, returns a non-null result
-         * from applying the given search function on each value, or
-         * null if none.  Upon success, further element processing is
-         * suppressed and the results of any other parallel
-         * invocations of the search function are ignored.
-         *
-         * @param map the map
-         * @param searchFunction a function returning a non-null
-         * result on success, else null
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> searchValues
-        (ConcurrentHashMap<K,V> map,
-         Fun<? super V, ? extends U> searchFunction) {
-            if (searchFunction == null) throw new NullPointerException();
-            return new SearchValuesTask<K,V,U>
-                (map, null, -1, searchFunction,
-                    new AtomicReference<U>());
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating all values using the given reducer to combine
-         * values, or null if none.
-         *
-         * @param map the map
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<V> reduceValues
-        (ConcurrentHashMap<K,V> map,
-         BiFun<? super V, ? super V, ? extends V> reducer) {
-            if (reducer == null) throw new NullPointerException();
-            return new ReduceValuesTask<K,V>
-                (map, null, -1, null, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all values using the
-         * given reducer to combine values, or null if none.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case it is not combined).
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> reduceValues
-        (ConcurrentHashMap<K,V> map,
-         Fun<? super V, ? extends U> transformer,
-         BiFun<? super U, ? super U, ? extends U> reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceValuesTask<K,V,U>
-                (map, null, -1, null, transformer, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all values using the
-         * given reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Double> reduceValuesToDouble
-        (ConcurrentHashMap<K,V> map,
-         ObjectToDouble<? super V> transformer,
-         double basis,
-         DoubleByDoubleToDouble reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceValuesToDoubleTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all values using the
-         * given reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Long> reduceValuesToLong
-        (ConcurrentHashMap<K,V> map,
-         ObjectToLong<? super V> transformer,
-         long basis,
-         LongByLongToLong reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceValuesToLongTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all values using the
-         * given reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Integer> reduceValuesToInt
-        (ConcurrentHashMap<K,V> map,
-         ObjectToInt<? super V> transformer,
-         int basis,
-         IntByIntToInt reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceValuesToIntTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, perform the given action
-         * for each entry.
-         *
-         * @param map the map
-         * @param action the action
-         */
-        public static <K,V> ForkJoinTask<Void> forEachEntry
-        (ConcurrentHashMap<K,V> map,
-         Action<Map.Entry<K,V>> action) {
-            if (action == null) throw new NullPointerException();
-            return new ForEachEntryTask<K,V>(map, null, -1, action);
-        }
-
-        /**
-         * Returns a task that when invoked, perform the given action
-         * for each non-null transformation of each entry.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case the action is not applied)
-         * @param action the action
-         */
-        public static <K,V,U> ForkJoinTask<Void> forEachEntry
-        (ConcurrentHashMap<K,V> map,
-         Fun<Map.Entry<K,V>, ? extends U> transformer,
-         Action<U> action) {
-            if (transformer == null || action == null)
-                throw new NullPointerException();
-            return new ForEachTransformedEntryTask<K,V,U>
-                (map, null, -1, transformer, action);
-        }
-
-        /**
-         * Returns a task that when invoked, returns a non-null result
-         * from applying the given search function on each entry, or
-         * null if none.  Upon success, further element processing is
-         * suppressed and the results of any other parallel
-         * invocations of the search function are ignored.
-         *
-         * @param map the map
-         * @param searchFunction a function returning a non-null
-         * result on success, else null
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> searchEntries
-        (ConcurrentHashMap<K,V> map,
-         Fun<Map.Entry<K,V>, ? extends U> searchFunction) {
-            if (searchFunction == null) throw new NullPointerException();
-            return new SearchEntriesTask<K,V,U>
-                (map, null, -1, searchFunction,
-                    new AtomicReference<U>());
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating all entries using the given reducer to combine
-         * values, or null if none.
-         *
-         * @param map the map
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Map.Entry<K,V>> reduceEntries
-        (ConcurrentHashMap<K,V> map,
-         BiFun<Map.Entry<K,V>, Map.Entry<K,V>, ? extends Map.Entry<K,V>> reducer) {
-            if (reducer == null) throw new NullPointerException();
-            return new ReduceEntriesTask<K,V>
-                (map, null, -1, null, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all entries using the
-         * given reducer to combine values, or null if none.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element, or null if there is no transformation (in
-         * which case it is not combined).
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V,U> ForkJoinTask<U> reduceEntries
-        (ConcurrentHashMap<K,V> map,
-         Fun<Map.Entry<K,V>, ? extends U> transformer,
-         BiFun<? super U, ? super U, ? extends U> reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceEntriesTask<K,V,U>
-                (map, null, -1, null, transformer, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all entries using the
-         * given reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Double> reduceEntriesToDouble
-        (ConcurrentHashMap<K,V> map,
-         ObjectToDouble<Map.Entry<K,V>> transformer,
-         double basis,
-         DoubleByDoubleToDouble reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceEntriesToDoubleTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all entries using the
-         * given reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Long> reduceEntriesToLong
-        (ConcurrentHashMap<K,V> map,
-         ObjectToLong<Map.Entry<K,V>> transformer,
-         long basis,
-         LongByLongToLong reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceEntriesToLongTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-
-        /**
-         * Returns a task that when invoked, returns the result of
-         * accumulating the given transformation of all entries using the
-         * given reducer to combine values, and the given basis as an
-         * identity value.
-         *
-         * @param map the map
-         * @param transformer a function returning the transformation
-         * for an element
-         * @param basis the identity (initial default value) for the reduction
-         * @param reducer a commutative associative combining function
-         * @return the task
-         */
-        public static <K,V> ForkJoinTask<Integer> reduceEntriesToInt
-        (ConcurrentHashMap<K,V> map,
-         ObjectToInt<Map.Entry<K,V>> transformer,
-         int basis,
-         IntByIntToInt reducer) {
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            return new MapReduceEntriesToIntTask<K,V>
-                (map, null, -1, null, transformer, basis, reducer);
-        }
-    }
-
-    // -------------------------------------------------------
-
-    /*
-     * Task classes. Coded in a regular but ugly format/style to
-     * simplify checks that each variant differs in the right way from
-     * others.
-     */
-
-    @SuppressWarnings("serial") static final class ForEachKeyTask<K,V>
-        extends Traverser<K,V,Void> {
-        final Action<K> action;
-        ForEachKeyTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Action<K> action) {
-            super(m, p, b);
-            this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Action<K> action;
-            if ((action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachKeyTask<K,V>(map, this, b, action).fork();
-            while (advance() != null)
-                action.apply((K)nextKey);
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ForEachValueTask<K,V>
-        extends Traverser<K,V,Void> {
-        final Action<V> action;
-        ForEachValueTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Action<V> action) {
-            super(m, p, b);
-            this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Action<V> action;
-            if ((action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachValueTask<K,V>(map, this, b, action).fork();
-            Object v;
-            while ((v = advance()) != null)
-                action.apply((V)v);
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ForEachEntryTask<K,V>
-        extends Traverser<K,V,Void> {
-        final Action<Entry<K,V>> action;
-        ForEachEntryTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Action<Entry<K,V>> action) {
-            super(m, p, b);
-            this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Action<Entry<K,V>> action;
-            if ((action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachEntryTask<K,V>(map, this, b, action).fork();
-            Object v;
-            while ((v = advance()) != null)
-                action.apply(entryFor((K)nextKey, (V)v));
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ForEachMappingTask<K,V>
-        extends Traverser<K,V,Void> {
-        final BiAction<K,V> action;
-        ForEachMappingTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             BiAction<K,V> action) {
-            super(m, p, b);
-            this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final BiAction<K,V> action;
-            if ((action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachMappingTask<K,V>(map, this, b, action).fork();
-            Object v;
-            while ((v = advance()) != null)
-                action.apply((K)nextKey, (V)v);
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ForEachTransformedKeyTask<K,V,U>
-        extends Traverser<K,V,Void> {
-        final Fun<? super K, ? extends U> transformer;
-        final Action<U> action;
-        ForEachTransformedKeyTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Fun<? super K, ? extends U> transformer, Action<U> action) {
-            super(m, p, b);
-            this.transformer = transformer; this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<? super K, ? extends U> transformer;
-            final Action<U> action;
-            if ((transformer = this.transformer) == null ||
-                (action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachTransformedKeyTask<K,V,U>
-                    (map, this, b, transformer, action).fork();
-            U u;
-            while (advance() != null) {
-                if ((u = transformer.apply((K)nextKey)) != null)
-                    action.apply(u);
-            }
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ForEachTransformedValueTask<K,V,U>
-        extends Traverser<K,V,Void> {
-        final Fun<? super V, ? extends U> transformer;
-        final Action<U> action;
-        ForEachTransformedValueTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Fun<? super V, ? extends U> transformer, Action<U> action) {
-            super(m, p, b);
-            this.transformer = transformer; this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<? super V, ? extends U> transformer;
-            final Action<U> action;
-            if ((transformer = this.transformer) == null ||
-                (action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachTransformedValueTask<K,V,U>
-                    (map, this, b, transformer, action).fork();
-            Object v; U u;
-            while ((v = advance()) != null) {
-                if ((u = transformer.apply((V)v)) != null)
-                    action.apply(u);
-            }
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ForEachTransformedEntryTask<K,V,U>
-        extends Traverser<K,V,Void> {
-        final Fun<Map.Entry<K,V>, ? extends U> transformer;
-        final Action<U> action;
-        ForEachTransformedEntryTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Fun<Map.Entry<K,V>, ? extends U> transformer, Action<U> action) {
-            super(m, p, b);
-            this.transformer = transformer; this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<Map.Entry<K,V>, ? extends U> transformer;
-            final Action<U> action;
-            if ((transformer = this.transformer) == null ||
-                (action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachTransformedEntryTask<K,V,U>
-                    (map, this, b, transformer, action).fork();
-            Object v; U u;
-            while ((v = advance()) != null) {
-                if ((u = transformer.apply(entryFor((K)nextKey, (V)v))) != null)
-                    action.apply(u);
-            }
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ForEachTransformedMappingTask<K,V,U>
-        extends Traverser<K,V,Void> {
-        final BiFun<? super K, ? super V, ? extends U> transformer;
-        final Action<U> action;
-        ForEachTransformedMappingTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             BiFun<? super K, ? super V, ? extends U> transformer,
-             Action<U> action) {
-            super(m, p, b);
-            this.transformer = transformer; this.action = action;
-        }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final BiFun<? super K, ? super V, ? extends U> transformer;
-            final Action<U> action;
-            if ((transformer = this.transformer) == null ||
-                (action = this.action) == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                new ForEachTransformedMappingTask<K,V,U>
-                    (map, this, b, transformer, action).fork();
-            Object v; U u;
-            while ((v = advance()) != null) {
-                if ((u = transformer.apply((K)nextKey, (V)v)) != null)
-                    action.apply(u);
-            }
-            propagateCompletion();
-        }
-    }
-
-    @SuppressWarnings("serial") static final class SearchKeysTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final Fun<? super K, ? extends U> searchFunction;
-        final AtomicReference<U> result;
-        SearchKeysTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Fun<? super K, ? extends U> searchFunction,
-             AtomicReference<U> result) {
-            super(m, p, b);
-            this.searchFunction = searchFunction; this.result = result;
-        }
-        public final U getRawResult() { return result.get(); }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<? super K, ? extends U> searchFunction;
-            final AtomicReference<U> result;
-            if ((searchFunction = this.searchFunction) == null ||
-                (result = this.result) == null)
-                throw new NullPointerException();
-            for (int b;;) {
-                if (result.get() != null)
-                    return;
-                if ((b = preSplit()) <= 0)
-                    break;
-                new SearchKeysTask<K,V,U>
-                    (map, this, b, searchFunction, result).fork();
-            }
-            while (result.get() == null) {
-                U u;
-                if (advance() == null) {
-                    propagateCompletion();
-                    break;
-                }
-                if ((u = searchFunction.apply((K)nextKey)) != null) {
-                    if (result.compareAndSet(null, u))
-                        quietlyCompleteRoot();
-                    break;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class SearchValuesTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final Fun<? super V, ? extends U> searchFunction;
-        final AtomicReference<U> result;
-        SearchValuesTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Fun<? super V, ? extends U> searchFunction,
-             AtomicReference<U> result) {
-            super(m, p, b);
-            this.searchFunction = searchFunction; this.result = result;
-        }
-        public final U getRawResult() { return result.get(); }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<? super V, ? extends U> searchFunction;
-            final AtomicReference<U> result;
-            if ((searchFunction = this.searchFunction) == null ||
-                (result = this.result) == null)
-                throw new NullPointerException();
-            for (int b;;) {
-                if (result.get() != null)
-                    return;
-                if ((b = preSplit()) <= 0)
-                    break;
-                new SearchValuesTask<K,V,U>
-                    (map, this, b, searchFunction, result).fork();
-            }
-            while (result.get() == null) {
-                Object v; U u;
-                if ((v = advance()) == null) {
-                    propagateCompletion();
-                    break;
-                }
-                if ((u = searchFunction.apply((V)v)) != null) {
-                    if (result.compareAndSet(null, u))
-                        quietlyCompleteRoot();
-                    break;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class SearchEntriesTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final Fun<Entry<K,V>, ? extends U> searchFunction;
-        final AtomicReference<U> result;
-        SearchEntriesTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             Fun<Entry<K,V>, ? extends U> searchFunction,
-             AtomicReference<U> result) {
-            super(m, p, b);
-            this.searchFunction = searchFunction; this.result = result;
-        }
-        public final U getRawResult() { return result.get(); }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<Entry<K,V>, ? extends U> searchFunction;
-            final AtomicReference<U> result;
-            if ((searchFunction = this.searchFunction) == null ||
-                (result = this.result) == null)
-                throw new NullPointerException();
-            for (int b;;) {
-                if (result.get() != null)
-                    return;
-                if ((b = preSplit()) <= 0)
-                    break;
-                new SearchEntriesTask<K,V,U>
-                    (map, this, b, searchFunction, result).fork();
-            }
-            while (result.get() == null) {
-                Object v; U u;
-                if ((v = advance()) == null) {
-                    propagateCompletion();
-                    break;
-                }
-                if ((u = searchFunction.apply(entryFor((K)nextKey, (V)v))) != null) {
-                    if (result.compareAndSet(null, u))
-                        quietlyCompleteRoot();
-                    return;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class SearchMappingsTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final BiFun<? super K, ? super V, ? extends U> searchFunction;
-        final AtomicReference<U> result;
-        SearchMappingsTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             BiFun<? super K, ? super V, ? extends U> searchFunction,
-             AtomicReference<U> result) {
-            super(m, p, b);
-            this.searchFunction = searchFunction; this.result = result;
-        }
-        public final U getRawResult() { return result.get(); }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final BiFun<? super K, ? super V, ? extends U> searchFunction;
-            final AtomicReference<U> result;
-            if ((searchFunction = this.searchFunction) == null ||
-                (result = this.result) == null)
-                throw new NullPointerException();
-            for (int b;;) {
-                if (result.get() != null)
-                    return;
-                if ((b = preSplit()) <= 0)
-                    break;
-                new SearchMappingsTask<K,V,U>
-                    (map, this, b, searchFunction, result).fork();
-            }
-            while (result.get() == null) {
-                Object v; U u;
-                if ((v = advance()) == null) {
-                    propagateCompletion();
-                    break;
-                }
-                if ((u = searchFunction.apply((K)nextKey, (V)v)) != null) {
-                    if (result.compareAndSet(null, u))
-                        quietlyCompleteRoot();
-                    break;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ReduceKeysTask<K,V>
-        extends Traverser<K,V,K> {
-        final BiFun<? super K, ? super K, ? extends K> reducer;
-        K result;
-        ReduceKeysTask<K,V> rights, nextRight;
-        ReduceKeysTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             ReduceKeysTask<K,V> nextRight,
-             BiFun<? super K, ? super K, ? extends K> reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.reducer = reducer;
-        }
-        public final K getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final BiFun<? super K, ? super K, ? extends K> reducer =
-                this.reducer;
-            if (reducer == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new ReduceKeysTask<K,V>
-                    (map, this, b, rights, reducer)).fork();
-            K r = null;
-            while (advance() != null) {
-                K u = (K)nextKey;
-                r = (r == null) ? u : reducer.apply(r, u);
-            }
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                ReduceKeysTask<K,V>
-                    t = (ReduceKeysTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    K tr, sr;
-                    if ((sr = s.result) != null)
-                        t.result = (((tr = t.result) == null) ? sr :
-                            reducer.apply(tr, sr));
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ReduceValuesTask<K,V>
-        extends Traverser<K,V,V> {
-        final BiFun<? super V, ? super V, ? extends V> reducer;
-        V result;
-        ReduceValuesTask<K,V> rights, nextRight;
-        ReduceValuesTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             ReduceValuesTask<K,V> nextRight,
-             BiFun<? super V, ? super V, ? extends V> reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.reducer = reducer;
-        }
-        public final V getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final BiFun<? super V, ? super V, ? extends V> reducer =
-                this.reducer;
-            if (reducer == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new ReduceValuesTask<K,V>
-                    (map, this, b, rights, reducer)).fork();
-            V r = null;
-            Object v;
-            while ((v = advance()) != null) {
-                V u = (V)v;
-                r = (r == null) ? u : reducer.apply(r, u);
-            }
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                ReduceValuesTask<K,V>
-                    t = (ReduceValuesTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    V tr, sr;
-                    if ((sr = s.result) != null)
-                        t.result = (((tr = t.result) == null) ? sr :
-                            reducer.apply(tr, sr));
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class ReduceEntriesTask<K,V>
-        extends Traverser<K,V,Map.Entry<K,V>> {
-        final BiFun<Map.Entry<K,V>, Map.Entry<K,V>, ? extends Map.Entry<K,V>> reducer;
-        Map.Entry<K,V> result;
-        ReduceEntriesTask<K,V> rights, nextRight;
-        ReduceEntriesTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             ReduceEntriesTask<K,V> nextRight,
-             BiFun<Entry<K,V>, Map.Entry<K,V>, ? extends Map.Entry<K,V>> reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.reducer = reducer;
-        }
-        public final Map.Entry<K,V> getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final BiFun<Map.Entry<K,V>, Map.Entry<K,V>, ? extends Map.Entry<K,V>> reducer =
-                this.reducer;
-            if (reducer == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new ReduceEntriesTask<K,V>
-                    (map, this, b, rights, reducer)).fork();
-            Map.Entry<K,V> r = null;
-            Object v;
-            while ((v = advance()) != null) {
-                Map.Entry<K,V> u = entryFor((K)nextKey, (V)v);
-                r = (r == null) ? u : reducer.apply(r, u);
-            }
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                ReduceEntriesTask<K,V>
-                    t = (ReduceEntriesTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    Map.Entry<K,V> tr, sr;
-                    if ((sr = s.result) != null)
-                        t.result = (((tr = t.result) == null) ? sr :
-                            reducer.apply(tr, sr));
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceKeysTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final Fun<? super K, ? extends U> transformer;
-        final BiFun<? super U, ? super U, ? extends U> reducer;
-        U result;
-        MapReduceKeysTask<K,V,U> rights, nextRight;
-        MapReduceKeysTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceKeysTask<K,V,U> nextRight,
-             Fun<? super K, ? extends U> transformer,
-             BiFun<? super U, ? super U, ? extends U> reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.reducer = reducer;
-        }
-        public final U getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<? super K, ? extends U> transformer =
-                this.transformer;
-            final BiFun<? super U, ? super U, ? extends U> reducer =
-                this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceKeysTask<K,V,U>
-                    (map, this, b, rights, transformer, reducer)).fork();
-            U r = null, u;
-            while (advance() != null) {
-                if ((u = transformer.apply((K)nextKey)) != null)
-                    r = (r == null) ? u : reducer.apply(r, u);
-            }
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceKeysTask<K,V,U>
-                    t = (MapReduceKeysTask<K,V,U>)c,
-                    s = t.rights;
-                while (s != null) {
-                    U tr, sr;
-                    if ((sr = s.result) != null)
-                        t.result = (((tr = t.result) == null) ? sr :
-                            reducer.apply(tr, sr));
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceValuesTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final Fun<? super V, ? extends U> transformer;
-        final BiFun<? super U, ? super U, ? extends U> reducer;
-        U result;
-        MapReduceValuesTask<K,V,U> rights, nextRight;
-        MapReduceValuesTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceValuesTask<K,V,U> nextRight,
-             Fun<? super V, ? extends U> transformer,
-             BiFun<? super U, ? super U, ? extends U> reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.reducer = reducer;
-        }
-        public final U getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<? super V, ? extends U> transformer =
-                this.transformer;
-            final BiFun<? super U, ? super U, ? extends U> reducer =
-                this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceValuesTask<K,V,U>
-                    (map, this, b, rights, transformer, reducer)).fork();
-            U r = null, u;
-            Object v;
-            while ((v = advance()) != null) {
-                if ((u = transformer.apply((V)v)) != null)
-                    r = (r == null) ? u : reducer.apply(r, u);
-            }
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceValuesTask<K,V,U>
-                    t = (MapReduceValuesTask<K,V,U>)c,
-                    s = t.rights;
-                while (s != null) {
-                    U tr, sr;
-                    if ((sr = s.result) != null)
-                        t.result = (((tr = t.result) == null) ? sr :
-                            reducer.apply(tr, sr));
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceEntriesTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final Fun<Map.Entry<K,V>, ? extends U> transformer;
-        final BiFun<? super U, ? super U, ? extends U> reducer;
-        U result;
-        MapReduceEntriesTask<K,V,U> rights, nextRight;
-        MapReduceEntriesTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceEntriesTask<K,V,U> nextRight,
-             Fun<Map.Entry<K,V>, ? extends U> transformer,
-             BiFun<? super U, ? super U, ? extends U> reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.reducer = reducer;
-        }
-        public final U getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final Fun<Map.Entry<K,V>, ? extends U> transformer =
-                this.transformer;
-            final BiFun<? super U, ? super U, ? extends U> reducer =
-                this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceEntriesTask<K,V,U>
-                    (map, this, b, rights, transformer, reducer)).fork();
-            U r = null, u;
-            Object v;
-            while ((v = advance()) != null) {
-                if ((u = transformer.apply(entryFor((K)nextKey, (V)v))) != null)
-                    r = (r == null) ? u : reducer.apply(r, u);
-            }
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceEntriesTask<K,V,U>
-                    t = (MapReduceEntriesTask<K,V,U>)c,
-                    s = t.rights;
-                while (s != null) {
-                    U tr, sr;
-                    if ((sr = s.result) != null)
-                        t.result = (((tr = t.result) == null) ? sr :
-                            reducer.apply(tr, sr));
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceMappingsTask<K,V,U>
-        extends Traverser<K,V,U> {
-        final BiFun<? super K, ? super V, ? extends U> transformer;
-        final BiFun<? super U, ? super U, ? extends U> reducer;
-        U result;
-        MapReduceMappingsTask<K,V,U> rights, nextRight;
-        MapReduceMappingsTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceMappingsTask<K,V,U> nextRight,
-             BiFun<? super K, ? super V, ? extends U> transformer,
-             BiFun<? super U, ? super U, ? extends U> reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.reducer = reducer;
-        }
-        public final U getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final BiFun<? super K, ? super V, ? extends U> transformer =
-                this.transformer;
-            final BiFun<? super U, ? super U, ? extends U> reducer =
-                this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceMappingsTask<K,V,U>
-                    (map, this, b, rights, transformer, reducer)).fork();
-            U r = null, u;
-            Object v;
-            while ((v = advance()) != null) {
-                if ((u = transformer.apply((K)nextKey, (V)v)) != null)
-                    r = (r == null) ? u : reducer.apply(r, u);
-            }
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceMappingsTask<K,V,U>
-                    t = (MapReduceMappingsTask<K,V,U>)c,
-                    s = t.rights;
-                while (s != null) {
-                    U tr, sr;
-                    if ((sr = s.result) != null)
-                        t.result = (((tr = t.result) == null) ? sr :
-                            reducer.apply(tr, sr));
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceKeysToDoubleTask<K,V>
-        extends Traverser<K,V,Double> {
-        final ObjectToDouble<? super K> transformer;
-        final DoubleByDoubleToDouble reducer;
-        final double basis;
-        double result;
-        MapReduceKeysToDoubleTask<K,V> rights, nextRight;
-        MapReduceKeysToDoubleTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceKeysToDoubleTask<K,V> nextRight,
-             ObjectToDouble<? super K> transformer,
-             double basis,
-             DoubleByDoubleToDouble reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Double getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToDouble<? super K> transformer =
-                this.transformer;
-            final DoubleByDoubleToDouble reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            double r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceKeysToDoubleTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            while (advance() != null)
-                r = reducer.apply(r, transformer.apply((K)nextKey));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceKeysToDoubleTask<K,V>
-                    t = (MapReduceKeysToDoubleTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceValuesToDoubleTask<K,V>
-        extends Traverser<K,V,Double> {
-        final ObjectToDouble<? super V> transformer;
-        final DoubleByDoubleToDouble reducer;
-        final double basis;
-        double result;
-        MapReduceValuesToDoubleTask<K,V> rights, nextRight;
-        MapReduceValuesToDoubleTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceValuesToDoubleTask<K,V> nextRight,
-             ObjectToDouble<? super V> transformer,
-             double basis,
-             DoubleByDoubleToDouble reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Double getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToDouble<? super V> transformer =
-                this.transformer;
-            final DoubleByDoubleToDouble reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            double r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceValuesToDoubleTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply((V)v));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceValuesToDoubleTask<K,V>
-                    t = (MapReduceValuesToDoubleTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceEntriesToDoubleTask<K,V>
-        extends Traverser<K,V,Double> {
-        final ObjectToDouble<Map.Entry<K,V>> transformer;
-        final DoubleByDoubleToDouble reducer;
-        final double basis;
-        double result;
-        MapReduceEntriesToDoubleTask<K,V> rights, nextRight;
-        MapReduceEntriesToDoubleTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceEntriesToDoubleTask<K,V> nextRight,
-             ObjectToDouble<Map.Entry<K,V>> transformer,
-             double basis,
-             DoubleByDoubleToDouble reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Double getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToDouble<Map.Entry<K,V>> transformer =
-                this.transformer;
-            final DoubleByDoubleToDouble reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            double r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceEntriesToDoubleTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply(entryFor((K)nextKey, (V)v)));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceEntriesToDoubleTask<K,V>
-                    t = (MapReduceEntriesToDoubleTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceMappingsToDoubleTask<K,V>
-        extends Traverser<K,V,Double> {
-        final ObjectByObjectToDouble<? super K, ? super V> transformer;
-        final DoubleByDoubleToDouble reducer;
-        final double basis;
-        double result;
-        MapReduceMappingsToDoubleTask<K,V> rights, nextRight;
-        MapReduceMappingsToDoubleTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceMappingsToDoubleTask<K,V> nextRight,
-             ObjectByObjectToDouble<? super K, ? super V> transformer,
-             double basis,
-             DoubleByDoubleToDouble reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Double getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectByObjectToDouble<? super K, ? super V> transformer =
-                this.transformer;
-            final DoubleByDoubleToDouble reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            double r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceMappingsToDoubleTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply((K)nextKey, (V)v));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceMappingsToDoubleTask<K,V>
-                    t = (MapReduceMappingsToDoubleTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceKeysToLongTask<K,V>
-        extends Traverser<K,V,Long> {
-        final ObjectToLong<? super K> transformer;
-        final LongByLongToLong reducer;
-        final long basis;
-        long result;
-        MapReduceKeysToLongTask<K,V> rights, nextRight;
-        MapReduceKeysToLongTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceKeysToLongTask<K,V> nextRight,
-             ObjectToLong<? super K> transformer,
-             long basis,
-             LongByLongToLong reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Long getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToLong<? super K> transformer =
-                this.transformer;
-            final LongByLongToLong reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            long r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceKeysToLongTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            while (advance() != null)
-                r = reducer.apply(r, transformer.apply((K)nextKey));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceKeysToLongTask<K,V>
-                    t = (MapReduceKeysToLongTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceValuesToLongTask<K,V>
-        extends Traverser<K,V,Long> {
-        final ObjectToLong<? super V> transformer;
-        final LongByLongToLong reducer;
-        final long basis;
-        long result;
-        MapReduceValuesToLongTask<K,V> rights, nextRight;
-        MapReduceValuesToLongTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceValuesToLongTask<K,V> nextRight,
-             ObjectToLong<? super V> transformer,
-             long basis,
-             LongByLongToLong reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Long getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToLong<? super V> transformer =
-                this.transformer;
-            final LongByLongToLong reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            long r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceValuesToLongTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply((V)v));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceValuesToLongTask<K,V>
-                    t = (MapReduceValuesToLongTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceEntriesToLongTask<K,V>
-        extends Traverser<K,V,Long> {
-        final ObjectToLong<Map.Entry<K,V>> transformer;
-        final LongByLongToLong reducer;
-        final long basis;
-        long result;
-        MapReduceEntriesToLongTask<K,V> rights, nextRight;
-        MapReduceEntriesToLongTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceEntriesToLongTask<K,V> nextRight,
-             ObjectToLong<Map.Entry<K,V>> transformer,
-             long basis,
-             LongByLongToLong reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Long getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToLong<Map.Entry<K,V>> transformer =
-                this.transformer;
-            final LongByLongToLong reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            long r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceEntriesToLongTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply(entryFor((K)nextKey, (V)v)));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceEntriesToLongTask<K,V>
-                    t = (MapReduceEntriesToLongTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceMappingsToLongTask<K,V>
-        extends Traverser<K,V,Long> {
-        final ObjectByObjectToLong<? super K, ? super V> transformer;
-        final LongByLongToLong reducer;
-        final long basis;
-        long result;
-        MapReduceMappingsToLongTask<K,V> rights, nextRight;
-        MapReduceMappingsToLongTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceMappingsToLongTask<K,V> nextRight,
-             ObjectByObjectToLong<? super K, ? super V> transformer,
-             long basis,
-             LongByLongToLong reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Long getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectByObjectToLong<? super K, ? super V> transformer =
-                this.transformer;
-            final LongByLongToLong reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            long r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceMappingsToLongTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply((K)nextKey, (V)v));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceMappingsToLongTask<K,V>
-                    t = (MapReduceMappingsToLongTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceKeysToIntTask<K,V>
-        extends Traverser<K,V,Integer> {
-        final ObjectToInt<? super K> transformer;
-        final IntByIntToInt reducer;
-        final int basis;
-        int result;
-        MapReduceKeysToIntTask<K,V> rights, nextRight;
-        MapReduceKeysToIntTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceKeysToIntTask<K,V> nextRight,
-             ObjectToInt<? super K> transformer,
-             int basis,
-             IntByIntToInt reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Integer getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToInt<? super K> transformer =
-                this.transformer;
-            final IntByIntToInt reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            int r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceKeysToIntTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            while (advance() != null)
-                r = reducer.apply(r, transformer.apply((K)nextKey));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceKeysToIntTask<K,V>
-                    t = (MapReduceKeysToIntTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceValuesToIntTask<K,V>
-        extends Traverser<K,V,Integer> {
-        final ObjectToInt<? super V> transformer;
-        final IntByIntToInt reducer;
-        final int basis;
-        int result;
-        MapReduceValuesToIntTask<K,V> rights, nextRight;
-        MapReduceValuesToIntTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceValuesToIntTask<K,V> nextRight,
-             ObjectToInt<? super V> transformer,
-             int basis,
-             IntByIntToInt reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Integer getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToInt<? super V> transformer =
-                this.transformer;
-            final IntByIntToInt reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            int r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceValuesToIntTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply((V)v));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceValuesToIntTask<K,V>
-                    t = (MapReduceValuesToIntTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceEntriesToIntTask<K,V>
-        extends Traverser<K,V,Integer> {
-        final ObjectToInt<Map.Entry<K,V>> transformer;
-        final IntByIntToInt reducer;
-        final int basis;
-        int result;
-        MapReduceEntriesToIntTask<K,V> rights, nextRight;
-        MapReduceEntriesToIntTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceEntriesToIntTask<K,V> nextRight,
-             ObjectToInt<Map.Entry<K,V>> transformer,
-             int basis,
-             IntByIntToInt reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Integer getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectToInt<Map.Entry<K,V>> transformer =
-                this.transformer;
-            final IntByIntToInt reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            int r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceEntriesToIntTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply(entryFor((K)nextKey, (V)v)));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceEntriesToIntTask<K,V>
-                    t = (MapReduceEntriesToIntTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("serial") static final class MapReduceMappingsToIntTask<K,V>
-        extends Traverser<K,V,Integer> {
-        final ObjectByObjectToInt<? super K, ? super V> transformer;
-        final IntByIntToInt reducer;
-        final int basis;
-        int result;
-        MapReduceMappingsToIntTask<K,V> rights, nextRight;
-        MapReduceMappingsToIntTask
-            (ConcurrentHashMap<K,V> m, Traverser<K,V,?> p, int b,
-             MapReduceMappingsToIntTask<K,V> nextRight,
-             ObjectByObjectToInt<? super K, ? super V> transformer,
-             int basis,
-             IntByIntToInt reducer) {
-            super(m, p, b); this.nextRight = nextRight;
-            this.transformer = transformer;
-            this.basis = basis; this.reducer = reducer;
-        }
-        public final Integer getRawResult() { return result; }
-        @SuppressWarnings("unchecked") public final void compute() {
-            final ObjectByObjectToInt<? super K, ? super V> transformer =
-                this.transformer;
-            final IntByIntToInt reducer = this.reducer;
-            if (transformer == null || reducer == null)
-                throw new NullPointerException();
-            int r = this.basis;
-            for (int b; (b = preSplit()) > 0;)
-                (rights = new MapReduceMappingsToIntTask<K,V>
-                    (map, this, b, rights, transformer, r, reducer)).fork();
-            Object v;
-            while ((v = advance()) != null)
-                r = reducer.apply(r, transformer.apply((K)nextKey, (V)v));
-            result = r;
-            CountedCompleter<?> c;
-            for (c = firstComplete(); c != null; c = c.nextComplete()) {
-                MapReduceMappingsToIntTask<K,V>
-                    t = (MapReduceMappingsToIntTask<K,V>)c,
-                    s = t.rights;
-                while (s != null) {
-                    t.result = reducer.apply(t.result, s.result);
-                    s = t.rights = s.nextRight;
-                }
-            }
-        }
-    }
-
-
-    // Unsafe mechanics
-    private static final sun.misc.Unsafe UNSAFE;
-    private static final long counterOffset;
-    private static final long sizeCtlOffset;
-    private static final long ABASE;
-    private static final int ASHIFT;
-
-    static {
-        int ss;
-        try {
-            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            UNSAFE = (Unsafe)unsafeField.get(null);
-            Class<?> k = ConcurrentHashMap.class;
-            counterOffset = UNSAFE.objectFieldOffset
-                (k.getDeclaredField("counter"));
-            sizeCtlOffset = UNSAFE.objectFieldOffset
-                (k.getDeclaredField("sizeCtl"));
-            Class<?> sc = Node[].class;
-            ABASE = UNSAFE.arrayBaseOffset(sc);
-            ss = UNSAFE.arrayIndexScale(sc);
-        } catch (Exception e) {
-            throw new Error(e);
-        }
-        if ((ss & (ss-1)) != 0)
-            throw new Error("data type scale not a power of two");
-        ASHIFT = 31 - Integer.numberOfLeadingZeros(ss);
-    }
+    private static final AtomicIntegerFieldUpdater<ConcurrentHashMap> SIZECTL_UPDATER = AtomicIntegerFieldUpdater.newUpdater(ConcurrentHashMap.class, "sizeCtl");
 }
