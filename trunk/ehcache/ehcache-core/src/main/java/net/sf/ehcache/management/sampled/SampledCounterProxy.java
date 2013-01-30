@@ -19,27 +19,28 @@ package net.sf.ehcache.management.sampled;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-
-import org.terracotta.statistics.archive.Timestamped;
+import java.util.List;
 
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.TimeStampedCounterValue;
 
+import org.terracotta.statistics.archive.Timestamped;
+
 /**
  * The Class SampledCounterProxy.
- *
+ * 
  * @param <E> the element type
  * @author cschanck
  */
 public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /** The rate. */
-    private final Statistic<E> rate;
+    protected final Statistic<E> rate;
 
     /**
      * Instantiates a new sampled counter proxy.
-     *
+     * 
      * @param rate the rate
      */
     public SampledCounterProxy(Statistic<E> rate) {
@@ -48,7 +49,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.sampled.SampledCounter#getMostRecentSample()
      */
     @Override
@@ -58,7 +59,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.sampled.SampledCounter#getAllSampleValues()
      */
     @Override
@@ -67,6 +68,16 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
         for (Timestamped<E> ts : rate.history()) {
             arr.add(new TimeStampedCounterValue(ts.getTimestamp(), ts.getSample().longValue()));
         }
+        return sortAndPresent(arr);
+    }
+
+    /**
+     * Sort and present the List of values
+     * 
+     * @param arr
+     * @return
+     */
+    protected TimeStampedCounterValue[] sortAndPresent(List<TimeStampedCounterValue> arr) {
         Collections.sort(arr, new Comparator<TimeStampedCounterValue>() {
 
             @Override
@@ -79,7 +90,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.Counter#setValue(long)
      */
     @Override
@@ -89,7 +100,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.Counter#increment()
      */
     @Override
@@ -99,7 +110,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.Counter#decrement()
      */
     @Override
@@ -109,7 +120,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.Counter#getAndSet(long)
      */
     @Override
@@ -119,7 +130,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.Counter#getValue()
      */
     @Override
@@ -129,7 +140,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.Counter#increment(long)
      */
     @Override
@@ -139,7 +150,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.Counter#decrement(long)
      */
     @Override
@@ -149,7 +160,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.sampled.SampledCounter#shutdown()
      */
     @Override
@@ -159,7 +170,7 @@ public class SampledCounterProxy<E extends Number> implements SampledCounter {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sf.ehcache.util.counter.sampled.SampledCounter#getAndReset()
      */
     @Override

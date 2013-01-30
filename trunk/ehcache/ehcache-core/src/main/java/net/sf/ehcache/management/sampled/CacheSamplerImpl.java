@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.util.ArrayList;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -24,9 +26,12 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.util.CacheTransactionHelper;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
+import net.sf.ehcache.util.counter.sampled.TimeStampedCounterValue;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.archive.Timestamped;
 
 /**
  * An implementation of {@link CacheSampler}
@@ -37,6 +42,8 @@ import org.slf4j.LoggerFactory;
  *         There is stupid here -- *Sample() is the same as *Rate()
  */
 public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListener {
+    private static final double ONE_HUNDRED = 100.0d;
+
     private static final int PERCENTAGE_DIVISOR = 100;
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheSamplerImpl.class);
@@ -1389,7 +1396,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public int getCacheHitRatio() {
-        return (int) cache.getStatistics().getExtended().cacheHitRatio().value().intValue();
+        return (int) (cache.getStatistics().getExtended().cacheHitRatio().value().doubleValue() * ONE_HUNDRED);
     }
 
     /**
@@ -1405,9 +1412,30 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public SampledCounter getCacheHitRatioSample() {
-        return new SampledCounterProxy<Double>(cache.getStatistics().getExtended().cacheHitRatio());
+        return new SampledCounterProxy<Double>(cache.getStatistics().getExtended().cacheHitRatio()) {
+
+            @Override
+            public TimeStampedCounterValue getMostRecentSample() {
+                return new TimeStampedCounterValue(System.currentTimeMillis(), getValue());
+            }
+
+            @Override
+            public TimeStampedCounterValue[] getAllSampleValues() {
+                ArrayList<TimeStampedCounterValue> arr = new ArrayList<TimeStampedCounterValue>();
+                for (Timestamped<Double> ts : rate.history()) {
+                    arr.add(new TimeStampedCounterValue(ts.getTimestamp(), (int) (ts.getSample().doubleValue() * ONE_HUNDRED)));
+                }
+                return sortAndPresent(arr);
+            }
+
+            @Override
+            public long getValue() {
+                return (long) (rate.value().doubleValue() * ONE_HUNDRED);
+            }
+
+        };
     }
-    
+
     @Override
     public long getAverageGetTimeNanos() {
         return cache.getStatistics().cacheGetOperation().latency().average().value().longValue();
@@ -1420,7 +1448,6 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     public SampledCounter getCacheHitSample() {
         return new SampledCounterProxy(cache.getStatistics().cacheHitOperation().rate());
     }
-
 
     /**
      * {@inheritDoc}

@@ -31,56 +31,74 @@ import net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.ValueStatistic;
 import org.terracotta.statistics.archive.Timestamped;
 
 /**
  * A dynamically built mbean based on the available statistics for a cache.
- *
+ * 
  * @author cschanck
- *
+ * 
  */
 public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedStatisticsMBean.class);
 
     /**
      * Instantiates a new extended statistics m bean.
-     *
+     * 
      * @param cache the cache
      * @param extendedStatistics the extended statistics
      */
     public ExtendedStatisticsMBean(Ehcache cache, ExtendedStatistics extendedStatistics) {
         super(divineName(cache), "Extended statistics for " + divineName(cache), Collections.EMPTY_LIST);
         LinkedList<AttributeProxy> proxies = new LinkedList<AttributeProxy>();
-        extractOperations(proxies, extendedStatistics);
-        extractResults(proxies, extendedStatistics);
-        extractWellKnownPassThrouStatistics(proxies, extendedStatistics);
+        processMethods(extendedStatistics, proxies);
         initialize(proxies);
     }
 
-    private void extractWellKnownPassThrouStatistics(List<AttributeProxy> proxies, ExtendedStatistics extendedStatistics) {
+    private void processMethods(ExtendedStatistics extendedStatistics, List<AttributeProxy> proxies) {
         for (Method m : ExtendedStatistics.class.getDeclaredMethods()) {
-            if (m.getReturnType().equals(ValueStatistic.class)) {
-                try {
-                    ValueStatistic stat = (ValueStatistic) m.invoke(extendedStatistics, new Object[0]);
-                    if (stat != null) {
-                        recordPassThruStat(proxies, stat, "cache.", m);
-                    }
-                } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            try {
+                extractAttributes(extendedStatistics, proxies, m);
+            } catch (IllegalArgumentException e) {
+                LOGGER.info(e.getMessage());
+            } catch (IllegalAccessException e) {
+                LOGGER.info(e.getMessage());
+            } catch (InvocationTargetException e) {
+                LOGGER.info(e.getMessage());
             }
         }
     }
 
-    private void recordPassThruStat(List<AttributeProxy> proxies, final ValueStatistic stat, String prefix, Method m) {
+    private void extractAttributes(ExtendedStatistics extendedStatistics, List<AttributeProxy> proxies, Method m)
+            throws IllegalAccessException, InvocationTargetException {
+        if (m.getReturnType().equals(ValueStatistic.class)) {
+            ValueStatistic stat = (ValueStatistic) m.invoke(extendedStatistics, new Object[0]);
+            if (stat != null) {
+                recordValueStatistic(proxies, stat, "cache.", m);
+            }
+        } else if (m.getReturnType().equals(ExtendedStatistics.Statistic.class)) {
+            Statistic<Number> stat = (Statistic<Number>) m.invoke(extendedStatistics, new Object[0]);
+            if (stat != null) {
+                recordStatistic(proxies, stat, "cache.", m);
+            }
+        } else if (m.getReturnType().equals(ExtendedStatistics.Result.class)) {
+            Result res = (Result) m.invoke(extendedStatistics, new Object[0]);
+            if (res != null) {
+                recordResult(proxies, res, m.getName());
+            }
+        } else if (m.getReturnType().equals(ExtendedStatistics.Operation.class)) {
+            Operation op = (Operation) m.invoke(extendedStatistics, new Object[0]);
+            if (op.type() != null && op.type().isEnum() && op.type().getEnumConstants() != null) {
+                recordOperation(proxies, extendedStatistics, m.getName(), op);
+            }
+        }
+    }
+
+    private void recordStatistic(List<AttributeProxy> proxies, final Statistic<Number> stat, String prefix, Method m) {
         String name = m.getName();
         if (name.startsWith("get")) {
             name = name.substring("get".length());
@@ -96,51 +114,24 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
         };
         proxies.add(proxy);
-
     }
 
-    private void extractResults(List<AttributeProxy> proxies, ExtendedStatistics extendedStatistics) {
-        for (Method m : ExtendedStatistics.class.getDeclaredMethods()) {
-            if (m.getReturnType().equals(ExtendedStatistics.Result.class)) {
-                try {
-                    Result res = (Result) m.invoke(extendedStatistics, new Object[0]);
-                    if (res != null) {
-                        recordResults(proxies, res, m.getName());
-                    }
-                } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+    private void recordValueStatistic(List<AttributeProxy> proxies, final ValueStatistic stat, String prefix, Method m) {
+        String name = m.getName();
+        if (name.startsWith("get")) {
+            name = name.substring("get".length());
+            name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
         }
-    }
+        name = prefix + name;
+        AttributeProxy<Object> proxy = new AttributeProxy<Object>(Object.class, name, name, true, false) {
 
-    private void extractOperations(List<AttributeProxy> proxies, ExtendedStatistics extendedStatistics) {
-        for (Method m : ExtendedStatistics.class.getDeclaredMethods()) {
-            if (m.getReturnType().equals(ExtendedStatistics.Operation.class)) {
-                try {
-                    Operation op = (Operation) m.invoke(extendedStatistics, new Object[0]);
-                    if (op.type() != null && op.type().isEnum() && op.type().getEnumConstants() != null) {
-                        recordOperation(proxies, extendedStatistics, m.getName(), op);
-                    }
-                } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            @Override
+            public Object get(String name) {
+                return stat.value();
             }
-        }
+
+        };
+        proxies.add(proxy);
 
     }
 
@@ -205,7 +196,7 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
         /*
          * TBD. These will need to be proxied operations.Worry about them later.
-         *
+         * 
          * op.setHistory(samples, time, unit)
          * op.setWindow(time, unit);
          */
@@ -213,11 +204,11 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
         for (Object t : op.type().getEnumConstants()) {
             String camelCase = t.toString().toLowerCase();
             camelCase = (Character.toUpperCase(camelCase.charAt(0))) + camelCase.substring(1);
-            recordResults(proxies, op.component((Enum) t), smallName + "." + camelCase);
+            recordResult(proxies, op.component((Enum) t), smallName + "." + camelCase);
         }
     }
 
-    private void recordResults(List<AttributeProxy> proxies, final Result result, String longerName) {
+    private void recordResult(List<AttributeProxy> proxies, final Result result, String longerName) {
         recordLongStatistic(proxies, longerName + ".count", "Statistic Counter", result.count());
         recordDoubleStatistic(proxies, longerName + ".rate", "Statistic Rate", result.rate());
         recordLongStatistic(proxies, longerName + ".latencyMin", "Statistic Latency Minimum", result.latency().minimum());
@@ -227,14 +218,13 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
     /**
      * Record double statistic.
-     *
+     * 
      * @param proxies the proxies
      * @param longerName the longer name
      * @param baseDescription the base description
      * @param stat the stat
      */
-    public void recordDoubleStatistic(List<AttributeProxy> proxies, String longerName, String baseDescription,
-            final Statistic<Double> stat) {
+    public void recordDoubleStatistic(List<AttributeProxy> proxies, String longerName, String baseDescription, final Statistic<Double> stat) {
 
         AttributeProxy proxy;
 
@@ -275,14 +265,13 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
     /**
      * Record long statistic.
-     *
+     * 
      * @param proxies the proxies
      * @param longerName the longer name
      * @param baseDescription the base description
      * @param stat the stat
      */
-    public void recordLongStatistic(List<AttributeProxy> proxies, String longerName, String baseDescription,
-            final Statistic<Long> stat) {
+    public void recordLongStatistic(List<AttributeProxy> proxies, String longerName, String baseDescription, final Statistic<Long> stat) {
         AttributeProxy proxy;
 
         proxy = new BooleanBeanProxy(longerName + "Active", baseDescription + " active?", true, false) {
@@ -319,7 +308,7 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
     /**
      * History to map long.
-     *
+     * 
      * @param history the history
      * @return the map
      */
@@ -333,7 +322,7 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
     /**
      * History to map double.
-     *
+     * 
      * @param history the history
      * @return the map
      */
@@ -347,7 +336,7 @@ public class ExtendedStatisticsMBean extends ProxiedDynamicMBean {
 
     /**
      * Divine the name.
-     *
+     * 
      * @param cache the cache
      * @return the string
      */
