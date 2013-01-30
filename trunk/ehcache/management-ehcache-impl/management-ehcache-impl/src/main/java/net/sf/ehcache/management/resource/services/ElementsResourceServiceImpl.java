@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -47,9 +47,7 @@ public final class ElementsResourceServiceImpl implements ElementsResourceServic
     try {
       cacheSvc.clearCache(cacheManagerName, cacheName);
     } catch (ServiceExecutionException e) {
-      LOG.error("Failed to delete element.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+      throw new ResourceRuntimeException("Failed to delete element", e, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 }

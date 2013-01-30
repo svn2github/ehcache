@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -59,9 +59,7 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
     try {
       return entityResourceFactory.createCacheManagerEntities(cmNames, cmAttrs);
     } catch (ServiceExecutionException e) {
-      LOG.error("Failed to get cache managers.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause()).build());
+      throw new ResourceRuntimeException("Failed to get cache managers", e, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 
@@ -80,9 +78,7 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
     try {
       cacheMgrSvc.updateCacheManager(cacheManagerName, resource);
     } catch (ServiceExecutionException e) {
-      LOG.error("Failed to update cache manager.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause()).build());
+      throw new ResourceRuntimeException("Failed to update cache manager", e, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 }

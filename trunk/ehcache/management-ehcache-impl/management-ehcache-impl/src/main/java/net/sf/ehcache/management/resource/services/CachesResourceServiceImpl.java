@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -20,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 /**
@@ -64,10 +64,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     try {
       return entityResourceFactory.createCacheEntities(cmNames, cNames, cAttrs);
     } catch (ServiceExecutionException e) {
-      Throwable exceptionToLog = e.getCause() != null ? e.getCause() :  e;
-      LOG.error("Failed to get caches.", exceptionToLog);
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(exceptionToLog.getMessage()).build());
+      throw new ResourceRuntimeException("Failed to get caches", e, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 
@@ -88,12 +85,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     try {
       cacheSvc.createOrUpdateCache(cacheManagerName, cacheName, resource);
     } catch (ServiceExecutionException e) {
-      LOG.error("Failed to create or update cache.", e.getCause());
-      throw new WebApplicationException(e.getCause(),
-        Response.status(Response.Status.BAD_REQUEST)
-          .entity(e.getCause().getMessage())
-          .type("text/plain")
-          .build());
+      throw new ResourceRuntimeException("Failed to create or update cache", e, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 
@@ -105,8 +97,7 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
     LOG.debug(String.format("Invoking CachesResourceServiceImpl.deleteCache: %s", info.getRequestUri()));
 
     //todo: implement
-    throw new WebApplicationException(
-        Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("Not yet implemented").build());
+    throw new ResourceRuntimeException("Not yet implemented", Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
   }
 
 }

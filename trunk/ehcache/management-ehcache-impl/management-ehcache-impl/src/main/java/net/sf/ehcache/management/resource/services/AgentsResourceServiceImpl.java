@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -21,6 +20,7 @@ import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
+import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.AgentsResourceService;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
@@ -59,10 +59,8 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
 
     try {
       return agentService.getAgents(idSet);
-    } catch (ServiceExecutionException e) {
-      LOG.error("Failed to get agents.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+    } catch (ServiceExecutionException see) {
+      throw new ResourceRuntimeException("Failed to get agents", see, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 
@@ -84,10 +82,8 @@ public final class AgentsResourceServiceImpl implements AgentsResourceService {
 
     try {
       return agentService.getAgentsMetadata(idSet);
-    } catch (ServiceExecutionException e) {
-      LOG.error("Failed to get agents metadata.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build());
+    } catch (ServiceExecutionException see) {
+      throw new ResourceRuntimeException("Failed to get agents metadata", see, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 

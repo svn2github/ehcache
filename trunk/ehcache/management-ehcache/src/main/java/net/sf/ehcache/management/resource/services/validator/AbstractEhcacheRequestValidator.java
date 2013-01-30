@@ -5,10 +5,10 @@
 
 package net.sf.ehcache.management.resource.services.validator;
 
+import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -46,13 +46,13 @@ public abstract class AbstractEhcacheRequestValidator implements RequestValidato
       Set<String> cNames = Utils.trimToNull(cacheNames) == null ? null : new HashSet<String>(
           Arrays.asList(cacheNames.split(",")));
       if (cNames == null) {
-        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-            .entity("No cache specified. Unsafe requests must specify a single cache manager name.").build());
+        throw new ResourceRuntimeException("No cache specified. Unsafe requests must specify a single cache name.",
+            Response.Status.BAD_REQUEST.getStatusCode());
       }
 
       if (cNames.size() != 1) {
-        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-            .entity("Multiple caches specified. Unsafe requests must specify a single cache manager name.").build());
+        throw new ResourceRuntimeException("Multiple caches specified. Unsafe requests must specify a single cache name.",
+            Response.Status.BAD_REQUEST.getStatusCode());
       }
     }
 
@@ -65,14 +65,13 @@ public abstract class AbstractEhcacheRequestValidator implements RequestValidato
       Set<String> cmNames = Utils.trimToNull(cacheManagerNames) == null ? null : new HashSet<String>(
           Arrays.asList(cacheManagerNames.split(",")));
       if (cmNames == null) {
-        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-            .entity("No cache manager specified. Unsafe requests must specify a single cache manager name.").build());
+        throw new ResourceRuntimeException("No cache manager specified. Unsafe requests must specify a single cache manager name.",
+            Response.Status.BAD_REQUEST.getStatusCode());
       }
 
       if (cmNames.size() != 1) {
-        throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
-            .entity("Multiple cache managers specified. Unsafe requests must specify a single cache manager name.")
-            .build());
+        throw new ResourceRuntimeException("Multiple cache managers specified. Unsafe requests must specify a single cache manager name.",
+            Response.Status.BAD_REQUEST.getStatusCode());
       }
     }
 

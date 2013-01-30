@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
@@ -56,9 +56,8 @@ public final class CacheStatisticSamplesResourceServiceImpl implements CacheStat
     try {
       return entityResourceFactory.createCacheStatisticSampleEntity(cmNames, cNames, sNames);
     } catch (ServiceExecutionException e) {
-      LOG.error("Failed to get cache statistics sample.", e.getCause());
-      throw new WebApplicationException(
-          Response.status(Response.Status.BAD_REQUEST).entity(e.getCause().getMessage()).build());
+      throw new ResourceRuntimeException("Failed to get cache statistics sample", e,
+          Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
 }
