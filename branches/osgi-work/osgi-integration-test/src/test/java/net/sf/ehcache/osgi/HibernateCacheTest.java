@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
-import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -96,7 +95,7 @@ public class HibernateCacheTest {
         workingDirectory("target/pax-exam"),
         when(Boolean.getBoolean("debug")).useOptions(
             vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
-            systemTimeout(0)), cleanCaches());
+            systemTimeout(0)));
   }
 
   @ProbeBuilder
