@@ -18,6 +18,7 @@ package net.sf.ehcache.store.cachingtier;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.AbstractCacheConfigurationListener;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
@@ -96,7 +97,15 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         final Policy memoryEvictionPolicy = determineEvictionPolicy(cache);
         if (cache.getCacheConfiguration().isCountBasedTuned()) {
             final long maxEntriesLocalHeap = getCachingTierMaxEntryCount(cache);
-            memCacheBackEnd = new CountBasedBackEnd<Object, Object>(maxEntriesLocalHeap, memoryEvictionPolicy);
+            final CountBasedBackEnd<Object, Object> countBasedBackEnd =
+                new CountBasedBackEnd<Object, Object>(maxEntriesLocalHeap, memoryEvictionPolicy);
+            memCacheBackEnd = countBasedBackEnd;
+            cache.getCacheConfiguration().addConfigurationListener(new AbstractCacheConfigurationListener() {
+                @Override
+                public void memoryCapacityChanged(final int oldCapacity, final int newCapacity) {
+                    countBasedBackEnd.setMaxEntriesLocalHeap(newCapacity);
+                }
+            });
         } else {
             final PooledBasedBackEnd<Object, Object> pooledBasedBackEnd = new PooledBasedBackEnd<Object, Object>(memoryEvictionPolicy);
 

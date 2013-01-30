@@ -18,7 +18,7 @@ package net.sf.ehcache.config;
 /**
  * @author Alex Snaps
  */
-abstract class AbstractCacheConfigurationListener implements CacheConfigurationListener {
+public abstract class AbstractCacheConfigurationListener implements CacheConfigurationListener {
     /**
      * {@inheritDoc}
      */

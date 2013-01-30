@@ -23,6 +23,13 @@ public class CountBasedBackEndTest {
             countBasedBackEnd.putIfAbsent(key, new Element(key, i));
             assertThat("Grew to " + countBasedBackEnd.size(), countBasedBackEnd.size() <= limit, is(true));
         }
+        countBasedBackEnd.setMaxEntriesLocalHeap(limit * 2);
+        for (int i = 0; i < limit * 10; i++) {
+            final String key = Integer.toString(i);
+            countBasedBackEnd.putIfAbsent(key, new Element(key, i));
+            assertThat(countBasedBackEnd.size() > limit, is(true));
+            assertThat("Grew to " + countBasedBackEnd.size(), countBasedBackEnd.size() <= limit * 2, is(true));
+        }
     }
 
     @Test

@@ -1,10 +1,14 @@
 package net.sf.ehcache.store.cachingtier;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.CachingTier;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -186,6 +190,18 @@ public class OnHeapCachingTierTest {
         for (Map.Entry<Integer, Object> entry : backEnd.entrySet()) {
             assertThat(entry.getKey() + " should point to an element", entry.getValue(), instanceOf(Element.class));
         }
+    }
+
+    @Test
+    public void testSupportsDynamicCapacityChanges() throws NoSuchFieldException, IllegalAccessException {
+        Cache cache = new Cache(new CacheConfiguration("foo", 10));
+        OnHeapCachingTier cachingTier = OnHeapCachingTier.createOnHeapCache(cache, null);
+        final Field backEndField = OnHeapCachingTier.class.getDeclaredField("backEnd");
+        backEndField.setAccessible(true);
+        final CountBasedBackEnd backend = (CountBasedBackEnd)backEndField.get(cachingTier);
+        Assert.assertThat(backend.getMaxEntriesLocalHeap(), is(10L));
+        cache.getCacheConfiguration().setMaxEntriesLocalHeap(20);
+        Assert.assertThat(backend.getMaxEntriesLocalHeap(), is(20L));
     }
 
     /**

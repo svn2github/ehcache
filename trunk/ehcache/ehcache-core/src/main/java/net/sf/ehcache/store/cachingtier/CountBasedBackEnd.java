@@ -43,7 +43,7 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
     private static final int MAX_EVICTIONS = 5;
     private static final int SAMPLING_SIZE = 30;
 
-    private final long maxEntriesLocalHeap;
+    private volatile long maxEntriesLocalHeap;
     private volatile Policy policy;
     private volatile EvictionCallback<K, V> evictionCallback;
 
@@ -137,5 +137,21 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
         }
         return policy.selectedBasedOnPolicy(elements.toArray(new Element[elements.size()]),
             value instanceof Element ? (Element)value : null);
+    }
+
+    /**
+     * Sets the capacity limit
+     * @param maxEntriesLocalHeap the new limit
+     */
+    public void setMaxEntriesLocalHeap(final long maxEntriesLocalHeap) {
+        this.maxEntriesLocalHeap = maxEntriesLocalHeap;
+    }
+
+    /**
+     * Reads the current capacity limit
+     * @return the capacity limit
+     */
+    public long getMaxEntriesLocalHeap() {
+        return maxEntriesLocalHeap;
     }
 }
