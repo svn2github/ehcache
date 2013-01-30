@@ -8,7 +8,6 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -262,7 +261,5 @@ public class HibernateCacheTest {
 		assertEquals("Cache Hit Count", 0L, queryStats.getCacheHitCount());
 		assertEquals("Cache Put Count", 1L, queryStats.getCachePutCount());
 		
-		System.out.println("XXXXXX   WAITING FOR 2 MINITES...");
-		TimeUnit.MINUTES.sleep(2);
 	}
 }

@@ -1,21 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>net.dahanne.osgi.ehcache</groupId>
-  <artifactId>ehcache-core-osgi-modules</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  
+  <groupId>net.sf.ehcache.test</groupId>
+  <artifactId>osgi-work-root</artifactId>
+  <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>EhCache core OSGi bundle example</name>
-  <description>This POM project should be copied, along with its depencies, ehcache-core-dependencies-bundle and ehcache-core-example-osgi-consumer in the ehcache directory, next to the core folder for ease of use
-Then, cd into its directory, should be ehcache-core-osgi-modules and run the command :
-mvn clean install org.ops4j:maven-pax-plugin:run -Dframework=felix
-It will build all the modules, and run a felix osgi runtime, where ehcache-core-example-osgi-consumer will interact with the OSGi'fied Ehcache</description>
-  <properties>
-    <org.osgi.framework.bootdelegation>sun.misc</org.osgi.framework.bootdelegation>
-    <!--vmOptions>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000</vmOptions-->
-  </properties>
+
   <modules>
-    <module>ehcache-osgi</module>
-  	<!--module>dependencies-bundle</module--> <!-- not needed -->
-  	<module>osgi-consumer</module>
+    <module>jta-osgi</module>
+  	<module>license-bundle</module>
+    <module>hibernate-ehcache-bundle</module>
+    <module>osgi-integration-test</module>
   </modules>
 </project>

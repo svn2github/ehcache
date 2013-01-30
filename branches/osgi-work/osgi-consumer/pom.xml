@@ -73,10 +73,15 @@
       <version>4.10</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>net.sf.ehcache.test</groupId>
       <artifactId>hibernate-ehcache-bundle</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>jta-osgi</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>    
   </dependencies>
   <build>
     <plugins>
