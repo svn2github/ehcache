@@ -1068,9 +1068,8 @@ public class CacheConfiguration implements Cloneable {
      * <p/>
      * The values for maxEntriesInCache is interpreted as follows:
      * <ul>
-     * <li>maxEntriesInCache <= 0 means no capacity based eviction, but resource based eviction can happen.</li>
-     * <li>maxEntriesInCache == 0 means no eviction, neither of capacity based nor resource based eviction will happen.</li>
-     * <li>maxEntriesInCache > 0 means both capacity based and resource based eviction can happen
+     * <li>maxEntriesInCache < 0 means no capacity based eviction, but resource based eviction can happen.</li>
+     * <li>maxEntriesInCache >= 0 means both capacity based and resource based eviction can happen
      * </ul>
      * <p/>
      * This property can be modified dynamically while the cache is operating.
