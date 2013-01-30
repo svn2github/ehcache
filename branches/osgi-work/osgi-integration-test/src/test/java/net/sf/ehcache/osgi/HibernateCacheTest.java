@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
+import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -55,6 +56,7 @@ import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
@@ -73,6 +75,10 @@ public class HibernateCacheTest {
    */
   @Inject
   protected BundleContext bc;
+
+  public HibernateCacheTest() {
+    Thread.currentThread().setContextClassLoader(HibernateCacheTest.class.getClassLoader());
+  }
 
   public void testBundle() {
     assertThat(bc, is(notNullValue()));
@@ -93,6 +99,7 @@ public class HibernateCacheTest {
         junitBundles(),
         systemProperty("derby.system.home").value("target/derby"),
         workingDirectory("target/pax-exam"),
+        cleanCaches(),
         when(Boolean.getBoolean("debug")).useOptions(
             vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
             systemTimeout(0)));
@@ -118,15 +125,21 @@ public class HibernateCacheTest {
     return sessionFactory;
   }
 
+  private void printBundles() {
+    for (Bundle b : bc.getBundles()) {
+      System.out.println("XXX Bundle " + b.getSymbolicName() + ", " + b.getVersion() + ", state:  "
+          + b.getState());
+    }
+  }
+
   @Before
   public void setUp() throws Exception {
-    Thread.currentThread().setContextClassLoader(HibernateCacheTest.class.getClassLoader());
+    printBundles();
     config = new Configuration().configure(HibernateCacheTest.class
         .getResource("/hibernate.cfg.xml"));
     config.setProperty("hibernate.hbm2ddl.auto", "create");
     getSessionFactory().getStatistics().setStatisticsEnabled(true);
-
-    clearCaches();
+    removeCaches();
   }
 
   @After
@@ -134,7 +147,7 @@ public class HibernateCacheTest {
     getSessionFactory().close();
   }
 
-  private void clearCaches() {
+  private void removeCaches() {
     for (CacheManager manager : CacheManager.ALL_CACHE_MANAGERS) {
       for (String s : manager.getCacheNames()) {
         final Cache cache = manager.getCache(s);
