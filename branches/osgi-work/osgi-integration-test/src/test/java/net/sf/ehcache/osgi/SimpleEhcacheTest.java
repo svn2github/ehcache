@@ -10,6 +10,7 @@ import static org.ops4j.pax.exam.CoreOptions.workingDirectory;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.util.ProductInfo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +27,10 @@ public class SimpleEhcacheTest {
 
   @Configuration
   public Option[] config() {
-    return options(mavenBundle("net.sf.ehcache", "ehcache").versionAsInProject(), 
+    return options(
+        mavenBundle("org.terracotta.license", "license-bundle").versionAsInProject().noStart(),
+        mavenBundle("org.terracotta.bigmemory", "bigmemory").versionAsInProject(),
+        mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(), 
         junitBundles(), 
         workingDirectory("target/pax-exam"), 
         cleanCaches());
@@ -34,6 +38,7 @@ public class SimpleEhcacheTest {
 
   @Test
   public void testSimpleCache() throws Exception {
+    System.out.println("XXX: " + new ProductInfo());
     CacheManager manager = new CacheManager(
         SimpleEhcacheTest.class.getResource("/simple-ehcache.xml"));
     Cache cache = manager.getCache("sampleCache1");

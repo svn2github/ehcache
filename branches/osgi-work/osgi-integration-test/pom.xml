@@ -96,10 +96,24 @@
 
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
+      <artifactId>ehcache-ee</artifactId>
       <version>2.7.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>org.terracotta.bigmemory</groupId>
+      <artifactId>bigmemory</artifactId>
+      <version>4.0.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.terracotta.license</groupId>
+      <artifactId>license-bundle</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>    
 
     <dependency>
       <groupId>org.slf4j</groupId>

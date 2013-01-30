@@ -88,7 +88,9 @@ public class HibernateCacheTest {
             "javax.transaction;version=1.1"),
         mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject()
             .noStart(),
-        mavenBundle("net.sf.ehcache", "ehcache").versionAsInProject(),
+        mavenBundle("org.terracotta.license", "license-bundle").versionAsInProject().noStart(),
+        mavenBundle("org.terracotta.bigmemory", "bigmemory").versionAsInProject(),
+        mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(),
         junitBundles(),
         systemProperty("derby.system.home").value("target/derby"),
         workingDirectory("target/pax-exam"),
@@ -99,7 +101,8 @@ public class HibernateCacheTest {
 
   @ProbeBuilder
   public TestProbeBuilder extendProbe(TestProbeBuilder builder) {
-    builder.setHeader(Constants.IMPORT_PACKAGE, "javax.transaction;version=1.1,org.hibernate,org.osgi.framework,org.slf4j");
+    builder.setHeader(Constants.IMPORT_PACKAGE,
+        "javax.transaction;version=1.1,org.hibernate,org.osgi.framework,org.slf4j");
     builder.setHeader(Constants.DYNAMICIMPORT_PACKAGE, "*");
     return builder;
   }
