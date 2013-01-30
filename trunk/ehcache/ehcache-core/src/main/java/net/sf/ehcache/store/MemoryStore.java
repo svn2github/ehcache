@@ -304,7 +304,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
         if (delta > -1) {
             final ReentrantReadWriteLock lock = map.lockFor(element.getObjectKey());
-            lock.writeLock().unlock();
+            lock.writeLock().lock();
             try {
                 Element old = map.put(element.getObjectKey(), element, delta);
                 if (writerManager != null) {
