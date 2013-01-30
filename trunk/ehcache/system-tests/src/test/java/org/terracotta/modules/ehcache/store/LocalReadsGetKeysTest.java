@@ -9,7 +9,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
 
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.properties.TCPropertiesConsts;
@@ -17,6 +19,7 @@ import com.tc.test.config.model.TestConfig;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
@@ -29,7 +32,6 @@ public class LocalReadsGetKeysTest extends AbstractTerracottaActivePassiveTestBa
     String timeout = "120000";
     testConfig.addTcProperty(TCPropertiesConsts.L2_L1RECONNECT_ENABLED, "true");
     testConfig.addTcProperty(TCPropertiesConsts.L2_L1RECONNECT_TIMEOUT_MILLS, timeout);
-    timebombTest("2013-01-30");
   }
 
   public static class App extends ClientBase {
@@ -72,7 +74,14 @@ public class LocalReadsGetKeysTest extends AbstractTerracottaActivePassiveTestBa
 
       if (index != 0) {
         getTestControlMbean().crashActiveServer(0);
+        final ClusterInfo clusterInfo = clusteringToolkit.getClusterInfo();
+        WaitUtil.waitUntilCallableReturnsFalse(new Callable<Boolean>() {
 
+          @Override
+          public Boolean call() throws Exception {
+            return clusterInfo.areOperationsEnabled();
+          }
+        });
         try {
           attemptNonLocalRead(caches);
           testGetKeysMethods(caches);
