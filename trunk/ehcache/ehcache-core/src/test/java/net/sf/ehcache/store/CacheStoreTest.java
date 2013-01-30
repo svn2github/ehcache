@@ -10,6 +10,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.store.cachingtier.CountBasedBackEnd;
 import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
@@ -31,6 +32,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
+ * When I wrote this, it probably made sense... now though, looking at it... wtf ?!
  * @author Alex Snaps
  */
 public class CacheStoreTest {
@@ -44,7 +46,7 @@ public class CacheStoreTest {
         final AtomicInteger faults = new AtomicInteger();
         final AtomicInteger flushes = new AtomicInteger();
         final Store memStore = createMemStore(10);
-        CachingTier<Object, Element> cachingTier = new OnHeapCachingTier<Object, Element>(null);
+        CachingTier<Object, Element> cachingTier = new OnHeapCachingTier<Object, Element>(new CountBasedBackEnd<Object, Object>(1));
         CacheStore cacheStore = new CacheStore(cachingTier, new DelegatingStoreAuthority(memStore,
             new DelegatingStoreAuthority.FaultAction() {
             @Override
@@ -84,9 +86,9 @@ public class CacheStoreTest {
                 return null;
             }
         }, false), notNullValue());
-        assertThat(cacheStore.putIfAbsent(new Element(KEY + KEY, NAME)), is(nullValue()));
+        assertThat(cacheStore.put(new Element(KEY + KEY, NAME)), is(true));
         assertThat(faults.get(), is(1));
-        assertThat(flushes.get(), is(0));
+        assertThat(flushes.get(), is(1));
         element = cacheStore.get(KEY + KEY);
         assertThat(cachingTier.get(KEY, new Callable<Element>() {
             @Override
@@ -96,7 +98,7 @@ public class CacheStoreTest {
         }, false), nullValue());
         assertThat(element, notNullValue());
         assertThat(element.getObjectValue(), equalTo((Object)NAME));
-        assertThat(faults.get(), is(2));
+        assertThat(faults.get(), is(1));
         assertThat(flushes.get(), is(1));
     }
 
