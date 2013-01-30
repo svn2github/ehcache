@@ -1667,6 +1667,7 @@ public class CacheConfiguration implements Cloneable {
         warnMaxEntriesForOverflowToOffHeap(register);
         warnSizeOfPolicyConfiguration();
         freezePoolUsages(cacheManager);
+        warnTieredSizing();
     }
 
     private void consolidatePersistenceSettings(CacheManager manager) {
@@ -1763,6 +1764,29 @@ public class CacheConfiguration implements Cloneable {
                 onDiskPoolUsage = CacheConfiguration.PoolUsage.None;
             }
         }
+    }
+
+    private void warnTieredSizing() {
+        if (isOverflowToOffHeap()) {
+            if (getMaxBytesLocalHeap() >= getMaxBytesLocalOffHeap() && getMaxBytesLocalOffHeap() != 0) {
+                LOG.warn("Configuration problem for cache " + getName() + ": MaxBytesLocalHeap equal or greater than MaxBytesLocalOffHeap. " +
+                         "This will result in useless off heap storage.");
+            }
+            if (isOverflowToDisk()) {
+                if (getMaxBytesLocalOffHeap() >= getMaxBytesLocalDisk() && getMaxBytesLocalDisk() != 0) {
+                    LOG.warn("Configuration problem for cache " + getName() + ": MaxBytesLocalOffHeap equal or greater than MaxBytesLocalDisk. " +
+                             "This will result in useless disk storage.");
+                }
+            }
+        }
+
+        if (isOverflowToDisk()) {
+            if (getMaxEntriesLocalHeap() >= getMaxEntriesLocalDisk() && getMaxEntriesLocalDisk() != 0) {
+                LOG.warn("Configuration problem for cache " + getName() + ": MaxEntriesLocalHeap equal or greater than MaxEntriesLocalDisk. " +
+                         "This will result in useless disk storage.");
+            }
+        }
+
     }
 
     private void registerCacheConfiguration(final CacheManager cacheManager) {
