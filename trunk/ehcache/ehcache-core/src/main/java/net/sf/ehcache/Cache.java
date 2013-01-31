@@ -2383,8 +2383,8 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private void logOnRemoveAllIfPinnedCache() {
         PinningConfiguration pinningConfiguration = getCacheConfiguration().getPinningConfiguration();
-        if (pinningConfiguration != null && pinningConfiguration.getStore() != null) {
-            LOG.warn("Data availability impacted:" +
+        if (pinningConfiguration != null && PinningConfiguration.Store.INCACHE.equals(pinningConfiguration.getStore())) {
+            LOG.warn("Data availability impacted:\n" +
                      "****************************************************************************************\n" +
                      "************************** removeAll called on a pinned cache **************************\n" +
                      "****************************************************************************************");
