@@ -1251,11 +1251,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     public static DiskStore getDiskStore(Store store) throws NoSuchFieldException, IllegalAccessException {
         Field f;
-        if (store instanceof FrontEndCacheTier) {
-            f = FrontEndCacheTier.class.getDeclaredField("authority");
-        } else {
-            f = CacheStore.class.getDeclaredField("authoritativeTier");
-        }
+        f = CacheStore.class.getDeclaredField("authoritativeTier");
         f.setAccessible(true);
         return (DiskStore) f.get(store);
     }

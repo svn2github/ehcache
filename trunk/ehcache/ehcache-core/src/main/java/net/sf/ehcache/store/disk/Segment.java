@@ -850,12 +850,8 @@ public class Segment extends ReentrantReadWriteLock {
 
     @Deprecated
     private boolean returnSafeDeprecated(final Object key, final int hash, final Element element) {
-        if (cacheEventNotificationService.getFrontEndCacheTier() == null
-            || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(element)) {
-            notifyEviction(remove(key, hash, null, null));
-            return false;
-        }
-        return true;
+        notifyEviction(remove(key, hash, null, null));
+        return false;
     }
 
     private void notifyEviction(final Element evicted) {
@@ -906,10 +902,7 @@ public class Segment extends ReentrantReadWriteLock {
                 }
 
                 // TODO this has to be removed!
-                @Deprecated
-                final boolean evictable = cacheEventNotificationService.getFrontEndCacheTier() == null
-                                  || cacheEventNotificationService.getFrontEndCacheTier().isEvictionCandidate(evictedElement);
-                if (e != null && (value == null || value == e.element)  && !e.faulted.get() && evictable) {
+                if (e != null && (value == null || value == e.element) && !e.faulted.get()) {
                     // All entries following removed node can stay
                     // in list, but all preceding ones need to be
                     // cloned.

@@ -21,8 +21,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
-import net.sf.ehcache.store.FrontEndCacheTier;
-import net.sf.ehcache.store.Store;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -462,22 +460,7 @@ public class RegisteredEventListeners {
         return sb.toString();
     }
 
-    /**
-     * Returns the {@link FrontEndCacheTier} this RegisteredEventListeners is backing, or null if the cache isn't backed by one
-     * @return the Cache's FrontEndCacheTier
-     */
-    @Deprecated
-    public FrontEndCacheTier getFrontEndCacheTier() {
-        Store store;
-        try {
-            store = helper.getStore();
-        } catch (IllegalStateException e) {
-            return null;
-        }
-        return store instanceof FrontEndCacheTier ? (FrontEndCacheTier) store : null;
-    }
-
-    /**
+  /**
      * Combine a Listener and its NotificationScope.  Equality and hashcode are based purely on the listener.
      * This implies that the same listener cannot be added to the set of registered listeners more than
      * once with different notification scopes.

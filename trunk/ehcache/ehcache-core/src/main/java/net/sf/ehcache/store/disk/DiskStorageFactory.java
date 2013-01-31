@@ -47,7 +47,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
-import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
@@ -482,21 +481,7 @@ public class DiskStorageFactory {
             } catch (Throwable e) {
                 // TODO Need to clean this up once FrontEndCacheTier is going away completely
                 LOG.error("Disk Write of " + placeholder.getKey() + " failed: ", e);
-                FrontEndCacheTier frontEndCacheTier = eventService.getFrontEndCacheTier();
-                if (frontEndCacheTier != null) {
-                    Lock l = frontEndCacheTier.getLockFor(placeholder.getKey()).writeLock();
-                    l.lock();
-                    try {
-                        placeholder.setFailedToFlush(true);
-                        if (!frontEndCacheTier.isCached(placeholder.getKey())) {
-                            store.evict(placeholder.getKey(), placeholder);
-                        }
-                    } finally {
-                        l.unlock();
-                    }
-                } else {
-                    store.evict(placeholder.getKey(), placeholder);
-                }
+                store.evict(placeholder.getKey(), placeholder);
                 return null;
             }
         }

@@ -73,6 +73,7 @@ import net.sf.ehcache.loader.ExceptionThrowingLoader;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.impl.AbstractPoolAccessor;
+import net.sf.ehcache.store.CacheStore;
 import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
@@ -304,11 +305,13 @@ public class CacheTest extends AbstractCacheTest {
 
     private static void assertCachePoolSize(final long value, final Cache one) throws Exception {
         Store store = one.getStore();
-        if (store instanceof FrontEndCacheTier) {
-            Store authority = getAuthority(store);
+        if (store instanceof CacheStore) {
+            store = getAuthority(store);
+        }
+        if (store instanceof MemoryStore) {
             Field poolAccessor = MemoryStore.class.getDeclaredField("poolAccessor");
             poolAccessor.setAccessible(true);
-            PoolAccessor accessor = (PoolAccessor)poolAccessor.get(authority);
+            PoolAccessor accessor = (PoolAccessor)poolAccessor.get(store);
             Field pool = AbstractPoolAccessor.class.getDeclaredField("pool");
             pool.setAccessible(true);
             Pool ourPool = (Pool)pool.get(accessor);
@@ -317,9 +320,9 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     private static Store getAuthority(final Store store) throws Exception {
-        Field poolAccessor = FrontEndCacheTier.class.getDeclaredField("authority");
-        poolAccessor.setAccessible(true);
-        return (Store) poolAccessor.get(store);
+        Field authoritativeTier = CacheStore.class.getDeclaredField("authoritativeTier");
+        authoritativeTier.setAccessible(true);
+        return (Store)authoritativeTier.get(store);
     }
 
     /**

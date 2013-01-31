@@ -893,11 +893,8 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         evictionObserver.begin();
         final Element remove = remove(element.getObjectKey());
         RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
-        final FrontEndCacheTier frontEndCacheTier = cacheEventNotificationService.getFrontEndCacheTier();
-        if (remove != null && frontEndCacheTier != null && frontEndCacheTier.notifyEvictionFromCache(remove.getKey())) {
-            cacheEventNotificationService.notifyElementEvicted(remove, false);
-            evictionObserver.end(EvictionOutcome.SUCCESS);
-        }
+        cacheEventNotificationService.notifyElementEvicted(remove, false);
+        evictionObserver.end(EvictionOutcome.SUCCESS);
         return remove != null;
     }
 
