@@ -56,6 +56,7 @@ import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -93,11 +94,12 @@ public class HibernateCacheTest {
             "javax.transaction;version=1.1"),
         mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject()
             .noStart(),
-        mavenBundle("org.terracotta.license", "license-bundle").versionAsInProject().noStart(),
         mavenBundle("org.terracotta.bigmemory", "bigmemory").versionAsInProject(),
         mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(),
         junitBundles(),
         systemProperty("derby.system.home").value("target/derby"),
+        systemProperty("com.tc.productkey.path").value(
+            PathUtils.getBaseDir() + "/src/test/resources/bigmemorygo-license.key"),
         workingDirectory("target/pax-exam"),
         cleanCaches(),
         when(Boolean.getBoolean("debug")).useOptions(
