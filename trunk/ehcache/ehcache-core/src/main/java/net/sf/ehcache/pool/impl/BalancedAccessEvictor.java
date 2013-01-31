@@ -37,7 +37,6 @@ import net.sf.ehcache.pool.PoolParticipant;
  */
 public class BalancedAccessEvictor implements PoolEvictor<PoolParticipant> {
 
-    private static final double ALPHA = 1.0;
     private static final int SAMPLE_SIZE = 5;
 
     /**
@@ -101,42 +100,25 @@ public class BalancedAccessEvictor implements PoolEvictor<PoolParticipant> {
     }
 
     private float evictionCost(PoolAccessor accessor, long unloadedSize) {
-        /*
-         * The code below is a simplified version of this:
-         *
-         * float meanEntrySize = byteSize / countSize;
-         * float accessRate = hitRate + missRate;
-         * float fillLevel = hitRate / accessRate;
-         * float deltaFillLevel = fillLevel / byteSize;
-         *
-         * return meanEntrySize * accessRate * deltaFillLevel * hitDistributionFunction(fillLevel);
-         */
-
         float hitRate = accessor.getParticipant().getApproximateHitRate();
         float missRate = accessor.getParticipant().getApproximateMissRate();
-        long countSize = accessor.getParticipant().getApproximateCountSize();
         float accessRate = hitRate + missRate;
 
         if (accessRate == 0.0f) {
             if (accessor.getSize() > unloadedSize) {
-                return Float.NEGATIVE_INFINITY;
+                return 0;
             } else {
-                return Float.POSITIVE_INFINITY;
+                return Float.MIN_NORMAL;
             }
-        } else if (hitRate == 0.0f) {
-            return Float.POSITIVE_INFINITY;
         } else {
-            float cost = (hitRate / countSize) * hitDistributionFunction(hitRate / accessRate);
+            long countSize = accessor.getParticipant().getApproximateCountSize();
+            float cost = accessRate / countSize;
             if (Float.isNaN(cost)) {
                 throw new AssertionError(String.format("NaN Eviction Cost [hit:%f miss:%f size:%d]", hitRate, missRate, countSize));
             } else {
                 return cost;
             }
         }
-    }
-
-    private static float hitDistributionFunction(float fillLevel) {
-        return (float) Math.pow(fillLevel, -ALPHA);
     }
 
     private long getDesiredUnloadedSize(Collection<PoolAccessor> from) {

@@ -21,7 +21,7 @@ public class TwinCachesTest {
 
     private CacheManager manager;
 
-    //@Test
+    @Test
     public void testParallelLoadTwinCaches() {
         manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
@@ -58,7 +58,7 @@ public class TwinCachesTest {
         Assert.assertEquals(1f - ratio, ((float)two.getSize()) / total, 0.1f);
     }
 
-    //@Test
+    @Test
     public void testSerialLoadTwinCaches() {
         manager = new CacheManager(new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
@@ -97,7 +97,7 @@ public class TwinCachesTest {
         Assert.assertEquals(1f - ratio, ((float)two.getSize()) / total, 0.1f);
     }
 
-    //@Test
+    @Test
     public void testRandomAccessTwinCaches() {
         manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
@@ -131,7 +131,7 @@ public class TwinCachesTest {
         Assert.assertEquals(1f - ratio, ((float)two.getSize()) / total, 0.1f);
     }
 
-    //@Test
+    @Test
     public void testRandomAccessTripletCaches() {
         manager = new CacheManager(new Configuration().maxBytesLocalHeap(1, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
@@ -177,7 +177,7 @@ public class TwinCachesTest {
         Assert.assertEquals(1 - ratioTwo, ((float)three.getSize()) / total, 0.1f);
     }
 
-    //@Test
+    @Test
     public void testIntroducedRandomAccessTwinCache() throws IOException {
         manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
@@ -302,12 +302,12 @@ public class TwinCachesTest {
         Assert.assertEquals(1 - ratioTwo, ((float)three.getSize()) / totalThree, 0.1f);
     }
 
-    //@Test
+    @Test
     public void testIntroducedRandomAccessDoubledCache() throws IOException {
         doTestIntroducedAccessDoubledCache(System.nanoTime());
     }
 
-    //@Test
+    @Test
     public void testIntroducedFixedAccessDoubledCache() throws IOException {
         // See MNK-3643
         doTestIntroducedAccessDoubledCache(944752613893346L);
