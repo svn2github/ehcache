@@ -74,7 +74,6 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.impl.AbstractPoolAccessor;
 import net.sf.ehcache.store.CacheStore;
-import net.sf.ehcache.store.FrontEndCacheTier;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
@@ -83,9 +82,7 @@ import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
 import org.hamcrest.core.Is;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -1773,8 +1770,6 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
 
-        Assume.assumeThat(cache.getStore(), IsInstanceOf.instanceOf(FrontEndCacheTier.class));
-
         Element element1 = new Element("1", new Date());
         Element element2 = new Element("2", new Date());
         cache.put(element1);
@@ -1782,14 +1777,14 @@ public class CacheTest extends AbstractCacheTest {
         flushDiskStore(cache);
 
         //Test equals and == from an Element retrieved from the MemoryStore
-        Element elementFromHeapStore = cache.get("1");
-        assertEquals(element1, elementFromHeapStore);
-        assertTrue(element1 == elementFromHeapStore);
+        Element elementFromHeapStore = cache.get("2");
+        assertEquals(element2, elementFromHeapStore);
+        assertTrue(element2 == elementFromHeapStore);
 
         //Test equals and == from an Element retrieved from the MemoryStore
-        Element elementFromDiskStore = cache.get("2");
-        assertEquals(element2, elementFromDiskStore);
-        assertTrue(element2 != elementFromDiskStore);
+        Element elementFromDiskStore = cache.get("1");
+        assertEquals(element1, elementFromDiskStore);
+        assertTrue(element1 != elementFromDiskStore);
     }
 
     /**
@@ -2655,7 +2650,6 @@ public class CacheTest extends AbstractCacheTest {
     public void testRedundantDiskReads() throws Exception {
         final Cache cache = new Cache("testRedundantDiskReads", 1, true, true, 0, 0);
         manager.addCache(cache);
-        Assume.assumeThat(cache.getStore(), IsInstanceOf.instanceOf(FrontEndCacheTier.class));
 
         for (int i = 0; i < 10; i++) {
             cache.put(new Element(i, new SlowDeserializer(Integer.toString(i))));

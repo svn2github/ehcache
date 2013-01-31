@@ -24,17 +24,12 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
 
     private static final Logger LOG = LoggerFactory.getLogger(LfuMemoryStorePerfTest.class.getName());
 
-    private static final Field AUTHORITY;
     private static final Method FIND_EVICTION_CANDIDATE;
     static {
         try {
-            AUTHORITY = FrontEndCacheTier.class.getDeclaredField("authority");
-            AUTHORITY.setAccessible(true);
             FIND_EVICTION_CANDIDATE = MemoryStore.class.getDeclaredMethod("findEvictionCandidate", Element.class);
             FIND_EVICTION_CANDIDATE.setAccessible(true);
         } catch (SecurityException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
