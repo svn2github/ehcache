@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author Ludovic Orban
  */
-public final class NullStore extends AbstractStore implements TierableStore {
+public final class NullStore extends AbstractStore implements Store {
 
     private NullStore() {
     }
@@ -85,27 +85,7 @@ public final class NullStore extends AbstractStore implements TierableStore {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void removeNoReturn(Object key) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isTierPinned() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPersistent() {
-        return false;
-    }
-
-    /**
+  /**
      * {@inheritDoc}
      */
     public Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
@@ -289,21 +269,7 @@ public final class NullStore extends AbstractStore implements TierableStore {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void fill(Element e) {
-        //no-op
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean removeIfNotPinned(final Object key) {
-        return remove(key) != null;
-    }
-
-    /**
+  /**
      * {@inheritDoc}
      */
     public void recalculateSize(Object key) {

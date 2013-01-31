@@ -32,7 +32,6 @@ import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;

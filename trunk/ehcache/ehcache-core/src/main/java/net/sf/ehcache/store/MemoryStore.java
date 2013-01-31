@@ -92,7 +92,7 @@ import static net.sf.ehcache.search.expression.BaseCriteria.getExtractor;
  * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
  * @version $Id$
  */
-public class MemoryStore extends AbstractStore implements TierableStore, CacheConfigurationListener {
+public class MemoryStore extends AbstractStore implements CacheConfigurationListener, Store {
 
     /**
      * This is the default from {@link java.util.concurrent.ConcurrentHashMap}. It should never be used, because we size
@@ -252,23 +252,7 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         return memoryStore;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void fill(Element element) {
-        if (alwaysPutOnHeap || isTierPinned() || remove(element.getObjectKey()) != null || canPutWithoutEvicting(element)) {
-            put(element);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean removeIfNotPinned(final Object key) {
-        return !storePinned && remove(key) != null;
-    }
-
-    /**
+  /**
      * Puts an item in the store. Note that this automatically results in an eviction if the store is full.
      *
      * @param element the element to add
@@ -378,28 +362,14 @@ public class MemoryStore extends AbstractStore implements TierableStore, CacheCo
         }
     }
 
-    /**
+  /**
      * {@inheritDoc}
      */
-    public void removeNoReturn(final Object key) {
-        remove(key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isTierPinned() {
+  private boolean isTierPinned() {
         return storePinned;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPersistent() {
-        return false;
-    }
-
-    /**
+  /**
      * {@inheritDoc}
      */
     public final Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
