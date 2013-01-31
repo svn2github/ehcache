@@ -89,19 +89,10 @@
               weblogic.transaction;resolution:=optional,
               javax.transaction;resolution:=optional,
               javax.servlet;resolution:=optional,
+              javax.net.ssl;resolution:=optional,
               org.hibernate.*;resolution:=optional,
               org.terracotta.toolkit.*;resolution:=optional,
-              !sun.misc,
-              org.slf4j.*,
-              javax.management, 
-              javax.management.openmbean, 
-              javax.naming, 
-              javax.swing.event, 
-              javax.transaction.xa, 
-              javax.xml.datatype, 
-              javax.xml.namespace, 
-              javax.xml.parsers,
-              org.xml.sax, org.xml.sax.helpers,*
+              !sun.misc,*
               </Import-Package>
             <Export-Package>net.sf.ehcache.*</Export-Package>
             <Private-Package>org.terracotta.*</Private-Package>
