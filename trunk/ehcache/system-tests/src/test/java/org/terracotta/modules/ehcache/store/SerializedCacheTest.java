@@ -6,11 +6,13 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
+import com.tc.l2.L2DebugLogging.LogLevel;
+import com.tc.object.servermap.localcache.impl.ServerMapLocalCacheImpl;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.Serializable;
@@ -22,6 +24,7 @@ public class SerializedCacheTest extends AbstractCacheTestBase {
 
   public SerializedCacheTest(TestConfig testConfig) {
     super(testConfig, App.class, App.class, App.class);
+    configureTCLogging(ServerMapLocalCacheImpl.class.getName(), LogLevel.DEBUG);
   }
 
   public static class App extends ClientBase {
@@ -57,7 +60,8 @@ public class SerializedCacheTest extends AbstractCacheTestBase {
 
       // test that copyOnRead defaults to false
       ValueHolder value2 = (ValueHolder) cache.get("key").getObjectValue();
-      Assert.assertTrue(value == value2);
+      Assert.assertTrue("$&$&$&$&$&$&$   value = " + value + " value2 = " + value2
+                        + " and they are not equal $&$&$&$&$&$&$", value == value2);
 
       barrier.await();
 
