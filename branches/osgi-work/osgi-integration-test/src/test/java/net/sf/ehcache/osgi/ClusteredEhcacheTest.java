@@ -1,7 +1,8 @@
 package net.sf.ehcache.osgi;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
@@ -9,7 +10,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.osgi.util.TestUtil;
-import net.sf.ehcache.util.ProductInfo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,11 +19,8 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.ops4j.pax.exam.util.PathUtils;
-import org.terracotta.context.ContextManager;
 
 /**
- * Test a simple BigMemory usage with BM Go license key.
- * The product name should include "BigMemory" and not "Ehcache"
  * 
  * 
  * @author hhuynh
@@ -31,39 +28,30 @@ import org.terracotta.context.ContextManager;
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-public class SimpleEhcacheTest {
-
+public class ClusteredEhcacheTest {
+  
   @Configuration
   public Option[] config() {
     return options(
-        mavenBundle("org.terracotta.bigmemory", "bigmemory").versionAsInProject(),
-        mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(),
+        bootDelegationPackages("sun.*,javax.naming,javax.naming.spi,javax.naming.event,javax.management,javax.net.ssl,javax.management.remote.misc"),
         TestUtil.commonOptions(),
+        mavenBundle("org.terracotta", "terracotta-toolkit-runtime-ee").versionAsInProject(),
+        mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(),
         systemProperty("com.tc.productkey.path").value(
-            PathUtils.getBaseDir() + "/src/test/resources/bigmemorygo-license.key"));
+            PathUtils.getBaseDir() + "/src/test/resources/enterprise-suite-license.key"));
   }
 
   @Test
-  public void testSimpleCache() throws Exception {
-    ProductInfo pi = new ProductInfo();
-    assertEquals("BigMemory", pi.getName());
+  public void testClusteredCache() throws Exception {
     CacheManager manager = new CacheManager(
-        SimpleEhcacheTest.class.getResource("/simple-ehcache.xml"));
-    Cache cache = manager.getCache("sampleCache1");
+        ClusteredEhcacheTest.class.getResource("/clustered-ehcache.xml"));
+    Cache cache = manager.getCache("sampleCache2");
     Element element = new Element("key1", "value1");
     cache.put(element);
     Element element1 = cache.get("key1");
     assertEquals("value1", element1.getObjectValue());
     assertEquals(1, cache.getSize());
+    assertTrue(cache.isTerracottaClustered());
   }
 
-  @Test
-  public void testUsingNonExportedClass() {
-    try {
-      ContextManager cm = new ContextManager();
-      fail("Expected class not found exception");
-    } catch (Throwable e) {
-      // expected
-    }
-  }
 }

@@ -7,16 +7,10 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
-import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
-import static org.ops4j.pax.exam.CoreOptions.vmOption;
-import static org.ops4j.pax.exam.CoreOptions.when;
-import static org.ops4j.pax.exam.CoreOptions.workingDirectory;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 import java.lang.reflect.Method;
@@ -36,6 +30,7 @@ import net.sf.ehcache.hibernate.domain.Item;
 import net.sf.ehcache.hibernate.domain.Person;
 import net.sf.ehcache.hibernate.domain.PhoneNumber;
 import net.sf.ehcache.hibernate.domain.VersionedItem;
+import net.sf.ehcache.osgi.util.TestUtil;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -90,21 +85,16 @@ public class HibernateCacheTest {
   public Option[] config() {
     return options(
         bootDelegationPackages("sun.*,javax.naming,javax.naming.spi,javax.naming.event,javax.management"),
+        TestUtil.commonOptions(),
         wrappedBundle(maven("javax.transaction", "jta").versionAsInProject()).exports(
             "javax.transaction;version=1.1"),
         mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject()
             .noStart(),
         mavenBundle("org.terracotta.bigmemory", "bigmemory").versionAsInProject(),
         mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(),
-        junitBundles(),
         systemProperty("derby.system.home").value("target/derby"),
         systemProperty("com.tc.productkey.path").value(
-            PathUtils.getBaseDir() + "/src/test/resources/bigmemorygo-license.key"),
-        workingDirectory("target/pax-exam"),
-        cleanCaches(),
-        when(Boolean.getBoolean("debug")).useOptions(
-            vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
-            systemTimeout(0)));
+            PathUtils.getBaseDir() + "/src/test/resources/bigmemorygo-license.key"));
   }
 
   @ProbeBuilder

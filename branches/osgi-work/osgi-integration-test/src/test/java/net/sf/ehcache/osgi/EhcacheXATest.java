@@ -17,6 +17,7 @@ import javax.transaction.TransactionManager;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.osgi.util.TestUtil;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
@@ -51,9 +52,7 @@ public class EhcacheXATest {
         wrappedBundle(maven("org.codehaus.btm", "btm").versionAsInProject()).exports(
             "bitronix.tm.*"),
         mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(),
-        junitBundles(),
-        workingDirectory("target/pax-exam"),
-        cleanCaches(),
+        TestUtil.commonOptions(),
         systemProperty("com.tc.productkey.path").value(
             PathUtils.getBaseDir() + "/src/test/resources/enterprise-suite-license.key"));
   }
