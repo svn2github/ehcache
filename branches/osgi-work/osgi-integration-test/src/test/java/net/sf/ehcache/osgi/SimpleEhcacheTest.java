@@ -6,6 +6,7 @@ import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.workingDirectory;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -19,8 +20,17 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.util.PathUtils;
 import org.terracotta.context.ContextManager;
 
+/**
+ * Test a simple BigMemory usage with BM Go license key.
+ * The product name should include "BigMemory" and not "Ehcache"
+ * 
+ * 
+ * @author hhuynh
+ *
+ */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
 public class SimpleEhcacheTest {
@@ -28,17 +38,19 @@ public class SimpleEhcacheTest {
   @Configuration
   public Option[] config() {
     return options(
-        mavenBundle("org.terracotta.license", "license-bundle").versionAsInProject().noStart(),
         mavenBundle("org.terracotta.bigmemory", "bigmemory").versionAsInProject(),
-        mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(), 
-        junitBundles(), 
-        workingDirectory("target/pax-exam"), 
-        cleanCaches());
+        mavenBundle("net.sf.ehcache", "ehcache-ee").versionAsInProject(),
+        junitBundles(),
+        workingDirectory("target/pax-exam"),
+        cleanCaches(),
+        systemProperty("com.tc.productkey.path").value(
+            PathUtils.getBaseDir() + "/src/test/resources/bigmemorygo-license.key"));
   }
 
   @Test
   public void testSimpleCache() throws Exception {
-    System.out.println("XXX: " + new ProductInfo());
+    ProductInfo pi = new ProductInfo();
+    assertEquals("BigMemory", pi.getName());
     CacheManager manager = new CacheManager(
         SimpleEhcacheTest.class.getResource("/simple-ehcache.xml"));
     Cache cache = manager.getCache("sampleCache1");

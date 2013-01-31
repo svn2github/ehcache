@@ -100,20 +100,20 @@
       <version>2.7.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.terracotta.bigmemory</groupId>
       <artifactId>bigmemory</artifactId>
       <version>4.0.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.terracotta.license</groupId>
       <artifactId>license-bundle</artifactId>
       <version>1.0-SNAPSHOT</version>
       <scope>test</scope>
-    </dependency>    
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -149,6 +149,20 @@
       <version>1.1</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.btm</groupId>
+      <artifactId>btm</artifactId>
+      <version>2.1.3</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.atomikos</groupId>
+      <artifactId>transactions-jta</artifactId>
+      <version>3.8.0</version>
+      <scope>test</scope>
+    </dependency>    
   </dependencies>
 
   <build>
