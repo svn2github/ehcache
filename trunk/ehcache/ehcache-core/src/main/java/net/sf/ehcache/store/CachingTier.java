@@ -100,6 +100,15 @@ public interface CachingTier<K, V> {
      * @return
      */
     @Deprecated
+    long getOffHeapSizeInBytes();
+    
+    /**
+     * CacheTier could keep hold of the PoolAccessors for each tier...
+     * But what about non pooled resources ?
+     *
+     * @return
+     */
+    @Deprecated
     long getOnDiskSizeInBytes();
 
     /**

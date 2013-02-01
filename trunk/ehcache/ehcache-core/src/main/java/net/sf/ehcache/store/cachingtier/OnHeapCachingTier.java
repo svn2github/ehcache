@@ -252,6 +252,11 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
     }
 
     @Override
+    public long getOffHeapSizeInBytes() {
+        return 0;
+    }
+
+    @Override
     public long getOnDiskSizeInBytes() {
         return 0;
     }

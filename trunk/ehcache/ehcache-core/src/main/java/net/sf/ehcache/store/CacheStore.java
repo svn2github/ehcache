@@ -330,7 +330,7 @@ public class CacheStore implements Store {
     @Override
     public long getOffHeapSizeInBytes() {
         // TODO delegate to pool accessors here ??
-        return cachingTier.getOnDiskSizeInBytes() + authoritativeTier.getOffHeapSizeInBytes();
+        return cachingTier.getOffHeapSizeInBytes() + authoritativeTier.getOffHeapSizeInBytes();
     }
 
     @Override
