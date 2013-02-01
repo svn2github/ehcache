@@ -44,6 +44,15 @@ class EhcacheQueryBuilder {
     }
     
     /**
+     * Creates a query selecting all children.
+     * 
+     * @return children query
+     */
+    static EhcacheQuery children() {
+        return new EhcacheQuery(queryBuilder().build()).children();
+    }
+    
+    /**
      * Creates a query selecting all descendants.
      * 
      * @return descendants query
@@ -92,23 +101,23 @@ class EhcacheQueryBuilder {
         }
 
         /**
-         * Add the descendants of the current node set to the results
+         * Add the given nodes to the current node set
          * 
-         * @return descendants and current merged
+         * @return merged node set
          */
-        EhcacheQuery addDescendants() {
+        EhcacheQuery add(final EhcacheQuery chain) {
             return new EhcacheQuery(queryBuilder().chain(query).chain(new Query() {
 
                 @Override
                 public Set<TreeNode> execute(Set<TreeNode> input) {
                     Set<TreeNode> result = new HashSet<TreeNode>();
                     result.addAll(input);
-                    result.addAll(queryBuilder().descendants().build().execute(input));
+                    result.addAll(chain.execute(input));
                     return result;
                 }
             }).build());
         }
-
+        
         /**
          * Remove instances of the specified type from the node set
          * 

@@ -30,6 +30,7 @@ import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 import org.terracotta.context.query.Query;
 
 import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.children;
 import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.descendants;
 
 /**
@@ -96,7 +97,7 @@ enum StandardOperationStatistic {
     },
 
     /** The evicted. */
-    EVICTION(false, cache().children().exclude(Ehcache.class).addDescendants(), CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
+    EVICTION(false, cache().add(children().exclude(Ehcache.class).add(descendants())), CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
 
     /** The expired. */
     EXPIRY(true, cache().children(), CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
