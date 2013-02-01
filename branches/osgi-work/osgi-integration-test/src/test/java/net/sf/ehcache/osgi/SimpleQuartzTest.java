@@ -28,10 +28,6 @@ import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
 /**
- * Test a simple BigMemory usage with BM Go license key. The product name should
- * include "BigMemory" and not "Ehcache"
- * 
- * 
  * @author hhuynh
  * 
  */
