@@ -91,9 +91,9 @@ final class AtomicPoolAccessor extends AbstractPoolAccessor {
      */
     public long delete(long sizeOf) throws IllegalArgumentException {
         checkLinked();
-        if (sizeOf < 0L) {
-            throw new IllegalArgumentException("cannot delete negative size");
-        }
+//        if (sizeOf < 0L) {
+//            throw new IllegalArgumentException("cannot delete negative size");
+//        }
 
         size.addAndGet(-sizeOf);
 

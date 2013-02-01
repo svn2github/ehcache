@@ -119,9 +119,9 @@ final class LockedPoolAccessor extends AbstractPoolAccessor {
      */
     public long delete(long sizeOf) throws IllegalArgumentException {
         checkLinked();
-        if (sizeOf < 0L) {
-            throw new IllegalArgumentException("cannot delete negative size");
-        }
+//        if (sizeOf < 0L) {
+//            throw new IllegalArgumentException("cannot delete negative size");
+//        }
 
         // synchronized makes the size update MT-safe but slow
         lock.lock();
