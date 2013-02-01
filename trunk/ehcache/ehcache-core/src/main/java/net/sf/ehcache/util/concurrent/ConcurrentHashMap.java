@@ -2372,7 +2372,7 @@ public class ConcurrentHashMap<K, V>
                     }
                     if (validated) {
                         if (node != null) {
-                            final long delta = poolAccessor.replace(node.size, k, node.val, FAKE_TREE_NODE, true);
+                            final long delta = poolAccessor.replace(size, k, val, FAKE_TREE_NODE, true);
                             t.acquire(0);
                             try {
                                 if (node.val == val && node.size == size) {
@@ -2425,7 +2425,7 @@ public class ConcurrentHashMap<K, V>
                 }
                 if (validated) {
                     if (node != null) {
-                        final long delta = poolAccessor.replace(node.size, k, node.val, FAKE_TREE_NODE, true);
+                        final long delta = poolAccessor.replace(size, k, val, FAKE_TREE_NODE, true);
                         while(!f.casHash(fh, fh | LOCKED));
                         try {
                             if (val == node.val && node.size == size) {
