@@ -1066,10 +1066,11 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets the maximum number of entries in the cache. Only applies to terracotta clustered caches.
      * <p/>
-     * The values for maxEntriesInCache is interpreted as follows:
+     * The values for maxEntriesInCache are interpreted as follows:
      * <ul>
-     * <li>maxEntriesInCache < 0 means no capacity based eviction, but resource based eviction can happen.</li>
-     * <li>maxEntriesInCache >= 0 means both capacity based and resource based eviction can happen
+     * <li>{@code maxEntriesInCache < 0} means no capacity based eviction, but resource based eviction can happen.</li>
+     * <li>{@code maxEntriesInCache > 0} means both capacity based and resource based eviction can happen
+     * <li>{@code maxEntriesInCache == 0} means a cache with zero capacity - an always empty cache
      * </ul>
      * <p/>
      * This property can be modified dynamically while the cache is operating.
