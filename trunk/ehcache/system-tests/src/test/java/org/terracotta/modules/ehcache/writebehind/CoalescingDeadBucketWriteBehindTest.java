@@ -1,8 +1,13 @@
 /*
- * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
+ * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
+ * notice. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
 
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
+
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
@@ -11,32 +16,30 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DeadBucketDistributionWriteBehindTest extends AbstractCacheTestBase {
-  public static final String DISTRIBUTION_BARRIER_NAME      = "DeadBucketDistributionWriteBehindTestBarrier";
-  public static final int    NODE_COUNT                = 4;
+public class CoalescingDeadBucketWriteBehindTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
 
-  public DeadBucketDistributionWriteBehindTest(TestConfig testConfig) {
-    super("basic-writebehind-test.xml", testConfig, DeadBucketDistributionClient.class, DeadBucketDistributionClient.class,
-          DeadBucketDistributionClient.class, DeadBucketDistributionClient.class);
+  public CoalescingDeadBucketWriteBehindTest(TestConfig testConfig) {
+    super("coalescing-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
+    testConfig.getClientConfig().setParallelClients(false);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 
   @Override
   protected void postClientVerification() {
     System.out.println("[Clients processed a total of " + totalWriteCount + " writes]");
-    if (totalWriteCount < 2000 || totalWriteCount > 2002) { throw new AssertionError(totalWriteCount); }
+    if (totalWriteCount < 180 || totalWriteCount > 1001) { throw new AssertionError(totalWriteCount); }
 
     System.out.println("[Clients processed a total of " + totalDeleteCount + " deletes]");
-    if (totalDeleteCount < 200 || totalDeleteCount > 202) { throw new AssertionError(totalDeleteCount); }
+    if (totalDeleteCount < 20 || totalDeleteCount > 101) { throw new AssertionError(totalDeleteCount); }
   }
 
   @Override
   protected void evaluateClientOutput(String clientName, int exitCode, File output) throws Throwable {
     super.evaluateClientOutput(clientName, exitCode, output);
-
-    FileReader fr = null;
     BufferedReader reader = null;
+    FileReader fr = null;
     StringBuilder strBuilder = new StringBuilder();
     try {
       fr = new FileReader(output);
@@ -62,9 +65,6 @@ public class DeadBucketDistributionWriteBehindTest extends AbstractCacheTestBase
                                                         + "\\]"));
     totalWriteCount += writeCount;
     System.out.println("[" + clientName + " processed " + writeCount + " writes]");
-    if (writeCount < 1 || writeCount > 1001) { throw new AssertionError(
-                                                                        "dead nodes distribution is not uniform writeCount "
-                                                                            + writeCount); }
 
     // Detect the number of deletes that have happened
     int deleteCount = detectLargestCount(strBuilder.toString(),
@@ -72,9 +72,6 @@ public class DeadBucketDistributionWriteBehindTest extends AbstractCacheTestBase
                                                          + "\\]"));
     totalDeleteCount += deleteCount;
     System.out.println("[" + clientName + " processed " + deleteCount + " deletes]");
-    if (deleteCount < 1 || deleteCount > 101) { throw new AssertionError(
-                                                                         "dead nodes distribution is not uniform deleteCount "
-                                                                             + deleteCount); }
   }
 
   private int detectLargestCount(String clientOutput, Pattern pattern) {

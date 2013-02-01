@@ -8,13 +8,13 @@ import net.sf.ehcache.Element;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
-
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
@@ -24,6 +24,7 @@ public class CacheSeparationWriteBehindTest extends AbstractCacheTestBase {
 
   public CacheSeparationWriteBehindTest(TestConfig testConfig) {
     super("cache-separation-writebehind-test.xml", testConfig, App.class, App.class);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 
   public static class App extends ClientBase {
@@ -89,7 +90,8 @@ public class CacheSeparationWriteBehindTest extends AbstractCacheTestBase {
         cache2.removeWithWriter("key");
       }
 
-      TimeUnit.MINUTES.sleep(1);
+      cache1.dispose();
+      cache2.dispose();
       barrier.await();
 
       System.out.println("[Client " + index + " processed " + writer1.getWriteCount() + " writes for writer 1]");

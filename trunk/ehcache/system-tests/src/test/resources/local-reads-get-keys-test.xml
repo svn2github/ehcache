@@ -6,8 +6,7 @@
 
 
   <cache name="dcv2" eternal="true" maxElementsInMemory="10000">
-    <terracotta clustered="true" consistency="strong"
-     >
+    <terracotta clustered="true" consistency="strong">
       <nonstop timeoutMillis="5000">
         <timeoutBehavior type="localReads" />
       </nonstop>

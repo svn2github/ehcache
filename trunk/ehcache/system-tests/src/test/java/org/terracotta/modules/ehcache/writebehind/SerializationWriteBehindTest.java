@@ -8,10 +8,12 @@ import net.sf.ehcache.Element;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import junit.framework.Assert;
@@ -22,6 +24,7 @@ public class SerializationWriteBehindTest extends AbstractCacheTestBase {
 
   public SerializationWriteBehindTest(TestConfig testConfig) {
     super("basic-writebehind-test.xml", testConfig, App.class, App.class);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 
   public static class App extends ClientBase {

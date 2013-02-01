@@ -10,10 +10,12 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
+import org.terracotta.toolkit.Toolkit;
 
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import java.util.concurrent.BrokenBarrierException;
@@ -25,6 +27,7 @@ public class RemovingCacheWriteBehindTest extends AbstractCacheTestBase {
 
   public RemovingCacheWriteBehindTest(TestConfig testConfig) {
     super("basic-writebehind-test.xml", testConfig, App.class);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 
   public static class App extends ClientBase {
@@ -46,6 +49,7 @@ public class RemovingCacheWriteBehindTest extends AbstractCacheTestBase {
 
       ExecutorService executorService = Executors.newFixedThreadPool(1);
       executorService.execute(new Runnable() {
+        @Override
         public void run() {
           try {
             localBarrier.await();

@@ -2,8 +2,12 @@
  * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
  * notice. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
 
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
+
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
@@ -12,29 +16,31 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CoalescingDeadBucketWriteBehindTest extends AbstractCacheTestBase {
+public class BasicDeadBucketWriteBehindTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
 
-  public CoalescingDeadBucketWriteBehindTest(TestConfig testConfig) {
-    super("coalescing-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
+  public BasicDeadBucketWriteBehindTest(TestConfig testConfig) {
+    super("basic-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
     testConfig.getClientConfig().setParallelClients(false);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 
   @Override
   protected void postClientVerification() {
     System.out.println("[Clients processed a total of " + totalWriteCount + " writes]");
-    if (totalWriteCount < 180 || totalWriteCount > 1001) { throw new AssertionError(totalWriteCount); }
+    if (totalWriteCount < 1001 || totalWriteCount > 1900) { throw new AssertionError(totalWriteCount); }
 
     System.out.println("[Clients processed a total of " + totalDeleteCount + " deletes]");
-    if (totalDeleteCount < 20 || totalDeleteCount > 101) { throw new AssertionError(totalDeleteCount); }
+    if (totalDeleteCount < 101 || totalDeleteCount > 190) { throw new AssertionError(totalDeleteCount); }
   }
 
   @Override
   protected void evaluateClientOutput(String clientName, int exitCode, File output) throws Throwable {
     super.evaluateClientOutput(clientName, exitCode, output);
-    BufferedReader reader = null;
+
     FileReader fr = null;
+    BufferedReader reader = null;
     StringBuilder strBuilder = new StringBuilder();
     try {
       fr = new FileReader(output);

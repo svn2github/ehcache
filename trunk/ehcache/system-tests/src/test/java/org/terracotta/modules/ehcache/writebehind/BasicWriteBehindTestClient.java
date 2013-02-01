@@ -1,12 +1,14 @@
 /*
  * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
+import org.terracotta.ehcache.tests.AbstractWriteBehindClient;
+import org.terracotta.ehcache.tests.WriteBehindCacheWriter;
 import org.terracotta.toolkit.Toolkit;
 
 import java.util.concurrent.Executors;
@@ -53,10 +55,9 @@ public class BasicWriteBehindTestClient extends AbstractWriteBehindClient {
     executor.scheduleAtFixedRate(new Runnable() {
       @Override
       public void run() {
-        long count = counter.get();
+        long count = counter.incrementAndGet();
         cache.putWithWriter(new Element("key-" + count, "value-" + count));
-        System.out.println("write behind queue size " + wbManager.getQueueSize() + " counter " + count);
-        counter.incrementAndGet();
+        System.out.println("executor write behind queue size " + wbManager.getQueueSize() + " counter " + count);
       }
     }, 500L, 1L, TimeUnit.MILLISECONDS);
 

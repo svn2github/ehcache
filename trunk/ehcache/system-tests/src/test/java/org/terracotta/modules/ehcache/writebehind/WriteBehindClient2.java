@@ -1,12 +1,11 @@
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
+import org.terracotta.ehcache.tests.AbstractWriteBehindClient;
+import org.terracotta.ehcache.tests.WriteBehindCacheWriter;
 import org.terracotta.toolkit.Toolkit;
-
-import java.util.concurrent.TimeUnit;
 
 public class WriteBehindClient2 extends AbstractWriteBehindClient {
   public WriteBehindClient2(String[] args) {
@@ -32,9 +31,13 @@ public class WriteBehindClient2 extends AbstractWriteBehindClient {
     cache.registerCacheWriter(new WriteBehindCacheWriter(this));
     cache.putWithWriter(new Element("key", "value"));
     cache.removeWithWriter("key");
-    WriteBehindManager wbManager = ((WriteBehindManager) cache.getWriterManager());
-    long size = wbManager.getQueueSize();
-    System.out.println("sleeping 1 min write behind queue size " + size);
-    TimeUnit.MINUTES.sleep(1L);
+    cache.dispose();
+    // WriteBehindManager wbManager = ((WriteBehindManager) cache.getWriterManager());
+    // long size = wbManager.getQueueSize();
+    // while (size > 0) {
+    // System.out.println("write behind queue size " + size);
+    // TimeUnit.SECONDS.sleep(1L);
+    // size = wbManager.getQueueSize();
+    // }
   }
 }

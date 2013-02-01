@@ -1,8 +1,13 @@
 /*
- * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
+ * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
+ * notice. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
 
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
+
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
@@ -11,21 +16,29 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BasicWriteBehindTest extends AbstractCacheTestBase {
+public class SynchronousDeadBucketWriteBehindTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
 
-  public BasicWriteBehindTest(TestConfig testConfig) {
-    super("basic-writebehind-test.xml", testConfig, BasicWriteBehindTestClient.class);
+  public SynchronousDeadBucketWriteBehindTest(TestConfig testConfig) {
+    super("synchronous-writebehind-test.xml", testConfig, WriteBehindClient1.class, WriteBehindClient2.class);
+    testConfig.getClientConfig().setParallelClients(false);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 
   @Override
   protected void postClientVerification() {
     System.out.println("[Clients processed a total of " + totalWriteCount + " writes]");
-    if (totalWriteCount < 1000) { throw new AssertionError(totalWriteCount); }
+    if (totalWriteCount != 1001 && totalWriteCount != 1002) { // there can be one double write due to JVM exit during
+                                                              // async item processing
+      throw new AssertionError(totalWriteCount);
+    }
 
     System.out.println("[Clients processed a total of " + totalDeleteCount + " deletes]");
-    if (totalDeleteCount < 100) { throw new AssertionError(totalDeleteCount); }
+    if (totalDeleteCount != 101 && totalDeleteCount != 102) { // there can be one double delete due to JVM exit during
+                                                              // async item processing
+      throw new AssertionError(totalDeleteCount);
+    }
   }
 
   @Override
@@ -33,11 +46,10 @@ public class BasicWriteBehindTest extends AbstractCacheTestBase {
     super.evaluateClientOutput(clientName, exitCode, output);
 
     FileReader fr = null;
-    BufferedReader reader = null;
     StringBuilder strBuilder = new StringBuilder();
     try {
       fr = new FileReader(output);
-      reader = new BufferedReader(fr);
+      BufferedReader reader = new BufferedReader(fr);
       String st = "";
       while ((st = reader.readLine()) != null) {
         strBuilder.append(st);
@@ -47,12 +59,10 @@ public class BasicWriteBehindTest extends AbstractCacheTestBase {
     } finally {
       try {
         fr.close();
-        reader.close();
       } catch (Exception e) {
         //
       }
     }
-
     // Detect the number of writes that have happened
     int writeCount = detectLargestCount(strBuilder.toString(),
                                         Pattern.compile("\\[WriteBehindCacheWriter written (\\d+) for " + clientName

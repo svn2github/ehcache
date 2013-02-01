@@ -2,8 +2,12 @@
  * All content copyright (c) 2003-2008 Terracotta, Inc., except as may otherwise be noted in a separate copyright
  * notice. All rights reserved.
  */
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
 
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
+import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
+
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
@@ -20,6 +24,7 @@ public class SerializationDeadBucketWriteBehindTest extends AbstractCacheTestBas
     super("basic-writebehind-test.xml", testConfig, SerializationWriteBehindClient1.class,
           SerializationWriteBehindClient2.class);
     testConfig.getClientConfig().setParallelClients(false);
+    configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 
   @Override

@@ -1,9 +1,11 @@
-package org.terracotta.ehcache.tests;
+package org.terracotta.modules.ehcache.writebehind;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
+import org.terracotta.ehcache.tests.AbstractWriteBehindClient;
+import org.terracotta.ehcache.tests.WriteBehindCacheWriter;
 import org.terracotta.toolkit.Toolkit;
 
 public class WriteBehindClient1 extends AbstractWriteBehindClient {

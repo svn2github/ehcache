@@ -19,7 +19,7 @@ public class ServerMapL1CapacityExpirationExpressTest extends AbstractCacheTestB
     while (iter.hasNext()) {
       final String prop = iter.next();
       if (prop.contains("ehcache.storageStrategy.dcv2.localcache.enabled")) {
-        // remove it and always enable localcache for this test
+        // remove it and always enable local cache for this test
         iter.remove();
       }
     }
