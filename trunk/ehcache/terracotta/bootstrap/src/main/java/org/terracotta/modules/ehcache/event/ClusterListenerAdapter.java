@@ -44,6 +44,9 @@ public class ClusterListenerAdapter implements OutOfBandClusterListener {
         currentNode = new TerracottaNodeImpl(event.getNode());
         topologyListener.clusterRejoined(oldNode, currentNode);
         break;
+      case NODE_ERROR:
+        // not bubbled upto ehcache layer yet
+        break;
     }
   }
 
