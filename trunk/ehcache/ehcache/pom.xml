@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-root</artifactId>
-    <version>2.7.0-SNAPSHOT</version>
+    <version>2.8.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
@@ -30,7 +29,7 @@
     <kit.name>${project.artifactId}-${project.version}-distribution</kit.name>
     <root.dir>${project.build.directory}/${kit.name}</root.dir>
     <terracotta.kit.path>${project.build.directory}/tmp/terracotta</terracotta.kit.path>
-    <ehcache.sample.version>3.7.0-SNAPSHOT</ehcache.sample.version>
+    <ehcache.sample.version>3.8.0-SNAPSHOT</ehcache.sample.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <skipJavadoc>false</skipJavadoc>
   </properties>
@@ -266,17 +265,14 @@
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
           <transformers>
-            <transformer
-              implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+            <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
               <resource>MANIFEST.MF</resource>
             </transformer>
-            <transformer
-              implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+            <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
               <resource>META-INF/MANIFEST.MF</resource>
               <file>${project.build.directory}/MANIFEST.MF</file>
             </transformer>
-            <transformer
-              implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
               <resource>devmode-classdir.txt</resource>
             </transformer>
           </transformers>
