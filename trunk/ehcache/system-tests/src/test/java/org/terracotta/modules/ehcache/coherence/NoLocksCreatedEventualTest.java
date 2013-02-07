@@ -116,6 +116,7 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
         LockMBean[] locks = dsoMBean.getLocks();
         for (LockMBean lockMBean : locks) {
           rv.add(lockMBean.getLockID());
+          System.out.println(lockMBean.getLockID());
         }
         return rv;
       }
