@@ -25,7 +25,7 @@
   <description>Clustered Ehcache sample with Terracotta</description>
 
   <properties>
-    <tc-maven-plugin.version>1.1.0</tc-maven-plugin.version>
+    <tc-maven-plugin.version>1.10.0</tc-maven-plugin.version>
     <toolkit-runtime.version>4.0.0</toolkit-runtime.version>
     <skipDeploy>true</skipDeploy>
   </properties>

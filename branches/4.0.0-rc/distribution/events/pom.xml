@@ -18,7 +18,7 @@
   <description>Clustered Ehcache Terracotta as second level cache for Hibernate</description>
 
   <properties>
-    <tc-maven-plugin.version>1.1.0</tc-maven-plugin.version>
+    <tc-maven-plugin.version>1.10.0</tc-maven-plugin.version>
     <toolkit-runtime.version>4.0.0</toolkit-runtime.version>
     <h2.version>1.1.116</h2.version>
     <jetty.version>8.1.7.v20120910</jetty.version>
