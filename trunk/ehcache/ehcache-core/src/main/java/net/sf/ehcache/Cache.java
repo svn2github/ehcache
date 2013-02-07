@@ -2028,6 +2028,15 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     @Deprecated
     private void tryRemoveImmediately(final Object key, final boolean notifyListeners) {
+        // In clustered world, the expiration process should happen internally.
+        // When it reaches here, there is a slight chance that the value just expired.
+        // However handling the the above could cause a problem with non stop.
+        // 1) getSyncForKey could throw NonStopCacheException
+        // 2) Also this would mean 2 calls to the clustered world, hence 2 * non stop timeouts
+        if (configuration.isTerracottaClustered()) {
+            return;
+        }
+        
         Sync syncForKey = ((CacheLockProvider)getInternalContext()).getSyncForKey(key);
         boolean writeLocked = false;
         try {
