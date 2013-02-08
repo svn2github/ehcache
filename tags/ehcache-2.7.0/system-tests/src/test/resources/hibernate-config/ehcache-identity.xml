@@ -1,0 +1,10 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd" name="tc" updateCheck="false">
+
+    <defaultCache
+            maxElementsInMemory="1000"
+            eternal="true">
+            <terracotta localKeyCache="true" localKeyCacheSize="1000" valueMode="identity">
+            	<nonstop enabled="false"/>
+            </terracotta>
+    </defaultCache>
+</ehcache>
