@@ -1088,15 +1088,6 @@ public class Cache implements InternalEhcache, StoreListener {
                             + maxConcurrency + ". Please reconfigure cache '" + getName() + "' with concurrency value <= " + maxConcurrency
                             + " or use system property '" + EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP + "' to override the default");
                 }
-                boolean cachePinned = getCacheConfiguration().getPinningConfiguration() != null
-                        && getCacheConfiguration().getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
-                if (!cachePinned && getCacheConfiguration().getMaxEntriesInCache() == -1) {
-                    LOG.warn("Performance may degrade and server could run out of space!\nThe distributed cache {} has " +
-                             "maxEntriesInCache set to -1. Setting maxEntriesInCache to -1 prevents eviction of its " +
-                             "elements from the Terracotta Server Array. To avoid this, set maxEntriesInCache to a " +
-                             "non-zero value or remove the attribute.", getName());
-
-                }
 
                 final ReadWriteCopyStrategy<Element> copyStrategyTemp = copyStrategy;
 
