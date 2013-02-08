@@ -12,9 +12,10 @@ import com.tc.util.Assert;
 
 import java.io.Serializable;
 
-// do remove before doinf puts
+// do remove before doing puts
 public class WriteBehindAtomicityTestClient extends AbstractWriteBehindClient {
-
+  private static final int ELEMENT_COUNT = 10;
+  
   public WriteBehindAtomicityTestClient(String[] args) {
     super(args);
   }
@@ -39,26 +40,27 @@ public class WriteBehindAtomicityTestClient extends AbstractWriteBehindClient {
   }
 
   private void validateDataInCache(Cache cache) {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < ELEMENT_COUNT; i++) {
       Assert.assertEquals(cache.get(getKey(i)), new Element(getKey(i), getValue(i)));
     }
   }
 
   private void testPutWithWriter(final Cache cache) {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < ELEMENT_COUNT; i++) {
       cache.putWithWriter(new Element(getKey(i), getValue(i)));
     }
   }
 
   private void testRemoveWithWriter(final Cache cache) {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < ELEMENT_COUNT; i++) {
       cache.removeWithWriter(getKey(i));
     }
   }
 
   private void validateEmptyCache(Cache cache) {
-    for (int i = 0; i < 10; i++) {
-      Assert.assertEquals(cache.get(getKey(i)), null);
+    Assert.assertEquals(0, cache.getSize());
+    for (int i = 0; i < ELEMENT_COUNT; i++) {
+      Assert.assertNull(cache.get(getKey(i)));
     }
   }
 
