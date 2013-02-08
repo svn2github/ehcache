@@ -12,12 +12,12 @@
   <name>ehcache-root</name>
   <artifactId>ehcache-root</artifactId>
   <packaging>pom</packaging>
-  <version>2.7.0-SNAPSHOT</version>
+  <version>2.7.1-SNAPSHOT</version>
   
   <properties>
     <slf4j.version>1.6.6</slf4j.version>
     <sizeof-agent.version>1.0.2-SNAPSHOT</sizeof-agent.version>
-    <maven-forge-plugin.version>1.0.6-SNAPSHOT</maven-forge-plugin.version>
+    <maven-forge-plugin.version>1.0.7-SNAPSHOT</maven-forge-plugin.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
   </properties>  
 
