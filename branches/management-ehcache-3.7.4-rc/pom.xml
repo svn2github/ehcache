@@ -10,7 +10,7 @@
   
   <groupId>net.sf.ehcache</groupId>
   <artifactId>management-ehcache</artifactId>
-  <version>2.6.4</version>
+  <version>2.6.5</version>
   <name>management-ehcache</name>
   <description>A library defining the ehcache management resource service interfaces and resource entities.</description>
 
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>management-core</artifactId>
-      <version>1.0.4</version>
+      <version>1.0.5</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
