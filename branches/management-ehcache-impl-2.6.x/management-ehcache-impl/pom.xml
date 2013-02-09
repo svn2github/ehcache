@@ -5,13 +5,13 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>management-ehcache-impl-parent</artifactId>
-    <version>2.6.5-SNAPSHOT</version>
+    <version>2.6.6-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
   
   <groupId>net.sf.ehcache</groupId>
   <artifactId>management-ehcache-impl</artifactId>
-  <version>2.6.5-SNAPSHOT</version>
+  <version>2.6.6-SNAPSHOT</version>
   <name>management-ehcache-impl</name>
   <description>A product library implementing the ehcache management resource service interfaces and integrating with ehcache to construct the relevant management resource entities.</description>
 
@@ -19,12 +19,12 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>management-ehcache</artifactId>
-      <version>2.6.5-SNAPSHOT</version>
+      <version>2.6.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
-      <version>2.6.5-SNAPSHOT</version>
+      <version>2.6.6-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
