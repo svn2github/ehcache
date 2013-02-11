@@ -294,15 +294,11 @@ public interface Ehcache extends Cloneable {
      * <p/>
      * The List returned is not live. It is a copy.
      * <p/>
-     * The time taken is O(n), where n is the number of elements in the cache. On
-     * a 1.8Ghz P4, the time taken is approximately 200ms per 1000 entries. This method
-     * is not synchronized, because it relies on a non-live list returned from {@link #getKeys()}
-     * , which is synchronised, and which takes 8ms per 1000 entries. This way
-     * cache liveness is preserved, even if this method is very slow to return.
-     * <p/>
-     * Consider whether your usage requires checking for expired keys. Because
-     * this method takes so long, depending on cache settings, the list could be
-     * quite out of date by the time you get it.
+     * For large caches - or caches with high-latency storage this method can take
+     * a <em>very</em> long time to complete.  You should seriously consider whether
+     * your usage requires checking for expired keys before choosing to call this method.
+     * As this method can take a long time the results may also be significantly out of
+     * date by the time the method returns.
      *
      * @return a list of {@link Object} keys
      * @throws IllegalStateException if the cache is not {@link net.sf.ehcache.Status#STATUS_ALIVE}
@@ -690,6 +686,12 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Causes all elements stored in the Cache to be synchronously checked for expiry, and if expired, evicted.
+     * <p>
+     * For large caches - or caches with high-latency storage this method can take
+     * a <em>very</em> long time to complete.  You should seriously consider relying on
+     * some form of capacity eviction to control cache capacity over calling this method.
+     * As this method can take a long time the cache may not be fully purged of expired 
+     * elements on return, since more elements may have expired during the call.
      */
     void evictExpiredElements();
 
