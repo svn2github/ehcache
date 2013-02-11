@@ -5,6 +5,7 @@
  */
 
 package net.sf.ehcache.util.concurrent;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.impl.UnboundedPool;
@@ -1273,7 +1274,7 @@ public class ConcurrentHashMap<K, V>
                             TreeNode p = t.getTreeNode(h, k, t.root);
                             if (p != null) {
                                 Object pv = p.val;
-                                if (cv == null || cv == pv || cv.equals(pv)) {
+                                if (cv == null || cv == pv || (!(cv instanceof Element) && cv.equals(pv))) {
                                     oldVal = pv;
                                     if ((p.val = v) == null) {
                                         deleted = true;
@@ -1320,7 +1321,7 @@ public class ConcurrentHashMap<K, V>
                             if ((e.hash & HASH_BITS) == h &&
                                 ((ev = e.val) != null) &&
                                 ((ek = e.key) == k || k.equals(ek))) {
-                                if (cv == null || cv == ev || cv.equals(ev)) {
+                                if (cv == null || cv == ev || (!(cv instanceof Element) && cv.equals(ev))) {
                                     oldVal = ev;
                                     if ((e.val = v) == null) {
                                         deleted = true;
