@@ -195,20 +195,23 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
                 if (fault == null) {
                     try {
                         e = cache.get(key);
-                        if (e == null) {
-                            e = authority.get(key);
-                            if (e != null) {
-                                cache.put(e);
-                            }
+                        if (e != null) {
+                          return copyElementForReadIfNeeded(e);
                         }
+                        e = authority.get(key);
+                        if (e != null) {
+                            cache.put(e);
+                        }
+                        return copyElementForReadIfNeeded(e);
                     } finally {
                         faults.remove(key).complete(e);
                     }
                 } else {
-                    e = fault.get();
+                    return copyElementForReadIfNeeded(fault.get());
                 }
+            } else {
+                return copyElementForReadIfNeeded(e);
             }
-            return copyElementForReadIfNeeded(e);
         } finally {
             lock.unlock();
         }
