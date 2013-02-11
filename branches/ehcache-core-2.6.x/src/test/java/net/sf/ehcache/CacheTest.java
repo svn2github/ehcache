@@ -517,17 +517,23 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testOverflowToDiskAndDiskPersistent() throws Exception {
-        Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
+        CacheManager manager = new CacheManager(new Configuration().name("testOverflowToDiskAndDiskPersistent"));
+        try {
+            Ehcache cache = new Cache(new CacheConfiguration().name("test").maxEntriesLocalHeap(1).overflowToDisk(true).diskPersistent(true));
+            manager.addCache(cache);
+            
+            for (int i = 0; i < 1001; i++) {
+                cache.put(new Element("key" + i, "value1"));
+            }
 
-        for (int i = 0; i < 1001; i++) {
-            cache.put(new Element("key" + i, "value1"));
-        }
+            assertNotNull(cache.get("key0"));
 
-        assertNotNull(cache.get("key0"));
-
-        for (int i = 0; i < 1001; i++) {
-            cache.put(new Element("key" + i, "value1"));
-            assertNotNull(cache.get("key" + i));
+            for (int i = 0; i < 1001; i++) {
+                cache.put(new Element("key" + i, "value1"));
+                assertNotNull(cache.get("key" + i));
+            }
+        } finally {
+            manager.shutdown();
         }
     }
 
