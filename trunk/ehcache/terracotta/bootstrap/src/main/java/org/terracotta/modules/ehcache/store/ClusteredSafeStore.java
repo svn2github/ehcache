@@ -19,8 +19,9 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
 
+import org.terracotta.context.annotations.ContextChild;
 import org.terracotta.toolkit.nonstop.NonStopException;
-import org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException;
+import org.terracotta.toolkit.rejoin.RejoinException;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -30,8 +31,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.terracotta.context.annotations.ContextChild;
 
 /**
  * Wrapper over ClusteredStore to have custom exception handlers for Store operations.
@@ -67,7 +66,7 @@ public class ClusteredSafeStore implements TerracottaStore {
 
         List<Class> exceptions = new ArrayList<Class>();
         exceptions.add(NonStopException.class);
-        exceptions.add(InvalidLockStateAfterRejoinException.class);
+        exceptions.add(RejoinException.class);
         for (Class e : m.getExceptionTypes()) {
           exceptions.add(e);
         }
@@ -136,13 +135,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Element unsafeGet(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Element unsafeGet(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.unsafeGet(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -154,13 +153,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Set getLocalKeys() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Set getLocalKeys() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getLocalKeys();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -172,13 +171,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public TransactionalMode getTransactionalMode() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public TransactionalMode getTransactionalMode() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getTransactionalMode();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -190,13 +189,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Element get(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Element get(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.get(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -208,13 +207,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean put(Element arg0) throws NonStopException, InvalidLockStateAfterRejoinException, CacheException {
+  public boolean put(Element arg0) throws NonStopException, RejoinException, CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.put(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (CacheException e) {
       throw e;
@@ -228,14 +227,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Element replace(Element arg0) throws NonStopException, InvalidLockStateAfterRejoinException,
+  public Element replace(Element arg0) throws NonStopException, RejoinException,
       NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.replace(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (NullPointerException e) {
       throw e;
@@ -250,13 +249,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    */
   @Override
   public boolean replace(Element arg0, Element arg1, ElementValueComparator arg2) throws NonStopException,
-      InvalidLockStateAfterRejoinException, NullPointerException, IllegalArgumentException {
+      RejoinException, NullPointerException, IllegalArgumentException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.replace(arg0, arg1, arg2);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (NullPointerException e) {
       throw e;
@@ -272,13 +271,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void putAll(Collection arg0) throws NonStopException, InvalidLockStateAfterRejoinException, CacheException {
+  public void putAll(Collection arg0) throws NonStopException, RejoinException, CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.putAll(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (CacheException e) {
       throw e;
@@ -292,13 +291,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Element remove(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Element remove(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.remove(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -310,13 +309,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void flush() throws NonStopException, InvalidLockStateAfterRejoinException, IOException {
+  public void flush() throws NonStopException, RejoinException, IOException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.flush();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (IOException e) {
       throw e;
@@ -330,13 +329,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean containsKey(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public boolean containsKey(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.containsKey(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -348,13 +347,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public int getSize() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public int getSize() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getSize();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -366,13 +365,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void removeAll() throws NonStopException, InvalidLockStateAfterRejoinException, CacheException {
+  public void removeAll() throws NonStopException, RejoinException, CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.removeAll();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (CacheException e) {
       throw e;
@@ -386,13 +385,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void removeAll(Collection arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void removeAll(Collection arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.removeAll(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -405,13 +404,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    */
   @Override
   public Element removeElement(Element arg0, ElementValueComparator arg1) throws NonStopException,
-      InvalidLockStateAfterRejoinException, NullPointerException {
+ RejoinException,
+      NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.removeElement(arg0, arg1);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (NullPointerException e) {
       throw e;
@@ -425,14 +425,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Element putIfAbsent(Element arg0) throws NonStopException, InvalidLockStateAfterRejoinException,
+  public Element putIfAbsent(Element arg0) throws NonStopException, RejoinException,
       NullPointerException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.putIfAbsent(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (NullPointerException e) {
       throw e;
@@ -446,13 +446,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void addStoreListener(StoreListener arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void addStoreListener(StoreListener arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.addStoreListener(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -464,13 +464,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void removeStoreListener(StoreListener arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void removeStoreListener(StoreListener arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.removeStoreListener(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -483,13 +483,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    */
   @Override
   public boolean putWithWriter(Element arg0, CacheWriterManager arg1) throws NonStopException,
-      InvalidLockStateAfterRejoinException, CacheException {
+ RejoinException,
+      CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.putWithWriter(arg0, arg1);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (CacheException e) {
       throw e;
@@ -503,13 +504,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Element getQuiet(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Element getQuiet(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getQuiet(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -522,13 +523,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    */
   @Override
   public Element removeWithWriter(Object arg0, CacheWriterManager arg1) throws NonStopException,
-      InvalidLockStateAfterRejoinException, CacheException {
+ RejoinException,
+      CacheException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.removeWithWriter(arg0, arg1);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (CacheException e) {
       throw e;
@@ -542,13 +544,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public int getInMemorySize() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public int getInMemorySize() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getInMemorySize();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -560,13 +562,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public int getOffHeapSize() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public int getOffHeapSize() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getOffHeapSize();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -578,13 +580,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public int getOnDiskSize() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public int getOnDiskSize() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getOnDiskSize();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -596,13 +598,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public int getTerracottaClusteredSize() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public int getTerracottaClusteredSize() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getTerracottaClusteredSize();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -614,13 +616,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public long getInMemorySizeInBytes() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public long getInMemorySizeInBytes() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getInMemorySizeInBytes();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -632,13 +634,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public long getOffHeapSizeInBytes() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public long getOffHeapSizeInBytes() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getOffHeapSizeInBytes();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -650,13 +652,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public long getOnDiskSizeInBytes() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public long getOnDiskSizeInBytes() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getOnDiskSizeInBytes();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -668,13 +670,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean hasAbortedSizeOf() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public boolean hasAbortedSizeOf() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.hasAbortedSizeOf();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -686,13 +688,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean containsKeyOnDisk(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public boolean containsKeyOnDisk(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.containsKeyOnDisk(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -704,13 +706,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean containsKeyOffHeap(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public boolean containsKeyOffHeap(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.containsKeyOffHeap(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -722,13 +724,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean containsKeyInMemory(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public boolean containsKeyInMemory(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.containsKeyInMemory(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -740,13 +742,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void expireElements() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void expireElements() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.expireElements();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -758,13 +760,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean bufferFull() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public boolean bufferFull() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.bufferFull();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -776,13 +778,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Policy getInMemoryEvictionPolicy() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Policy getInMemoryEvictionPolicy() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getInMemoryEvictionPolicy();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -794,13 +796,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void setInMemoryEvictionPolicy(Policy arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void setInMemoryEvictionPolicy(Policy arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.setInMemoryEvictionPolicy(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -812,13 +814,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Object getInternalContext() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Object getInternalContext() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getInternalContext();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -830,13 +832,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean isCacheCoherent() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public boolean isCacheCoherent() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.isCacheCoherent();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -848,14 +850,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean isClusterCoherent() throws NonStopException, InvalidLockStateAfterRejoinException,
+  public boolean isClusterCoherent() throws NonStopException, RejoinException,
       TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.isClusterCoherent();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (TerracottaNotRunningException e) {
       throw e;
@@ -869,14 +871,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public boolean isNodeCoherent() throws NonStopException, InvalidLockStateAfterRejoinException,
+  public boolean isNodeCoherent() throws NonStopException, RejoinException,
       TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.isNodeCoherent();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (TerracottaNotRunningException e) {
       throw e;
@@ -890,14 +892,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void setNodeCoherent(boolean arg0) throws NonStopException, InvalidLockStateAfterRejoinException,
+  public void setNodeCoherent(boolean arg0) throws NonStopException, RejoinException,
       UnsupportedOperationException, TerracottaNotRunningException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.setNodeCoherent(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (UnsupportedOperationException e) {
       throw e;
@@ -913,14 +915,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void waitUntilClusterCoherent() throws NonStopException, InvalidLockStateAfterRejoinException,
+  public void waitUntilClusterCoherent() throws NonStopException, RejoinException,
       UnsupportedOperationException, TerracottaNotRunningException, InterruptedException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.waitUntilClusterCoherent();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (UnsupportedOperationException e) {
       throw e;
@@ -938,13 +940,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Object getMBean() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Object getMBean() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getMBean();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -956,13 +958,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void setAttributeExtractors(Map arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void setAttributeExtractors(Map arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.setAttributeExtractors(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -974,14 +976,14 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Results executeQuery(StoreQuery arg0) throws NonStopException, InvalidLockStateAfterRejoinException,
+  public Results executeQuery(StoreQuery arg0) throws NonStopException, RejoinException,
       SearchException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.executeQuery(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (SearchException e) {
       throw e;
@@ -995,13 +997,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Attribute getSearchAttribute(String arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Attribute getSearchAttribute(String arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getSearchAttribute(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -1013,13 +1015,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Map getAllQuiet(Collection arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Map getAllQuiet(Collection arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getAllQuiet(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -1031,13 +1033,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Map getAll(Collection arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Map getAll(Collection arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getAll(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -1049,13 +1051,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void dispose() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void dispose() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.dispose();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -1067,13 +1069,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public List getKeys() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public List getKeys() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getKeys();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -1085,13 +1087,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public Status getStatus() throws NonStopException, InvalidLockStateAfterRejoinException {
+  public Status getStatus() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       return this.delegateClusteredStore.getStatus();
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);
@@ -1103,13 +1105,13 @@ public class ClusteredSafeStore implements TerracottaStore {
    * {@inheritDoc}
    */
   @Override
-  public void recalculateSize(Object arg0) throws NonStopException, InvalidLockStateAfterRejoinException {
+  public void recalculateSize(Object arg0) throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     try {
       this.delegateClusteredStore.recalculateSize(arg0);
     } catch (NonStopException e) {
       throw e;
-    } catch (InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw e;
     } catch (Throwable t) {
       EXCEPTION_HANDLER.handleException(t);

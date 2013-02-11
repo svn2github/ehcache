@@ -17,7 +17,10 @@ import org.terracotta.toolkit.internal.ToolkitLogger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BulkLoadEnabledNodesSet {
 
@@ -32,6 +35,7 @@ public class BulkLoadEnabledNodesSet {
   private final boolean                   loggingEnabled;
 
   private final StoreListener             listener;
+  private final AtomicBoolean             currentNodeBulkLoadEnabled = new AtomicBoolean(false);
 
   protected BulkLoadEnabledNodesSet(ToolkitInternal toolkit, String name, StoreListener listener) {
     this.name = name;
@@ -44,7 +48,7 @@ public class BulkLoadEnabledNodesSet {
     logger = toolkit.getLogger(BulkLoadEnabledNodesSet.class.getName());
 
     cleanupOfflineNodes();
-    cleanupOnNodeLeftListener = new CleanupOnNodeLeftListener(this, clusterInfo, toolkit);
+    cleanupOnNodeLeftListener = new CleanupOnNodeLeftListener(this, clusterInfo, toolkit, name);
     clusterInfo.addClusterListener(cleanupOnNodeLeftListener);
     this.loggingEnabled = BulkLoadConstants.isLoggingEnabled(toolkit.getProperties());
   }
@@ -93,12 +97,20 @@ public class BulkLoadEnabledNodesSet {
    * Add the current node in the bulk-load enabled nodes set
    */
   public void addCurrentNode() {
+    if (currentNodeBulkLoadEnabled.compareAndSet(false, true)) {
+      addCurrentNodeInternal();
+    }
+  }
+
+  private void addCurrentNodeInternal() {
     clusteredLock.lock();
     try {
-      String currentNodeId = getIdForNode(clusterInfo.getCurrentNode());
-      bulkLoadEnabledNodesSet.add(currentNodeId);
-      if (loggingEnabled) {
-        debug("Added current node ('" + currentNodeId + "')");
+      if (currentNodeBulkLoadEnabled.get()) {
+        String currentNodeId = getIdForNode(clusterInfo.getCurrentNode());
+        bulkLoadEnabledNodesSet.add(currentNodeId);
+        if (loggingEnabled) {
+          debug("Added current node ('" + currentNodeId + "')");
+        }
       }
     } finally {
       clusteredLock.unlock();
@@ -109,11 +121,13 @@ public class BulkLoadEnabledNodesSet {
    * Remove the current node from the bulk-load enabled nodes set
    */
   public void removeCurrentNode() {
-    clusteredLock.lock();
-    try {
-      removeNodeIdAndNotifyAll(getIdForNode(clusterInfo.getCurrentNode()));
-    } finally {
-      clusteredLock.unlock();
+    if (currentNodeBulkLoadEnabled.compareAndSet(true, false)) {
+      clusteredLock.lock();
+      try {
+        removeNodeIdAndNotifyAll(getIdForNode(clusterInfo.getCurrentNode()));
+      } finally {
+        clusteredLock.unlock();
+      }
     }
   }
 
@@ -172,22 +186,40 @@ public class BulkLoadEnabledNodesSet {
 
     private final BulkLoadEnabledNodesSet nodesSet;
     private final ClusterInfo             clusterInfo;
+    private final Timer                   timer;
+    // We are adding a delay in processing NODE_LEFT to let rejoin happen in case the other node was rejoin enabled.
+    private static final long             NODE_LEFT_PROCESSING_DELAY = Long.getLong("nodeLeftProcessingDelay",
+                                                                                    30 * 1000);
 
-    public CleanupOnNodeLeftListener(BulkLoadEnabledNodesSet nodesSet, ClusterInfo clusterInfo, ToolkitInternal toolkit) {
+    public CleanupOnNodeLeftListener(BulkLoadEnabledNodesSet nodesSet, ClusterInfo clusterInfo,
+                                     ToolkitInternal toolkit, String name) {
       this.nodesSet = nodesSet;
       this.clusterInfo = clusterInfo;
+      this.timer = new Timer("Timer for Bulk Load Node Left Cache:" + name, true);
     }
 
     @Override
-    public void onClusterEvent(ClusterEvent event) {
+    public void onClusterEvent(final ClusterEvent event) {
       switch (event.getType()) {
         case NODE_LEFT:
-          handleNodeLeft(event);
+          timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+              handleNodeLeft(event);
+            }
+          }, NODE_LEFT_PROCESSING_DELAY);
+          break;
+        case NODE_REJOINED:
+          handleNodeRejoined(event);
           break;
         default:
           // not interested
           break;
       }
+    }
+
+    private void handleNodeRejoined(ClusterEvent event) {
+      nodesSet.addCurrentNodeInternal();
     }
 
     private void handleNodeLeft(ClusterEvent event) {
