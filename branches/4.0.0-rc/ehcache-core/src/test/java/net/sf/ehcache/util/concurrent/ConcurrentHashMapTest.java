@@ -1,5 +1,6 @@
 package net.sf.ehcache.util.concurrent;
 
+import net.sf.ehcache.Element;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -82,10 +83,31 @@ public class ConcurrentHashMapTest {
     }
 
     @Test
+    public void testUsesObjectIdentityForElementsOnly() {
+
+        final String key = "ourKey";
+
+        ConcurrentHashMap<String, Object> map = new ConcurrentHashMap<String, Object>();
+
+        String value = new String("key");
+        String valueAgain = new String("key");
+        map.put(key, value);
+        assertThat(map.replace(key, valueAgain, valueAgain), is(true));
+        assertThat(map.replace(key, value, valueAgain), is(true));
+
+        Element elementValue = new Element(key, value);
+        Element elementValueAgain = new Element(key, value);
+        map.put(key, elementValue);
+        assertThat(map.replace(key, elementValueAgain, elementValue), is(false));
+        assertThat(map.replace(key, elementValue, elementValueAgain), is(true));
+        assertThat(map.replace(key, elementValue, elementValueAgain), is(false));
+        assertThat(map.replace(key, elementValueAgain, elementValue), is(true));
+    }
+
+    @Test
     public void testActuallyWorks() throws InterruptedException {
         final long top = 100000000;
         final String key = "counter";
-//        final java.util.concurrent.ConcurrentHashMap<String, Long> map = new java.util.concurrent.ConcurrentHashMap<String, Long>();
         final ConcurrentHashMap<String, Long> map = new ConcurrentHashMap<String, Long>();
         map.put(key, 0L);
 
