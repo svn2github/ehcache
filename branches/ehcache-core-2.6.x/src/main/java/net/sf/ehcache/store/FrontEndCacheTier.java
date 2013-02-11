@@ -194,9 +194,12 @@ public abstract class FrontEndCacheTier<T extends TierableStore, U extends Tiera
                 Fault fault = faults.putIfAbsent(key, new Fault());
                 if (fault == null) {
                     try {
-                        e = authority.get(key);
-                        if (e != null) {
-                            cache.put(e);
+                        e = cache.get(key);
+                        if (e == null) {
+                            e = authority.get(key);
+                            if (e != null) {
+                                cache.put(e);
+                            }
                         }
                     } finally {
                         faults.remove(key).complete(e);
