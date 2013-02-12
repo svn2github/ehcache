@@ -176,8 +176,7 @@ public class OverseerJob implements Job {
          if (!scheduler.isShutdown()) {
 
             Trigger trigger = TriggerBuilder.newTrigger().startNow().forJob(job).build();
-            scheduler.addJob(job, true);
-            scheduler.scheduleJob(trigger);
+            scheduler.scheduleJob(job, trigger);
          }
       } catch (SchedulerException e) {
          if (!scheduler.isShutdown()) {
