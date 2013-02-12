@@ -229,6 +229,7 @@ public class EvictionListenerTest {
         final Cache diskCache = new Cache(configuration);
         cacheManager.addCache(diskCache);
         CountingCacheEventListener countingCacheEventListener = accessCache(diskCache);
+        DiskStoreHelper.flushAllEntriesToDisk(diskCache).get();
         assertThat(diskCache.getMemoryStoreSize(), is(100L));
         Map<Object, AtomicInteger> cacheElementsEvicted = countingCacheEventListener.getCacheElementsEvicted(diskCache);
         for (Map.Entry<Object, AtomicInteger> entry : cacheElementsEvicted.entrySet()) {
