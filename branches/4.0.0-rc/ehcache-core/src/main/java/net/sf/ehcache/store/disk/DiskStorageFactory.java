@@ -51,6 +51,7 @@ import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
 import net.sf.ehcache.util.PreferTCCLObjectInputStream;
+import net.sf.ehcache.util.TimeUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -696,7 +697,7 @@ public class DiskStorageFactory {
 
             this.key = element.getObjectKey();
             this.hitCount = element.getHitCount();
-            this.expiry = element.getExpirationTime();
+            this.expiry = TimeUtil.toMillis(TimeUtil.toSecs(element.getExpirationTime()));
         }
 
         /**
