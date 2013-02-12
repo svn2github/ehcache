@@ -164,8 +164,8 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
           }
         }
       });
-      // MNK-4245: Sleep for a bit to allow eviction broadcast notifications to go through before exiting the client.
-      Thread.sleep(20000);
+
+      barrier.await();
     }
 
   }
