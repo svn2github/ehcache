@@ -49,18 +49,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class NonStopStoreWrapper implements TerracottaStore {
 
   private static final Logger                                 LOGGER                            = LoggerFactory
                                                                                                     .getLogger(NonStopStoreWrapper.class);
+
+  private static final long                                   TIME_TO_WAIT_FOR_CACHE_TO_INIT    = Long
+                                                                                                    .getLong("com.tc.non.stop.time.to.wait.for.cache.init.millis",
+                                                                                                             TimeUnit.SECONDS
+                                                                                                                 .toMillis(20));
+
   private static final long                                   TIME_TO_WAIT_FOR_ASYNC_STORE_INIT = Long
-                                                                                                    .parseLong(System
-                                                                                                        .getProperty("com.tc.non.stop.async.store.init",
-                                                                                                                     String
-                                                                                                                         .valueOf(TimeUnit.MINUTES
-                                                                                                                             .toMillis(5))));
+                                                                                                    .getLong("com.tc.non.stop.async.store.init",
+                                                                                                             TimeUnit.MINUTES
+                                                                                                                 .toMillis(5));
+
   private static final Set<String>                            LOCAL_METHODS                     = new HashSet<String>();
   private static final long                                   REJOIN_RETRY_INTERVAL             = 10 * 1000;
 
@@ -113,12 +119,25 @@ public class NonStopStoreWrapper implements TerracottaStore {
   }
 
   private void createStoreAsynchronously(final Toolkit toolkit, Callable<TerracottaStore> clusteredStoreCreator) {
-    Thread t = new Thread(createInitRunnable(clusteredStoreCreator), "init Store asynchronously " + cache.getName());
+    CountDownLatch initLatch = new CountDownLatch(1);
+
+    Thread t = new Thread(createInitRunnable(clusteredStoreCreator, initLatch), "init Store asynchronously "
+                                                                                + cache.getName());
     t.setDaemon(true);
     t.start();
+
+    try {
+      initLatch.await(TIME_TO_WAIT_FOR_CACHE_TO_INIT, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+
+    if (exceptionDuringInitialization != null) { throw new NonStopToolkitInstantiationException(
+                                                                                                exceptionDuringInitialization); }
   }
 
-  private Runnable createInitRunnable(final Callable<TerracottaStore> clusteredStoreCreator) {
+  private Runnable createInitRunnable(final Callable<TerracottaStore> clusteredStoreCreator,
+                                      final CountDownLatch initLatch) {
     final Runnable initRunnable = new Runnable() {
       @Override
       public void run() {
@@ -128,6 +147,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
             nonStop.start(new ToolkitNonstopDisableConfig());
             try {
               doInit(clusteredStoreCreator);
+              initLatch.countDown();
               synchronized (NonStopStoreWrapper.this) {
                 NonStopStoreWrapper.this.notifyAll();
               }
@@ -143,6 +163,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
         } catch (Throwable t) {
           LOGGER.warn("Error while creating store asynchronously", t);
           exceptionDuringInitialization = t;
+          initLatch.countDown();
           synchronized (NonStopStoreWrapper.this) {
             NonStopStoreWrapper.this.notifyAll();
           }
