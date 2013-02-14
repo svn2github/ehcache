@@ -198,6 +198,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Used by BeanHandler to set the copyOnRead flag during parsing
      */
+    @Deprecated
     public void setCopyOnRead(boolean isCopyOnRead) {
         LOG.warn("copyOnRead is deprecated on the <terracotta /> element, "
                 + "please use the copyOnRead attribute on <cache /> or <defaultCache />");
@@ -225,6 +226,7 @@ public class TerracottaConfiguration implements Cloneable {
      * @return this configuration instance
      * @see #setCopyOnRead(boolean)
      */
+    @Deprecated
     public TerracottaConfiguration copyOnRead(boolean isCopyOnRead) {
         setCopyOnRead(isCopyOnRead);
         return this;
@@ -264,6 +266,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Check whether the [serialized value] cache should use copy on read semantics
      */
+    @Deprecated
     public boolean isCopyOnRead() {
         return this.isCopyOnRead;
     }
@@ -284,6 +287,7 @@ public class TerracottaConfiguration implements Cloneable {
      * @param coherentReads
      *            {@code true} if coherent reads should be used; {@code false} otherwise
      */
+    @Deprecated
     public void setCoherentReads(boolean coherentReads) {
         LOG.warn("The attribute \"coherentReads\" in \"terracotta\" element is deprecated."
                 + " Please use the new \"coherent\" attribute instead.");
@@ -294,6 +298,7 @@ public class TerracottaConfiguration implements Cloneable {
      * @return this configuration instance
      * @see #setCoherentReads(boolean)
      */
+    @Deprecated
     public TerracottaConfiguration coherentReads(boolean coherentReads) {
         setCoherentReads(coherentReads);
         return this;
@@ -302,6 +307,7 @@ public class TerracottaConfiguration implements Cloneable {
     /**
      * Check whether coherent reads are enabled
      */
+    @Deprecated
     public boolean getCoherentReads() {
         return this.coherentReads;
     }
