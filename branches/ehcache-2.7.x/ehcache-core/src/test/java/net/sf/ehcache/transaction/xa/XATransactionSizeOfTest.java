@@ -17,6 +17,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.transaction.Status;
 
@@ -36,7 +39,7 @@ public class XATransactionSizeOfTest {
     public void setUp() throws Exception {
         CacheConfiguration txCache1Cfg = new CacheConfiguration().name("txCache1")
             .transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT)
-            .sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(15)
+            .sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(13)
                 .maxDepthExceededBehavior(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
         CopyStrategyConfiguration copyStrategyConfiguration = new CopyStrategyConfiguration();
         copyStrategyConfiguration.setClass(SerializationCopyStrategy.class.getName());
@@ -86,12 +89,10 @@ public class XATransactionSizeOfTest {
      * Here's what is walked when storing elements with integers both as key and value:
      *
      *   40b		net.sf.ehcache.store.chm.SelectableConcurrentHashMap$HashEntry@1205901244
-     *   72b		net.sf.ehcache.Element@1942996580
-     *   32b		net.sf.ehcache.DefaultElementEvictionData@1928680974
+     *   80b		net.sf.ehcache.Element@1942996580
      *   32b		net.sf.ehcache.transaction.SoftLockID@1216216770
-     *   72b		net.sf.ehcache.Element@350784291
-     *   32b		net.sf.ehcache.DefaultElementEvictionData@788967822
-     *   16b		java.lang.Integer@1618147776
+     *   80b		net.sf.ehcache.Element@350784291
+     *   24b		java.lang.Integer@1618147776
      *   ignored	java.lang.Integer@1897411861
      *   24b		net.sf.ehcache.transaction.xa.XidTransactionIDImpl@738355611
      *   32b		java.lang.String@739090040
@@ -100,7 +101,7 @@ public class XATransactionSizeOfTest {
      *   56b		[B@750131952
      *   56b		[B@1738709374
      *
-     * That's 14 objects, so make sure SizeOfPolicyConfiguration's maxDepth is >= 15.
+     * That's 12 objects, so make sure SizeOfPolicyConfiguration's maxDepth is >= 13.
      */
     @Test
     public void testSizeOf() throws Exception {
