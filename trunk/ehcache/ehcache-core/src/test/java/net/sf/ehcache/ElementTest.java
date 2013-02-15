@@ -18,7 +18,6 @@ package net.sf.ehcache;
 
 
 import static junit.framework.Assert.fail;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,8 +34,6 @@ import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Test cases for the Element.
@@ -45,9 +42,6 @@ import org.slf4j.LoggerFactory;
  * @version $Id$
  */
 public class ElementTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ElementTest.class.getName());
-
 
     /**
      * ehcache-1.2 adds support to Objects in addition to Serializable. Check that this works
