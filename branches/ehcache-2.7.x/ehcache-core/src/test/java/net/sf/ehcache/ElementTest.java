@@ -18,8 +18,10 @@ package net.sf.ehcache;
 
 
 import static junit.framework.Assert.fail;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -29,10 +31,9 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Test cases for the Element.
@@ -40,10 +41,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class ElementTest extends AbstractCacheTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ElementTest.class.getName());
-
+public class ElementTest {
 
     /**
      * ehcache-1.2 adds support to Objects in addition to Serializable. Check that this works
@@ -179,5 +177,44 @@ public class ElementTest extends AbstractCacheTest {
         assertEquals(null, objectInputStream.readObject());
     }
 
+    @Test
+    public void testLastAccessTime() throws InterruptedException {
+        Element element = new Element("", "");
+        assertThat(element.getLastAccessTime(), is(0L));
+
+        long time1 = System.currentTimeMillis();
+        element.updateAccessStatistics();
+        assertThat(element.getLastAccessTime() >= time1, is(true));
+
+        TimeUnit.MILLISECONDS.sleep(100);
+
+        long time2 = System.currentTimeMillis();
+        element.resetAccessStatistics();
+        assertThat(element.getLastAccessTime() >= time2, is(true));
+    }
+
+    @Test
+    public void testCreateTime() throws InterruptedException {
+        long time1 = System.currentTimeMillis();
+        Element element = new Element("", "");
+        assertThat(element.getCreationTime() >= time1, is(true));
+
+        TimeUnit.MILLISECONDS.sleep(100);
+
+        element.updateUpdateStatistics();
+        assertThat(element.getLatestOfCreationAndUpdateTime() > element.getCreationTime(), is(true));
+
+        TimeUnit.MILLISECONDS.sleep(100);
+    }
+
+    @Test
+    public void testCloneForMetaData() throws CloneNotSupportedException {
+        Element clone = (Element)new Element("", "", 1L, 12L, 123L, 1234L, 12345L).clone();
+        assertThat(clone.getVersion(), is(1L));
+        assertThat(clone.getCreationTime(), is(12L));
+        assertThat(clone.getLastAccessTime(), is(123L));
+        assertThat(clone.getLastUpdateTime(), is(0L));
+        assertThat(clone.getHitCount(), is(12345L));
+    }
 
 }
