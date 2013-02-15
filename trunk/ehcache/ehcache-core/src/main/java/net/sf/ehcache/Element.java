@@ -25,7 +25,6 @@ import net.sf.ehcache.util.TimeUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -100,9 +99,14 @@ public class Element implements Serializable, Cloneable {
     private volatile int timeToIdle = Integer.MIN_VALUE;
 
     /**
-     * Pluggable element eviction data instance
+     * The creation time.
      */
-    private transient volatile ElementEvictionData elementEvictionData;
+    private transient long creationTime;
+
+    /**
+     * The last access time.
+     */
+    private transient long lastAccessTime;
 
     /**
      * If there is an Element in the Cache and it is replaced with a new Element for the same key,
@@ -140,7 +144,7 @@ public class Element implements Serializable, Cloneable {
         this.value = value;
         this.version = version;
         HIT_COUNT_UPDATER.set(this, 0);
-        this.elementEvictionData = new DefaultElementEvictionData(System.currentTimeMillis());
+        this.creationTime = System.currentTimeMillis();
     }
 
     /**
@@ -173,7 +177,8 @@ public class Element implements Serializable, Cloneable {
         this.version = version;
         this.lastUpdateTime = lastUpdateTime;
         HIT_COUNT_UPDATER.set(this, hitCount);
-        this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
+        this.creationTime = creationTime;
+        this.lastAccessTime = lastAccessTime;
     }
 
     /**
@@ -192,7 +197,8 @@ public class Element implements Serializable, Cloneable {
         this.timeToLive = timeToLive;
         this.timeToIdle = timeToIdle;
         this.lastUpdateTime = lastUpdateTime;
-        this.elementEvictionData = new DefaultElementEvictionData(creationTime, lastAccessTime);
+        this.creationTime = creationTime;
+        this.lastAccessTime = lastAccessTime;
     }
 
     /**
@@ -217,7 +223,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds != null) {
             setTimeToLive(timeToLiveSeconds.intValue());
         }
-        this.elementEvictionData = new DefaultElementEvictionData(System.currentTimeMillis());
+        this.creationTime = System.currentTimeMillis();
     }
 
     /**
@@ -406,7 +412,7 @@ public class Element implements Serializable, Cloneable {
      */
     @Deprecated
     public final void setCreateTime() {
-        this.elementEvictionData.setCreationTime(System.currentTimeMillis());
+        creationTime = System.currentTimeMillis();
     }
 
     /**
@@ -415,7 +421,7 @@ public class Element implements Serializable, Cloneable {
      * @return The creationTime value
      */
     public final long getCreationTime() {
-        return elementEvictionData.getCreationTime();
+        return creationTime;
     }
 
     /**
@@ -424,7 +430,7 @@ public class Element implements Serializable, Cloneable {
      */
     public final long getLatestOfCreationAndUpdateTime() {
         if (0 == lastUpdateTime) {
-            return elementEvictionData.getCreationTime();
+            return creationTime;
         } else {
             return lastUpdateTime;
         }
@@ -445,7 +451,7 @@ public class Element implements Serializable, Cloneable {
      * will have a last access time equal to its create time.
      */
     public final long getLastAccessTime() {
-        return elementEvictionData.getLastAccessTime();
+        return lastAccessTime;
     }
 
     /**
@@ -469,28 +475,10 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Retrieves this element's eviction data instance.
-     *
-     * @return this element's eviction data instance
-     */
-    public ElementEvictionData getElementEvictionData() {
-        return elementEvictionData;
-    }
-
-    /**
-     * Sets this element's eviction data instance.
-     *
-     * @param elementEvictionData this element's eviction data
-     */
-    public void setElementEvictionData(ElementEvictionData elementEvictionData) {
-        this.elementEvictionData = elementEvictionData;
-    }
-
-    /**
      * Resets the hit count to 0 and the last access time to now. Used when an Element is put into a cache.
      */
     public final void resetAccessStatistics() {
-        elementEvictionData.resetLastAccessTime(this);
+        lastAccessTime = System.currentTimeMillis();
         HIT_COUNT_UPDATER.set(this, 0);
     }
 
@@ -498,7 +486,7 @@ public class Element implements Serializable, Cloneable {
      * Sets the last access time to now and increase the hit count.
      */
     public final void updateAccessStatistics() {
-        elementEvictionData.updateLastAccessTime(System.currentTimeMillis(), this);
+        lastAccessTime = System.currentTimeMillis();
         HIT_COUNT_UPDATER.incrementAndGet(this);
     }
 
@@ -549,10 +537,7 @@ public class Element implements Serializable, Cloneable {
         super.clone();
 
         try {
-            Element element = new Element(deepCopy(key), deepCopy(value), version);
-            element.elementEvictionData = elementEvictionData.clone();
-            HIT_COUNT_UPDATER.set(element, hitCount);
-            return element;
+            return new Element(deepCopy(key), deepCopy(value), version, creationTime, lastAccessTime, 0L, hitCount);
         } catch (IOException e) {
             LOG.error("Error cloning Element with key " + key
                     + " during serialization and deserialization of value");
@@ -645,8 +630,7 @@ public class Element implements Serializable, Cloneable {
      */
     public final boolean isSerializable() {
         return isKeySerializable()
-            && (value instanceof Serializable || value == null)
-            && elementEvictionData.canParticipateInSerialization();
+            && (value instanceof Serializable || value == null);
     }
 
     /**
@@ -729,12 +713,12 @@ public class Element implements Serializable, Cloneable {
         }
 
         long expirationTime = 0;
-        long ttlExpiry = elementEvictionData.getCreationTime() + TimeUtil.toMillis(getTimeToLive());
+        long ttlExpiry = creationTime + TimeUtil.toMillis(getTimeToLive());
 
-        long mostRecentTime = Math.max(elementEvictionData.getCreationTime(), elementEvictionData.getLastAccessTime());
+        long mostRecentTime = Math.max(creationTime, lastAccessTime);
         long ttiExpiry = mostRecentTime + TimeUtil.toMillis(getTimeToIdle());
 
-        if (getTimeToLive() != 0 && (getTimeToIdle() == 0 || elementEvictionData.getLastAccessTime() == 0)) {
+        if (getTimeToLive() != 0 && (getTimeToIdle() == 0 || lastAccessTime == 0)) {
             expirationTime = ttlExpiry;
         } else if (getTimeToLive() == 0) {
             expirationTime = ttiExpiry;
@@ -829,12 +813,9 @@ public class Element implements Serializable, Cloneable {
      * Custom serialization write logic
      */
     private void writeObject(ObjectOutputStream out) throws IOException {
-        if (!elementEvictionData.canParticipateInSerialization()) {
-            throw new NotSerializableException();
-        }
         out.defaultWriteObject();
-        out.writeInt(TimeUtil.toSecs(elementEvictionData.getCreationTime()));
-        out.writeInt(TimeUtil.toSecs(elementEvictionData.getLastAccessTime()));
+        out.writeInt(TimeUtil.toSecs(creationTime));
+        out.writeInt(TimeUtil.toSecs(lastAccessTime));
     }
 
     /**
@@ -842,6 +823,7 @@ public class Element implements Serializable, Cloneable {
      */
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        elementEvictionData = new DefaultElementEvictionData(TimeUtil.toMillis(in.readInt()), TimeUtil.toMillis(in.readInt()));
+        creationTime = TimeUtil.toMillis(in.readInt());
+        lastAccessTime = TimeUtil.toMillis(in.readInt());
     }
 }
