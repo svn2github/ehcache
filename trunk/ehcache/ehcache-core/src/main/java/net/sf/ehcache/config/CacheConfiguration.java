@@ -23,6 +23,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.event.NotificationScope;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import org.slf4j.Logger;
@@ -368,6 +369,9 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
+    private volatile Set<DynamicSearchListener> dynamicSearchListeners = new CopyOnWriteArraySet<DynamicSearchListener>();
+
+    private DynamicAttributesExtractor flexIndexer;
     private volatile boolean frozen;
     private volatile TransactionalMode transactionalMode;
     private volatile boolean statistics = DEFAULT_STATISTICS;
@@ -463,6 +467,7 @@ public class CacheConfiguration implements Cloneable {
         cloneCacheDecoratorConfigurations(config);
 
         config.listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
+        config.dynamicSearchListeners = new CopyOnWriteArraySet<DynamicSearchListener>();
 
         return config;
     }
@@ -1360,6 +1365,14 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
+    private void fireDynamicAttributesExtractorAdded(DynamicAttributesExtractor oldValue, DynamicAttributesExtractor newValue) {
+        if (oldValue != newValue) {
+            for (DynamicSearchListener lsnr : dynamicSearchListeners) {
+                lsnr.extractorChanged(oldValue, newValue);
+            }
+        }
+    }
+
     /**
      * Sets the maxOnHeap size
      * @param amount the amount of unit
@@ -1534,6 +1547,32 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheConfiguration maxBytesLocalDisk(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesLocalDisk(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    /**
+     * Sets dynamic search attributes extractor
+     * @param extractor extractor to use
+     */
+    public void setDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        if (searchable == null || !searchable.isDynamicIndexingAllowed()) {
+            throw new IllegalArgumentException("Dynamic search attribute extraction not supported");
+        }
+        if (extractor == null && this.flexIndexer != null) {
+            throw new IllegalArgumentException("Dynamic search attributes extractor cannot be set to null by user");
+        }
+        DynamicAttributesExtractor old = this.flexIndexer;
+        this.flexIndexer = extractor;
+        fireDynamicAttributesExtractorAdded(old, this.flexIndexer);
+    }
+
+    /**
+     * Sets dynamic search attributes extractor
+     * @param extractor extractor to use
+     * @return this
+     */
+    public CacheConfiguration dynamicAttributeExtractor(DynamicAttributesExtractor extractor) {
+        setDynamicAttributesExtractor(extractor);
         return this;
     }
 
@@ -2559,6 +2598,12 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Accessor
+     */
+    public DynamicAttributesExtractor getDynamicExtractor() {
+        return flexIndexer;
+    }
+    /**
      * Only used when cache is clustered with Terracotta
      *
      * @return true if logging is enabled otherwise false
@@ -2827,6 +2872,15 @@ public class CacheConfiguration implements Cloneable {
             listener.registered(this);
         }
         return added;
+    }
+
+    /**
+     * Add a dynamic extractor configuration listener
+     * @param listener
+     * @return true if a listener was added
+     */
+    public boolean addDynamicSearchListener(DynamicSearchListener listener) {
+        return dynamicSearchListeners.add(listener);
     }
 
     /**

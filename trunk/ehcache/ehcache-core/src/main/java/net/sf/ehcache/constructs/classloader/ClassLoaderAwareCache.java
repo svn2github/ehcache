@@ -40,6 +40,7 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -792,6 +793,20 @@ public class ClassLoaderAwareCache implements Ehcache {
         t.setContextClassLoader(this.classLoader);
         try {
             this.cache.registerCacheWriter(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public void registerDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.registerDynamicAttributesExtractor(extractor);
         } finally {
             t.setContextClassLoader(prev);
         }

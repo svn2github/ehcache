@@ -38,6 +38,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.impl.AggregateOnlyResult;
 import net.sf.ehcache.search.impl.BaseResult;
@@ -1181,7 +1182,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
 
         @Override
-        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors) {
+        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors, 
+                DynamicAttributesExtractor dynamicIndexer) {
             throw new UnsupportedOperationException();
         }
 
