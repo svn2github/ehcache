@@ -7,9 +7,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -22,7 +19,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.pool.impl.UnboundedPool;
-import net.sf.ehcache.store.NotifyingMemoryStore;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.RetryAssert;
 
@@ -51,7 +48,7 @@ public class DiskBackMemoryStoreTest {
         cache = new Cache(new CacheConfiguration("SomeCache", 1000).overflowToDisk(true).diskPersistent(true));
         cacheManager.addCache(cache);
         xaCache = new Cache(new CacheConfiguration("SomeXaCache", 1000).transactionalMode("xa_strict"));
-        xaStore = NotifyingMemoryStore.createNotifyingStore(xaCache, new UnboundedPool());
+        xaStore = MemoryStore.create(xaCache, new UnboundedPool());
     }
 
     @After

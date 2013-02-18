@@ -101,8 +101,8 @@ import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.NotifyingMemoryStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
@@ -1153,7 +1153,7 @@ public class Cache implements InternalEhcache, StoreListener {
                         if (configuration.isOverflowToDisk()) {
                             store = DiskBackedMemoryStore.create(this, onHeapPool, onDiskPool);
                         } else {
-                            store = NotifyingMemoryStore.createNotifyingStore(this, onHeapPool);
+                            store = MemoryStore.create(this, onHeapPool);
                         }
                     }
                 } else {

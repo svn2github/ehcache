@@ -18,7 +18,7 @@ public class MemoryStoreEvictionPolicyTest {
     @Test
     public void testSetsMemoryEvictionPolicy() {
         final String name = "FAKE!";
-        Store store = NotifyingMemoryStore.createNotifyingStore(new Cache(new CacheConfiguration("fakeCache", 100)), new UnboundedPool());
+        Store store = MemoryStore.create(new Cache(new CacheConfiguration("fakeCache", 100)), new UnboundedPool());
         store.setInMemoryEvictionPolicy(new AbstractPolicy() {
             public String getName() {
                 return name;

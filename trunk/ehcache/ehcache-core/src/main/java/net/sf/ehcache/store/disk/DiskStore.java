@@ -31,7 +31,6 @@ import net.sf.ehcache.concurrent.StripedReadWriteLock;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
-import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
@@ -59,7 +58,6 @@ import org.terracotta.statistics.observer.OperationObserver;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -102,8 +100,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private final Segment[] segments;
     private final int segmentShift;
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
-    private final boolean tierPinned;
-    private final boolean persistent;
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).of(this).named("get").tag("local-disk").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).of(this).named("put").tag("local-disk").build();
     private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).of(this).named("remove").tag("local-disk").build();
@@ -138,9 +134,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         this.disk = disk;
         this.disk.bind(this);
         this.status.set(Status.STATUS_ALIVE);
-        this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
-                     cache.getCacheConfiguration().getPinningConfiguration().getStore().compareTo(PinningConfiguration.Store.INCACHE) <= 0;
-        this.persistent = cache.getCacheConfiguration().isDiskPersistent();
     }
 
     /**
@@ -170,18 +163,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     public static DiskStore create(Cache cache) {
         return create(cache, new UnboundedPool(), new UnboundedPool());
-    }
-
-
-    /**
-     * Will check whether a Placeholder that failed to flush to disk is lying around
-     * If so, it'll try to evict it
-     * @param key the key
-     * @return true if a failed marker was or is still there, false otherwise
-     */
-    public boolean cleanUpFailedMarker(final Serializable key) {
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).cleanUpFailedMarker(key, hash);
     }
 
     /**
@@ -480,13 +461,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     /**
      * {@inheritDoc}
      */
-    public void fill(Element e) {
-        put(e);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean put(Element element) {
         if (element == null) {
             return false;
@@ -618,23 +592,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         } finally {
             removeObserver.end(RemoveOutcome.SUCCESS);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeNoReturn(Object key) {
-        if (key != null) {
-            int hash = hash(key.hashCode());
-            segmentFor(hash).removeNoReturn(key, hash);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPersistent() {
-        return persistent;
     }
 
     /**
