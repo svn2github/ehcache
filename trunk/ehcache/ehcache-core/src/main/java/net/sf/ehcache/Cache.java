@@ -97,7 +97,6 @@ import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.StatisticsGateway;
-import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
@@ -1151,7 +1150,7 @@ public class Cache implements InternalEhcache, StoreListener {
                         store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                     } else {
                         if (configuration.isOverflowToDisk()) {
-                            store = DiskBackedMemoryStore.create(this, onHeapPool, onDiskPool);
+                            store = DiskStore.createCacheStore(this, onHeapPool, onDiskPool);
                         } else {
                             store = MemoryStore.create(this, onHeapPool);
                         }

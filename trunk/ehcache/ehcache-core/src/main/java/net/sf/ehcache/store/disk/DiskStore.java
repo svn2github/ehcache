@@ -38,12 +38,16 @@ import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.AuthoritativeTier;
+import net.sf.ehcache.store.CacheStore;
+import net.sf.ehcache.store.CopyingCacheStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.store.StripedReadWriteLockProvider;
+import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
@@ -163,6 +167,30 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     public static DiskStore create(Cache cache) {
         return create(cache, new UnboundedPool(), new UnboundedPool());
+    }
+
+    /**
+     * Create a DiskBackedMemoryStore instance
+     * @param cache the cache
+     * @param onHeapPool the pool tracking on-heap usage
+     * @param onDiskPool the pool tracking on-disk usage
+     * @return a DiskBackedMemoryStore instance
+     */
+    public static Store createCacheStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
+        final DiskStore result;
+        CacheConfiguration config = cache.getCacheConfiguration();
+        if (config.isOverflowToDisk()) {
+            result = create(cache, onHeapPool, onDiskPool);
+        } else {
+            throw new CacheException("DiskBackedMemoryStore can only be used for cache overflowing to disk");
+        }
+        DiskStore diskStore = result;
+
+        final OnHeapCachingTier<Object, Element> onHeapCache = OnHeapCachingTier.createOnHeapCache(cache, onHeapPool);
+        return CopyingCacheStore.wrapIfCopy(new CacheStore(
+            onHeapCache,
+            diskStore, cache.getCacheConfiguration()
+        ), cache.getCacheConfiguration());
     }
 
     /**
