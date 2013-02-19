@@ -48,6 +48,7 @@ public class ProcessingBucket<E extends Serializable> {
   private volatile Thread              processingWorkerThread;
   private Callback                     cleanupCallback;
   private final boolean                workingOnDeadBucket;
+  private volatile boolean             destroyAfterStop;
 
   public ProcessingBucket(String bucketName, AsyncConfig config, ToolkitListInternal<E> toolkitList,
                           ClusterInfo cluster,
@@ -67,6 +68,7 @@ public class ProcessingBucket<E extends Serializable> {
     this.workDelay = new AtomicLong(config.getWorkDelay());
     this.workingOnDeadBucket = workingOnDeadBucket;
     this.processingWorkerRunnable = new ProcessingWorker(threadNamePrefix + bucketName);
+    this.destroyAfterStop = true;
   }
 
   public String getBucketName() {
@@ -133,6 +135,19 @@ public class ProcessingBucket<E extends Serializable> {
       return toolkitList.size();
     } finally {
       bucketReadLock.unlock();
+    }
+  }
+
+  public void stopNow() {
+    bucketWriteLock.lock();
+    try {
+      destroyAfterStop = false;
+      stopState = STOP_STATE.STOPPED;
+      bucketNotEmpty.signalAll();
+      bucketNotFull.signalAll();
+      processingWorkerThread.interrupt();
+    } finally {
+      bucketWriteLock.unlock();
     }
   }
 
@@ -212,9 +227,9 @@ public class ProcessingBucket<E extends Serializable> {
     return batchSize;
   }
 
-  private void debug(String string) {
+  private void debug(String message) {
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(string);
+      LOGGER.debug(message);
     }
   }
 
@@ -225,9 +240,9 @@ public class ProcessingBucket<E extends Serializable> {
     try {
       ItemsFilter<E> itemsFilter = this.filter;
       if (itemsFilter != null) {
-        debug(getThreadName() + " : filterQuarantined(): filtering " + toolkitList.size() + " quarantined items");
+        debug(getThreadName() + " : filterQuarantined: filtering " + toolkitList.size() + " quarantined items");
         itemsFilter.filter(toolkitList);
-        debug(getThreadName() + " : filterQuarantined(): retained " + toolkitList.size() + " quarantined items");
+        debug(getThreadName() + " : filterQuarantined: retained " + toolkitList.size() + " quarantined items");
       }
     } finally {
       bucketWriteLock.unlock();
@@ -249,7 +264,7 @@ public class ProcessingBucket<E extends Serializable> {
       workSize = toolkitList.size();
       // if there's no work that needs to be done, stop the processing
       if (0 == workSize) {
-        LOGGER.warn(getThreadName() + " : processItems() : nothing to process");
+        LOGGER.warn(getThreadName() + " : processItems : nothing to process");
         return;
       }
       // filter might remove items from list, so this should be with-in writeLock
@@ -265,9 +280,16 @@ public class ProcessingBucket<E extends Serializable> {
       // wait for another round if the batch size hasn't been filled up yet and the max write delay
       // hasn't expired yet
       if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessingTimeMillis - lastWorkDoneMillis) {
-        LOGGER.warn(getThreadName() + " : processItems() : only " + workSize + " work items available, waiting for "
-                    + batchSize + " items to fill up a batch");
-        return;
+        bucketReadLock.lock();
+        try {
+          if (stopState == STOP_STATE.NORMAL) {
+            LOGGER.warn(getThreadName() + " : processItems : only " + workSize + " work items available, waiting for "
+                        + batchSize + " items to fill up a batch");
+            return;
+          }
+        } finally {
+          bucketReadLock.unlock();
+        }
       }
 
       // enforce the rate limit and wait for another round if too much would be processed compared to
@@ -278,17 +300,19 @@ public class ProcessingBucket<E extends Serializable> {
         final int effectiveBatchSize;
         bucketReadLock.lock();
         try {
-          secondsSinceLastWorkDone = (baselinedCurrentTimeMillis() - lastWorkDoneMillis) / 1000;
-          effectiveBatchSize = determineBatchSize();
+          if (stopState == STOP_STATE.NORMAL) {
+            secondsSinceLastWorkDone = (baselinedCurrentTimeMillis() - lastWorkDoneMillis) / 1000;
+            effectiveBatchSize = determineBatchSize();
+            long maxBatchSizeSinceLastWorkDone = rateLimit * secondsSinceLastWorkDone;
+            if (effectiveBatchSize > maxBatchSizeSinceLastWorkDone) {
+              LOGGER.warn(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
+                          + " seconds ago, processing " + effectiveBatchSize
+                          + " batch items would exceed the rate limit of " + rateLimit + ", waiting for a while.");
+              return;
+            }
+          }
         } finally {
           bucketReadLock.unlock();
-        }
-        final long maxBatchSizeSinceLastWorkDone = rateLimit * secondsSinceLastWorkDone;
-        if (effectiveBatchSize > maxBatchSizeSinceLastWorkDone) {
-          LOGGER.warn(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
-                      + " seconds ago, processing " + effectiveBatchSize
-                      + " batch items would exceed the rate limit of " + rateLimit + ", waiting for a while.");
-          return;
         }
       }
     }
@@ -331,7 +355,7 @@ public class ProcessingBucket<E extends Serializable> {
 
   private void processListSnapshot() throws ProcessingException {
     int size = toolkitList.size();
-    debug(getThreadName() + " : processListSnapshot(): size " + size + " quarantined items");
+    debug(getThreadName() + " : processListSnapshot size " + size + " quarantined items");
     while (size-- > 0) {
       processSingleItem();
     }
@@ -348,7 +372,11 @@ public class ProcessingBucket<E extends Serializable> {
         break;
       } catch (final RuntimeException e) {
         if (executionsLeft <= 0) {
-          processor.throwAway(item, e);
+          try {
+            processor.throwAway(item, e);
+          } catch (final Throwable th) {
+            LOGGER.warn("processSingleItem caught error while throwing away an item: " + item + " " + th);
+          }
         } else {
           LOGGER.warn(getThreadName() + " : processSingleItem() : exception during processing, retrying in "
                       + retryAttempts + " milliseconds, " + executionsLeft + " retries left : " + e.getMessage());
@@ -374,13 +402,18 @@ public class ProcessingBucket<E extends Serializable> {
         processor.process(batch);
         break;
       } catch (final RuntimeException e) {
+        LOGGER.warn("processBatchedItems caught error while processing batch of " + batch.size() + " error " + e);
         if (executionsLeft <= 0) {
           for (E item : batch) {
-            processor.throwAway(item, e);
+            try {
+              processor.throwAway(item, e);
+            } catch (final Throwable th) {
+              LOGGER.warn("processBatchedItems caught error while throwing away an item: " + item + " error " + th);
+            }
           }
         } else {
           LOGGER.warn(getThreadName() + " : processBatchedItems() : exception during processing, retrying in "
-                      + retryAttempts + " milliseconds, " + executionsLeft + " retries left : " + e.getMessage());
+                      + retryAttempts + " milliseconds, " + executionsLeft + " retries left : " + e);
           try {
             Thread.sleep(config.getRetryAttemptDelay());
           } catch (InterruptedException e1) {
@@ -481,7 +514,7 @@ public class ProcessingBucket<E extends Serializable> {
                   } else {
                     tmpWorkDelay = 0;
                   }
-                } while (tmpWorkDelay > 0);
+                } while (tmpWorkDelay > 0 && stopState == STOP_STATE.NORMAL);
               } else {
                 while (!workingOnDeadBucket && stopState == STOP_STATE.NORMAL && toolkitList.isEmpty()) {
                   bucketNotEmpty.await();
@@ -492,7 +525,6 @@ public class ProcessingBucket<E extends Serializable> {
               stop();
               Thread.currentThread().interrupt();
             }
-
           } finally {
             bucketWriteLock.unlock();
           }
@@ -504,8 +536,10 @@ public class ProcessingBucket<E extends Serializable> {
         }
       }
 
-      // Destroy anyways, either stop happened or other dead-client bucket was finished processing
-      destroyToolkitList();
+      if (destroyAfterStop) {
+        // Destroy anyways, either stop happened or other dead-client bucket was finished processing
+        destroyToolkitList();
+      }
     }
   }
 
