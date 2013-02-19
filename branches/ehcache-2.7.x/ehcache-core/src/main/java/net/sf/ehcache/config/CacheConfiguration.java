@@ -1050,6 +1050,7 @@ public class CacheConfiguration implements Cloneable {
      * This property can be modified dynamically while the cache is operating.
      *
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
+     * @deprecated use {@link #setMaxEntriesLocalDisk(long)} for unclustered caches and {@link #setMaxEntriesInCache(int)} for clustered caches.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
@@ -1123,6 +1124,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @return this configuration instance
      * @see #setMaxElementsOnDisk(int)
+     * @deprecated use {@link #maxEntriesLocalDisk(int)} for unclustered caches and {@link #maxEntriesInCache(int)} for clustered caches.
      */
     public final CacheConfiguration maxElementsOnDisk(int maxElementsOnDisk) {
         setMaxElementsOnDisk(maxElementsOnDisk);
@@ -1817,7 +1819,7 @@ public class CacheConfiguration implements Cloneable {
     List<ConfigError> verifyPoolAllocationsBeforeAddingTo(CacheManager cacheManager,
                                                      long managerMaxBytesLocalHeap,
                                                      long managerMaxBytesLocalOffHeap,
-                                                     long managerMaxBytesLocalDisk, 
+                                                     long managerMaxBytesLocalDisk,
                                                      String parentCacheName) {
         final List<ConfigError> configErrors = new ArrayList<ConfigError>();
 
@@ -2444,7 +2446,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Accessor
-     *
+     * @deprecated use {@link #getMaxEntriesLocalDisk()} for unclustered caches and {@link #getMaxEntriesInCache()} for clustered caches.
      */
     public int getMaxElementsOnDisk() {
         return maxElementsOnDisk;
