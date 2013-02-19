@@ -55,16 +55,18 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private ItemScatterPolicy<? super E>    scatterPolicy;
   private ItemsFilter<E>                  filter;
   private final ClusterInfo               cluster;
-  private final String                    nodeName;
+  private volatile String                 nodeName;
   private final Toolkit                   toolkit;
   private ItemProcessor<E>                processor;
   private final AsyncClusterListener      listener;
   private final Callback                  stopCallable;
   private final BucketManager             bucketManager;
+  private volatile ClusterNode            currentNode;
+  private volatile int                    concurrency = 1;
 
-  public AsyncCoordinatorImpl(String name, AsyncConfig config, ToolkitInstanceFactory toolkitInstanceFactory,
+  public AsyncCoordinatorImpl(String fullAsyncName, AsyncConfig config, ToolkitInstanceFactory toolkitInstanceFactory,
                               Callback stopCallable) {
-    this.name = name; // contains CacheManager name and Cache name
+    this.name = fullAsyncName; // contains CacheManager name and Cache name
     if (null == config) {
       this.config = config = DefaultAsyncConfig.getInstance();
     } else {
@@ -73,13 +75,12 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.toolkit = toolkitInstanceFactory.getToolkit();
     this.cluster = toolkit.getClusterInfo();
     this.listener = new AsyncClusterListener();
-
-    this.nodeName = getAsyncNodeName(this.name, cluster.getCurrentNode()); // contains CacheManager name, Cache name and
-                                                                           // nodeId
+    this.currentNode = cluster.getCurrentNode();
+    this.nodeName = getAsyncNodeName(name, currentNode); // contains CacheManager name, Cache name and nodeId
     this.localBuckets = new ArrayList<ProcessingBucket<E>>();
     this.deadBuckets = new ArrayList<ProcessingBucket<E>>();
     this.bucketManager = new BucketManager(toolkitInstanceFactory);
-    this.commonAsyncLock = toolkit.getLock(this.name);
+    this.commonAsyncLock = toolkit.getLock(name);
     ReadWriteLock nodeLock = new ReentrantReadWriteLock();
     this.nodeWriteLock = nodeLock.writeLock();
     this.nodeReadLock = nodeLock.readLock();
@@ -98,12 +99,12 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       }
 
       if (status != Status.UNINITIALIZED) { throw new IllegalStateException(); }
-
-      this.scatterPolicy = getPolicy(policy, processingConcurrency);
+      this.concurrency = processingConcurrency;
+      this.scatterPolicy = getPolicy(policy, concurrency);
       this.processor = itemProcessor;
       cluster.addClusterListener(listener);
 
-      startBuckets(processingConcurrency);
+      startBuckets(concurrency);
       status = Status.STARTED;
     } finally {
       nodeWriteLock.unlock();
@@ -127,7 +128,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         policy = new HashCodeScatterPolicy();
       }
     }
-
     return policy;
   }
 
@@ -157,7 +157,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       localBuckets.add(bucket);
       bucket.start();
     }
-
   }
 
   private ProcessingBucket<E> createBucket(String bucketName, AsyncConfig processingConfig, boolean workingOnDeadBucket) {
@@ -171,7 +170,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     if (workingOnDeadBucket) {
       bucket.setCleanupCallback(cleanupDeadBucket(deadBuckets, bucket));
     }
-
     return bucket;
   }
 
@@ -244,6 +242,49 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     buckets.clear();
   }
 
+  private void stopNow() {
+    debug("stopNow localBuckets " + localBuckets.size() + " | deadBuckets " + deadBuckets.size());
+    int localSize = 0;
+    for (ProcessingBucket<E> bucket : localBuckets) {
+      localSize += bucket.getWaitCount();
+    }
+    int deadSize = 0;
+    for (ProcessingBucket<E> bucket : deadBuckets) {
+      deadSize += bucket.getWaitCount();
+    }
+    debug("stopNow localSize " + localSize + " | deadSize " + deadSize);
+    nodeWriteLock.lock();
+    try {
+      stopBucketsNow(localBuckets);
+      stopBucketsNow(deadBuckets);
+    } finally {
+      nodeWriteLock.unlock();
+    }
+  }
+
+  private void nodeRejoined() {
+    nodeWriteLock.lock();
+    try {
+      currentNode = cluster.getCurrentNode();
+      nodeName = getAsyncNodeName(name, currentNode);
+      debug("nodeRejoined currentNode " + currentNode + " nodeName " + nodeName);
+      localBuckets.clear();
+      deadBuckets.clear();
+      bucketManager.populateMap();
+      startBuckets(concurrency);
+    } finally {
+      nodeWriteLock.unlock();
+    }
+    scanDeadNodes();
+    processOneDeadNodeIfNecessary();
+  }
+
+  private void stopBucketsNow(List<ProcessingBucket<E>> buckets) {
+    for (ProcessingBucket<E> bucket : buckets) {
+      bucket.stopNow();
+    }
+  }
+
   /**
    * Attach the specified {@code QuarantinedItemsFilter} to this coordinator.
    * <p>
@@ -269,23 +310,30 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private class AsyncClusterListener implements ClusterListener {
     @Override
     public void onClusterEvent(ClusterEvent event) {
+      debug("onClusterEvent " + event.getType() + " for " + event.getNode().getId() + " received at "
+            + currentNode.getId());
       switch (event.getType()) {
         case NODE_LEFT:
-          debug("onClusterEvent(): NODE_LEFT " + event.getNode() + " received at " + nodeName);
-          String otherNodeNameListKey = getAsyncNodeName(name, event.getNode());
-          commonAsyncLock.lock();
-          try {
-            bucketManager.addToDeadNodes(Collections.singleton(otherNodeNameListKey));
-          } finally {
-            commonAsyncLock.unlock();
+          if (!event.getNode().equals(currentNode)) { // other node's NODE_LEFT received
+            String leftNodeKey = getAsyncNodeName(name, event.getNode());
+            commonAsyncLock.lock();
+            try {
+              bucketManager.addToDeadNodes(Collections.singleton(leftNodeKey));
+            } finally {
+              commonAsyncLock.unlock();
+            }
+            processOneDeadNodeIfNecessary();
+          } else { // self NODE_LEFT received
+            stopNow();
           }
-          processOneDeadNodeIfNecessary();
+          break;
+        case NODE_REJOINED:
+          nodeRejoined();
           break;
         default:
           break;
       }
     }
-
   }
 
   private void processOneDeadNodeIfNecessary() {
@@ -293,6 +341,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     try {
       if (status == Status.STARTED && deadBuckets.isEmpty()) {
         processOneDeadNode();
+      } else {
+        debug("skipped processOneDeadNode status " + status + " deadBuckets " + deadBuckets.size());
       }
     } finally {
       nodeWriteLock.unlock();
@@ -307,8 +357,11 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     } finally {
       commonAsyncLock.unlock();
     }
-    long totalItems = startDeadBuckets(deadNodeBuckets);
-    debug("processOneDeadNode taken " + totalItems + " at " + nodeName);
+    if (!deadNodeBuckets.isEmpty()) {
+      long totalItems = startDeadBuckets(deadNodeBuckets);
+      debug("processOneDeadNode deadNodeBuckets " + deadNodeBuckets.size() + " totalItems " + totalItems + " at "
+            + nodeName);
+    }
   }
 
   private static enum Status {
@@ -368,18 +421,18 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
     public BucketManager(ToolkitInstanceFactory toolkitFactory) {
       this.nodeToBucketNames = toolkitFactory.getOrCreateAsyncListNamesMap(name);
+      nodeToBucketNames.putIfAbsent(DEAD_NODES, new HashSet<String>());
       populateMap();
     }
 
-    private void populateMap() {
-      nodeToBucketNames.putIfAbsent(DEAD_NODES, new HashSet<String>());
+    public void populateMap() {
       nodeToBucketNames.putIfAbsent(nodeName, new HashSet<String>());
     }
 
     private void bucketsCreated(Collection<String> bucketNames) {
       Set<String> buckets = nodeToBucketNames.get(nodeName);
       buckets.addAll(bucketNames);
-      this.nodeToBucketNames.put(nodeName, buckets);
+      nodeToBucketNames.put(nodeName, buckets);
     }
 
     private void clear() {
@@ -387,20 +440,21 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     }
 
     private Set<String> transferBucketsFromDeadNode() {
-      String deadNode = getDeadNode();
+      String deadNode = getOneDeadNode();
       Set<String> deadNodeBuckets = nodeToBucketNames.get(deadNode);
       if (deadNodeBuckets != null) {
         Set<String> newOwner = nodeToBucketNames.get(nodeName);
         newOwner.addAll(deadNodeBuckets);
         nodeToBucketNames.put(nodeName, newOwner); // transferring bucket ownership to new node
         nodeToBucketNames.remove(deadNode); // removing buckets from old node
-        debug("transferBucketsFromDeadNode(): deadNode " + deadNode + " transferred " + deadNodeBuckets);
+        debug("transferBucketsFromDeadNode deadNode " + deadNode + " to node " + nodeName + " buckets "
+              + deadNodeBuckets);
         return deadNodeBuckets;
       }
       return Collections.EMPTY_SET;
     }
 
-    private String getDeadNode() {
+    private String getOneDeadNode() {
       String deadNode = "";
       Set<String> deadNodes = nodeToBucketNames.get(DEAD_NODES);
       Iterator<String> itr = deadNodes.iterator();
@@ -419,10 +473,13 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     }
 
     private void addToDeadNodes(Collection<String> nodes) {
-      Set<String> allDeadNodes = nodeToBucketNames.get(DEAD_NODES);
-      allDeadNodes.addAll(nodes);
-      nodeToBucketNames.put(DEAD_NODES, allDeadNodes);
-      debug("addToDeadNodes(): deadNodes " + nodes);
+      if (!nodes.isEmpty()) {
+        Set<String> allDeadNodes = nodeToBucketNames.get(DEAD_NODES);
+        if (allDeadNodes.addAll(nodes)) {
+          nodeToBucketNames.put(DEAD_NODES, allDeadNodes);
+          debug("addToDeadNodes deadNodes " + nodes);
+        }
+      }
     }
 
     private Set<String> scanAndAddDeadNodes() {

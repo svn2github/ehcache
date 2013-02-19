@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 public class BasicWriteBehindTest extends AbstractCacheTestBase {
   private int totalWriteCount  = 0;
   private int totalDeleteCount = 0;
+  public static int ELEMENT_COUNT    = 1000;
 
   public BasicWriteBehindTest(TestConfig testConfig) {
     super("basic-writebehind-test.xml", testConfig, BasicWriteBehindTestClient.class);
@@ -27,10 +28,10 @@ public class BasicWriteBehindTest extends AbstractCacheTestBase {
   @Override
   protected void postClientVerification() {
     System.out.println("[Clients processed a total of " + totalWriteCount + " writes]");
-    if (totalWriteCount < 1000) { throw new AssertionError(totalWriteCount); }
+    if (totalWriteCount < ELEMENT_COUNT) { throw new AssertionError(totalWriteCount); }
 
     System.out.println("[Clients processed a total of " + totalDeleteCount + " deletes]");
-    if (totalDeleteCount < 100) { throw new AssertionError(totalDeleteCount); }
+    if (totalDeleteCount < ELEMENT_COUNT / 10) { throw new AssertionError(totalDeleteCount); }
   }
 
   @Override

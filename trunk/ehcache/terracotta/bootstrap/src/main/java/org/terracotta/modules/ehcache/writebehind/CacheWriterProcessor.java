@@ -8,6 +8,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.async.ItemProcessor;
 import org.terracotta.modules.ehcache.writebehind.operations.BatchAsyncOperation;
 import org.terracotta.modules.ehcache.writebehind.operations.DeleteAllAsyncOperation;
@@ -18,10 +20,7 @@ import org.terracotta.modules.ehcache.writebehind.operations.WriteAsyncOperation
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * An implementation of {@code ItemProcessor} that delegates the processing to a {@code CacheWriter} instance
@@ -35,6 +34,7 @@ import java.util.Map.Entry;
  */
 public class CacheWriterProcessor implements ItemProcessor<SingleAsyncOperation> {
   private final CacheWriter cacheWriter;
+  private static final Logger LOGGER = LoggerFactory.getLogger(CacheWriterProcessor.class.getName());
 
   /**
    * Creates a new item processor for a specific cache writer.
@@ -58,25 +58,35 @@ public class CacheWriterProcessor implements ItemProcessor<SingleAsyncOperation>
 
   @Override
   public void process(Collection<SingleAsyncOperation> items) {
-    // separate out the operations per type
-    final Map<Class, List<SingleAsyncOperation>> separatedItemsPerType = new HashMap<Class, List<SingleAsyncOperation>>();
+    final List<SingleAsyncOperation> itemsPerType = new ArrayList<SingleAsyncOperation>();
+    Class opClass = WriteAsyncOperation.class;
     for (SingleAsyncOperation item : items) {
-      List<SingleAsyncOperation> itemsPerType = separatedItemsPerType.get(item.getClass());
-      if (null == itemsPerType) {
-        itemsPerType = new ArrayList<SingleAsyncOperation>();
-        separatedItemsPerType.put(item.getClass(), itemsPerType);
+      // keep adding items of same operationClass
+      if (item.getClass() == opClass) {
+        itemsPerType.add(item);
+      } else {
+        // execute the batch
+        executeBatch(itemsPerType);
+        // switch to new operationClass and add items in itemsPerType
+        opClass = item.getClass();
+        itemsPerType.clear();
+        itemsPerType.add(item);
       }
-      itemsPerType.add(item);
     }
+    // finally execute the last batch
+    executeBatch(itemsPerType);
+  }
 
-    // execute the batch operations
-    try {
-      for (Entry<Class, List<SingleAsyncOperation>> entry : separatedItemsPerType.entrySet()) {
-        BatchAsyncOperation batch = createBatchOprForType(entry.getClass(), entry.getValue());
+  private void executeBatch(final List<SingleAsyncOperation> itemsPerType) {
+    if (!itemsPerType.isEmpty()) {
+      Class opClass = itemsPerType.get(0).getClass();
+      try {
+        BatchAsyncOperation batch = createBatchOprForType(opClass, itemsPerType);
         batch.performBatchOperation(cacheWriter);
+      } catch (Exception e) {
+        LOGGER.warn("error while processing batch write behind operation " + e);
+        throw new CacheException("Unexpected exception while processing write behind operation " + e, e);
       }
-    } catch (Exception e) {
-      throw new CacheException("Unexpected exception while processing write behind operation", e);
     }
   }
 
@@ -96,8 +106,7 @@ public class CacheWriterProcessor implements ItemProcessor<SingleAsyncOperation>
       }
       return new DeleteAllAsyncOperation(entries);
     }
-
-    return null;
+    throw new RuntimeException("no batch operation created for " + operationClass.getName());
   }
 
   @Override
