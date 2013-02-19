@@ -15,7 +15,7 @@ import java.io.FileReader;
 public abstract class AbstractWriteBehindAtomicityTestBase extends AbstractCacheTestBase {
 
   public AbstractWriteBehindAtomicityTestBase(final String ehcacheConfigPath, TestConfig testConfig,
-                                          Class<? extends AbstractClientBase>... c) {
+                                              Class<? extends AbstractClientBase>... c) {
     super(ehcacheConfigPath, testConfig, c);
     testConfig.getClientConfig().getBytemanConfig().setScript("/byteman/writeBehindAtomicity.btm");
   }
@@ -38,17 +38,20 @@ public abstract class AbstractWriteBehindAtomicityTestBase extends AbstractCache
       reader = new BufferedReader(fr);
       String st = "";
       while ((st = reader.readLine()) != null) {
-        if (st.contains("beginAtomicTransaction")) {
-          Assert.assertEquals(false, underExplicitLock);
-          underExplicitLock = true;
-        } else if (st.contains("Commit Transaction") && underExplicitLock) {
-          txnCount++;
-          Assert.assertEquals(txnCount, 1);
-        } else if (st.contains("endAtomicTransaction")) {
-          Assert.assertEquals(true, underExplicitLock);
-          underExplicitLock = false;
-          Assert.assertEquals(txnCount, 1);
-          txnCount = 0;
+        // only check for main thread
+        if (st.contains("main")) {
+          if (st.contains("beginAtomicTransaction")) {
+            Assert.assertEquals(false, underExplicitLock);
+            underExplicitLock = true;
+          } else if (st.contains("Commit Transaction") && underExplicitLock) {
+            txnCount++;
+            Assert.assertEquals(txnCount, 1);
+          } else if (st.contains("endAtomicTransaction")) {
+            Assert.assertEquals(true, underExplicitLock);
+            underExplicitLock = false;
+            Assert.assertEquals(txnCount, 1);
+            txnCount = 0;
+          }
         }
       }
     } catch (Exception e) {
