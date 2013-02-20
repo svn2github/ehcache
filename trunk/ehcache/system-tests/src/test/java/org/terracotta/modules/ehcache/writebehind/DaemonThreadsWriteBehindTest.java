@@ -7,7 +7,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
-
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.AbstractWriteBehindClient;
 import org.terracotta.ehcache.tests.WriteBehindCacheWriter;
@@ -70,40 +69,42 @@ public class DaemonThreadsWriteBehindTest extends AbstractCacheTestBase {
       }
       System.out.println("sleeping for 1 min");
       TimeUnit.MINUTES.sleep(1L);
+
       long[] listC = tbean.getAllThreadIds();
       int daemonThreadCountC = tbean.getDaemonThreadCount();
       int nonDaemonThreadCountC = tbean.getThreadCount() - tbean.getDaemonThreadCount();
       List<Long> listIntA = new ArrayList<Long>();
-      for (long listAItrator : listA) {
-        listIntA.add(new Long(listAItrator));
+      for (long threadId : listA) {
+        listIntA.add(threadId);
       }
       List<Long> listIntC = new ArrayList<Long>();
-      for (long listAItrator : listC) {
-        listIntC.add(new Long(listAItrator));
+      for (long threadId : listC) {
+        listIntC.add(threadId);
       }
       listIntC.removeAll(listIntA);
+
       Set<String> knownThreads = getKnownThreads();
       int skipThreadCount = 0;
       StringBuffer threadsInfo = new StringBuffer();
       System.out.println("\n\n" + listIntC.size() + " Start Printing Stack Trace\n--------------------");
-      for (int i = 0; i < listIntC.size(); i++) {
-        ThreadInfo tinfo = tbean.getThreadInfo(listIntC.get(i));
+      for (Long threadId : listIntC) {
+        ThreadInfo tinfo = tbean.getThreadInfo(threadId);
         if (knownThreads.contains(tinfo.getThreadName().trim())) {
           ++skipThreadCount;
           continue;
         }
-        String info = "Thread name: " + tinfo.getThreadName() + " | " + tinfo.getThreadId()+"\n";
+        String info = "Thread name: " + tinfo.getThreadName() + " | " + tinfo.getThreadId() + "\n";
         threadsInfo.append(info);
         for (StackTraceElement e : tinfo.getStackTrace()) {
-          threadsInfo.append(e + "\n\n");
+          threadsInfo.append(e).append("\n\n");
         }
       }
       System.out.println(threadsInfo + "\n\n-----------------------\n\n");
-      Assert.assertEquals(threadsInfo.toString(), daemonThreadCountA, daemonThreadCountC - skipThreadCount);
+      Assert.assertEquals(daemonThreadCountA, daemonThreadCountC - skipThreadCount);
       Assert.assertEquals(nonDaemonThreadCountA, nonDaemonThreadCountC);
     }
 
-    private Set<String> getKnownThreads() {
+    private static Set<String> getKnownThreads() {
       Set<String> skipThreads = new HashSet<String>();
       skipThreads.add("Attach Listener");
       skipThreads.add("Poller SunPKCS11-Darwin");
