@@ -201,7 +201,7 @@ public class SelectableConcurrentHashMap {
         final Segment[] segments = this.segments;
         long sum = 0;
         for (Segment seg : segments) {
-            sum += seg.count - seg.numDummyPinnedKeys;
+            sum += seg.count;
         }
 
         if (sum > Integer.MAX_VALUE) {
@@ -252,12 +252,12 @@ public class SelectableConcurrentHashMap {
             long sum = 0;
             int mcsum = 0;
             for (int i = 0; i < segments.length; ++i) {
-                sum += segments[i].count - segments[i].numDummyPinnedKeys;
+                sum += segments[i].count;
                 mcsum += mc[i] = segments[i].modCount;
             }
             if (mcsum != 0) {
                 for (int i = 0; i < segments.length; ++i) {
-                    check += segments[i].count - segments[i].numDummyPinnedKeys;
+                    check += segments[i].count;
                     if (mc[i] != segments[i].modCount) {
                         check = -1; // force retry
                         break;
@@ -279,7 +279,7 @@ public class SelectableConcurrentHashMap {
         }
         try {
             for (int i = 0; i < segments.length; ++i) {
-                sum += segments[i].count - segments[i].numDummyPinnedKeys;
+                sum += segments[i].count;
             }
         } finally {
             for (int i = 0; i < segments.length; ++i) {
@@ -475,8 +475,6 @@ public class SelectableConcurrentHashMap {
         final float loadFactor;
 
         private Iterator<HashEntry> evictionIterator = iterator();
-        protected volatile int pinnedCount;
-        protected volatile int numDummyPinnedKeys;
 
         protected Segment(int initialCapacity, float lf) {
             loadFactor = lf;
@@ -535,8 +533,6 @@ public class SelectableConcurrentHashMap {
                     for (int i = 0; i < tab.length ; i++)
                         tab[i] = null;
                     ++modCount;
-                    numDummyPinnedKeys = 0;
-                    pinnedCount = 0;
                     count = 0; // write-volatile
                 }
             } finally {
@@ -563,6 +559,9 @@ public class SelectableConcurrentHashMap {
                         ++modCount;
                         tab[index] = removeAndGetFirst(e, first);
                         count = c; // write-volatile
+                        if (cacheEventNotificationService != null) {
+                            cacheEventNotificationService.notifyElementRemovedOrdered(oldValue);
+                        }
                         poolAccessor.delete(e.sizeOf);
                     }
                 }
@@ -633,6 +632,9 @@ public class SelectableConcurrentHashMap {
                         poolAccessor.delete(e.sizeOf);
                         e.value = value;
                         e.sizeOf = sizeOf;
+                        if (cacheEventNotificationService != null) {
+                            cacheEventNotificationService.notifyElementUpdatedOrdered(oldValue, value);
+                        }
                         if (fire) {
                             postInstall(key, value);
                         }
@@ -642,6 +644,9 @@ public class SelectableConcurrentHashMap {
                     ++modCount;
                     tab[index] = createHashEntry(key, hash, first, value, sizeOf);
                     count = c; // write-volatile
+                    if (cacheEventNotificationService != null) {
+                        cacheEventNotificationService.notifyElementPutOrdered(value);
+                    }
                     if (fire) {
                         postInstall(key, value);
                     }

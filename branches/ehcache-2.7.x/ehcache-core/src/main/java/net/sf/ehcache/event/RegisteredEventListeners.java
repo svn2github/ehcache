@@ -54,6 +54,7 @@ public class RegisteredEventListeners {
      * @see CacheEventListener
      */
     private final Set<ListenerWrapper> cacheEventListeners = new CopyOnWriteArraySet<ListenerWrapper>();
+    private final Set<SimpleCacheEventListener> orderedListeners = new CopyOnWriteArraySet<SimpleCacheEventListener>();
     private final Cache cache;
 
     private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
@@ -73,6 +74,44 @@ public class RegisteredEventListeners {
         StatisticsManager.associate(this).withParent(cache);
         this.cache = cache;
         helper = new CacheStoreHelper(cache);
+    }
+
+    /**
+     * Notifies {@link SimpleCacheEventListener}s, when an update happens
+     * @param oldElement the old element
+     * @param newElement the new element
+     */
+    public final void notifyElementUpdatedOrdered(Element oldElement, Element newElement) {
+        if (!orderedListeners.isEmpty()) {
+            for (SimpleCacheEventListener listener : orderedListeners) {
+                listener.notifyElementRemoved(cache, oldElement);
+                listener.notifyElementPut(cache, newElement);
+            }
+        }
+    }
+
+    /**
+     * Notifies {@link SimpleCacheEventListener}s, when a remove happens
+     * @param element the element removes
+     */
+    public final void notifyElementRemovedOrdered(Element element) {
+        if (!orderedListeners.isEmpty()) {
+            for (SimpleCacheEventListener listener : orderedListeners) {
+                listener.notifyElementRemoved(cache, element);
+            }
+        }
+    }
+
+    /**
+     * Notifies {@link SimpleCacheEventListener}s, when a put happens
+     * @param element the element put
+     */
+    public final void notifyElementPutOrdered(Element element) {
+        if (!orderedListeners.isEmpty()) {
+            for (SimpleCacheEventListener listener : orderedListeners) {
+                listener.notifyElementPut(cache, element);
+            }
+        }
     }
 
     /**
@@ -103,7 +142,7 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-                    invokeListener(listener, element, callback, Event.REMOVED);
+                    listener.notifyElementRemoved(cache, resolveElement(listener, element, callback));
                 }
             }
         }
@@ -138,7 +177,8 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-                    invokeListener(listener, element, callback, Event.PUT);
+
+                    listener.notifyElementPut(cache, resolveElement(listener, element, callback));
                 }
             }
         }
@@ -173,7 +213,8 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-                    invokeListener(listener, element, callback, Event.UPDATED);
+
+                    listener.notifyElementUpdated(cache, resolveElement(listener, element, callback));
                 }
             }
         }
@@ -212,7 +253,8 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                         && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-                    invokeListener(listener, element, callback, Event.EXPIRY);
+
+                    listener.notifyElementExpired(cache, resolveElement(listener, element, callback));
                 }
             }
         }
@@ -224,7 +266,7 @@ public class RegisteredEventListeners {
      * @return true if a one or more listeners have registered, otherwise false
      */
     public final boolean hasCacheEventListeners() {
-        return cacheEventListeners.size() > 0;
+        return !cacheEventListeners.isEmpty() || !orderedListeners.isEmpty();
     }
 
     /**
@@ -258,56 +300,18 @@ public class RegisteredEventListeners {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                     && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {
                     CacheEventListener listener = listenerWrapper.getListener();
-                    invokeListener(listener, element, callback, Event.EVICTED);
+
+                    listener.notifyElementEvicted(cache, resolveElement(listener, element, callback));
                 }
             }
         }
      }
 
-    private void invokeListener(CacheEventListener listener, Element element, ElementCreationCallback callback, Event eventType) {
-        final Element e;
-
-// TODOD CRSS
-//        if (listener instanceof LiveCacheStatisticsData) {
-//            // These listeners don't touch the element and since this is an internal listener there might not be
-//            // an appropriate loader for resolving it
-//            e = null;
-//        } else
-
-            if (callback != null) {
-            e = callback.createElement(listener.getClass().getClassLoader());
+    private Element resolveElement(final CacheEventListener listener, final Element element, final ElementCreationCallback callback) {
+        if (callback != null) {
+            return callback.createElement(listener.getClass().getClassLoader());
         } else {
-            e = element;
-        }
-
-        notifyListener(listener, e, eventType);
-    }
-
-    private void notifyListener(CacheEventListener listener, Element element, Event eventType) {
-        switch (eventType) {
-            case EVICTED: {
-                listener.notifyElementEvicted(cache, element);
-                break;
-            }
-            case PUT: {
-                listener.notifyElementPut(cache, element);
-                break;
-            }
-            case EXPIRY: {
-                listener.notifyElementExpired(cache, element);
-                break;
-            }
-            case REMOVED: {
-                listener.notifyElementRemoved(cache, element);
-                break;
-            }
-            case UPDATED: {
-                listener.notifyElementUpdated(cache, element);
-                break;
-            }
-            default: {
-                throw new AssertionError(eventType.toString());
-            }
+            return element;
         }
     }
 
@@ -378,6 +382,27 @@ public class RegisteredEventListeners {
     }
 
     /**
+     * Adds a listener to the notification service. No guarantee is made that listeners will be
+     * notified in the order they were added.
+     * <p/>
+     *
+     * @param cacheEventListener The listener to add
+     * @return true if the listener is being added and was not already added
+     * @since 2.8
+     */
+    final boolean registerOrderedListener(SimpleCacheEventListener cacheEventListener) {
+        if (cacheEventListener == null) {
+            return false;
+        }
+        final boolean result;
+        result = orderedListeners.add(cacheEventListener);
+        if (result && cacheEventListener instanceof CacheReplicator) {
+            this.hasReplicator.set(true);
+        }
+        return result;
+    }
+
+    /**
      * Removes a listener from the notification service.
      *
      * @param cacheEventListener
@@ -394,6 +419,37 @@ public class RegisteredEventListeners {
                 result = true;
             } else {
                 if (listenerWrapper.getListener() instanceof CacheReplicator) {
+                    cacheReplicators++;
+                }
+            }
+        }
+
+        if (cacheReplicators > 0) {
+            hasReplicator.set(true);
+        } else {
+            hasReplicator.set(false);
+        }
+
+        return result;
+    }
+
+    /**
+     * Removes a listener from the notification service.
+     *
+     * @param cacheEventListener
+     * @return true if the listener was present
+     */
+    final boolean unregisterOrderedListener(SimpleCacheEventListener cacheEventListener) {
+        boolean result = false;
+        int cacheReplicators = 0;
+        final Iterator<SimpleCacheEventListener> itOrdered = orderedListeners.iterator();
+        while (itOrdered.hasNext()) {
+            SimpleCacheEventListener orderedListener = itOrdered.next();
+            if (orderedListener.equals(cacheEventListener)) {
+                orderedListeners.remove(orderedListener);
+                result = true;
+            } else {
+                if (orderedListener instanceof CacheReplicator) {
                     cacheReplicators++;
                 }
             }
@@ -440,6 +496,11 @@ public class RegisteredEventListeners {
             listenerWrapper.getListener().dispose();
         }
         cacheEventListeners.clear();
+
+        for (SimpleCacheEventListener orderedListener : orderedListeners) {
+            orderedListener.dispose();
+        }
+        orderedListeners.clear();
     }
 
     /**
@@ -456,6 +517,10 @@ public class RegisteredEventListeners {
         StringBuilder sb = new StringBuilder(" cacheEventListeners: ");
         for (ListenerWrapper listenerWrapper : cacheEventListeners) {
             sb.append(listenerWrapper.getListener().getClass().getName()).append(" ");
+        }
+        sb.append("; orderedCacheEventListeners: ");
+        for (SimpleCacheEventListener orderedListener : orderedListeners) {
+            sb.append(orderedListener.getClass().getName()).append(" ");
         }
         return sb.toString();
     }

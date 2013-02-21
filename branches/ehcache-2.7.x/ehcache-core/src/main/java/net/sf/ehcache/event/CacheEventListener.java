@@ -44,42 +44,7 @@ import net.sf.ehcache.Element;
  * @see CacheManagerEventListener
  * @since 1.2
  */
-public interface CacheEventListener extends Cloneable {
-
-    /**
-     * Called immediately after an attempt to remove an element. The remove method will block until
-     * this method returns.
-     * <p/>
-     * This notification is received regardless of whether the cache had an element matching
-     * the removal key or not. If an element was removed, the element is passed to this method,
-     * otherwise a synthetic element, with only the key set is passed in.
-     * <p/>
-     * This notification is not called for the following special cases:
-     * <ol>
-     * <li>removeAll was called. See {@link #notifyRemoveAll(net.sf.ehcache.Ehcache)}
-     * <li>An element was evicted from the cache.
-     * See {@link #notifyElementEvicted(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)}
-     * </ol>
-     *
-     * @param cache   the cache emitting the notification
-     * @param element the element just deleted, or a synthetic element with just the key set if
-     *                no element was removed.
-     */
-    void notifyElementRemoved(final Ehcache cache, final Element element) throws CacheException;
-
-    /**
-     * Called immediately after an element has been put into the cache. The
-     * {@link net.sf.ehcache.Cache#put(net.sf.ehcache.Element)} method
-     * will block until this method returns.
-     * <p/>
-     * Implementers may wish to have access to the Element's fields, including value, so the
-     * element is provided. Implementers should be careful not to modify the element. The
-     * effect of any modifications is undefined.
-     *
-     * @param cache   the cache emitting the notification
-     * @param element the element which was just put into the cache.
-     */
-    void notifyElementPut(final Ehcache cache, final Element element) throws CacheException;
+public interface CacheEventListener extends SimpleCacheEventListener {
 
     /**
      * Called immediately after an element has been put into the cache and the element already
@@ -149,13 +114,6 @@ public interface CacheEventListener extends Cloneable {
      * @param cache the cache emitting the notification
      */
     void notifyRemoveAll(final Ehcache cache);
-
-
-    /**
-     * Give the listener a chance to cleanup and free resources when no longer needed
-     */
-    void dispose();
-
 
     /**
      * Creates a clone of this listener. This method will only be called by ehcache before a
