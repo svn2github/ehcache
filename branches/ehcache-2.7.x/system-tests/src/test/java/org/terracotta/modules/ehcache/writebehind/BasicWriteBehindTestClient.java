@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import junit.framework.Assert;
 
 public class BasicWriteBehindTestClient extends AbstractWriteBehindClient {
-  public static int ELEMENT_COUNT = BasicWriteBehindTest.ELEMENT_COUNT;
+  private static final int ELEMENT_COUNT = BasicWriteBehindTest.ELEMENT_COUNT;
 
   public BasicWriteBehindTestClient(String[] args) {
     super(args);
