@@ -34,7 +34,7 @@ import junit.framework.Assert;
 public class BatchWriteBehindTest extends AbstractCacheTestBase {
   private int       totalWriteCount  = 0;
   private int       totalDeleteCount = 0;
-  public static int          ELEMENT_COUNT    = 1000;
+  public static final int          ELEMENT_COUNT    = 1000;
 
   public BatchWriteBehindTest(TestConfig testConfig) {
     super("batch-writebehind-test.xml", testConfig, BatchWriteBehindTestClient.class);
