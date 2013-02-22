@@ -17,6 +17,7 @@
 package net.sf.ehcache.search.impl;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,9 +35,9 @@ public class DynamicSearchChecker {
      * Extracts dynamically indexed search attributes from cache element using provided extractor,
      * validating against reserved set of attribute names (provided by Ehcache search config)
      *
-     * @param e
-     * @param reservedAttrs
-     * @param extractor
+     * @param e cache element for which to get dynamically extracted attribute values
+     * @param reservedAttrs disallowed attribute names
+     * @param extractor dynamic attributes extractor
      * @return map of dynamically extracted search attribute names to their values. If passed in extractor is null, map will be empty.
      * @throws SearchException
      */
@@ -46,7 +47,7 @@ public class DynamicSearchChecker {
             return Collections.emptyMap();
         }
         Map<String, ? extends Object> dynamic = extractor.attributesFor(e);
-        boolean error = reservedAttrs.removeAll(dynamic.keySet());
+        boolean error = new HashSet<String>(reservedAttrs).removeAll(dynamic.keySet());
 
         if (error) {
             throw new SearchException("Dynamic extractor produced attributes already used in static search config");
