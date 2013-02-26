@@ -26,7 +26,6 @@
     <skipCheckstyle>false</skipCheckstyle>
     <skipJavadoc>false</skipJavadoc>
     <tests.supplemental.args/>
-    <surefire.version>2.10</surefire.version>
   </properties>
 
   <dependencies>
@@ -156,7 +155,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.8</version><!--$NO-MVN-MAN-VER$-->
         <configuration>
           <skip>${skipJavadoc}</skip>
           <author>true</author>
@@ -185,7 +183,6 @@
       <plugin>
         <groupId>org.terracotta</groupId>
         <artifactId>maven-forge-plugin</artifactId>
-        <version>${maven-forge-plugin.version}</version>
         <executions>
           <execution>
             <id>build-info</id>
@@ -205,7 +202,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.version}</version>
         <configuration>
           <forkMode>pertest</forkMode>
           <argLine>${tests.supplemental.args} -Xmx64m</argLine>
@@ -262,7 +258,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9.1</version>
         <executions>
           <execution>
             <phase>verify</phase>
@@ -289,7 +284,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.4</version>
         <executions>
           <execution>
             <phase>generate-resources</phase>
@@ -310,7 +304,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>rmic-maven-plugin</artifactId>
-        <version>1.1</version>
         <executions>
           <execution>
             <id>rmi-compilation</id>
@@ -449,7 +442,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>${surefire.version}</version>
             <configuration>
               <argLine>${tests.supplemental.args} -Xmx512m</argLine>
             </configuration>
@@ -524,7 +516,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>${surefire.version}</version>
             <configuration>
               <includes>
                 <include>**/nonstop/*Test.java</include>
