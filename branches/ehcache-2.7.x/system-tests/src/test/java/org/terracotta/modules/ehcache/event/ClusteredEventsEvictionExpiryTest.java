@@ -164,8 +164,9 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
           }
         }
       });
-    }
 
+      barrier.await();
+    }
   }
 
   public static class NonPortable implements Serializable {
