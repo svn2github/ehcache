@@ -4,7 +4,6 @@
 package org.terracotta.modules.ehcache.store.bulkload;
 
 import net.sf.ehcache.store.StoreListener;
-
 import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
@@ -13,19 +12,21 @@ import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.search.QueryBuilder;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
+  private static final String BULK_LOAD_LOCK_ID = "bulk-load-concurrent-lock";
 
   private final ToolkitLogger              logger;
   private final ReentrantReadWriteLock     readWriteLock              = new ReentrantReadWriteLock();
@@ -33,7 +34,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   private final BulkLoadEnabledNodesSet    bulkLoadEnabledNodesSet;
   private final AtomicBoolean              currentNodeBulkLoadEnabled = new AtomicBoolean(false);
   private final ToolkitInternal            toolkitInternal;
-  private final LocalBufferedMap<K, V>     localBufferedMap;
+  private final Lock                       concurrentLock;
   private boolean                          localCacheEnabledBeforeBulkloadEnabled;
 
   private final String                     name;
@@ -47,9 +48,9 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     this.logger = toolkit.getLogger(BulkLoadToolkitCache.class.getName());
     this.toolkitCache = aggregateServerMap;
     this.bulkLoadEnabledNodesSet = new BulkLoadEnabledNodesSet(toolkit, name, listener);
-    this.localBufferedMap = new LocalBufferedMap(name, this, aggregateServerMap, toolkit);
     this.bulkLoadShutdownHook = bulkLoadShutdownHook;
     this.loggingEnabled = BulkLoadConstants.isLoggingEnabled(toolkit.getProperties());
+    this.concurrentLock = toolkit.getLock(BULK_LOAD_LOCK_ID, ToolkitLockTypeInternal.CONCURRENT);
   }
 
   public void debug(String msg) {
@@ -78,23 +79,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
       if (enableBulkLoad) {
         // turning on bulk-load
         if (currentNodeBulkLoadEnabled.compareAndSet(false, true)) {
-          if (loggingEnabled) {
-            debug("Enabling bulk-load");
-          }
-          localCacheEnabledBeforeBulkloadEnabled = toolkitCache.getConfiguration()
-              .getBoolean(ToolkitConfigFields.LOCAL_CACHE_ENABLED_FIELD_NAME);
-
-          // add current node
-          bulkLoadEnabledNodesSet.addCurrentNode();
-          // start local buffering
-          localBufferedMap.startBuffering();
-
-          // disable local cache
-          if (localCacheEnabledBeforeBulkloadEnabled) {
-            setLocalCacheEnabled(false);
-          }
-
-          bulkLoadShutdownHook.registerCache(this);
+          enterBulkLoadMode();
         } else {
           if (loggingEnabled) {
             debug("Trying to enable bulk-load mode when already bulk-loading.");
@@ -103,25 +88,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
       } else {
         // turning off bulk-load
         if (currentNodeBulkLoadEnabled.compareAndSet(true, false)) {
-          if (loggingEnabled) {
-            debug("Turning off bulk-load");
-          }
-          // flush and stop local buffering
-          localBufferedMap.flushAndStopBuffering();
-          // wait until all txns finished
-          toolkitInternal.waitUntilAllTransactionsComplete();
-          // clear local cache
-          toolkitCache.clearLocalCache();
-
-          // enable local cache
-          if (localCacheEnabledBeforeBulkloadEnabled) {
-            setLocalCacheEnabled(true);
-          }
-
-          // remove current node from list of bulk-loading nodes
-          bulkLoadEnabledNodesSet.removeCurrentNode();
-
-          bulkLoadShutdownHook.unregisterCache(this);
+          exitBulkLoadMode();
         } else {
           if (loggingEnabled) {
             debug("Trying to disable bulk-load mode when not bulk-loading.");
@@ -131,6 +98,46 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     } finally {
       releaseLocalWriteLock();
     }
+  }
+
+  private void enterBulkLoadMode() {
+    if (loggingEnabled) {
+      debug("Enabling bulk-load");
+    }
+
+    localCacheEnabledBeforeBulkloadEnabled = toolkitCache.getConfiguration()
+        .getBoolean(ToolkitConfigFields.LOCAL_CACHE_ENABLED_FIELD_NAME);
+
+    // disable local cache
+    if (localCacheEnabledBeforeBulkloadEnabled) {
+      setLocalCacheEnabled(false);
+    }
+
+    // add current node
+    bulkLoadEnabledNodesSet.addCurrentNode();
+
+    bulkLoadShutdownHook.registerCache(this);
+  }
+
+  private void exitBulkLoadMode() {
+    if (loggingEnabled) {
+      debug("Turning off bulk-load");
+    }
+
+    // wait until all txns finished
+    toolkitInternal.waitUntilAllTransactionsComplete();
+    // clear local cache
+    toolkitCache.clearLocalCache();
+
+    // enable local cache
+    if (localCacheEnabledBeforeBulkloadEnabled) {
+      setLocalCacheEnabled(true);
+    }
+
+    // remove current node from list of bulk-loading nodes
+    bulkLoadEnabledNodesSet.removeCurrentNode();
+
+    bulkLoadShutdownHook.unregisterCache(this);
   }
 
   private void setLocalCacheEnabled(boolean enabled) {
@@ -157,8 +164,12 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void putNoReturn(K key, V value, long createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
-    // custom tti ttl not supported
-    put(key, value);
+    concurrentLock.lock();
+    try {
+      toolkitCache.unlockedPutNoReturn(key, value, (int) createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+    } finally {
+      concurrentLock.unlock();
+    }
   }
 
   @Override
@@ -168,49 +179,37 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public V unsafeLocalGet(Object key) {
-    V value = localBufferedMap.get(key);
-    if (value == null) {
-      value = toolkitCache.unsafeLocalGet(key);
-    }
-    return value;
+    return toolkitCache.unsafeLocalGet(key);
   }
 
   @Override
   public void putNoReturn(K key, V value) {
-    put(key, value);
+    putNoReturn(key, value, now(), ToolkitConfigFields.NO_MAX_TTI_SECONDS, ToolkitConfigFields.NO_MAX_TTL_SECONDS);
   }
 
   @Override
   public int localSize() {
-    return localBufferedMap.getSize() + toolkitCache.localSize();
+    return toolkitCache.localSize();
   }
 
   @Override
   public Set<K> localKeySet() {
-    return new UnmodifiableMultiSetWrapper<K>(localBufferedMap.getKeys(), toolkitCache.localKeySet());
+    return toolkitCache.localKeySet();
   }
 
   @Override
   public boolean containsLocalKey(Object key) {
-    return localBufferedMap.containsKey(key) || toolkitCache.containsLocalKey(key);
+    return toolkitCache.containsLocalKey(key);
   }
 
   @Override
   public Map<K, V> getAll(Collection<? extends K> keys) {
-    Map<K, V> rv = new HashMap<K, V>();
-    for (K key : keys) {
-      rv.put(key, doGet(key, false));
-    }
-    return rv;
+    return toolkitCache.getAll(keys);
   }
 
   @Override
   public Map<K, V> getAllQuiet(Collection<K> keys) {
-    Map<K, V> rv = new HashMap<K, V>();
-    for (K key : keys) {
-      rv.put(key, doGet(key, true));
-    }
-    return rv;
+    return toolkitCache.getAllQuiet(keys);
   }
 
   @Override
@@ -239,9 +238,8 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public boolean containsKey(Object keyObj) {
-    K key = (K) keyObj;
-    return localBufferedMap.containsKey(key) || toolkitCache.containsKey(key);
+  public boolean containsKey(Object key) {
+    return toolkitCache.containsKey(key);
   }
 
   @Override
@@ -251,7 +249,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public Set<Map.Entry<K, V>> entrySet() {
-    return new UnmodifiableMultiSetWrapper<Map.Entry<K, V>>(localBufferedMap.entrySet(), toolkitCache.entrySet());
+    return toolkitCache.entrySet();
   }
 
   @Override
@@ -260,14 +258,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   public V doGet(Object obj, boolean quiet) {
-    K key = (K) obj;
-    if (localBufferedMap.isKeyBeingRemoved(obj)) { return null; }
-
-    V value = localBufferedMap.get(key);
-    if (value == null) {
-      value = toolkitCache.unlockedGet(obj, quiet);
-    }
-    return value;
+    return toolkitCache.unlockedGet(obj, quiet);
   }
 
   @Override
@@ -277,7 +268,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public Set<K> keySet() {
-    return new UnmodifiableMultiSetWrapper<K>(localBufferedMap.getKeys(), toolkitCache.keySet());
+    return toolkitCache.keySet();
   }
 
   private int now() {
@@ -286,7 +277,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void putAll(Map<? extends K, ? extends V> map) {
-    for (Map.Entry<? extends K, ? extends V> e : map.entrySet()) {
+    for (Entry<? extends K, ? extends V> e : map.entrySet()) {
       put(e.getKey(), e.getValue());
     }
   }
@@ -300,7 +291,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public int size() {
-    return localBufferedMap.getSize() + toolkitCache.size();
+    return toolkitCache.size();
   }
 
   @Override
@@ -352,21 +343,23 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void clear() {
-    localBufferedMap.clear();
     toolkitCache.clear();
   }
 
   @Override
   public void removeNoReturn(Object key) {
-    remove(key);
+    concurrentLock.lock();
+    try {
+      toolkitCache.unlockedRemoveNoReturn(key);
+    } finally {
+      concurrentLock.unlock();
+    }
   }
 
   @Override
   public V remove(Object key) {
-    V rv = localBufferedMap.remove((K) key);
-    if (rv == null) {
-      rv = toolkitCache.get(key);
-    }
+    V rv = toolkitCache.unlockedGet(key, true);
+    removeNoReturn(key);
     return rv;
   }
 
@@ -387,7 +380,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public int localOnHeapSize() {
-    return localBufferedMap.getSize() + toolkitCache.localOnHeapSize();
+    return toolkitCache.localOnHeapSize();
   }
 
   @Override
@@ -397,7 +390,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public boolean containsKeyLocalOnHeap(Object key) {
-    return localBufferedMap.containsKey(key) || toolkitCache.containsKeyLocalOnHeap(key);
+    return toolkitCache.containsKeyLocalOnHeap(key);
   }
 
   @Override
@@ -412,7 +405,9 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public V put(K key, V value, int createTimeInSecs, int customMaxTTISeconds, int customMaxTTLSeconds) {
-    return localBufferedMap.put(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+    V rv = toolkitCache.unlockedGet(key, true);
+    putNoReturn(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+    return rv;
   }
 
   @Override
@@ -422,12 +417,12 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void unlockedPutNoReturn(K k, V v, int createTime, int customTTI, int customTTL) {
-    localBufferedMap.put(k, v, createTime, customTTI, customTTL);
+    toolkitCache.unlockedPutNoReturn(k, v, createTime, customTTI, customTTL);
   }
 
   @Override
   public void unlockedRemoveNoReturn(Object k) {
-    localBufferedMap.remove((K) k);
+    toolkitCache.unlockedRemoveNoReturn(k);
   }
 
   @Override
@@ -449,5 +444,4 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   public Map<K, V> unlockedGetAll(Collection<K> keys, boolean quiet) {
     return quiet ? getAllQuiet(keys) : getAll(keys);
   }
-
 }
