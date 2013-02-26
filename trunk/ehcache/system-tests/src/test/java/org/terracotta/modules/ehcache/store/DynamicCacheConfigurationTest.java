@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
   public DynamicCacheConfigurationTest(TestConfig testConfig) {
     super(testConfig, App.class);
-    testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "1000");
+    testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "100");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
   }
 
@@ -326,7 +326,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
     public void testDiskCapacityChange(CacheManager cm) throws Exception {
       final Cache cache = createCache("testDiskCapacityChange", 10, true, 0, 0);
-      cache.getCacheConfiguration().maxEntriesLocalHeap(0).maxEntriesInCache(100).getTerracottaConfiguration()
+      cache.getCacheConfiguration().maxEntriesLocalHeap(1).maxEntriesInCache(100).getTerracottaConfiguration()
           .consistency(TerracottaConfiguration.Consistency.STRONG).concurrency(1);
       cm.addCache(cache);
 
