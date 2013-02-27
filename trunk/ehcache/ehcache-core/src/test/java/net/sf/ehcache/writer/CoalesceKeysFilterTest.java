@@ -52,6 +52,15 @@ public class CoalesceKeysFilterTest {
         operations.add(new DeleteOperation(new CacheEntry("key4", new Element("key4", "value8")), 30));
         operations.add(new WriteOperation(new Element("key4", "value9"), 20));
         operations.add(new WriteOperation(new Element("key5", "value10"), 50));
+        
+        // key1 - W 10, W 30, W 20 = 3
+        // key2 - W 10, D 20 = 2
+        // key3 - D 30 = 1
+        // key4 - W 40, D 30, W 20 = 3
+        // key5 - W 50 = 1
+        // operations = k1, k2, k1, k2, k4, k1, k3, k4, k4, k5 = 10 (create time order)
+        // operations = k1 10, k2 10, k1 30, k1 20, k3 30, k4 40, k2 20, k4 30, k4 20, k5 50 = 10 (add order)
+        // operations = k1 30, k3 30, k4 40, k2 20, k5 50 = 5 
 
         new CoalesceKeysFilter().filter(operations, CastingOperationConverter.getInstance());
 
