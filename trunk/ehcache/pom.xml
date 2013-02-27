@@ -61,6 +61,17 @@
         </exclusions>
       </dependency>
 
+      <dependency>
+        <groupId>gf-3122</groupId>
+        <artifactId>gf.javax.servlet-api</artifactId>
+        <version>3.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty.orbit</groupId>
+        <artifactId>javax.servlet</artifactId>
+        <version>3.0.0.v201112011016</version>
+      </dependency>
+
       <!-- Provided dependencies -->
       <dependency>
         <groupId>org.terracotta.toolkit</groupId>
