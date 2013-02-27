@@ -4,7 +4,10 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
+
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.StringContains;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +20,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
 /**
  * @author Alex Snaps
  */
@@ -27,6 +36,11 @@ public class CacheConfigurationTest {
     @Before
     public void setup() {
         this.cacheManager = CacheManager.getInstance();
+    }
+
+    @After
+    public void tearDown() {
+        cacheManager.shutdown();
     }
 
     @Test
@@ -222,5 +236,46 @@ public class CacheConfigurationTest {
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("maxEntriesInCache is not applicable to unclustered caches."));
         }
+    }
+
+    @Test
+    public void testWarnTieredSizing() {
+        final AtomicReference<String> ref = new AtomicReference<String>();
+
+        try {
+            Class.forName("org.slf4j.impl.JDK14LoggerFactory");
+        } catch (ClassNotFoundException e) {
+            fail("Could not load org.slf4j.impl.JDK14LoggerFactory, required for test to work. Is slf4j-jdk14 in test dependencies?");
+        }
+
+        LogManager logManager = LogManager.getLogManager();
+        Logger logger = logManager.getLogger(CacheConfiguration.class.getName());
+        logger.addHandler(new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                ref.set(record.getMessage());
+            }
+
+            @Override
+            public void flush() {
+                // ignore
+            }
+
+            @Override
+            public void close() throws SecurityException {
+                // ignore
+            }
+        });
+
+
+        CacheConfiguration cacheConfiguration = new CacheConfiguration();
+        cacheConfiguration.setName("HeapBiggerThanDisk");
+        cacheConfiguration.setOverflowToDisk(true);
+        cacheConfiguration.setMaxEntriesLocalHeap(10L);
+        cacheConfiguration.setMaxEntriesLocalDisk(5L);
+
+        cacheManager.addCache(new Cache(cacheConfiguration));
+
+        assertThat(ref.get(), CoreMatchers.containsString("Configuration problem for cache HeapBiggerThanDisk:"));
     }
 }
