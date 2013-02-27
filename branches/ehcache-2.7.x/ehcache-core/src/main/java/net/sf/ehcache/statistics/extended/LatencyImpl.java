@@ -30,7 +30,7 @@ import org.terracotta.statistics.ValueStatistic;
 import org.terracotta.statistics.archive.Timestamped;
 import org.terracotta.statistics.derived.EventParameterSimpleMovingAverage;
 import org.terracotta.statistics.derived.LatencySampling;
-import org.terracotta.statistics.observer.OperationObserver;
+import org.terracotta.statistics.observer.ChainedOperationObserver;
 
 /**
  * The Class LatencyImpl.
@@ -39,7 +39,7 @@ import org.terracotta.statistics.observer.OperationObserver;
  * @author cdennis
  */
 class LatencyImpl<T extends Enum<T>> implements Latency {
-    private final SourceStatistic<OperationObserver<T>> source;
+    private final SourceStatistic<ChainedOperationObserver<T>> source;
     private final LatencySampling<T> latencySampler;
     private final EventParameterSimpleMovingAverage average;
     private final StatisticImpl<Long> minimumStatistic;
@@ -59,7 +59,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
      * @param historySize the history size
      * @param historyNanos the history nanos
      */
-    public LatencyImpl(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos,
+    public LatencyImpl(SourceStatistic<ChainedOperationObserver<T>> statistic, Set<T> targets, long averageNanos,
             ScheduledExecutorService executor, int historySize, long historyNanos) {
         this.average = new EventParameterSimpleMovingAverage(averageNanos, TimeUnit.NANOSECONDS);
         this.minimumStatistic = new StatisticImpl<Long>(average.minimumStatistic(), executor, historySize, historyNanos);

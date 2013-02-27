@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.terracotta.statistics.SourceStatistic;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
-import org.terracotta.statistics.observer.OperationObserver;
+import org.terracotta.statistics.observer.ChainedOperationObserver;
 
 /**
  * The Class RateStatistic.
@@ -34,10 +34,10 @@ import org.terracotta.statistics.observer.OperationObserver;
 public class RateStatistic<T extends Enum<T>> extends AbstractStatistic<Double> {
 
     /** The source. */
-    private final SourceStatistic<OperationObserver<T>> source;
+    private final SourceStatistic<ChainedOperationObserver<T>> source;
 
     /** The rate observer. */
-    private final OperationObserver<T> rateObserver;
+    private final ChainedOperationObserver<T> rateObserver;
 
     /** The rate. */
     private final EventRateSimpleMovingAverage rate;
@@ -52,7 +52,7 @@ public class RateStatistic<T extends Enum<T>> extends AbstractStatistic<Double> 
      * @param historySize the history size
      * @param historyNanos the history nanos
      */
-    public RateStatistic(SourceStatistic<OperationObserver<T>> statistic, Set<T> targets, long averageNanos,
+    public RateStatistic(SourceStatistic<ChainedOperationObserver<T>> statistic, Set<T> targets, long averageNanos,
             ScheduledExecutorService executor, int historySize, long historyNanos) {
         super(executor, historySize, historyNanos);
         this.source = statistic;
