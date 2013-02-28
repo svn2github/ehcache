@@ -7,10 +7,9 @@
       eternal="true"/>
 
   <cache name="test"
-         maxEntriesInCache="0"
-         maxElementsInMemory="20000"
+         maxEntriesLocalHeap="10"
          eternal="true">
-
+         <pinning store="incache"/>
          <terracotta concurrency="256" clustered="true" consistency="strong"/>
   </cache>
   
