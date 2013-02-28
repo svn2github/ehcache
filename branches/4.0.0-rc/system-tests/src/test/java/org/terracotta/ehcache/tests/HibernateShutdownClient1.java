@@ -39,7 +39,6 @@ public class HibernateShutdownClient1 extends ClientBase {
   @Override
   public void doTest() throws Throwable {
     Set<SimpleThreadInfo> baseLineThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
-    storeL1ClassLoaderWeakReferences();
 
     testClusteredCache();
 
@@ -49,6 +48,7 @@ public class HibernateShutdownClient1 extends ClientBase {
         HibernateUtil.configure("/hibernate-config/shutdowntest/hibernate.cfg.xml");
         HibernateUtil.closeSessionFactory();
       }
+      storeL1ClassLoaderWeakReferences();
 
 
       shutdownExpressClient();
@@ -60,7 +60,22 @@ public class HibernateShutdownClient1 extends ClientBase {
 
     waitUntilLastChanceThreadsAreGone();
     new PermStress().stress(10000);
-    assertClassloadersGCed();
+    boolean oneGCed = false;
+    for (int i = 0; i < 10; i++) {
+      oneGCed = assertAtLeastOneClassloadersGCed();
+      if (!oneGCed) {
+        for (int j = 0; j < 10; j++) {
+          System.gc();
+        }
+        System.out.println("Sleeping for 5 seconds...");
+        TimeUnit.SECONDS.sleep(5);
+      } else {
+        break;
+      }
+    }
+    if (!oneGCed) {
+      throw new AssertionError("Some classloader were not gced");
+    }
 
     Set<SimpleThreadInfo> afterShutdownThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
     afterShutdownThreads.removeAll(baseLineThreads);
@@ -91,23 +106,14 @@ public class HibernateShutdownClient1 extends ClientBase {
   }
 
   // if only a single L1 loader got GC'ed, we can consider the test passed
-  private void assertClassloadersGCed() {
-    boolean failed = true;
-    StringBuilder sb = new StringBuilder();
+  private boolean assertAtLeastOneClassloadersGCed() {
     for (WeakReference<ClassLoader> wr : CLASS_LOADER_LIST) {
       ClassLoader cl = wr.get();
-      if (cl != null) {
-        sb.append(cl).append(", ");
-      } else {
-        failed = false;
+      if (cl == null) {
+        return true;
       }
     }
-    if (failed) {
-      sb.deleteCharAt(sb.length() - 1);
-      sb.deleteCharAt(sb.length() - 1);
-      dumpHeap(HibernateShutdownClient1.class.getSimpleName());
-      throw new AssertionError("Classloader(s) " + sb + " not GC'ed");
-    }
+    return false;
   }
 
   private static void dumpHeap(String dumpName) {
