@@ -13,10 +13,11 @@ import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConf
 import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.feature.NonStopFeature;
 import org.terracotta.toolkit.nonstop.NonStopException;
+import org.terracotta.toolkit.rejoin.RejoinException;
 
 public class NonStopSyncWrapper implements Sync {
   private final Sync                                          delegate;
-  private final NonStopFeature                                       nonStop;
+  private final NonStopFeature                                nonStop;
   private final ToolkitNonStopExceptionOnTimeoutConfiguration toolkitNonStopConfiguration;
 
   public NonStopSyncWrapper(Sync delegate, ToolkitInstanceFactory toolkitInstanceFactory,
@@ -49,7 +50,7 @@ public class NonStopSyncWrapper implements Sync {
     nonStop.start(toolkitNonStopConfiguration);
     try {
       this.delegate.unlock(type);
-    } catch (org.terracotta.toolkit.rejoin.InvalidLockStateAfterRejoinException e) {
+    } catch (RejoinException e) {
       throw new InvalidLockStateAfterRejoinException(e);
     } finally {
       nonStop.finish();
