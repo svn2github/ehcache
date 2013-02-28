@@ -6,7 +6,6 @@ package org.terracotta.modules.ehcache.cluster;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
-
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
@@ -24,6 +23,11 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
     testConfig.addTcProperty("seda." + ServerConfigurationContext.OBJECTS_SYNC_STAGE + ".sleepMs", "2000");
   }
 
+  @Override
+  protected void startServers() throws Exception {
+    testServerManager.startServer(0, 0);
+  }
+
   public static class FailoverDuringPassiveSyncTestApp extends ClientBase {
 
     public FailoverDuringPassiveSyncTestApp(String[] args) {
@@ -38,7 +42,6 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       TestHandlerMBean mbean = getTestControlMbean();
 
-      mbean.crashAllPassiveServers(0);
       for (int i = 0; i < 20000; i++) {
         cache.put(new Element("key-" + i, new byte[1024]));
       }
