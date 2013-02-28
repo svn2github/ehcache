@@ -61,7 +61,7 @@ public class Sum implements AggregatorInstance<Long> {
                 engine.accept((Number)input);
             }
         } else {
-            throw new AggregatorException("Non-number type encounted: " + input.getClass());
+            throw new AggregatorException("Non-number type encountered: " + input.getClass());
         }
     }
 
