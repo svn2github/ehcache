@@ -20,6 +20,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Status;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -32,8 +33,8 @@ import java.util.List;
 public class CountingCacheManagerEventListener implements CacheManagerEventListener {
 
 
-    private static List cacheNamesAdded = new ArrayList();
-    private static List cacheNamesRemoved = new ArrayList();
+    private static List cacheNamesAdded = Collections.synchronizedList(new ArrayList());
+    private static List cacheNamesRemoved = Collections.synchronizedList(new ArrayList());
 
     /**
      * Accessor
