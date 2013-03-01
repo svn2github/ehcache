@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+    <transactionManagerLookup class="org.terracotta.ehcache.tests.xa.DummyTransactionManagerLookup"/>
+
+
+    <defaultCache
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            maxEntriesInCache="10000000"
+            memoryStoreEvictionPolicy="LRU"
+            />
+
+
+    <cache name="test"
+           maxElementsInMemory="500"
+           eternal="false"
+           timeToIdleSeconds="300"
+           timeToLiveSeconds="600"
+           transactionalMode="xa_strict">
+        <terracotta clustered="true" consistency="strong">
+            <nonstop enabled="false"/>
+        </terracotta>
+    </cache>
+
+    <terracottaConfig url="localhost:PORT" rejoin="false"/>
+
+</ehcache>
