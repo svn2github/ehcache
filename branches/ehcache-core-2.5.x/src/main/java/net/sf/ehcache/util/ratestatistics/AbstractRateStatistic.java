@@ -58,7 +58,7 @@ abstract class AbstractRateStatistic implements RateStatistic {
      * @return weighted average
      */
     float iterateMovingAverage(float nowValue, long now, float thenAverage, long then) {
-        if (getRateAveragePeriod() == 0 || Float.isNaN(thenAverage)) {
+        if (getRateAveragePeriod() == 0) {
             return nowValue;
         } else {
             float alpha = (float) alpha(now, then);

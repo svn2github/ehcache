@@ -32,7 +32,7 @@ public class AtomicRateStatistic extends AbstractRateStatistic {
   private final AtomicLong count = new AtomicLong(0L);
   private final AtomicLong rateSampleTime = new AtomicLong(getTime() << SAMPLE_TIME_FLAG_BITS);
 
-  private volatile float rateSample = Float.NaN;
+  private volatile float rateSample = 0.0f;
 
   private volatile long sampleRateMask;
   private volatile long previousSample;

@@ -27,7 +27,7 @@ public class UnlockedRateStatistic extends AbstractRateStatistic {
 
   private volatile long count;
   private volatile long rateSampleTime = System.nanoTime();
-  private volatile float rateSample = Float.NaN;
+  private volatile float rateSample = 0.0f;
 
   private volatile long sampleRateMask;
   private volatile long previousSample;
