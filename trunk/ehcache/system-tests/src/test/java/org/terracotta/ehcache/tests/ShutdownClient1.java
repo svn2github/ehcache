@@ -1,5 +1,7 @@
 package org.terracotta.ehcache.tests;
 
+import static org.junit.Assert.fail;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
@@ -65,11 +67,23 @@ public class ShutdownClient1 extends ClientBase {
     }
     if (failed) { throw new AssertionError("Some classloader were not gced"); }
 
-    Set<SimpleThreadInfo> afterShutdownThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
-    afterShutdownThreads.removeAll(baseLineThreads);
-    System.out.println("******** Threads Diff: ");
-    printThreads(afterShutdownThreads);
-    assertThreadShutdown(afterShutdownThreads);
+    boolean success = false;
+    Set<SimpleThreadInfo> afterShutdownThreads = null;
+    for (int i = 0; !success && i < 5; i++) {
+      afterShutdownThreads = SimpleThreadInfo.parseThreadInfo(getThreadDump());
+      afterShutdownThreads.removeAll(baseLineThreads);
+      filterKnownThreads(afterShutdownThreads);
+      if (afterShutdownThreads.size() == 0) {
+        success = true;
+      } else {
+        System.out.println("******** Threads Diff: ");
+        printThreads(afterShutdownThreads);
+        TimeUnit.SECONDS.sleep(1);
+      }
+    }
+    if (!success) {
+      fail("Threads still running: " + afterShutdownThreads);
+    }
 
     pass();
     System.exit(0);
@@ -145,11 +159,6 @@ public class ShutdownClient1 extends ClientBase {
 
   protected void testCache(Cache cache, Toolkit toolkit) throws Throwable {
     cache.put(new Element("key", "value"));
-  }
-
-  private void assertThreadShutdown(Set<SimpleThreadInfo> dump) throws Exception {
-    filterKnownThreads(dump);
-    if (dump.size() > 0) { throw new AssertionError("Threads still running: " + dump); }
   }
 
   private static String getThreadDump() {
