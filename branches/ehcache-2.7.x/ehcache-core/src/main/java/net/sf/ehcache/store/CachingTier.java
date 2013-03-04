@@ -18,6 +18,10 @@ package net.sf.ehcache.store;
 import java.util.concurrent.Callable;
 
 /**
+ * This interface is to be implemented by CachingTier that sit above the {@link AuthoritativeTier}.
+ * An important contract here is that a value being faulted in {@see #get} is to be entirely faulted in before it
+ * can become an eviction candidate, i.e. this cache can never evict mappings being faulted in
+ *
  * @param <K>
  * @param <V>
  * @author Alex Snaps
@@ -25,36 +29,33 @@ import java.util.concurrent.Callable;
 public interface CachingTier<K, V> {
 
     /**
-     * Document me
+     * Returns the value associated with the key, or populates the mapping using the Callable instance
      *
-     * @param key
-     * @param source
-     * @param updateStats
-     * @return
+     * @param key the key to look up
+     * @param source the source to use, in the case of no mapping present
+     * @param updateStats true to update the stats, false otherwise
+     * @return the value mapped to the key
      */
     V get(K key, Callable<V> source, boolean updateStats);
 
     /**
-     * Document me
+     * Removes the mapping associated to the key passed in
      *
-     * @param key
+     * @param key the key to the mapping to remove
+     * @return the value removed, null if none
      */
     V remove(K key);
 
     /**
      * Clears the cache...
-     * todo should this notify listeners ever ?
+     * Doesn't notify any listeners
      */
     void clear();
 
-//  V putIfAbsent(K key, V value);
-
-//  boolean replace(K key, V oldValue, V newValue);
-
     /**
-     * Document me
+     * Adds a {@link Listener} to the cache
      *
-     * @param listener
+     * @param listener the listener to add
      */
     void addListener(Listener<K, V> listener);
 
@@ -113,13 +114,13 @@ public interface CachingTier<K, V> {
 
     /**
      * This is evil! Don't call this!
-     * @param key
+     * @param key the key to perform the recalculation for
      */
     @Deprecated
     void recalculateSize(K key);
 
     /**
-     * Document me
+     * A listener that will be notified when eviction of a mapping happens
      *
      * @param <K>
      * @param <V>
@@ -127,10 +128,10 @@ public interface CachingTier<K, V> {
     public interface Listener<K, V> {
 
         /**
-         * Document me
+         * Invoked when a mapping is evicted.
          *
-         * @param key
-         * @param value
+         * @param key the key evicted
+         * @param value the value evicted
          */
         void evicted(K key, V value);
     }
