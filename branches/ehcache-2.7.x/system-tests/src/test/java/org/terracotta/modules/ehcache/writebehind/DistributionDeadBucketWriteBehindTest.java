@@ -30,10 +30,10 @@ public class DistributionDeadBucketWriteBehindTest extends AbstractCacheTestBase
   @Override
   protected void postClientVerification() {
     System.out.println("[Clients processed a total of " + totalWriteCount + " writes]");
-    if (totalWriteCount < 2000 || totalWriteCount > 2002) { throw new AssertionError(totalWriteCount); }
+    if (totalWriteCount < 2000 || totalWriteCount > 2003) { throw new AssertionError(totalWriteCount); }
 
     System.out.println("[Clients processed a total of " + totalDeleteCount + " deletes]");
-    if (totalDeleteCount < 200 || totalDeleteCount > 202) { throw new AssertionError(totalDeleteCount); }
+    if (totalDeleteCount < 200 || totalDeleteCount > 203) { throw new AssertionError(totalDeleteCount); }
   }
 
   @Override
