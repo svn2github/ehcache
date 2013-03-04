@@ -37,7 +37,7 @@ import java.util.concurrent.Callable;
 import org.terracotta.context.annotations.ContextChild;
 
 /**
- * TODO this class requires some love... Don't think the CachingTier is always properly maintained should authority.*() throws
+ * The one store to rule them all!
  *
  * @author Alex Snaps
  */
@@ -106,58 +106,32 @@ public class CacheStore implements Store {
         authoritativeTier.removeStoreListener(listener);
     }
 
-
-    /**
-     * This method currently populates the CachingTier too, but would be racy for any CachingTier evicting Faults
-     * (i.e. mapping being installed). We _know_ we don't do that...
-     * We'll see later whether we delete the tests that assumes we populate the cache on put (or adapt them)
-     * Or we try to actually make this impl. deal with it (could be we can assume stuff about cachingTier, or another set
-     * of methods might enable this usecase)
-     * <p/>
-     * Current race is as following:
-     * <p/>
-     * Auth        Cache
-     * t1(K) ->    +A     WS     -
-     * t2(K) ->    +B           +B
-     * t3(*) ->    +++           - (evicts K)
-     * t1(K) ->     B     RS    +A
-     * <p/>
-     * Basically, if a newer value gets evicted from the cache, while we're scheduled out for a longer period,
-     * we might install an old value in the cache, making it out of sync with the underlying authoritativeTier.
-     * <p/>
-     * This would be the way I'd rather have this (i.e. not populate the CachingTier on put:
-     * try {
-     * return authoritativeTier.put(element);
-     * } finally {
-     * cachingTier.remove(element.getObjectKey());
-     * }
-     */
     @Override
     public boolean put(final Element element) throws CacheException {
         final boolean[] hack = new boolean[1];
         cachingTier.remove(element.getObjectKey());
-      try {
-        if (cachingTier.get(element.getObjectKey(), new Callable<Element>() {
-            @Override
-            public Element call() throws Exception {
-                hack[0] = authoritativeTier.putFaulted(element);
-                return element;
+        try {
+            if (cachingTier.get(element.getObjectKey(), new Callable<Element>() {
+                @Override
+                public Element call() throws Exception {
+                    hack[0] = authoritativeTier.putFaulted(element);
+                    return element;
+                }
+            }, false) != element) {
+                final boolean put = authoritativeTier.put(element);
+                cachingTier.remove(element.getObjectKey());
+                return put;
             }
-        }, false) != element) {
+        } catch (Throwable e) {
             cachingTier.remove(element.getObjectKey());
-            return authoritativeTier.put(element);
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException)e;
+            }
+            throw new CacheException(e);
         }
-      } catch (Throwable e) {
-        cachingTier.remove(element.getObjectKey());
-        if (e instanceof RuntimeException) {
-          throw (RuntimeException) e;
-        }
-        throw new CacheException(e);
-      }
-      return hack[0];
+        return hack[0];
     }
 
-    // TODO this is probably not optimum
     @Override
     public void putAll(final Collection<Element> elements) throws CacheException {
         for (Element element : elements) {
@@ -217,7 +191,6 @@ public class CacheStore implements Store {
         }
     }
 
-    // TODO this is probably not optimum
     @Override
     public void removeAll(final Collection<?> keys) {
         for (Object key : keys) {
@@ -245,18 +218,25 @@ public class CacheStore implements Store {
 
     @Override
     public Element putIfAbsent(final Element element) throws NullPointerException {
-        final Element previous = authoritativeTier.putIfAbsent(element);
-        if (previous == null) {
-            // && cache.putIfAbsent(element.getObjectKey(), element) != null) { todo this, putIfAbsent would need to fault as well!
-            cachingTier.remove(element.getObjectKey());
+        Element previous = null;
+        try {
+            previous = authoritativeTier.putIfAbsent(element);
+        } finally {
+            if (previous == null) {
+                cachingTier.remove(element.getObjectKey());
+            }
         }
         return previous;
     }
 
     @Override
     public Element removeElement(final Element element, final ElementValueComparator comparator) throws NullPointerException {
-        final Element removedElement = authoritativeTier.removeElement(element, comparator);
-        cachingTier.remove(removedElement.getObjectKey());
+        final Element removedElement;
+        try {
+            removedElement = authoritativeTier.removeElement(element, comparator);
+        } finally {
+            cachingTier.remove(element.getObjectKey());
+        }
         return removedElement;
     }
 
@@ -264,23 +244,40 @@ public class CacheStore implements Store {
     public boolean replace(final Element old, final Element element, final ElementValueComparator comparator)
         throws NullPointerException, IllegalArgumentException {
 
-        // validate that old.getObjectKey() && element.getObjectKey() match here, rather than only the authority do it ?...
-        final boolean replaced = authoritativeTier.replace(old, element, comparator);
-        if (replaced) {
-            // && !cache.replace(element.getObjectKey(), old, element)) { todo this, replace would need to fault as well!
-            cachingTier.remove(element.getObjectKey());
+        boolean replaced = true;
+        try {
+            replaced = authoritativeTier.replace(old, element, comparator);
+        } finally {
+            if (replaced) {
+                cachingTier.remove(element.getObjectKey());
+            }
         }
         return replaced;
     }
 
     @Override
     public Element replace(final Element element) throws NullPointerException {
-        final Element previous = authoritativeTier.replace(element);
-        if (previous != null) {
-            // && !cache.replace(element.getObjectKey(), previous, element)) { todo this, replace would need to fault as well!
+        Element previous = null;
+        try {
+            previous = authoritativeTier.replace(element);
+        } catch (Throwable e) {
             cachingTier.remove(previous.getObjectKey());
+            throwUp(e);
+        } finally {
+            if (previous != null) {
+                cachingTier.remove(previous.getObjectKey());
+            }
         }
         return previous;
+    }
+
+    private void throwUp(final Throwable e) {
+        if (e instanceof RuntimeException) {
+            throw ((RuntimeException)e);
+        } else if (e instanceof Error) {
+            throw ((Error)e);
+        }
+        throw new CacheException(e);
     }
 
     @Override
