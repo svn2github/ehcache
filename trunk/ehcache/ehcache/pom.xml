@@ -29,7 +29,6 @@
     <kit.name>${project.artifactId}-${project.version}-distribution</kit.name>
     <root.dir>${project.build.directory}/${kit.name}</root.dir>
     <terracotta.kit.path>${project.build.directory}/tmp/terracotta</terracotta.kit.path>
-    <ehcache.sample.version>3.8.0-SNAPSHOT</ehcache.sample.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <skipJavadoc>false</skipJavadoc>
   </properties>
