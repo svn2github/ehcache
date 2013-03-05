@@ -108,13 +108,7 @@ public abstract class AbstractPool implements Pool {
      * {@inheritDoc}
      */
     public void removePoolAccessor(PoolAccessor accessor) {
-        Iterator<PoolAccessor> iterator = poolAccessors.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next() == accessor) {
-                iterator.remove();
-                return;
-            }
-        }
+        poolAccessors.remove(accessor);
     }
 
     /**
