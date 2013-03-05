@@ -16,11 +16,11 @@
 
 package net.sf.ehcache.pool.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
@@ -41,6 +41,7 @@ public abstract class AbstractPool implements Pool {
     private volatile long maximumPoolSize;
     private final PoolEvictor evictor;
     private final List<PoolAccessor> poolAccessors;
+    private final List<PoolAccessor> poolAccessorsView;
     private final SizeOfEngine defaultSizeOfEngine;
 
     /**
@@ -54,7 +55,8 @@ public abstract class AbstractPool implements Pool {
         this.maximumPoolSize = maximumPoolSize;
         this.evictor = evictor;
         this.defaultSizeOfEngine = defaultSizeOfEngine;
-        this.poolAccessors = Collections.synchronizedList(new ArrayList<PoolAccessor>());
+        this.poolAccessors = new CopyOnWriteArrayList<PoolAccessor>();
+        this.poolAccessorsView = Collections.unmodifiableList(poolAccessors);
     }
 
     /**
@@ -84,7 +86,7 @@ public abstract class AbstractPool implements Pool {
         long sizeToEvict = oldSize - newSize;
 
         if (sizeToEvict > 0) {
-            evictor.freeSpace(poolAccessors, sizeToEvict);
+            getEvictor().freeSpace(getPoolAccessors(), sizeToEvict);
         }
     }
 
@@ -119,7 +121,7 @@ public abstract class AbstractPool implements Pool {
      * {@inheritDoc}
      */
     public Collection<PoolAccessor> getPoolAccessors() {
-        return Collections.unmodifiableList(poolAccessors);
+        return poolAccessorsView;
     }
 
     /**
