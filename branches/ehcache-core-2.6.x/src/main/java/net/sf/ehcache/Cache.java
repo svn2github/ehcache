@@ -1744,12 +1744,10 @@ public class Cache implements InternalEhcache, StoreListener {
                     key = key1;
                     Element element = get(key);
 
-                    if (element != null) {
-                        map.put(key, element.getObjectValue());
-                    } else if (isKeyInCache(key)) {
-                        map.put(key, null);
-                    } else {
+                    if (element == null) {
                         missingKeys.add(key);
+                    } else {
+                        map.put(key, element.getObjectValue());
                     }
                 }
 
