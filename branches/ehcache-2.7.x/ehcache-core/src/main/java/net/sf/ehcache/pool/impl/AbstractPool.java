@@ -18,7 +18,6 @@ package net.sf.ehcache.pool.impl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -108,13 +107,7 @@ public abstract class AbstractPool implements Pool {
      * {@inheritDoc}
      */
     public void removePoolAccessor(PoolAccessor accessor) {
-        Iterator<PoolAccessor> iterator = poolAccessors.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next() == accessor) {
-                iterator.remove();
-                return;
-            }
-        }
+        poolAccessors.remove(accessor);
     }
 
     /**
