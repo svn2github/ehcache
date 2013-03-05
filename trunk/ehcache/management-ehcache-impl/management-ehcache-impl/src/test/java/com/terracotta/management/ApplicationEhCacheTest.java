@@ -1,6 +1,7 @@
 package com.terracotta.management;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import sun.misc.URLClassPath;
 
@@ -27,6 +28,7 @@ public class ApplicationEhCacheTest {
   private static final String[] PATH_TO_JAR_CONTAINS_FILTERS = new String[]{"repository"};
 
   @Test
+  @Ignore
   public void testGetClasses() throws Exception {
 
     ApplicationEhCache applicationEhCache = new ApplicationEhCache();
