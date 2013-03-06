@@ -6,8 +6,8 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
 
+import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
-public class LocalReadsGetKeysTest extends AbstractTerracottaActivePassiveTestBase {
+public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
 
   private static final int NODE_COUNT = 2;
 
