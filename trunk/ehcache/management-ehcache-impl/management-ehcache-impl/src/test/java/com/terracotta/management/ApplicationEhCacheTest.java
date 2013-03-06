@@ -1,7 +1,6 @@
 package com.terracotta.management;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import sun.misc.URLClassPath;
 
@@ -24,11 +23,10 @@ import static org.hamcrest.Matchers.equalTo;
  * @author: Anthony Dahanne
  */
 public class ApplicationEhCacheTest {
-  private static final String[] PACKAGE_STARTS_WITH_FILTERS = new String[]{"java","javax","org.apache","com.sun","org.codehaus","org.hibernate"};
+  private static final String[] PACKAGE_STARTS_WITH_FILTERS = new String[]{"java", "javax", "org.apache", "com.sun", "org.codehaus", "org.hibernate"};
   private static final String[] PATH_TO_JAR_CONTAINS_FILTERS = new String[]{"repository"};
 
   @Test
-  @Ignore
   public void testGetClasses() throws Exception {
 
     ApplicationEhCache applicationEhCache = new ApplicationEhCache();
@@ -43,13 +41,13 @@ public class ApplicationEhCacheTest {
     URL[] urLs = ucp.getURLs();
     Set<Class<?>> allClassesFound = new HashSet<Class<?>>();
     for (URL urL : urLs) {
-      if(urL.toString().endsWith(".jar")) {
-        if(pathOfJarNotFiltered(urL.toString())) {
-          System.out.println("last scanned path : "+urL.toString());
+      if (urL.toString().endsWith(".jar")) {
+        if (pathOfJarNotFiltered(urL.toString())) {
+          System.out.println("last scanned path : " + urL.toString());
           allClassesFound.addAll(getAllClassesFromJar(urL));
         }
       } else {
-        System.out.println("last scanned path : "+urL.toString());
+        System.out.println("last scanned path : " + urL.toString());
         allClassesFound.addAll(getAllClassesFromDirectory(urL));
       }
     }
@@ -67,7 +65,7 @@ public class ApplicationEhCacheTest {
   }
 
   private Set<Class<?>> getAllClassesFromDirectory(URL urL) throws ClassNotFoundException {
-    Set<Class<?>> classes =  new HashSet<Class<?>>();
+    Set<Class<?>> classes = new HashSet<Class<?>>();
     File rootPath = new File(urL.getFile());
     File[] files = rootPath.listFiles();
     for (File file : files) {
@@ -77,21 +75,20 @@ public class ApplicationEhCacheTest {
   }
 
   private Collection<? extends Class<?>> getAllClassesFromJar(URL urL) throws IOException {
-    Set<Class<?>> classes =  new HashSet<Class<?>>();
+    Set<Class<?>> classes = new HashSet<Class<?>>();
     String decode = URLDecoder.decode(urL.getFile(), "UTF-8");
     JarFile jarFile = new JarFile(decode);
     Enumeration<JarEntry> entries = jarFile.entries();
-    while(entries.hasMoreElements()) {
+    while (entries.hasMoreElements()) {
       JarEntry entry = entries.nextElement();
       String entryName = entry.getName();
-      if(entryName.endsWith(".class")) {
+      if (entryName.endsWith(".class")) {
         String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
         try {
-          if(packageOfClassNotFiltered(className)) {
+          if (packageOfClassNotFiltered(className)) {
             classes.add(Class.forName(className));
           }
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
           //not a problem
         }
       }
@@ -100,8 +97,8 @@ public class ApplicationEhCacheTest {
   }
 
   private boolean packageOfClassNotFiltered(String className) {
-    for (String filter : PACKAGE_STARTS_WITH_FILTERS){
-      if(className.startsWith(filter)) {
+    for (String filter : PACKAGE_STARTS_WITH_FILTERS) {
+      if (className.startsWith(filter)) {
         return false;
       }
     }
@@ -109,8 +106,8 @@ public class ApplicationEhCacheTest {
   }
 
   private boolean pathOfJarNotFiltered(String jarPath) {
-    for (String filter : PATH_TO_JAR_CONTAINS_FILTERS){
-      if(jarPath.contains(filter)) {
+    for (String filter : PATH_TO_JAR_CONTAINS_FILTERS) {
+      if (jarPath.contains(filter)) {
         return true;
       }
     }
@@ -118,18 +115,17 @@ public class ApplicationEhCacheTest {
   }
 
   private void findAndAddClassesFromRootPath(File file, Set<Class<?>> classes, File rootPath) throws ClassNotFoundException {
-    if(file.isFile() && file.getAbsolutePath().endsWith(".class")) {
+    if (file.isFile() && file.getAbsolutePath().endsWith(".class")) {
       String replace = file.getAbsolutePath().replace(rootPath.getAbsolutePath() + "/", "");
-      String className = replace.replaceAll("/", ".").substring(0,replace.length()-6);
+      String className = replace.replaceAll("/", ".").substring(0, replace.length() - 6);
       try {
         classes.add(Class.forName(className));
-      }
-      catch (Throwable e) {
+      } catch (Throwable e) {
         //not a problem
       }
-    } else if (file.isDirectory()){
+    } else if (file.isDirectory()) {
       File[] listOfFiles = file.listFiles();
-      if(listOfFiles != null) {
+      if (listOfFiles != null) {
         for (int i = 0; i < listOfFiles.length; i++)
           findAndAddClassesFromRootPath(listOfFiles[i], classes, rootPath);
       }
