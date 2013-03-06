@@ -67,6 +67,7 @@
     <suppress checks="StrictDuplicateCode" files="NonstopAwareCollectionRegionAccessStrategy.java" />
 
     <suppress checks="MagicNumber" files="JvmInformation.java" />
+    <suppress checks="MagicNumber" files="DevModeClassLoader.java" />
     <suppress checks="IllegalImport" files="UnsafeSizeOf.java" />
     <suppress checks="MutableExceptionCheck" files="MaxDepthExceededException.java"/>
     <suppress checks="BooleanExpressionComplexity" files="DiskStorePathManager.java"/>
