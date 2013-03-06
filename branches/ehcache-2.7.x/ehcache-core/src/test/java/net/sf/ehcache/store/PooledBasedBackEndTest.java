@@ -123,11 +123,12 @@ public class PooledBasedBackEndTest {
                     final List<String> rv;
                     switch(r.nextInt(7)) {
                         case 0:
-                            rv = pooledBasedBackEnd.getRandomValues(1);
-                            if (!rv.isEmpty() && rv.get(0) != null) {
-                                pooledBasedBackEnd.recalculateSize(rv.get(0));
-                            }
-                            break;
+//                          SEE EHC-1006
+//                            rv = pooledBasedBackEnd.getRandomValues(1);
+//                            if (!rv.isEmpty() && rv.get(0) != null) {
+//                                pooledBasedBackEnd.recalculateSize(rv.get(0));
+//                            }
+//                            break;
                         case 1 :
                             rv = pooledBasedBackEnd.getRandomValues(1);
                             if (!rv.isEmpty() && rv.get(0) != null) {
