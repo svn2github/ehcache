@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,9 +48,25 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     testConfig.getClientConfig().setClientClasses(c);
   }
 
+  /**
+   * Return Ehcache dependencies file from resource
+   */
+  protected URL ehcacheDepsResource() {
+    return AbstractCacheTestBase.class.getResource("/META-INF/devmode/net.sf.ehcache/ehcache/dependencies.txt");
+  }
+
   @Override
   protected String createClassPath(Class client) throws IOException {
-    String ehcache = TestBaseUtil.jarFor(CacheManager.class);
+    // load Ehcache dependencies from a file if it's devmode
+    // if the dependencies file isn't found, it's a shaded ehcache jar and just use that one jar
+    URL ehcacheDevmodeDepsResource = ehcacheDepsResource();
+    List<String> ehcacheDeps = new ArrayList<String>();
+    if (ehcacheDevmodeDepsResource != null) {
+      ehcacheDeps = TestBaseUtil.jarsFromMavenDependenciesList(ehcacheDevmodeDepsResource);
+    } else {
+      ehcacheDeps.add(TestBaseUtil.jarFor(CacheManager.class));
+    }
+
     String slf4jApi = TestBaseUtil.jarFor(org.slf4j.LoggerFactory.class);
     String slf4jBinder = TestBaseUtil.jarFor(org.slf4j.impl.StaticLoggerBinder.class);
     String l2Mbean = TestBaseUtil.jarFor(L2MBeanNames.class);
@@ -56,9 +74,9 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String expressRuntime = TestBaseUtil.jarFor(ToolkitFactory.class);
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
 
-    String classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
-                              writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, jta, slf4jApi,
-                              slf4jBinder, clientBase, l2Mbean);
+    String classpath = makeClasspath(ehcacheDeps, writeEhcacheConfigWithPort(ehcacheConfigPath),
+                                     writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, jta, slf4jApi,
+                                     slf4jBinder, clientBase, l2Mbean);
 
     return classpath;
   }

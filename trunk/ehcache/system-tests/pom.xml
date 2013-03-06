@@ -27,6 +27,17 @@
 
   <dependencies>  
     <dependency>
+      <groupId>org.terracotta</groupId>
+      <artifactId>terracotta</artifactId>
+      <version>${terracotta.core.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId> gf-3122</groupId>
+          <artifactId>gf.javax.servlet-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>${project.version}</version>
