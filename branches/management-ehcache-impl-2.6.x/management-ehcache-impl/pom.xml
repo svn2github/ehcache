@@ -33,10 +33,10 @@
       <version>3.0</version>
       <scope>test</scope>
     </dependency>
-     <dependency>
-      <groupId> org.eclipse.jetty.orbit</groupId>
-      <artifactId>javax.servlet</artifactId>
-      <version>2.5.0.v201103041518</version>
+    <dependency>
+      <groupId>gf-3122</groupId>
+      <artifactId>gf.javax.servlet-api</artifactId>
+      <version>3.0.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
