@@ -31,8 +31,12 @@ public class ServerMapCapacityEvictionExpressTestClient extends ServerMapClientB
 
     System.out.println("Cache populated. size: " + cache.getSize());
     System.out.println("Sleeping for 3 mins (now=" + new Date() + ") ... ");
-    // Wait a bit for the capacity evictor to do its thing.
-    Thread.sleep(3 * 60 * 1000);
+    // Wait up to 30 sec. for the capacity evictor to do its thing.
+    int count = 0;
+    while ( cache.getSize() > 6000 && count++ < 30) {
+        Thread.sleep(1000);
+        System.out.println("Cache populated. size: " + cache.getSize());
+    }
 
     System.out.println("After sleeping for 3 mins. Size: " + cache.getSize());
     // Now size should be the capacity
