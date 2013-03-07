@@ -1094,7 +1094,13 @@ public class Cache implements InternalEhcache, StoreListener {
                 Callable<TerracottaStore> callable = new Callable<TerracottaStore>() {
                     @Override
                     public TerracottaStore call() throws Exception {
-                        Store tempStore = cacheManager.createTerracottaStore(Cache.this);
+                        Store tempStore;
+                        try {
+                            tempStore = cacheManager.createTerracottaStore(Cache.this);
+                        } catch (IllegalArgumentException e) {
+                            handleExceptionInTerracottaStoreCreation(e);
+                            throw e;
+                        }
                         if (!(tempStore instanceof TerracottaStore)) {
                             throw new CacheException(
                                     "CacheManager should create instances of TerracottaStore for Terracotta Clustered caches instead of - "
@@ -1201,6 +1207,14 @@ public class Cache implements InternalEhcache, StoreListener {
         if (disabled) {
             LOG.warn("Cache: " + configuration.getName() + " is disabled because the " + NET_SF_EHCACHE_DISABLED
                     + " property was set to true. No elements will be added to the cache.");
+        }
+    }
+
+    // Created to temporarily fix MNK-4521 and registered as DEV-9295 for more complete fix
+    private void handleExceptionInTerracottaStoreCreation(IllegalArgumentException e) {
+        if (e.getMessage().contains("copyOnReadEnabled")) {
+            throw new InvalidConfigurationException("Conflict in configuration for clustered cache " + getName() + " . " +
+                                                    "Source is either copyOnRead or transactional mode setting.");
         }
     }
 
