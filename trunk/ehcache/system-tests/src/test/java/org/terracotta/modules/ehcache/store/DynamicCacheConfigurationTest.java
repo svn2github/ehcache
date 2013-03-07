@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
   public DynamicCacheConfigurationTest(TestConfig testConfig) {
     super(testConfig, App.class);
-    testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "100");
+    testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "500");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
   }
 
