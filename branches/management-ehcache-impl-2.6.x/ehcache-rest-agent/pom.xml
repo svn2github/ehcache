@@ -16,6 +16,7 @@
 
   <properties>
     <private-classpath>rest-management-private-classpath</private-classpath>
+    <jetty.version>7.6.9.v20130131</jetty.version>
   </properties>
 
   <dependencies>
@@ -24,12 +25,58 @@
       <artifactId>management-ehcache-impl</artifactId>
       <version>${project.version}</version>      
     </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-servlet</artifactId>
-      <version>7.6.9.v20130131</version>
-    </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>sag-deps</id>
+      <activation>
+        <property>
+          <name>sag-deps</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+          <version>${jetty.version}</version>
+          <exclusions>
+            <exclusion>
+              <artifactId>javax.servlet</artifactId>
+              <groupId>org.eclipse.jetty.orbit</groupId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+
+        <dependency>
+          <groupId>gf-3122</groupId>
+          <artifactId>gf.javax.servlet-api</artifactId>
+          <version>3.0.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
+      <id>community-deps</id>
+      <activation>
+        <property>
+          <name>sag-deps</name>
+          <value>false</value>
+        </property>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+          <version>${jetty.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
   
   <build>
     <plugins>
