@@ -38,8 +38,8 @@ public class ServerMapTTIExpressTestClient extends ServerMapClientBase {
     // Sleep for TTI to kick in:
     // Wait up to 30 sec. for the capacity evictor to do its thing.
     int count = 0;
-    while ( cache.getSize() > 6000 && count++ < 30) {
-        Thread.sleep(1000);
+    while ( cache.getSize() > 6000 && count++ < 60) {
+        Thread.sleep(5000);
         System.out.println("Cache populated. size: " + cache.getSize());
     }
     
