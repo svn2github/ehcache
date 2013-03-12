@@ -58,6 +58,8 @@ public enum StandardPassThroughStatistic {
     /** remote size */
     REMOTE_SIZE(cache().descendants(), Long.TYPE, 0L, "size", "remote");
 
+    private static final int THIRTY = 30;
+    
     private final Class<? extends Number> type;
     private final Query context;
     private final Number absentValue;
@@ -115,5 +117,23 @@ public enum StandardPassThroughStatistic {
      */
     public final Set<String> tags() {
         return tags;
+    }
+
+    /**
+     * The period in seconds at which to sample for the history.
+     *
+     * @return the history sample period
+     */
+    long interval() {
+      return 1;
+    }
+
+    /**
+     * The default size of the kept history sample.
+     *
+     * @return the default history size
+     */
+    int history() {
+      return THIRTY;
     }
 }

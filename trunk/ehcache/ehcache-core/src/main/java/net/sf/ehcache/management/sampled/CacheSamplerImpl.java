@@ -1601,6 +1601,78 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         return new SampledRateCounterProxy(cache.getStatistics().xaRollbackOperation().rate());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getSizeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().size());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getLocalHeapSizeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().localHeapSize());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getLocalHeapSizeInBytesSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().localHeapSizeInBytes());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getLocalOffHeapSizeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().localOffHeapSize());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getLocalOffHeapSizeInBytesSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().localOffHeapSizeInBytes());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getLocalDiskSizeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().localDiskSize());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getLocalDiskSizeInBytesSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().localDiskSizeInBytes());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getRemoteSizeSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().remoteSize());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getWriterQueueLengthSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().writerQueueLength());
+    }
+
     @Override
     public long getAverageSearchTimeNanos() {
         return getAverageSearchTime();
