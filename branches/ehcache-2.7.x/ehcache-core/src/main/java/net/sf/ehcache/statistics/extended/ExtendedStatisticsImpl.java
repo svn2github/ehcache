@@ -55,6 +55,7 @@ import org.terracotta.context.TreeNode;
 import org.terracotta.context.query.Matcher;
 import org.terracotta.context.query.Matchers;
 import org.terracotta.context.query.Query;
+import org.terracotta.statistics.ConstantValueStatistic;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.Time;
@@ -602,7 +603,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private ValueStatistic<Number> getStandardPassThrough(StandardPassThroughStatistic statistic) {
         ValueStatistic<Number> passThrough = standardPassThroughs.get(statistic);
-        if (passThrough instanceof NullStatistic<?>) {
+        if (passThrough instanceof ConstantValueStatistic<?>) {
             ValueStatistic discovered = findPassThroughStatistic(manager, statistic);
             if (discovered == null) {
                 return passThrough;
