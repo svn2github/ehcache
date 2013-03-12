@@ -1323,49 +1323,4 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     public long getAverageGetTime() {
         return sampledCacheDelegate.getAverageGetTime();
     }
-
-    @Override
-    public SampledCounter getSizeSample() {
-        return sampledCacheDelegate.getSizeSample();
-    }
-    
-    @Override
-    public SampledCounter getLocalHeapSizeSample() {
-        return sampledCacheDelegate.getLocalHeapSizeSample();
-    }
-
-    @Override
-    public SampledCounter getLocalHeapSizeInBytesSample() {
-        return sampledCacheDelegate.getLocalHeapSizeInBytesSample();
-    }
-
-    @Override
-    public SampledCounter getLocalOffHeapSizeSample() {
-        return sampledCacheDelegate.getLocalOffHeapSizeSample();
-    }
-
-    @Override
-    public SampledCounter getLocalOffHeapSizeInBytesSample() {
-        return sampledCacheDelegate.getLocalOffHeapSizeInBytesSample();
-    }
-
-    @Override
-    public SampledCounter getLocalDiskSizeSample() {
-        return sampledCacheDelegate.getLocalDiskSizeSample();
-    }
-
-    @Override
-    public SampledCounter getLocalDiskSizeInBytesSample() {
-        return sampledCacheDelegate.getLocalDiskSizeInBytesSample();
-    }
-
-    @Override
-    public SampledCounter getRemoteSizeSample() {
-        return sampledCacheDelegate.getRemoteSizeSample();
-    }
-
-    @Override
-    public SampledCounter getWriterQueueLengthSample() {
-        return sampledCacheDelegate.getWriterQueueLengthSample();
-    }
 }

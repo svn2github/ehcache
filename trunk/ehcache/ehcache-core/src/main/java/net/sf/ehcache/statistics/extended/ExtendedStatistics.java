@@ -27,6 +27,7 @@ import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
+import org.terracotta.statistics.ValueStatistic;
 import org.terracotta.statistics.archive.Timestamped;
 
 /**
@@ -432,61 +433,61 @@ public interface ExtendedStatistics {
      *
      * @return the size
      */
-    Statistic<Number> size();
+    ValueStatistic<Number> getSize();
 
     /**
      * Gets the local heap size.
      *
      * @return the local heap size
      */
-    Statistic<Number> localHeapSize();
+    ValueStatistic<Number> getLocalHeapSize();
 
     /**
      * Gets the local heap size in bytes.
      *
      * @return the local heap size in bytes
      */
-    Statistic<Number> localHeapSizeInBytes();
+    ValueStatistic<Number> getLocalHeapSizeInBytes();
 
     /**
      * Gets the local off heap size.
      *
      * @return the local off heap size
      */
-    Statistic<Number> localOffHeapSize();
+    ValueStatistic<Number> getLocalOffHeapSize();
 
     /**
      * Gets the local off heap size in bytes.
      *
      * @return the local off heap size in bytes
      */
-    Statistic<Number> localOffHeapSizeInBytes();
+    ValueStatistic<Number> getLocalOffHeapSizeInBytes();
 
     /**
      * Gets the local disk size.
      *
      * @return the local disk size
      */
-    Statistic<Number> localDiskSize();
+    ValueStatistic<Number> getLocalDiskSize();
 
     /**
      * Gets the local disk size in bytes.
      *
      * @return the local disk size in bytes
      */
-    Statistic<Number> localDiskSizeInBytes();
+    ValueStatistic<Number> getLocalDiskSizeInBytes();
 
     /**
      * Gets the remote size.
      *
      * @return the remote size
      */
-    Statistic<Number> remoteSize();
+    ValueStatistic<Number> getRemoteSize();
 
     /**
      * Gets the writer queue length.
      *
      * @return the writer queue length
      */
-    Statistic<Number> writerQueueLength();
+    ValueStatistic<Number> getWriterQueueLength();
 }

@@ -20,6 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 
+import org.terracotta.statistics.Time;
 import org.terracotta.statistics.ValueStatistic;
 import org.terracotta.statistics.archive.Timestamped;
 
@@ -31,11 +32,14 @@ import org.terracotta.statistics.archive.Timestamped;
  */
 abstract class AbstractStatistic<T extends Number> implements Statistic<T> {
 
-    /** The source. */
-    private final ValueStatistic<T> source;
-    
     /** The history. */
     private final SampledStatistic<T> history;
+
+    /** The active. */
+    private boolean active = false;
+
+    /** The touch timestamp. */
+    private long touchTimestamp = -1;
 
     /**
      * Instantiates a new abstract statistic.
@@ -44,39 +48,84 @@ abstract class AbstractStatistic<T extends Number> implements Statistic<T> {
      * @param historySize the history size
      * @param historyNanos the history nanos
      */
-    AbstractStatistic(ValueStatistic<T> source, ScheduledExecutorService executor, int historySize, long historyNanos) {
-        this.source = source;
-        this.history = new SampledStatistic<T>(source, executor, historySize, historyNanos);
+    public AbstractStatistic(ScheduledExecutorService executor, int historySize, long historyNanos) {
+        this.history = new SampledStatistic<T>(new ValueStatistic<T>() {
+
+            @Override
+            public T value() {
+                return readStatistic();
+            }
+        }, executor, historySize, historyNanos);
     }
 
-    /**
-     * {@inheritDoc}
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic#active()
+     */
+    @Override
+    public final synchronized boolean active() {
+        return active;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic#value()
      */
     @Override
     public T value() {
-        return source.value();
+        touch();
+        return readStatistic();
     }
 
-    /**
-     * {@inheritDoc}
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statisticsV2.extended.ExtendedStatistics.Statistic#history()
      */
     @Override
-    public List<Timestamped<T>> history() {
+    public final List<Timestamped<T>> history() {
+        touch();
         return history.history();
     }
 
     /**
-     * Start sampling.
+     * Touch.
      */
-    final void startSampling() {
-        history.startSampling();
+    private final synchronized void touch() {
+        touchTimestamp = Time.absoluteTime();
+        start();
     }
 
     /**
-     * Stop sampling.
+     * Start.
      */
-    final void stopSampling() {
-        history.stopSampling();
+    final synchronized void start() {
+        if (!active) {
+            startStatistic();
+            history.startSampling();
+            active = true;
+        }
+    }
+
+    /**
+     * Expire.
+     *
+     * @param expiry the expiry
+     * @return true, if successful
+     */
+    final synchronized boolean expire(long expiry) {
+        if (touchTimestamp < expiry) {
+            if (active) {
+                history.stopSampling();
+                stopStatistic();
+                active = false;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -88,4 +137,21 @@ abstract class AbstractStatistic<T extends Number> implements Statistic<T> {
     final void setHistory(int historySize, long historyNanos) {
         history.adjust(historySize, historyNanos);
     }
+
+    /**
+     * Stop statistic.
+     */
+    abstract void stopStatistic();
+
+    /**
+     * Start statistic.
+     */
+    abstract void startStatistic();
+
+    /**
+     * Read statistic.
+     *
+     * @return the t
+     */
+    abstract T readStatistic();
 }

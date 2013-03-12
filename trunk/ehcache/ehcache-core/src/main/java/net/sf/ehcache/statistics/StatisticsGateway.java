@@ -309,47 +309,47 @@ public class StatisticsGateway implements FlatStatistics {
 
     @Override
     public long getLocalHeapSizeInBytes() {
-        return extended.localHeapSizeInBytes().value().longValue();
+        return extended.getLocalHeapSizeInBytes().value().longValue();
     }
 
     @Override
     public long getLocalHeapSize() {
-        return extended.localHeapSize().value().longValue();
+        return extended.getLocalHeapSize().value().longValue();
     }
 
     @Override
     public long getWriterQueueLength() {
-        return extended.writerQueueLength().value().longValue();
+        return extended.getWriterQueueLength().value().longValue();
     }
 
     @Override
     public long getLocalDiskSize() {
-        return extended.localDiskSize().value().longValue();
+        return extended.getLocalDiskSize().value().longValue();
     }
 
     @Override
     public long getLocalOffHeapSize() {
-        return extended.localOffHeapSize().value().longValue();
+        return extended.getLocalOffHeapSize().value().longValue();
     }
 
     @Override
     public long getLocalDiskSizeInBytes() {
-        return extended.localDiskSizeInBytes().value().longValue();
+        return extended.getLocalDiskSizeInBytes().value().longValue();
     }
 
     @Override
     public long getLocalOffHeapSizeInBytes() {
-        return extended.localOffHeapSizeInBytes().value().longValue();
+        return extended.getLocalOffHeapSizeInBytes().value().longValue();
     }
 
     @Override
     public long getRemoteSize() {
-        return extended.remoteSize().value().longValue();
+        return extended.getRemoteSize().value().longValue();
     }
 
     @Override
     public long getSize() {
-        return extended.size().value().longValue();
+        return extended.getSize().value().longValue();
     }
 
 
