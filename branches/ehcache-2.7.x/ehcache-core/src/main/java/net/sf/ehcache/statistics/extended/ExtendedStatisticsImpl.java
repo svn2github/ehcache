@@ -55,7 +55,6 @@ import org.terracotta.context.TreeNode;
 import org.terracotta.context.query.Matcher;
 import org.terracotta.context.query.Matchers;
 import org.terracotta.context.query.Query;
-import org.terracotta.statistics.ConstantValueStatistic;
 import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.Time;
@@ -70,8 +69,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedStatisticsImpl.class);
 
-    private final ConcurrentMap<StandardPassThroughStatistic, Statistic<Number>> standardPassThroughs = 
-            new ConcurrentHashMap<StandardPassThroughStatistic, Statistic<Number>>();
+    private final ConcurrentMap<StandardPassThroughStatistic, ValueStatistic> standardPassThroughs = 
+            new ConcurrentHashMap<StandardPassThroughStatistic, ValueStatistic>();
     private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations = 
             new ConcurrentHashMap<StandardOperationStatistic, Operation<?>>();
     private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations = 
@@ -166,10 +165,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         for (final StandardPassThroughStatistic t : StandardPassThroughStatistic.values()) {
             ValueStatistic statistic = findPassThroughStatistic(manager, t);
             if (statistic == null) {
-                LOGGER.debug("Mocking Pass-Through Statistic: {}", t);
-                standardPassThroughs.put(t, NullStatistic.instance(t.absentValue()));
+                standardPassThroughs.put(t, ConstantValueStatistic.instance(t.absentValue()));
             } else {
-                standardPassThroughs.put(t, new SemiExpiringStatistic(statistic, executor, t.history(), SECONDS.toNanos(t.interval())));
+                standardPassThroughs.put(t, statistic);
             }
         }
     }
@@ -498,7 +496,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalHeapSize()
      */
     @Override
-    public Statistic<Number> localHeapSize() {
+    public ValueStatistic<Number> getLocalHeapSize() {
         return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_HEAP_SIZE);
     }
 
@@ -508,7 +506,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalHeapSizeInBytes()
      */
     @Override
-    public Statistic<Number> localHeapSizeInBytes() {
+    public ValueStatistic<Number> getLocalHeapSizeInBytes() {
         return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_HEAP_SIZE_BYTES);
     }
 
@@ -518,7 +516,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalOffHeapSize()
      */
     @Override
-    public Statistic<Number> localOffHeapSize() {
+    public ValueStatistic<Number> getLocalOffHeapSize() {
         return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_OFFHEAP_SIZE);
     }
 
@@ -528,7 +526,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalOffHeapSizeInBytes()
      */
     @Override
-    public Statistic<Number> localOffHeapSizeInBytes() {
+    public ValueStatistic<Number> getLocalOffHeapSizeInBytes() {
         return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_OFFHEAP_SIZE_BYTES);
     }
 
@@ -538,7 +536,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalDiskSize()
      */
     @Override
-    public Statistic<Number> localDiskSize() {
+    public ValueStatistic<Number> getLocalDiskSize() {
         return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_DISK_SIZE);
     }
 
@@ -548,7 +546,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getLocalDiskSizeInBytes()
      */
     @Override
-    public Statistic<Number> localDiskSizeInBytes() {
+    public ValueStatistic<Number> getLocalDiskSizeInBytes() {
         return getStandardPassThrough(StandardPassThroughStatistic.LOCAL_DISK_SIZE_BYTES);
     }
 
@@ -558,7 +556,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getRemoteSize()
      */
     @Override
-    public Statistic<Number> remoteSize() {
+    public ValueStatistic<Number> getRemoteSize() {
         return getStandardPassThrough(StandardPassThroughStatistic.REMOTE_SIZE);
     }
 
@@ -568,7 +566,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getSize()
      */
     @Override
-    public Statistic<Number> size() {
+    public ValueStatistic<Number> getSize() {
         return getStandardPassThrough(StandardPassThroughStatistic.CACHE_SIZE);
     }
 
@@ -578,7 +576,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getWriterQueueLength()
      */
     @Override
-    public Statistic<Number> writerQueueLength() {
+    public ValueStatistic<Number> getWriterQueueLength() {
         return getStandardPassThrough(StandardPassThroughStatistic.WRITER_QUEUE_LENGTH);
     }
 
@@ -602,17 +600,15 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
-    private Statistic<Number> getStandardPassThrough(StandardPassThroughStatistic statistic) {
-        Statistic<Number> passThrough = standardPassThroughs.get(statistic);
-        if (passThrough instanceof ConstantValueStatistic<?>) {
+    private ValueStatistic<Number> getStandardPassThrough(StandardPassThroughStatistic statistic) {
+        ValueStatistic<Number> passThrough = standardPassThroughs.get(statistic);
+        if (passThrough instanceof NullStatistic<?>) {
             ValueStatistic discovered = findPassThroughStatistic(manager, statistic);
             if (discovered == null) {
                 return passThrough;
             } else {
-                Statistic<Number> newPassThrough = new SemiExpiringStatistic(discovered, executor, 
-                        statistic.history(), SECONDS.toNanos(statistic.interval()));
-                if (standardPassThroughs.replace(statistic, passThrough, newPassThrough)) {
-                    return newPassThrough;
+                if (standardPassThroughs.replace(statistic, passThrough, discovered)) {
+                    return discovered;
                 } else {
                     return standardPassThroughs.get(statistic);
                 }

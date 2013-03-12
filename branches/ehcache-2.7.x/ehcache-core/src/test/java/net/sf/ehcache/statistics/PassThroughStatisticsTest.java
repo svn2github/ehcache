@@ -32,11 +32,11 @@ public class PassThroughStatisticsTest {
 
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
 
-            assertThat(extendedStats.size().value().longValue(), is(0L));
+            assertThat(extendedStats.getSize().value().longValue(), is(0L));
 
             foo.put(new Element("foo", "foo"));
 
-            assertThat(extendedStats.size().value().longValue(), is(1L));
+            assertThat(extendedStats.getSize().value().longValue(), is(1L));
         } finally {
             manager.shutdown();
         }
@@ -51,11 +51,11 @@ public class PassThroughStatisticsTest {
 
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
 
-            assertThat(extendedStats.localHeapSize().value().longValue(), is(0L));
+            assertThat(extendedStats.getLocalHeapSize().value().longValue(), is(0L));
 
             foo.put(new Element("foo", "foo"));
 
-            assertThat(extendedStats.localHeapSize().value().longValue(), is(1L));
+            assertThat(extendedStats.getLocalHeapSize().value().longValue(), is(1L));
         } finally {
             manager.shutdown();
         }
@@ -70,11 +70,11 @@ public class PassThroughStatisticsTest {
 
             ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
 
-            assertThat(extendedStats.localHeapSize().value().longValue(), is(0L));
+            assertThat(extendedStats.getLocalHeapSize().value().longValue(), is(0L));
 
             foo.put(new Element("foo", "foo"));
 
-            assertThat(extendedStats.localHeapSizeInBytes().value().longValue(), greaterThan(1L));
+            assertThat(extendedStats.getLocalHeapSizeInBytes().value().longValue(), greaterThan(1L));
         } finally {
             manager.shutdown();
         }

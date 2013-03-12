@@ -160,7 +160,26 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         if (cachedValue == null) {
             if (updateStats) { getObserver.end(GetOutcome.MISS); }
             Fault<V> f = new Fault<V>(source);
-            cachedValue = f;
+            cachedValue = backEnd.putIfAbsent(key, f);
+            if (cachedValue == null) {
+                try {
+                    V value = f.get();
+                    putObserver.begin();
+                    if (value == null) {
+                        backEnd.remove(key, f);
+                    } else if (backEnd.replace(key, f, value)) {
+                        putObserver.end(PutOutcome.ADDED);
+                    }
+                    return value;
+                } catch (Throwable e) {
+                    backEnd.remove(key, f);
+                    if (e instanceof RuntimeException) {
+                        throw (RuntimeException)e;
+                    } else {
+                      throw new CacheException(e);
+                    }
+                }
+            }
         } else {
             if (updateStats) { getObserver.end(GetOutcome.HIT); }
         }
