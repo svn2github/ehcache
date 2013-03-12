@@ -33,6 +33,7 @@ import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
 
 import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.ValueStatistic;
 
 /**
  * The Class CompoundOperationImpl.
@@ -47,7 +48,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
     private final Class<T> type;
     private final Map<T, OperationImpl<T>> operations;
     private final ConcurrentMap<Set<T>, OperationImpl<T>> compounds = new ConcurrentHashMap<Set<T>, OperationImpl<T>>();
-    private final ConcurrentMap<List<Set<T>>, RatioStatistic> ratios = new ConcurrentHashMap<List<Set<T>>, RatioStatistic>();
+    private final ConcurrentMap<List<Set<T>>, ExpiringStatistic<Double>> ratios = new ConcurrentHashMap<List<Set<T>>, ExpiringStatistic<Double>>();
 
     private final ScheduledExecutorService executor;
 
@@ -137,13 +138,19 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation#ratioOf(java.util.Set, java.util.Set)
      */
     @Override
-    public Statistic<Double> ratioOf(Set<T> numerator, Set<T> denomiator) {
-        List<Set<T>> key = Arrays.<Set<T>> asList(EnumSet.copyOf(numerator), EnumSet.copyOf(denomiator));
-        RatioStatistic existing = ratios.get(key);
+    public Statistic<Double> ratioOf(Set<T> numerator, Set<T> denominator) {
+        List<Set<T>> key = Arrays.<Set<T>> asList(EnumSet.copyOf(numerator), EnumSet.copyOf(denominator));
+        ExpiringStatistic<Double> existing = ratios.get(key);
         if (existing == null) {
-            RatioStatistic created = new RatioStatistic(compound(numerator).rate(), compound(denomiator).rate(), executor, historySize,
-                    historyNanos);
-            RatioStatistic racer = ratios.putIfAbsent(key, created);
+            final Statistic<Double> numeratorRate = compound(numerator).rate();
+            final Statistic<Double> denominatorRate = compound(denominator).rate();
+            ExpiringStatistic<Double> created = new ExpiringStatistic(new ValueStatistic<Double>() {
+                @Override
+                public Double value() {
+                    return numeratorRate.value() / denominatorRate.value();
+                }
+            }, executor, historySize, historyNanos);
+            ExpiringStatistic<Double> racer = ratios.putIfAbsent(key, created);
             if (racer == null) {
                 return created;
             } else {
@@ -210,7 +217,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
         for (OperationImpl<T> op : compounds.values()) {
             op.setHistory(historySize, historyNanos);
         }
-        for (RatioStatistic ratio : ratios.values()) {
+        for (ExpiringStatistic<Double> ratio : ratios.values()) {
             ratio.setHistory(historySize, historyNanos);
         }
     }
@@ -260,7 +267,7 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
                     it.remove();
                 }
             }
-            for (Iterator<RatioStatistic> it = ratios.values().iterator(); it.hasNext();) {
+            for (Iterator<ExpiringStatistic<Double>> it = ratios.values().iterator(); it.hasNext();) {
                 if (it.next().expire(expiryTime)) {
                     it.remove();
                 }

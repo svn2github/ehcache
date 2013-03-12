@@ -623,4 +623,67 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the {@code SampledCounter} for number XA Transaction rollbacks
      */
     SampledCounter getCacheXaRollbacksSample();
+
+    /**
+     * Get the {@link SampledCounter} for cache size
+     *
+     * @return the {@code SampledCounter} for cache size
+     */
+    SampledCounter getSizeSample();
+
+    /**
+     * Get the {@link SampledCounter} for local heap size
+     *
+     * @return the {@code SampledCounter} for local heap size
+     */
+    SampledCounter getLocalHeapSizeSample();
+
+    /**
+     * Get the {@link SampledCounter} for local heap size in bytes
+     *
+     * @return the {@code SampledCounter} for local heap size in bytes
+     */
+    SampledCounter getLocalHeapSizeInBytesSample();
+
+    /**
+     * Get the {@link SampledCounter} for local offheap size
+     *
+     * @return the {@code SampledCounter} for local offheap size
+     */
+    SampledCounter getLocalOffHeapSizeSample();
+
+    /**
+     * Get the {@link SampledCounter} for local offheap size in bytes
+     *
+     * @return the {@code SampledCounter} for local offheap size in bytes
+     */
+    SampledCounter getLocalOffHeapSizeInBytesSample();
+
+    /**
+     * Get the {@link SampledCounter} for local disk size
+     *
+     * @return the {@code SampledCounter} for local disk size
+     */
+    SampledCounter getLocalDiskSizeSample();
+
+    /**
+     * Get the {@link SampledCounter} for local disk size in bytes
+     *
+     * @return the {@code SampledCounter} for local disk size in bytes
+     */
+    SampledCounter getLocalDiskSizeInBytesSample();
+
+    /**
+     * Get the {@link SampledCounter} for remote size
+     *
+     * @return the {@code SampledCounter} for remote size
+     */
+    SampledCounter getRemoteSizeSample();
+
+    /**
+     * Get the {@link SampledCounter} for writer queue length
+     *
+     * @return the {@code SampledCounter} for writer queue length
+     */
+    SampledCounter getWriterQueueLengthSample();
 }
