@@ -5,7 +5,7 @@
   <groupId>net.sf.ehcache</groupId>
   <artifactId>ehcache-parent</artifactId>
   <packaging>pom</packaging>
-  <version>2.4-SNAPSHOT</version>
+  <version>2.5-SNAPSHOT</version>
 
   <name>Ehcache Parent</name>
   <description>Ehcache is a widely used, pure Java, in-process, distributed cache</description>
@@ -243,13 +243,12 @@
             <executions>
               <execution>
                 <id>sign-artifacts</id>
-                <phase>package</phase>
+                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
                 <configuration>
                   <keyname>Terracotta Release Engineer</keyname>
-                  <passphrase>k1ngk0ng</passphrase>
                 </configuration>
               </execution>
             </executions>
