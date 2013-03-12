@@ -243,13 +243,12 @@
             <executions>
               <execution>
                 <id>sign-artifacts</id>
-                <phase>package</phase>
+                <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
                 </goals>
                 <configuration>
                   <keyname>Terracotta Release Engineer</keyname>
-                  <passphrase>k1ngk0ng</passphrase>
                 </configuration>
               </execution>
             </executions>
