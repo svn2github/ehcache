@@ -158,10 +158,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
      *
      * @param <T> the generic type
      */
-    class StatisticImpl<T extends Number> implements Statistic<T> {
-
-        private final ValueStatistic<T> value;
-        private final SampledStatistic<T> history;
+    class StatisticImpl<T extends Number> extends AbstractStatistic<T> {
 
         /**
          * Instantiates a new statistic impl.
@@ -172,8 +169,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
          * @param historyNanos the history nanos
          */
         public StatisticImpl(ValueStatistic<T> value, ScheduledExecutorService executor, int historySize, long historyNanos) {
-            this.value = value;
-            this.history = new SampledStatistic<T>(value, executor, historySize, historyNanos);
+            super(value, executor, historySize, historyNanos);
         }
 
         /*
@@ -194,7 +190,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         @Override
         public T value() {
             touch();
-            return value.value();
+            return super.value();
         }
 
         /*
@@ -205,19 +201,7 @@ class LatencyImpl<T extends Enum<T>> implements Latency {
         @Override
         public List<Timestamped<T>> history() throws UnsupportedOperationException {
             touch();
-            return history.history();
-        }
-
-        private void startSampling() {
-            history.startSampling();
-        }
-
-        private void stopSampling() {
-            history.stopSampling();
-        }
-
-        private void setHistory(int historySize, long historyNanos) {
-            history.adjust(historySize, historyNanos);
+            return super.history();
         }
     }
 }

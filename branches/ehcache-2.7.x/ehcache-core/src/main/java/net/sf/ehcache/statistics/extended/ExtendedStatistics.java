@@ -27,7 +27,6 @@ import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
-import org.terracotta.statistics.ValueStatistic;
 import org.terracotta.statistics.archive.Timestamped;
 
 /**
@@ -433,61 +432,61 @@ public interface ExtendedStatistics {
      *
      * @return the size
      */
-    ValueStatistic<Number> getSize();
+    Statistic<Number> size();
 
     /**
      * Gets the local heap size.
      *
      * @return the local heap size
      */
-    ValueStatistic<Number> getLocalHeapSize();
+    Statistic<Number> localHeapSize();
 
     /**
      * Gets the local heap size in bytes.
      *
      * @return the local heap size in bytes
      */
-    ValueStatistic<Number> getLocalHeapSizeInBytes();
+    Statistic<Number> localHeapSizeInBytes();
 
     /**
      * Gets the local off heap size.
      *
      * @return the local off heap size
      */
-    ValueStatistic<Number> getLocalOffHeapSize();
+    Statistic<Number> localOffHeapSize();
 
     /**
      * Gets the local off heap size in bytes.
      *
      * @return the local off heap size in bytes
      */
-    ValueStatistic<Number> getLocalOffHeapSizeInBytes();
+    Statistic<Number> localOffHeapSizeInBytes();
 
     /**
      * Gets the local disk size.
      *
      * @return the local disk size
      */
-    ValueStatistic<Number> getLocalDiskSize();
+    Statistic<Number> localDiskSize();
 
     /**
      * Gets the local disk size in bytes.
      *
      * @return the local disk size in bytes
      */
-    ValueStatistic<Number> getLocalDiskSizeInBytes();
+    Statistic<Number> localDiskSizeInBytes();
 
     /**
      * Gets the remote size.
      *
      * @return the remote size
      */
-    ValueStatistic<Number> getRemoteSize();
+    Statistic<Number> remoteSize();
 
     /**
      * Gets the writer queue length.
      *
      * @return the writer queue length
      */
-    ValueStatistic<Number> getWriterQueueLength();
+    Statistic<Number> writerQueueLength();
 }
