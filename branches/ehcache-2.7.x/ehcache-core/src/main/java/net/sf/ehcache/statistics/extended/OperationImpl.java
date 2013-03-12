@@ -37,10 +37,10 @@ class OperationImpl<T extends Enum<T>> implements Result {
     private final OperationStatistic<T> source;
 
     /** The count. */
-    private final CountStatistic count;
+    private final SemiExpiringStatistic<Long> count;
 
     /** The rate. */
-    private final RateStatistic rate;
+    private final RateImpl rate;
 
     /** The latency. */
     private final LatencyImpl latency;
@@ -58,9 +58,9 @@ class OperationImpl<T extends Enum<T>> implements Result {
     public OperationImpl(OperationStatistic<T> source, Set<T> targets, long averageNanos,
             ScheduledExecutorService executor, int historySize, long historyNanos) {
         this.source = source;
-        this.count = new CountStatistic(source, targets, executor, historySize, historyNanos);
+        this.count = new SemiExpiringStatistic<Long>(source.statistic(targets), executor, historySize, historyNanos);
         this.latency = new LatencyImpl(source, targets, averageNanos, executor, historySize, historyNanos);
-        this.rate = new RateStatistic(source, targets, averageNanos, executor, historySize, historyNanos);
+        this.rate = new RateImpl(source, targets, averageNanos, executor, historySize, historyNanos);
     }
 
     /* (non-Javadoc)
