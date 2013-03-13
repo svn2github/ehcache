@@ -18,44 +18,88 @@ import java.io.ObjectOutput;
  * 
  * @author Nishant
  */
-public class ElementData implements Externalizable, TimestampedValue {
+public abstract class ElementData implements Externalizable, TimestampedValue {
   private volatile Object  value;
   private volatile long    version;
   private volatile long    creationTime;
   private volatile long    lastAccessTime;
   private volatile long    hitCount;
   private volatile boolean cacheDefaultLifespan;
-  private volatile int     timeToLive;
-  private volatile int     timeToIdle;
   private volatile long    lastUpdateTime;
 
   public ElementData() {
     // for serialization
   }
 
-  public ElementData(final Object value, final long version, final long creationTime, final long lastAccessTime,
-                     final long hitCount, final boolean cacheDefaultLifespan, final int timeToLive,
-                     final int timeToIdle, final long lastUpdateTime) {
-    this.value = value;
-    this.version = version;
-    this.creationTime = creationTime;
-    this.lastAccessTime = lastAccessTime;
-    this.hitCount = hitCount;
-    this.cacheDefaultLifespan = cacheDefaultLifespan;
-    this.timeToLive = timeToLive;
-    this.timeToIdle = timeToIdle;
-    this.lastUpdateTime = lastUpdateTime;
+  public ElementData(final Element element) {
+    this.value = element.getValue();
+    this.version = element.getVersion();
+    this.creationTime = element.getCreationTime();
+    this.lastAccessTime = element.getLastAccessTime();
+    this.hitCount = element.getHitCount();
+    this.cacheDefaultLifespan = element.usesCacheDefaultLifespan();
+    this.lastUpdateTime = element.getLastUpdateTime();
   }
 
-  public ElementData(final Element element) {
-    this(element.getValue(), element.getVersion(), element.getCreationTime(), element.getLastAccessTime(), element
-        .getHitCount(), element.usesCacheDefaultLifespan(), element.getTimeToLive(), element.getTimeToIdle(), element
-        .getLastUpdateTime());
+  /**
+   * This method allows the subclasses to enrich the element with their specific attributes. <br>
+   * It will be called from the public method {@link #createElement(Object)}
+   * 
+   * @param element the {@link Element} object which the subclass should enrich with specific attributes.
+   */
+  protected abstract void enrichElement(Element element);
+
+  /**
+   * The subclasses must implement this method to persist any subclass specific attribute while serialization <br>
+   * It will be called when this object is being serialized.
+   * 
+   * @param oos the {@link ObjectOutput} object on which the attributes must be written
+   */
+  protected abstract void writeAttributes(ObjectOutput oos) throws IOException;
+
+  /**
+   * The subclasses must implement this method to read any subclass specific attributes while deserialization <br>
+   * It will be called when this object is being deserialized.
+   * 
+   * @param in the {@link ObjectInput} object from which the attributes must be read.
+   */
+  protected abstract void readAttributes(ObjectInput in) throws IOException;
+
+
+  @Override
+  public void writeExternal(ObjectOutput oos) throws IOException {
+    oos.writeObject(value);
+    oos.writeLong(version);
+    oos.writeLong(creationTime);
+    oos.writeLong(lastAccessTime);
+    oos.writeLong(hitCount);
+    oos.writeBoolean(cacheDefaultLifespan);
+    oos.writeLong(lastUpdateTime);
+
+    writeAttributes(oos);
   }
+
+
+  @Override
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    value = in.readObject();
+    version = in.readLong();
+    creationTime = in.readLong();
+    lastAccessTime = in.readLong();
+    hitCount = in.readLong();
+    cacheDefaultLifespan = in.readBoolean();
+    lastUpdateTime = in.readLong();
+    
+    readAttributes(in);
+  }
+
 
   public Element createElement(final Object key) {
-    return new Element(key, value, version, creationTime, lastAccessTime, hitCount, cacheDefaultLifespan, timeToLive,
-                       timeToIdle, lastUpdateTime);
+    Element element = new Element(key, value, version, creationTime, lastAccessTime, hitCount, cacheDefaultLifespan, 0,
+                                  0, lastUpdateTime);
+
+    enrichElement(element);
+    return element;
   }
 
   public Object getValue() {
@@ -74,31 +118,6 @@ public class ElementData implements Externalizable, TimestampedValue {
     return TimeUtil.toSecs(creationTime);
   }
 
-  @Override
-  public void writeExternal(ObjectOutput oos) throws IOException {
-    oos.writeObject(value);
-    oos.writeLong(version);
-    oos.writeLong(creationTime);
-    oos.writeLong(lastAccessTime);
-    oos.writeLong(hitCount);
-    oos.writeBoolean(cacheDefaultLifespan);
-    oos.writeInt(timeToLive);
-    oos.writeInt(timeToIdle);
-    oos.writeLong(lastUpdateTime);
-  }
-
-  @Override
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    value = in.readObject();
-    version = in.readLong();
-    creationTime = in.readLong();
-    lastAccessTime = in.readLong();
-    hitCount = in.readLong();
-    cacheDefaultLifespan = in.readBoolean();
-    timeToLive = in.readInt();
-    timeToIdle = in.readInt();
-    lastUpdateTime = in.readLong();
-  }
 
   @Override
   public void updateTimestamps(int createTime, int lastAccessedTime) {
