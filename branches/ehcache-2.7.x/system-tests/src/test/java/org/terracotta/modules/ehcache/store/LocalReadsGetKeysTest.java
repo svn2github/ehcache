@@ -4,7 +4,6 @@
 package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
@@ -36,10 +35,11 @@ public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
 
+    private static final String VALUE = "value";
     private final ToolkitBarrier barrier;
 
     public App(String[] args) {
-      super(args);
+      super("test", args);
       this.barrier = getClusteringToolkit().getBarrier("test", NODE_COUNT);
     }
 
@@ -51,23 +51,20 @@ public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
-      Cache[] caches = allCaches(cacheManager);
-
       if (index == 0) {
-        loadKeyType1(caches, 0);
+        cache.put(new Element(new KeyType(1), VALUE));
       }
 
       barrier.await();
 
       if (index != 0) {
-        readAllKeys(caches);
+        readAllKeys(cache);
       }
 
       barrier.await();
 
       if (index == 0) {
-        loadKeyType1(caches, 1);
-        loadKeyType2(caches);
+        cache.put(new Element(new KeyType(2), VALUE));
       }
 
       barrier.await();
@@ -82,82 +79,30 @@ public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
             return clusterInfo.areOperationsEnabled();
           }
         });
-        try {
-          attemptNonLocalRead(caches);
-          testGetKeysMethods(caches);
-        } finally {
-          getTestControlMbean().restartCrashedServer(0, 0);
-        }
+
+        // Attempt non local read
+        Assert.assertEquals(null, cache.get(new KeyType(2)));
+        // Attempt local read
+        Assert.assertEquals(VALUE, cache.get(new KeyType(1)).getObjectValue());
       }
     }
 
-    private void readAllKeys(Cache[] caches) {
-      for (Cache c : caches) {
-        // iterating the keys will force them to be deserialized (a get() does not currently do that)
+    private void readAllKeys(Cache cache) {
+      // iterating the keys will force them to be deserialized (a get() does not currently do that)
+      List keys = cache.getKeys();
 
-        List keys = c.getKeys();
-        Assert.assertEquals(1, keys.size());
-
-        for (Object key : keys) {
-          // also call get() to fault the value (ie. make it local)
-          c.get(key);
-        }
-      }
-    }
-
-    //
-    private static Cache[] allCaches(CacheManager cacheManager) {
-      int i = 0;
-      Cache[] caches = new Cache[cacheManager.getCacheNames().length];
-      for (String name : cacheManager.getCacheNames()) {
-        caches[i++] = cacheManager.getCache(name);
-      }
-
-      return caches;
-    }
-
-    private void testGetKeysMethods(Cache[] caches) {
-      for (Cache c : caches) {
-        String name = c.getName();
-        if (!name.equals("dcv2") && !name.equals("classic")) { throw new AssertionError(name); }
-
-        verifyKeys(name, c.getKeys(), "classic".equals(name) ? 2 : 1);
-        verifyKeys(name, c.getKeysWithExpiryCheck(), 1);
-      }
-    }
-
-    private void verifyKeys(String name, List keys, int expect) {
-      Assert.assertEquals(name, expect, keys.size());
       for (Object key : keys) {
-        Assert.assertEquals(name, KeyType1.class, key.getClass());
-      }
-    }
-
-    private void attemptNonLocalRead(Cache[] caches) {
-      // should return null since server is down and no local data is present
-      for (Cache c : caches) {
-        Assert.assertEquals(null, c.get(new KeyType1(1)));
-      }
-    }
-
-    private void loadKeyType1(Cache[] caches, int val) {
-      for (Cache c : caches) {
-        c.put(new Element(new KeyType1(val), "value"));
-      }
-    }
-
-    private void loadKeyType2(Cache[] caches) {
-      for (Cache c : caches) {
-        c.put(new Element(new KeyType2(0), "value"));
+        // also call get() to fault the value (ie. make it local)
+        cache.get(key);
       }
     }
 
   }
 
-  private static class KeyBase implements Serializable {
+  private static class KeyType implements Serializable {
     private final int val;
 
-    KeyBase(int val) {
+    KeyType(int val) {
       this.val = val;
     }
 
@@ -169,7 +114,7 @@ public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
     @Override
     public boolean equals(Object obj) {
       if (obj == null || obj.getClass() != getClass()) { return false; }
-      return val == ((KeyBase) obj).val;
+      return val == ((KeyType) obj).val;
     }
 
     @Override
@@ -178,15 +123,4 @@ public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
     }
   }
 
-  private static class KeyType1 extends KeyBase {
-    KeyType1(int val) {
-      super(val);
-    }
-  }
-
-  private static class KeyType2 extends KeyBase {
-    KeyType2(int val) {
-      super(val);
-    }
-  }
 }
