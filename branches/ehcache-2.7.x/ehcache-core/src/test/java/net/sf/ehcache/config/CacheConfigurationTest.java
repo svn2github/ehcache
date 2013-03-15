@@ -223,4 +223,13 @@ public class CacheConfigurationTest {
             Assert.assertThat(e.getMessage(), StringContains.containsString("maxEntriesInCache is not applicable to unclustered caches."));
         }
     }
+
+    @Test
+    public void testMaxEntriesInCacheBounds() {
+        try {
+            new CacheConfiguration().maxEntriesInCache(-1);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), containsString("maxEntriesInCache"));
+        }
+    }
 }

@@ -149,7 +149,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Default value for maxEntriesInCache
      */
-    public static final int DEFAULT_MAX_ENTRIES_IN_CACHE = -1;
+    public static final int DEFAULT_MAX_ENTRIES_IN_CACHE = 0;
 
     /**
      * Default value for transactionalMode
@@ -1067,11 +1067,10 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets the maximum number of entries in the cache. Only applies to terracotta clustered caches.
      * <p/>
-     * The values for maxEntriesInCache are interpreted as follows:
+     * The values for maxEntriesInCache must be equal or superior to 0 and are interpreted as follows:
      * <ul>
-     * <li>{@code maxEntriesInCache < 0} means no capacity based eviction, but resource based eviction can happen.</li>
+     * <li>{@code maxEntriesInCache == 0} means no capacity based eviction, but resource based eviction can happen.</li>
      * <li>{@code maxEntriesInCache > 0} means both capacity based and resource based eviction can happen
-     * <li>{@code maxEntriesInCache == 0} means a cache with zero capacity - an always empty cache
      * </ul>
      * <p/>
      * This property can be modified dynamically while the cache is operating.
@@ -1080,6 +1079,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxEntriesInCache(int maxEntriesInCache) {
         checkDynamicChange();
+        verifyGreaterThanOrEqualToZero((long)maxEntriesInCache, "maxEntriesInCache");
         int oldValue = this.maxEntriesInCache;
         this.maxEntriesInCache = maxEntriesInCache;
         logMaxEntriesInCacheChangeIfCachePinned();
