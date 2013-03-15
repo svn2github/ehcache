@@ -7,7 +7,7 @@ package org.terracotta.ehcache.tests.container.hibernate;
 import org.apache.commons.logging.LogFactory;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
-import org.terracotta.ehcache.tests.container.AbstractStandaloneContainerTestSetup;
+import org.terracotta.ehcache.tests.container.ContainerTestSetup;
 import org.terracotta.toolkit.Toolkit;
 
 import com.meterware.httpunit.WebConversation;
@@ -43,7 +43,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
     return server.ping("/test/HibernateCacheTestServlet?" + params, con);
   }
 
-  public static abstract class BaseClusteredCacheProviderTestSetup extends AbstractStandaloneContainerTestSetup {
+  public static abstract class BaseClusteredCacheProviderTestSetup extends ContainerTestSetup {
 
     private NetworkServerControl derbyServer;
     private final Class          testClass;
