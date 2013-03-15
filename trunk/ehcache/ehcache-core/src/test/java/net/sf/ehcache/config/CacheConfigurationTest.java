@@ -239,6 +239,15 @@ public class CacheConfigurationTest {
     }
 
     @Test
+    public void testMaxEntriesInCacheBounds() {
+        try {
+            new CacheConfiguration().maxEntriesInCache(-1);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), CoreMatchers.containsString("maxEntriesInCache"));
+        }
+    }
+
+    @Test
     public void testWarnTieredSizing() {
         final AtomicReference<String> ref = new AtomicReference<String>();
 

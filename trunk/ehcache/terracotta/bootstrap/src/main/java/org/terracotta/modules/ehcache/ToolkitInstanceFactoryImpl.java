@@ -77,6 +77,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     updateDefaultNonStopConfig(toolkit);
   }
 
+  // Constructor to enable unit testing
+  ToolkitInstanceFactoryImpl(Toolkit toolkit) {
+    this.toolkit = toolkit;
+  }
+
   private void updateDefaultNonStopConfig(Toolkit toolkitParam) {
     ToolkitNonstopDisableConfig disableNonStop = new ToolkitNonstopDisableConfig();
     NonStopConfigurationRegistry nonStopConfigurationRegistry = toolkitParam.getFeature(ToolkitFeatureType.NONSTOP)
@@ -140,7 +145,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
     builder.maxTTLSeconds((int) ehcacheConfig.getTimeToLiveSeconds());
-    builder.maxTotalCount(ehcacheConfig.getMaxEntriesInCache());
+    builder.maxTotalCount(mapMaxEntriesInCacheToTotalCount(ehcacheConfig.getMaxEntriesInCache()));
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
 
     if (terracottaConfiguration.isSynchronousWrites()) {
@@ -173,7 +178,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return builder.build();
   }
 
-  private static boolean isPinnedInCache(final CacheConfiguration ehcacheConfig) {
+  private static int mapMaxEntriesInCacheToTotalCount(int maxEntriesInCache) {
+    if (maxEntriesInCache == 0) {
+      return -1;
+    }
+    return maxEntriesInCache;
+  }
+
+    private static boolean isPinnedInCache(final CacheConfiguration ehcacheConfig) {
     return ehcacheConfig.getPinningConfiguration() != null
            && ehcacheConfig.getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
   }
