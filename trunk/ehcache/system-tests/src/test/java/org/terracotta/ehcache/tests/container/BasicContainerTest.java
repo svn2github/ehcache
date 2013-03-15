@@ -42,7 +42,7 @@ public class BasicContainerTest extends AbstractStandaloneTwoServerDeploymentTes
     return server.ping("/" + CONTEXT + "/BasicTestServlet?" + params, con);
   }
 
-  private static class BasicContainerTestSetup extends ContainerTestSetup {
+  private static class BasicContainerTestSetup extends AbstractStandaloneContainerTestSetup {
 
     public BasicContainerTestSetup() {
       super(BasicContainerTest.class, "basic-cache-test.xml", CONTEXT);
