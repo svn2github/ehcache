@@ -254,7 +254,7 @@ public class RecalculateSizeTest extends TestCase {
         int lastValueSize = 0;
         List<ValueSizeToCalculatedSizeTuple> valueSizeToCalculatedSizeList = new ArrayList<RecalculateSizeTest.ValueSizeToCalculatedSizeTuple>();
         while (numChanges <= maxNumChanges && !stop.get()) {
-            lastValueSize = random.nextInt((int) MemoryUnit.MEGABYTES.toBytes(3));
+            lastValueSize = random.nextInt((int) MemoryUnit.KILOBYTES.toBytes(30));
             value = new DynamicSizedValue('A');
             value.setSize(lastValueSize);
             cache.put(new Element(key, value));
