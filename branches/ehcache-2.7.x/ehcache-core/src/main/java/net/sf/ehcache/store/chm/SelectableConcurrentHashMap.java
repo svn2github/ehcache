@@ -526,7 +526,8 @@ public class SelectableConcurrentHashMap {
         }
 
         protected void clear() {
-            writeLock().lock();
+            final WriteLock writeLock = writeLock();
+            writeLock.lock();
             try {
                 if (count != 0) {
                     HashEntry[] tab = table;
@@ -536,12 +537,13 @@ public class SelectableConcurrentHashMap {
                     count = 0; // write-volatile
                 }
             } finally {
-                writeLock().unlock();
+                writeLock.unlock();
             }
         }
 
         Element remove(Object key, int hash, Object value) {
-            writeLock().lock();
+            final WriteLock writeLock = writeLock();
+            writeLock.lock();
             try {
                 int c = count - 1;
                 HashEntry[] tab = table;
@@ -567,14 +569,15 @@ public class SelectableConcurrentHashMap {
                 }
                 return oldValue;
             } finally {
-                writeLock().unlock();
+                writeLock.unlock();
             }
         }
 
         public void recalculateSize(Object key, int hash) {
             Element value = null;
             long oldSize = 0;
-            readLock().lock();
+            final ReadLock readLock = readLock();
+            readLock.lock();
             try {
                 HashEntry[] tab = table;
                 int index = hash & (tab.length - 1);
@@ -589,11 +592,12 @@ public class SelectableConcurrentHashMap {
                     oldSize = e.sizeOf;
                 }
             } finally {
-                readLock().unlock();
+                readLock.unlock();
             }
             if (value != null) {
                 long delta = poolAccessor.replace(oldSize, key, value, storedObject(value), true);
-                writeLock().lock();
+                final WriteLock writeLock = writeLock();
+                writeLock.lock();
                 try {
                     HashEntry e = getFirst(hash);
                     while (e != null && key != e.key) {
@@ -606,14 +610,15 @@ public class SelectableConcurrentHashMap {
                         poolAccessor.delete(delta);
                     }
                 } finally {
-                    writeLock().unlock();
+                    writeLock.unlock();
                 }
             }
         }
 
         protected Element put(Object key, int hash, Element value, long sizeOf, boolean onlyIfAbsent, boolean fire) {
             Element[] evicted = new Element[MAX_EVICTION];
-            writeLock().lock();
+            final WriteLock writeLock = writeLock();
+            writeLock.lock();
             try {
                 int c = count;
                 if (c++ > threshold) // ensure capacity
@@ -674,7 +679,7 @@ public class SelectableConcurrentHashMap {
                 }
                 return oldValue;
             } finally {
-                writeLock().unlock();
+                writeLock.unlock();
                 for (Element element : evicted) {
                     notifyEvictionOrExpiry(element);
                 }
@@ -692,7 +697,8 @@ public class SelectableConcurrentHashMap {
         }
 
         Element get(final Object key, final int hash) {
-            readLock().lock();
+            final ReadLock readLock = readLock();
+            readLock.lock();
             try {
                 if (count != 0) { // read-volatile
                     HashEntry e = getFirst(hash);
@@ -706,12 +712,13 @@ public class SelectableConcurrentHashMap {
                 }
                 return null;
             } finally {
-                readLock().unlock();
+                readLock.unlock();
             }
         }
 
         boolean containsKey(final Object key, final int hash) {
-            readLock().lock();
+            final ReadLock readLock = readLock();
+            readLock.lock();
             try {
                 if (count != 0) { // read-volatile
                     HashEntry e = getFirst(hash);
@@ -723,12 +730,13 @@ public class SelectableConcurrentHashMap {
                 }
                 return false;
             } finally {
-                readLock().unlock();
+                readLock.unlock();
             }
         }
 
         boolean containsValue(Object value) {
-            readLock().lock();
+            final ReadLock readLock = readLock();
+            readLock.lock();
             try {
                 if (count != 0) { // read-volatile
                     HashEntry[] tab = table;
@@ -743,7 +751,7 @@ public class SelectableConcurrentHashMap {
                 }
                 return false;
             } finally {
-                readLock().unlock();
+                readLock.unlock();
             }
         }
 
@@ -776,7 +784,8 @@ public class SelectableConcurrentHashMap {
 
         private boolean evict() {
             Element remove = null;
-            writeLock().lock();
+            final WriteLock writeLock = writeLock();
+            writeLock.lock();
             try {
                 Element evict = nextExpiredOrToEvict(null);
                 if (evict != null) {
@@ -789,7 +798,7 @@ public class SelectableConcurrentHashMap {
                     }
                 }
             } finally {
-                writeLock().unlock();
+                writeLock.unlock();
             }
             notifyEvictionOrExpiry(remove);
             return remove != null;
