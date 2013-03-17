@@ -80,6 +80,11 @@ import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
  * Dynamic changes are however not persistent across cache restarts.  On restart
  * the cache configuration will be reloaded from its original source, erasing any
  * changes made previously at runtime.
+ * <p/>
+ * Users should also take care of synchronizing threads externally, if a CacheConfiguration instance is
+ * going to be mutated by multiple threads concurrently. While CacheConfiguration instances will
+ * make changes properly visible to all threads, logic within individual methods (e.g. validation) isn't
+ * trying to provide any "thread safeness".
  *
  * @author Greg Luck
  * @author Chris Dennis
