@@ -21,15 +21,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 
-public class AbstractStandaloneContainerTestSetup extends StandaloneTwoServerTestSetup {
-  private static final String EHCACHE_OS_DEPS_RESOURCE = "/META-INF/devmode/net.sf.ehcache/ehcache/dependencies.txt";
+public class ContainerTestSetup extends StandaloneTwoServerTestSetup {
+  protected final String ehcacheConfigTemplate;
 
-  private final String        ehcacheConfigTemplate;
-
-  public AbstractStandaloneContainerTestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
+  public ContainerTestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
                                               String ehcacheConfigTemplate, String context) {
     super(testClass, context);
     this.ehcacheConfigTemplate = ehcacheConfigTemplate;
@@ -43,22 +40,24 @@ public class AbstractStandaloneContainerTestSetup extends StandaloneTwoServerTes
 
   protected void addCommonJars(DeploymentBuilder builder) {
     addEhcacheDependencies(builder);
+    addToolkitRuntimeDependencies(builder);
     builder.addDirectoryOrJARContainingClass(Assert.class); // junit
     builder.addDirectoryOrJARContainingClass(LoggerFactory.class); // slf4j-api
     builder.addDirectoryOrJARContainingClass(StaticLoggerBinder.class); // slf4j-log4j
     builder.addDirectoryOrJARContainingClass(org.apache.log4j.LogManager.class); // log4j
-    builder.addDirectoryOrJARContainingClass(Toolkit.class); // toolkit-runtime
   }
 
   private void addEhcacheDependencies(DeploymentBuilder builder) {
-    URL ehcacheDepsResource = AbstractStandaloneContainerTestSetup.class.getResource(EHCACHE_OS_DEPS_RESOURCE);
-    if (ehcacheDepsResource != null) {
-      List<String> jars = TestBaseUtil.jarsFromMavenDependenciesList(ehcacheDepsResource);
-      for (String jar : jars) {
-        builder.addDirectoryOrJAR(jar);
-      }
-    } else {
-      builder.addDirectoryOrJARContainingClass(Ehcache.class);
+    List<String> jars = TestBaseUtil.getEhcacheDependencies(Ehcache.class);
+    for (String jar : jars) {
+      builder.addDirectoryOrJAR(jar);
+    }
+  }
+
+  private void addToolkitRuntimeDependencies(DeploymentBuilder builder) {
+    List<String> jars = TestBaseUtil.getToolkitRuntimeDependencies(Toolkit.class);
+    for (String jar : jars) {
+      builder.addDirectoryOrJAR(jar);
     }
   }
 

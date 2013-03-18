@@ -6,7 +6,7 @@ package org.terracotta.ehcache.tests.container;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
 
-public class AbstractStandaloneContainerJTATestSetup extends AbstractStandaloneContainerTestSetup {
+public class AbstractStandaloneContainerJTATestSetup extends ContainerTestSetup {
 
   public AbstractStandaloneContainerJTATestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
                                                  String ehcacheConfigTemplate, String context) {
