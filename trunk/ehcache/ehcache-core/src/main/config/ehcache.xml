@@ -470,6 +470,12 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     The following attributes and elements are optional.
 
+    maxEntriesInCache:
+    This feature is applicable only to Terracotta distributed caches.
+    Sets the maximum number of entries that can be stored in the cluster. 0 = no limit.
+    Note that clustered cache will still perform eviction if resource usage requires it.
+    This property can be modified dynamically while the cache is operating.
+
     overflowToOffHeap:
     (boolean) This feature is available only in enterprise versions of Ehcache.
     When set to true, enables the cache to utilize off-heap memory
