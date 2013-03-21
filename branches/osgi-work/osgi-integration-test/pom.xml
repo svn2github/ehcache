@@ -11,7 +11,11 @@
   <description>OSGi integration testing</description>
 
   <properties>
-    <exam.version>3.0.0.RC1</exam.version>
+    <ehcache.version>2.8.0-SNAPSHOT</ehcache.version>
+    <toolkit.version>4.1.0-SNAPSHOT</toolkit.version>
+    <quartz.version>3.0.0-SNAPSHOT</quartz.version>
+    <bigmemory.version>4.1.0-SNAPSHOT</bigmemory.version>
+    <exam.version>3.0.1</exam.version>
     <url.version>1.5.0</url.version>
   </properties>
 
@@ -97,21 +101,14 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-ee</artifactId>
-      <version>2.7.0-SNAPSHOT</version>
+      <version>${ehcache.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.terracotta.bigmemory</groupId>
       <artifactId>bigmemory</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.terracotta.license</groupId>
-      <artifactId>license-bundle</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${bigmemory.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -167,14 +164,14 @@
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>terracotta-toolkit-runtime-ee</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
+      <version>${toolkit.version}</version>
       <scope>test</scope>
     </dependency>    
     
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz</artifactId>
-      <version>3.0.0-SNAPSHOT</version>
+      <version>${quartz.version}</version>
       <scope>test</scope>
     </dependency>    
     
