@@ -39,7 +39,7 @@ public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
     private final ToolkitBarrier barrier;
 
     public App(String[] args) {
-      super("test", args);
+      super("dcv2", args);
       this.barrier = getClusteringToolkit().getBarrier("test", NODE_COUNT);
     }
 
