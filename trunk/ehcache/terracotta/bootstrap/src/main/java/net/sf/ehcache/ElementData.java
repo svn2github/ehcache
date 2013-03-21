@@ -19,13 +19,13 @@ import java.io.ObjectOutput;
  * @author Nishant
  */
 public abstract class ElementData implements Externalizable, TimestampedValue {
-  private volatile Object  value;
-  private volatile long    version;
-  private volatile long    creationTime;
-  private volatile long    lastAccessTime;
-  private volatile long    hitCount;
-  private volatile boolean cacheDefaultLifespan;
-  private volatile long    lastUpdateTime;
+  protected volatile Object  value;
+  protected volatile long    version;
+  protected volatile long    creationTime;
+  protected volatile long    lastAccessTime;
+  protected volatile long    hitCount;
+  protected volatile boolean cacheDefaultLifespan;
+  protected volatile long    lastUpdateTime;
 
   public ElementData() {
     // for serialization
@@ -42,12 +42,12 @@ public abstract class ElementData implements Externalizable, TimestampedValue {
   }
 
   /**
-   * This method allows the subclasses to enrich the element with their specific attributes. <br>
-   * It will be called from the public method {@link #createElement(Object)}
+   * This method should return the {@link Element} object constructed from fields of this ElementData.
    * 
-   * @param element the {@link Element} object which the subclass should enrich with specific attributes.
+   * @param key the key which the returned {@link Element} object should have.
+   * @return the Element object constructed from this ElementData.
    */
-  protected abstract void enrichElement(Element element);
+  public abstract Element createElement(final Object key);
 
   /**
    * The subclasses must implement this method to persist any subclass specific attribute while serialization <br>
@@ -94,13 +94,7 @@ public abstract class ElementData implements Externalizable, TimestampedValue {
   }
 
 
-  public Element createElement(final Object key) {
-    Element element = new Element(key, value, version, creationTime, lastAccessTime, hitCount, cacheDefaultLifespan, 0,
-                                  0, lastUpdateTime);
-
-    enrichElement(element);
-    return element;
-  }
+  
 
   public Object getValue() {
     return value;

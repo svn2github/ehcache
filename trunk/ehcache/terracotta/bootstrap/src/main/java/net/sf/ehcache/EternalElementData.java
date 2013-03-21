@@ -20,11 +20,11 @@ public class EternalElementData extends ElementData {
 
   }
 
-
   @Override
-  protected void enrichElement(Element element) {
-    element.setTimeToIdle(0);
-    element.setTimeToLive(0);
+  public Element createElement(final Object key) {
+    Element element = new Element(key, value, version, creationTime, lastAccessTime, hitCount, cacheDefaultLifespan, 0,
+                                  0, lastUpdateTime);
+    return element;
   }
 
 
