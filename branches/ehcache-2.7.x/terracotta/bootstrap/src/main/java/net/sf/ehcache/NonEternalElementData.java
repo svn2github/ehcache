@@ -24,11 +24,11 @@ public class NonEternalElementData extends ElementData {
     timeToLive = element.getTimeToLive();
   }
 
-
   @Override
-  protected void enrichElement(Element element) {
-    element.setTimeToIdle(timeToIdle);
-    element.setTimeToLive(timeToLive);
+  public Element createElement(final Object key) {
+    Element element = new Element(key, value, version, creationTime, lastAccessTime, hitCount, cacheDefaultLifespan,
+                                  timeToLive, timeToIdle, lastUpdateTime);
+    return element;
   }
 
   @Override
