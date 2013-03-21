@@ -769,7 +769,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
             DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-                    SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+                    SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT),
+                    true);
             long sizeInBytes = 0;
             for (Object o : map.values()) {
                 Element element = (Element) o;

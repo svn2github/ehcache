@@ -235,7 +235,8 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         } else {
             DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
                 net.sf.ehcache.config.SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH,
-                SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR == SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT
+                SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR == SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT,
+                true
             );
             sizeInBytes = 0;
             for (Map.Entry<K, Object> entry : backEnd.entrySet()) {

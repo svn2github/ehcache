@@ -94,20 +94,36 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
      * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
      */
     public DefaultSizeOfEngine(int maxDepth, boolean abortWhenMaxDepthExceeded) {
+        this(maxDepth, abortWhenMaxDepthExceeded, false);
+    }
+
+    /**
+     * Creates a default size of engine using the best available sizing algorithm.
+     * @param maxDepth the max object graph that will be traversed.
+     * @param abortWhenMaxDepthExceeded true if the object traversal should be aborted when the max depth is exceeded
+     * @param silent true if no info log explaining which agent was chosen should be printed
+     */
+    public DefaultSizeOfEngine(int maxDepth, boolean abortWhenMaxDepthExceeded, boolean silent) {
         this.maxDepth = maxDepth;
         this.abortWhenMaxDepthExceeded = abortWhenMaxDepthExceeded;
         SizeOf bestSizeOf;
         try {
             bestSizeOf = new AgentSizeOf(DEFAULT_FILTER);
-            LOG.info("using Agent sizeof engine");
+            if (!silent) {
+                LOG.info("using Agent sizeof engine");
+            }
         } catch (UnsupportedOperationException e) {
             try {
                 bestSizeOf = new UnsafeSizeOf(DEFAULT_FILTER);
-                LOG.info("using Unsafe sizeof engine");
+                if (!silent) {
+                    LOG.info("using Unsafe sizeof engine");
+                }
             } catch (UnsupportedOperationException f) {
                 try {
                     bestSizeOf = new ReflectionSizeOf(DEFAULT_FILTER);
-                    LOG.info("using Reflection sizeof engine");
+                    if (!silent) {
+                        LOG.info("using Reflection sizeof engine");
+                    }
                 } catch (UnsupportedOperationException g) {
                     throw new CacheException("A suitable SizeOf engine could not be loaded: " + e + ", " + f + ", " + g);
                 }
