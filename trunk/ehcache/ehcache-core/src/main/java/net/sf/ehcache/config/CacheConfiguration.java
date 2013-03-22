@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.sf.ehcache.config.PinningConfiguration.Store;
 import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
 /**
@@ -1090,15 +1091,16 @@ public class CacheConfiguration implements Cloneable {
     public void setMaxEntriesInCache(int maxEntriesInCache) {
         checkDynamicChange();
         verifyGreaterThanOrEqualToZero((long)maxEntriesInCache, "maxEntriesInCache");
+        checkIfCachePinned(maxEntriesInCache);
         int oldValue = this.maxEntriesInCache;
         this.maxEntriesInCache = maxEntriesInCache;
-        logMaxEntriesInCacheChangeIfCachePinned();
         fireMaxEntriesInCacheChanged(oldValue, this.maxEntriesInCache);
     }
 
-    private void logMaxEntriesInCacheChangeIfCachePinned() {
-        if (getPinningConfiguration() != null && getPinningConfiguration().getStore() != null) {
-            LOG.info("Setting maxEntriesInCache on a pinned cache has no effect");
+    private void checkIfCachePinned(long maxEntriesInCache) {
+        if (maxEntriesInCache != DEFAULT_MAX_ENTRIES_IN_CACHE && 
+                getPinningConfiguration() != null && Store.INCACHE.equals(getPinningConfiguration().getStore())) {
+            throw new InvalidConfigurationException("Setting maxEntriesInCache on an in-cache pinned cache is not legal");
         }
     }
 
