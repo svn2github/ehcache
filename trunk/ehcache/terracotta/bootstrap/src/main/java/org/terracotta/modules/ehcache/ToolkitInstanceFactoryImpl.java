@@ -16,6 +16,7 @@ import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
+import org.terracotta.modules.ehcache.store.CacheConfigChangeBridge;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
@@ -145,7 +146,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
     builder.maxTTLSeconds((int) ehcacheConfig.getTimeToLiveSeconds());
-    builder.maxTotalCount(mapMaxEntriesInCacheToTotalCount(ehcacheConfig.getMaxEntriesInCache()));
+    builder.maxTotalCount(CacheConfigChangeBridge.mapMaxEntriesInCacheToTotalCount(ehcacheConfig.getMaxEntriesInCache()));
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
 
     if (terracottaConfiguration.isSynchronousWrites()) {
@@ -176,13 +177,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     builder.copyOnReadEnabled(ehcacheConfig.isCopyOnRead());
 
     return builder.build();
-  }
-
-  private static int mapMaxEntriesInCacheToTotalCount(int maxEntriesInCache) {
-    if (maxEntriesInCache == 0) {
-      return -1;
-    }
-    return maxEntriesInCache;
   }
 
     private static boolean isPinnedInCache(final CacheConfiguration ehcacheConfig) {
