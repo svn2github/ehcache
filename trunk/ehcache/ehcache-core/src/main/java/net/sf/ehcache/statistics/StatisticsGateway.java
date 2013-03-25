@@ -444,7 +444,7 @@ public class StatisticsGateway implements FlatStatistics {
     }
 
     @Override
-    public long localOfHeapPutCount() {
+    public long localOffHeapPutCount() {
         return localOffHeapPutAddedCount() + localOffHeapPutUpdatedCount();
     }
 

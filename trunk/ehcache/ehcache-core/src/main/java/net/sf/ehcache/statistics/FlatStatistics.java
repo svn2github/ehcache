@@ -164,7 +164,7 @@ public interface FlatStatistics  {
      *
      * @return the long
      */
-    long localOfHeapPutCount();
+    long localOffHeapPutCount();
 
     /**
      * Local off heap remove count.
