@@ -71,6 +71,12 @@
               <directory>${basedir}/src/main/assembly/root</directory>
               <preservePath>true</preservePath>
             </resource>
+            <!-- ehcache.(xsd|xml) -->
+            <resource>
+              <targetPath>${root.dir}</targetPath>
+              <directory>${basedir}/../ehcache-core/src/main/config</directory>
+              <preservePath>true</preservePath>
+            </resource>
             <!-- lib -->
             <resource>
               <targetPath>${root.dir}/lib</targetPath>
