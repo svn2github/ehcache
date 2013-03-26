@@ -3,12 +3,15 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
+import net.sf.ehcache.EternalElementData;
+import net.sf.ehcache.NonEternalElementData;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -34,6 +37,7 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
@@ -67,8 +71,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.event.EventListenerList;
-
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 public class ClusteredStore implements TerracottaStore, StoreListener {
 
@@ -175,7 +177,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
           ToolkitStore<String, Object> serializationHelperStore = toolkitInstanceFactory.getToolkit()
               .getStore("STORE-FOR-SERIALIZATION-HELPER", syncConfiguration, Object.class);
           Element element = new Element("key", "value");
-          serializationHelperStore.put("elementData", valueModeHandler.createElementData(element));
+          serializationHelperStore.put("eternalElementData", new EternalElementData(element));
+          serializationHelperStore.put("nonEternalElementData", new NonEternalElementData(element));
           serializationHelperStore.put("element", element);
           serializationHelperStore.clear();
         }
