@@ -35,7 +35,7 @@ public class AbstractManagementServerTest {
   @Before
   public void setUp() throws Exception {
     ServiceLocator.unload();
-    cacheManager = new CacheManager();
+    cacheManager = createMock(CacheManager.class);
   }
 
   @After
@@ -60,7 +60,7 @@ public class AbstractManagementServerTest {
   
   @Test(expected = CacheException.class)
   /**
-   * Verifies that managementServerstart() calls server.start() and rethrows the exception
+   * Verifies that managementServer.start() calls server.start() and rethrows the exception
    * @throws Exception
    */
   public void startTestException() throws Exception {
