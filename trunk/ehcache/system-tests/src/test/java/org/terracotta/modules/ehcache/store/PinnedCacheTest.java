@@ -62,7 +62,6 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       barrier.await();
 
       if (nodeId == 0) {
-        pinnedInCache.getCacheConfiguration().setMaxEntriesInCache(100);
         for (int i = 0; i < 200; i++) {
           pinnedInCache.put(new Element("key" + i, "value"));
         }
@@ -72,7 +71,6 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       Assert.assertEquals(pinnedInCache.getSize(), 200);
 
       if (nodeId == 1) {
-        pinnedInCache.getCacheConfiguration().setMaxEntriesInCache(100);
         for (int i = 200; i < 400; i++) {
           pinnedInCache.put(new Element("key" + i, "value"));
         }
@@ -81,10 +79,10 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       barrier.await();
       Assert.assertEquals(pinnedInCache.getSize(), 400);
 
-      Cache pinnedInCacheWithMaxOnDisk = new Cache(new CacheConfiguration().name("pinnedInCacheWithMaxOnDisk")
-          .terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(100)
-          .pinning(new PinningConfiguration().store("inCache")));
       try {
+          Cache pinnedInCacheWithMaxOnDisk = new Cache(new CacheConfiguration().name("pinnedInCacheWithMaxOnDisk")
+              .terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(100).maxEntriesInCache(123)
+              .pinning(new PinningConfiguration().store("inCache")));
         cacheManager.addCache(pinnedInCacheWithMaxOnDisk);
         Assert.fail("Expected cache configuration to fail.");
       } catch (InvalidConfigurationException e) {
