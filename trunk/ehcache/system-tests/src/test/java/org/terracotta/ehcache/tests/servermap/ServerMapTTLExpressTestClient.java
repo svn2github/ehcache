@@ -35,8 +35,8 @@ public class ServerMapTTLExpressTestClient extends ServerMapClientBase {
     // eviction is aggressive with new impl based on "evictUnexpiredEntries" with true by default
     assertRange(5000, 7000, cache);
 
-    System.out.println("Sleeping for 1 mins (now=" + new Date() + ") ... ");
-    Thread.sleep(60 * 1000);
+    System.out.println("Sleeping for 3 mins (now=" + new Date() + ") ... ");
+    Thread.sleep(3 * 60 * 1000);
     // Sleep for TTI to kick in:
     // Wait up to 5 min. for the capacity evictor to do its thing.
     int count = 0;

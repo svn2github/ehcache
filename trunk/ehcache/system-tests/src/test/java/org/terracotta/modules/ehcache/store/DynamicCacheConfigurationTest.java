@@ -21,7 +21,6 @@ import com.tc.util.CallableWaiter;
 import java.util.concurrent.Callable;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author cdennis
@@ -35,7 +34,6 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
     private static final double TOLERANCE = 0.1;
-    private long    startTime = 0;
 
     public App(String[] args) {
       super(args);
@@ -47,7 +45,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-//      testTTIChange(cacheManager);
+      testTTIChange(cacheManager);
       testTTLChange(cacheManager);
       testDiskCapacityChange(cacheManager);
       testMemoryCapacityChange(cacheManager);
@@ -56,7 +54,6 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
     }
 
     private Cache createCache(String cacheName, int maxMemory, boolean eternal, long ttl, long tti) {
-      startTime = System.currentTimeMillis();
       return new Cache(new CacheConfiguration(cacheName, maxMemory)
           .eternal(eternal)
           .timeToLiveSeconds(ttl)
@@ -81,8 +78,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(6);
 
-      assertValue(true,cache.get("key1"),12,SECONDS);
-      assertValue(false,cache.get("key2"),12,SECONDS);
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(20);
 
@@ -90,13 +87,13 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(15);
 
-      assertValue(false,cache.get("key1"),27,SECONDS);
-      assertValue(false,cache.get("key2"),27,SECONDS);
+      Assert.assertNotNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       SECONDS.sleep(25);
 
-      assertValue(true,cache.get("key1"),52,SECONDS);
-      assertValue(true,cache.get("key2"),52,SECONDS);
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(4);
 
@@ -105,8 +102,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(8);
 
-      assertValue(true,cache.get("key1"),60,SECONDS);
-      assertValue(true,cache.get("key2"),60,SECONDS);
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
 
       cache.removeAll();
     }
@@ -119,33 +116,31 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
       SECONDS.sleep(6);
 
-      assertValue(false,cache.get("key1"),6,SECONDS);
+      Assert.assertNotNull(cache.get("key1"));
       cache.put(new Element("key2", new byte[0]));
 
-      SECONDS.sleep(5);
+      SECONDS.sleep(6);
 
-      assertValue(true,cache.get("key1"),12,SECONDS);
-      assertValue(false,cache.get("key2"),12,SECONDS);
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(20);
 
       cache.put(new Element("key1", new byte[0]));
 
-for (int c=0;c<4;c++) {
-      SECONDS.sleep(2);
+      SECONDS.sleep(8);
 
-      assertValue(false,cache.get("key1"),20,SECONDS);
-      assertValue(false,cache.get("key2"),20,SECONDS);
-}
+      Assert.assertNotNull(cache.get("key1"));
+      Assert.assertNotNull(cache.get("key2"));
 
       SECONDS.sleep(8);
 
-      assertValue(false,cache.get("key1"),28,SECONDS);
-      assertValue(true,cache.get("key2"),28,SECONDS);
+      Assert.assertNotNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
 
       SECONDS.sleep(10);
 
-      assertValue(true,cache.get("key1"),38,SECONDS);
+      Assert.assertNull(cache.get("key1"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(4);
 
@@ -154,8 +149,8 @@ for (int c=0;c<4;c++) {
 
       SECONDS.sleep(8);
 
-      assertValue(true,cache.get("key1"),46,SECONDS);
-      assertValue(true,cache.get("key2"),46,SECONDS);
+      Assert.assertNull(cache.get("key1"));
+      Assert.assertNull(cache.get("key2"));
 
       cache.removeAll();
     }
@@ -171,14 +166,14 @@ for (int c=0;c<4;c++) {
 
       SECONDS.sleep(6);
 
-      assertValue(true,cache.get("short"),6,SECONDS);
+      Assert.assertNull(cache.get("short"));
 
       SECONDS.sleep(6);
 
-      assertValue(true,cache.get("default"),12,SECONDS);
-      assertValue(false,cache.get("eternal"),12,SECONDS);
-      assertValue(true,cache.get("short"),12,SECONDS);
-      assertValue(false,cache.get("long"),12,SECONDS);
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(20);
 
@@ -187,17 +182,17 @@ for (int c=0;c<4;c++) {
 
       SECONDS.sleep(15);
 
-      assertValue(false,cache.get("default"),27,SECONDS);
-      assertValue(false,cache.get("eternal"),27,SECONDS);
-      assertValue(true,cache.get("short"),27,SECONDS);
-      assertValue(false,cache.get("long"),27,SECONDS);
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(25);
 
-      assertValue(true,cache.get("default"),32,SECONDS);
-      assertValue(false,cache.get("eternal"),32,SECONDS);
-      assertValue(true,cache.get("short"),32,SECONDS);
-      assertValue(false,cache.get("long"),32,SECONDS);
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(4);
 
@@ -206,10 +201,10 @@ for (int c=0;c<4;c++) {
 
       SECONDS.sleep(8);
 
-      assertValue(true,cache.get("default"),40,SECONDS);
-      assertValue(false,cache.get("eternal"),40,SECONDS);
-      assertValue(true,cache.get("short"),40,SECONDS);
-      assertValue(false,cache.get("long"),40,SECONDS);
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.removeAll();
     }
@@ -225,17 +220,17 @@ for (int c=0;c<4;c++) {
 
       SECONDS.sleep(6);
 
-      assertValue(false,cache.get("default"),6,SECONDS);
-      assertValue(false,cache.get("eternal"),6,SECONDS);
-      assertValue(true,cache.get("short"),6,SECONDS);
-      assertValue(false,cache.get("long"),6,SECONDS);
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(6);
 
-      assertValue(true,cache.get("default"),12,SECONDS);
-      assertValue(false,cache.get("eternal"),12,SECONDS);
-      assertValue(true,cache.get("short"),12,SECONDS);
-      assertValue(false,cache.get("long"),12,SECONDS);
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(20);
 
@@ -244,24 +239,24 @@ for (int c=0;c<4;c++) {
 
       SECONDS.sleep(6);
 
-      assertValue(false,cache.get("default"),18,SECONDS);
-      assertValue(false,cache.get("eternal"),18,SECONDS);
-      assertValue(true,cache.get("short"),18,SECONDS);
-      assertValue(false,cache.get("long"),18,SECONDS);
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(6);
 
-      assertValue(false,cache.get("default"),24,SECONDS);
-      assertValue(false,cache.get("eternal"),24,SECONDS);
-      assertValue(true,cache.get("short"),24,SECONDS);
-      assertValue(false,cache.get("long"),24,SECONDS);
+      Assert.assertNotNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       SECONDS.sleep(10);
 
-      assertValue(true,cache.get("default"),34,SECONDS);
-      assertValue(false,cache.get("eternal"),34,SECONDS);
-      assertValue(true,cache.get("short"),34,SECONDS);
-      assertValue(false,cache.get("long"),34,SECONDS);
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.getCacheConfiguration().setTimeToLiveSeconds(4);
 
@@ -270,10 +265,10 @@ for (int c=0;c<4;c++) {
 
       SECONDS.sleep(8);
 
-      assertValue(true,cache.get("default"),42,SECONDS);
-      assertValue(false,cache.get("eternal"),42,SECONDS);
-      assertValue(true,cache.get("short"),42,SECONDS);
-      assertValue(false,cache.get("long"),42,SECONDS);
+      Assert.assertNull(cache.get("default"));
+      Assert.assertNotNull(cache.get("eternal"));
+      Assert.assertNull(cache.get("short"));
+      Assert.assertNotNull(cache.get("long"));
 
       cache.removeAll();
     }
@@ -362,14 +357,5 @@ for (int c=0;c<4;c++) {
       }, 2 * 60 * 1000, 10 * 1000);
     }
 
-    private void assertValue(boolean isNull, Object value, long maxTime, TimeUnit units) {
-        if ( System.currentTimeMillis() - startTime < units.toMillis(maxTime) * 1.10 ) {
-            if ( isNull ) {
-                Assert.assertNull("expecting: " + units.toSeconds(maxTime) + " seconds, took: " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime) + " seconds",value);
-            } else {
-                Assert.assertNotNull("expecting: " + units.toSeconds(maxTime) + " seconds, took: " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime) + " seconds",value);
-            }
-        }
-    }
   }
 }

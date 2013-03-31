@@ -34,8 +34,8 @@ public class ServerMapTTIExpressTestClient extends ServerMapClientBase {
     // assert range as some may already have got evicted while populating
     assertRange(5000, 7000, cache);
 
-    System.out.println("Sleeping for 1 mins (now=" + new Date() + ") ... ");
-    Thread.sleep(60 * 1000);
+    System.out.println("Sleeping for 3 mins (now=" + new Date() + ") ... ");
+    Thread.sleep(3 * 60 * 1000);
     // Sleep for TTI to kick in:
     // Wait up to 30 sec. for the capacity evictor to do its thing.
     int count = 0;
