@@ -62,7 +62,6 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       barrier.await();
 
       if (nodeId == 0) {
-        pinnedInCache.getCacheConfiguration().setMaxEntriesInCache(100);
         for (int i = 0; i < 200; i++) {
           pinnedInCache.put(new Element("key" + i, "value"));
         }
@@ -72,7 +71,6 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       Assert.assertEquals(pinnedInCache.getSize(), 200);
 
       if (nodeId == 1) {
-        pinnedInCache.getCacheConfiguration().setMaxEntriesInCache(100);
         for (int i = 200; i < 400; i++) {
           pinnedInCache.put(new Element("key" + i, "value"));
         }
