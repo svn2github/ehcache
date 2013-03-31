@@ -80,7 +80,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       Assert.assertEquals(pinnedInCache.getSize(), 400);
 
       Cache pinnedInCacheWithMaxOnDisk = new Cache(new CacheConfiguration().name("pinnedInCacheWithMaxOnDisk")
-          .terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(100).setMaxEntriesInCache(123)
+          .terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(100).maxEntriesInCache(123)
           .pinning(new PinningConfiguration().store("inCache")));
       try {
         cacheManager.addCache(pinnedInCacheWithMaxOnDisk);
