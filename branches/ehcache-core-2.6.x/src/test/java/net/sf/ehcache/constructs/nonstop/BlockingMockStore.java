@@ -294,7 +294,7 @@ public class BlockingMockStore implements TerracottaStore {
     }
 
     public void addStoreListener(StoreListener listener) {
-        neverReturn();
+        // neverReturn();
     }
 
     public void removeStoreListener(StoreListener listener) {
