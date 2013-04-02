@@ -413,7 +413,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     By default, this attribute is false.
 
-    If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
     server. When enabled, this allows the client to connect to the new cluster without the
     need to restart the node.

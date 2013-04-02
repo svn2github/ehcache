@@ -1973,7 +1973,7 @@ public class CacheConfiguration implements Cloneable {
 
         final Collection<ConfigError> errors = new ArrayList<ConfigError>();
 
-        verifyClusteredCacheConfiguration(configuration, errors);
+        verifyClusteredCacheConfiguration(errors);
 
         if (maxEntriesLocalHeap == null && !configuration.isMaxBytesLocalHeapSet() && maxBytesLocalHeap == null) {
             errors.add(new CacheConfigError("If your CacheManager has no maxBytesLocalHeap set, you need to either set " +
@@ -2005,7 +2005,7 @@ public class CacheConfiguration implements Cloneable {
         return errors;
     }
 
-    private void verifyClusteredCacheConfiguration(final Configuration configuration, final Collection<ConfigError> errors) {
+    private void verifyClusteredCacheConfiguration(final Collection<ConfigError> errors) {
         if (!isTerracottaClustered()) { return; }
 
         if (getPinningConfiguration() != null && getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE
@@ -2029,8 +2029,6 @@ public class CacheConfiguration implements Cloneable {
           errors.add(new CacheConfigError("maxElementsOnDisk is not used with clustered caches. Use maxEntriesInCache " +
                                           "to set maximum cache size.", getName()));
         }
-
-        validateTerracottaConfig(configuration, errors);
     }
 
     /**
@@ -2063,13 +2061,6 @@ public class CacheConfiguration implements Cloneable {
                                             "wide value was configured", getName()));
         }
         return errors;
-    }
-
-    private void validateTerracottaConfig(final Configuration configuration, final Collection<ConfigError> errors) {
-        final TerracottaClientConfiguration clientConfiguration = configuration.getTerracottaConfiguration();
-        if (clientConfiguration != null && clientConfiguration.isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
-            errors.add(new CacheConfigError("Terracotta clustered caches must be nonstop when rejoin is enabled.", getName()));
-        }
     }
 
     /**
