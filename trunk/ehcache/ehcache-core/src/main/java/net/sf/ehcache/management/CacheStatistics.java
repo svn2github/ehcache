@@ -78,7 +78,7 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
         } catch (MalformedObjectNameException e) {
             throw new CacheException(e);
         }
-        return objectName;
+        return objectName; 
     }
     
     /**
@@ -126,12 +126,12 @@ public class CacheStatistics implements CacheStatisticsMBean, Serializable {
      * @return the number of times a requested element was not found in the cache
      */
     public long getCacheMisses() {
-        return statistics.cacheHitCount();
+        return statistics.cacheMissCount();
     }
 
     /** {@inheritDoc} */
     public long getInMemoryMisses() {
-        return statistics.cacheMissCount();
+        return statistics.localHeapMissCount();
     }
 
     /** {@inheritDoc} */
