@@ -172,6 +172,7 @@ public class ProcessingBucket<E extends Serializable> {
 
   private void destroyToolkitList() {
     try {
+      debug("destroying bucket " + toolkitList.getName());
       toolkitList.destroy();
     } catch (Throwable t) {
       if (t.getClass().getName().equals("com.tc.exception.TCNotRunningException") && !cluster.areOperationsEnabled()) {
