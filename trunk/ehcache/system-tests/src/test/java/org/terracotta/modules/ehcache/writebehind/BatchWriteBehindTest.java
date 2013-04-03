@@ -6,8 +6,11 @@ package org.terracotta.modules.ehcache.writebehind;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.AbstractCacheWriter;
+import net.sf.ehcache.writer.CacheWriter;
+import net.sf.ehcache.writer.CacheWriterFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
@@ -20,8 +23,8 @@ import com.tc.test.config.model.TestConfig;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -62,8 +65,6 @@ public class BatchWriteBehindTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(final Cache cache, Toolkit toolkit) throws Throwable {
-      BatchCacheWriter cacheWriter = new BatchCacheWriter(this);
-      cache.registerCacheWriter(cacheWriter);
       for (int i = 0; i < ELEMENT_COUNT; i++) {
         cache.putWithWriter(new Element("key" + i % 200, "value" + i)); // 200 different keys, write operation
         if (0 == i % 10) {
@@ -99,26 +100,27 @@ public class BatchWriteBehindTest extends AbstractCacheTestBase {
     }
   }
 
-  public static class BatchCacheWriter extends AbstractCacheWriter {
-    private final AbstractWriteBehindClient writeBehindClient;
-    private final ArrayList<Class>          operationList = new ArrayList<Class>();
-
-    public ArrayList<Class> getOperationList() {
-      return operationList;
+  public static class BatchCacheWriterFactory extends CacheWriterFactory {
+    @Override
+    public CacheWriter createCacheWriter(Ehcache cache, Properties properties) {
+      return new BatchCacheWriter();
     }
+  }
 
-    public BatchCacheWriter(AbstractWriteBehindClient writeBehindClient) {
-      this.writeBehindClient = writeBehindClient;
+  public static class BatchCacheWriter extends AbstractCacheWriter {
+    private final AtomicLong writeCount  = new AtomicLong();
+    private final AtomicLong deleteCount = new AtomicLong();
+
+    public BatchCacheWriter() {
+      // nothing to do
     }
 
     @Override
     public void write(Element element) throws CacheException {
-      operationList.add(element.getClass());
-      writeBehindClient.incrementWriteCount();
-      System.err.println("[WriteBehindCacheWriter written " + writeBehindClient.getWriteCount() + " for "
-                         + writeBehindClient.getClass().getName() + "]");
+      writeCount.incrementAndGet();
+      System.err.println("[WriteBehindCacheWriter written " + writeCount.get() + " for BatchWriteBehindTestClient]");
       try {
-        Thread.sleep(writeBehindClient.getSleepBetweenWrites());
+        Thread.sleep(100L);
       } catch (InterruptedException e) {
         // no-op
       }
@@ -126,6 +128,7 @@ public class BatchWriteBehindTest extends AbstractCacheTestBase {
 
     @Override
     public void writeAll(Collection<Element> elements) throws CacheException {
+      System.err.println("WriteBehindCacheWriter writeAll " + elements.size());
       for (Element element : elements) {
         write(element);
       }
@@ -133,12 +136,10 @@ public class BatchWriteBehindTest extends AbstractCacheTestBase {
 
     @Override
     public void delete(CacheEntry entry) throws CacheException {
-      operationList.add(entry.getClass());
-      writeBehindClient.incrementDeleteCount();
-      System.err.println("[WriteBehindCacheWriter deleted " + writeBehindClient.getDeleteCount() + " for "
-                         + writeBehindClient.getClass().getName() + "]");
+      deleteCount.incrementAndGet();
+      System.err.println("[WriteBehindCacheWriter deleted " + deleteCount.get() + " for BatchWriteBehindTestClient]");
       try {
-        Thread.sleep(writeBehindClient.getSleepBetweenDeletes());
+        Thread.sleep(100L);
       } catch (InterruptedException e) {
         // no-op
       }
@@ -146,6 +147,7 @@ public class BatchWriteBehindTest extends AbstractCacheTestBase {
 
     @Override
     public void deleteAll(Collection<CacheEntry> entries) throws CacheException {
+      System.err.println("WriteBehindCacheWriter deleteAll " + entries.size());
       for (CacheEntry entry : entries) {
         delete(entry);
       }
