@@ -244,15 +244,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   private void stopNow() {
     debug("stopNow localBuckets " + localBuckets.size() + " | deadBuckets " + deadBuckets.size());
-    int localSize = 0;
-    for (ProcessingBucket<E> bucket : localBuckets) {
-      localSize += bucket.getWaitCount();
-    }
-    int deadSize = 0;
-    for (ProcessingBucket<E> bucket : deadBuckets) {
-      deadSize += bucket.getWaitCount();
-    }
-    debug("stopNow localSize " + localSize + " | deadSize " + deadSize);
     nodeWriteLock.lock();
     try {
       stopBucketsNow(localBuckets);

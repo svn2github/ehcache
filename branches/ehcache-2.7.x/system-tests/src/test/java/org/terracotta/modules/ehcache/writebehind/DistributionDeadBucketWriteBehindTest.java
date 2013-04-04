@@ -22,8 +22,8 @@ public class DistributionDeadBucketWriteBehindTest extends AbstractCacheTestBase
   private int totalDeleteCount = 0;
 
   public DistributionDeadBucketWriteBehindTest(TestConfig testConfig) {
-    super("basic-writebehind-test.xml", testConfig, DeadBucketWriteBehindClient.class, DeadBucketWriteBehindClient.class,
-          DeadBucketWriteBehindClient.class, DeadBucketWriteBehindClient.class);
+    super("basic-writebehind-test.xml", testConfig);
+    testConfig.getClientConfig().setClientClasses(DeadBucketWriteBehindClient.class, NODE_COUNT);
     configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
   }
 

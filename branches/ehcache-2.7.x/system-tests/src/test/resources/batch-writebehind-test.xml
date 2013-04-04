@@ -10,8 +10,10 @@
            maxElementsInMemory="10000"
            eternal="true">
 
-        <cacheWriter writeMode="write_behind" writeBatching="true" writeBatchSize="40"/>
-        <terracotta clustered="true"/>
+        <cacheWriter writeMode="write_behind" writeBatching="true" writeBatchSize="40">
+        	<cacheWriterFactory class="org.terracotta.modules.ehcache.writebehind.BatchWriteBehindTest$BatchCacheWriterFactory"/>
+        </cacheWriter>
+        <terracotta consistency="strong"/>
     </cache>
 
     <terracottaConfig url="localhost:PORT"/>
