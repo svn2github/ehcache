@@ -13,11 +13,11 @@
   <artifactId>ehcache-root</artifactId>
   <packaging>pom</packaging>
   <version>2.8.0-SNAPSHOT</version>
-  
+
   <properties>
     <slf4j.version>1.6.6</slf4j.version>
     <sizeof-agent.version>1.0.1</sizeof-agent.version>
-    <maven-forge-plugin.version>1.0.7</maven-forge-plugin.version>
+    <maven-forge-plugin.version>1.0.8-SNAPSHOT</maven-forge-plugin.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <surefire.version>2.10</surefire.version>
     <terracotta-toolkit-api.version>2.1-SNAPSHOT</terracotta-toolkit-api.version>
@@ -32,7 +32,7 @@
     <module>management-ehcache-impl</module>
     <module>ehcache-scheduled-refresh</module>
   </modules>
-  
+
   <dependencyManagement>
     <dependencies>
       <!-- Required dependencies -->
@@ -300,6 +300,13 @@
       <plugin>
         <groupId>org.terracotta</groupId>
         <artifactId>maven-forge-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>com.sag</groupId>
+            <artifactId>finder</artifactId>
+            <version>1.0.0</version>
+          </dependency>
+        </dependencies>        
         <executions>
           <execution>
             <id>generateBuildInfoFile</id>
@@ -311,6 +318,18 @@
               <generateBuildInfoFile>true</generateBuildInfoFile>
               <buildInfoLocation>${project.build.outputDirectory}</buildInfoLocation>
             </configuration>
+          </execution>
+          <execution>
+            <id>run-sag-finder</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>sag-finder</goal>
+            </goals>
+            <configuration>
+              <onlyRunWhenSagDepsIsTrue>true</onlyRunWhenSagDepsIsTrue>
+              <excludeGroupIds>gf-3122</excludeGroupIds>
+              <excludeArtifactIds>jackson-xc</excludeArtifactIds>
+            </configuration>            
           </execution>
         </executions>
       </plugin>    
@@ -336,7 +355,7 @@
       </modules>
     </profile>
   </profiles>
-  
+
   <repositories>
     <repository>
       <id>terracotta-snapshots</id>
@@ -347,7 +366,7 @@
       <url>http://www.terracotta.org/download/reflector/releases</url>
     </repository>
   </repositories>
-  
+
   <pluginRepositories>
     <pluginRepository>
       <id>terracotta-snapshots</id>
