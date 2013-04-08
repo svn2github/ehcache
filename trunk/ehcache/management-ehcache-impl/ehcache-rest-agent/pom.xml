@@ -151,6 +151,32 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.terracotta</groupId>
+            <artifactId>maven-forge-plugin</artifactId>
+            <version>1.0.8-SNAPSHOT</version>
+            <dependencies>
+              <dependency>
+                <groupId>com.sag</groupId>
+                <artifactId>finder</artifactId>
+                <version>1.0.0</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>run-sag-finder</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>sag-finder</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <onlyRunWhenSagDepsIsTrue>true</onlyRunWhenSagDepsIsTrue>
+              <excludeGroupIds>gf-3122</excludeGroupIds>
+              <excludeArtifactIds>jackson-xc</excludeArtifactIds>
+            </configuration>
+          </plugin>            
+          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
             <configuration>
