@@ -377,18 +377,6 @@
         </plugins>
       </build>
     </profile>
-
-    <profile>
-      <id>skipJavadoc</id>
-      <properties>
-        <skipJavadoc>true</skipJavadoc>
-      </properties>
-      <activation>
-        <file>
-          <exists>${user.home}/.skipJavadoc</exists>
-        </file>
-      </activation>
-    </profile>
   </profiles>
 
   <repositories>
