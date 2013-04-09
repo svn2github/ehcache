@@ -148,6 +148,8 @@
                     <goals>
                       <goal>manifest</goal>
                       <goal>buildinfo</goal>
+                      <goal>sag-finder</goal>
+                      <goal>setl2classpath</goal>                      
                     </goals>
                   </pluginExecutionFilter>
                   <action>
