@@ -24,7 +24,6 @@ import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
 
-import org.hamcrest.number.OrderingComparison;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -41,7 +40,10 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.*;
 
 /**
@@ -406,7 +408,7 @@ public class MemoryStoreTester extends AbstractCacheTest {
     public void testMemoryLeak() throws Exception {
         try {
             //Sometimes this can be higher but a three hour run confirms no memory leak. Consider increasing.
-            assertThat(thrashCache(), OrderingComparison.lessThan(500000L));
+            assertThat(thrashCache(), lessThan(500000L));
         } catch (AssertionError e) {
             for (Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
                 new ThreadDumpException(entry.getKey(), entry.getValue()).printStackTrace(System.out);
@@ -627,6 +629,27 @@ public class MemoryStoreTester extends AbstractCacheTest {
         }
 
         Assert.assertEquals(20, store.getSize());
+    }
+
+    /**
+     * Tests adding an entry.
+     */
+    @Test
+    public void testPreSizedMemoryStore() throws Exception {
+        System.setProperty(MemoryStore.class.getName() + ".presize", "true");
+        try {
+            CacheManager manager = new CacheManager(new Configuration().name("testPreSizedMemoryStore"));
+            Cache cache = new Cache(new CacheConfiguration().name("testPreSizedMemoryStore").maxEntriesLocalHeap(1000));
+            manager.addCache(cache);
+            
+            for (int i = 0; i == cache.getSize(); i++) {
+              cache.put(new Element(i, i));
+            }
+            
+            assertThat(cache.getSize(), greaterThan(0));
+        } finally {
+            System.clearProperty(MemoryStore.class.getName() + ".presize");
+        }
     }
 
     static class ThreadDumpException extends Throwable {

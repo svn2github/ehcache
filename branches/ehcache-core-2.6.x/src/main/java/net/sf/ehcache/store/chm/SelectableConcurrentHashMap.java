@@ -50,6 +50,18 @@ public class SelectableConcurrentHashMap {
     protected static final Element DUMMY_PINNED_ELEMENT = new Element(new DummyPinnedKey(), new DummyPinnedValue());
 
     /**
+     * The default initial capacity for this table,
+     * used when not otherwise specified in a constructor.
+     */
+    static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+    /**
+     * The default load factor for this table, used when not
+     * otherwise specified in a constructor.
+     */
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+    /**
      * The maximum capacity, used if a higher value is implicitly
      * specified by either of the constructors with arguments.  MUST
      * be a power of two <= 1<<30 to ensure that entries are indexable
@@ -98,6 +110,10 @@ public class SelectableConcurrentHashMap {
     private Set<Map.Entry<Object,Element>> entrySet;
     private Collection<Element> values;
 
+    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
+      this(poolAccessor, elementPinningEnabled, DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, concurrency, maximumSize, cacheEventNotificationService);
+    }
+    
     public SelectableConcurrentHashMap(PoolAccessor poolAccessor, boolean elementPinningEnabled, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
         if (!(loadFactor > 0) || initialCapacity < 0 || concurrency <= 0)
             throw new IllegalArgumentException();
