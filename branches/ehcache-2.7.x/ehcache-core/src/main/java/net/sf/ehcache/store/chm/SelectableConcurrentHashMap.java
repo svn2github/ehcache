@@ -51,6 +51,18 @@ import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 public class SelectableConcurrentHashMap {
 
     /**
+     * The default initial capacity for this table,
+     * used when not otherwise specified in a constructor.
+     */
+    static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+    /**
+     * The default load factor for this table, used when not
+     * otherwise specified in a constructor.
+     */
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+    /**
      * The maximum capacity, used if a higher value is implicitly
      * specified by either of the constructors with arguments.  MUST
      * be a power of two <= 1<<30 to ensure that entries are indexable
@@ -98,6 +110,10 @@ public class SelectableConcurrentHashMap {
     private Collection<Element> values;
 
     private final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
+    
+    public SelectableConcurrentHashMap(PoolAccessor poolAccessor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
+      this(poolAccessor, DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, concurrency, maximumSize, cacheEventNotificationService);
+    }
     
     public SelectableConcurrentHashMap(PoolAccessor poolAccessor, int initialCapacity, float loadFactor, int concurrency, final long maximumSize, final RegisteredEventListeners cacheEventNotificationService) {
         if (!(loadFactor > 0) || initialCapacity < 0 || concurrency <= 0)

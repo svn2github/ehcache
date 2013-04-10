@@ -192,13 +192,17 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.storePinned = determineStorePinned(cache.getCacheConfiguration());
 
-        // create the CHM with initialCapacity sufficient to hold maximumSize
-        final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
-        int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, loadFactor);
         int maximumCapacity = isClockEviction() && !storePinned ? maximumSize : 0;
         RegisteredEventListeners eventListener = notify ? cache.getCacheEventNotificationService() : null;
-        this.map = factory.newBackingMap(poolAccessor, initialCapacity,
-                loadFactor, CONCURRENCY_LEVEL, maximumCapacity, eventListener);
+        if (Boolean.getBoolean(MemoryStore.class.getName() + ".presize")) {
+            // create the CHM with initialCapacity sufficient to hold maximumSize
+            final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
+            int initialCapacity = getInitialCapacityForLoadFactor(maximumSize, loadFactor);
+            this.map = factory.newBackingMap(poolAccessor, initialCapacity,
+                    loadFactor, CONCURRENCY_LEVEL, maximumCapacity, eventListener);
+        } else {
+            this.map = factory.newBackingMap(poolAccessor, CONCURRENCY_LEVEL, maximumCapacity, eventListener);
+        }
 
         this.status = Status.STATUS_ALIVE;
 
@@ -1279,14 +1283,33 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
          * @param eventListener event listener (or {@code null} for no notifications)
          * @return a backing map
          */
+        @Deprecated
         SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, int initialCapacity,
                 float loadFactor, int concurrency, int maximumCapacity, RegisteredEventListeners eventListener);
+
+        /**
+         * Create a MemoryStore backing map.
+         *
+         * @param poolAccessor on-heap pool accessor
+         * @param concurrency map concurrency
+         * @param maximumCapacity maximum store capacity
+         * @param eventListener event listener (or {@code null} for no notifications)
+         * @return a backing map
+         */
+        SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, int concurrency,
+                int maximumCapacity, RegisteredEventListeners eventListener);
     }
 
     /**
      * Simple backing map factory.
      */
     static class BasicBackingFactory implements BackingFactory {
+
+        @Override
+        public SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, int concurrency,
+                int maximumCapacity, RegisteredEventListeners eventListener) {
+            return new SelectableConcurrentHashMap(poolAccessor, concurrency, maximumCapacity, eventListener);
+        }
 
         @Override
         public SelectableConcurrentHashMap newBackingMap(PoolAccessor poolAccessor, int initialCapacity,
