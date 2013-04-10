@@ -27,10 +27,12 @@ import net.sf.ehcache.Element;
 public interface ElementValueComparator {
 
     /**
-     * Compare if the two element values are equal
-     * @param e1 the first element to compare
-     * @param e2 the second element to compare
-     * @return true if both element values are equal
+     * Compare the two elements.
+     * Null values have to be supported.
+     *
+     * @param e1 element to compare
+     * @param e2 element to compare
+     * @return {@code true} if the elements are equal
      */
     boolean equals(Element e1, Element e2);
 

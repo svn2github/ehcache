@@ -22,7 +22,8 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import java.util.Arrays;
 
 /**
- * @author Ludovic Orban
+ * DefaultElementValueComparator does compare the values on the two elements
+ * based on their {@link Object#equals(Object) equals} contract
  */
 public class DefaultElementValueComparator implements ElementValueComparator {
 

@@ -1299,6 +1299,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the ElementValueComparatorConfiguration for this cache
+     * The default configuration will setup a {@link net.sf.ehcache.store.DefaultElementValueComparator}
      *
      * @param elementValueComparatorConfiguration the ElementComparator Configuration
      */

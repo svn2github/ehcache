@@ -176,12 +176,22 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
-     * is equal to the value of the cached Element.
+     * compares equal to the value of the cached Element.
+     * <p>
+     * This is equivalent to
+     * <pre>
+     *   if (elementValueComparator.equals(cache.get(element.getObjectKey()), element)) {
+     *       return cache.remove(element.getObjectKey());
+     *   } else return false;
+     * </pre>
+     * except that the action is performed atomically.
      *
      * @param element Element to be removed
-     * @return true if the value was removed
+     * @return {@code true} if the value was removed
      *
      * @throws NullPointerException if the element is null, or has a null key
+     *
+     * @see net.sf.ehcache.config.CacheConfiguration#addElementValueComparator(net.sf.ehcache.config.ElementValueComparatorConfiguration)
      */
     boolean removeElement(Element element) throws NullPointerException;
 
