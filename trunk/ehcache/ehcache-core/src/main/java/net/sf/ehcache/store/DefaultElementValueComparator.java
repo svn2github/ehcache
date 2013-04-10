@@ -24,6 +24,8 @@ import java.util.Arrays;
 /**
  * DefaultElementValueComparator does compare the values on the two elements
  * based on their {@link Object#equals(Object) equals} contract
+ *
+ * @author Ludovic Orban
  */
 public class DefaultElementValueComparator implements ElementValueComparator {
 
