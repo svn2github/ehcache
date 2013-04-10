@@ -122,12 +122,12 @@ public class DSOMBeanController implements DSOMBean {
     }
   }
 
-  public long getObjectFaultRate() {
+  public long getReadOperationRate() {
     try {
       return performL2MBeanTCServerInfo(new DSOMBeanAction<Long>() {
 
         public Long performL2ControlBeanAction(DSOMBean dsoMBean) {
-          return dsoMBean.getObjectFaultRate();
+          return dsoMBean.getReadOperationRate();
         }
 
       });

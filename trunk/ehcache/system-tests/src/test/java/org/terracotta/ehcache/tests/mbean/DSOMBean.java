@@ -20,7 +20,7 @@ public interface DSOMBean {
 
   long getGlobalServerMapGetValueRequestsRate();
 
-  long getObjectFaultRate();
+  long getReadOperationRate();
 
   Map<ObjectName, Long> getServerMapGetSizeRequestsCount();
 
