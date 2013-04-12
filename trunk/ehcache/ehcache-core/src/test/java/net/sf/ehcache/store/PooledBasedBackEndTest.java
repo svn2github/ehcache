@@ -124,11 +124,11 @@ public class PooledBasedBackEndTest {
                     switch(r.nextInt(7)) {
                         case 0:
 //                          SEE EHC-1006
-//                            rv = pooledBasedBackEnd.getRandomValues(1);
-//                            if (!rv.isEmpty() && rv.get(0) != null) {
-//                                pooledBasedBackEnd.recalculateSize(rv.get(0));
-//                            }
-//                            break;
+                            rv = pooledBasedBackEnd.getRandomValues(1);
+                            if (!rv.isEmpty() && rv.get(0) != null) {
+                                pooledBasedBackEnd.recalculateSize(rv.get(0));
+                            }
+                            break;
                         case 1 :
                             rv = pooledBasedBackEnd.getRandomValues(1);
                             if (!rv.isEmpty() && rv.get(0) != null) {
@@ -144,12 +144,12 @@ public class PooledBasedBackEndTest {
                         case 3 :
                             rv = pooledBasedBackEnd.getRandomValues(2);
                             if (rv.size() > 1 && rv.get(0) != null && rv.get(1) != null ) {
-                                pooledBasedBackEnd.replace(rv.get(0), rv.get(0), rv.get(1));
+                                pooledBasedBackEnd.replace(rv.get(0), rv.get(0), new String(rv.get(1)));
                             }
                             break;
                         default:
                             kv = Integer.toString(r.nextInt(20000));
-                            pooledBasedBackEnd.putIfAbsent(kv, kv);
+                            pooledBasedBackEnd.putIfAbsent(kv, new String(kv));
                     }
                 }
             }
