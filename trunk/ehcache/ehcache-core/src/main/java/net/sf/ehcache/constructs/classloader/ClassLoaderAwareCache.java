@@ -1719,15 +1719,22 @@ public class ClassLoaderAwareCache implements Ehcache {
      *
      */
     private class ClassLoaderAwareList extends AbstractList {
-        private final Collection delegate;
+        private final List delegate;
 
-        public ClassLoaderAwareList(final Collection delegate) {
+        public ClassLoaderAwareList(final List delegate) {
             this.delegate = delegate;
         }
 
         @Override
         public Object get(int index) {
-            throw new UnsupportedOperationException("get(index) not supported for this List");
+            Thread t = Thread.currentThread();
+            ClassLoader prev = t.getContextClassLoader();
+            t.setContextClassLoader(classLoader);
+            try {
+                return this.delegate.get(index);
+            } finally {
+                t.setContextClassLoader(prev);
+            }
         }
 
         @Override
