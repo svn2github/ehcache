@@ -1207,8 +1207,11 @@ public class ConcurrentHashMap<K, V>
         if ((key instanceof Comparable) &&
             (tab.length() >= MAXIMUM_CAPACITY || counter.sum() < (long)sizeCtl)) {
             TreeBin t = new TreeBin();
-            for (Node e = tabAt(tab, index); e != null; e = e.next)
-                t.putTreeNode(e.hash & HASH_BITS, e.key, e.val);
+            for (Node e = tabAt(tab, index); e != null; e = e.next) {
+                t.putTreeNode(e.hash & HASH_BITS, e.key, e.val, e.size);
+                e.val = null;
+                e.size = -1;
+            }
             setTabAt(tab, index, new Node(MOVED, t, null, null));
         }
     }
@@ -1253,7 +1256,7 @@ public class ConcurrentHashMap<K, V>
         Object oldVal = null;
         final int newSize;
         if (v != null) {
-            newSize = (int)poolAccessor.add(k, v, cv, true);
+            newSize = (int)poolAccessor.add(k, v, FAKE_TREE_NODE, true);
         } else {
             newSize = 0;
         }
@@ -1281,7 +1284,7 @@ public class ConcurrentHashMap<K, V>
                                         t.deleteTreeNode(p);
                                     }
                                     poolAccessor.delete(p.size);
-                                    p.size = newSize > 0 ? newSize : 0;
+                                    p.size = deleted ? -1 : newSize;
                                 }
                             }
                         }
@@ -1332,7 +1335,7 @@ public class ConcurrentHashMap<K, V>
                                             setTabAt(tab, i, en);
                                     }
                                     poolAccessor.delete(e.size);
-                                    e.size = deleted ? 0 : newSize;
+                                    e.size = deleted ? -1 : newSize;
                                 }
                                 break;
                             }
@@ -1944,12 +1947,14 @@ public class ConcurrentHashMap<K, V>
             Object k = e.key, v = e.val;
             if ((h & bit) == 0) {
                 ++lc;
-                lt.putTreeNode(h, k, v);
+                lt.putTreeNode(h, k, v, e.size);
             }
             else {
                 ++hc;
-                ht.putTreeNode(h, k, v);
+                ht.putTreeNode(h, k, v, e.size);
             }
+            e.val = null;
+            e.size = -1;
         }
         Node ln, hn; // throw away trees if too small
         if (lc <= (TREE_THRESHOLD >>> 1)) {
