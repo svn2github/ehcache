@@ -43,6 +43,21 @@ public class ConcurrentHashMapTest {
     }
 
     @Test
+    public void testReplaceWithWeirdBehavior() {
+        ConcurrentHashMap<String, Element> elementMap = new ConcurrentHashMap<String, Element>();
+        final Element initialElement = new Element("key", "foo");
+        elementMap.put("key", initialElement);
+        assertThat(elementMap.replace("key", initialElement, new Element("key", "foo")), is(true));
+        assertThat(elementMap.replace("key", initialElement, new Element("key", "foo")), is(false));
+
+        ConcurrentHashMap<String, String> stringMap = new ConcurrentHashMap<String, String>();
+        final String initialString = "foo";
+        stringMap.put("key", initialString);
+        assertThat(stringMap.replace("key", initialString, new String(initialString)), is(true));
+        assertThat(stringMap.replace("key", initialString, new String(initialString)), is(true));
+    }
+
+    @Test
     public void testRandomValues() {
         ConcurrentHashMap<Object, KeyHolder<Object>> map = new ConcurrentHashMap<Object, KeyHolder<Object>>();
 
