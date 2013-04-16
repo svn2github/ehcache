@@ -1663,34 +1663,41 @@ public class Cache implements InternalEhcache, StoreListener {
         }
 
         if (keys.isEmpty()) {
+            getAllObserver.end(GetAllOutcome.ALL_HIT, 0, 0);
             return Collections.EMPTY_MAP;
         }
 
         Map<Object, Element> elements = compoundStore.getAll(keys);
-
-        long misses = 0;
+        Set<Object> expired = new HashSet<Object>();
         for (Entry<Object, Element> entry : elements.entrySet()) {
             Object key = entry.getKey();
             Element element = entry.getValue();
-            if (element == null) {
-                misses++;
-            } else {
+            if (element != null) {
                 if (isExpired(element)) {
                     tryRemoveImmediately(key, true);
-                    elements.remove(key);
-                    misses++;
+                    expired.add(key);
                 } else {
                     element.updateAccessStatistics();
                 }
             }
         }
-        int requests = elements.size();
-        if (misses == 0) {
+        if (!expired.isEmpty()) {
+          try {
+              elements.keySet().removeAll(expired);
+          } catch (UnsupportedOperationException e) {
+              elements = new HashMap(elements);
+              elements.keySet().removeAll(expired);
+          }
+        }
+
+        int requests = keys.size();
+        int hits = elements.size();
+        if (hits == 0) {
+            getAllObserver.end(GetAllOutcome.ALL_MISS, 0, requests);
+        } else if (requests == hits) {
             getAllObserver.end(GetAllOutcome.ALL_HIT, requests, 0);
-        } else if (misses == requests) {
-            getAllObserver.end(GetAllOutcome.ALL_MISS, 0, misses);
         } else {
-            getAllObserver.end(GetAllOutcome.PARTIAL, requests - misses, misses);
+            getAllObserver.end(GetAllOutcome.PARTIAL, hits, requests - hits);
         }
         return elements;
     }
