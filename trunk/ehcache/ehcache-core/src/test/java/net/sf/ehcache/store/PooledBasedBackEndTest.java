@@ -166,9 +166,6 @@ public class PooledBasedBackEndTest {
             thread.join();
         }
 
-        System.out.println(pooledBasedBackEnd.size());
-        System.out.println(poolAccessor.sum.get());
-
         for (String s : pooledBasedBackEnd.keySet()) {
             pooledBasedBackEnd.remove(s);
         }
