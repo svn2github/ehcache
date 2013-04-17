@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.NonStopCacheLockProvider;
+import org.terracotta.modules.ehcache.store.TerracottaStoreInitializationService;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopExceptionOnTimeoutConfiguration;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.toolkit.Toolkit;
@@ -49,18 +50,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class NonStopStoreWrapper implements TerracottaStore {
 
   private static final Logger                                 LOGGER                            = LoggerFactory
                                                                                                     .getLogger(NonStopStoreWrapper.class);
-
-  private static final long                                   TIME_TO_WAIT_FOR_CACHE_TO_INIT    = Long
-                                                                                                    .getLong("com.tc.non.stop.time.to.wait.for.cache.init.millis",
-                                                                                                             TimeUnit.SECONDS
-                                                                                                                 .toMillis(20));
 
   private static final long                                   TIME_TO_WAIT_FOR_ASYNC_STORE_INIT = Long
                                                                                                     .getLong("com.tc.non.stop.async.store.init",
@@ -88,6 +83,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   private volatile TerracottaStore                            localReadDelegate;
   private final BulkOpsToolkitNonStopConfiguration            bulkOpsToolkitNonStopConfiguration;
   private final ClusteredCacheInternalContext                 clusteredCacheInternalContext;
+  private final TerracottaStoreInitializationService                    initializationService;
 
   private final Ehcache                                       cache;
 
@@ -95,8 +91,10 @@ public class NonStopStoreWrapper implements TerracottaStore {
   private volatile Throwable                                  exceptionDuringInitialization     = null;
 
   public NonStopStoreWrapper(Callable<TerracottaStore> clusteredStoreCreator,
-                             ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache) {
+                             ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache,
+                             TerracottaStoreInitializationService initializationService) {
     this.cache = cache;
+    this.initializationService = initializationService;
     this.nonStop = toolkitInstanceFactory.getToolkit().getFeature(ToolkitFeatureType.NONSTOP);
     this.ehcacheNonStopConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration()
         .getNonstopConfiguration();
@@ -119,25 +117,14 @@ public class NonStopStoreWrapper implements TerracottaStore {
   }
 
   private void createStoreAsynchronously(final Toolkit toolkit, Callable<TerracottaStore> clusteredStoreCreator) {
-    CountDownLatch initLatch = new CountDownLatch(1);
+    initializationService.initialize(createInitRunnable(clusteredStoreCreator), ehcacheNonStopConfiguration);
 
-    Thread t = new Thread(createInitRunnable(clusteredStoreCreator, initLatch), "init Store asynchronously "
-                                                                                + cache.getName());
-    t.setDaemon(true);
-    t.start();
-
-    try {
-      initLatch.await(TIME_TO_WAIT_FOR_CACHE_TO_INIT, TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
+    if (exceptionDuringInitialization != null) {
+      throw new NonStopToolkitInstantiationException(exceptionDuringInitialization);
     }
-
-    if (exceptionDuringInitialization != null) { throw new NonStopToolkitInstantiationException(
-                                                                                                exceptionDuringInitialization); }
   }
 
-  private Runnable createInitRunnable(final Callable<TerracottaStore> clusteredStoreCreator,
-                                      final CountDownLatch initLatch) {
+  private Runnable createInitRunnable(final Callable<TerracottaStore> clusteredStoreCreator) {
     final Runnable initRunnable = new Runnable() {
       @Override
       public void run() {
@@ -147,7 +134,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
             nonStop.start(new ToolkitNonstopDisableConfig());
             try {
               doInit(clusteredStoreCreator);
-              initLatch.countDown();
               synchronized (NonStopStoreWrapper.this) {
                 NonStopStoreWrapper.this.notifyAll();
               }
@@ -163,7 +149,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
         } catch (Throwable t) {
           LOGGER.warn("Error while creating store asynchronously", t);
           exceptionDuringInitialization = t;
-          initLatch.countDown();
           synchronized (NonStopStoreWrapper.this) {
             NonStopStoreWrapper.this.notifyAll();
           }

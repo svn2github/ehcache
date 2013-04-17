@@ -51,9 +51,11 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private final SoftLockManagerProvider         softLockManagerProvider;
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
   protected final BulkLoadShutdownHook          bulkLoadShutdownHook;
+  private final TerracottaStoreInitializationService      initializationService;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
+    initializationService = new TerracottaStoreInitializationService(toolkitInstanceFactory.getToolkit().getClusterInfo());
     topology = createTopology(toolkitInstanceFactory);
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
     softLockManagerProvider = new SoftLockManagerProvider(toolkitInstanceFactory);
@@ -99,7 +101,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   @Override
   public final TerracottaStore createNonStopStore(Callable<TerracottaStore> store,
  Ehcache cache) {
-    return new NonStopStoreWrapper(store, toolkitInstanceFactory, cache);
+    return new NonStopStoreWrapper(store, toolkitInstanceFactory, cache, initializationService);
   }
 
   @Override
@@ -141,6 +143,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   @Override
   public void shutdown() {
     toolkitInstanceFactory.shutdown();
+    initializationService.shutdown();
   }
 
   @Override
