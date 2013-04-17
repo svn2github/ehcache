@@ -23,7 +23,7 @@ public class EventualCacheExplicitLockingTest extends AbstractCacheTestBase {
 
     public static final int     NUM_ELEMENTS     = 2000;
     public static final String  NEW_VALUE_PREFIX = "new_";
-    private static final String BARRIER_NAME     = "strong-cache-invalidation-barrier";
+    private static final String BARRIER_NAME     = "eventual-cache-explicit-locking-barrier";
     private static final int    CLIENT_COUNT     = 2;
 
     public EventualCacheExplicitLockingTestClient(String[] args) {
