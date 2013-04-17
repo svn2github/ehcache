@@ -105,6 +105,11 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
         // NO OP!
     }
 
+    @Override
+    public Policy getPolicy() {
+        return policy;
+    }
+
     private void evictIfRequired(final K key, final V value) {
         if (maxEntriesLocalHeap == 0) {
             return;

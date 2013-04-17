@@ -5,6 +5,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.CachingTier;
+import net.sf.ehcache.store.Policy;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -256,6 +257,16 @@ public class OnHeapCachingTierTest {
         @Override
         public void registerEvictionCallback(final EvictionCallback<K, Object> callback) {
             this.callback = callback;
+        }
+
+        @Override
+        public Policy getPolicy() {
+            return null;
+        }
+
+        @Override
+        public void setPolicy(final Policy policy) {
+            // NO OP
         }
 
         @Override

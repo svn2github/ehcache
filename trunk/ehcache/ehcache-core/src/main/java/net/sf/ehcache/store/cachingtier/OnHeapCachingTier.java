@@ -267,6 +267,16 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         backEnd.recalculateSize(key);
     }
 
+    @Override
+    public Policy getEvictionPolicy() {
+        return backEnd.getPolicy();
+    }
+
+    @Override
+    public void setEvictionPolicy(final Policy policy) {
+        backEnd.setPolicy(policy);
+    }
+
     private V getValue(final Object cachedValue) {
         if (cachedValue instanceof Fault) {
             return ((Fault<V>)cachedValue).get();
