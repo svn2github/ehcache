@@ -17,7 +17,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -34,6 +33,8 @@ import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import java.io.Serializable;
 
+import junit.framework.Assert;
+
 /**
  * ToolkitInstanceFactoryImplTest
  */
@@ -41,7 +42,6 @@ public class ToolkitInstanceFactoryImplTest {
 
     @Test
     public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
-        verifyMapping(0, -1);
         verifyMapping(10, 10);
     }
 
@@ -73,4 +73,20 @@ public class ToolkitInstanceFactoryImplTest {
         when(toolkit.getFeature(any(ToolkitFeatureType.class))).thenReturn(feature);
         when(feature.getNonStopConfigurationRegistry()).thenReturn(mock(NonStopConfigurationRegistry.class));
     }
+    
+    
+    /**
+     * This test case was added while fixing DEV-9223.
+     * From now on, we assume that the default value for maxTotalCount in Toolkit (-1),
+     * and the default value for maxEntriesInCache in EhCache (0) will be aligned.
+     * That is, they both will mean the same thing. Currently they mean no-limit cache.
+     * If someone changes the default value of one of those, then this test case will fail
+     * and we would need to handle it.    
+     */
+    @Test
+    public void testToolkitAndEhCacheDefaultsAreAligned() {
+      Assert.assertEquals(0, CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE);
+      Assert.assertEquals(-1, ToolkitConfigFields.DEFAULT_MAX_TOTAL_COUNT);
+    }
+
 }

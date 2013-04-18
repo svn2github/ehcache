@@ -12,11 +12,11 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
-import org.terracotta.modules.ehcache.store.CacheConfigChangeBridge;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
 import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
@@ -146,8 +146,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
     builder.maxTTLSeconds((int) ehcacheConfig.getTimeToLiveSeconds());
-    builder.maxTotalCount(CacheConfigChangeBridge.mapMaxEntriesInCacheToTotalCount(ehcacheConfig.getMaxEntriesInCache()));
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
+
+    // Fix for Dev-9223. Dont set anything incase of Default value. Assuming tookit and ehcache defaults are aligned.
+    if (ehcacheConfig.getMaxEntriesInCache() != CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE) {
+      builder.maxTotalCount(ehcacheConfig.getMaxEntriesInCache());
+    }
 
     if (terracottaConfiguration.isSynchronousWrites()) {
       builder.consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG);
