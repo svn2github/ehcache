@@ -224,10 +224,17 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         if (element == null) {
             return false;
         } else {
+            putObserver.begin();
             Object key = element.getObjectKey();
             int hash = hash(key.hashCode());
             Element oldElement = segmentFor(hash).put(key, hash, element, false, true);
-            return oldElement == null;
+            if (oldElement == null) {
+                putObserver.end(PutOutcome.ADDED);
+                return true;
+            } else {
+                putObserver.end(PutOutcome.UPDATED);
+                return false;
+            }
         }
     }
 
