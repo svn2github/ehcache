@@ -1192,9 +1192,9 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         protected final EventRateSimpleMovingAverage hitRate;
         protected final EventRateSimpleMovingAverage missRate;
 
-        public DiskStorePoolParticipant(final EventRateSimpleMovingAverage missRate, final EventRateSimpleMovingAverage hitRate) {
-            this.missRate = missRate;
+        public DiskStorePoolParticipant(final EventRateSimpleMovingAverage hitRate, final EventRateSimpleMovingAverage missRate) {
             this.hitRate = hitRate;
+            this.missRate = missRate;
         }
 
         @Override
@@ -1209,7 +1209,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
 
         @Override
         public float getApproximateMissRate() {
-            return hitRate.rate(TimeUnit.SECONDS).floatValue();
+            return missRate.rate(TimeUnit.SECONDS).floatValue();
         }
     }
 
@@ -1218,8 +1218,8 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     private class DiskStoreHeapPoolParticipant extends DiskStorePoolParticipant {
 
-        public DiskStoreHeapPoolParticipant(final EventRateSimpleMovingAverage missRate, final EventRateSimpleMovingAverage hitRate) {
-            super(missRate, hitRate);
+        public DiskStoreHeapPoolParticipant(final EventRateSimpleMovingAverage hitRate, final EventRateSimpleMovingAverage missRate) {
+            super(hitRate, missRate);
         }
 
         @Override
@@ -1234,7 +1234,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private class DiskStoreDiskPoolParticipant extends DiskStorePoolParticipant {
 
         DiskStoreDiskPoolParticipant(final EventRateSimpleMovingAverage hitRate, final EventRateSimpleMovingAverage missRate) {
-            super(missRate, hitRate);
+            super(hitRate, missRate);
         }
 
         @Override
