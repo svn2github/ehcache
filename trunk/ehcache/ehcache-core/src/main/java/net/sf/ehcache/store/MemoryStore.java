@@ -1182,7 +1182,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
 
         @Override
-        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors, 
+        public void put(String cacheName, int segmentId, Element element, byte[] key, Map<String, AttributeExtractor> extractors, 
                 DynamicAttributesExtractor dynamicIndexer) {
             throw new UnsupportedOperationException();
         }
