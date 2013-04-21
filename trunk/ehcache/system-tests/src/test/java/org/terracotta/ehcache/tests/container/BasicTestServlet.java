@@ -20,7 +20,7 @@ public class BasicTestServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.setContentType("text/plain");
+    resp.setContentType("text/html");
     PrintWriter out = resp.getWriter();
 
     String cmd = req.getParameter("cmd");

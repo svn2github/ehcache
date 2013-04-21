@@ -10,8 +10,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.meterware.httpunit.WebConversation;
-import com.meterware.httpunit.WebResponse;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.tc.util.Assert;
 
 public class StandaloneEhcacheRestAgentTest {
@@ -37,9 +37,10 @@ public class StandaloneEhcacheRestAgentTest {
     testCache.put(new Element("k", "v"));
     Assert.assertEquals(1, testCache.getSize());
     
-    WebConversation wc = new WebConversation();
-    WebResponse response = wc.getResponse("http://localhost:9888/tc-management-api/agents");
-    System.out.println(response.getText());
-    assertThat(response.getText(), containsString("\"agentId\":\"embedded\""));
+    WebClient wc = new WebClient();
+    WebResponse response = wc.getPage("http://localhost:9888/tc-management-api/agents")
+        .getWebResponse();
+    System.out.println(response.getContentAsString());
+    assertThat(response.getContentAsString(), containsString("\"agentId\":\"embedded\""));
   }
 }

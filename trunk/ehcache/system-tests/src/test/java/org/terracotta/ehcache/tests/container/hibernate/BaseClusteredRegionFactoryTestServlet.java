@@ -15,9 +15,10 @@ import javax.servlet.http.HttpSession;
 
 public abstract class BaseClusteredRegionFactoryTestServlet extends HttpServlet {
 
+  @Override
   public final void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     HttpSession session = request.getSession(true);
-    response.setContentType("text/plain");
+    response.setContentType("text/html");
     PrintWriter out = response.getWriter();
 
     String server = request.getParameter("server");

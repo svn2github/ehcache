@@ -10,8 +10,8 @@ import org.apache.log4j.Logger;
 import org.terracotta.ehcache.tests.container.ContainerTestSetup;
 import org.terracotta.toolkit.Toolkit;
 
-import com.meterware.httpunit.WebConversation;
-import com.meterware.httpunit.WebResponse;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.tc.test.AppServerInfo;
 import com.tc.test.TestConfigObject;
 import com.tc.test.server.appserver.StandardAppServerParameters;
@@ -29,18 +29,18 @@ import javax.transaction.Transaction;
 public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneTwoServerDeploymentTest {
 
   public void testHibernateCacheProvider() throws Exception {
-    WebConversation conversation = new WebConversation();
+    WebClient conversation = new WebClient();
 
     WebResponse response1 = hibernateRequest(server0, "server=server0", conversation);
-    assertEquals("OK", response1.getText().trim());
+    assertEquals("OK", response1.getContentAsString().trim());
 
     WebResponse response2 = hibernateRequest(server1, "server=server1", conversation);
-    assertEquals("OK", response2.getText().trim());
+    assertEquals("OK", response2.getContentAsString().trim());
   }
 
-  private WebResponse hibernateRequest(WebApplicationServer server, String params, WebConversation con)
+  private WebResponse hibernateRequest(WebApplicationServer server, String params, WebClient con)
       throws Exception {
-    return server.ping("/test/HibernateCacheTestServlet?" + params, con);
+    return server.ping("/test/HibernateCacheTestServlet?" + params, con).getWebResponse();
   }
 
   public static abstract class BaseClusteredCacheProviderTestSetup extends ContainerTestSetup {
