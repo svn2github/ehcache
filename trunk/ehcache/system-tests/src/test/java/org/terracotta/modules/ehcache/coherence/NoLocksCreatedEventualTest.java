@@ -16,6 +16,7 @@ import com.tc.management.TerracottaMBean;
 import com.tc.management.beans.L2MBeanNames;
 import com.tc.object.locks.LockID;
 import com.tc.objectserver.locks.LockMBean;
+import com.tc.objectserver.storage.api.OffheapStats;
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.stats.api.DSOMBean;
 import com.tc.test.config.model.TestConfig;
@@ -36,20 +37,25 @@ import junit.framework.Assert;
 public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
 
   public NoLocksCreatedEventualTest(TestConfig testConfig) {
-    super("cache-coherence-test.xml", testConfig, App.class);
+    super("cache-coherence-test.xml", testConfig, NoLocksCreatedEventualTestClient.class);
     testConfig.addTcProperty(TCPropertiesConsts.L1_LOCKMANAGER_TIMEOUT_INTERVAL, "9000000");
 
   }
 
   @Override
-  protected String createClassPath(Class client) throws IOException {
-    String classPath = super.createClassPath(client);
-    return addToClasspath(classPath, TestBaseUtil.jarFor(TerracottaMBean.class));
+  protected List<String> getExtraJars() {
+    List<String> jars = new ArrayList<String>(super.getExtraJars());
+    jars.add(TestBaseUtil.jarFor(TerracottaMBean.class));
+    jars.add(TestBaseUtil.jarFor(DSOMBean.class));
+    jars.add(TestBaseUtil.jarFor(OffheapStats.class));
+    jars.add(TestBaseUtil.jarFor(LockID.class));
+    jars.add(TestBaseUtil.jarFor(com.tc.object.locks.ServerLockContext.State.class));
+    return jars;
   }
 
-  public static class App extends ClientBase {
+  public static class NoLocksCreatedEventualTestClient extends ClientBase {
 
-    public App(String[] args) {
+    public NoLocksCreatedEventualTestClient(String[] args) {
       super("non-strict-Cache", args);
 
     }
@@ -90,8 +96,8 @@ public class NoLocksCreatedEventualTest extends AbstractCacheTestBase {
         Assert.assertEquals("key" + (i % 1000), element.getKey());
         Assert.assertEquals("value" + (i % 1000), element.getValue());
       }
-      // disabled this check until Explicit Loking is implemented
-      // Assert.assertEquals(1000, (coordinator.getLocks().size() - initialLocks));
+
+      Assert.assertEquals(1000, (coordinator.getLocks().size() - initialLocks));
 
     }
 
