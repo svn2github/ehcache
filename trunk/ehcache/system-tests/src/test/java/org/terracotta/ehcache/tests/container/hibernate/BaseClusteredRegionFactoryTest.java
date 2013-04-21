@@ -12,18 +12,14 @@ import org.terracotta.ehcache.tests.container.ContainerTestSetup;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.tc.test.AppServerInfo;
-import com.tc.test.TestConfigObject;
 import com.tc.test.server.appserver.StandardAppServerParameters;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
-import com.tc.test.server.appserver.deployment.WARBuilder;
 import com.tc.test.server.appserver.deployment.WebApplicationServer;
 import com.tc.util.runtime.Vm;
 
 import java.io.File;
 import java.io.PrintWriter;
-
-import javax.transaction.Transaction;
 
 public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneTwoServerDeploymentTest {
 
@@ -63,7 +59,11 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       builder.addDirectoryOrJARContainingClass(org.dom4j.Node.class); // domj4*.jar
       builder.addDirectoryOrJARContainingClass(antlr.Tool.class); // antlr*.jar
       builder.addDirectoryOrJARContainingClass(javassist.util.proxy.ProxyFactory.class); // java-assist
-      builder.addDirectoryOrJARContainingClass(javax.transaction.Synchronization.class); // jta
+
+      // Tomcat is not a full J2EE application-server - we have to manually add the JTA classes to its classpath.
+      if (appServerInfo().getId() == AppServerInfo.TOMCAT || appServerInfo().getId() == AppServerInfo.JETTY) {
+        builder.addDirectoryOrJARContainingClass(javax.transaction.Synchronization.class); // jta
+      }
 
       if (appServerInfo().getId() != AppServerInfo.JBOSS) {
         builder.addDirectoryOrJARContainingClass(Logger.class); // log4j
@@ -78,11 +78,6 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       builder.addServlet("HibernateCacheTestServlet", "/HibernateCacheTestServlet/*", getServletClass(), null, false);
     }
 
-    private void addPackageToAppServerClassPath(Class clazz) {
-      String path = WARBuilder.calculatePathToClass(clazz).getFile().getAbsolutePath();
-      TestConfigObject.getInstance().addToAppServerClassPath(path);
-    }
-
     @Override
     protected void configureServerParamers(StandardAppServerParameters params) {
       super.configureServerParamers(params);
@@ -91,11 +86,6 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
 
     @Override
     public final void setUp() throws Exception {
-      // Tomcat is not a full J2EE application-server - we have to manually add the JTA classes to its classpath.
-      if (appServerInfo().getId() == AppServerInfo.TOMCAT || appServerInfo().getId() == AppServerInfo.JETTY) {
-        addPackageToAppServerClassPath(Transaction.class);
-      }
-
       // To debug servlets:
       // System.setProperty("com.tc.test.server.appserver.deployment.GenericServer.ENABLE_DEBUGGER", "true");
       File derbyWorkDir = new File("derbydb", testClass.getSimpleName() + "-" + System.currentTimeMillis());
