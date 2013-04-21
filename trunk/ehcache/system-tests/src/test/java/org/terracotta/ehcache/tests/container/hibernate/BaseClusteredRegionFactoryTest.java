@@ -64,7 +64,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       builder.addDirectoryOrJARContainingClass(org.dom4j.Node.class); // domj4*.jar
       builder.addDirectoryOrJARContainingClass(antlr.Tool.class); // antlr*.jar
       builder.addDirectoryOrJARContainingClass(javassist.util.proxy.ProxyFactory.class); // java-assist
-
+      builder.addDirectoryOrJARContainingClass(javax.transaction.Synchronization.class); // jta
       builder.addDirectoryOrJARContainingClass(Toolkit.class); // toolkit-runtime
 
       if (appServerInfo().getId() != AppServerInfo.JBOSS) {
