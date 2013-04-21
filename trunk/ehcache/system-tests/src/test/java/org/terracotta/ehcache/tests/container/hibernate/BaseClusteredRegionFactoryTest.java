@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
 import org.terracotta.ehcache.tests.container.ContainerTestSetup;
-import org.terracotta.toolkit.Toolkit;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -65,7 +64,6 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       builder.addDirectoryOrJARContainingClass(antlr.Tool.class); // antlr*.jar
       builder.addDirectoryOrJARContainingClass(javassist.util.proxy.ProxyFactory.class); // java-assist
       builder.addDirectoryOrJARContainingClass(javax.transaction.Synchronization.class); // jta
-      builder.addDirectoryOrJARContainingClass(Toolkit.class); // toolkit-runtime
 
       if (appServerInfo().getId() != AppServerInfo.JBOSS) {
         builder.addDirectoryOrJARContainingClass(Logger.class); // log4j
