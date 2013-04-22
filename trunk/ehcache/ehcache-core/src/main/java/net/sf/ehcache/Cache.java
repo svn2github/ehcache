@@ -2076,9 +2076,16 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     private boolean skipUpdateAccessStatistics(Element element) {
-      return configuration.isFrozen() && element.isEternal()
-              && (configuration.getMaxElementsInMemory() == 0)
-              && (!configuration.isOverflowToDisk() || configuration.getMaxElementsOnDisk() == 0);
+      if (configuration.isFrozen()) {
+        boolean forLifetime = element.isEternal();
+        boolean forHeap =  configuration.getMaxEntriesLocalHeap() > 0 || configuration.getMaxBytesLocalHeap() > 0
+                || getCacheManager().getConfiguration().isMaxBytesLocalHeapSet();
+        boolean forDisk = configuration.isOverflowToDisk() && (configuration.getMaxEntriesLocalDisk() > 0 || configuration.getMaxBytesLocalDisk() > 0
+                || getCacheManager().getConfiguration().isMaxBytesLocalDiskSet());
+        return !(forLifetime || forHeap || forDisk);
+      } else {
+        return false;
+      }
     }
 
     /**
