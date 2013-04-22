@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -51,11 +52,12 @@ class KeySnapshotter implements Runnable {
             });
 
     private final String cacheName;
-    private final TerracottaStore tcStore;
+    private volatile TerracottaStore tcStore;
     private final RotatingSnapshotFile rotatingWriter;
     private final Thread thread;
 
     private volatile Runnable onSnapshot;
+    private final ScheduledFuture<?> scheduledFuture;
 
     /**
      * Default Constructor
@@ -89,21 +91,27 @@ class KeySnapshotter implements Runnable {
         this.tcStore = (TerracottaStore)store;
 
         if (doKeySnapshotOnDedicatedThread) {
+            scheduledFuture = null;
             thread = new SnapShottingThread(this, interval, "KeySnapshotter for cache " + cacheName);
             thread.start();
         } else {
-            ScheduledExecutorService scheduledExecutorService = INSTANCES.get(cache.getCacheManager());
-            if (scheduledExecutorService == null) {
-                scheduledExecutorService = new ScheduledThreadPoolExecutor(POOL_SIZE);
-                final ScheduledExecutorService previous = INSTANCES.putIfAbsent(cache.getCacheManager(), scheduledExecutorService);
-                if (previous != null) {
-                    scheduledExecutorService.shutdownNow();
-                    scheduledExecutorService = previous;
-                }
-            }
-            scheduledExecutorService.scheduleWithFixedDelay(this, interval, interval, TimeUnit.SECONDS);
+            scheduledFuture = getScheduledExecutorService(cache.getCacheManager())
+                .scheduleWithFixedDelay(this, interval, interval, TimeUnit.SECONDS);
             thread = null;
         }
+    }
+
+    private ScheduledExecutorService getScheduledExecutorService(final CacheManager cacheManager) {
+        ScheduledExecutorService scheduledExecutorService = INSTANCES.get(cacheManager);
+        if (scheduledExecutorService == null) {
+            scheduledExecutorService = new ScheduledThreadPoolExecutor(POOL_SIZE);
+            final ScheduledExecutorService previous = INSTANCES.putIfAbsent(cacheManager, scheduledExecutorService);
+            if (previous != null) {
+                scheduledExecutorService.shutdownNow();
+                scheduledExecutorService = previous;
+            }
+        }
+        return scheduledExecutorService;
     }
 
     /**
@@ -120,7 +128,10 @@ class KeySnapshotter implements Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+        } else {
+            scheduledFuture.cancel(immediately);
         }
+        tcStore = null;
     }
 
     /**
