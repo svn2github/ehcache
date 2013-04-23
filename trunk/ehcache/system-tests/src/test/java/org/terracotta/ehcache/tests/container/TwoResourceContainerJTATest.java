@@ -43,7 +43,7 @@ public class TwoResourceContainerJTATest extends AbstractStandaloneTwoServerDepl
   }
 
   private WebResponse request(WebApplicationServer server, String params, WebClient con) throws Exception {
-    return server.ping("/" + CONTEXT + "/TwoResourceJTATestServlet?" + params, con).getWebResponse();
+    return server.ping("/" + CONTEXT + "/TwoResourceJTATestServlet?" + params, con);
   }
 
   private static class TwoResourceContainerJTATestSetup extends AbstractStandaloneContainerJTATestSetup {

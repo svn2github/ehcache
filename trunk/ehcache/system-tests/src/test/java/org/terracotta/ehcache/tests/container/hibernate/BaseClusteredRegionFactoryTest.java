@@ -35,7 +35,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
 
   private WebResponse hibernateRequest(WebApplicationServer server, String params, WebClient con)
       throws Exception {
-    return server.ping("/test/HibernateCacheTestServlet?" + params, con).getWebResponse();
+    return server.ping("/test/HibernateCacheTestServlet?" + params, con);
   }
 
   public static abstract class BaseClusteredCacheProviderTestSetup extends ContainerTestSetup {

@@ -197,7 +197,7 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
   }
 
   private WebResponse request(WebApplicationServer server, String params, WebClient con) throws Exception {
-    return server.ping("/" + CONTEXT + "/BasicTestServlet?" + params, con).getWebResponse();
+    return server.ping("/" + CONTEXT + "/BasicTestServlet?" + params, con);
   }
 
 }

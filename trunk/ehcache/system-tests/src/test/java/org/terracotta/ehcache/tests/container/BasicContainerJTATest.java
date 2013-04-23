@@ -44,7 +44,7 @@ public class BasicContainerJTATest extends AbstractStandaloneTwoServerDeployment
   }
 
   private WebResponse request(WebApplicationServer server, String params, WebClient con) throws Exception {
-    return server.ping("/" + CONTEXT + "/BasicJTATestServlet?" + params, con).getWebResponse();
+    return server.ping("/" + CONTEXT + "/BasicJTATestServlet?" + params, con);
   }
 
   private static class BasicContainerJTATestSetup extends AbstractStandaloneContainerJTATestSetup {
