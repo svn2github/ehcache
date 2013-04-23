@@ -16,14 +16,11 @@
 
 package net.sf.ehcache.terracotta;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
@@ -207,29 +204,12 @@ class TerracottaClusteredInstanceHelper {
     }
 
     private static void assertExpress(Map<String, CacheConfiguration> cacheConfigs, TerracottaClientConfiguration terracottaConfig) {
-        // verify no identity caches if standalone will be used
-        List<String> identityCaches = new ArrayList<String>();
-        for (CacheConfiguration config : cacheConfigs.values()) {
-            TerracottaConfiguration tcConfig = config.getTerracottaConfiguration();
-            if (tcConfig != null && tcConfig.getValueMode() == TerracottaConfiguration.ValueMode.IDENTITY) {
-                identityCaches.add(config.getName());
-            }
-        }
-        if (!identityCaches.isEmpty()) {
-            throw newExceptionIdentityNotSupportedInExpress(identityCaches);
-        }
-
         // This is required in standalone but in non-standalone, this stuff is picked up through
         // the normal tc-config mechanisms instead
         if (terracottaConfig == null) {
             throw new CacheException("Terracotta caches are defined but no <terracottaConfig> element was used "
                     + "to specify the Terracotta configuration.");
         }
-    }
-
-    private static CacheException newExceptionIdentityNotSupportedInExpress(List<String> identityCaches) {
-        return new CacheException("One or more caches are configured for identity value "
-                + "mode which is not permitted with standalone deployment " + identityCaches.toString());
     }
 
     /**

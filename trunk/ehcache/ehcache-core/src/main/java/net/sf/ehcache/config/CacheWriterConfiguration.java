@@ -157,7 +157,7 @@ public class CacheWriterConfiguration implements Cloneable {
     }
 
     /**
-     * Converts the {@code valueMode} string argument to uppercase and looks up enum constant in WriteMode.
+     * Converts the {@code writeMode} string argument to uppercase and looks up enum constant in WriteMode.
      */
     public void setWriteMode(String writeMode) {
         if (writeMode == null) {

@@ -742,7 +742,6 @@ public class Cache implements InternalEhcache, StoreListener {
      * @param diskSpoolBufferSizeMB     the amount of memory to allocate the write buffer for puts to the DiskStore.
      * @param clearOnFlush              whether the in-memory storage should be cleared when {@link #flush flush()} is called on the cache
      * @param isTerracottaClustered     whether to cluster this cache with Terracotta
-     * @param terracottaValueMode       either "SERIALIZATION" or "IDENTITY" mode, only used if isTerracottaClustered=true
      * @param terracottaCoherentReads   whether this cache should use coherent reads (usually should be true) unless optimizing for read-only
      * @since 1.7.0
      * @see #Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader) Cache(CacheConfiguration, RegisteredEventListeners, BootstrapCacheLoader),
@@ -752,7 +751,7 @@ public class Cache implements InternalEhcache, StoreListener {
                  String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
                  long diskExpiryThreadIntervalSeconds, RegisteredEventListeners registeredEventListeners,
                  BootstrapCacheLoader bootstrapCacheLoader, int maxElementsOnDisk, int diskSpoolBufferSizeMB, boolean clearOnFlush,
-                 boolean isTerracottaClustered, String terracottaValueMode, boolean terracottaCoherentReads) {
+                 boolean isTerracottaClustered, boolean terracottaCoherentReads) {
 
         this(new CacheConfiguration(name, maxElementsInMemory)
                     .memoryStoreEvictionPolicy(memoryStoreEvictionPolicy)
@@ -767,7 +766,6 @@ public class Cache implements InternalEhcache, StoreListener {
                     .clearOnFlush(clearOnFlush)
                     .terracotta(new TerracottaConfiguration()
                         .clustered(isTerracottaClustered)
-                        .valueMode(terracottaValueMode)
                         .coherentReads(terracottaCoherentReads)),
                 registeredEventListeners,
                 bootstrapCacheLoader);
@@ -1071,12 +1069,6 @@ public class Cache implements InternalEhcache, StoreListener {
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
             }
             elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
-
-            if (configuration.getTransactionalMode().isTransactional()
-                && configuration.isTerracottaClustered()
-                && configuration.getTerracottaConfiguration().getValueMode() != TerracottaConfiguration.ValueMode.SERIALIZATION) {
-                throw new CacheException("To be transactional, a Terracotta clustered cache needs to be in Serialization value mode");
-            }
 
             Store store;
             if (isTerracottaClustered()) {

@@ -51,9 +51,8 @@ public class ProgrammaticCacheTest extends AbstractCacheTestBase {
           .timeToIdleSeconds(300)
           .clearOnFlush(true)
           .terracotta(new TerracottaConfiguration().clustered(true)
-                          .valueMode(TerracottaConfiguration.ValueMode.SERIALIZATION).coherentReads(true)
-                          .orphanEviction(true).orphanEvictionPeriod(4).localKeyCache(false).localKeyCacheSize(0)
-                          .copyOnRead(false)));
+                          .coherentReads(true).orphanEviction(true).orphanEvictionPeriod(4).localKeyCache(false)
+                          .localKeyCacheSize(0).copyOnRead(false)));
 
       cacheManager.addCache(cache);
       barrier.await();

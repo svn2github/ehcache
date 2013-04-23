@@ -62,7 +62,6 @@ public class AsyncWriteBehindTest {
     final Ehcache mockCache = mock(Ehcache.class);
     final CacheConfiguration mockCacheConfig = mock(CacheConfiguration.class);
     final TerracottaConfiguration mockTcConfig = mock(TerracottaConfiguration.class);
-    when(mockTcConfig.getValueMode()).thenReturn(TerracottaConfiguration.ValueMode.SERIALIZATION);
     when(mockCacheConfig.getTerracottaConfiguration()).thenReturn(mockTcConfig);
     when(mockCache.getCacheConfiguration()).thenReturn(mockCacheConfig);
     final CacheWriterConfiguration mockCacheWriterConfig = mock(CacheWriterConfiguration.class);

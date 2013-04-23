@@ -34,14 +34,7 @@
     <cache name="clustered-3"
            maxElementsInMemory="1000"
            memoryStoreEvictionPolicy="LFU">
-           <terracotta valueMode="serialization"/>
-    </cache>
-    
-    <!-- Test identity mode -->
-    <cache name="clustered-4"
-           maxElementsInMemory="1000"
-           memoryStoreEvictionPolicy="LFU">
-           <terracotta valueMode="identity"/>
+           <terracotta/>
     </cache>
     
     <!-- Test coherent reads -->

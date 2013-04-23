@@ -67,7 +67,6 @@ abstract class AbstractEhcacheProvider implements CacheProvider {
                 cache = manager.getEhcache(name);
                 LOG.debug("started EHCache region: " + name);
             }
-            HibernateUtil.validateEhcache(cache);
             return new EhCache(cache);
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);

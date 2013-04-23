@@ -60,9 +60,8 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
           .timeToIdleSeconds(tti)
           .clearOnFlush(true)
           .terracotta(new TerracottaConfiguration().clustered(true).consistency(Consistency.STRONG)
-                          .valueMode(TerracottaConfiguration.ValueMode.SERIALIZATION).coherentReads(true)
-                          .orphanEviction(true).orphanEvictionPeriod(4).localKeyCache(false).localKeyCacheSize(0)
-                          .copyOnRead(false)).logging(true));
+                          .coherentReads(true).orphanEviction(true).orphanEvictionPeriod(4).localKeyCache(false)
+                          .localKeyCacheSize(0).copyOnRead(false)).logging(true));
     }
 
     private void testTTIChange(CacheManager manager) throws InterruptedException {
