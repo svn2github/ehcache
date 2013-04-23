@@ -35,6 +35,7 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
@@ -535,6 +536,14 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      */
     public void registerCacheWriter(CacheWriter cacheWriter) {
         underlyingCache.registerCacheWriter(cacheWriter);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registerDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        underlyingCache.registerDynamicAttributesExtractor(extractor);
     }
 
     /**

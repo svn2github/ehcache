@@ -235,7 +235,8 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         } else {
             DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
                 net.sf.ehcache.config.SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH,
-                SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR == SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT
+                SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR == SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT,
+                true
             );
             sizeInBytes = 0;
             for (Map.Entry<K, Object> entry : backEnd.entrySet()) {
@@ -264,6 +265,16 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
     @Override
     public void recalculateSize(final K key) {
         backEnd.recalculateSize(key);
+    }
+
+    @Override
+    public Policy getEvictionPolicy() {
+        return backEnd.getPolicy();
+    }
+
+    @Override
+    public void setEvictionPolicy(final Policy policy) {
+        backEnd.setPolicy(policy);
     }
 
     private V getValue(final Object cachedValue) {

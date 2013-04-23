@@ -59,34 +59,14 @@ public abstract class BaseQueryInterpreter {
      * @param query
      */
     public void process(StoreQuery query) {
-        includeKeys(shouldIncludeKeys(query));
-        includeValues(shouldIncludeValues(query));
+        includeKeys(query.requestsKeys());
+        includeValues(query.requestsValues());
         maxResults(query.maxResults());
         processCriteria(query.getCriteria());
         processAttributes(query.requestedAttributes());
         processOrdering(query.getOrdering());
         processGroupBy(query.groupByAttributes());
         processAggregators(query.getAggregatorInstances());
-    }
-
-    /**
-     * subclass hook to alter key inclusion behavior
-     *
-     * @param query
-     * @return
-     */
-    protected boolean shouldIncludeValues(StoreQuery query) {
-        return query.requestsValues();
-    }
-
-    /**
-     * subclass hook to alter value inclusion behavior
-     *
-     * @param query
-     * @return
-     */
-    protected boolean shouldIncludeKeys(StoreQuery query) {
-        return query.requestsKeys();
     }
 
     private void processAggregators(List<AggregatorInstance<?>> aggregatorInstances) {

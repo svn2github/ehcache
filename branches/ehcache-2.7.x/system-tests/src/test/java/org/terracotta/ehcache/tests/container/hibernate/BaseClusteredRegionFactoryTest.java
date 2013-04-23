@@ -7,43 +7,38 @@ package org.terracotta.ehcache.tests.container.hibernate;
 import org.apache.commons.logging.LogFactory;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
-import org.terracotta.ehcache.tests.container.AbstractStandaloneContainerTestSetup;
-import org.terracotta.toolkit.Toolkit;
+import org.terracotta.ehcache.tests.container.ContainerTestSetup;
 
-import com.meterware.httpunit.WebConversation;
-import com.meterware.httpunit.WebResponse;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.tc.test.AppServerInfo;
-import com.tc.test.TestConfigObject;
 import com.tc.test.server.appserver.StandardAppServerParameters;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
-import com.tc.test.server.appserver.deployment.WARBuilder;
 import com.tc.test.server.appserver.deployment.WebApplicationServer;
 import com.tc.util.runtime.Vm;
 
 import java.io.File;
 import java.io.PrintWriter;
 
-import javax.transaction.Transaction;
-
 public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneTwoServerDeploymentTest {
 
   public void testHibernateCacheProvider() throws Exception {
-    WebConversation conversation = new WebConversation();
+    WebClient conversation = new WebClient();
 
     WebResponse response1 = hibernateRequest(server0, "server=server0", conversation);
-    assertEquals("OK", response1.getText().trim());
+    assertEquals("OK", response1.getContentAsString().trim());
 
     WebResponse response2 = hibernateRequest(server1, "server=server1", conversation);
-    assertEquals("OK", response2.getText().trim());
+    assertEquals("OK", response2.getContentAsString().trim());
   }
 
-  private WebResponse hibernateRequest(WebApplicationServer server, String params, WebConversation con)
+  private WebResponse hibernateRequest(WebApplicationServer server, String params, WebClient con)
       throws Exception {
     return server.ping("/test/HibernateCacheTestServlet?" + params, con);
   }
 
-  public static abstract class BaseClusteredCacheProviderTestSetup extends AbstractStandaloneContainerTestSetup {
+  public static abstract class BaseClusteredCacheProviderTestSetup extends ContainerTestSetup {
 
     private NetworkServerControl derbyServer;
     private final Class          testClass;
@@ -65,7 +60,10 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       builder.addDirectoryOrJARContainingClass(antlr.Tool.class); // antlr*.jar
       builder.addDirectoryOrJARContainingClass(javassist.util.proxy.ProxyFactory.class); // java-assist
 
-      builder.addDirectoryOrJARContainingClass(Toolkit.class); // toolkit-runtime
+      // Tomcat is not a full J2EE application-server - we have to manually add the JTA classes to its classpath.
+      if (appServerInfo().getId() == AppServerInfo.TOMCAT || appServerInfo().getId() == AppServerInfo.JETTY) {
+        builder.addDirectoryOrJARContainingClass(javax.transaction.Synchronization.class); // jta
+      }
 
       if (appServerInfo().getId() != AppServerInfo.JBOSS) {
         builder.addDirectoryOrJARContainingClass(Logger.class); // log4j
@@ -80,11 +78,6 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
       builder.addServlet("HibernateCacheTestServlet", "/HibernateCacheTestServlet/*", getServletClass(), null, false);
     }
 
-    private void addPackageToAppServerClassPath(Class clazz) {
-      String path = WARBuilder.calculatePathToClass(clazz).getFile().getAbsolutePath();
-      TestConfigObject.getInstance().addToAppServerClassPath(path);
-    }
-
     @Override
     protected void configureServerParamers(StandardAppServerParameters params) {
       super.configureServerParamers(params);
@@ -93,11 +86,6 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
 
     @Override
     public final void setUp() throws Exception {
-      // Tomcat is not a full J2EE application-server - we have to manually add the JTA classes to its classpath.
-      if (appServerInfo().getId() == AppServerInfo.TOMCAT || appServerInfo().getId() == AppServerInfo.JETTY) {
-        addPackageToAppServerClassPath(Transaction.class);
-      }
-
       // To debug servlets:
       // System.setProperty("com.tc.test.server.appserver.deployment.GenericServer.ENABLE_DEBUGGER", "true");
       File derbyWorkDir = new File("derbydb", testClass.getSimpleName() + "-" + System.currentTimeMillis());

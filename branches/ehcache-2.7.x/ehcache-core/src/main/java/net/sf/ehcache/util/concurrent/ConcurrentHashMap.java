@@ -1207,8 +1207,11 @@ public class ConcurrentHashMap<K, V>
         if ((key instanceof Comparable) &&
             (tab.length() >= MAXIMUM_CAPACITY || counter.sum() < (long)sizeCtl)) {
             TreeBin t = new TreeBin();
-            for (Node e = tabAt(tab, index); e != null; e = e.next)
-                t.putTreeNode(e.hash & HASH_BITS, e.key, e.val);
+            for (Node e = tabAt(tab, index); e != null; e = e.next) {
+                t.putTreeNode(e.hash & HASH_BITS, e.key, e.val, e.size);
+                e.val = null;
+                e.size = -1;
+            }
             setTabAt(tab, index, new Node(MOVED, t, null, null));
         }
     }
@@ -1253,7 +1256,7 @@ public class ConcurrentHashMap<K, V>
         Object oldVal = null;
         final int newSize;
         if (v != null) {
-            newSize = (int)poolAccessor.add(k, v, cv, true);
+            newSize = (int)poolAccessor.add(k, v, FAKE_TREE_NODE, true);
         } else {
             newSize = 0;
         }
@@ -1281,7 +1284,7 @@ public class ConcurrentHashMap<K, V>
                                         t.deleteTreeNode(p);
                                     }
                                     poolAccessor.delete(p.size);
-                                    p.size = newSize > 0 ? newSize : 0;
+                                    p.size = deleted ? -1 : newSize;
                                 }
                             }
                         }
@@ -1332,7 +1335,7 @@ public class ConcurrentHashMap<K, V>
                                             setTabAt(tab, i, en);
                                     }
                                     poolAccessor.delete(e.size);
-                                    e.size = deleted ? 0 : newSize;
+                                    e.size = deleted ? -1 : newSize;
                                 }
                                 break;
                             }
@@ -1944,12 +1947,14 @@ public class ConcurrentHashMap<K, V>
             Object k = e.key, v = e.val;
             if ((h & bit) == 0) {
                 ++lc;
-                lt.putTreeNode(h, k, v);
+                lt.putTreeNode(h, k, v, e.size);
             }
             else {
                 ++hc;
-                ht.putTreeNode(h, k, v);
+                ht.putTreeNode(h, k, v, e.size);
             }
+            e.val = null;
+            e.size = -1;
         }
         Node ln, hn; // throw away trees if too small
         if (lc <= (TREE_THRESHOLD >>> 1)) {
@@ -2344,64 +2349,59 @@ public class ConcurrentHashMap<K, V>
 
     @Deprecated
     public void recalculateSize(final K k) {
+        Object val = null;
+        int previousSize = 0;
+        int newSize = 0;
+        long delta = Long.MIN_VALUE;
+        boolean calculating = true;
+
         int h = spread(k.hashCode());
+        while(calculating) {
         for (AtomicReferenceArray<Node> tab = table;;) {
             Node f; int i, fh; Object fk;
             if (tab == null ||
-                (f = tabAt(tab, i = (tab.length() - 1) & h)) == null)
+                (f = tabAt(tab, i = (tab.length() - 1) & h)) == null) {
+                calculating = false;
                 break;
-            else if ((fh = f.hash) == MOVED) {
+            } else if ((fh = f.hash) == MOVED) {
                 if ((fk = f.key) instanceof TreeBin) {
                     TreeBin t = (TreeBin)fk;
-                    boolean validated = false;
-                    Node node = null;
-                    Object val = null;
-                    int size = -1;
                     t.acquire(0);
                     try {
                         if (tabAt(tab, i) == f) {
-                            validated = true;
                             TreeNode p = t.getTreeNode(h, k, t.root);
                             if (p != null) {
-                                node = p;
-                                val = node.val;
-                                size = node.size;
+                                if (val == null) {
+                                    val = p.val;
+                                    previousSize = p.size;
+                                } else if(p.size == previousSize && p.val == val) {
+                                    p.size += delta;
+                                    newSize = p.size;
+                                    calculating = false;
+                                } else {
+                                    calculating = false;
+                                }
+                            } else {
+                                calculating = false;
                             }
+                            break;
                         }
                     } finally {
                         t.release(0);
                     }
-                    if (validated) {
-                        if (node != null) {
-                            final long delta = poolAccessor.replace(size, k, val, FAKE_TREE_NODE, true);
-                            t.acquire(0);
-                            try {
-                                if (node.val == val && node.size == size) {
-                                    node.size += delta;
-                                } else {
-                                    poolAccessor.delete(delta);
-                                }
-                            } finally {
-                                t.release(0);
-                            }
-                        }
-                        break;
-                    }
-                }
-                else
+                } else {
                     tab = (AtomicReferenceArray<Node>)fk;
+                }
             }
-            else if ((fh & HASH_BITS) != h && f.next == null) // precheck
+            else if ((fh & HASH_BITS) != h && f.next == null) { // precheck
+                calculating = false;
                 break;                          // rules out possible existence
-            else if ((fh & LOCKED) != 0) {
+            } else if ((fh & LOCKED) != 0) {
                 checkForResize();               // try resizing if can't get lock
                 f.tryAwaitLock(tab, i);
             }
             else if (f.casHash(fh, fh | LOCKED)) {
                 boolean validated = false;
-                Node node = null;
-                Object val = null;
-                int size = -1;
                 try {
                     if (tabAt(tab, i) == f) {
                         validated = true;
@@ -2409,9 +2409,16 @@ public class ConcurrentHashMap<K, V>
                             Object ek;
                             if ((e.hash & HASH_BITS) == h &&
                                 ((ek = e.key) == k || k.equals(ek))) {
-                                node = e;
-                                val = node.val;
-                                size = node.size;
+                                if (val == null) {
+                                    val = e.val;
+                                    previousSize = e.size;
+                                } else if(e.size == previousSize && e.val == val) {
+                                    e.size += delta;
+                                    newSize = e.size;
+                                    calculating = false;
+                                } else {
+                                    calculating = false;
+                                }
                                 break;
                             }
                             if ((e = e.next) == null)
@@ -2425,25 +2432,23 @@ public class ConcurrentHashMap<K, V>
                     }
                 }
                 if (validated) {
-                    if (node != null) {
-                        final long delta = poolAccessor.replace(size, k, val, FAKE_TREE_NODE, true);
-                        while(!f.casHash(fh, fh | LOCKED));
-                        try {
-                            if (val == node.val && node.size == size) {
-                                node.size += delta;
-                            } else {
-                                poolAccessor.delete(delta);
-                            }
-                        } finally {
-                            if (!f.casHash(fh | LOCKED, fh)) {
-                                Node.HASH_UPDATER.set(f, fh);
-                                synchronized (f) { f.notifyAll(); };
-                            }
-                        }
-                    }
                     break;
                 }
             }
+        }
+
+        if(val != null) { // Found a value
+            if (delta == Long.MIN_VALUE) { // Didn't resize it
+                delta = poolAccessor.replace(previousSize, k, val, FAKE_TREE_NODE, true);
+            } else if (newSize == 0) { // Resized it, but couldn't save it (entry removed or modified: val or sizing info)
+                poolAccessor.delete(delta);
+                calculating = false;
+            } else {
+                calculating = false;
+            }
+        } else { // Didn't find an entry for this key
+            calculating = false;
+        }
         }
     }
 

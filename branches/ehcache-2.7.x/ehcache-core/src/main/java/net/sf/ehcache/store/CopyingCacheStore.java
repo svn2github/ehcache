@@ -324,7 +324,7 @@ public final class CopyingCacheStore<T extends Store> implements Store {
 
     /**
      * Accessor to the underlying store
-     * @return
+     * @return the underlying store
      */
     public T getUnderlyingStore() {
         return store;
@@ -405,7 +405,7 @@ public final class CopyingCacheStore<T extends Store> implements Store {
     public static <T extends Store> CopyingCacheStore<T> wrap(final T cacheStore, final CacheConfiguration cacheConfiguration) {
         final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
             .getCopyStrategyInstance();
-        return new CopyingCacheStore(cacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance);
+        return new CopyingCacheStore<T>(cacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance);
     }
 
     /**

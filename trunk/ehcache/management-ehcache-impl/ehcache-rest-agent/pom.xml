@@ -60,7 +60,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore></ignore>
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -82,7 +82,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>   
       <properties>
-        <private-classpath></private-classpath>
+        <private-classpath/>
         <private-class-suffix>.class</private-class-suffix>
       </properties>   
       <build>

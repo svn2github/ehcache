@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +49,12 @@ public class AbstractCacheTestBase extends AbstractTestBase {
 
   @Override
   protected String createClassPath(Class client) throws IOException {
-    String ehcache = TestBaseUtil.jarFor(CacheManager.class);
+    List<String> toolkitRuntime = TestBaseUtil.getToolkitRuntimeDependencies(ToolkitFactory.class);
+    List<String> ehcache = TestBaseUtil.getEhcacheDependencies(CacheManager.class);
+    List<String> ehcacheExpress = new ArrayList<String>();
+    ehcacheExpress.addAll(toolkitRuntime);
+    ehcacheExpress.addAll(ehcache);
+
     String slf4jApi = TestBaseUtil.jarFor(org.slf4j.LoggerFactory.class);
     String slf4jBinder = TestBaseUtil.jarFor(org.slf4j.impl.StaticLoggerBinder.class);
     String l2Mbean = TestBaseUtil.jarFor(L2MBeanNames.class);
@@ -56,9 +62,9 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String expressRuntime = TestBaseUtil.jarFor(ToolkitFactory.class);
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
 
-    String classpath = makeClasspath(writeEhcacheConfigWithPort(ehcacheConfigPath),
-                              writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, ehcache, jta, slf4jApi,
-                              slf4jBinder, clientBase, l2Mbean);
+    String classpath = makeClasspath(ehcacheExpress, writeEhcacheConfigWithPort(ehcacheConfigPath),
+                                     writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, jta, slf4jApi,
+                                     slf4jBinder, clientBase, l2Mbean);
 
     return classpath;
   }

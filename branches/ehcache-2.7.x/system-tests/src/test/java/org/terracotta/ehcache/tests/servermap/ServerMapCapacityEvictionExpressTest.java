@@ -17,8 +17,8 @@ public class ServerMapCapacityEvictionExpressTest extends AbstractCacheTestBase 
     testConfig.setDgcEnabled(true);
     testConfig.setDgcIntervalInSec(60);
     testConfig.addTcProperty("ehcache.evictor.logging.enabled", "true");
-    testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
-
+    testConfig.addTcProperty("l2.servermap.eviction.clientObjectReferences.refresh.interval","500");
+    
     final Iterator<String> iter = testConfig.getClientConfig().getExtraClientJvmArgs().iterator();
     while (iter.hasNext()) {
       final String prop = iter.next();

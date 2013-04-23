@@ -11,7 +11,6 @@ import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
-
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -32,7 +31,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
     private static final int    SIZE_TEST_ELEMENTS  = 10000;
-    private static final double SIZE_TEST_TOLERANCE = 0.15;
+    private static final double SIZE_TEST_TOLERANCE = 0.25;
     private final ToolkitBarrier       barrier;
 
     public App(String[] args) {

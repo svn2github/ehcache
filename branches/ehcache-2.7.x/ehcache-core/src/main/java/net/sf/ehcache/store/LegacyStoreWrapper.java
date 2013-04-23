@@ -429,13 +429,6 @@ public class LegacyStoreWrapper extends AbstractStore {
     }
 
     /**
-     * Returns the underlying disk store for this legacy wrapper.
-     */
-    public Store getDiskStore() {
-        return disk;
-    }
-
-    /**
      * Returns the underlying memory store for this legacy wrapper.
      */
     public Store getMemoryStore() {

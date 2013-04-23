@@ -181,6 +181,11 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
         this.evictionCallback = callback;
     }
 
+    @Override
+    public Policy getPolicy() {
+        return policy;
+    }
+
     /**
      * Registers the accessor with the backend. This can only happen once!
      * @param poolAccessor the pool accessor to use

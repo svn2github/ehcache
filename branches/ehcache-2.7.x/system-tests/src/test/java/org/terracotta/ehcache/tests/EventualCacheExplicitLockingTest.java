@@ -22,8 +22,9 @@ public class EventualCacheExplicitLockingTest extends AbstractCacheTestBase {
   public static class EventualCacheExplicitLockingTestClient extends ClientBase {
 
     public static final int     NUM_ELEMENTS     = 2000;
-    public static final String  NEW_VALUE_PREFIX = "new_";
-    private static final String BARRIER_NAME     = "strong-cache-invalidation-barrier";
+    public static final String  FIRST_VALUE_PREFIX  = "first_";
+    public static final String  SECOND_VALUE_PREFIX = "second_";
+    private static final String BARRIER_NAME     = "eventual-cache-explicit-locking-barrier";
     private static final int    CLIENT_COUNT     = 2;
 
     public EventualCacheExplicitLockingTestClient(String[] args) {
@@ -53,11 +54,11 @@ public class EventualCacheExplicitLockingTest extends AbstractCacheTestBase {
       }
     }
 
-    private boolean checkValues(Cache cache) {
+    private boolean checkValues(Cache cache, String prefix) {
       for (int i = 0; i < NUM_ELEMENTS; i++) {
         cache.acquireReadLockOnKey(getKey(i));
         Element element = cache.get(getKey(i));
-        boolean eq = getValue(i, NEW_VALUE_PREFIX).equals(element.getObjectValue());
+        boolean eq = getValue(i, prefix).equals(element.getObjectValue());
         cache.releaseReadLockOnKey(getKey(i));
         if (!eq) return eq;
       }
@@ -96,15 +97,26 @@ public class EventualCacheExplicitLockingTest extends AbstractCacheTestBase {
       barrier.await();
       if (index == 0) {
         System.err.println("Client: " + index + " modifying values strongly");
-        doStrongPuts(cache, NEW_VALUE_PREFIX);
+        doStrongPuts(cache, FIRST_VALUE_PREFIX);
       }
 
       barrier.await();
       if (index == 1) {
         System.err.println("Client: " + index + " checking values");
-        assertTrue(checkValues(cache));
+        assertTrue(checkValues(cache, FIRST_VALUE_PREFIX));
       }
 
+      barrier.await();
+      if (index == 0) {
+        System.err.println("Client: " + index + " modifying values strongly again");
+        doStrongPuts(cache, SECOND_VALUE_PREFIX);
+      }
+
+      barrier.await();
+      if (index == 1) {
+        System.err.println("Client: " + index + " checking values");
+        assertTrue(checkValues(cache, SECOND_VALUE_PREFIX));
+      }
     }
   }
 }

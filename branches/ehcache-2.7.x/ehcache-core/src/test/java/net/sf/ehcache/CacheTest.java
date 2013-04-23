@@ -81,6 +81,7 @@ import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
+import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
@@ -2652,6 +2653,35 @@ public class CacheTest extends AbstractCacheTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void testExpiringGetAll() {
+        final Cache cache = new Cache("cache", 1000, true, false, 1, 1, false, 1);
+        manager.addCache(cache);
+
+        int numOfElements = 100;
+        Set<Element> elements = new HashSet<Element>();
+        for(int i = 0; i < numOfElements; i++){
+            elements.add(new Element("key" + i, "value" + i));
+        }
+        cache.putAll(elements);
+        assertEquals(numOfElements, cache.getSize());
+
+        final Set keySet = new HashSet<String>();
+        for(int i = 0; i < numOfElements; i++){
+            keySet.add("key"+i);
+        }
+
+        assertThat(cache.getAll(keySet).size(), is(numOfElements));
+        
+        RetryAssert.assertBy(2, SECONDS, new Callable<Integer>() {
+
+          @Override
+          public Integer call() throws Exception {
+              return cache.getAll(keySet).size();
+          }
+        }, is(0));
+    }
+    
     @Test
     public void testRedundantDiskReads() throws Exception {
         final Cache cache = new Cache("testRedundantDiskReads", 1, true, true, 0, 0);

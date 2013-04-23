@@ -38,6 +38,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.impl.AggregateOnlyResult;
 import net.sf.ehcache.search.impl.BaseResult;
@@ -116,8 +117,6 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     protected final OperationObserver<EvictionOutcome> evictionObserver = operation(EvictionOutcome.class).named("eviction").of(this).build();
 
-    private final boolean alwaysPutOnHeap;
-
     /**
      * The cache this store is associated with.
      */
@@ -157,25 +156,13 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     private volatile CacheLockProvider lockProvider;
 
     /**
-     * Constructs things that all MemoryStores have in common. But without search capabilities
-     *
-     * @param cache the cache
-     * @param pool the pool tracking the on-heap usage
-     * @param notify whether to notify the Cache's EventNotificationService on eviction and expiry
-     */
-    protected MemoryStore(Ehcache cache, Pool pool, boolean notify, BackingFactory factory) {
-        this(cache, pool, notify, factory, null);
-    }
-
-    /**
      * Constructs things that all MemoryStores have in common.
      *
      * @param cache the cache
      * @param pool the pool tracking the on-heap usage
-     * @param notify whether to notify the Cache's EventNotificationService on eviction and expiry
      * @param searchManager the search manager
      */
-    protected MemoryStore(Ehcache cache, Pool pool, boolean notify, BackingFactory factory, final SearchManager searchManager) {
+    protected MemoryStore(Ehcache cache, Pool pool, BackingFactory factory, final SearchManager searchManager) {
         super(searchManager);
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
@@ -189,11 +176,10 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                 SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
         }
 
-        this.alwaysPutOnHeap = getAdvancedBooleanConfigProperty("alwaysPutOnHeap", cache.getCacheConfiguration().getName(), false);
         this.storePinned = determineStorePinned(cache.getCacheConfiguration());
 
         int maximumCapacity = isClockEviction() && !storePinned ? maximumSize : 0;
-        RegisteredEventListeners eventListener = notify ? cache.getCacheEventNotificationService() : null;
+        RegisteredEventListeners eventListener = cache.getCacheEventNotificationService();
         if (Boolean.getBoolean(MemoryStore.class.getName() + ".presize")) {
             // create the CHM with initialCapacity sufficient to hold maximumSize
             final float loadFactor = maximumSize == 1 ? 1 : DEFAULT_LOAD_FACTOR;
@@ -246,17 +232,27 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * A factory method to create a MemoryStore.
      *
      * @param cache the cache
-     * @param pool the pool tracking the on-heap usage
-     * @return an instance of a MemoryStore, configured with the appropriate eviction policy
+     * @param pool  the pool tracking the on-heap usage
+     * @return an instance of a NotifyingMemoryStore, configured with the appropriate eviction policy
      */
-    public static MemoryStore create(final Ehcache cache, Pool pool) {
-        final MemoryStore.BruteForceSearchManager searchManager = new MemoryStore.BruteForceSearchManager();
-        MemoryStore memoryStore = new MemoryStore(cache, pool, false, new BasicBackingFactory(), searchManager);
+    public static Store create(final Ehcache cache, Pool pool) {
+        final BruteForceSearchManager searchManager = new BruteForceSearchManager();
+        MemoryStore memoryStore = new MemoryStore(cache, pool, new BasicBackingFactory(), searchManager);
         cache.getCacheConfiguration().addConfigurationListener(memoryStore);
-        return memoryStore;
+        final Store store;
+        if (CopyingCacheStore.requiresCopy(cache.getCacheConfiguration())) {
+            final CopyingCacheStore<MemoryStore> copyingCacheStore = CopyingCacheStore.wrap(memoryStore, cache.getCacheConfiguration());
+            searchManager.setMemoryStore(copyingCacheStore);
+            store = copyingCacheStore;
+        } else {
+            searchManager.setMemoryStore(memoryStore);
+            store = memoryStore;
+        }
+
+        return store;
     }
 
-  /**
+    /**
      * Puts an item in the store. Note that this automatically results in an eviction if the store is full.
      *
      * @param element the element to add
@@ -267,7 +263,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
 
         putObserver.begin();
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
             Element old = map.put(element.getObjectKey(), element, delta);
             checkCapacity(element);
@@ -289,7 +285,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
             final ReentrantReadWriteLock lock = map.lockFor(element.getObjectKey());
             lock.writeLock().lock();
@@ -366,14 +362,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
     }
 
-  /**
-     * {@inheritDoc}
-     */
-  private boolean isTierPinned() {
-        return storePinned;
-    }
-
-  /**
+    /**
      * {@inheritDoc}
      */
     public final Element removeWithWriter(Object key, CacheWriterManager writerManager) throws CacheException {
@@ -412,8 +401,11 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * This is a default implementation which does nothing. Expiration on demand is only implemented for disk stores.
      */
     public void expireElements() {
-        for (Object key : map.keySet()) {
-            expireElement(key);
+        for (Object key : keySet()) {
+            final Element element = expireElement(key);
+            if (element != null) {
+                cache.getCacheEventNotificationService().notifyElementExpiry(element, false);
+            }
         }
     }
 
@@ -542,6 +534,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param element the evicted element
      */
     protected void notifyDirectEviction(final Element element) {
+        evictionObserver.begin();
+        evictionObserver.end(EvictionOutcome.SUCCESS);
+        cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
     }
 
     /**
@@ -606,7 +601,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             return true;
         }
 
-        if (isTierPinned()) {
+        if (storePinned) {
             return false;
         }
 
@@ -778,7 +773,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
             DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-                    SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT));
+                    SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT),
+                    true);
             long sizeInBytes = 0;
             for (Object o : map.values()) {
                 Element element = (Element) o;
@@ -843,7 +839,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             return null;
         }
 
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
             Element old = map.putIfAbsent(element.getObjectKey(), element, delta);
             if (old == null) {
@@ -865,10 +861,11 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     protected boolean evict(final Element element) {
         evictionObserver.begin();
-        final Element remove = remove(element.getObjectKey());
-        RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
-        cacheEventNotificationService.notifyElementEvicted(remove, false);
-        evictionObserver.end(EvictionOutcome.SUCCESS);
+        Element remove = remove(element.getObjectKey());
+        if (remove != null) {
+            evictionObserver.end(EvictionOutcome.SUCCESS);
+            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+        }
         return remove != null;
     }
 
@@ -908,7 +905,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
 
         Object key = element.getObjectKey();
 
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
             Lock lock = getWriteLock(key);
             lock.lock();
@@ -940,7 +937,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
 
         Object key = element.getObjectKey();
 
-        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), isTierPinned());
+        long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
             Lock lock = getWriteLock(key);
             lock.lock();
@@ -1185,7 +1182,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
 
         @Override
-        public void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors) {
+        public void put(String cacheName, int segmentId, Element element, byte[] key, Map<String, AttributeExtractor> extractors, 
+                DynamicAttributesExtractor dynamicIndexer) {
             throw new UnsupportedOperationException();
         }
 

@@ -23,6 +23,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.event.NotificationScope;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.sf.ehcache.config.PinningConfiguration.Store;
 import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
 /**
@@ -154,7 +156,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Default value for maxEntriesInCache
      */
-    public static final int DEFAULT_MAX_ENTRIES_IN_CACHE = -1;
+    public static final int DEFAULT_MAX_ENTRIES_IN_CACHE = 0;
 
     /**
      * Default value for transactionalMode
@@ -373,6 +375,9 @@ public class CacheConfiguration implements Cloneable {
      */
     protected volatile Set<CacheConfigurationListener> listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
 
+    private volatile Set<DynamicSearchListener> dynamicSearchListeners = new CopyOnWriteArraySet<DynamicSearchListener>();
+
+    private DynamicAttributesExtractor flexIndexer;
     private volatile boolean frozen;
     private volatile TransactionalMode transactionalMode;
     private volatile boolean statistics = DEFAULT_STATISTICS;
@@ -468,6 +473,7 @@ public class CacheConfiguration implements Cloneable {
         cloneCacheDecoratorConfigurations(config);
 
         config.listeners = new CopyOnWriteArraySet<CacheConfigurationListener>();
+        config.dynamicSearchListeners = new CopyOnWriteArraySet<DynamicSearchListener>();
 
         return config;
     }
@@ -1072,11 +1078,10 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Sets the maximum number of entries in the cache. Only applies to terracotta clustered caches.
      * <p/>
-     * The values for maxEntriesInCache are interpreted as follows:
+     * The values for maxEntriesInCache must be equal or superior to 0 and are interpreted as follows:
      * <ul>
-     * <li>{@code maxEntriesInCache < 0} means no capacity based eviction, but resource based eviction can happen.</li>
+     * <li>{@code maxEntriesInCache == 0} means no capacity based eviction, but resource based eviction can happen.</li>
      * <li>{@code maxEntriesInCache > 0} means both capacity based and resource based eviction can happen
-     * <li>{@code maxEntriesInCache == 0} means a cache with zero capacity - an always empty cache
      * </ul>
      * <p/>
      * This property can be modified dynamically while the cache is operating.
@@ -1085,15 +1090,17 @@ public class CacheConfiguration implements Cloneable {
      */
     public void setMaxEntriesInCache(int maxEntriesInCache) {
         checkDynamicChange();
+        verifyGreaterThanOrEqualToZero((long)maxEntriesInCache, "maxEntriesInCache");
+        checkIfCachePinned(maxEntriesInCache);
         int oldValue = this.maxEntriesInCache;
         this.maxEntriesInCache = maxEntriesInCache;
-        logMaxEntriesInCacheChangeIfCachePinned();
         fireMaxEntriesInCacheChanged(oldValue, this.maxEntriesInCache);
     }
 
-    private void logMaxEntriesInCacheChangeIfCachePinned() {
-        if (getPinningConfiguration() != null && getPinningConfiguration().getStore() != null) {
-            LOG.info("Setting maxEntriesInCache on a pinned cache has no effect");
+    private void checkIfCachePinned(long maxEntriesInCache) {
+        if (maxEntriesInCache != DEFAULT_MAX_ENTRIES_IN_CACHE && 
+                getPinningConfiguration() != null && Store.INCACHE.equals(getPinningConfiguration().getStore())) {
+            throw new InvalidConfigurationException("Setting maxEntriesInCache on an in-cache pinned cache is not legal");
         }
     }
 
@@ -1292,6 +1299,7 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the ElementValueComparatorConfiguration for this cache
+     * The default configuration will setup a {@link net.sf.ehcache.store.DefaultElementValueComparator}
      *
      * @param elementValueComparatorConfiguration the ElementComparator Configuration
      */
@@ -1361,6 +1369,14 @@ public class CacheConfiguration implements Cloneable {
         if ((oldValue != null && !oldValue.equals(newValue)) || (newValue != null && !newValue.equals(oldValue))) {
             for (CacheConfigurationListener listener : listeners) {
                 listener.maxBytesLocalDiskChanged(oldValue != null ? oldValue : 0, newValue);
+            }
+        }
+    }
+
+    private void fireDynamicAttributesExtractorAdded(DynamicAttributesExtractor oldValue, DynamicAttributesExtractor newValue) {
+        if (oldValue != newValue) {
+            for (DynamicSearchListener lsnr : dynamicSearchListeners) {
+                lsnr.extractorChanged(oldValue, newValue);
             }
         }
     }
@@ -1539,6 +1555,32 @@ public class CacheConfiguration implements Cloneable {
      */
     public CacheConfiguration maxBytesLocalDisk(final long amount, final MemoryUnit memoryUnit) {
         setMaxBytesLocalDisk(memoryUnit.toBytes(amount));
+        return this;
+    }
+
+    /**
+     * Sets dynamic search attributes extractor
+     * @param extractor extractor to use
+     */
+    public void setDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        if (searchable == null || !searchable.isDynamicIndexingAllowed()) {
+            throw new IllegalArgumentException("Dynamic search attribute extraction not supported");
+        }
+        if (extractor == null && this.flexIndexer != null) {
+            throw new IllegalArgumentException("Dynamic search attributes extractor cannot be set to null by user");
+        }
+        DynamicAttributesExtractor old = this.flexIndexer;
+        this.flexIndexer = extractor;
+        fireDynamicAttributesExtractorAdded(old, this.flexIndexer);
+    }
+
+    /**
+     * Sets dynamic search attributes extractor
+     * @param extractor extractor to use
+     * @return this
+     */
+    public CacheConfiguration dynamicAttributeExtractor(DynamicAttributesExtractor extractor) {
+        setDynamicAttributesExtractor(extractor);
         return this;
     }
 
@@ -1824,7 +1866,7 @@ public class CacheConfiguration implements Cloneable {
     List<ConfigError> verifyPoolAllocationsBeforeAddingTo(CacheManager cacheManager,
                                                      long managerMaxBytesLocalHeap,
                                                      long managerMaxBytesLocalOffHeap,
-                                                     long managerMaxBytesLocalDisk,
+                                                     long managerMaxBytesLocalDisk, 
                                                      String parentCacheName) {
         final List<ConfigError> configErrors = new ArrayList<ConfigError>();
 
@@ -1932,7 +1974,7 @@ public class CacheConfiguration implements Cloneable {
 
         final Collection<ConfigError> errors = new ArrayList<ConfigError>();
 
-        verifyClusteredCacheConfiguration(configuration, errors);
+        verifyClusteredCacheConfiguration(errors);
 
         if (maxEntriesLocalHeap == null && !configuration.isMaxBytesLocalHeapSet() && maxBytesLocalHeap == null) {
             errors.add(new CacheConfigError("If your CacheManager has no maxBytesLocalHeap set, you need to either set " +
@@ -1964,7 +2006,7 @@ public class CacheConfiguration implements Cloneable {
         return errors;
     }
 
-    private void verifyClusteredCacheConfiguration(final Configuration configuration, final Collection<ConfigError> errors) {
+    private void verifyClusteredCacheConfiguration(final Collection<ConfigError> errors) {
         if (!isTerracottaClustered()) { return; }
 
         if (getPinningConfiguration() != null && getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE
@@ -1988,8 +2030,6 @@ public class CacheConfiguration implements Cloneable {
           errors.add(new CacheConfigError("maxElementsOnDisk is not used with clustered caches. Use maxEntriesInCache " +
                                           "to set maximum cache size.", getName()));
         }
-
-        validateTerracottaConfig(configuration, errors);
     }
 
     /**
@@ -2022,13 +2062,6 @@ public class CacheConfiguration implements Cloneable {
                                             "wide value was configured", getName()));
         }
         return errors;
-    }
-
-    private void validateTerracottaConfig(final Configuration configuration, final Collection<ConfigError> errors) {
-        final TerracottaClientConfiguration clientConfiguration = configuration.getTerracottaConfiguration();
-        if (clientConfiguration != null && clientConfiguration.isRejoin() && !getTerracottaConfiguration().isNonstopEnabled()) {
-            errors.add(new CacheConfigError("Terracotta clustered caches must be nonstop when rejoin is enabled.", getName()));
-        }
     }
 
     /**
@@ -2564,6 +2597,12 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Accessor
+     */
+    public DynamicAttributesExtractor getDynamicExtractor() {
+        return flexIndexer;
+    }
+    /**
      * Only used when cache is clustered with Terracotta
      *
      * @return true if logging is enabled otherwise false
@@ -2832,6 +2871,15 @@ public class CacheConfiguration implements Cloneable {
             listener.registered(this);
         }
         return added;
+    }
+
+    /**
+     * Add a dynamic extractor configuration listener
+     * @param listener
+     * @return true if a listener was added
+     */
+    public boolean addDynamicSearchListener(DynamicSearchListener listener) {
+        return dynamicSearchListeners.add(listener);
     }
 
     /**

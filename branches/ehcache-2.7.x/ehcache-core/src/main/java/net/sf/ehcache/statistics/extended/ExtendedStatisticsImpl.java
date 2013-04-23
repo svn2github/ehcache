@@ -165,6 +165,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         for (final StandardPassThroughStatistic t : StandardPassThroughStatistic.values()) {
             ValueStatistic statistic = findPassThroughStatistic(manager, t);
             if (statistic == null) {
+                LOGGER.debug("Mocking Pass-Through Statistic: {}", t);
                 standardPassThroughs.put(t, NullStatistic.instance(t.absentValue()));
             } else {
                 standardPassThroughs.put(t, new SemiExpiringStatistic(statistic, executor, t.history(), SECONDS.toNanos(t.interval())));

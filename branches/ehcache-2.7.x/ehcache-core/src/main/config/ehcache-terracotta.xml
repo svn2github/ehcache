@@ -168,7 +168,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     By default, this attribute is false.
 
-    If rejoin is true, all Terracotta Clustered caches have to be configured with nonstop.
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
     server. When enabled, this allows the client to connect to the new cluster without the
     need to restart the node.
@@ -225,6 +224,12 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     element is never expired.
 
     The following attributes and elements are optional.
+
+    maxEntriesInCache:
+    This feature is applicable only to Terracotta distributed caches.
+    Sets the maximum number of entries that can be stored in the cluster. 0 = no limit.
+    Note that clustered cache will still perform eviction if resource usage requires it.
+    This property can be modified dynamically while the cache is operating.
 
     overflowToOffHeap:
     (boolean) This feature is available only in enterprise versions of Ehcache.

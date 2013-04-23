@@ -40,6 +40,7 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -792,6 +793,20 @@ public class ClassLoaderAwareCache implements Ehcache {
         t.setContextClassLoader(this.classLoader);
         try {
             this.cache.registerCacheWriter(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+
+    /**
+    * {@inheritDoc}
+    */
+    public void registerDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            this.cache.registerDynamicAttributesExtractor(extractor);
         } finally {
             t.setContextClassLoader(prev);
         }
@@ -1704,15 +1719,22 @@ public class ClassLoaderAwareCache implements Ehcache {
      *
      */
     private class ClassLoaderAwareList extends AbstractList {
-        private final Collection delegate;
+        private final List delegate;
 
-        public ClassLoaderAwareList(final Collection delegate) {
+        public ClassLoaderAwareList(final List delegate) {
             this.delegate = delegate;
         }
 
         @Override
         public Object get(int index) {
-            throw new UnsupportedOperationException("get(index) not supported for this List");
+            Thread t = Thread.currentThread();
+            ClassLoader prev = t.getContextClassLoader();
+            t.setContextClassLoader(classLoader);
+            try {
+                return this.delegate.get(index);
+            } finally {
+                t.setContextClassLoader(prev);
+            }
         }
 
         @Override

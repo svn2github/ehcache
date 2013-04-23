@@ -31,7 +31,6 @@ import net.sf.ehcache.concurrent.StripedReadWriteLock;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
-import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
@@ -39,12 +38,16 @@ import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.AuthoritativeTier;
+import net.sf.ehcache.store.CacheStore;
+import net.sf.ehcache.store.CopyingCacheStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
+import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
 import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.store.StripedReadWriteLockProvider;
+import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskMarker;
 import net.sf.ehcache.store.disk.DiskStorageFactory.DiskSubstitute;
 import net.sf.ehcache.store.disk.DiskStorageFactory.Placeholder;
@@ -59,7 +62,6 @@ import org.terracotta.statistics.observer.OperationObserver;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -102,8 +104,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private final Segment[] segments;
     private final int segmentShift;
     private final AtomicReference<Status> status = new AtomicReference<Status>(Status.STATUS_UNINITIALISED);
-    private final boolean tierPinned;
-    private final boolean persistent;
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).of(this).named("get").tag("local-disk").build();
     private final OperationObserver<PutOutcome> putObserver = operation(PutOutcome.class).of(this).named("put").tag("local-disk").build();
     private final OperationObserver<RemoveOutcome> removeObserver = operation(RemoveOutcome.class).of(this).named("remove").tag("local-disk").build();
@@ -138,9 +138,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         this.disk = disk;
         this.disk.bind(this);
         this.status.set(Status.STATUS_ALIVE);
-        this.tierPinned = cache.getCacheConfiguration().getPinningConfiguration() != null &&
-                     cache.getCacheConfiguration().getPinningConfiguration().getStore().compareTo(PinningConfiguration.Store.INCACHE) <= 0;
-        this.persistent = cache.getCacheConfiguration().isDiskPersistent();
     }
 
     /**
@@ -172,16 +169,28 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         return create(cache, new UnboundedPool(), new UnboundedPool());
     }
 
-
     /**
-     * Will check whether a Placeholder that failed to flush to disk is lying around
-     * If so, it'll try to evict it
-     * @param key the key
-     * @return true if a failed marker was or is still there, false otherwise
+     * Create a DiskBackedMemoryStore instance
+     * @param cache the cache
+     * @param onHeapPool the pool tracking on-heap usage
+     * @param onDiskPool the pool tracking on-disk usage
+     * @return a DiskBackedMemoryStore instance
      */
-    public boolean cleanUpFailedMarker(final Serializable key) {
-        int hash = hash(key.hashCode());
-        return segmentFor(hash).cleanUpFailedMarker(key, hash);
+    public static Store createCacheStore(Ehcache cache, Pool onHeapPool, Pool onDiskPool) {
+        final DiskStore result;
+        CacheConfiguration config = cache.getCacheConfiguration();
+        if (config.isOverflowToDisk()) {
+            result = create(cache, onHeapPool, onDiskPool);
+        } else {
+            throw new CacheException("DiskBackedMemoryStore can only be used for cache overflowing to disk");
+        }
+        DiskStore diskStore = result;
+
+        final OnHeapCachingTier<Object, Element> onHeapCache = OnHeapCachingTier.createOnHeapCache(cache, onHeapPool);
+        return CopyingCacheStore.wrapIfCopy(new CacheStore(
+            onHeapCache,
+            diskStore, cache.getCacheConfiguration()
+        ), cache.getCacheConfiguration());
     }
 
     /**
@@ -215,10 +224,17 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         if (element == null) {
             return false;
         } else {
+            putObserver.begin();
             Object key = element.getObjectKey();
             int hash = hash(key.hashCode());
             Element oldElement = segmentFor(hash).put(key, hash, element, false, true);
-            return oldElement == null;
+            if (oldElement == null) {
+                putObserver.end(PutOutcome.ADDED);
+                return true;
+            } else {
+                putObserver.end(PutOutcome.UPDATED);
+                return false;
+            }
         }
     }
 
@@ -480,13 +496,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     /**
      * {@inheritDoc}
      */
-    public void fill(Element e) {
-        put(e);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public boolean put(Element element) {
         if (element == null) {
             return false;
@@ -618,23 +627,6 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         } finally {
             removeObserver.end(RemoveOutcome.SUCCESS);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeNoReturn(Object key) {
-        if (key != null) {
-            int hash = hash(key.hashCode());
-            segmentFor(hash).removeNoReturn(key, hash);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isPersistent() {
-        return persistent;
     }
 
     /**
@@ -1200,9 +1192,9 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         protected final EventRateSimpleMovingAverage hitRate;
         protected final EventRateSimpleMovingAverage missRate;
 
-        public DiskStorePoolParticipant(final EventRateSimpleMovingAverage missRate, final EventRateSimpleMovingAverage hitRate) {
-            this.missRate = missRate;
+        public DiskStorePoolParticipant(final EventRateSimpleMovingAverage hitRate, final EventRateSimpleMovingAverage missRate) {
             this.hitRate = hitRate;
+            this.missRate = missRate;
         }
 
         @Override
@@ -1217,7 +1209,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
 
         @Override
         public float getApproximateMissRate() {
-            return hitRate.rate(TimeUnit.SECONDS).floatValue();
+            return missRate.rate(TimeUnit.SECONDS).floatValue();
         }
     }
 
@@ -1226,8 +1218,8 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
      */
     private class DiskStoreHeapPoolParticipant extends DiskStorePoolParticipant {
 
-        public DiskStoreHeapPoolParticipant(final EventRateSimpleMovingAverage missRate, final EventRateSimpleMovingAverage hitRate) {
-            super(missRate, hitRate);
+        public DiskStoreHeapPoolParticipant(final EventRateSimpleMovingAverage hitRate, final EventRateSimpleMovingAverage missRate) {
+            super(hitRate, missRate);
         }
 
         @Override
@@ -1242,7 +1234,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
     private class DiskStoreDiskPoolParticipant extends DiskStorePoolParticipant {
 
         DiskStoreDiskPoolParticipant(final EventRateSimpleMovingAverage hitRate, final EventRateSimpleMovingAverage missRate) {
-            super(missRate, hitRate);
+            super(hitRate, missRate);
         }
 
         @Override

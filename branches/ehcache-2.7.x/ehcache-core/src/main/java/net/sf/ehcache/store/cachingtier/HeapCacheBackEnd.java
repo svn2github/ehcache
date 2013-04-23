@@ -15,6 +15,8 @@
  */
 package net.sf.ehcache.store.cachingtier;
 
+import net.sf.ehcache.store.Policy;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -114,6 +116,20 @@ public interface HeapCacheBackEnd<K, V> {
      */
     @Deprecated
     void recalculateSize(K key);
+
+    /**
+     * queries the potential eviction policy for the heap caching tier
+     * @return the policy
+     */
+    @Deprecated
+    Policy getPolicy();
+
+    /**
+     * sets the eviction policy on the heap caching tier
+     * @param policy the policy to use
+     */
+    @Deprecated
+    void setPolicy(Policy policy);
 
     /**
      * An eviction callback

@@ -22,7 +22,7 @@ public class TwoResourceJTATestServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.setContentType("text/plain");
+    resp.setContentType("text/html");
     PrintWriter out = resp.getWriter();
     try {
     final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
@@ -52,7 +52,7 @@ public class TwoResourceJTATestServlet extends HttpServlet {
     Cache cache = mgr.getCache("test");
     Cache cache2 = mgr.getCache("test2");
     
-    try { 
+    try {
       txnManager.setTransactionTimeout(120);
       txnManager.begin();
   

@@ -13,27 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package net.sf.ehcache.search.attribute;
 
-package net.sf.ehcache.store;
+import java.util.Map;
 
 import net.sf.ehcache.Element;
 
 /**
- * Used to compare two element values.
- * Implementations must define a constructor accepting a single CacheConfiguration argument.
- *
- * @author Ludovic Orban
+ * Dynamic indexing API
+ * @author vfunshte
  */
-public interface ElementValueComparator {
-
-    /**
-     * Compare the two elements.
-     * Null values have to be supported.
-     *
-     * @param e1 element to compare
-     * @param e2 element to compare
-     * @return {@code true} if the elements are equal
-     */
-    boolean equals(Element e1, Element e2);
-
+public interface DynamicAttributesExtractor {
+  /**
+   * Given a particular cache element, returns a map from attribute names, to their respective values to use for indexing.
+   * This method will be called once for every {@link Ehcache#put(Element)} and {@link Ehcache#replace(Element)} call.
+   * @param element
+   * @return
+   */
+    <T extends Object> Map<String, T> attributesFor(Element element);
 }

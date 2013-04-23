@@ -28,6 +28,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
 
   public ClusteredEventsEvictionExpiryTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
+    timebombTest("2013-04-25");
   }
 
   public static class App extends ClientBase {
@@ -86,7 +87,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          return NODE_COUNT == listener.getExpired().size();
+          return NODE_COUNT == listener.getExpired().size() || NODE_COUNT == listener.getEvicted().size();
         }
       });
 
@@ -120,7 +121,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          return NODE_COUNT * 2 == listener.getExpired().size();
+          return NODE_COUNT * 2 == listener.getExpired().size() || NODE_COUNT * 2 == listener.getEvicted().size();
         }
       });
 
@@ -167,6 +168,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
 
       barrier.await();
     }
+
   }
 
   public static class NonPortable implements Serializable {

@@ -160,7 +160,7 @@
             <xs:attribute name="timeToLiveSeconds" type="xs:nonNegativeInteger" use="optional"/>
             <xs:attribute name="maxElementsOnDisk" type="xs:nonNegativeInteger" use="optional"/>
             <xs:attribute name="maxEntriesLocalDisk" type="xs:nonNegativeInteger" use="optional"/>
-            <xs:attribute name="maxEntriesInCache" type="xs:integer" use="optional"/>
+            <xs:attribute name="maxEntriesInCache" type="xs:nonNegativeInteger" use="optional"/>
             <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off" />
             <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
             <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>

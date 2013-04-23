@@ -95,13 +95,13 @@ import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.StatisticsGateway;
-import net.sf.ehcache.store.DiskBackedMemoryStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
+import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.NotifyingMemoryStore;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.StoreListener;
@@ -1155,9 +1155,9 @@ public class Cache implements InternalEhcache, StoreListener {
                         store = new LegacyStoreWrapper(new LruMemoryStore(this, disk), disk, registeredEventListeners, configuration);
                     } else {
                         if (configuration.isOverflowToDisk()) {
-                            store = DiskBackedMemoryStore.create(this, onHeapPool, onDiskPool);
+                            store = DiskStore.createCacheStore(this, onHeapPool, onDiskPool);
                         } else {
-                            store = NotifyingMemoryStore.createNotifyingStore(this, onHeapPool);
+                            store = MemoryStore.create(this, onHeapPool);
                         }
                     }
                 } else {
@@ -1663,34 +1663,41 @@ public class Cache implements InternalEhcache, StoreListener {
         }
 
         if (keys.isEmpty()) {
+            getAllObserver.end(GetAllOutcome.ALL_HIT, 0, 0);
             return Collections.EMPTY_MAP;
         }
 
         Map<Object, Element> elements = compoundStore.getAll(keys);
-
-        long misses = 0;
+        Set<Object> expired = new HashSet<Object>();
         for (Entry<Object, Element> entry : elements.entrySet()) {
             Object key = entry.getKey();
             Element element = entry.getValue();
-            if (element == null) {
-                misses++;
-            } else {
+            if (element != null) {
                 if (isExpired(element)) {
                     tryRemoveImmediately(key, true);
-                    elements.remove(key);
-                    misses++;
+                    expired.add(key);
                 } else {
                     element.updateAccessStatistics();
                 }
             }
         }
-        int requests = elements.size();
-        if (misses == 0) {
+        if (!expired.isEmpty()) {
+          try {
+              elements.keySet().removeAll(expired);
+          } catch (UnsupportedOperationException e) {
+              elements = new HashMap(elements);
+              elements.keySet().removeAll(expired);
+          }
+        }
+
+        int requests = keys.size();
+        int hits = elements.size();
+        if (hits == 0) {
+            getAllObserver.end(GetAllOutcome.ALL_MISS, 0, requests);
+        } else if (requests == hits) {
             getAllObserver.end(GetAllOutcome.ALL_HIT, requests, 0);
-        } else if (misses == requests) {
-            getAllObserver.end(GetAllOutcome.ALL_MISS, 0, misses);
         } else {
-            getAllObserver.end(GetAllOutcome.PARTIAL, requests - misses, misses);
+            getAllObserver.end(GetAllOutcome.PARTIAL, hits, requests - hits);
         }
         return elements;
     }
@@ -2069,9 +2076,16 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     private boolean skipUpdateAccessStatistics(Element element) {
-      return configuration.isFrozen() && element.isEternal()
-              && (configuration.getMaxElementsInMemory() == 0)
-              && (!configuration.isOverflowToDisk() || configuration.getMaxElementsOnDisk() == 0);
+      if (configuration.isFrozen()) {
+        boolean forLifetime = element.isEternal();
+        boolean forHeap =  configuration.getMaxEntriesLocalHeap() > 0 || configuration.getMaxBytesLocalHeap() > 0
+                || getCacheManager().getConfiguration().isMaxBytesLocalHeapSet();
+        boolean forDisk = configuration.isOverflowToDisk() && (configuration.getMaxEntriesLocalDisk() > 0 || configuration.getMaxBytesLocalDisk() > 0
+                || getCacheManager().getConfiguration().isMaxBytesLocalDiskSet());
+        return !(forLifetime || forHeap || forDisk);
+      } else {
+        return false;
+      }
     }
 
     /**
@@ -3141,6 +3155,13 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public CacheWriter getRegisteredCacheWriter() {
         return this.registeredCacheWriter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registerDynamicAttributesExtractor(DynamicAttributesExtractor extractor) {
+        this.configuration.setDynamicAttributesExtractor(extractor);
     }
 
     /**

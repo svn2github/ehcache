@@ -55,7 +55,7 @@ public class MapCacheWriterFactory extends CacheWriterFactory {
 
             @Override
             public void delete(final CacheEntry entry) throws CacheException {
-                System.out.println("DELETE " + entry);
+                System.out.println("DELETE " + entry.getKey());
                 map.remove(entry.getKey());
                 deletes.getAndIncrement();
             }

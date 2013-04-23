@@ -14,26 +14,19 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.store;
+package net.sf.ehcache.config;
 
-import net.sf.ehcache.Element;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 
 /**
- * Used to compare two element values.
- * Implementations must define a constructor accepting a single CacheConfiguration argument.
- *
- * @author Ludovic Orban
+ * Listener for changes to dynamic attributes extractor config
+ * @author vfunshte
  */
-public interface ElementValueComparator {
-
+public interface DynamicSearchListener {
     /**
-     * Compare the two elements.
-     * Null values have to be supported.
-     *
-     * @param e1 element to compare
-     * @param e2 element to compare
-     * @return {@code true} if the elements are equal
+     * Called to indicate that a new dynamic attributes extractor was added
+     * @param oldValue
+     * @param newValue
      */
-    boolean equals(Element e1, Element e2);
-
+    public void extractorChanged(DynamicAttributesExtractor oldValue, DynamicAttributesExtractor newValue);
 }

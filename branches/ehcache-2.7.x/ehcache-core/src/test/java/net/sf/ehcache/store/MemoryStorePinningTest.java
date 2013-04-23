@@ -38,7 +38,7 @@ public class MemoryStorePinningTest {
                 )
         );
 
-        memoryStore = NotifyingMemoryStore.createNotifyingStore(cache, onHeapPool);
+        memoryStore = MemoryStore.create(cache, onHeapPool);
     }
 
     @After

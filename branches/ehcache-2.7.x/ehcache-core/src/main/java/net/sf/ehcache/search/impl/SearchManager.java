@@ -21,6 +21,7 @@ import java.util.Map;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.store.StoreQuery;
 
 /**
@@ -46,9 +47,12 @@ public interface SearchManager {
      * @param cacheName cache name
      * @param segmentId segment of cache
      * @param element element being added to cache
+     * @param serializedKey serialized form of the element key
      * @param extractors the attribute extractors for the cache
+     * @param dynamicIndexer dynamicIndexer dynamic attribute extractor (if any)
      */
-    void put(String cacheName, int segmentId, Element element, Map<String, AttributeExtractor> extractors);
+    void put(String cacheName, int segmentId, Element element, byte[] serializedKey, Map<String, AttributeExtractor> extractors,
+            DynamicAttributesExtractor dynamicIndexer);
 
     /**
      * Notify an element removed from a segment of a given cache

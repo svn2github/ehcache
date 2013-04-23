@@ -31,6 +31,7 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.CacheUsageListener;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
@@ -175,12 +176,22 @@ public interface Ehcache extends Cloneable {
 
     /**
      * Remove the Element mapped to the key for the supplied element if the value of the supplied Element
-     * is equal to the value of the cached Element.
+     * compares equal to the value of the cached Element.
+     * <p>
+     * This is equivalent to
+     * <pre>
+     *   if (elementValueComparator.equals(cache.get(element.getObjectKey()), element)) {
+     *       return cache.remove(element.getObjectKey());
+     *   } else return false;
+     * </pre>
+     * except that the action is performed atomically.
      *
      * @param element Element to be removed
-     * @return true if the value was removed
+     * @return {@code true} if the value was removed
      *
      * @throws NullPointerException if the element is null, or has a null key
+     *
+     * @see net.sf.ehcache.config.CacheConfiguration#addElementValueComparator(net.sf.ehcache.config.ElementValueComparatorConfiguration)
      */
     boolean removeElement(Element element) throws NullPointerException;
 
@@ -857,6 +868,15 @@ public interface Ehcache extends Cloneable {
      * @return the cache loaders as a live list
      */
     public List<CacheLoader> getRegisteredCacheLoaders();
+
+    /**
+     * Allows user to register a dynamic attribute extractor with a searchable cache that is dynamically indexable,
+     * as indicated by its configuration. Calling this method on such a cache is optional, but doing so more than once
+     * replaces previously registered extractor with the given one; i.e., there can be at most one extractor instance
+     * configured for each such cache. If the cache was not configured for dynamic indexing, an exception will be thrown
+     * @param extractor
+     */
+    public void registerDynamicAttributesExtractor(DynamicAttributesExtractor extractor);
 
     /**
      * Register the {@link CacheWriter} for this cache. It will then be tied into the cache lifecycle.

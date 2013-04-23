@@ -251,9 +251,15 @@ public class BulkLoadEnabledNodesSet {
         nodesSet.clusteredLock.unlock();
       }
     }
+
+    private void disposeLocally() {
+      timer.cancel();
+    }
   }
 
   public void disposeLocally() {
+    logger.info("Cleaning up BulkLoadEnabledNodesSet");
+    cleanupOnNodeLeftListener.disposeLocally();
     clusterInfo.removeClusterListener(cleanupOnNodeLeftListener);
   }
 

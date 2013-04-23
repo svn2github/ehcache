@@ -18,6 +18,7 @@
   <properties>
     <private-classpath>rest-management-private-classpath</private-classpath>
     <private-class-suffix>.class_terracotta</private-class-suffix>
+    <devmode>true</devmode>
   </properties>
 
   <dependencies>
@@ -29,13 +30,6 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
-      <version>8.1.7.v20120910</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.jetty.orbit</groupId>
-          <artifactId>javax.servlet</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 
@@ -43,82 +37,182 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.0-tc-patch</version>
-        <configuration>
-          <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-          <useBaseVersion>true</useBaseVersion> 
-          <shadedArtifactAttached>false</shadedArtifactAttached>
-          <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
-          <artifactSet>
-            <excludes>
-              <!-- excludes already existing classes in the main classpath -->
-              <exclude>org.slf4j:*</exclude>
-            </excludes>
-          </artifactSet>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>                                       
-              </excludes>
-            </filter>            
-          </filters>          
-          <transformers>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-              <resource>devmode-classdir.txt</resource>
-            </transformer>               
-          </transformers>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <id>fix-content</id>
-            <phase>package</phase>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <configuration>
-              <scriptpath>
-                <element>${basedir}/src/scripts</element>
-              </scriptpath>            
-              <source>
-                import Util
-                Util.packageAgentJar(project)
-              </source>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-            </manifest>
-          </archive>
-        </configuration>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <versionRange>[2.6,)</versionRange>
+                    <goals>
+                      <goal>list</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore/>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
+
+  <profiles>
+    <profile>
+      <id>devmode</id>
+      <activation>
+        <property>
+          <name>devmode</name>
+          <value>true</value>
+        </property>
+        <activeByDefault>true</activeByDefault>
+      </activation>   
+      <properties>
+        <private-classpath/>
+        <private-class-suffix>.class</private-class-suffix>
+      </properties>   
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>list-dependencies</id>
+                <configuration>
+                  <outputFile>${project.build.outputDirectory}/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt</outputFile>
+                </configuration>                
+                <goals>
+                  <goal>list</goal>
+                </goals>
+                <phase>compile</phase>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <groupId>org.terracotta.maven.plugins</groupId>
+                <artifactId>terracotta-shader</artifactId>
+                <version>1.0-SNAPSHOT</version>
+              </dependency>
+            </dependencies>
+            <configuration>
+              <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+              <useBaseVersion>true</useBaseVersion> 
+              <shadedArtifactAttached>false</shadedArtifactAttached>
+              <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
+              <artifactSet>
+                <excludes>
+                  <!-- excludes already existing classes in the main classpath -->
+                  <exclude>org.slf4j:*</exclude>
+                </excludes>
+              </artifactSet>
+              <shaderHint>reduced-pom-only-shader</shaderHint>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>           
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>fullmode</id>
+      <activation>
+        <property>
+          <name>devmode</name>
+          <value>false</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>            
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <configuration>
+              <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+              <useBaseVersion>true</useBaseVersion> 
+              <shadedArtifactAttached>false</shadedArtifactAttached>
+              <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+              <artifactSet>
+                <excludes>
+                  <!-- excludes already existing classes in the main classpath -->
+                  <exclude>org.slf4j:*</exclude>
+                </excludes>
+              </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>                                       
+                  </excludes>
+                </filter>            
+              </filters>          
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+              </transformers>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>fix-content</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <scriptpath>
+                    <element>${basedir}/src/scripts</element>
+                  </scriptpath>            
+                  <source>
+                    import Util
+                    Util.packageAgentJar(project)
+                  </source>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>        
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <repositories>
     <repository>

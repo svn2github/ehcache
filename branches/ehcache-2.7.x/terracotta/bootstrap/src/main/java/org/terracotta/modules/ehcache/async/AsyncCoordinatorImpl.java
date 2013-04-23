@@ -103,13 +103,15 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       this.scatterPolicy = getPolicy(policy, concurrency);
       this.processor = itemProcessor;
       cluster.addClusterListener(listener);
-
       startBuckets(concurrency);
       status = Status.STARTED;
     } finally {
       nodeWriteLock.unlock();
     }
+    processDeadNodes();
+  }
 
+  private void processDeadNodes() {
     scanDeadNodes();
     processOneDeadNodeIfNecessary();
   }
@@ -144,6 +146,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
 
   private void startBuckets(int processingConcurrency) {
     // add meta info first
+    bucketManager.populateMap();
     Set<String> nameList = new HashSet();
     for (int i = 0; i < processingConcurrency; i++) {
       String bucketName = nodeName + DELIMITER + i;
@@ -261,13 +264,11 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       debug("nodeRejoined currentNode " + currentNode + " nodeName " + nodeName);
       localBuckets.clear();
       deadBuckets.clear();
-      bucketManager.populateMap();
       startBuckets(concurrency);
     } finally {
       nodeWriteLock.unlock();
     }
-    scanDeadNodes();
-    processOneDeadNodeIfNecessary();
+    processDeadNodes();
   }
 
   private void stopBucketsNow(List<ProcessingBucket<E>> buckets) {
@@ -413,11 +414,11 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     public BucketManager(ToolkitInstanceFactory toolkitFactory) {
       this.nodeToBucketNames = toolkitFactory.getOrCreateAsyncListNamesMap(name);
       nodeToBucketNames.putIfAbsent(DEAD_NODES, new HashSet<String>());
-      populateMap();
     }
 
     public void populateMap() {
-      nodeToBucketNames.putIfAbsent(nodeName, new HashSet<String>());
+      Set<String> prev = nodeToBucketNames.put(nodeName, new HashSet<String>());
+      if (prev != null) { throw new AssertionError("previous value " + prev + " not null for " + nodeName); }
     }
 
     private void bucketsCreated(Collection<String> bucketNames) {

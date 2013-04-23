@@ -172,7 +172,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
           // serializer.
           // this will ensure transactions being atomic for putWithWriter and removeWithWriter.
           Configuration syncConfiguration = new ToolkitStoreConfigBuilder()
-              .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG)
+              .consistency(ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG)
               .concurrency(1).build();
           ToolkitStore<String, Object> serializationHelperStore = toolkitInstanceFactory.getToolkit()
               .getStore("STORE-FOR-SERIALIZATION-HELPER", syncConfiguration, Object.class);
@@ -325,8 +325,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     Object pKey = generatePortableKeyFor(key);
     Serializable value = backend.get(pKey);
     if (value == null) { return null; }
-    Element element = this.valueModeHandler.createElement(key, value);
-    return element;
+    return this.valueModeHandler.createElement(key, value);
   }
 
   @Override
@@ -334,8 +333,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     String pKey = generatePortableKeyFor(key);
     Serializable value = backend.getQuiet(pKey);
     if (value == null) { return null; }
-    Element element = this.valueModeHandler.createElement(key, value);
-    return element;
+    return this.valueModeHandler.createElement(key, value);
   }
 
   @Override
@@ -712,7 +710,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
     ElementData value = valueModeHandler.createElementData(element);
     if (checkContainsKeyOnPut) {
-      return backend.put(portableKey, value) == null ? true : false;
+      return backend.put(portableKey, value) == null;
     } else {
       backend.putNoReturn(portableKey, value);
       return true;
@@ -726,7 +724,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
       Serializable old = backend.unlockedGet(portableKey, true);
       backend.unlockedPutNoReturn(portableKey, value, now(), ToolkitConfigFields.NO_MAX_TTI_SECONDS,
                                   ToolkitConfigFields.NO_MAX_TTL_SECONDS);
-      return old == null ? true : false;
+      return old == null;
     } else {
       backend.unlockedPutNoReturn(portableKey, value, now(), ToolkitConfigFields.NO_MAX_TTI_SECONDS,
                                   ToolkitConfigFields.NO_MAX_TTL_SECONDS);
@@ -741,7 +739,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     int customTTI = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToIdle();
     int customTTL = element.isEternal() ? Integer.MAX_VALUE : element.getTimeToLive();
     if (checkContainsKeyOnPut) {
-      return backend.put(portableKey, value, creationTimeInSecs, customTTI, customTTL) == null ? true : false;
+      return backend.put(portableKey, value, creationTimeInSecs, customTTI, customTTL) == null;
     } else {
       backend.putNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
       return true;
@@ -757,7 +755,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     if (checkContainsKeyOnPut) {
       Serializable old = backend.unlockedGet(portableKey, true);
       backend.unlockedPutNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
-      return old == null ? true : false;
+      return old == null;
     } else {
       backend.unlockedPutNoReturn(portableKey, value, creationTimeInSecs, customTTI, customTTL);
       return true;
@@ -769,8 +767,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     String pKey = generatePortableKeyFor(key);
     Serializable value = backend.unsafeLocalGet(pKey);
     if (value == null) { return null; }
-    Element element = this.valueModeHandler.createElement(key, value);
-    return element;
+    return this.valueModeHandler.createElement(key, value);
   }
 
   @Override
@@ -815,7 +812,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     throw new UnsupportedOperationException();
   }
 
-  private final ToolkitLock getLockForKey(String pKey) {
+  private ToolkitLock getLockForKey(String pKey) {
     if (isEventual) {
       return eventualConcurrentLock;
     } else {
@@ -823,7 +820,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     }
   }
 
-  private final int now() {
+  private static int now() {
     return (int) System.currentTimeMillis() / 1000;
   }
 }

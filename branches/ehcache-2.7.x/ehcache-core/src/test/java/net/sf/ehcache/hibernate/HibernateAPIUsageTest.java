@@ -23,13 +23,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-import net.sf.ehcache.util.RetryAssert;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.Is;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
@@ -43,9 +40,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -109,7 +106,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
      * getTimeout appears to be broken. It returns 4096 minutes!
      */
     @Test
-    public void testAPIAsUsedByHibernate3() throws InterruptedException {
+    public void testAPIAsUsedByHibernate3() throws InterruptedException, ExecutionException {
 
         org.hibernate.cache.EhCacheProvider provider = new org.hibernate.cache.EhCacheProvider();
         provider.start(null);
@@ -141,7 +138,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
         for (int i = 0; i < 10010; i++) {
             cache.put("" + i, value);
         }
-        Thread.sleep(100);
+        DiskStoreHelper.flushAllEntriesToDisk(getBackingCache((org.hibernate.cache.EhCache)cache)).get();
         //this is now fixed
         assertThat(cache.getElementCountInMemory(), lessThanOrEqualTo(10000L));
         // TODO Lower tier will _never_ be smaller than higher ones now
@@ -185,6 +182,16 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
 
         provider.stop();
 
+    }
+
+    private Cache getBackingCache(final org.hibernate.cache.EhCache cache) {
+        try {
+            final Field cacheField = cache.getClass().getDeclaredField("cache");
+            cacheField.setAccessible(true);
+            return (Cache)cacheField.get(cache);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

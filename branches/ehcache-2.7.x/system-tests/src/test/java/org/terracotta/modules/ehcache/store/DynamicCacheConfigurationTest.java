@@ -326,7 +326,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
 
     public void testDiskCapacityChange(CacheManager cm) throws Exception {
       final Cache cache = createCache("testDiskCapacityChange", 10, true, 0, 0);
-      cache.getCacheConfiguration().maxEntriesInCache(100).getTerracottaConfiguration()
+      cache.getCacheConfiguration().maxEntriesLocalHeap(1).maxEntriesInCache(100).getTerracottaConfiguration()
           .consistency(TerracottaConfiguration.Consistency.STRONG).concurrency(1);
       cm.addCache(cache);
 

@@ -12,12 +12,16 @@ import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
 import net.sf.ehcache.management.service.impl.DfltSamplerRepositoryService;
-
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.embedded.FilterDetail;
+import org.terracotta.management.embedded.NoIaFilter;
 import org.terracotta.management.embedded.StandaloneServer;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.LicenseServiceImpl;
 import org.terracotta.management.resource.services.validator.RequestValidator;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author brandony
@@ -38,7 +42,8 @@ public final class ManagementServerImpl extends AbstractManagementServer {
 
     loadEmbeddedAgentServiceLocator(clientUUID, configuration);
     samplerRepoSvc = ServiceLocator.locate(SamplerRepositoryService.class);
-    standaloneServer = new StandaloneServer(null, null, basePackage, host, port, null, false);
+    List<FilterDetail> filterDetails = Collections.singletonList(new FilterDetail(new NoIaFilter(), "/*"));
+    standaloneServer = new StandaloneServer(filterDetails, null, basePackage, host, port, null, false);
   }
 
 

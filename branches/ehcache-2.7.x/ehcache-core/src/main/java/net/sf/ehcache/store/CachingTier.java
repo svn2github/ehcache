@@ -120,6 +120,20 @@ public interface CachingTier<K, V> {
     void recalculateSize(K key);
 
     /**
+     * queries the potential eviction policy for the heap caching tier
+     * @return the policy
+     */
+    @Deprecated
+    Policy getEvictionPolicy();
+
+    /**
+     * sets the eviction policy on the heap caching tier
+     * @param policy the policy to use
+     */
+    @Deprecated
+    void setEvictionPolicy(Policy policy);
+
+    /**
      * A listener that will be notified when eviction of a mapping happens
      *
      * @param <K>

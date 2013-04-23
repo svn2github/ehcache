@@ -43,12 +43,18 @@ public class Searchable {
     public static final boolean VALUES_DEFAULT = true;
 
     /**
+     * Default for allowing dynamic indexing
+     */
+    public static final boolean DYNAMIC_INDEXING_DEFAULT = false;
+
+    /**
      * The defined search attributes (if any) indexed by name
      */
     private final Map<String, SearchAttribute> searchAttributes = new HashMap<String, SearchAttribute>();
     private boolean frozen;
     private boolean keys;
     private boolean values;
+    private boolean allowDynamicIndexing = DYNAMIC_INDEXING_DEFAULT;
 
     /**
      * Constructor
@@ -153,6 +159,14 @@ public class Searchable {
     }
 
     /**
+     * Is dynamic indexing allowed?
+     * @return
+     */
+    public boolean isDynamicIndexingAllowed() {
+        return allowDynamicIndexing;
+    }
+
+    /**
      * Toggle searchable values
      *
      * @param b
@@ -200,5 +214,22 @@ public class Searchable {
             String valueAttr = Query.VALUE.getAttributeName();
             searchAttributes.put(valueAttr, new SearchAttribute().name(valueAttr).className(ValueObjectAttributeExtractor.class.getName()));
         }
+    }
+
+    /**
+     * Allow or disallow dynamic search attribute extraction
+     * @param allow
+     */
+    public void setAllowDynamicIndexing(boolean allow) {
+        checkDynamicChange();
+        this.allowDynamicIndexing = allow;
+    }
+
+    /**
+     * Allow or disallow dynamic search attribute extraction
+     * @param allow
+     */
+    public void allowDynamicIndexing(boolean allow) {
+        setAllowDynamicIndexing(allow);
     }
 }

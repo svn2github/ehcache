@@ -71,7 +71,7 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
 
   @Override
   public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
-    change(DynamicConfigType.MAX_TOTAL_COUNT, newCapacity, true);
+    change(DynamicConfigType.MAX_TOTAL_COUNT, mapMaxEntriesInCacheToTotalCount(newCapacity), true);
   }
 
   @Override
@@ -127,7 +127,7 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
           break;
         }
         case MAX_TOTAL_COUNT: {
-          cache.getCacheConfiguration().internalSetMaxEntriesInCache(getInt(newValue));
+          cache.getCacheConfiguration().internalSetMaxEntriesInCache(mapTotalCountToMaxEntriesInCache(getInt(newValue)));
           break;
         }
         case MAX_COUNT_LOCAL_HEAP: {
@@ -191,5 +191,19 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
     } else {
       throw new IllegalArgumentException("Expected int value but got: " + newValue);
     }
+  }
+
+  public static int mapMaxEntriesInCacheToTotalCount(int maxEntriesInCache) {
+    if (maxEntriesInCache == 0) {
+      return -1;
+    }
+    return maxEntriesInCache;
+  }
+
+  private static int mapTotalCountToMaxEntriesInCache(int totalCount) {
+    if (totalCount == -1) {
+      return 0;
+    }
+    return totalCount;
   }
 }

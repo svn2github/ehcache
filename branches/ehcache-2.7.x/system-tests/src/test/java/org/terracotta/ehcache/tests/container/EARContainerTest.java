@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
 import org.terracotta.toolkit.Toolkit;
 
-import com.meterware.httpunit.WebConversation;
-import com.meterware.httpunit.WebResponse;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import com.tc.test.AppServerInfo;
 import com.tc.test.TestConfigObject;
 import com.tc.test.server.appserver.deployment.AbstractDeploymentTestCase;
@@ -190,13 +190,13 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
     server0.start();
 
     // do insert on server0
-    WebConversation conversation = new WebConversation();
+    WebClient conversation = new WebClient();
     WebResponse response1 = request(server0, "cmd=insert", conversation);
-    assertEquals("OK", response1.getText().trim());
+    assertEquals("OK", response1.getContentAsString().trim());
 
   }
 
-  private WebResponse request(WebApplicationServer server, String params, WebConversation con) throws Exception {
+  private WebResponse request(WebApplicationServer server, String params, WebClient con) throws Exception {
     return server.ping("/" + CONTEXT + "/BasicTestServlet?" + params, con);
   }
 

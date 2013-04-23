@@ -390,12 +390,12 @@ public class CacheStore implements Store {
 
     @Override
     public Policy getInMemoryEvictionPolicy() {
-        throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+        return cachingTier.getEvictionPolicy();
     }
 
     @Override
     public void setInMemoryEvictionPolicy(final Policy policy) {
-        throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+        cachingTier.setEvictionPolicy(policy);
     }
 
     @Override
