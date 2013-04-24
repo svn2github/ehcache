@@ -202,6 +202,35 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
+     * Constructor
+     *
+     * @param key               any non null value
+     * @param value             any value, including nulls
+     * @param timeToIdleSeconds seconds to idle
+     * @param timeToLiveSeconds seconds to live
+     * @since 2.7.1
+     */
+    public Element(final Object key, final Object value,
+                   final int timeToIdleSeconds, final int timeToLiveSeconds) {
+        this(key, value);
+        setTimeToIdle(timeToIdleSeconds);
+        setTimeToLive(timeToLiveSeconds);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param key               any non null value
+     * @param value             any value, including nulls
+     * @param eternal           whether this element is eternal
+     * @since 2.7.1
+     */
+    public Element(final Object key, final Object value, final boolean eternal) {
+        this(key, value);
+        setEternal(eternal);
+    }
+
+    /**
      * Constructor used by ehcache-server
      *
      * timeToIdleSeconds and timeToLiveSeconds will have precedence over eternal. Which means that what ever eternal says, non-null
@@ -212,7 +241,10 @@ public class Element implements Serializable, Cloneable {
      * @param eternal           specify as non-null to override cache configuration
      * @param timeToIdleSeconds specify as non-null to override cache configuration
      * @param timeToLiveSeconds specify as non-null to override cache configuration
+     *
+     * @deprecated
      */
+    @Deprecated
     public Element(final Object key, final Object value,
                    final Boolean eternal, final Integer timeToIdleSeconds, final Integer timeToLiveSeconds) {
         this.key = key;
