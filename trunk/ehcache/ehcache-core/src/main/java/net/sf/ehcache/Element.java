@@ -204,6 +204,9 @@ public class Element implements Serializable, Cloneable {
     /**
      * Constructor used by ehcache-server
      *
+     * timeToIdleSeconds and timeToLiveSeconds will have precedence over eternal. Which means that what ever eternal says, non-null
+     * timeToIdleSeconds or timeToLiveSeconds will result in the element not being eternal
+     *
      * @param key               any non null value
      * @param value             any value, including nulls
      * @param eternal           specify as non-null to override cache configuration

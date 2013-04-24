@@ -217,4 +217,35 @@ public class ElementTest {
         assertThat(clone.getHitCount(), is(12345L));
     }
 
+    @Test
+    public void testConstructorArgPrecedence() {
+        Element element = new Element("key", "value", true, 10, 10);
+        assertThat(element.isEternal(), is(false));
+        assertThat(element.usesCacheDefaultLifespan(), is(false));
+
+        element = new Element("key", "value", null, 10, 10);
+        assertThat(element.isEternal(), is(false));
+        assertThat(element.usesCacheDefaultLifespan(), is(false));
+
+        element = new Element("key", "value", null, 0, 0);
+        assertThat(element.isEternal(), is(true));
+        assertThat(element.usesCacheDefaultLifespan(), is(false));
+
+        element = new Element("key", "value", true, 0, 0);
+        assertThat(element.isEternal(), is(true));
+        assertThat(element.usesCacheDefaultLifespan(), is(false));
+
+        element = new Element("key", "value", false, 0, 0);
+        assertThat(element.isEternal(), is(true));
+        assertThat(element.usesCacheDefaultLifespan(), is(false));
+
+        element = new Element("key", "value", true, null, null);
+        assertThat(element.isEternal(), is(true));
+        assertThat(element.usesCacheDefaultLifespan(), is(false));
+
+        element = new Element("key", "value", null, null, null);
+        assertThat(element.isEternal(), is(false));
+        assertThat(element.usesCacheDefaultLifespan(), is(true));
+    }
+
 }
