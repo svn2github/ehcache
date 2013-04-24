@@ -1380,6 +1380,20 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isLocalHeapCountBased() {
+        if (cache.getCacheConfiguration().getMaxBytesLocalHeap() > 0) {
+            return false;
+        } else if (cache.getCacheManager() != null && cache.getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * A package friendly method to allow dependants access to the underlying {@link Ehcache} object. This is available
      * in order to allow {@link SampledCache} objects to continue to provide deprecated methods on the {@link SampledCacheMBean} interface,
      * rather than burdening {@link CacheSampler} with these now irrelevant methods. This helper method

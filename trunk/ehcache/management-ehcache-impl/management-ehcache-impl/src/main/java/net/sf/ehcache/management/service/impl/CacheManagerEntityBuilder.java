@@ -13,6 +13,7 @@ import org.terracotta.management.resource.AgentEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -69,6 +70,11 @@ final class CacheManagerEntityBuilder extends ConstrainableEntityBuilderSupport<
 
   Logger getLog() {
     return LOG;
+  }
+
+  @Override
+  protected Set<String> getExcludedAttributeNames(CacheManagerSampler cacheManagerSampler) {
+    return Collections.emptySet();
   }
 
   private void addSampler(CacheManagerSampler sampler) {

@@ -406,4 +406,9 @@ public interface LegacyCacheStatistics {
      * Get most recent value of XA rollbacks
      */
     long getCacheXaRollbacksMostRecentSample();
+
+    /**
+     * Check if the local heap is measured with ARC or in element count
+     */
+    boolean isLocalHeapCountBased();
 }

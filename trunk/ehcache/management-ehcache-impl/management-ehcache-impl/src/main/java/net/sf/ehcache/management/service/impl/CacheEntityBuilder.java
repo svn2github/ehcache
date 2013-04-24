@@ -6,6 +6,7 @@ package net.sf.ehcache.management.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -78,6 +79,17 @@ final class CacheEntityBuilder extends ConstrainableEntityBuilderSupport<CacheSa
 
   Logger getLog() {
     return LOG;
+  }
+
+  @Override
+  protected Set<String> getExcludedAttributeNames(CacheSampler sampler) {
+    if (sampler.isLocalHeapCountBased()) {
+      Set<String> excludedNames = new HashSet<String>();
+      excludedNames.add("LocalHeapSizeInBytes");
+      excludedNames.add("LocalHeapSizeInBytesSample");
+      return excludedNames;
+    }
+    return Collections.emptySet();
   }
 
   private void addSampler(CacheSampler sampler,
