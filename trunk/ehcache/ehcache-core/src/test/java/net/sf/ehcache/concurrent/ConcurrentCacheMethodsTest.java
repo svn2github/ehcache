@@ -60,7 +60,7 @@ public class ConcurrentCacheMethodsTest {
 
     @After
     public void clearup() {
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.shutdown();
     }
 

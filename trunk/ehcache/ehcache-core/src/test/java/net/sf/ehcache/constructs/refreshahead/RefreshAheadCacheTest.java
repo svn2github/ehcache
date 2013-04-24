@@ -32,7 +32,7 @@ public class RefreshAheadCacheTest {
     public void testSimpleCaseProgrammatic() {
 
         CacheManager manager = new CacheManager();
-        manager.removalAll();
+        manager.removeAllCaches();
 
         manager.addCache(new Cache(new CacheConfiguration().name("test").timeToLiveSeconds(10).overflowToDisk(false)
                 .maxElementsInMemory(100)));
@@ -77,7 +77,7 @@ public class RefreshAheadCacheTest {
         Assert.assertEquals(1, decorator.getRefreshSuccessCount().get());
         Assert.assertFalse(creationTime == got.getCreationTime());
 
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.shutdown();
     }
 
@@ -85,7 +85,7 @@ public class RefreshAheadCacheTest {
     public void testSimpleCaseXML() {
 
         CacheManager manager = new CacheManager();
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.shutdown();
 
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream
@@ -130,7 +130,7 @@ public class RefreshAheadCacheTest {
     public void testSimpleCaseXMLNullEvicts() {
 
         CacheManager manager = new CacheManager();
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.shutdown();
 
         CacheManager cacheManager = new CacheManager(getClass().getResourceAsStream

@@ -297,7 +297,7 @@ public class EvictionListenerTest {
                 future.get();
             }
         }
-        cacheManager.removalAll();
+        cacheManager.removeAllCaches();
     }
 
     @AfterClass

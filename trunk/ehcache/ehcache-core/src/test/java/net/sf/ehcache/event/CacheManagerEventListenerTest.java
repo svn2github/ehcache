@@ -92,7 +92,7 @@ public class CacheManagerEventListenerTest {
         CountingCacheManagerEventListener countingCacheManagerEventListener = new CountingCacheManagerEventListener();
 
         CacheManager manager = new CacheManager();
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.getCacheManagerEventListenerRegistry().registerListener(countingCacheManagerEventListener);
 
         for (int i = 0; i < 10; i++) {

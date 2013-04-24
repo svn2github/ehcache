@@ -1421,11 +1421,20 @@ public class CacheManager {
     /**
      * Removes all caches using {@link #removeCache(String)} for each cache.
      */
-    public void removalAll() {
+    public void removeAllCaches() {
         String[] cacheNames = getCacheNames();
         for (String cacheName : cacheNames) {
             removeCache(cacheName);
         }
+    }
+
+    /**
+     * Removes all caches using {@link #removeCache(String)} for each cache.
+     * @deprecated use {@link #removeAllCaches} instead
+     */
+    @Deprecated
+    public void removalAll() {
+        removeAllCaches();
     }
 
     /**

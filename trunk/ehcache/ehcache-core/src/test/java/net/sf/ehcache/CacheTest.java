@@ -2255,7 +2255,7 @@ public class CacheTest extends AbstractCacheTest {
     @Test
     public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
         for (int i = 0; i < 100; i++) {
-            manager.removalAll();
+            manager.removeAllCaches();
             testConcurrentPutsAreConsistent();
         }
     }
