@@ -54,7 +54,7 @@ public class ReadThroughCacheTest {
     public void testReadThroughSimpleCase() {
 
         CacheManager manager = new CacheManager();
-        manager.removalAll();
+        manager.removeAllCaches();
 
         CacheConfiguration config = new CacheConfiguration().name("sampleCacheReadThru").maxElementsInMemory(100).timeToIdleSeconds(8)
                 .timeToLiveSeconds(8).overflowToDisk(false);
@@ -95,7 +95,7 @@ public class ReadThroughCacheTest {
         got = cache.get(new Integer(1));
         Assert.assertNotNull(got);
 
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.shutdown();
     }
 }

@@ -35,7 +35,7 @@ public class ScheduledRefreshCacheExtensionTest {
     public void testSimpleCaseProgrammatic() {
 
         CacheManager manager = new CacheManager();
-        manager.removalAll();
+        manager.removeAllCaches();
 
         manager.addCache(new Cache(new CacheConfiguration().name("test").eternal(true).maxEntriesLocalHeap(5000)));
         Ehcache cache = manager.getEhcache("test");
@@ -69,7 +69,7 @@ public class ScheduledRefreshCacheExtensionTest {
 
         }
         //cacheExtension.dispose();
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.shutdown();
     }
 
@@ -105,7 +105,7 @@ public class ScheduledRefreshCacheExtensionTest {
             }
 
         }
-        manager.removalAll();
+        manager.removeAllCaches();
 
         manager.shutdown();
     }
@@ -116,7 +116,7 @@ public class ScheduledRefreshCacheExtensionTest {
     public void testPolling() {
 
         CacheManager manager = new CacheManager();
-        manager.removalAll();
+        manager.removeAllCaches();
 
         manager.addCache(new Cache(new CacheConfiguration().name("tt").eternal(true).maxEntriesLocalHeap(5000).overflowToDisk(false)));
         Ehcache cache = manager.getEhcache("tt");
@@ -142,7 +142,7 @@ public class ScheduledRefreshCacheExtensionTest {
         sleepySeconds(20);
 
         //cacheExtension.dispose();
-        manager.removalAll();
+        manager.removeAllCaches();
         manager.shutdown();
     }
 

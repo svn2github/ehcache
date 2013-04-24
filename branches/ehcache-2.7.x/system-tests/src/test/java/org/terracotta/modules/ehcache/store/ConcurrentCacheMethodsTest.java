@@ -122,7 +122,7 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
 
     private void clearup() {
       cache.removeAll();
-      manager.removalAll();
+      manager.removeAllCaches();
       manager.shutdown();
     }
 

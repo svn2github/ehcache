@@ -102,7 +102,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        manager.removalAll();
+        manager.removeAllCaches();
     }
 
     /**

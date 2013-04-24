@@ -978,7 +978,7 @@ public class CacheManagerTest {
             assertEquals(0, manager.getConfiguration().getCacheConfigurations().size());
             manager.addCache("test1");
             assertEquals(1, manager.getConfiguration().getCacheConfigurations().size());
-            manager.removalAll();
+            manager.removeAllCaches();
             assertEquals(0, manager.getConfiguration().getCacheConfigurations().size());
         } finally {
             manager.shutdown();
