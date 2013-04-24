@@ -1384,13 +1384,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public boolean isLocalHeapCountBased() {
-        if (cache.getCacheConfiguration().getMaxBytesLocalHeap() > 0) {
-            return false;
-        } else if (cache.getCacheManager() != null && cache.getCacheManager().getConfiguration().isMaxBytesLocalHeapSet()) {
-            return false;
-        } else {
-            return true;
-        }
+      return cache.getCacheConfiguration()
+                 .getMaxBytesLocalHeap() <= 0 && !(cache.getCacheManager() != null && cache.getCacheManager()
+          .getConfiguration()
+          .isMaxBytesLocalHeapSet());
     }
 
     /**
