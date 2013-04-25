@@ -27,14 +27,17 @@ public class TestCacheEntityBuilder {
     CacheSampler samplerFoo = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerFoo.getCacheName()).andReturn("FOO");
     EasyMock.expect(samplerFoo.getExpiredCount()).andReturn(1L);
+    EasyMock.expect(samplerFoo.isLocalHeapCountBased()).andReturn(true);
 
     CacheSampler samplerGoo = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerGoo.getCacheName()).andReturn("GOO");
     EasyMock.expect(samplerGoo.getExpiredCount()).andReturn(2L);
+    EasyMock.expect(samplerGoo.isLocalHeapCountBased()).andReturn(true);
 
     CacheSampler samplerBar = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerBar.getCacheName()).andReturn("BAR");
     EasyMock.expect(samplerBar.getExpiredCount()).andReturn(3L);
+    EasyMock.expect(samplerBar.isLocalHeapCountBased()).andReturn(true);
 
     EasyMock.replay(samplerFoo, samplerBar, samplerGoo);
 
