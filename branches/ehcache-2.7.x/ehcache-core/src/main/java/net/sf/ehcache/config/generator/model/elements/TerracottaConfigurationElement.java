@@ -52,8 +52,6 @@ public class TerracottaConfigurationElement extends SimpleNodeElement {
         }
         addAttribute(new SimpleNodeAttribute("clustered", tcConfiguration.isClustered()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_CLUSTERED));
-        addAttribute(new SimpleNodeAttribute("valueMode", tcConfiguration.getValueMode()).optional(true).defaultValue(
-                TerracottaConfiguration.DEFAULT_VALUE_MODE));
         addAttribute(new SimpleNodeAttribute("consistency", tcConfiguration.getConsistency().name()).optional(true).defaultValue(
                 TerracottaConfiguration.DEFAULT_CONSISTENCY_TYPE.name()));
         addAttribute(new SimpleNodeAttribute("synchronousWrites", tcConfiguration.isSynchronousWrites()).optional(true).defaultValue(

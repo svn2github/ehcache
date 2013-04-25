@@ -249,7 +249,6 @@
                 <xs:element minOccurs="0" maxOccurs="1" ref="nonstop"/>
             </xs:sequence>
             <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
-            <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
             <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
             <xs:attribute name="localKeyCache" use="optional" type="xs:boolean" default="false"/>
             <xs:attribute name="localKeyCacheSize" use="optional" type="xs:positiveInteger" default="300000"/>

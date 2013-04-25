@@ -9,7 +9,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -46,22 +45,21 @@ public class L1BMOnHeapWithTTISanityTest extends AbstractCacheTestBase {
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       Cache dcv2EventualSerializationWithStats = createCache("dcv2EventualSerializationWithStats", cacheManager,
-                                                             Consistency.EVENTUAL, ValueMode.SERIALIZATION);
+                                                             Consistency.EVENTUAL);
       testL1BigMemorySanity(dcv2EventualSerializationWithStats, true);
       dcv2EventualSerializationWithStats.removeAll();
 
       Cache dcv2EventualSerializationWithoutStats = createCache("dcv2EventualSerializationWithoutStats", cacheManager,
-                                                                Consistency.EVENTUAL, ValueMode.SERIALIZATION);
+                                                                Consistency.EVENTUAL);
       testL1BigMemorySanity(dcv2EventualSerializationWithoutStats, true);
       dcv2EventualSerializationWithoutStats.removeAll();
 
       Cache dcv2StrongSerializationWithStats = createCache("dcv2StrongSerializationWithStats", cacheManager,
-                                                           Consistency.STRONG, ValueMode.SERIALIZATION);
+                                                           Consistency.STRONG);
       testL1BigMemorySanity(dcv2StrongSerializationWithStats, false);
       dcv2StrongSerializationWithStats.removeAll();
 
-      Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG,
-                                                 ValueMode.SERIALIZATION);
+      Cache dcv2StrongWithoutStats = createCache("dcv2StrongWithoutStats", cacheManager, Consistency.STRONG);
       testL1BigMemorySanity(dcv2StrongWithoutStats, false);
       dcv2StrongWithoutStats.removeAll();
     }
@@ -145,8 +143,7 @@ public class L1BMOnHeapWithTTISanityTest extends AbstractCacheTestBase {
       System.out.println("XXXXXX done with " + cache.getName());
     }
 
-    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
-                              ValueMode valueMode) {
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setTimeToIdleSeconds(30);
       cacheConfiguration.setName(cacheName);
@@ -154,7 +151,6 @@ public class L1BMOnHeapWithTTISanityTest extends AbstractCacheTestBase {
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);
-      tcConfiguration.setValueMode(valueMode.name());
       cacheConfiguration.addTerracotta(tcConfiguration);
 
       Cache cache = new Cache(cacheConfiguration);

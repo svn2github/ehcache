@@ -21,7 +21,6 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
@@ -205,10 +204,6 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     if (terracottaConfiguration == null || !terracottaConfiguration.isClustered()) { throw new InvalidConfigurationException(
                                                                                                                              "Cannot create clustered store for non-terracotta clustered caches"); }
 
-    // TODO: move all below validation in ehcache-core?
-    if (terracottaConfiguration.getValueMode() == ValueMode.IDENTITY) {
-      errors.add(new ConfigError("Identity value mode is no longer supported"));
-    }
     MemoryStoreEvictionPolicy policy = cacheConfiguration.getMemoryStoreEvictionPolicy();
     if (policy == MemoryStoreEvictionPolicy.FIFO || policy == MemoryStoreEvictionPolicy.LFU) {
       errors.add(new ConfigError("Policy '" + policy + "' is not a supported memory store eviction policy."));

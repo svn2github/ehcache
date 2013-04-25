@@ -155,7 +155,6 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
                 cache = manager.getEhcache(name);
                 LOG.debug("started EHCache region: " + name);
             }
-            HibernateUtil.validateEhcache(cache);
             return cache;
         } catch (net.sf.ehcache.CacheException e) {
             throw new CacheException(e);

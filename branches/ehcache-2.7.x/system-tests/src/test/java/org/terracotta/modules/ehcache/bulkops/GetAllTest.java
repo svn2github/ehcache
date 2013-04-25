@@ -9,7 +9,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
-import net.sf.ehcache.config.TerracottaConfiguration.ValueMode;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -47,16 +46,13 @@ public class GetAllTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-      Cache dcv2EventualWithStats = createCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL,
-                                                 ValueMode.SERIALIZATION);
+      Cache dcv2EventualWithStats = createCache("dcv2EventualWithStats", cacheManager, Consistency.EVENTUAL);
       testBulkOpsSanity(dcv2EventualWithStats, true);
 
-      Cache dcv2EventualWithoutStats = createCache("dcv2EventualWithoutStats", cacheManager,
-                                                    Consistency.EVENTUAL, ValueMode.SERIALIZATION);
+      Cache dcv2EventualWithoutStats = createCache("dcv2EventualWithoutStats", cacheManager, Consistency.EVENTUAL);
       testBulkOpsSanity(dcv2EventualWithoutStats, true);
 
-      Cache dcv2StrongWithStats = createCache("dcv2StrongWithStats", cacheManager, Consistency.STRONG,
-                                               ValueMode.SERIALIZATION);
+      Cache dcv2StrongWithStats = createCache("dcv2StrongWithStats", cacheManager, Consistency.STRONG);
       testBulkOpsSanity(dcv2StrongWithStats, false);
 
     }
@@ -148,8 +144,7 @@ public class GetAllTest extends AbstractCacheTestBase {
       }
     }
 
-    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
-                               ValueMode valueMode) {
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxEntriesInCache(10000);
@@ -160,7 +155,6 @@ public class GetAllTest extends AbstractCacheTestBase {
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);
-      tcConfiguration.setValueMode(valueMode.name());
       cacheConfiguration.addTerracotta(tcConfiguration);
 
       Cache cache = new Cache(cacheConfiguration);

@@ -46,8 +46,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-      Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
-                                                   "SERIALIZATION");
+      Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG);
       testBulkOpsSanity(dcv2StrongSerialization, false);
     }
 
@@ -123,8 +122,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
       System.out.println("XXXXX done with " + cache.getName());
     }
 
-    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
-                               String valueMode) {
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxEntriesInCache(1000000);
@@ -135,7 +133,6 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);
-      tcConfiguration.setValueMode(valueMode);
       cacheConfiguration.addTerracotta(tcConfiguration);
 
       Cache cache = new Cache(cacheConfiguration);

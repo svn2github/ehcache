@@ -962,22 +962,12 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     * clustered=true|false - indicates whether this cache should be clustered (distributed) with Terracotta. By
       default, if the <terracotta> element is included, clustered=true.
 
-    * valueMode=serialization|identity - the default is serialization
-
-      Indicates whether cache Elements are distributed with serialized copies or whether a single copy
-      in identity mode is distributed.
-
-      The implications of Identity mode should be clearly understood with reference to the Terracotta
-      documentation before use.
-
     * copyOnRead=true|false - indicates whether cache values are deserialized on every read or if the
       materialized cache value can be re-used between get() calls. This setting is useful if a cache
       is being shared by callers with disparate classloaders or to prevent local drift if keys/values
       are mutated locally without being put back in the cache.
 
       The default is false.
-
-      Note: This setting is only relevant for caches with valueMode=serialization
 
     * consistency=strong|eventual - Indicates whether this cache should have strong consistency or eventual
       consistency. The default is eventual. See the documentation for the meaning of these terms.
@@ -1018,9 +1008,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
 
     To indicate the cache should not be clustered (or remove the <terracotta> element altogether):
         <terracotta clustered="false"/>
-
-    To indicate the cache should be clustered using identity mode:
-        <terracotta clustered="true" valueMode="identity"/>
 
     To indicate the cache should be clustered using "eventual" consistency mode for better performance :
         <terracotta clustered="true" consistency="eventual"/>

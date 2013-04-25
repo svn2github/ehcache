@@ -34,10 +34,6 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public static final boolean DEFAULT_CLUSTERED = true;
     /**
-     * Default value mode
-     */
-    public static final ValueMode DEFAULT_VALUE_MODE = ValueMode.SERIALIZATION;
-    /**
      * Default coherent read behavior
      */
     public static final boolean DEFAULT_COHERENT_READS = true;
@@ -105,28 +101,9 @@ public class TerracottaConfiguration implements Cloneable {
      */
     public static final boolean DEFAULT_LOCAL_CACHE_ENABLED = true;
 
-    /**
-     * Represents whether values are stored with serialization in the clustered store
-     * or through Terracotta clustered identity.
-     *
-     * @author amiller
-     */
-    public static enum ValueMode {
-        /**
-         * When a key or value is put in the cache, serialize the data for sending around the cluster
-         */
-        SERIALIZATION,
-
-        /**
-         * Use Terracotta clustered identity to preserve object identity without serialization
-         */
-        IDENTITY,
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(TerracottaConfiguration.class.getName());
 
     private boolean clustered = DEFAULT_CLUSTERED;
-    private ValueMode valueMode = DEFAULT_VALUE_MODE;
     private boolean coherentReads = DEFAULT_COHERENT_READS;
     private boolean orphanEviction = DEFAULT_ORPHAN_EVICTION;
     private int orphanEvictionPeriod = DEFAULT_ORPHAN_EVICTION_PERIOD;
@@ -310,42 +287,6 @@ public class TerracottaConfiguration implements Cloneable {
     @Deprecated
     public boolean getCoherentReads() {
         return this.coherentReads;
-    }
-
-    /**
-     * Converts the {@code valueMode} string argument to uppercase and looks up enum constant in ValueMode.
-     */
-    public void setValueMode(String valueMode) {
-        assertArgumentNotNull("Value Mode", valueMode);
-        this.valueMode = ValueMode.valueOf(ValueMode.class, valueMode.toUpperCase());
-    }
-
-    /**
-     * @return this configuration instance
-     * @see #setValueMode(String)
-     */
-    public TerracottaConfiguration valueMode(String valueMode) {
-        setValueMode(valueMode);
-        return this;
-    }
-
-    /**
-     * @return this configuration instance
-     * @see #setValueMode(String)
-     */
-    public TerracottaConfiguration valueMode(ValueMode valueMode) {
-        if (valueMode == null) {
-            throw new IllegalArgumentException("Value mode must be non-null");
-        }
-        this.valueMode = valueMode;
-        return this;
-    }
-
-    /**
-     * Get the value mode in terms of the mode enum
-     */
-    public ValueMode getValueMode() {
-        return this.valueMode;
     }
 
     /**

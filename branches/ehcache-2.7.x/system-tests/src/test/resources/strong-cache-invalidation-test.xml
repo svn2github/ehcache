@@ -8,11 +8,11 @@
 	</cache>
 	
 	<cache name="dcv2StrongWithStats" maxElementsInMemory="10000" eternal="true">
-		<terracotta clustered="true" consistency="strong"  valueMode="serialization"/>
+		<terracotta clustered="true" consistency="strong"/>
 	</cache>
 	
 	<cache name="dcv2StrongWithoutStats" maxElementsInMemory="10000" eternal="true">
-		<terracotta clustered="true" consistency="strong"  valueMode="serialization"/>
+		<terracotta clustered="true" consistency="strong"/>
 	</cache>
 
 	<terracottaConfig url="localhost:PORT" />

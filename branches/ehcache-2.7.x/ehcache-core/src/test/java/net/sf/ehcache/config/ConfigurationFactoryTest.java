@@ -1186,7 +1186,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(true, defaultCache.getCacheConfiguration().getTerracottaConfiguration().getCoherentReads());
 
         //Check caches
-        assertEquals(16, configurationHelper.createCaches().size());
+        assertEquals(15, configurationHelper.createCaches().size());
 
         //  <cache name="clustered-1"
         //   maxElementsInMemory="1000"
@@ -1196,8 +1196,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
         assertEquals("clustered-1", sampleCache1.getName());
         assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
-        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-                sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
         //  <cache name="clustered-2"
         //      maxElementsInMemory="1000"
@@ -1207,30 +1205,14 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache sampleCache2 = configurationHelper.createCacheFromName("clustered-2");
         assertEquals("clustered-2", sampleCache2.getName());
         assertEquals(false, sampleCache2.getCacheConfiguration().isTerracottaClustered());
-        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-                sampleCache2.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
         //  <cache name="clustered-3"
         //   maxElementsInMemory="1000"
         //   memoryStoreEvictionPolicy="LFU">
-        //   <terracotta valueMode="serialization"/>
         //  </cache>
         Ehcache sampleCache3 = configurationHelper.createCacheFromName("clustered-3");
         assertEquals("clustered-3", sampleCache3.getName());
         assertEquals(true, sampleCache3.getCacheConfiguration().isTerracottaClustered());
-        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-                sampleCache3.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
-
-        //  <cache name="clustered-4"
-        //   maxElementsInMemory="1000"
-        //   memoryStoreEvictionPolicy="LFU">
-        //   <terracotta valueMode="identity"/>
-        //  </cache>
-        Ehcache sampleCache4 = configurationHelper.createCacheFromName("clustered-4");
-        assertEquals("clustered-4", sampleCache4.getName());
-        assertEquals(true, sampleCache4.getCacheConfiguration().isTerracottaClustered());
-        assertEquals(TerracottaConfiguration.ValueMode.IDENTITY,
-                sampleCache4.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
         //  <cache name="clustered-5"
         //   maxElementsInMemory="1000"
@@ -1374,8 +1356,6 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("clustered-1");
         assertEquals("clustered-1", sampleCache1.getName());
         assertEquals(true, sampleCache1.getCacheConfiguration().isTerracottaClustered());
-        assertEquals(TerracottaConfiguration.ValueMode.SERIALIZATION,
-                sampleCache1.getCacheConfiguration().getTerracottaConfiguration().getValueMode());
 
         // <terracottaConfig>
         //  <tc-config> ... </tc-config>

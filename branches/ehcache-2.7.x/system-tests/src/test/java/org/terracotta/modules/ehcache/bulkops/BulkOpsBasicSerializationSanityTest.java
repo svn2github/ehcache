@@ -48,13 +48,11 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-      Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG,
-                                                   "SERIALIZATION");
+      Cache dcv2StrongSerialization = createCache("dcv2StrongSerialization", cacheManager, Consistency.STRONG);
       testBulkOpsSanity(dcv2StrongSerialization);
       barrier.await();
 
-      Cache dcv2EventualSerialization = createCache("dcv2EventualSerialization", cacheManager,
-                                                     Consistency.EVENTUAL, "SERIALIZATION");
+      Cache dcv2EventualSerialization = createCache("dcv2EventualSerialization", cacheManager, Consistency.EVENTUAL);
       testBulkOpsSanity(dcv2EventualSerialization);
       barrier.await();
 
@@ -137,8 +135,7 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
       System.out.println("client " + index + " done with " + cache.getName());
     }
 
-    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency,
-                               String valueMode) {
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency) {
       CacheConfiguration cacheConfiguration = new CacheConfiguration();
       cacheConfiguration.setName(cacheName);
       cacheConfiguration.setMaxElementsInMemory(100000);
@@ -148,7 +145,6 @@ public class BulkOpsBasicSerializationSanityTest extends AbstractCacheTestBase {
 
       TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
       tcConfiguration.setConsistency(consistency);
-      tcConfiguration.setValueMode(valueMode);
       cacheConfiguration.addTerracotta(tcConfiguration);
 
       Cache cache = new Cache(cacheConfiguration);

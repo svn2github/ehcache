@@ -4,6 +4,6 @@
 
     <cache name="replication" eternal="true" overflowToDisk="false" maxElementsInMemory="100">
         <cacheEventListenerFactory class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory"/>
-        <terracotta clustered="false" valueMode="serialization"/>
+        <terracotta clustered="false"/>
     </cache>
 </ehcache>
