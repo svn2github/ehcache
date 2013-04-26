@@ -34,12 +34,12 @@ public class OrderedEventListenerForDiskStoreBackendTest {
     private static CacheManager cacheManager;
     private static DiskStore diskStore;
     private static Cache diskCache;
-    private SimpleCacheEventListener listener;
+    private InternalCacheEventListener listener;
 
     @Before
     public void setUp() throws Exception {
         cacheManager = CacheManager.create(new Configuration().name("diskStoreTest"));
-        diskCache = new Cache(new CacheConfiguration().name("diskCache").maxEntriesLocalHeap(1).overflowToDisk(true)
+        diskCache = new Cache(new CacheConfiguration().name("disk-event-cache").maxEntriesLocalHeap(1).overflowToDisk(true)
                 .eternal(false).timeToLiveSeconds(2).timeToIdleSeconds(1).diskPersistent(false).diskExpiryThreadIntervalSeconds(1)
                 .diskSpoolBufferSizeMB(10));
         cacheManager.addCache(diskCache);
@@ -50,7 +50,7 @@ public class OrderedEventListenerForDiskStoreBackendTest {
         field.setAccessible(true);
         diskStore = (DiskStore)field.get(cacheStore);
 
-        listener = mock(SimpleCacheEventListener.class);
+        listener = mock(InternalCacheEventListener.class);
         diskCache.getCacheEventNotificationService().registerOrderedListener(listener);
     }
 

@@ -24,12 +24,12 @@ import org.mockito.InOrder;
 public class OrderedEventListenerForMemoryStoreBackendTest {
 
     private SelectableConcurrentHashMap map;
-    private SimpleCacheEventListener listener;
+    private InternalCacheEventListener listener;
 
     @Before
     public void setUp() {
         RegisteredEventListeners registeredEventListeners = new RegisteredEventListeners(mock(Cache.class));
-        listener = mock(SimpleCacheEventListener.class);
+        listener = mock(InternalCacheEventListener.class);
         registeredEventListeners.registerOrderedListener(listener);
         map = new SelectableConcurrentHashMap(mock(PoolAccessor.class), 10, 100, registeredEventListeners);
     }
