@@ -148,6 +148,20 @@ public abstract class AbstractPoolAccessor implements PoolAccessor<PoolParticipa
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public long getPoolOccupancy() {
+        return pool.getSize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getPoolSize() {
+        return pool.getMaxSize();
+    }
+
+    /**
      * Throws {@code IllegalStateException} if this accessor is not linked to it's pool.
      *
      * @throws IllegalStateException if not linked

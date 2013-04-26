@@ -243,6 +243,16 @@ public class PooledBasedBackEndTest {
         public boolean hasAbortedSizeOf() {
             throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
         }
+
+        @Override
+        public long getPoolOccupancy() {
+            throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+        }
+
+        @Override
+        public long getPoolSize() {
+            throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+        }
     }
 
     private static class TestEvictionCallback implements HeapCacheBackEnd.EvictionCallback<String, String> {

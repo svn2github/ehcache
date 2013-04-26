@@ -110,6 +110,11 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
         return policy;
     }
 
+    @Override
+    public boolean hasSpace() {
+        return maxEntriesLocalHeap == 0 || maxEntriesLocalHeap > mappingCount();
+    }
+
     private void evictIfRequired(final K key, final V value) {
         if (maxEntriesLocalHeap == 0) {
             return;

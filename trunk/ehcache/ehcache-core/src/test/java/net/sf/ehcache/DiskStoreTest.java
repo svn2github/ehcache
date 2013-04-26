@@ -1292,7 +1292,8 @@ public class DiskStoreTest extends AbstractCacheTest {
                     }
                 }
                 assertThat(element, notNullValue());
-                cache.put(new Element("2", "who cares about the value?!")); // this should flush and update the stats!
+                cache.put(new Element("2", "who cares about the value?!"));
+                cache.get("2"); // this should flush and update the stats!
                 assertThat(((DiskStorageFactory.DiskMarker)diskStore.unretrievedGet("1")).getExpirationTime(), is(element.getExpirationTime()));
             } finally {
                 cache.removeAll();

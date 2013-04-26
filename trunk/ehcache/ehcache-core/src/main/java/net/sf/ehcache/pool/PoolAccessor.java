@@ -100,6 +100,20 @@ public interface PoolAccessor<T extends PoolParticipant> {
     void setMaxSize(long newValue);
 
     /**
+     * Returns the occupied size for this pool.
+     * 
+     * @return occupied pool size
+     */
+    long getPoolOccupancy();
+
+    /**
+     * Returns the size of this pool.
+     * 
+     * @return pool size
+     */
+    long getPoolSize();
+
+    /**
      * Check if the store may contain elements which the SizeOf engine could not fully size.
      *
      * @return true if the store may contain partially sized objects

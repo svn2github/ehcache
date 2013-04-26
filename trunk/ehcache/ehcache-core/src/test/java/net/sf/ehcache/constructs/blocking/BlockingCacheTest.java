@@ -613,8 +613,8 @@ public final class BlockingCacheTest {
 //            assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000));
 
             //NonSerializable
-            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
             blockingCache.put(new Element(new Object(), Object.class));
+            DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
             int size = cache.getSize();
             assertThat(size, lessThanOrEqualTo(10000));

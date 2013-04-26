@@ -36,6 +36,13 @@ import java.util.Set;
 public interface HeapCacheBackEnd<K, V> {
 
     /**
+     * Return {@code true} if this tier has enough space for more entries.
+     * 
+     * @return {@code true} if there is space for more entries.
+     */
+    boolean hasSpace();
+    
+    /**
      * Access a key,
      * basically {@link java.util.concurrent.ConcurrentMap#get(Object) CHM.get()}
      * @param key the key whose associated value is to be returned

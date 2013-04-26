@@ -108,28 +108,32 @@ public class CacheStore implements Store {
 
     @Override
     public boolean put(final Element element) throws CacheException {
-        final boolean[] hack = new boolean[1];
-        cachingTier.remove(element.getObjectKey());
-        try {
-            if (cachingTier.get(element.getObjectKey(), new Callable<Element>() {
-                @Override
-                public Element call() throws Exception {
-                    hack[0] = authoritativeTier.putFaulted(element);
-                    return element;
+        if (cachingTier.remove(element.getObjectKey()) != null || cachingTier.loadOnPut()) {
+            try {
+                final boolean[] hack = new boolean[1];
+                if (cachingTier.get(element.getObjectKey(), new Callable<Element>() {
+                    @Override
+                    public Element call() throws Exception {
+                        hack[0] = authoritativeTier.putFaulted(element);
+                        return element;
+                    }
+                }, false) == element) {
+                    return hack[0];
                 }
-            }, false) != element) {
-                final boolean put = authoritativeTier.put(element);
+            } catch (Throwable e) {
                 cachingTier.remove(element.getObjectKey());
-                return put;
+                if (e instanceof RuntimeException) {
+                    throw (RuntimeException)e;
+                }
+                throw new CacheException(e);
             }
-        } catch (Throwable e) {
-            cachingTier.remove(element.getObjectKey());
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException)e;
-            }
-            throw new CacheException(e);
         }
-        return hack[0];
+        
+        try {
+            return authoritativeTier.put(element);
+        } finally {
+            cachingTier.remove(element.getObjectKey());
+        }
     }
 
     @Override

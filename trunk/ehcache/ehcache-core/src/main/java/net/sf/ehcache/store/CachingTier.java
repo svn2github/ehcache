@@ -29,6 +29,15 @@ import java.util.concurrent.Callable;
 public interface CachingTier<K, V> {
 
     /**
+     * Returns {@code true} if values should be loaded to this cache on put.
+     * <p>
+     * This may be a dynamic decision, based for example on the occupancy of the cache.
+     *
+     * @return {@code true} if values should be loaded on put
+     */
+    boolean loadOnPut();
+    
+    /**
      * Returns the value associated with the key, or populates the mapping using the Callable instance
      *
      * @param key the key to look up
