@@ -131,7 +131,23 @@ public class DfltSamplerRepositoryService
       }
     }
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getVersion() {
+    return this.getClass().getPackage().getImplementationVersion();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getAgency() {
+    return AGENCY;
+  }
+
   private static Throwable getRootCause(Throwable t) {
     Throwable last = null;
     while (t != null) {
