@@ -53,6 +53,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     private static final Logger LOG = LoggerFactory.getLogger(CountBasedBackEnd.class.getName());
 
     private static final int MAX_EVICTIONS = 5;
+    private static final float PUT_LOAD_THRESHOLD = 0.9f;
 
     private volatile Policy policy;
     private volatile EvictionCallback<K, V> evictionCallback;
@@ -128,6 +129,12 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     @Override
     public void clear() {
         super.clear();
+    }
+
+    @Override
+    public boolean hasSpace() {
+        PoolAccessor<?> accessor = poolAccessor.get();
+        return accessor.getPoolOccupancy() < (PUT_LOAD_THRESHOLD * accessor.getPoolSize());
     }
 
     /**

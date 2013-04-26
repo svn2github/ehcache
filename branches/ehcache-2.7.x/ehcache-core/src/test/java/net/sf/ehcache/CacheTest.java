@@ -83,7 +83,9 @@ import net.sf.ehcache.util.TimeUtil;
 
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.core.Is;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -1071,7 +1073,7 @@ public class CacheTest extends AbstractCacheTest {
             System.err.println(e + " - likely eviction failure: checking memory store");
             assertEquals(1, cache.getStatistics().getLocalHeapSize());
         }
-        Element nullValueElement = cache.get(object2);
+        Element nullValueElement = cache.get(object1);
         assertNull(nullValueElement.getValue());
         assertNull(nullValueElement.getObjectValue());
 
@@ -1705,7 +1707,7 @@ public class CacheTest extends AbstractCacheTest {
         cache.remove("key4");
         RetryAssert.assertBy(1, TimeUnit.SECONDS, new GetCacheDiskSize(cache), is(3L));
         assertEquals(3, cache.getSize());
-        assertEquals(0, cache.getStatistics().getLocalHeapSize());
+        assertEquals(1, cache.getStatistics().getLocalHeapSize());
 
         // remove key1 element
         cache.remove("key1");
@@ -1777,6 +1779,8 @@ public class CacheTest extends AbstractCacheTest {
         Cache cache = new Cache("cache", 1, true, false, 100, 200, false, 1);
         manager.addCache(cache);
 
+        Assume.assumeThat(cache.getStore(), IsInstanceOf.instanceOf(CacheStore.class));
+
         Element element1 = new Element("1", new Date());
         Element element2 = new Element("2", new Date());
         cache.put(element1);
@@ -1784,14 +1788,14 @@ public class CacheTest extends AbstractCacheTest {
         flushDiskStore(cache);
 
         //Test equals and == from an Element retrieved from the MemoryStore
-        Element elementFromHeapStore = cache.get("2");
-        assertEquals(element2, elementFromHeapStore);
-        assertTrue(element2 == elementFromHeapStore);
+        Element elementFromHeapStore = cache.get("1");
+        assertEquals(element1, elementFromHeapStore);
+        assertTrue(element1 == elementFromHeapStore);
 
         //Test equals and == from an Element retrieved from the MemoryStore
-        Element elementFromDiskStore = cache.get("1");
-        assertEquals(element1, elementFromDiskStore);
-        assertTrue(element1 != elementFromDiskStore);
+        Element elementFromDiskStore = cache.get("2");
+        assertEquals(element2, elementFromDiskStore);
+        assertTrue(element2 != elementFromDiskStore);
     }
 
     /**

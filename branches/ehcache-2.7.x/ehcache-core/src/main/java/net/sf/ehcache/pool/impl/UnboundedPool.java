@@ -180,6 +180,20 @@ public class UnboundedPool implements Pool {
         /**
          * {@inheritDoc}
          */
+        public long getPoolOccupancy() {
+            return -1L;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public long getPoolSize() {
+            return Long.MAX_VALUE;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
         public boolean hasAbortedSizeOf() {
             return false;
         }

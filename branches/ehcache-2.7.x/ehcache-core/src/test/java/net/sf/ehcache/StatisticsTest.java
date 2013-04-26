@@ -61,8 +61,8 @@ public class StatisticsTest extends AbstractCacheTest {
         // allow disk write thread to complete
         DiskStoreHelper.flushAllEntriesToDisk(cache).get();
 
-        cache.get("key2");
         cache.get("key1");
+        cache.get("key2");
 
         FlatStatistics statistics = cache.getStatistics();
         assertEquals(2, statistics.cacheHitCount());
@@ -74,7 +74,7 @@ public class StatisticsTest extends AbstractCacheTest {
         assertEquals(2, statistics.getLocalDiskSize());
 
         // key 2 should now be in the MemoryStore
-        cache.get("key1");
+        cache.get("key2");
 
         assertEquals(3, statistics.cacheHitCount());
         assertEquals(1, statistics.localDiskHitCount());
@@ -87,15 +87,15 @@ public class StatisticsTest extends AbstractCacheTest {
         // key 1 should now be expired
         assertThat(cache.get("key1"), nullValue());
         assertEquals(3, statistics.cacheHitCount());
-        assertEquals(1, statistics.localDiskHitCount());
-        assertEquals(3, statistics.localHeapHitCount());
+        assertEquals(2, statistics.localDiskHitCount());
+        assertEquals(2, statistics.localHeapHitCount());
         assertEquals(1, statistics.cacheMissCount());
 
         // key 2 should also be expired
         assertThat(cache.get("key2"), nullValue());
         assertEquals(3, statistics.cacheHitCount());
         assertEquals(2, statistics.localDiskHitCount());
-        assertEquals(3, statistics.localHeapHitCount());
+        assertEquals(2, statistics.localHeapHitCount());
         assertEquals(2, statistics.cacheMissCount());
 
         assertNotNull(statistics.toString());

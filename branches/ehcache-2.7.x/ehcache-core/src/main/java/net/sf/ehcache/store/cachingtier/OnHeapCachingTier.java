@@ -154,6 +154,11 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
     }
 
     @Override
+    public boolean loadOnPut() {
+        return backEnd.hasSpace();
+    }
+
+    @Override
     public V get(final K key, final Callable<V> source, final boolean updateStats) {
         if (updateStats) { getObserver.begin(); }
         Object cachedValue = backEnd.get(key);

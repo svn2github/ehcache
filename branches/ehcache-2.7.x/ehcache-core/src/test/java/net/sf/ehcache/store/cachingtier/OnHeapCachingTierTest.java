@@ -273,5 +273,10 @@ public class OnHeapCachingTierTest {
         public void recalculateSize(final Object key) {
             // NO OP
         }
+
+        @Override
+        public boolean hasSpace() {
+            return true;
+        }
     }
 }

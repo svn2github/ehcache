@@ -314,7 +314,8 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         //expire
         Thread.sleep(15000);
         for(int i = 0; i < cache.getCacheConfiguration().getMaxEntriesLocalHeap(); i ++) {
-            cache.put(new Element(i, i)); // makes sure the entry is flushed
+            cache.put(new Element(i, i));
+            cache.get(i); // makes sure the entry is flushed
         }
         assertThat(cacheEventListener.counter.get(), equalTo(1));
 
