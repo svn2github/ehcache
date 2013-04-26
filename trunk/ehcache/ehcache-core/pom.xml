@@ -204,7 +204,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>pertest</forkMode>
-          <argLine>${tests.supplemental.args} -Xmx64m -verbose:gc</argLine>
+          <argLine>${tests.supplemental.args} -Xmx64m</argLine>
           <childDelegation>false</childDelegation>
           <disableXmlReport>false</disableXmlReport>
           <printSummary>true</printSummary>
