@@ -1418,6 +1418,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Setter for maximum bytes off heap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * <p/>
+     * Changes to this property once the cache is operating will have no effect.
+     *
      * @param maxBytesOffHeap String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
@@ -1479,6 +1482,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maximum amount of bytes the cache being configured will use on the OffHeap tier
+     * <p/>
+     * Changes to this property once the cache is operating will have no effect.
+     *
      * @param maxBytesOffHeap max bytes on disk in bytes
      */
     public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
@@ -1492,6 +1498,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maxOffHeap tier size
+     * <p/>
+     * Changes to this property once the cache is operating will have no effect.
+     *
      * @param amount the amount of unit
      * @param memoryUnit the actual unit
      * @return this
