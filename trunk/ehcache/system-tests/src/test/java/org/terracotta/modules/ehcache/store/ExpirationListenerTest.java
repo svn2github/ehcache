@@ -26,7 +26,7 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
 
   public ExpirationListenerTest(TestConfig testConfig) {
     super("expire-cache-test.xml", testConfig, App.class);
-    timebombTest("2013-04-25");
+    timebombTest("2013-05-01");
   }
 
   public static class App extends ClientBase implements CacheEventListener {
