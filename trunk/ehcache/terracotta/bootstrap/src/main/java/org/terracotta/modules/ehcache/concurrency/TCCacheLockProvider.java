@@ -7,6 +7,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.concurrent.LockType;
 import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 
 import org.terracotta.modules.ehcache.store.ValueModeHandler;
 import org.terracotta.toolkit.cache.ToolkitCache;
@@ -66,23 +67,48 @@ public class TCCacheLockProvider implements CacheLockProvider {
 
     @Override
     public void lock(LockType type) {
-      getLockForType(type).lock();
+      try {
+        getLockForType(type).lock();
+      } catch (RuntimeException e) {
+        handleTCNotRunningException(e);
+      }
     }
 
     @Override
     public boolean tryLock(LockType type, long msec) throws InterruptedException {
-      return getLockForType(type).tryLock(msec, TimeUnit.MILLISECONDS);
+      try {
+        return getLockForType(type).tryLock(msec, TimeUnit.MILLISECONDS);
+      } catch (RuntimeException e) {
+        return handleTCNotRunningException(e);
+      }
+
     }
 
     @Override
     public void unlock(LockType type) {
-      getLockForType(type).unlock();
+      try {
+        getLockForType(type).unlock();
+      } catch (RuntimeException e) {
+        handleTCNotRunningException(e);
+      }
     }
 
     @Override
     public boolean isHeldByCurrentThread(LockType type) {
-      return getLockForType(type).isHeldByCurrentThread();
+      try {
+        return getLockForType(type).isHeldByCurrentThread();
+      } catch (RuntimeException e) {
+        return handleTCNotRunningException(e);
+      }
     }
+
+    private boolean handleTCNotRunningException(RuntimeException e) {
+      if (e.getClass().getSimpleName().equals("TCNotRunningException")) { throw new TerracottaNotRunningException(
+                                                                                                                  "Clustered Cache is probably shutdown or Terracotta backend is down.",
+                                                                                                                  e); }
+      throw e;
+    }
+
 
   }
 
