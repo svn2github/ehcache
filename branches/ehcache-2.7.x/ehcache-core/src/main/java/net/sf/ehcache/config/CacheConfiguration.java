@@ -1327,6 +1327,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Setter for maxBytesLocalHeap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
      * @param maxBytesHeap String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalHeap(final String maxBytesHeap) {
@@ -1341,6 +1344,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Setter for maxBytesLocalHeap in bytes
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
      * @param maxBytesHeap max bytes in heap in bytes
      */
     public void setMaxBytesLocalHeap(final Long maxBytesHeap) {
@@ -1351,6 +1357,7 @@ public class CacheConfiguration implements Cloneable {
         if (onHeapPoolUsage != null && onHeapPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch memory pool!");
         }
+        checkDynamicChange();
         verifyGreaterThanZero(maxBytesHeap, "maxBytesLocalHeap");
         Long oldValue = this.maxBytesLocalHeap;
         this.maxBytesLocalHeap = maxBytesHeap;
@@ -1411,6 +1418,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Setter for maximum bytes off heap as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * <p/>
+     * Changes to this property once the cache is operating will have no effect.
+     *
      * @param maxBytesOffHeap String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
@@ -1472,6 +1482,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maximum amount of bytes the cache being configured will use on the OffHeap tier
+     * <p/>
+     * Changes to this property once the cache is operating will have no effect.
+     *
      * @param maxBytesOffHeap max bytes on disk in bytes
      */
     public void setMaxBytesLocalOffHeap(final Long maxBytesOffHeap) {
@@ -1485,6 +1498,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maxOffHeap tier size
+     * <p/>
+     * Changes to this property once the cache is operating will have no effect.
+     *
      * @param amount the amount of unit
      * @param memoryUnit the actual unit
      * @return this
@@ -1512,6 +1528,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Setter for maxBytesOnDisk as a String. Value can have a one char unit suffix or be a percentage (ending in %)
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
      * @param maxBytesDisk String representation of the size, can be relative (in %)
      */
     public void setMaxBytesLocalDisk(final String maxBytesDisk) {
@@ -1527,6 +1546,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maximum amount of bytes the cache being configured will use on the OnDisk tier
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
      * @param maxBytesDisk max bytes on disk in bytes
      */
     public void setMaxBytesLocalDisk(final Long maxBytesDisk) {
@@ -1540,6 +1562,7 @@ public class CacheConfiguration implements Cloneable {
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.Cache) {
             throw new IllegalStateException("A Cache can't switch disk pool!");
         }
+        checkDynamicChange();
         verifyGreaterThanZero(maxBytesDisk, "maxBytesLocalDisk");
         maxBytesLocalDiskExplicitlySet = true;
         Long oldValue = this.maxBytesLocalDisk;
@@ -1549,6 +1572,9 @@ public class CacheConfiguration implements Cloneable {
 
     /**
      * Sets the maxOnDisk size
+     * <p/>
+     * This property can be modified dynamically while the cache is operating.
+     *
      * @param amount the amount of unit
      * @param memoryUnit the actual unit
      * @return this
