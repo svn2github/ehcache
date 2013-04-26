@@ -265,7 +265,7 @@ public class RegisteredEventListeners {
      * @return true if a one or more listeners have registered, otherwise false
      */
     public final boolean hasCacheEventListeners() {
-        return !cacheEventListeners.isEmpty() || !orderedListeners.isEmpty();
+        return !cacheEventListeners.isEmpty();
     }
 
     /**
@@ -393,12 +393,7 @@ public class RegisteredEventListeners {
         if (cacheEventListener == null) {
             return false;
         }
-        final boolean result;
-        result = orderedListeners.add(cacheEventListener);
-        if (result && cacheEventListener instanceof CacheReplicator) {
-            this.hasReplicator.set(true);
-        }
-        return result;
+        return orderedListeners.add(cacheEventListener);
     }
 
     /**
@@ -439,28 +434,7 @@ public class RegisteredEventListeners {
      * @return true if the listener was present
      */
     final boolean unregisterOrderedListener(InternalCacheEventListener cacheEventListener) {
-        boolean result = false;
-        int cacheReplicators = 0;
-        final Iterator<InternalCacheEventListener> itOrdered = orderedListeners.iterator();
-        while (itOrdered.hasNext()) {
-            InternalCacheEventListener orderedListener = itOrdered.next();
-            if (orderedListener.equals(cacheEventListener)) {
-                orderedListeners.remove(orderedListener);
-                result = true;
-            } else {
-                if (orderedListener instanceof CacheReplicator) {
-                    cacheReplicators++;
-                }
-            }
-        }
-
-        if (cacheReplicators > 0) {
-            hasReplicator.set(true);
-        } else {
-            hasReplicator.set(false);
-        }
-
-        return result;
+        return orderedListeners.remove(cacheEventListener);
     }
 
     /**
