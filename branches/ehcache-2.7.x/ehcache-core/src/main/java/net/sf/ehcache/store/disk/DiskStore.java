@@ -668,7 +668,10 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         }
     }
 
-    private void clearFaultedBit() {
+    /**
+     * Marks all entries has flushed (i.e. not faulted)
+     */
+    public void clearFaultedBit() {
         for (Segment segment : segments) {
             segment.clearFaultedBit();
         }

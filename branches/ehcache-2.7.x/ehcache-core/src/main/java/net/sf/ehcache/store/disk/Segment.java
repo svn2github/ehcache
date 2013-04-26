@@ -1042,7 +1042,6 @@ public class Segment extends ReentrantReadWriteLock {
         } finally {
             writeLock().unlock();
         }
-
     }
 
     /**

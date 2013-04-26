@@ -25,6 +25,7 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 
@@ -34,6 +35,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.terracotta.context.annotations.ContextChild;
 
 /**
@@ -56,6 +61,8 @@ public class CacheStore implements Store {
     @Deprecated
     private final CacheConfiguration cacheConfiguration;
     private volatile Status status;
+
+    private final ReadWriteLock daLock = new ReentrantReadWriteLock();
 
     /**
      * Constructor :P
@@ -114,8 +121,14 @@ public class CacheStore implements Store {
                 if (cachingTier.get(element.getObjectKey(), new Callable<Element>() {
                     @Override
                     public Element call() throws Exception {
-                        hack[0] = authoritativeTier.putFaulted(element);
-                        return element;
+                        final Lock lock = daLock.readLock();
+                        lock.lock();
+                        try {
+                            hack[0] = authoritativeTier.putFaulted(element);
+                            return element;
+                        } finally {
+                            lock.unlock();
+                        }
                     }
                 }, false) == element) {
                     return hack[0];
@@ -160,7 +173,13 @@ public class CacheStore implements Store {
         return cachingTier.get(key, new Callable<Element>() {
             @Override
             public Element call() throws Exception {
-                return authoritativeTier.fault(key, true);
+                final Lock lock = daLock.readLock();
+                lock.lock();
+                try {
+                    return authoritativeTier.fault(key, true);
+                } finally {
+                    lock.unlock();
+                }
             }
         }, true);
     }
@@ -173,7 +192,13 @@ public class CacheStore implements Store {
         return cachingTier.get(key, new Callable<Element>() {
             @Override
             public Element call() throws Exception {
-                return authoritativeTier.fault(key, false);
+                final Lock lock = daLock.readLock();
+                lock.lock();
+                try {
+                    return authoritativeTier.fault(key, false);
+                } finally {
+                    lock.unlock();
+                }
             }
         }, false);
     }
@@ -213,10 +238,13 @@ public class CacheStore implements Store {
 
     @Override
     public void removeAll() throws CacheException {
+        final Lock lock = daLock.writeLock();
+        lock.lock();
         try {
             authoritativeTier.removeAll();
         } finally {
             cachingTier.clear();
+            lock.unlock();
         }
     }
 
@@ -381,10 +409,18 @@ public class CacheStore implements Store {
 
     @Override
     public void flush() throws IOException {
-        if (cacheConfiguration != null && cacheConfiguration.isClearOnFlush()) {
-            cachingTier.clear();
+        if (authoritativeTier instanceof DiskStore && cacheConfiguration != null && cacheConfiguration.isClearOnFlush()) {
+            final Lock lock = daLock.writeLock();
+            lock.lock();
+            try {
+                cachingTier.clear();
+                ((DiskStore)authoritativeTier).clearFaultedBit();
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            authoritativeTier.flush();
         }
-        authoritativeTier.flush();
     }
 
     @Override
