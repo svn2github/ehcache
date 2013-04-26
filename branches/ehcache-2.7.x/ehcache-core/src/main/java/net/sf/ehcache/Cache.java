@@ -292,6 +292,8 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private StatisticsGateway statistics;
 
+    private CacheClusterStateStatisticsListener clusterStateListener = null;
+
     /**
      * 2.0 and higher Constructor
      * <p/>
@@ -1127,6 +1129,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 }
 
                 store = cacheManager.getClusteredInstanceFactory(this).createNonStopStore(callable, this);
+                clusterStateListener = new CacheClusterStateStatisticsListener(this);
+                getCacheCluster().addTopologyListener(clusterStateListener);
             } else {
                 FeaturesManager featuresManager = cacheManager.getFeaturesManager();
                 if (featuresManager == null) {
@@ -2439,6 +2443,10 @@ public class Cache implements InternalEhcache, StoreListener {
         disposeRegisteredCacheExtensions();
         disposeRegisteredCacheLoaders();
 
+        if (clusterStateListener != null) {
+            getCacheCluster().removeTopologyListener(clusterStateListener);
+        }
+
         if (cacheWriterManager != null) {
             cacheWriterManager.dispose();
         }
@@ -2455,6 +2463,7 @@ public class Cache implements InternalEhcache, StoreListener {
 
         // null the lockProvider too explicitly to help gc
         lockProvider = null;
+        
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 

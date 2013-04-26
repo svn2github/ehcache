@@ -1368,4 +1368,119 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     public SampledCounter getWriterQueueLengthSample() {
         return sampledCacheDelegate.getWriterQueueLengthSample();
     }
+
+    @Override
+    public SampledCounter getCacheClusterOfflineSample() {
+        return sampledCacheDelegate.getCacheClusterOfflineSample();
+    }
+
+    @Override
+    public SampledCounter getCacheClusterOnlineSample() {
+        return sampledCacheDelegate.getCacheClusterOnlineSample();
+    }
+
+    @Override
+    public SampledCounter getCacheClusterRejoinSample() {
+        return sampledCacheDelegate.getCacheClusterRejoinSample();
+    }
+
+    @Override
+    public long getCacheClusterOfflineCount() {
+        return sampledCacheDelegate.getCacheClusterOfflineCount();
+    }
+
+    @Override
+    public long getCacheClusterRejoinCount() {
+        return sampledCacheDelegate.getCacheClusterRejoinCount();
+    }
+
+    @Override
+    public long getCacheClusterOnlineCount() {
+        return sampledCacheDelegate.getCacheClusterOnlineCount();
+    }
+
+    @Override
+    public long getCacheClusterOfflineMostRecentSample() {
+        return sampledCacheDelegate.getCacheClusterOfflineMostRecentSample();
+    }
+
+    @Override
+    public long getCacheClusterRejoinMostRecentSample() {
+        return sampledCacheDelegate.getCacheClusterRejoinMostRecentSample();
+    }
+
+    @Override
+    public long getCacheClusterOnlineMostRecentSample() {
+        return sampledCacheDelegate.getCacheClusterOnlineMostRecentSample();
+    }
+
+    @Override
+    public long getMostRecentRejoinTimeStampMillis() {
+        return sampledCacheDelegate.getMostRecentRejoinTimeStampMillis();
+    }
+
+    @Override
+    public SampledCounter getMostRecentRejoinTimestampMillisSample() {
+        return sampledCacheDelegate.getMostRecentRejoinTimestampMillisSample();
+    }
+
+    @Override
+    public SampledCounter getNonStopSuccessSample() {
+        return sampledCacheDelegate.getNonStopSuccessSample();
+    }
+
+    @Override
+    public SampledCounter getNonStopFailureSample() {
+        return sampledCacheDelegate.getNonStopFailureSample();
+    }
+
+    @Override
+    public SampledCounter getNonStopRejoinTimeoutSample() {
+        return sampledCacheDelegate.getNonStopRejoinTimeoutSample();
+    }
+
+    @Override
+    public SampledCounter getNonStopTimeoutSample() {
+        return sampledCacheDelegate.getNonStopTimeoutSample();
+    }
+
+    @Override
+    public long getNonStopSuccessCount() {
+        return sampledCacheDelegate.getNonStopSuccessCount();
+    }
+
+    @Override
+    public long getNonStopFailureCount() {
+        return sampledCacheDelegate.getNonStopFailureCount();
+    }
+
+    @Override
+    public long getNonStopRejoinTimeoutCount() {
+        return sampledCacheDelegate.getNonStopRejoinTimeoutCount();
+    }
+
+    @Override
+    public long getNonStopTimeoutCount() {
+        return sampledCacheDelegate.getNonStopTimeoutCount();
+    }
+
+    @Override
+    public long getNonStopSuccessMostRecentSample() {
+        return sampledCacheDelegate.getNonStopSuccessMostRecentSample();
+    }
+
+    @Override
+    public long getNonStopFailureMostRecentSample() {
+        return sampledCacheDelegate.getNonStopFailureMostRecentSample();
+    }
+
+    @Override
+    public long getNonStopRejoinTimeoutMostRecentSample() {
+        return sampledCacheDelegate.getNonStopRejoinTimeoutMostRecentSample();
+    }
+
+    @Override
+    public long getNonStopTimeoutMostRecentSample() {
+        return sampledCacheDelegate.getNonStopTimeoutMostRecentSample();
+    }
 }

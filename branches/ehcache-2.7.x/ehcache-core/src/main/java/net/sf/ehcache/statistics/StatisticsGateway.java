@@ -352,7 +352,6 @@ public class StatisticsGateway implements FlatStatistics {
         return extended.size().value().longValue();
     }
 
-
     @Override
     public long cacheHitCount() {
         return core.get().value(CacheOperationOutcomes.GetOutcome.HIT);
@@ -547,4 +546,5 @@ public class StatisticsGateway implements FlatStatistics {
     public double cacheHitRatio() {
         return extended.cacheHitRatio().value().doubleValue();
     }
+    
 }

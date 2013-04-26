@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
@@ -58,6 +59,8 @@ public class CoreStatisticsImpl implements CoreStatistics {
     private final CountOperation evicted;
     private final CountOperation expired;
 
+    private final CountOperation cacheClusterEvent;
+
     /**
      * Instantiates a new core statistics impl.
      *
@@ -88,6 +91,7 @@ public class CoreStatisticsImpl implements CoreStatistics {
         this.evicted = asCountOperation(extended.eviction());
         this.expired = asCountOperation(extended.expiry());
 
+        this.cacheClusterEvent = asCountOperation(extended.clusterEvent());
     }
 
     private static <T extends Enum<T>> CountOperation asCountOperation(final Operation<T> compoundOp) {
@@ -238,6 +242,11 @@ public class CoreStatisticsImpl implements CoreStatistics {
     @Override
     public CountOperation<ExpiredOutcome> cacheExpiration() {
         return expired;
+    }
+
+    @Override
+    public CountOperation<ClusterEventOutcomes> cacheClusterEvent() {
+        return cacheClusterEvent;
     }
 
 }

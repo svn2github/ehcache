@@ -56,7 +56,10 @@ public enum StandardPassThroughStatistic {
     WRITER_QUEUE_LENGTH(cache().descendants(), Long.TYPE, 0L, "queue-length", "write-behind"),
 
     /** remote size */
-    REMOTE_SIZE(cache().descendants(), Long.TYPE, 0L, "size", "remote");
+    REMOTE_SIZE(cache().descendants(), Long.TYPE, 0L, "size", "remote"),
+    
+    /** last rejoin time */
+    LAST_REJOIN_TIMESTAMP(cache().descendants(), Long.TYPE, 0L, "lastRejoinTime", "cache");
 
     private static final int THIRTY = 30;
     

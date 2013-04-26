@@ -17,8 +17,8 @@ package net.sf.ehcache.management.sampled;
 
 /**
  * Interface for <strong>sampled</strong> usage statistics of a Cache
- *
- * <p />
+ * 
+ * <p />.
  *
  * @author <a href="mailto:asanoujam@terracottatech.com">Abhishek Sanoujam</a>
  * @since 1.7
@@ -85,8 +85,10 @@ public interface LegacyCacheStatistics {
     long getOnDiskMissCount();
 
     /**
+     * Gets the cache miss count expired.
+     *
      * @return the number of times a requested element was not found in the
-     *         cache and the reason being the element already expired
+     * cache and the reason being the element already expired
      */
     long getCacheMissCountExpired();
 
@@ -105,7 +107,7 @@ public interface LegacyCacheStatistics {
     long getSize();
 
     /**
-     * Number of elements in the MemoryStore
+     * Number of elements in the MemoryStore.
      *
      * @return the number of elements in memory
      * @deprecated use {@link #getLocalHeapSize()}
@@ -114,7 +116,7 @@ public interface LegacyCacheStatistics {
     long getInMemorySize();
 
     /**
-     * Number of elements in the off-heap store
+     * Number of elements in the off-heap store.
      *
      * @return the number of elements in off-heap
      * @deprecated use {@link #getLocalOffHeapSize()}
@@ -123,7 +125,7 @@ public interface LegacyCacheStatistics {
     long getOffHeapSize();
 
     /**
-     * Number of elements in the DiskStore
+     * Number of elements in the DiskStore.
      *
      * @return number of elements on disk
      * @deprecated use {@link #getLocalDiskSize()}
@@ -132,42 +134,42 @@ public interface LegacyCacheStatistics {
     long getOnDiskSize();
 
     /**
-     * Number of entries in the MemoryStore
+     * Number of entries in the MemoryStore.
      *
      * @return the number of elements in memory
      */
     long getLocalHeapSize();
 
     /**
-     * Number of entries in the off-heap store
+     * Number of entries in the off-heap store.
      *
      * @return the number of elements in off-heap
      */
     long getLocalOffHeapSize();
 
     /**
-     * Number of entries in the DiskStore
+     * Number of entries in the DiskStore.
      *
      * @return number of elements on disk
      */
     long getLocalDiskSize();
 
     /**
-     * Number of of bytes used by entries in the MemoryStore
+     * Number of of bytes used by entries in the MemoryStore.
      *
      * @return the number of of bytes used by elements in memory
      */
     long getLocalHeapSizeInBytes();
 
     /**
-     * Number of of bytes used by entries in the off-heap store
+     * Number of of bytes used by entries in the off-heap store.
      *
      * @return the number of of bytes used by elements in off-heap
      */
     long getLocalOffHeapSizeInBytes();
 
     /**
-     * Number of of bytes used by entries in the DiskStore
+     * Number of of bytes used by entries in the DiskStore.
      *
      * @return number of bytes used by elements on disk
      */
@@ -181,54 +183,77 @@ public interface LegacyCacheStatistics {
     long getAverageGetTimeNanos();
 
     /**
-     * Number of elements evicted from the cache
+     * Number of elements evicted from the cache.
      *
      * @return Number of elements evicted from the cache
      */
     long getEvictedCount();
 
     /**
-     * Number of puts that has happened in the cache
+     * Number of puts that has happened in the cache.
      *
      * @return Number of puts
      */
     long getPutCount();
 
     /**
-     * Number of updates that as happened in the cache
+     * Number of updates that as happened in the cache.
      *
      * @return Number of updates
      */
     long getUpdateCount();
 
     /**
-     * Number of elements expired since creation or last clear
+     * Number of elements expired since creation or last clear.
      *
      * @return Number of expired elements
      */
     long getExpiredCount();
 
     /**
-     * Number of elements removed since creation or last clear
+     * Number of elements removed since creation or last clear.
      *
      * @return Number of elements removed
      */
     long getRemovedCount();
 
     /**
+     * Count of cluster offline events for this node.
+     *
+     * @return count
+     */
+    long getCacheClusterOfflineCount();
+    
+    /**
+     * Count of cluster rejoin events for this node.
+     *
+     * @return count
+     */
+    long getCacheClusterRejoinCount();
+    
+    /**
+     * Count of cluster online events for this node.
+     *
+     * @return count
+     */
+    long getCacheClusterOnlineCount();
+
+    /**
+     * Gets the cache name.
+     *
      * @return the name of the Ehcache
      */
     String getCacheName();
 
     /**
-     * Return maximum time taken for a get operation in the cache in milliseconds
+     * Return maximum time taken for a get operation in the cache in milliseconds.
      *
      * @return maximum time taken for a get operation in the cache in milliseconds
      */
     long getMaxGetTimeNanos();
 
     /**
-     * Return minimum time taken for a get operation in the cache in nanoseconds
+     * Return minimum time taken for a get operation in the cache in nanoseconds.
      *
      * @return minimum time taken for a get operation in the cache in nanoseconds
      */
@@ -242,73 +267,77 @@ public interface LegacyCacheStatistics {
     long getWriterQueueLength();
 
     /**
-     * Return the Cache's XAResource commit calls count
+     * Return the Cache's XAResource commit calls count.
+     *
      * @return the Cache's XAResource commit calls count
      */
     long getXaCommitCount();
 
     /**
-     * Return the Cache's XAResource rollback calls count
+     * Return the Cache's XAResource rollback calls count.
+     *
      * @return the Cache's XAResource rollback calls count
      */
     long getXaRollbackCount();
 
     /**
-     * Return the Cache's XAResource recovered XIDs count
+     * Return the Cache's XAResource recovered XIDs count.
+     *
      * @return the Cache's XAResource recovered XIDs count
      */
     long getXaRecoveredCount();
+    
     /**
-     * Get most recent value for cache hit
+     * Get most recent value for cache hit.
      *
      * @return Most recent sample for cache hit count
      */
     long getCacheHitMostRecentSample();
 
     /**
-     * Get most recent value for in-memory cache hit
+     * Get most recent value for in-memory cache hit.
      *
      * @return Most recent sample for cache hit count in memory
      */
     long getCacheHitInMemoryMostRecentSample();
 
     /**
-     * Get most recent value for off-heap cache hit
+     * Get most recent value for off-heap cache hit.
      *
      * @return Most recent sample for cache hit count in off-heap
      */
     long getCacheHitOffHeapMostRecentSample();
 
     /**
-     * Get most recent value for on-disk cache hit
+     * Get most recent value for on-disk cache hit.
      *
      * @return Most recent sample for cache hit count on disk
      */
     long getCacheHitOnDiskMostRecentSample();
 
     /**
-     * Get most recent value for cache miss
+     * Get most recent value for cache miss.
      *
      * @return Most recent sample for cache miss count
      */
     long getCacheMissMostRecentSample();
 
     /**
-     * Get most recent value for in-memory cache miss
+     * Get most recent value for in-memory cache miss.
      *
      * @return Most recent sample for cache miss count in memory
      */
     long getCacheMissInMemoryMostRecentSample();
 
     /**
-     * Get most recent value for off-heap cache miss
+     * Get most recent value for off-heap cache miss.
      *
      * @return Most recent sample for cache miss count in off-heap
      */
     long getCacheMissOffHeapMostRecentSample();
 
     /**
-     * Get most recent value for on-disk cache miss
+     * Get most recent value for on-disk cache miss.
      *
      * @return Most recent sample for cache miss count on disk
      */
@@ -316,51 +345,51 @@ public interface LegacyCacheStatistics {
 
     /**
      * Get most recent value for cache miss as result of the element getting
-     * expired
+     * expired.
      *
      * @return Most recent sample for cache miss count and the reason for miss
-     *         being the element got expired
+     * being the element got expired
      */
     long getCacheMissExpiredMostRecentSample();
 
     /**
      * Get most recent value for cache miss as result of the element not found
-     * in cache
+     * in cache.
      *
      * @return Most recent sample for cache miss not found count
      */
     long getCacheMissNotFoundMostRecentSample();
 
     /**
-     * Get most recent value for cache hit ratio
+     * Get most recent value for cache hit ratio.
      *
      * @return Most recent value for cache hit ratio
      */
     int getCacheHitRatioMostRecentSample();
 
     /**
-     * Get most recent value element evicted from cache
+     * Get most recent value element evicted from cache.
      *
      * @return Most recent sample for element evicted count
      */
     long getCacheElementEvictedMostRecentSample();
 
     /**
-     * Get most recent value element removed from cache
+     * Get most recent value element removed from cache.
      *
      * @return Most recent sample for element removed count
      */
     long getCacheElementRemovedMostRecentSample();
 
     /**
-     * Get most recent value element expired from cache
+     * Get most recent value element expired from cache.
      *
      * @return Most recent value for element expired count
      */
     long getCacheElementExpiredMostRecentSample();
 
     /**
-     * Get most recent value element puts in the cache
+     * Get most recent value element puts in the cache.
      *
      * @return Most recent sample for number of element puts
      */
@@ -376,34 +405,119 @@ public interface LegacyCacheStatistics {
 
     /**
      * Get most recent value for average time taken for get() operation in the
-     * cache
+     * cache.
      *
      * @return Most recent sample of average get time taken for a get operation
      */
     long getAverageGetTimeNanosMostRecentSample();
 
     /**
-     * Method used to dispose this statistics
+     * Method used to dispose this statistics.
      */
     void dispose();
 
     /**
-     * Get the average search execution time for searches finishing within the last sample period
+     * Get the average search execution time for searches finishing within the last sample period.
+     *
+     * @return the average search time nanos
      */
     long getAverageSearchTimeNanos();
 
     /**
-     * Get the number of searches that have finished execution in the last second
+     * Get the number of searches that have finished execution in the last second.
+     *
+     * @return the searches per second
      */
     long getSearchesPerSecond();
 
     /**
-     * Get most recent value of XA commits
+     * Get most recent value of XA commits.
+     *
+     * @return the cache xa commits most recent sample
      */
     long getCacheXaCommitsMostRecentSample();
 
     /**
-     * Get most recent value of XA rollbacks
+     * Get most recent value of XA rollbacks.
+     *
+     * @return the cache xa rollbacks most recent sample
      */
     long getCacheXaRollbacksMostRecentSample();
+
+    /**
+     * Gets the cache cluster offline most recent sample.
+     *
+     * @return the cache cluster offline most recent sample
+     */
+    long getCacheClusterOfflineMostRecentSample();
+    
+    /**
+     * Gets the cache cluster rejoin most recent sample.
+     *
+     * @return the cache cluster rejoin most recent sample
+     */
+    long getCacheClusterRejoinMostRecentSample();
+    
+    /**
+     * Gets the cache cluster online most recent sample.
+     *
+     * @return the cache cluster online most recent sample
+     */
+    long getCacheClusterOnlineMostRecentSample();
+    
+    /**
+     * Gets the non stop success count.
+     *
+     * @return the non stop success count
+     */
+    long getNonStopSuccessCount();
+    
+    /**
+     * Gets the non stop failure count.
+     *
+     * @return the non stop failure count
+     */
+    long getNonStopFailureCount();
+    
+    /**
+     * Gets the non stop rejoin timeout count.
+     *
+     * @return the non stop rejoin timeout count
+     */
+    long getNonStopRejoinTimeoutCount();
+    
+    /**
+     * Gets the non stop timeout count.
+     *
+     * @return the non stop timeout count
+     */
+    long getNonStopTimeoutCount();
+    
+    /**
+     * Gets the non stop success most recent sample.
+     *
+     * @return the non stop success most recent sample
+     */
+    long getNonStopSuccessMostRecentSample();
+    
+    /**
+     * Gets the non stop failure most recent sample.
+     *
+     * @return the non stop failure most recent sample
+     */
+    long getNonStopFailureMostRecentSample();
+    
+    /**
+     * Gets the non stop rejoin most recent sample.
+     *
+     * @return the non stop rejoin most recent sample
+     */
+    long getNonStopRejoinTimeoutMostRecentSample();
+    
+    /**
+     * Gets the non stop timeout most recent sample.
+     *
+     * @return the non stop timeout most recent sample
+     */
+    long getNonStopTimeoutMostRecentSample();
 }

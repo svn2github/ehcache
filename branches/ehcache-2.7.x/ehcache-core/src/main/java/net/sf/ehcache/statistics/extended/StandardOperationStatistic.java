@@ -16,6 +16,10 @@
 
 package net.sf.ehcache.statistics.extended;
 
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.children;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.descendants;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,11 +31,8 @@ import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
-import org.terracotta.context.query.Query;
 
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.children;
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.descendants;
+import org.terracotta.context.query.Query;
 
 /**
  * The Enum OperationType.
@@ -100,7 +101,13 @@ enum StandardOperationStatistic {
     EVICTION(false, cache().add(children().exclude(Ehcache.class).add(descendants())), CacheOperationOutcomes.EvictionOutcome.class, "eviction"),
 
     /** The expired. */
-    EXPIRY(true, cache().children(), CacheOperationOutcomes.ExpiredOutcome.class, "expiry");
+    EXPIRY(true, cache().children(), CacheOperationOutcomes.ExpiredOutcome.class, "expiry"),
+
+    /** cluster events */
+    CLUSTER_EVENT(CacheOperationOutcomes.ClusterEventOutcomes.class, "cluster", "cache"),
+
+    /** cluster events */
+    NONSTOP(CacheOperationOutcomes.NonStopOperationOutcomes.class, "nonstop", "cache");
 
     private static final int THIRTY = 30;
     private static final int TEN = 10;
