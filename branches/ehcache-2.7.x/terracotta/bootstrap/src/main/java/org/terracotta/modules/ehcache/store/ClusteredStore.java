@@ -4,6 +4,7 @@
 package org.terracotta.modules.ehcache.store;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -413,6 +414,9 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public Element putIfAbsent(Element element) throws NullPointerException {
+    if (isEventual) {
+      throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    }
     String pKey = generatePortableKeyFor(element.getObjectKey());
     // extractSearchAttributes(element);
     ElementData value = valueModeHandler.createElementData(element);
@@ -422,6 +426,9 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
+    if (isEventual) {
+        throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    }
     String pKey = generatePortableKeyFor(element.getKey());
     ToolkitReadWriteLock lock = backend.createLockForKey(pKey);
     lock.writeLock().lock();
@@ -437,6 +444,9 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   @Override
   public boolean replace(Element old, Element element, ElementValueComparator comparator) throws NullPointerException,
       IllegalArgumentException {
+    if (isEventual) {
+        throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    }
     String pKey = generatePortableKeyFor(element.getKey());
     ToolkitReadWriteLock lock = backend.createLockForKey(pKey);
     lock.writeLock().lock();
