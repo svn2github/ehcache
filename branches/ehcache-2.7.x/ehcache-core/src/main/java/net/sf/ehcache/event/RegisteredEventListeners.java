@@ -16,30 +16,29 @@
 
 package net.sf.ehcache.event;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.distribution.CacheReplicator;
+
+import org.terracotta.statistics.StatisticsManager;
+import org.terracotta.statistics.observer.OperationObserver;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import net.sf.ehcache.CacheOperationOutcomes;
-import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
-import org.terracotta.statistics.StatisticsManager;
-import org.terracotta.statistics.observer.OperationObserver;
-
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
  * <p/>
  * There is one of these per Cache.
- * <p/>
- * This class also has counters to accumulate the numbers of each type of event for statistics purposes.
  *
  * @author Greg Luck
  * @author Geert Bevin
@@ -54,7 +53,7 @@ public class RegisteredEventListeners {
      * @see CacheEventListener
      */
     private final Set<ListenerWrapper> cacheEventListeners = new CopyOnWriteArraySet<ListenerWrapper>();
-    private final Set<SimpleCacheEventListener> orderedListeners = new CopyOnWriteArraySet<SimpleCacheEventListener>();
+    private final Set<InternalCacheEventListener> orderedListeners = new CopyOnWriteArraySet<InternalCacheEventListener>();
     private final Cache cache;
 
     private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
@@ -77,13 +76,13 @@ public class RegisteredEventListeners {
     }
 
     /**
-     * Notifies {@link SimpleCacheEventListener}s, when an update happens
+     * Notifies {@link InternalCacheEventListener}s, when an update happens
      * @param oldElement the old element
      * @param newElement the new element
      */
     public final void notifyElementUpdatedOrdered(Element oldElement, Element newElement) {
         if (!orderedListeners.isEmpty()) {
-            for (SimpleCacheEventListener listener : orderedListeners) {
+            for (InternalCacheEventListener listener : orderedListeners) {
                 listener.notifyElementRemoved(cache, oldElement);
                 listener.notifyElementPut(cache, newElement);
             }
@@ -91,24 +90,24 @@ public class RegisteredEventListeners {
     }
 
     /**
-     * Notifies {@link SimpleCacheEventListener}s, when a remove happens
+     * Notifies {@link InternalCacheEventListener}s, when a remove happens
      * @param element the element removes
      */
     public final void notifyElementRemovedOrdered(Element element) {
         if (!orderedListeners.isEmpty()) {
-            for (SimpleCacheEventListener listener : orderedListeners) {
+            for (InternalCacheEventListener listener : orderedListeners) {
                 listener.notifyElementRemoved(cache, element);
             }
         }
     }
 
     /**
-     * Notifies {@link SimpleCacheEventListener}s, when a put happens
+     * Notifies {@link InternalCacheEventListener}s, when a put happens
      * @param element the element put
      */
     public final void notifyElementPutOrdered(Element element) {
         if (!orderedListeners.isEmpty()) {
-            for (SimpleCacheEventListener listener : orderedListeners) {
+            for (InternalCacheEventListener listener : orderedListeners) {
                 listener.notifyElementPut(cache, element);
             }
         }
@@ -390,7 +389,7 @@ public class RegisteredEventListeners {
      * @return true if the listener is being added and was not already added
      * @since 2.8
      */
-    final boolean registerOrderedListener(SimpleCacheEventListener cacheEventListener) {
+    final boolean registerOrderedListener(InternalCacheEventListener cacheEventListener) {
         if (cacheEventListener == null) {
             return false;
         }
@@ -439,12 +438,12 @@ public class RegisteredEventListeners {
      * @param cacheEventListener
      * @return true if the listener was present
      */
-    final boolean unregisterOrderedListener(SimpleCacheEventListener cacheEventListener) {
+    final boolean unregisterOrderedListener(InternalCacheEventListener cacheEventListener) {
         boolean result = false;
         int cacheReplicators = 0;
-        final Iterator<SimpleCacheEventListener> itOrdered = orderedListeners.iterator();
+        final Iterator<InternalCacheEventListener> itOrdered = orderedListeners.iterator();
         while (itOrdered.hasNext()) {
-            SimpleCacheEventListener orderedListener = itOrdered.next();
+            InternalCacheEventListener orderedListener = itOrdered.next();
             if (orderedListener.equals(cacheEventListener)) {
                 orderedListeners.remove(orderedListener);
                 result = true;
@@ -497,7 +496,7 @@ public class RegisteredEventListeners {
         }
         cacheEventListeners.clear();
 
-        for (SimpleCacheEventListener orderedListener : orderedListeners) {
+        for (InternalCacheEventListener orderedListener : orderedListeners) {
             orderedListener.dispose();
         }
         orderedListeners.clear();
@@ -519,7 +518,7 @@ public class RegisteredEventListeners {
             sb.append(listenerWrapper.getListener().getClass().getName()).append(" ");
         }
         sb.append("; orderedCacheEventListeners: ");
-        for (SimpleCacheEventListener orderedListener : orderedListeners) {
+        for (InternalCacheEventListener orderedListener : orderedListeners) {
             sb.append(orderedListener.getClass().getName()).append(" ");
         }
         return sb.toString();

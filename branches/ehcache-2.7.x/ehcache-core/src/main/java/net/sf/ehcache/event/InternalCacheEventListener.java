@@ -21,34 +21,31 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 /**
+ * Ehcache internal interface for listening on cache events.
+ *
  * @author Alex Snaps
  */
-public interface SimpleCacheEventListener extends Cloneable {
+interface InternalCacheEventListener extends Cloneable {
+
     /**
-     * Called immediately after an attempt to remove an element. The remove method will block until
-     * this method returns.
+     * Called immediately after an element removal.
      * <p/>
-     * This notification is received regardless of whether the cache had an element matching
-     * the removal key or not. If an element was removed, the element is passed to this method,
-     * otherwise a synthetic element, with only the key set is passed in.
+     * The method causing the remove will block until this method returns.
      * <p/>
-     * This notification is not called for the following special cases:
+     * This notification is not called for the following special case:
      * <ol>
-     * <li>removeAll was called. See {@link #notifyRemoveAll(net.sf.ehcache.Ehcache)}
-     * <li>An element was evicted from the cache.
-     * See {@link #notifyElementEvicted(net.sf.ehcache.Ehcache, net.sf.ehcache.Element)}
+     * <li>removeAll was called
      * </ol>
      *
      * @param cache   the cache emitting the notification
-     * @param element the element just deleted, or a synthetic element with just the key set if
-     *                no element was removed.
+     * @param element the element just deleted.
      */
     void notifyElementRemoved(Ehcache cache, Element element) throws CacheException;
 
     /**
-     * Called immediately after an element has been put into the cache. The
-     * {@link net.sf.ehcache.Cache#put(net.sf.ehcache.Element)} method
-     * will block until this method returns.
+     * Called immediately after an element has been put into the cache.
+     * <p/>
+     * The method causing the put will block until this method returns.
      * <p/>
      * Implementers may wish to have access to the Element's fields, including value, so the
      * element is provided. Implementers should be careful not to modify the element. The
