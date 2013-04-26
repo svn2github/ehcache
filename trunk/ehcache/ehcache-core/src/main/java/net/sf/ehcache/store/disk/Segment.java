@@ -335,6 +335,7 @@ public class Segment extends ReentrantReadWriteLock {
                     final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) onDiskSubstitute).getSize());
                     LOG.debug("replace3 removed {} from disk", outgoingDiskSize);
                 }
+                cacheEventNotificationService.notifyElementUpdatedOrdered(oldElement, newElement);
             } else {
                 free(encoded);
             }
@@ -391,6 +392,7 @@ public class Segment extends ReentrantReadWriteLock {
                     final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) onDiskSubstitute).getSize());
                     LOG.debug("replace2 removed {} from disk", outgoingDiskSize);
                 }
+                cacheEventNotificationService.notifyElementUpdatedOrdered(oldElement, newElement);
             } else {
                 free(encoded);
             }
@@ -462,6 +464,7 @@ public class Segment extends ReentrantReadWriteLock {
                         LOG.debug("put updated, deleted {} on disk", existingDiskSize);
                     }
                     e.faulted.set(faulted);
+                    cacheEventNotificationService.notifyElementUpdatedOrdered(oldElement, element);
                 } else {
                     oldElement = decode(onDiskSubstitute);
 
@@ -476,6 +479,7 @@ public class Segment extends ReentrantReadWriteLock {
                 installed = true;
                 // write-volatile
                 count = count + 1;
+                cacheEventNotificationService.notifyElementPutOrdered(element);
             }
             return oldElement;
 
@@ -661,6 +665,8 @@ public class Segment extends ReentrantReadWriteLock {
                         final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) onDiskSubstitute).getSize());
                         LOG.debug("remove deleted {} from disk", outgoingDiskSize);
                     }
+
+                    cacheEventNotificationService.notifyElementRemovedOrdered(oldValue);
 
                     // write-volatile
                     count = count - 1;
@@ -875,6 +881,10 @@ public class Segment extends ReentrantReadWriteLock {
                     if (onDiskSubstitute instanceof DiskStorageFactory.DiskMarker) {
                         final long outgoingDiskSize = onDiskPoolAccessor.delete(((DiskStorageFactory.DiskMarker) onDiskSubstitute).getSize());
                         LOG.debug("evicted {} from disk", outgoingDiskSize);
+                    }
+
+                    if (notify) {
+                        cacheEventNotificationService.notifyElementRemovedOrdered(evictedElement);
                     }
 
                     // write-volatile
