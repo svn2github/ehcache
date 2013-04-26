@@ -18,6 +18,8 @@ package net.sf.ehcache.management.sampled;
 
 import java.util.ArrayList;
 
+import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.NonStopOperationOutcomes;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -1305,7 +1307,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
             setTimeToLiveSeconds(newTimeToLive);
         }
     }
-
+ 
     /**
      * {@inheritDoc}
      */
@@ -1687,5 +1689,152 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public long getAverageSearchTimeNanos() {
         return getAverageSearchTime();
+    }
+
+    @Override
+    public long getCacheClusterOfflineCount() {
+        try {
+            return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.OFFLINE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }    
+    }
+
+    @Override
+    public long getCacheClusterRejoinCount() {
+        try {
+            return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.REJOINED).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }    
+    }
+
+    @Override
+    public long getCacheClusterOnlineCount() {
+        try {
+            return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.ONLINE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }    
+    }
+
+    @Override
+    public long getCacheClusterOfflineMostRecentSample() {
+        return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.OFFLINE).rate().value().longValue();
+    }
+
+    @Override
+    public long getCacheClusterRejoinMostRecentSample() {
+        return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.REJOINED).rate().value().longValue();
+    }
+
+    @Override
+    public long getCacheClusterOnlineMostRecentSample() {
+        return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.OFFLINE).rate().value().longValue();
+    }
+
+    @Override
+    public SampledCounter getCacheClusterOfflineSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.OFFLINE).rate());
+    }
+
+    @Override
+    public SampledCounter getCacheClusterOnlineSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.ONLINE).rate());
+    }
+
+    @Override
+    public SampledCounter getCacheClusterRejoinSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.REJOINED).rate());
+    }
+
+    @Override
+    public long getMostRecentRejoinTimeStampMillis() {
+        try {
+            return cache.getStatistics().getExtended().mostRecentRejoinTimeStampMillis().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public SampledCounter getMostRecentRejoinTimestampMillisSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().mostRecentRejoinTimeStampMillis());
+    }
+
+    @Override
+    public long getNonStopSuccessCount() {
+        try {
+            return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.SUCCESS).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }    
+    }
+
+    @Override
+    public long getNonStopFailureCount() {
+        try {
+            return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.FAILURE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }    
+    }
+
+    @Override
+    public long getNonStopRejoinTimeoutCount() {
+        try {
+            return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.REJOIN_TIMEOUT).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }    
+    }
+
+    @Override
+    public long getNonStopTimeoutCount() {
+        try {
+            return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.TIMEOUT).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }    
+    }
+
+    @Override
+    public long getNonStopSuccessMostRecentSample() {
+        return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.SUCCESS).rate().value().longValue();
+    }
+
+    @Override
+    public long getNonStopFailureMostRecentSample() {
+        return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.FAILURE).rate().value().longValue();
+    }
+
+    @Override
+    public long getNonStopRejoinTimeoutMostRecentSample() {
+        return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.REJOIN_TIMEOUT).rate().value().longValue();
+    }
+
+    @Override
+    public long getNonStopTimeoutMostRecentSample() {
+        return cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.TIMEOUT).rate().value().longValue();
+    }
+
+    @Override
+    public SampledCounter getNonStopSuccessSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.SUCCESS).rate());
+    }
+
+    @Override
+    public SampledCounter getNonStopFailureSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.FAILURE).rate());
+    }
+
+    @Override
+    public SampledCounter getNonStopRejoinTimeoutSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.REJOIN_TIMEOUT).rate());
+    }
+
+    @Override
+    public SampledCounter getNonStopTimeoutSample() {
+        return new SampledRateCounterProxy(cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.TIMEOUT).rate());
     }
 }

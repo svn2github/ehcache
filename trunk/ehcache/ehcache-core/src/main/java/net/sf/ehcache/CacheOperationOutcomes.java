@@ -119,4 +119,40 @@ public interface CacheOperationOutcomes {
         /** The failure. */
         FAILURE
     };
+    
+    /**
+     * Cluster event operation outcomes.
+     * 
+     * @author cschanck
+     *
+     */
+    public static enum ClusterEventOutcomes {
+        
+        /** offline. */
+        OFFLINE,
+        
+        /** online. */
+        ONLINE, 
+        
+        /** rejoin. */
+        REJOINED
+    };
+    
+    /**
+     * The Enum NonStopOperationOutcomes.
+     */
+    public static enum NonStopOperationOutcomes {
+        
+        /** The success. */
+        SUCCESS,
+        
+        /** failure */
+        FAILURE,
+        
+        /** The rejoin driven timeout */
+        REJOIN_TIMEOUT,
+        
+        /** The timeout. */
+        TIMEOUT;
+    }
 }

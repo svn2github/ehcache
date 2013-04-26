@@ -28,28 +28,39 @@ import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
  * @author <a href="mailto:byoukste@terracottatech.com">byoukste</a>
  */
 public interface CacheSampler extends LegacyCacheStatistics {
+    
     /**
-     * Is the cache enabled?
+     * Is the cache enabled?.
+     *
+     * @return true, if is enabled
      */
     boolean isEnabled();
 
     /**
      * Enabled/disable bulk-load mode for this node.
+     *
+     * @param bulkLoadEnabled the new node bulk load enabled
      */
     void setNodeBulkLoadEnabled(boolean bulkLoadEnabled);
 
     /**
-     * Is the cache in bulk-load mode cluster-wide?
+     * Is the cache in bulk-load mode cluster-wide?.
+     *
+     * @return true, if is cluster bulk load enabled
      */
     boolean isClusterBulkLoadEnabled();
 
     /**
-     * Is the cache in bulk-load mode locally?
+     * Is the cache in bulk-load mode locally?.
+     *
+     * @return true, if is node bulk load enabled
      */
     boolean isNodeBulkLoadEnabled();
 
     /**
      * Enabled/disable the cache.
+     *
+     * @param enabled the new enabled
      */
     void setEnabled(boolean enabled);
 
@@ -72,7 +83,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
     String getStatus();
 
     /**
-     * Is the cache configured with Terracotta clustering?
+     * Is the cache configured with Terracotta clustering?.
      *
      * @return true if clustered with terracotta
      */
@@ -86,245 +97,245 @@ public interface CacheSampler extends LegacyCacheStatistics {
     String getTerracottaConsistency();
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max entries local heap config setting value
      */
     long getMaxEntriesLocalHeap();
 
     /**
-     * setMaxEntriesLocalHeap
+     * setMaxEntriesLocalHeap.
      *
-     * @param maxEntries
+     * @param maxEntries the new max entries local heap
      */
     void setMaxEntriesLocalHeap(long maxEntries);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max bytes local heap config setting value
      */
     long getMaxBytesLocalHeap();
 
     /**
-     * setMaxBytesLocalHeap
+     * setMaxBytesLocalHeap.
      *
-     * @param maxBytes
+     * @param maxBytes the new max bytes local heap
      */
     void setMaxBytesLocalHeap(long maxBytes);
 
     /**
-     * setMaxBytesLocalHeap
+     * setMaxBytesLocalHeap.
      *
-     * @param maxBytes
+     * @param maxBytes the new max bytes local heap as string
      */
     void setMaxBytesLocalHeapAsString(String maxBytes);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max bytes local heap config setting value as string
      */
     String getMaxBytesLocalHeapAsString();
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max bytes local offheap config setting value
      */
     long getMaxBytesLocalOffHeap();
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max bytes local offheap config setting value as string
      */
     String getMaxBytesLocalOffHeapAsString();
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max entries local disk config setting value
      */
     long getMaxEntriesLocalDisk();
 
     /**
-     * setMaxEntriesLocalDisk
+     * setMaxEntriesLocalDisk.
      *
-     * @param maxEntries
+     * @param maxEntries the new max entries local disk
      */
     void setMaxEntriesLocalDisk(long maxEntries);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max elements on disk config setting value
      */
     int getMaxElementsOnDisk();
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max entries in cache config setting value
      */
     int getMaxEntriesInCache();
 
     /**
-     * setMaxElementsOnDisk
+     * setMaxElementsOnDisk.
      *
-     * @param maxElements
+     * @param maxElements the new max elements on disk
      */
     void setMaxElementsOnDisk(int maxElements);
 
     /**
-     * setMaxEntriesInCache
+     * setMaxEntriesInCache.
      *
-     * @param maxEntriesInCache
+     * @param maxEntries the new max entries in cache
      */
     void setMaxEntriesInCache(int maxEntries);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max bytes local disk config setting value
      */
     long getMaxBytesLocalDisk();
 
     /**
-     * setMaxBytesLocalDisk
+     * setMaxBytesLocalDisk.
      *
-     * @param maxBytes
+     * @param maxBytes the new max bytes local disk
      */
     void setMaxBytesLocalDisk(long maxBytes);
 
     /**
-     * setMaxBytesLocalDisk
+     * setMaxBytesLocalDisk.
      *
-     * @param maxBytes
+     * @param maxBytes the new max bytes local disk as string
      */
     void setMaxBytesLocalDiskAsString(String maxBytes);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Max bytes local disk config setting value as string
      */
     String getMaxBytesLocalDiskAsString();
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return a String representation of the policy
      */
     String getMemoryStoreEvictionPolicy();
 
     /**
-     * setMemoryStoreEvictionPolicy
+     * setMemoryStoreEvictionPolicy.
      *
-     * @param evictionPolicy
+     * @param evictionPolicy the new memory store eviction policy
      */
     void setMemoryStoreEvictionPolicy(String evictionPolicy);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return true if set to eternal in config
      */
     boolean isEternal();
 
     /**
-     * setEternal
+     * setEternal.
      *
-     * @param eternal
+     * @param eternal the new eternal
      */
     void setEternal(boolean eternal);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return TTI in config
      */
     long getTimeToIdleSeconds();
 
     /**
-     * setTimeToIdleSeconds
+     * setTimeToIdleSeconds.
      *
-     * @param tti
+     * @param tti the new time to idle seconds
      */
     void setTimeToIdleSeconds(long tti);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return TTL in config
      */
     long getTimeToLiveSeconds();
 
     /**
-     * setTimeToLiveSeconds
+     * setTimeToLiveSeconds.
      *
-     * @param ttl
+     * @param ttl the new time to live seconds
      */
     void setTimeToLiveSeconds(long ttl);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return true if overflow to disk specified in config
      */
     boolean isOverflowToDisk();
 
     /**
-     * setOverflowToDisk
+     * setOverflowToDisk.
      *
-     * @param overflowToDisk
+     * @param overflowToDisk the new overflow to disk
      */
     void setOverflowToDisk(boolean overflowToDisk);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return true if configured with disk persistence
      */
     boolean isDiskPersistent();
 
     /**
-     * setDiskPersistent
+     * setDiskPersistent.
      *
-     * @param diskPersistent
+     * @param diskPersistent the new disk persistent
      */
     void setDiskPersistent(boolean diskPersistent);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return Value for disk expiry thread interval in seconds specified in config
      */
     long getDiskExpiryThreadIntervalSeconds();
 
     /**
-     * setDiskExpiryThreadIntervalSeconds
+     * setDiskExpiryThreadIntervalSeconds.
      *
-     * @param seconds
+     * @param seconds the new disk expiry thread interval seconds
      */
     void setDiskExpiryThreadIntervalSeconds(long seconds);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return true if logging is enabled on the cache
      */
     boolean isLoggingEnabled();
 
     /**
-     * setLoggingEnabled
+     * setLoggingEnabled.
      *
-     * @param enabled
+     * @param enabled the new logging enabled
      */
     void setLoggingEnabled(boolean enabled);
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return true if the cache is pinned
      * @see net.sf.ehcache.config.PinningConfiguration
@@ -332,7 +343,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
     boolean isPinned();
 
     /**
-     * Configuration property accessor
+     * Configuration property accessor.
      *
      * @return the store to which this cache is pinned
      * @see net.sf.ehcache.config.PinningConfiguration
@@ -340,17 +351,26 @@ public interface CacheSampler extends LegacyCacheStatistics {
     String getPinnedToStore();
 
     /**
-     * Is there a registered Write-behind CacheWriter
+     * Is there a registered Write-behind CacheWriter.
+     *
+     * @return the checks for write behind writer
      */
     boolean getHasWriteBehindWriter();
 
     /**
-     * Returns the total length of all write-behind queues for this cache
+     * Returns the total length of all write-behind queues for this cache.
      *
      * @return writer-behind queue length
      */
     long getWriterQueueLength();
 
+    /**
+     * Get the timestamp in nanos of the last rejoin.
+     *
+     * @return the most recent rejoin time stamp millis
+     */
+    long getMostRecentRejoinTimeStampMillis();
+    
     /**
      * Returns the maximum size of any write-behind queues.
      *
@@ -368,168 +388,205 @@ public interface CacheSampler extends LegacyCacheStatistics {
     int getWriterConcurrency();
 
     /**
-     * Is the cache a transactional one
+     * Is the cache a transactional one.
      *
+     * @return the transactional
      * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
      */
     boolean getTransactional();
 
     /**
+     * Gets the transaction commit rate.
+     *
      * @return Xa commit rate
      */
     long getTransactionCommitRate();
 
     /**
+     * Gets the transaction rollback rate.
+     *
      * @return Xa rollback rate
      */
     long getTransactionRollbackRate();
 
     /**
-     * Is the cache configured for search
+     * Is the cache configured for search.
      *
+     * @return the searchable
      * @see net.sf.ehcache.config.Searchable
      */
     boolean getSearchable();
 
     /**
+     * Gets the cache search rate.
+     *
      * @return search rate
      */
     long getCacheSearchRate();
 
     /**
+     * Gets the average search time.
+     *
      * @return search time
      */
     long getAverageSearchTime();
 
     /**
+     * Gets the cache hit rate.
+     *
      * @return hit rate
      */
     long getCacheHitRate();
 
     /**
+     * Gets the cache in memory hit rate.
+     *
      * @return in-memory hit rate
      */
     long getCacheInMemoryHitRate();
 
     /**
+     * Gets the cache off heap hit rate.
+     *
      * @return off-heap hit rate
      */
     long getCacheOffHeapHitRate();
 
     /**
+     * Gets the cache on disk hit rate.
+     *
      * @return on-disk hit rate
      */
     long getCacheOnDiskHitRate();
 
     /**
+     * Gets the cache miss rate.
+     *
      * @return miss rate
      */
     long getCacheMissRate();
 
     /**
+     * Gets the cache in memory miss rate.
+     *
      * @return in-memory miss rate
      */
     long getCacheInMemoryMissRate();
 
     /**
+     * Gets the cache off heap miss rate.
+     *
      * @return off-heap miss rate
      */
     long getCacheOffHeapMissRate();
 
     /**
+     * Gets the cache on disk miss rate.
+     *
      * @return on-disk miss rate
      */
     long getCacheOnDiskMissRate();
 
     /**
+     * Gets the cache put rate.
+     *
      * @return put rate
      */
     long getCachePutRate();
 
     /**
+     * Gets the cache update rate.
+     *
      * @return update rate
      */
     long getCacheUpdateRate();
 
     /**
+     * Gets the cache remove rate.
+     *
      * @return remove rate
      */
     long getCacheRemoveRate();
 
     /**
+     * Gets the cache eviction rate.
+     *
      * @return eviction rate
      */
     long getCacheEvictionRate();
 
     /**
+     * Gets the cache expiration rate.
+     *
      * @return expiration rate
      */
     long getCacheExpirationRate();
 
     /**
+     * Gets the average get time.
+     *
      * @return average get time (nanos.)
      */
     long getAverageGetTime();
     
-
     /**
-     * Get the {@link SampledCounter} for cache hit
+     * Get the {@link SampledCounter} for cache hit.
      *
      * @return the {@code SampledCounter} for cache hit count
      */
     SampledCounter getCacheHitSample();
 
     /**
-     * Get the {@link SampledCounter} for cache hit ratio
+     * Get the {@link SampledCounter} for cache hit ratio.
      *
      * @return the {@code SampledCounter} for cache hit ratio
      */
     SampledCounter getCacheHitRatioSample();
 
     /**
-     * Get the {@link SampledCounter} for in-memory cache hit
+     * Get the {@link SampledCounter} for in-memory cache hit.
      *
      * @return the {@code SampledCounter} for cache hit count in memory
      */
     SampledCounter getCacheHitInMemorySample();
 
     /**
-     * Get the {@link SampledCounter} for off-heap cache hit
+     * Get the {@link SampledCounter} for off-heap cache hit.
      *
      * @return the {@code SampledCounter} for cache hit count in off-heap
      */
     SampledCounter getCacheHitOffHeapSample();
 
     /**
-     * Get the {@link SampledCounter} for on-disk cache hit
+     * Get the {@link SampledCounter} for on-disk cache hit.
      *
      * @return the {@code SampledCounter} for cache hit count on disk
      */
     SampledCounter getCacheHitOnDiskSample();
 
     /**
-     * Get the {@link SampledCounter} for cache miss
+     * Get the {@link SampledCounter} for cache miss.
      *
      * @return the {@code SampledCounter} for cache miss count
      */
     SampledCounter getCacheMissSample();
 
     /**
-     * Get the {@link SampledCounter} for in-memory cache miss
+     * Get the {@link SampledCounter} for in-memory cache miss.
      *
      * @return the {@code SampledCounter} for cache miss count in memory
      */
     SampledCounter getCacheMissInMemorySample();
 
     /**
-     * Get the {@link SampledCounter} for off-heap cache miss
+     * Get the {@link SampledCounter} for off-heap cache miss.
      *
      * @return the {@code SampledCounter} for cache miss count in off-heap
      */
     SampledCounter getCacheMissOffHeapSample();
 
     /**
-     * Get the {@link SampledCounter} for on-disk cache miss
+     * Get the {@link SampledCounter} for on-disk cache miss.
      *
      * @return the {@code SampledCounter} for cache miss count on disk
      */
@@ -537,44 +594,44 @@ public interface CacheSampler extends LegacyCacheStatistics {
 
     /**
      * Get the {@link SampledCounter} for cache miss as result of the element getting
-     * expired
+     * expired.
      *
      * @return the {@code SampledCounter} for cache miss count and the reason for miss
-     *         being the element got expired
+     * being the element got expired
      */
     SampledCounter getCacheMissExpiredSample();
 
     /**
      * Get the {@link SampledCounter} for cache miss as result of the element not found
-     * in cache
+     * in cache.
      *
      * @return the {@code SampledCounter} for cache miss not found count
      */
     SampledCounter getCacheMissNotFoundSample();
 
     /**
-     * Get the {@link SampledCounter} element evicted from cache
+     * Get the {@link SampledCounter} element evicted from cache.
      *
      * @return the {@code SampledCounter} for element evicted count
      */
     SampledCounter getCacheElementEvictedSample();
 
     /**
-     * Get the {@link SampledCounter} element removed from cache
+     * Get the {@link SampledCounter} element removed from cache.
      *
      * @return the {@code SampledCounter} for element removed count
      */
     SampledCounter getCacheElementRemovedSample();
 
     /**
-     * Get the {@link SampledCounter} element expired from cache
+     * Get the {@link SampledCounter} element expired from cache.
      *
      * @return Most recent value for element expired count
      */
     SampledCounter getCacheElementExpiredSample();
 
     /**
-     * Get the {@link SampledCounter} element puts in the cache
+     * Get the {@link SampledCounter} element puts in the cache.
      *
      * @return the {@code SampledCounter} for number of element puts
      */
@@ -590,100 +647,156 @@ public interface CacheSampler extends LegacyCacheStatistics {
 
     /**
      * Get the {@link SampledRateCounter} for average time taken for get() operation in the
-     * cache
+     * cache.
      *
      * @return the {@code SampledRateCounter} of average get time taken for a get operation
      */
     SampledRateCounter getAverageGetTimeSample();
 
     /**
-     * Get the {@link SampledRateCounter} for average search execution time for searches finishing within the last sample period
+     * Get the {@link SampledRateCounter} for average search execution time for searches finishing within the last sample period.
      *
      * @return the {@code SampledRateCounter} of average search time taken
      */
     SampledRateCounter getAverageSearchTimeSample();
 
     /**
-     * Get the {@link SampledCounter} for number of searches that have finished in the interval
+     * Get the {@link SampledCounter} for number of searches that have finished in the interval.
      *
      * @return the {@code SampledCounter} for number of searches
      */
     SampledCounter getSearchesPerSecondSample();
 
     /**
-     * Get the {@link SampledCounter} for number of XA Transaction commits that have completed in the interval
+     * Get the {@link SampledCounter} for number of XA Transaction commits that have completed in the interval.
      *
      * @return the {@code SampledCounter} for number XA Transaction commits
      */
     SampledCounter getCacheXaCommitsSample();
 
     /**
-     * Get the {@link SampledCounter} for number of XA Transaction rollbacks that have completed in the interval
+     * Get the {@link SampledCounter} for number of XA Transaction rollbacks that have completed in the interval.
      *
      * @return the {@code SampledCounter} for number XA Transaction rollbacks
      */
     SampledCounter getCacheXaRollbacksSample();
 
     /**
-     * Get the {@link SampledCounter} for cache size
+     * Get the {@link SampledCounter} for cache size.
      *
      * @return the {@code SampledCounter} for cache size
      */
     SampledCounter getSizeSample();
 
     /**
-     * Get the {@link SampledCounter} for local heap size
+     * Get the {@link SampledCounter} for local heap size.
      *
      * @return the {@code SampledCounter} for local heap size
      */
     SampledCounter getLocalHeapSizeSample();
 
     /**
-     * Get the {@link SampledCounter} for local heap size in bytes
+     * Get the {@link SampledCounter} for local heap size in bytes.
      *
      * @return the {@code SampledCounter} for local heap size in bytes
      */
     SampledCounter getLocalHeapSizeInBytesSample();
 
     /**
-     * Get the {@link SampledCounter} for local offheap size
+     * Get the {@link SampledCounter} for local offheap size.
      *
      * @return the {@code SampledCounter} for local offheap size
      */
     SampledCounter getLocalOffHeapSizeSample();
 
     /**
-     * Get the {@link SampledCounter} for local offheap size in bytes
+     * Get the {@link SampledCounter} for local offheap size in bytes.
      *
      * @return the {@code SampledCounter} for local offheap size in bytes
      */
     SampledCounter getLocalOffHeapSizeInBytesSample();
 
     /**
-     * Get the {@link SampledCounter} for local disk size
+     * Get the {@link SampledCounter} for local disk size.
      *
      * @return the {@code SampledCounter} for local disk size
      */
     SampledCounter getLocalDiskSizeSample();
 
     /**
-     * Get the {@link SampledCounter} for local disk size in bytes
+     * Get the {@link SampledCounter} for local disk size in bytes.
      *
      * @return the {@code SampledCounter} for local disk size in bytes
      */
     SampledCounter getLocalDiskSizeInBytesSample();
 
     /**
-     * Get the {@link SampledCounter} for remote size
+     * Get the {@link SampledCounter} for remote size.
      *
      * @return the {@code SampledCounter} for remote size
      */
     SampledCounter getRemoteSizeSample();
 
     /**
-     * Get the {@link SampledCounter} for writer queue length
+     * Get the {@link SampledCounter} for writer queue length.
      *
      * @return the {@code SampledCounter} for writer queue length
      */
     SampledCounter getWriterQueueLengthSample();
+
+    /**
+     * Get the {@link SampledCounter} for last rejoin timestamp.
+     *
+     * @return the {@code SampledCounter} for last rejoin timestamp
+     */
+    SampledCounter getMostRecentRejoinTimestampMillisSample();
+
+    /**
+     * Get the {@link SampledCounter} for offline cache cluster events.
+     *
+     * @return the {@code SampledCounter} for offline cache cluster events
+     */
+    SampledCounter getCacheClusterOfflineSample();
+
+    /**
+     * Get the {@link SampledCounter} for online cache cluster events.
+     *
+     * @return the {@code SampledCounter} for online cache cluster events
+     */
+    SampledCounter getCacheClusterOnlineSample();
+    
+    /**
+     * Get the {@link SampledCounter} for rejoin cache cluster events.
+     *
+     * @return the {@code SampledCounter} for rejoin cache cluster events
+     */
+    SampledCounter getCacheClusterRejoinSample();
+    
+    /**
+     * Gets the nonstop success sample.
+     *
+     * @return the nonstop success sample
+     */
+    SampledCounter getNonStopSuccessSample();
+    
+    /**
+     * Gets the nonstop failure sample.
+     *
+     * @return the nonstop failure sample
+     */
+    SampledCounter getNonStopFailureSample();
+    
+    /**
+     * Gets the nonstop rejoin sample.
+     *
+     * @return the nonstop rejoin sample
+     */
+    SampledCounter getNonStopRejoinTimeoutSample();
+    
+    /**
+     * Gets the nonstop timeout sample.
+     *
+     * @return the nonstop timeout sample
+     */
+    SampledCounter getNonStopTimeoutSample();
 }

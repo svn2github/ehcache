@@ -37,9 +37,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheOperationOutcomes;
+import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.NonStopOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
@@ -67,16 +69,28 @@ import org.terracotta.statistics.ValueStatistic;
  */
 public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
+    /** The Constant LOGGER. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedStatisticsImpl.class);
 
+    /** The standard pass throughs. */
     private final ConcurrentMap<StandardPassThroughStatistic, Statistic<Number>> standardPassThroughs = 
             new ConcurrentHashMap<StandardPassThroughStatistic, Statistic<Number>>();
+    
+    /** The standard operations. */
     private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations = 
             new ConcurrentHashMap<StandardOperationStatistic, Operation<?>>();
+    
+    /** The custom operations. */
     private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations = 
             new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
+    
+    /** The manager. */
     private final StatisticsManager manager;
+    
+    /** The executor. */
     private final ScheduledExecutorService executor;
+    
+    /** The disable task. */
     private final Runnable disableTask = new Runnable() {
         @Override
         public void run() {
@@ -94,22 +108,34 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     };
 
+    /** The time to disable. */
     private long timeToDisable;
+    
+    /** The time to disable unit. */
     private TimeUnit timeToDisableUnit;
+    
+    /** The disable status. */
     private ScheduledFuture disableStatus;
 
+    /** The all cache get. */
     private final Result allCacheGet;
 
+    /** The all cache miss. */
     private final Result allCacheMiss;
 
+    /** The all cache put. */
     private final Result allCachePut;
 
+    /** The all heap put. */
     private final Result allHeapPut;
 
+    /** The all off heap put. */
     private final Result allOffHeapPut;
 
+    /** The all disk put. */
     private final Result allDiskPut;
 
+    /** The cache hit ratio. */
     private Statistic<Double> cacheHitRatio;
 
     /**
@@ -144,6 +170,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     }
 
+    /**
+     * Find standard operation statistics.
+     */
     private void findStandardOperationStatistics() {
         for (final StandardOperationStatistic t : StandardOperationStatistic.values()) {
             OperationStatistic statistic = findOperationStatistic(manager, t);
@@ -161,6 +190,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
+    /**
+     * Find standard pass thru statistics.
+     */
     private void findStandardPassThruStatistics() {
         for (final StandardPassThroughStatistic t : StandardPassThroughStatistic.values()) {
             ValueStatistic statistic = findPassThroughStatistic(manager, t);
@@ -581,6 +613,12 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         return getStandardPassThrough(StandardPassThroughStatistic.WRITER_QUEUE_LENGTH);
     }
 
+    /**
+     * Gets the standard operation.
+     *
+     * @param statistic the statistic
+     * @return the standard operation
+     */
     private Operation<?> getStandardOperation(StandardOperationStatistic statistic) {
         Operation<?> operation = standardOperations.get(statistic);
         if (operation instanceof NullCompoundOperation<?>) {
@@ -601,6 +639,12 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
+    /**
+     * Gets the standard pass through.
+     *
+     * @param statistic the statistic
+     * @return the standard pass through
+     */
     private Statistic<Number> getStandardPassThrough(StandardPassThroughStatistic statistic) {
         Statistic<Number> passThrough = standardPassThroughs.get(statistic);
         if (passThrough instanceof NullStatistic<?>) {
@@ -621,6 +665,13 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
+    /**
+     * Find operation statistic.
+     *
+     * @param manager the manager
+     * @param statistic the statistic
+     * @return the operation statistic
+     */
     private static OperationStatistic findOperationStatistic(StatisticsManager manager, StandardOperationStatistic statistic) {
         Set<OperationStatistic> results = findOperationStatistic(manager, statistic.context(), statistic.type(), statistic.operationName(),
                 statistic.tags());
@@ -634,6 +685,13 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
+    /**
+     * Find pass through statistic.
+     *
+     * @param manager the manager
+     * @param statistic the statistic
+     * @return the value statistic
+     */
     private static ValueStatistic findPassThroughStatistic(StatisticsManager manager, StandardPassThroughStatistic statistic) {
         Set<ValueStatistic<?>> results = findPassThroughStatistic(manager, statistic.context(), statistic.statisticName(), statistic.tags());
         switch (results.size()) {
@@ -648,9 +706,10 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /**
      * Find operation statistic.
-     * 
+     *
      * @param <T> the generic type
      * @param manager the manager
+     * @param contextQuery the context query
      * @param type the type
      * @param name the name
      * @param tags the tags
@@ -680,6 +739,15 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
+    /**
+     * Find pass through statistic.
+     *
+     * @param manager the manager
+     * @param contextQuery the context query
+     * @param name the name
+     * @param tags the tags
+     * @return the sets the
+     */
     private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, Query contextQuery, String name,
             final Set<String> tags) {
         Set<TreeNode> passThroughStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
@@ -703,5 +771,30 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             return statistics;
         }
     }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#clusterEvent()
+     */
+    @Override
+    public Operation<ClusterEventOutcomes> clusterEvent() {
+        return (Operation<ClusterEventOutcomes>) getStandardOperation(StandardOperationStatistic.CLUSTER_EVENT);
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#clusterEvent()
+     */
+    @Override
+    public Operation<NonStopOperationOutcomes> nonstop() {
+        return (Operation<NonStopOperationOutcomes>) getStandardOperation(StandardOperationStatistic.NONSTOP);
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#lastRejoinTimeStampInNanos()
+     */
+    @Override
+    public Statistic<Number> mostRecentRejoinTimeStampMillis() {
+        return getStandardPassThrough(StandardPassThroughStatistic.LAST_REJOIN_TIMESTAMP);
+    }
+
 
 }

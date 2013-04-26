@@ -173,4 +173,11 @@ public interface CoreStatistics {
      */
     public CountOperation<CacheOperationOutcomes.ExpiredOutcome> cacheExpiration();
 
+    /**
+     * Cache cluster event.
+     * 
+     * @return the count operation
+     */
+    public CountOperation<CacheOperationOutcomes.ClusterEventOutcomes> cacheClusterEvent();
+
 }

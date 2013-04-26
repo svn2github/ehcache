@@ -72,6 +72,7 @@ public class ExtendedStatisticsTest {
             assertThat(extendedStats.get().component(HIT).count().value(), is(1L));
             assertThat(extendedStats.get().component(MISS_NOT_FOUND).count().value(), is(1L));
             assertThat(extendedStats.get().component(MISS_EXPIRED).count().value(), is(0L));
+            assertThat(extendedStats.get().component("MISS_EXPIRED").count().value(), is(0L));
             assertThat(extendedStats.size().value(), IsEqual.<Number>equalTo(1));
         } finally {
             manager.shutdown();

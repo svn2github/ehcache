@@ -299,7 +299,6 @@ public interface FlatStatistics  {
      */
     long cacheEvictedCount();
 
-
     /**
      * Sets the statistics time to disable.
      *
@@ -559,7 +558,7 @@ public interface FlatStatistics  {
      * @return the result
      */
     Result cacheExpiredOperation();
-
+    
     /**
      * Gets the size.
      *

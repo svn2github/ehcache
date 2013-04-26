@@ -191,6 +191,20 @@ public interface ExtendedStatistics {
     Operation<CacheOperationOutcomes.ExpiredOutcome> expiry();
 
     /**
+     * Cluster events
+     * 
+     * @return the operation
+     */
+    Operation<CacheOperationOutcomes.ClusterEventOutcomes> clusterEvent();
+
+    /**
+     * Nonstop events
+     * 
+     * @return the operation
+     */
+    Operation<CacheOperationOutcomes.NonStopOperationOutcomes> nonstop(); 
+
+    /**
      * All get.
      *
      * @return the result
@@ -489,4 +503,12 @@ public interface ExtendedStatistics {
      * @return the writer queue length
      */
     Statistic<Number> writerQueueLength();
+    
+    /**
+     * Get the timestamp (millis) of the last cluster rejoin event
+     * 
+     * @return statistic for cluster rejoin timestamp
+     */
+    Statistic<Number> mostRecentRejoinTimeStampMillis();
+
 }
