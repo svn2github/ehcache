@@ -4,7 +4,6 @@
 package org.terracotta.ehcache.tests.container;
 
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.terracotta.StandaloneTerracottaClusteredInstanceFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -14,6 +13,7 @@ import org.codehaus.cargo.util.AntUtils;
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
+import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.toolkit.Toolkit;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -95,10 +95,10 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
     }
   }
 
-  private File getApplicationXml(String resource, Set<File> earLibs) throws Exception {
+  private File getApplicationXml(String resource, Set<String> earLibs) throws Exception {
     String modulesSection = "";
-    for (File lib : earLibs) {
-      modulesSection += "  <module>\n " + "    <java>" + lib.getName() + "</java>\n" + "  </module>\n";
+    for (String lib : earLibs) {
+      modulesSection += "  <module>\n " + "    <java>" + lib + "</java>\n" + "  </module>\n";
     }
     InputStream in = null;
     FileOutputStream out = null;
@@ -129,13 +129,12 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
     builder.addFileAsResource(getEhcacheConfig(ehcacheConfig, getServerManager().getServerTcConfig().getTsaPort()),
                               "WEB-INF/classes/");
 
-    Set<File> earLibs = new HashSet<File>();
-    earLibs.add(WARBuilder.calculatePathToClass(Toolkit.class).getFile()); // toolkit-runtime
-    earLibs.add(WARBuilder.calculatePathToClass(Ehcache.class).getFile()); // ehcache-core
-    earLibs.add(WARBuilder.calculatePathToClass(StandaloneTerracottaClusteredInstanceFactory.class).getFile()); // ehcache-terracotta
-    earLibs.add(WARBuilder.calculatePathToClass(LoggerFactory.class).getFile()); // slf4j-api
-    earLibs.add(WARBuilder.calculatePathToClass(StaticLoggerBinder.class).getFile()); // slf4j-log4j
-    earLibs.add(WARBuilder.calculatePathToClass(org.apache.log4j.LogManager.class).getFile()); // log4j
+    Set<String> earLibs = new HashSet<String>();
+    earLibs.addAll(TestBaseUtil.getEhcacheDependencies(Ehcache.class));
+    earLibs.addAll(TestBaseUtil.getToolkitRuntimeDependencies(Toolkit.class));
+    earLibs.add(WARBuilder.calculatePathToClass(LoggerFactory.class).toString()); // slf4j-api
+    earLibs.add(WARBuilder.calculatePathToClass(StaticLoggerBinder.class).toString()); // slf4j-log4j
+    earLibs.add(WARBuilder.calculatePathToClass(org.apache.log4j.LogManager.class).toString()); // log4j
 
     File appXmlFile = getApplicationXml(resourceAppXml, earLibs);
 
@@ -152,12 +151,12 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
 
     FileUtils.copyFileToDirectory(builder.makeDeployment().getFileSystemPath().getFile(), earDir);
 
-    for (File earLib : earLibs) {
+    for (String earLib : earLibs) {
       if (appServerInfo().getId() == AppServerInfo.WEBLOGIC || appServerInfo().getId() == AppServerInfo.WEBSPHERE
           || (appServerInfo().toString().startsWith("jboss-7"))) {
-        FileUtils.copyFileToDirectory(earLib, lib);
+        FileUtils.copyFileToDirectory(new File(earLib), lib);
       } else {
-        FileUtils.copyFileToDirectory(earLib, earDir);
+        FileUtils.copyFileToDirectory(new File(earLib), earDir);
       }
     }
 
