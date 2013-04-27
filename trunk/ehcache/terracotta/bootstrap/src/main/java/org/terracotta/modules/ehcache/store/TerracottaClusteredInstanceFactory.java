@@ -162,4 +162,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     destroyed |= asyncCoordinatorFactory.destroy(cacheManagerName, cacheName);
     return destroyed;
   }
+
+  public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {
+    return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName);
+  }
 }
