@@ -35,4 +35,9 @@ public interface AsyncCoordinator<E extends Serializable> {
    * @return the current items to be processed
    */
   public long getQueueSize();
+
+  /**
+   * Destroy all clustered state associated with the given async coordinator.
+   */
+  void destroy();
 }

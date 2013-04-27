@@ -51,4 +51,10 @@ public class TerracottaNodeImpl implements net.sf.ehcache.cluster.ClusterNode {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "TerracottaNodeImpl{" +
+           "node=" + node +
+           '}';
+  }
 }

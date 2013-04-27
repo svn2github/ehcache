@@ -126,4 +126,8 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
        return delegate.createNonStopStore(store, cache);
     }
 
+    @Override
+    public boolean destroyCache(final String cacheManagerName, final String cacheName) {
+        return delegate.destroyCache(cacheManagerName, cacheName);
+    }
 }

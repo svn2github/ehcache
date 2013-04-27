@@ -16,6 +16,7 @@ import org.terracotta.toolkit.ToolkitInstantiationException;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 
+import java.io.InputStream;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeUnit;
 
@@ -62,7 +63,11 @@ public abstract class ClientBase extends AbstractClientBase {
   }
 
   protected void setupCacheManager() {
-    cacheManager = new CacheManager(Client1.class.getResourceAsStream("/ehcache-config.xml"));
+    cacheManager = CacheManager.create(getEhcacheXmlAsStream());
+  }
+
+  protected InputStream getEhcacheXmlAsStream() {
+    return Client1.class.getResourceAsStream("/ehcache-config.xml");
   }
 
   protected Cache getCache() {

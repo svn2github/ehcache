@@ -7,4 +7,6 @@ import net.sf.ehcache.Ehcache;
 
 public interface AsyncCoordinatorFactory {
   AsyncCoordinator getOrCreateAsyncCoordinator(final Ehcache cache, final AsyncConfig config);
+
+  boolean destroy(String cacheManagerName, String cacheName);
 }

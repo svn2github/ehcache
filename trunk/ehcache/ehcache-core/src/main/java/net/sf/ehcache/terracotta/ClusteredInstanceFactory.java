@@ -100,4 +100,13 @@ public interface ClusteredInstanceFactory {
      * @return a NonStopStore
      */
     TerracottaStore createNonStopStore(Callable<TerracottaStore> store, Ehcache cache);
+
+    /**
+     * Destroys the specified cache
+     *
+     * @param cacheManagerName name of the cache manager the cache belongs to
+     * @param cacheName name of the cache
+     * @return true if the cache existed before being destroyed
+     */
+    boolean destroyCache(String cacheManagerName, String cacheName);
 }
