@@ -1,23 +1,18 @@
 package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.management.resource.CacheConfigEntity;
-import net.sf.ehcache.management.resource.ConfigContainerEntity;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
-import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author brandony
@@ -36,7 +31,7 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
   }
 
   @Override
-  public Response getXMLCacheConfigs(UriInfo info) {
+  public Collection<CacheConfigEntity> getXMLCacheConfigs(UriInfo info) {
     LOG.debug(String.format("Invoking CacheConfigsResourceServiceImpl.getXMLCacheConfigs: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
@@ -49,13 +44,8 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
     Set<String> cNames = cacheNames == null ? null : new HashSet<String>(Arrays.asList(cacheNames.split(",")));
 
     try {
-      Collection<CacheConfigEntity> configs = entityResourceFactory.createCacheConfigEntities(cmNames, cNames);
-
-      ConfigContainerEntity<CacheConfigEntity> cc = new ConfigContainerEntity<CacheConfigEntity>();
-      cc.setConfiguration(configs);
-      cc.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
-
-      return Response.ok(cc).build();
+      Collection<CacheConfigEntity> configs =  entityResourceFactory.createCacheConfigEntities(cmNames, cNames);
+      return configs;
     } catch (ServiceExecutionException e) {
       throw new ResourceRuntimeException("Failed to get xml cache configs", e, Response.Status.BAD_REQUEST.getStatusCode());
     }

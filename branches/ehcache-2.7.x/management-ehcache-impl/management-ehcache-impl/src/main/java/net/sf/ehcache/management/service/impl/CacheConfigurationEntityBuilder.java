@@ -6,6 +6,7 @@ package net.sf.ehcache.management.service.impl;
 
 import net.sf.ehcache.management.resource.CacheConfigEntity;
 import net.sf.ehcache.management.sampled.CacheManagerSampler;
+import org.terracotta.management.resource.AgentEntity;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -56,7 +57,8 @@ final class CacheConfigurationEntityBuilder {
 
           String cacheName = entry.getKey();
           cce.setCacheName(cacheName);
-
+          cce.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+          cce.setVersion(this.getClass().getPackage().getImplementationVersion());
           CacheManagerSampler sampler = entry.getValue();
           cce.setCacheManagerName(sampler.getName());
 

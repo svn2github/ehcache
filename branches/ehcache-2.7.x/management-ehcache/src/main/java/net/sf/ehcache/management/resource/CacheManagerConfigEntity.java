@@ -4,17 +4,20 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.terracotta.management.resource.VersionedEntity;
 import org.w3c.dom.Element;
 
 /**
  * @author brandony
  */
 @SuppressWarnings("serial")
-public class CacheManagerConfigEntity implements Serializable {
+@XmlRootElement(name = "configuration")
+public class CacheManagerConfigEntity extends VersionedEntity {
   private String cacheManagerName;
-
+  private String agentId;
   private Element xml;
 
   @XmlAttribute
@@ -34,5 +37,16 @@ public class CacheManagerConfigEntity implements Serializable {
 
   public void setXml(Element xml) {
     this.xml = xml;
+  }
+
+  @Override
+  public String getAgentId() {
+    return agentId;
+  }
+
+  @Override
+  @XmlAttribute
+  public void setAgentId(String agentId) {
+    this.agentId =  agentId;
   }
 }
