@@ -156,8 +156,10 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     return softLockManagerProvider.getOrCreateClusteredSoftLockFactory(cache);
   }
 
-  public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {
-    return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName);
+  @Override
+  public boolean destroyCache(final String cacheManagerName, final String cacheName) {
+    boolean destroyed = toolkitInstanceFactory.destroy(cacheManagerName, cacheName);
+    destroyed |= asyncCoordinatorFactory.destroy(cacheManagerName, cacheName);
+    return destroyed;
   }
-
 }

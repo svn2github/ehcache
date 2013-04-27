@@ -124,20 +124,29 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
     final Configuration clusteredCacheConfig = createClusteredCacheConfig(cache);
     addNonStopConfigForCache(cache);
-    return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cache),
-                                                                         clusteredCacheConfig, Serializable.class);
+    return getOrCreateToolkitCache(cache.getCacheManager().getName(), cache.getName(), clusteredCacheConfig);
+  }
+
+  private ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(String cacheManagerMan, String cacheName, Configuration config) {
+    return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cacheManagerMan, cacheName), config, Serializable.class);
   }
 
   @Override
   public ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(Ehcache cache) {
-    return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
-                               CacheConfigChangeNotificationMsg.class);
+    return getOrCreateConfigChangeNotifier(cache.getCacheManager().getName(), cache.getName());
   }
 
-  @Override
+  private ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(String cacheManagerName, String cacheName) {
+    return toolkit.getNotifier(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
+      CacheConfigChangeNotificationMsg.class);
+  }
   public ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache) {
-    return toolkit.getNotifier(getFullyQualifiedCacheName(cache) + DELIMITER + EVENT_NOTIFIER_SUFFIX,
-                               CacheEventNotificationMsg.class);
+    return getOrCreateCacheEventNotifier(cache.getCacheManager().getName(), cache.getName());
+  }
+
+  private ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(String cacheManagerName, String cacheName) {
+    return toolkit.getNotifier(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + EVENT_NOTIFIER_SUFFIX,
+        CacheEventNotificationMsg.class);
   }
 
   private static Configuration createClusteredCacheConfig(Ehcache cache) {
@@ -271,14 +280,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public String getFullAsyncName(Ehcache cache) {
-    String cacheMgrName = getCacheManagerName(cache);
-    String cacheName = cache.getName();
-    String fullAsyncName = cacheMgrName + DELIMITER + cacheName;
-    return fullAsyncName;
-  }
-
-  @Override
   public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
     // TODO: what should be the local cache config for the map?
     return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
@@ -329,6 +330,26 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return toolkit.getReadWriteLock(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
                                     + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
                                     + EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME);
+  }
+
+  @Override
+  public boolean destroy(final String cacheManagerName, final String cacheName) {
+    getOrCreateAllSoftLockMap(cacheManagerName, cacheName).destroy();
+    getOrCreateNewSoftLocksSet(cacheManagerName, cacheName).destroy();
+    getOrCreateCacheEventNotifier(cacheManagerName, cacheName).destroy();
+    getOrCreateConfigChangeNotifier(cacheManagerName, cacheName).destroy();
+    getOrCreateToolkitCache(cacheManagerName, cacheName,
+        new ToolkitCacheConfigBuilder().maxCountLocalHeap(1)
+            .maxBytesLocalOffheap(0)
+            .build()).destroy();
+
+    // We always write the transactional mode into this config map, so theoretically if the cache existed, this map
+    // won't be empty.
+    ToolkitMap clusteredStoreConfigMap = getOrCreateClusteredStoreConfigMap(cacheManagerName, cacheName);
+    boolean existed = !clusteredStoreConfigMap.isEmpty();
+    clusteredStoreConfigMap.destroy();
+
+    return existed;
   }
 
   private void addNonStopConfigForCache(Ehcache cache) {

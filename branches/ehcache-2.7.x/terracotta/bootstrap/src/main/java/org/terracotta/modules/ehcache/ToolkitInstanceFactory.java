@@ -60,8 +60,6 @@ public interface ToolkitInstanceFactory {
 
   ToolkitMap<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
 
-  String getFullAsyncName(Ehcache cache);
-
   /**
    * Returns a {@link ToolkitNotifier} for the cachse to notify {@link CacheEventNotificationMsg} across the cluster
    */
@@ -73,6 +71,14 @@ public interface ToolkitInstanceFactory {
    * @throws UnsupportedOperationException if search is not supported
    */
   ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(Ehcache cache);
+
+  /**
+   * Destorys any clustered state associated with the given cache.
+   *
+   * @param cacheManagerName
+   * @param cacheName
+   */
+  boolean destroy(final String cacheManagerName, final String cacheName);
 
   /**
    * Shutdown

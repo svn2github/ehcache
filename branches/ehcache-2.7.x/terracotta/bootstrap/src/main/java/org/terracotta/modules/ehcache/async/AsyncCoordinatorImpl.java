@@ -393,6 +393,19 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     }
   }
 
+  @Override
+  public void destroy() {
+    commonAsyncLock.lock();
+    try {
+      for (String bucketName : bucketManager.getAllBuckets()) {
+        toolkit.getList(bucketName, null).destroy();
+      }
+      bucketManager.destroy();
+    } finally {
+      commonAsyncLock.unlock();
+    }
+  }
+
   public static interface Callback {
     void callback();
   }
@@ -484,6 +497,17 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       return deadNodes;
     }
 
+    private Set<String> getAllBuckets() {
+      Set<String> buckets = new HashSet<String>();
+      for (String node : getAllNodes()) {
+        buckets.addAll(nodeToBucketNames.get(node));
+      }
+      return buckets;
+    }
+
+    void destroy() {
+      nodeToBucketNames.destroy();
+    }
   }
 
 }
