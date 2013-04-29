@@ -67,7 +67,8 @@ public class NonStopStoreWrapper implements TerracottaStore {
                                                                                                                                       .toMillis(5));
 
   private static final Set<String>                                                 LOCAL_METHODS                     = new HashSet<String>();
-  private static final long                                                        REJOIN_RETRY_INTERVAL             = 10 * 1000;
+  private static final long                                                        REJOIN_RETRY_INTERVAL             = TimeUnit.SECONDS
+                                                                                                                         .toMillis(10);
 
   static {
     LOCAL_METHODS.add("unsafeGet");
@@ -132,9 +133,27 @@ public class NonStopStoreWrapper implements TerracottaStore {
     if (ehcacheNonStopConfiguration != null && ehcacheNonStopConfiguration.isEnabled()) {
       createStoreAsynchronously(toolkit, clusteredStoreCreator);
     } else {
-      doInit(clusteredStoreCreator);
+      createStore(clusteredStoreCreator);
     }
     StatisticsManager.associate(this).withParent(cache);
+  }
+
+  private void createStore(Callable<TerracottaStore> clusteredStoreCreator) {
+    try {
+      while (true) {
+        try {
+          doInit(clusteredStoreCreator);
+          return;
+        } catch (RejoinException e) {
+          // ignore RejoinException and wait for REJOIN_RETRY_INTERVAL before retry
+          Thread.sleep(REJOIN_RETRY_INTERVAL);
+        }
+      }
+    } catch (Throwable t) {
+      String message = "Error while creating store inline ";
+      LOGGER.warn(message, t);
+      handleException(message, t);
+    }
   }
 
   private CacheLockProvider createCacheLockProvider(Toolkit toolkit, ToolkitInstanceFactory toolkitInstanceFactory) {
@@ -146,7 +165,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
   private void createStoreAsynchronously(final Toolkit toolkit, Callable<TerracottaStore> clusteredStoreCreator) {
     // THIS IS HAND MADE CODE -- DO NOT GENERATED
     initializationService.initialize(createInitRunnable(clusteredStoreCreator), ehcacheNonStopConfiguration);
-
     if (exceptionDuringInitialization != null) { throw new NonStopToolkitInstantiationException(
                                                                                                 exceptionDuringInitialization); }
   }
@@ -224,7 +242,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     return false;
   }
 
-  private TerracottaStore createStore(Callable<TerracottaStore> clusteredStoreCreator) {
+  private TerracottaStore createTerracottaStore(Callable<TerracottaStore> clusteredStoreCreator) {
     // THIS IS HAND MADE CODE -- DO NOT GENERATED
     try {
       return clusteredStoreCreator.call();
@@ -240,7 +258,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
 
   private void doInit(Callable<TerracottaStore> clusteredStoreCreator) {
     // THIS IS HAND MADE CODE -- DO NOT GENERATED
-    TerracottaStore delegateTemp = createStore(clusteredStoreCreator);
+    TerracottaStore delegateTemp = createTerracottaStore(clusteredStoreCreator);
 
     if (clusteredCacheInternalContext.getCacheLockProvider() instanceof NonStopCacheLockProvider) {
       ((NonStopCacheLockProvider) clusteredCacheInternalContext.getCacheLockProvider())
@@ -333,6 +351,14 @@ public class NonStopStoreWrapper implements TerracottaStore {
         waitForInit(timeout);
       }
     }
+  }
+
+  private void handleException(String message, Throwable t) {
+    // THIS IS HAND MADE CODE -- DO NOT GENERATED
+    if (t.getClass().getSimpleName().equals("TCNotRunningException")) { throw new TerracottaNotRunningException(
+                                                                                                                "Clustered Cache is probably shutdown or Terracotta backend is down.",
+                                                                                                                t); }
+    throw new CacheException(message + t.getMessage(), t);
   }
 
   private void handleNonStopToolkitInstantiationException(NonStopToolkitInstantiationException e) {
