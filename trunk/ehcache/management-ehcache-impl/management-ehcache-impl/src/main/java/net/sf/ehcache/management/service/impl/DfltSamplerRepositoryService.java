@@ -511,14 +511,30 @@ public class DfltSamplerRepositoryService
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
 
-    ame.setSecured(Utils.trimToNull(configuration.getSecurityServiceLocation()) != null);
+    if (isTsaBridged()) {
+      ame.setSecured(isTsaSecured());
+      ame.setSslEnabled(isTsaSecured());
+      ame.setNeedClientAuth(false);
+    } else {
+      ame.setSecured(Utils.trimToNull(configuration.getSecurityServiceLocation()) != null);
+      ame.setSslEnabled(Utils.trimToNull(configuration.getSecurityServiceLocation()) != null);
+      ame.setNeedClientAuth(configuration.isNeedClientAuth());
+    }
+
     ame.setLicensed(ServiceLocator.locate(LicenseService.class).isLicensed());
-    ame.setNeedClientAuth(configuration.isNeedClientAuth());
     ame.setSampleHistorySize(configuration.getSampleHistorySize());
     ame.setSampleIntervalSeconds(configuration.getSampleIntervalSeconds());
     ame.setEnabled(configuration.isEnabled());
 
     return ame;
+  }
+
+  protected boolean isTsaBridged() {
+    return true;
+  }
+
+  protected boolean isTsaSecured() {
+    return true;
   }
 
 
