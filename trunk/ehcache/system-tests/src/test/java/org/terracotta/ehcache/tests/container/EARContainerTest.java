@@ -98,7 +98,11 @@ public class EARContainerTest extends AbstractDeploymentTestCase {
   private File getApplicationXml(String resource, Set<String> earLibs) throws Exception {
     String modulesSection = "";
     for (String lib : earLibs) {
-      modulesSection += "  <module>\n " + "    <java>" + lib + "</java>\n" + "  </module>\n";
+      String module = new File(lib).getName();
+      if (appServerInfo().toString().startsWith("weblogic-12")) {
+        module = "APP-INF/lib/" + module;
+      }
+      modulesSection += "  <module>\n " + "    <java>" + module + "</java>\n" + "  </module>\n";
     }
     InputStream in = null;
     FileOutputStream out = null;
