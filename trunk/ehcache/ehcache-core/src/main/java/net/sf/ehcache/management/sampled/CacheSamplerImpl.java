@@ -1730,7 +1730,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
 
     @Override
     public long getCacheClusterOnlineMostRecentSample() {
-        return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.OFFLINE).rate().value().longValue();
+        return cache.getStatistics().getExtended().clusterEvent().component(ClusterEventOutcomes.ONLINE).rate().value().longValue();
     }
 
     @Override
