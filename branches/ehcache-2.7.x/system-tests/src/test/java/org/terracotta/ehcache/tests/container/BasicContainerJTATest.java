@@ -17,18 +17,15 @@ public class BasicContainerJTATest extends AbstractStandaloneTwoServerDeployment
   private static final String CONTEXT = "BasicContainerJTATest";
 
   public BasicContainerJTATest() {
-    if(appServerInfo().getId() == AppServerInfo.JETTY ||
-            appServerInfo().getId() == AppServerInfo.TOMCAT ||
-            appServerInfo().getId() == AppServerInfo.WEBSPHERE) {
+    if (appServerInfo().getId() == AppServerInfo.JETTY || appServerInfo().getId() == AppServerInfo.TOMCAT
+        || appServerInfo().getId() == AppServerInfo.WEBSPHERE) {
       // Jetty and Tomcat have no TM and we know the Websphere one is not compatible
       disableTest();
     }
 
-    if (appServerInfo().getId() == AppServerInfo.WEBLOGIC) {
-      timebombTest("2013-05-10");
-    }
+    timebombTest("2013-05-10");
   }
-  
+
   public static Test suite() {
     return new BasicContainerJTATestSetup();
   }
