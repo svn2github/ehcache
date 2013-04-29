@@ -1,7 +1,8 @@
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.MemoryStorePerfTester;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -9,15 +10,10 @@ import org.junit.Test;
  */
 public class LruMemoryStorePerfTest extends MemoryStorePerfTester {
 
-    /**
-     * setup test
-     */
     @Override
-    @Before
-    public void setUp() throws Exception {
-
-        super.setUp();
-        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LRU);
+    protected Cache createCache() throws CacheException {
+        return new Cache("LruMemoryStorePerfTest", 12000, MemoryStoreEvictionPolicy.FIFO, false, System.getProperty("java.io.tmpdir"), 
+                true, 60, 30, false, 60, null);
     }
 
     /**

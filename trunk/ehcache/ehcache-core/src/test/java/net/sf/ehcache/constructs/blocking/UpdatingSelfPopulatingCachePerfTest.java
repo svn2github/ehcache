@@ -10,31 +10,29 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Alex Snaps
  */
-public class UpdatingSelfPopulatingCachePerfTest extends SelfPopulatingCachePerfTest {
+public class UpdatingSelfPopulatingCachePerfTest {
 
+    @Rule
+    public final TemporaryFolder diskFolder = new TemporaryFolder();
+    
     private static final Logger LOG = LoggerFactory.getLogger(UpdatingSelfPopulatingCachePerfTest.class.getName());
 
     /**
-     * When flushing large MemoryStores, OutOfMemory issues can happen if we are
-     * not careful to move each to Element to the DiskStore, rather than copy them all
-     * and then delete them from the MemoryStore.
-     * <p/>
-     * This test manipulates a MemoryStore right on the edge of what can fit into the 64MB standard VM size.
-     * An inefficient spool will cause an OutOfMemoryException.
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testMemoryEfficiencyOfFlushWhenOverflowToDisk() throws Exception {
-        super.testMemoryEfficiencyOfFlushWhenOverflowToDisk();
-    }
-
-        /**
      * Thrashes a UpdatingSelfPopulatingCache and looks for liveness problems
      * Note. These timings are without logging. Turn logging off to run this test.
      * <p/>
@@ -42,11 +40,25 @@ public class UpdatingSelfPopulatingCachePerfTest extends SelfPopulatingCachePerf
      */
     @Test
     public void testThrashUpdatingSelfPopulatingCache() throws Exception {
-        final String value = "value";
-        final CountingCachePerfEntryFactory factory = new CountingCachePerfEntryFactory(value);
-        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
-        long duration = thrashCache((UpdatingSelfPopulatingCache) selfPopulatingCache, 300L, 1500L);
-        LOG.debug("Thrash Duration:" + duration);
+        CacheManager manager = new CacheManager(new Configuration().name("testThrashUpdatingSelfPopulatingCache")
+               .diskStore(new DiskStoreConfiguration().path(diskFolder.getRoot().getAbsolutePath())));
+        try {
+            Ehcache cache = new Cache(new CacheConfiguration().name("test")
+                    .maxEntriesLocalHeap(1)
+                    .timeToIdleSeconds(2)
+                    .timeToLiveSeconds(5)
+                    .overflowToDisk(true)
+                    .diskPersistent(true));
+            manager.addCache(cache);
+
+            final String value = "value";
+            final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
+            SelfPopulatingCache selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
+            long duration = thrashCache((UpdatingSelfPopulatingCache) selfPopulatingCache, 300L, 1500L);
+            LOG.debug("Thrash Duration:" + duration);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -60,7 +72,7 @@ public class UpdatingSelfPopulatingCachePerfTest extends SelfPopulatingCachePerf
         // Create threads that do gets
         final List executables = new ArrayList();
         for (int i = 0; i < 10; i++) {
-            final UpdatingSelfPopulatingCachePerfTest.Executable executable = new UpdatingSelfPopulatingCachePerfTest.Executable() {
+            final AbstractCacheTest.Executable executable = new AbstractCacheTest.Executable() {
                 public void execute() throws Exception {
                     for (int i = 0; i < 10; i++) {
                         final String key = "key" + i;
@@ -77,7 +89,7 @@ public class UpdatingSelfPopulatingCachePerfTest extends SelfPopulatingCachePerf
             executables.add(executable);
         }
 
-        runThreads(executables);
+        AbstractCacheTest.runThreads(executables);
         cache.removeAll();
         return stopWatch.getElapsedTime();
     }

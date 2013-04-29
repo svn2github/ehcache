@@ -13,14 +13,22 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Alex Snaps
  */
-public class DiskStorePerformancePerfTest  extends AbstractCachePerfTest {
+public class DiskStorePerformancePerfTest {
 
+    @Rule
+    public final TemporaryFolder diskFolder = new TemporaryFolder();
+    
     private static final Logger LOG = LoggerFactory.getLogger(DiskStorePerformancePerfTest.class);
 
     /**
@@ -33,56 +41,61 @@ public class DiskStorePerformancePerfTest  extends AbstractCachePerfTest {
      */
     @Test
     public void concurrencyThroughputOfReads() throws Exception {
-        Cache cache = new Cache("test", 0, MemoryStoreEvictionPolicy.LRU, true, null, false, 500, 500, true, 10000, null);
-        manager.addCache(cache);
+        CacheManager manager = new CacheManager(new Configuration().name("concurrencyThroughputOfReads")
+                  .diskStore(new DiskStoreConfiguration().path(diskFolder.getRoot().getAbsolutePath())));
+        try {
+            Cache cache = new Cache("test", 0, MemoryStoreEvictionPolicy.LRU, true, null, false, 500, 500, true, 10000, null);
+            manager.addCache(cache);
 
-        /* Stick over half a GB of stuff into the DiskStore. */
-        ValueObject small = new ValueObject("image/x-icon", getResource("/small.ico"));
-        ValueObject large = new ValueObject("image/jpg", getResource("/large.jpg"));
+            /* Stick over half a GB of stuff into the DiskStore. */
+            ValueObject small = new ValueObject("image/x-icon", getResource("/small.ico"));
+            ValueObject large = new ValueObject("image/jpg", getResource("/large.jpg"));
 
-        int total = 100000;
+            int total = 100000;
 
-        fillCache(cache, small, large, total);
+            fillCache(cache, small, large, total);
 
-        /*
-         * Now simulate n concurrent requests for different keys and see how we go. As far as possible, we want them
-         * all to attempt to hit the cache at the same time, hence the use of CountDownLatch.
-         */
-        int clientCount = 100;
-        ExecutorService executor = Executors.newFixedThreadPool(clientCount);
-        CountDownLatch startGate = new CountDownLatch(1);
-        CountDownLatch endGate = new CountDownLatch(clientCount);
+            /*
+             * Now simulate n concurrent requests for different keys and see how we go. As far as possible, we want them
+             * all to attempt to hit the cache at the same time, hence the use of CountDownLatch.
+             */
+            int clientCount = 100;
+            ExecutorService executor = Executors.newFixedThreadPool(clientCount);
+            CountDownLatch startGate = new CountDownLatch(1);
+            CountDownLatch endGate = new CountDownLatch(clientCount);
 
-        WorkerRequest [] requests = new WorkerRequest[clientCount];
+            WorkerRequest [] requests = new WorkerRequest[clientCount];
 
-        Random r = new Random();
+            Random r = new Random();
 
-        for (int i = 0, n = requests.length; i < n; ++i) {
-            int key = r.nextInt(total);
-            requests[i] = new WorkerRequest(key, cache, key % 2 == 1 ? small: large, startGate, endGate);
-            executor.execute(requests[i]);
+            for (int i = 0, n = requests.length; i < n; ++i) {
+                int key = r.nextInt(total);
+                requests[i] = new WorkerRequest(key, cache, key % 2 == 1 ? small: large, startGate, endGate);
+                executor.execute(requests[i]);
+            }
+
+            /* Let them all go at once. */
+            StopWatch watch = new StopWatch();
+
+            startGate.countDown();
+
+            /* and run to completion. */
+            endGate.await();
+
+            long elapsedTime = watch.getElapsedTime();
+
+            /* Check that the cache implementation is still correct, when doing any performance enhancements. */
+            for (WorkerRequest request : requests) {
+                assertTrue("cache behaved correctly: " + request, request.success);
+            }
+
+            LOG.info("Elapsed time ms: " + elapsedTime);
+
+            /* Check that lots of concurrent access was reasonably quick as well. */
+            assertTrue("expected to be less than 1000 but was " + elapsedTime, elapsedTime < 1500);
+        } finally {
+            manager.shutdown();
         }
-
-        /* Let them all go at once. */
-        StopWatch watch = new StopWatch();
-
-        startGate.countDown();
-
-        /* and run to completion. */
-        endGate.await();
-
-        long elapsedTime = watch.getElapsedTime();
-
-        /* Check that the cache implementation is still correct, when doing any performance enhancements. */
-        for (WorkerRequest request : requests) {
-            assertTrue("cache behaved correctly: " + request, request.success);
-        }
-
-        LOG.info("Elapsed time ms: " + elapsedTime);
-
-        /* Check that lots of concurrent access was reasonably quick as well. */
-        assertTrue("expected to be less than 1000 but was " + elapsedTime, elapsedTime < 1500);
-
     }
 
     private void fillCache(Cache cache, ValueObject small, ValueObject large, int total) throws InterruptedException {

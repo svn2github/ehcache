@@ -227,6 +227,8 @@
             <configuration>
               <excludes>
                 <exclude>**/*$*</exclude>
+                <exclude>**/*PerfTest.java</exclude>
+                <exclude>**/*PerfTest*.java</exclude>
                 <exclude>**/Abstract*Test.java</exclude>
                 <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
                 <exclude>**/*Integration*Test.java</exclude>
@@ -433,18 +435,28 @@
     </profile>
     <profile>
       <id>perfTests</id>
-      <properties>
-        <testDir>src/test/perf</testDir>
-        <testResources>src/test/perfResources</testResources>
-      </properties>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>${tests.supplemental.args} -Xmx512m</argLine>
-            </configuration>
+            <executions>
+              <execution>
+                <!-- The default-test execution is automatically bound to the test phase by Surefire -->
+                <id>default-test</id>
+                <configuration>
+                  <argLine>${tests.supplemental.args} -Xmx512m</argLine>
+                  <includes>
+                    <include>**/*PerfTest.java</include>
+                    <include>**/*PerfTest*.java</include>
+                  </includes>
+                  <excludes>
+                    <exclude>**/*$*</exclude>
+                    <exclude>**/Abstract*Test.java</exclude>
+                  </excludes>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

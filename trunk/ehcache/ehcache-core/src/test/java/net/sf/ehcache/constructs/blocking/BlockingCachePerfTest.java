@@ -1,12 +1,8 @@
 package net.sf.ehcache.constructs.blocking;
 
-import net.sf.ehcache.AbstractCachePerfTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Status;
 import net.sf.ehcache.StopWatch;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -16,40 +12,27 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.ehcache.AbstractCacheTest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
  * @author Alex Snaps
  */
-public class BlockingCachePerfTest extends AbstractCachePerfTest {
+public class BlockingCachePerfTest {
 
+    @Rule
+    public final TemporaryFolder diskFolder = new TemporaryFolder();
+    
     private static final Logger LOG = LoggerFactory.getLogger(BlockingCachePerfTest.class.getName());
-
-    private BlockingCache blockingCache;
-
-    /**
-     * Load up the test cache
-     */
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        Ehcache cache = manager.getCache("sampleIdlingExpiringCache");
-        blockingCache = new BlockingCache(cache);
-    }
-
-    /**
-     * teardown
-     */
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        if (manager.getStatus() == Status.STATUS_ALIVE) {
-            blockingCache.removeAll();
-        }
-        super.tearDown();
-    }
 
     /**
      * TODO: FIX ME!
@@ -61,10 +44,21 @@ public class BlockingCachePerfTest extends AbstractCachePerfTest {
      */
     @Test
     public void testThrashBlockingCache() throws Exception {
-        Ehcache cache = manager.getCache("sampleCache1");
-        blockingCache = new BlockingCache(cache);
-        long duration = thrashCache(blockingCache, 50, 1000L);
-        LOG.debug("Thrash Duration:" + duration);
+        CacheManager manager = new CacheManager(new Configuration().name("testThrashBlockingCache")
+               .diskStore(new DiskStoreConfiguration().path(diskFolder.getRoot().getAbsolutePath())));
+        try {
+            Ehcache cache = new Cache(new CacheConfiguration().name("test")
+                    .maxEntriesLocalHeap(10000)
+                    .maxEntriesLocalDisk(1000)
+                    .timeToIdleSeconds(360)
+                    .timeToLiveSeconds(1000)
+                    .overflowToDisk(true));
+            manager.addCache(cache);
+            long duration = thrashCache(new BlockingCache(cache), 50, 1000L);
+            LOG.debug("Thrash Duration:" + duration);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -80,17 +74,29 @@ public class BlockingCachePerfTest extends AbstractCachePerfTest {
     @Test
     @Ignore
     public void testThrashBlockingCacheTinyTimeout() throws Exception {
-        Ehcache cache = manager.getCache("sampleCache1");
-        blockingCache = new BlockingCache(cache);
-        blockingCache.setTimeoutMillis(1);
-        long duration = 0;
+        CacheManager manager = new CacheManager(new Configuration().name("testThrashBlockingCacheTinyTimeout")
+               .diskStore(new DiskStoreConfiguration().path(diskFolder.getRoot().getAbsolutePath())));
         try {
-            duration = thrashCache(blockingCache, 50, 100L);
-            fail("Shouldn't have been able to acquire all locks in " + blockingCache.getTimeoutMillis() + " ms");
-        } catch (Exception e) {
-            //expected
+            Ehcache cache = new Cache(new CacheConfiguration().name("test")
+                    .maxEntriesLocalHeap(10000)
+                    .maxEntriesLocalDisk(1000)
+                    .timeToIdleSeconds(360)
+                    .timeToLiveSeconds(1000)
+                    .overflowToDisk(true));
+            manager.addCache(cache);
+            BlockingCache blockingCache = new BlockingCache(cache);
+            blockingCache.setTimeoutMillis(1);
+            long duration = 0;
+            try {
+                duration = thrashCache(blockingCache, 50, 100L);
+                fail("Shouldn't have been able to acquire all locks in " + blockingCache.getTimeoutMillis() + " ms");
+            } catch (Exception e) {
+                //expected
+            }
+            LOG.debug("Thrash Duration:" + duration);
+        } finally {
+            manager.shutdown();
         }
-        LOG.debug("Thrash Duration:" + duration);
     }
 
     /**
@@ -99,11 +105,23 @@ public class BlockingCachePerfTest extends AbstractCachePerfTest {
      */
     @Test
     public void testThrashBlockingCacheReasonableTimeout() throws Exception {
-        Ehcache cache = manager.getCache("sampleCache1");
-        blockingCache = new BlockingCache(cache);
-        blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
-        long duration = thrashCache(blockingCache, 50, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
-        LOG.debug("Thrash Duration:" + duration);
+        CacheManager manager = new CacheManager(new Configuration().name("testThrashBlockingCacheReasonableTimeout")
+               .diskStore(new DiskStoreConfiguration().path(diskFolder.getRoot().getAbsolutePath())));
+        try {
+            Ehcache cache = new Cache(new CacheConfiguration().name("test")
+                    .maxEntriesLocalHeap(10000)
+                    .maxEntriesLocalDisk(1000)
+                    .timeToIdleSeconds(360)
+                    .timeToLiveSeconds(1000)
+                    .overflowToDisk(true));
+            manager.addCache(cache);
+            BlockingCache blockingCache = new BlockingCache(cache);
+            blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
+            long duration = thrashCache(blockingCache, 50, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
+            LOG.debug("Thrash Duration:" + duration);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -116,7 +134,7 @@ public class BlockingCachePerfTest extends AbstractCachePerfTest {
         // Create threads that do gets
         final List executables = new ArrayList();
         for (int i = 0; i < numberOfThreads; i++) {
-            final AbstractCachePerfTest.Executable executable = new AbstractCachePerfTest.Executable() {
+            final AbstractCacheTest.Executable executable = new AbstractCacheTest.Executable() {
                 public void execute() throws Exception {
                     for (int i = 0; i < 10; i++) {
                         final String key = "key" + i;
@@ -132,7 +150,7 @@ public class BlockingCachePerfTest extends AbstractCachePerfTest {
             executables.add(executable);
         }
 
-        int failures = runThreadsNoCheck(executables, true);
+        int failures = AbstractCacheTest.runThreadsNoCheck(executables, true);
         if (failures > 0) {
 
             throw new Exception("failures");

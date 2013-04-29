@@ -1,7 +1,5 @@
 package net.sf.ehcache;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,49 +8,30 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.ehcache.AbstractCacheTest.Executable;
+import net.sf.ehcache.config.Configuration;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Alex Snaps
  */
-public class ConcurrencyProblemCachePerfTest extends AbstractCachePerfTest {
+public class ConcurrencyProblemCachePerfTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConcurrencyProblemCachePerfTest.class.getName());
 
-    private Cache cache;
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    /**
-     * teardown
-     */
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    @Test
-    public void testContinuousThrashConfiguration() throws Exception {
-        cache = manager.getCache("sampleIdlingExpiringCache");
-        for (int i = 0; i < 5; i++) {
-            thrashCache(cache, 1500L);
-            LOG.info("Finished run.");
-        }
-    }
-
     @Test
     public void testContinuousThrashProgrammatic() throws Exception {
-        cache = new Cache("thrashcache", 5, false, false, 2, 5);
-        manager.addCache(cache);
-        for (int i = 0; i < 5; i++) {
-            thrashCache(cache, 1500L);
-            LOG.info("Finished run.");
+        CacheManager manager = new CacheManager(new Configuration().name("testContinuousThrashConfiguration"));
+        try {
+            Cache cache = new Cache("thrashcache", 5, false, false, 2, 5);
+            manager.addCache(cache);
+            for (int i = 0; i < 5; i++) {
+                thrashCache(cache, 1500L);
+                LOG.info("Finished run.");
 
+            }
+        } finally {
+            manager.shutdown();
         }
     }
 
@@ -83,7 +62,7 @@ public class ConcurrencyProblemCachePerfTest extends AbstractCachePerfTest {
             executables.add(executable);
         }
 
-        runThreads(executables);
+        AbstractCacheTest.runThreads(executables);
         cache.removeAll();
         return stopWatch.getElapsedTime();
     }

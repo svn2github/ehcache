@@ -181,7 +181,7 @@ public abstract class AbstractCacheTest {
      * <p/>
      * Throws an exception if there are throwables during the run.
      */
-    protected void runThreads(final List executables) throws Exception {
+    public static void runThreads(final List executables) throws Exception {
         int failures = runThreadsNoCheck(executables);
         LOG.info(failures + " failures");
         //CHM does have the occasional very slow time.
@@ -196,7 +196,7 @@ public abstract class AbstractCacheTest {
      *
      * @return the number of Throwables thrown while running
      */
-    protected int runThreadsNoCheck(final List executables) throws Exception {
+    protected static int runThreadsNoCheck(final List executables) throws Exception {
         return runThreadsNoCheck(executables, false);
     }
 
@@ -209,7 +209,7 @@ public abstract class AbstractCacheTest {
      * @param explicitLog whether to log detailed AsserttionErrors or not
      * @return the number of Throwables thrown while running
      */
-    protected int runThreadsNoCheck(final List executables, final boolean explicitLog) throws Exception {
+    public static int runThreadsNoCheck(final List executables, final boolean explicitLog) throws Exception {
 
         final long endTime = System.currentTimeMillis() + 10000;
         final List<Throwable> errors = new ArrayList<Throwable>();
@@ -259,7 +259,7 @@ public abstract class AbstractCacheTest {
      *
      * @return
      */
-    public MBeanServer createMBeanServer() {
+    public static MBeanServer createMBeanServer() {
         try {
             Class managementFactoryClass = Class.forName("java.lang.management.ManagementFactory");
             Method method = managementFactoryClass.getMethod("getPlatformMBeanServer", (Class[]) null);
@@ -274,7 +274,7 @@ public abstract class AbstractCacheTest {
     /**
      * A runnable, that can throw an exception.
      */
-    protected interface Executable {
+    public interface Executable {
         /**
          * Executes this object.
          *
