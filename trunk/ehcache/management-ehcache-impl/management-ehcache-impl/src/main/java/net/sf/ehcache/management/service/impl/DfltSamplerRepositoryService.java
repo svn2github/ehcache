@@ -470,6 +470,7 @@ public class DfltSamplerRepositoryService
   private AgentEntity buildAgentEntity() {
     AgentEntity e = new AgentEntity();
     e.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+    e.setVersion(this.getClass().getPackage().getImplementationVersion());
     e.setAgencyOf(AGENCY);
 
     StringBuilder sb = new StringBuilder();

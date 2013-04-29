@@ -60,6 +60,7 @@ final class CacheEntityBuilder extends ConstrainableEntityBuilderSupport<CacheSa
         ce.setCacheManagerName(entry.getKey());
         ce.setName(sampler.getCacheName());
         ce.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+        ce.setVersion(this.getClass().getPackage().getImplementationVersion());
 
         if (getAttributeConstraints() != null && !getAttributeConstraints().isEmpty() && getAttributeConstraints()
             .size() < CacheSampler.class.getMethods().length) {

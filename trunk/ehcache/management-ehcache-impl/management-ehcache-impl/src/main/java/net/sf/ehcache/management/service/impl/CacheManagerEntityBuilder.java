@@ -52,6 +52,7 @@ final class CacheManagerEntityBuilder extends ConstrainableEntityBuilderSupport<
       CacheManagerEntity cme = new CacheManagerEntity();
       cme.setName(cms.getName());
       cme.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+      cme.setVersion(this.getClass().getPackage().getImplementationVersion());
 
       if (getAttributeConstraints() != null && !getAttributeConstraints().isEmpty() && getAttributeConstraints()
           .size() < CacheManagerSampler.class.getMethods().length) {

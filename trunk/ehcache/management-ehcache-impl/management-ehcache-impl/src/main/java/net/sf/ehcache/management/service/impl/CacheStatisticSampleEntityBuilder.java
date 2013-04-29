@@ -106,6 +106,7 @@ final class CacheStatisticSampleEntityBuilder {
       csse.setCacheManagerName(cmName);
       csse.setName(sampler.getCacheName());
       csse.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+      csse.setVersion(this.getClass().getPackage().getImplementationVersion());
       csse.setStatName(AccessorPrefix.trimPrefix(sampleMethod.getName()).replace(SAMPLE_SUFFIX, ""));
 
       TimeStampedCounterValue[] tscvs = sCntr.getAllSampleValues();
