@@ -3,18 +3,20 @@ package net.sf.ehcache.store;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MemoryStorePerfTester;
 import net.sf.ehcache.StopWatch;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.Configuration;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -36,15 +38,10 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
         }
     }
 
-
-    /**
-     * setup test
-     */
     @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LFU);
+    protected Cache createCache() throws CacheException {
+        return new Cache("LfuMemoryStorePerfTest", 12000, MemoryStoreEvictionPolicy.LFU, false, System.getProperty("java.io.tmpdir"), 
+                true, 60, 30, false, 60, null);
     }
 
     /**
@@ -55,26 +52,6 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
     @Test
     public void testBenchmarkPutGetSurya() throws Exception {
         benchmarkPutGetSuryaTest(9000);
-    }
-
-    /**
-     * Benchmark to test speed.
-     * new sampling LFU 417ms
-     */
-    @Override
-    @Test
-    public void testBenchmarkPutGetRemove() throws Exception {
-        super.testBenchmarkPutGetRemove();
-    }
-
-    /**
-     * Benchmark to test speed.
-     * new sampling LFU 132ms
-     */
-    @Override
-    @Test
-    public void testBenchmarkPutGet() throws Exception {
-        super.testBenchmarkPutGet();
     }
 
     /**
@@ -142,68 +119,75 @@ public class LfuMemoryStorePerfTest extends MemoryStorePerfTester {
      */
     @Test
     public void testLowest() throws Exception {
-        createMemoryOnlyStore(MemoryStoreEvictionPolicy.LFU, 5000);
+        CacheManager manager = new CacheManager(new Configuration().name("testLowest"));
+        try {
+            Cache cache = new Cache("test", 5000, MemoryStoreEvictionPolicy.LFU, false, null, true, 60, 30, false, 60, null);
+            manager.addCache(cache);
+            Store store = getStore(cache);
 
-        // Populate the cache with 5000 unaccessed Elements
-        for (int i = 0; i < 5000; i++) {
-            store.put(new Element(Integer.valueOf(i), new Date()));
-        }
-
-        for (int i = 0; i < 10; i++) {
-            // Add a new Element at the i'th position
-            Element newElement = new Element(Integer.valueOf(i), new Date());
-            store.put(newElement);
-
-            // Hit that Element (i+1) times - this makes it the most hit Element
-            // in the cache
-            for (int h = 0; h < (i + 1); h++) {
-                store.get(Integer.valueOf(i)).updateAccessStatistics();
+            // Populate the cache with 5000 unaccessed Elements
+            for (int i = 0; i < 5000; i++) {
+                store.put(new Element(Integer.valueOf(i), new Date()));
             }
 
-            // Select an Element for "eviction".
-            Element element = (Element)FIND_EVICTION_CANDIDATE.invoke(store, new Object[] { null });
-            // This shouldn't be the newly added Element as it is the "most hit"
-            assertTrue(!element.equals(newElement));
-            // In fact since the sample size is > 10, the hit count should be 0
-            // as we must have selected some of the non hit Elements in our sample.
-            assertTrue(element.getHitCount() == 0);
-        }
+            for (int i = 0; i < 10; i++) {
+                // Add a new Element at the i'th position
+                Element newElement = new Element(Integer.valueOf(i), new Date());
+                store.put(newElement);
 
-        // Repeat the hitting procedure above, but for the remaining elements
-        // This gives a flat distribution of hit counts from 1 to 5000 all with
-        // equal probability (1 element of each count).
-        for (int i = 10; i < 5000; i++) {
-            store.put(new Element(Integer.valueOf(i), new Date()));
-            for (int h = 0; h < (i + 1); h++) {
-                store.get(Integer.valueOf(i)).updateAccessStatistics();
+                // Hit that Element (i+1) times - this makes it the most hit Element
+                // in the cache
+                for (int h = 0; h < (i + 1); h++) {
+                    store.get(Integer.valueOf(i)).updateAccessStatistics();
+                }
+
+                // Select an Element for "eviction".
+                Element element = (Element)FIND_EVICTION_CANDIDATE.invoke(store, new Object[] { null });
+                // This shouldn't be the newly added Element as it is the "most hit"
+                assertTrue(!element.equals(newElement));
+                // In fact since the sample size is > 10, the hit count should be 0
+                // as we must have selected some of the non hit Elements in our sample.
+                assertTrue(element.getHitCount() == 0);
             }
-        }
 
-        long lowestQuartile = 5000 / 4;
-        
-        long findTime = 0;
-        StopWatch stopWatch = new StopWatch();
-        int lowestQuartileNotIdentified = 0;
-        for (int i = 0; i < 5000; i++) {
-            stopWatch.getElapsedTime();
-            // Select an Element for "eviction"
-            Element e = (Element)FIND_EVICTION_CANDIDATE.invoke(store, new Object[] { null });
-            findTime += stopWatch.getElapsedTime();
-            long lowest = e.getHitCount();
-            // See if it is outside the lowest quartile (i.e. it has an abnormaly
-            // high hit count).
-            if (lowest > lowestQuartile) {
-                LOG.info(e.getKey() + " hit count: " + e.getHitCount() + " lowestQuartile: " + lowestQuartile);
-                lowestQuartileNotIdentified++;
+            // Repeat the hitting procedure above, but for the remaining elements
+            // This gives a flat distribution of hit counts from 1 to 5000 all with
+            // equal probability (1 element of each count).
+            for (int i = 10; i < 5000; i++) {
+                store.put(new Element(Integer.valueOf(i), new Date()));
+                for (int h = 0; h < (i + 1); h++) {
+                    store.get(Integer.valueOf(i)).updateAccessStatistics();
+                }
             }
-        }
 
-        LOG.info("Find time: " + findTime);
-        // Assert that we can do all this in a reasonable length of time
-        assertTrue(findTime < 200);
-        LOG.info("Selections not in lowest quartile: " + lowestQuartileNotIdentified);
-        // Assert that we didn't see too many eviction candidates from outside
-        // the lowest quartile.
-        assertTrue(lowestQuartileNotIdentified + " > 10!!!", lowestQuartileNotIdentified <= 10);
+            long lowestQuartile = 5000 / 4;
+
+            long findTime = 0;
+            StopWatch stopWatch = new StopWatch();
+            int lowestQuartileNotIdentified = 0;
+            for (int i = 0; i < 5000; i++) {
+                stopWatch.getElapsedTime();
+                // Select an Element for "eviction"
+                Element e = (Element)FIND_EVICTION_CANDIDATE.invoke(store, new Object[] { null });
+                findTime += stopWatch.getElapsedTime();
+                long lowest = e.getHitCount();
+                // See if it is outside the lowest quartile (i.e. it has an abnormaly
+                // high hit count).
+                if (lowest > lowestQuartile) {
+                    LOG.info(e.getKey() + " hit count: " + e.getHitCount() + " lowestQuartile: " + lowestQuartile);
+                    lowestQuartileNotIdentified++;
+                }
+            }
+
+            LOG.info("Find time: " + findTime);
+            // Assert that we can do all this in a reasonable length of time
+            assertTrue(findTime < 200);
+            LOG.info("Selections not in lowest quartile: " + lowestQuartileNotIdentified);
+            // Assert that we didn't see too many eviction candidates from outside
+            // the lowest quartile.
+            assertTrue(lowestQuartileNotIdentified + " > 10!!!", lowestQuartileNotIdentified <= 10);
+        } finally {
+            manager.shutdown();
+        }
     }
 }

@@ -1,16 +1,15 @@
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.AbstractCachePerfTest;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.StopWatch;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Set;
 
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -20,29 +19,6 @@ import static org.junit.Assert.assertTrue;
 public class PayloadUtilPerfTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(PayloadUtilPerfTest.class.getName());
-    private CacheManager manager;
-
-    /**
-     * setup test
-     *
-     * @throws Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        String fileName = AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-big.xml";
-        manager = new CacheManager(fileName);
-    }
-
-    /**
-     * Shuts down the cachemanager
-     *
-     * @throws Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-        manager.shutdown();
-    }
-
 
     /**
      * 376 µs per one gzipping each time.
@@ -102,8 +78,8 @@ public class PayloadUtilPerfTest {
     }
 
     private String createReferenceString() {
-
-        String[] names = manager.getCacheNames();
+        Configuration config = ConfigurationFactory.parseConfiguration(PayloadUtilPerfTest.class.getResource("/cachemanager-perf.xml"));
+        Set<String> names = config.getCacheConfigurations().keySet();
         String urlBase = "//localhost.localdomain:12000/";
         StringBuilder buffer = new StringBuilder();
         for (String name : names) {

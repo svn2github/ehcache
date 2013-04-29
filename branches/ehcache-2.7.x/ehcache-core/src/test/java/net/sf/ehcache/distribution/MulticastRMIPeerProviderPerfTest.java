@@ -1,10 +1,8 @@
 package net.sf.ehcache.distribution;
 
-import java.io.File;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import net.sf.ehcache.AbstractCachePerfTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.StopWatch;
@@ -42,11 +40,11 @@ public class MulticastRMIPeerProviderPerfTest {
     public void setUp() throws Exception {
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
         manager1 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed1.xml")).name("cm-1"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed1.xml")).name("cm-1"));
         manager2 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed2.xml")).name("cm-2"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed2.xml")).name("cm-2"));
         manager3 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed3.xml")).name("cm-3"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed3.xml")).name("cm-3"));
 
         // wait for cluster to establish
         Thread.sleep(2000);

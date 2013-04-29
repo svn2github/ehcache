@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.AbstractCachePerfTest;
+import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Alex Snaps
  */
-public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
+public class RMICacheReplicatorPerfTest {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorPerfTest.class.getName());
@@ -87,7 +86,6 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
      *
      * @throws Exception
      */
-    @Override
     @Before
     public void setUp() throws Exception {
 
@@ -98,15 +96,15 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
 
         manager1 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed1.xml")).name("cm-1"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed1.xml")).name("cm-1"));
         manager2 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed2.xml")).name("cm-2"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed2.xml")).name("cm-2"));
         manager3 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed3.xml")).name("cm-3"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed3.xml")).name("cm-3"));
         manager4 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed4.xml")).name("cm-4"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed4.xml")).name("cm-4"));
         manager5 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                new File(AbstractCachePerfTest.TEST_CONFIG_DIR + "ehcache-distributed5.xml")).name("cm-5"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed5.xml")).name("cm-5"));
 
         //manager6 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed-jndi6.xml");
 
@@ -130,7 +128,6 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
      *
      * @throws Exception
      */
-    @Override
     @After
     public void tearDown() throws Exception {
 
@@ -503,9 +500,9 @@ public class RMICacheReplicatorPerfTest extends AbstractCachePerfTest {
      * @throws InterruptedException
      */
     public void manualStabilityTest() throws InterruptedException {
-        forceVMGrowth();
+        AbstractCacheTest.forceVMGrowth();
 
-        ManagementService.registerMBeans(manager3, createMBeanServer(), true, true, true, true, true);
+        ManagementService.registerMBeans(manager3, AbstractCacheTest.createMBeanServer(), true, true, true, true, true);
         while (true) {
             testBigPutsProgagatesAsynchronous();
         }
