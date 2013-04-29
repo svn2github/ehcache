@@ -4,6 +4,7 @@
 package org.terracotta.modules.ehcache.store.bulkload;
 
 import net.sf.ehcache.store.StoreListener;
+
 import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
@@ -278,7 +279,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public void putAll(Map<? extends K, ? extends V> map) {
     for (Entry<? extends K, ? extends V> e : map.entrySet()) {
-      put(e.getKey(), e.getValue());
+      putNoReturn(e.getKey(), e.getValue());
     }
   }
 
