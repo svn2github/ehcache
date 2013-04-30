@@ -445,6 +445,13 @@ public interface LegacyCacheStatistics {
     long getCacheXaRollbacksMostRecentSample();
 
     /**
+     * Check if the local heap is measured with ARC or in element count.
+     *
+     * @return true, if is local heap count based
+     */
+    boolean isLocalHeapCountBased();
+
+    /**
      * Gets the cache cluster offline most recent sample.
      *
      * @return the cache cluster offline most recent sample

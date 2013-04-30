@@ -1193,6 +1193,13 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
+    public boolean isLocalHeapCountBased() {
+        return sampledCacheDelegate.isLocalHeapCountBased();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public int getCacheHitRatio() {
         return sampledCacheDelegate.getCacheHitRatio();
     }

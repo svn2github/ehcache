@@ -131,7 +131,23 @@ public class DfltSamplerRepositoryService
       }
     }
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getVersion() {
+    return this.getClass().getPackage().getImplementationVersion();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getAgency() {
+    return AGENCY;
+  }
+
   private static Throwable getRootCause(Throwable t) {
     Throwable last = null;
     while (t != null) {
@@ -454,6 +470,7 @@ public class DfltSamplerRepositoryService
   private AgentEntity buildAgentEntity() {
     AgentEntity e = new AgentEntity();
     e.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+    e.setVersion(this.getClass().getPackage().getImplementationVersion());
     e.setAgencyOf(AGENCY);
 
     StringBuilder sb = new StringBuilder();
@@ -494,14 +511,30 @@ public class DfltSamplerRepositoryService
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
 
-    ame.setSecured(Utils.trimToNull(configuration.getSecurityServiceLocation()) != null);
+    if (isTsaBridged()) {
+      ame.setSecured(isTsaSecured());
+      ame.setSslEnabled(isTsaSecured());
+      ame.setNeedClientAuth(false);
+    } else {
+      ame.setSecured(Utils.trimToNull(configuration.getSecurityServiceLocation()) != null);
+      ame.setSslEnabled(Utils.trimToNull(configuration.getSecurityServiceLocation()) != null);
+      ame.setNeedClientAuth(configuration.isNeedClientAuth());
+    }
+
     ame.setLicensed(ServiceLocator.locate(LicenseService.class).isLicensed());
-    ame.setNeedClientAuth(configuration.isNeedClientAuth());
     ame.setSampleHistorySize(configuration.getSampleHistorySize());
     ame.setSampleIntervalSeconds(configuration.getSampleIntervalSeconds());
     ame.setEnabled(configuration.isEnabled());
 
     return ame;
+  }
+
+  protected boolean isTsaBridged() {
+    return true;
+  }
+
+  protected boolean isTsaSecured() {
+    return true;
   }
 
 

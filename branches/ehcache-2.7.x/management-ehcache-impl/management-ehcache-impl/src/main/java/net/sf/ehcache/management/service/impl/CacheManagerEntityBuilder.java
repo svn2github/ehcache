@@ -13,6 +13,7 @@ import org.terracotta.management.resource.AgentEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -51,6 +52,7 @@ final class CacheManagerEntityBuilder extends ConstrainableEntityBuilderSupport<
       CacheManagerEntity cme = new CacheManagerEntity();
       cme.setName(cms.getName());
       cme.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+      cme.setVersion(this.getClass().getPackage().getImplementationVersion());
 
       if (getAttributeConstraints() != null && !getAttributeConstraints().isEmpty() && getAttributeConstraints()
           .size() < CacheManagerSampler.class.getMethods().length) {
@@ -69,6 +71,11 @@ final class CacheManagerEntityBuilder extends ConstrainableEntityBuilderSupport<
 
   Logger getLog() {
     return LOG;
+  }
+
+  @Override
+  protected Set<String> getExcludedAttributeNames(CacheManagerSampler cacheManagerSampler) {
+    return Collections.emptySet();
   }
 
   private void addSampler(CacheManagerSampler sampler) {
