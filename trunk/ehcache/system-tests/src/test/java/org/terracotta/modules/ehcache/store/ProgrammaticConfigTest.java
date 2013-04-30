@@ -15,13 +15,10 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
-import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
-
-import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
@@ -59,27 +56,17 @@ public class ProgrammaticConfigTest extends AbstractCacheTestBase {
       final int index = barrier.await();
 
       final Cache exampleCache = getCacheManager().getCache("example");
+      Assert.assertNotNull(exampleCache);
 
       // Adding eviction listener for testing.
       exampleCache.getCacheEventNotificationService().registerListener(new LoggingEvictionAdapter());
 
-      Assert.assertNotNull(exampleCache);
-
       if (index == 0) {
         exampleCache.put(new Element("abc", "def"));
+        waitForAllCurrentTransactionsToComplete(exampleCache);
       }
-
       barrier.await();
-
       Element got = exampleCache.get("abc");
-
-      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
-        @Override
-        public Boolean call() throws Exception {
-          return exampleCache.get("abc") != null;
-        }
-      });
-
       Assert.assertNotNull(got);
       Assert.assertEquals("def", got.getValue());
       Assert.assertEquals(1, exampleCache.getSize());
