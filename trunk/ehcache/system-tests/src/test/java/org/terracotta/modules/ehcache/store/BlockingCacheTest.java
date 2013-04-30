@@ -9,10 +9,10 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -119,7 +119,7 @@ public class BlockingCacheTest extends AbstractCacheTestBase {
       }
 
       barrier.await();
-
+      blockingCache.setTimeoutMillis(10000);
       switch (index) {
         case 0:
           Thread.sleep(1500);
