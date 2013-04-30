@@ -19,6 +19,7 @@ public class ServerMapElementTTIExpressTest extends AbstractCacheTestBase {
     testConfig.addTcProperty("ehcache.evictor.logging.enabled", "true");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_STORAGESTRATEGY_DCV2_EVICT_UNEXPIRED_ENTRIES_ENABLED, "false");
+    testConfig.addTcProperty("servermap.expiration.debug", "true");
 
     final Iterator<String> iter = testConfig.getClientConfig().getExtraClientJvmArgs().iterator();
     while (iter.hasNext()) {

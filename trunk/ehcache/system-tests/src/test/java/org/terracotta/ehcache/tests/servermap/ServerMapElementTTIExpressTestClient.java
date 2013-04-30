@@ -34,7 +34,7 @@ public class ServerMapElementTTIExpressTestClient extends ServerMapClientBase {
 
     for (int i = 1500; i < 2000; i++) {
       Element element = new Element("key-" + i, "value-" + i);
-      element.setTimeToIdle(60 * 4);
+      element.setTimeToIdle(60 * 4); // setting TTI of 1500-2000 keys as 4 min
       cache.put(element);
     }
 
@@ -63,7 +63,7 @@ public class ServerMapElementTTIExpressTestClient extends ServerMapClientBase {
 
     for (int i = 2000; i < 2500; i++) {
       Element element = new Element("key-" + i, "value-" + i);
-      element.setTimeToIdle(15 * 60);
+      element.setTimeToIdle(15 * 60); // setting TTI of 2000-2500 keys as 15 min
       cache.put(element);
     }
 
