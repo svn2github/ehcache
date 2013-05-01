@@ -806,6 +806,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isOverflowToOffHeap()
+     */
+    public boolean isOverflowToOffHeap() {
+        return sampledCacheDelegate.isOverflowToOffHeap();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
      * @see net.sf.ehcache.management.sampled.SampledCacheMBean#isDiskPersistent()
      */
     public boolean isDiskPersistent() {
@@ -822,6 +831,15 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @see net.sf.ehcache.management.sampled.SampledCacheMBean#getPersistenceStrategy
+     */
+    public String getPersistenceStrategy() {
+        return sampledCacheDelegate.getPersistenceStrategy();
+    }
+    
     /**
      * {@inheritDoc}
      *
@@ -1087,8 +1105,10 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         result.put("MaxBytesLocalDisk", getMaxBytesLocalDisk());
         result.put("MaxEntriesInCache", getMaxEntriesInCache());
         result.put("DiskPersistent", isDiskPersistent());
+        result.put("PersistenceStrategy", getPersistenceStrategy());
         result.put("Eternal", isEternal());
         result.put("OverflowToDisk", isOverflowToDisk());
+        result.put("OverflowToOffHeap", isOverflowToOffHeap());
         result.put("DiskExpiryThreadIntervalSeconds", getDiskExpiryThreadIntervalSeconds());
         result.put("MemoryStoreEvictionPolicy", getMemoryStoreEvictionPolicy());
         result.put("TerracottaConsistency", getTerracottaConsistency());

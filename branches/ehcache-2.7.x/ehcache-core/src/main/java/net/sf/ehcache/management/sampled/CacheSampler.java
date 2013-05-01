@@ -307,7 +307,22 @@ public interface CacheSampler extends LegacyCacheStatistics {
     void setDiskPersistent(boolean diskPersistent);
 
     /**
-     * Configuration property accessor.
+     * isOverflowToOffHeap
+     * 
+     * @return true if configured for offheap
+     */
+    boolean isOverflowToOffHeap();
+    
+    /**
+     * getPersistenceStrategy
+     * 
+     * @return the strategy name
+     * @see net.sf.ehcache.config.PersistenceConfiguration
+     */
+    String getPersistenceStrategy();
+    
+    /**
+     * Configuration property accessor
      *
      * @return Value for disk expiry thread interval in seconds specified in config
      */
