@@ -23,6 +23,7 @@ import net.sf.ehcache.CacheOperationOutcomes.NonStopOperationOutcomes;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.util.CacheTransactionHelper;
@@ -909,6 +910,15 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
+    public String getPersistenceStrategy() {
+        PersistenceConfiguration pc = cache.getCacheConfiguration().getPersistenceConfiguration();
+        return pc != null ? pc.getStrategy().name() : "";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setDiskPersistent(boolean diskPersistent) {
         if (isDiskPersistent() != diskPersistent) {
             try {
@@ -919,6 +929,14 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isOverflowToOffHeap() {
+        return cache.getCacheConfiguration().isOverflowToOffHeap();
+    }
+    
     /**
      * {@inheritDoc}
      */
