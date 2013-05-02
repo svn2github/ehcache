@@ -28,7 +28,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
 
   public ClusteredEventsEvictionExpiryTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
-    timebombTest("2013-05-01");
+    timebombTest("2013-06-01");
   }
 
   public static class App extends ClientBase {

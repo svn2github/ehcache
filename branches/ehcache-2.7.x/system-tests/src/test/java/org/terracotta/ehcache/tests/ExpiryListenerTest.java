@@ -16,7 +16,6 @@ public class ExpiryListenerTest extends AbstractCacheTestBase {
     // assume the 'test' cache TTL is 3s
     super("evict-cache-test.xml", testConfig, ExpiryListenerClient1.class, ExpiryListenerClient2.class);
     testConfig.getClientConfig().setParallelClients(false);
-    timebombTest("2013-05-01");
   }
 
   @Override
