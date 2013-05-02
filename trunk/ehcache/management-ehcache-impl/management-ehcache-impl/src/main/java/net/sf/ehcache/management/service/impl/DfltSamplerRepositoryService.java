@@ -73,6 +73,13 @@ public class DfltSamplerRepositoryService
   public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=RepositoryService";
   public static final String AGENCY = "Ehcache";
 
+  private final ThreadLocal<Boolean> tsaBridged = new ThreadLocal<Boolean>() {
+    @Override
+    protected Boolean initialValue() {
+      return false;
+    }
+  };
+
   /**
    * Guarded By cacheManagerSamplerRepoLock
    */
@@ -119,6 +126,7 @@ public class DfltSamplerRepositoryService
   @Override
   public byte[] invoke(String ticket, String token, String iaCallbackUrl, String methodName, Class<?>[] argsTypes, Object[] args) {
     try {
+      tsaBridged.set(true);
       Method method = getClass().getMethod(methodName, argsTypes);
       Object res = method.invoke(this, args);
       return serialize(res);
@@ -129,6 +137,8 @@ public class DfltSamplerRepositoryService
       } else {
         throw new RuntimeException(t);
       }
+    } finally {
+      tsaBridged.set(false);
     }
   }
 
@@ -530,11 +540,11 @@ public class DfltSamplerRepositoryService
   }
 
   protected boolean isTsaBridged() {
-    return true;
+    return tsaBridged.get();
   }
 
   protected boolean isTsaSecured() {
-    return true;
+    return false;
   }
 
 
