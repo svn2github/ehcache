@@ -9,15 +9,15 @@ import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Abhishek Sanoujam
  */
 public class BulkLoadShutdownHook implements Runnable {
-
-  private final Set<BulkLoadToolkitCache>      registeredCaches = new HashSet<BulkLoadToolkitCache>();
+  private final Set<BulkLoadToolkitCache> registeredCaches = Collections.newSetFromMap(new ConcurrentHashMap());
   private final ClusterInfo                    terracottaClusterInfo;
   private final ToolkitInternal           toolkit;
   private boolean                         init             = false;
