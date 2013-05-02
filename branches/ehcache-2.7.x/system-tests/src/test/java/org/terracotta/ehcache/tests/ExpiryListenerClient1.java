@@ -33,7 +33,7 @@ public class ExpiryListenerClient1 extends ClientBase implements CacheEventListe
 
     int tries = 0;
     do {
-      Thread.sleep(15 * 1000);
+      Thread.sleep(2000L);
       tries++;
       System.out.println("XXX Cache size: " + cache.getSize() + ", tries: " + tries);
       for (Object k : cache.getKeys()) {
