@@ -14,6 +14,7 @@ import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
+import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.Serializable;
@@ -28,11 +29,12 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
 
   public ClusteredEventsEvictionExpiryTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
-    timebombTest("2013-06-01");
+    // disable server expiration
+    testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_STORAGESTRATEGY_DCV2_PERIODICEVICTION_ENABLED, "false");
   }
 
   public static class App extends ClientBase {
-    private static final Logger  LOG = Logger.getLogger(TopologyListenerImpl.class);
+    private static final Logger LOG = Logger.getLogger(TopologyListenerImpl.class);
     private final ToolkitBarrier barrier;
 
     public App(String[] args) {
@@ -50,44 +52,32 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
     }
 
     private void testCache(final Cache cache) throws Throwable {
-
       LOG.info("Testing cache: " + cache);
-
       final int index = barrier.await();
 
-      EhcacheTerracottaEventListener tmpListener = null;
-      Set<CacheEventListener> listeners = cache.getCacheEventNotificationService().getCacheEventListeners();
-      for (CacheEventListener l : listeners) {
-        if (l instanceof EhcacheTerracottaEventListener) {
-          tmpListener = (EhcacheTerracottaEventListener) l;
-          break;
-        }
-      }
-
-      Assert.assertNotNull(tmpListener);
       Assert.assertEquals(0, cache.getSize());
-
-      final EhcacheTerracottaEventListener listener = tmpListener;
-
+      final EhcacheTerracottaEventListener listener = getEhcacheTerracottaEventListener(cache);
       barrier.await();
-      LOG.info("Testing element TTL expiry.");
 
+      LOG.info("Testing element TTL expiry.");
       NonPortable keyTTL = new NonPortable("key_TTL_" + index);
       NonPortable valueTTL = new NonPortable("value_TTL_" + index);
       Element elementToExpireTTL = new Element(keyTTL, valueTTL);
       elementToExpireTTL.setTimeToLive(4);
       cache.put(elementToExpireTTL);
-
       barrier.await();
-      Thread.sleep(6000);
+
+      Thread.sleep(5000);
       Assert.assertNull(cache.get(keyTTL));
-
       barrier.await();
 
+      // since server expiration disabled, so client expiration will notify only one client
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          return NODE_COUNT == listener.getExpired().size() || NODE_COUNT == listener.getEvicted().size();
+          LOG.info("TTL Expiration. Expired: " + listener.getExpired().size() + ", evicted: "
+                   + listener.getEvicted().size());
+          return (listener.getExpired().size() == NODE_COUNT) && (listener.getEvicted().size() == 0);
         }
       });
 
@@ -102,7 +92,6 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
         }
       }
       Assert.assertTrue(foundExpiredKey);
-
       barrier.await();
 
       LOG.info("Testing element TTI expiry.");
@@ -111,17 +100,18 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       Element elementToExpireTTI = new Element(keyTTI, valueTTI);
       elementToExpireTTI.setTimeToIdle(4);
       cache.put(elementToExpireTTI);
-
       barrier.await();
 
-      Thread.sleep(6000);
+      Thread.sleep(5000);
       Assert.assertNull(cache.get(keyTTI));
       barrier.await();
 
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          return NODE_COUNT * 2 == listener.getExpired().size() || NODE_COUNT * 2 == listener.getEvicted().size();
+          LOG.info("TTI Expiration. Expired: " + listener.getExpired().size() + ", evicted: "
+                   + listener.getEvicted().size());
+          return (listener.getExpired().size() == NODE_COUNT * 2) && (listener.getEvicted().size() == 0);
         }
       });
 
@@ -136,37 +126,22 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
         }
       }
       Assert.assertTrue(foundExpiredKey);
-
       barrier.await();
+      Assert.assertEquals(0, cache.getSize());
+    }
 
-      LOG.info("Testing element in-memory eviction.");
-
-      if (index == 0) {
-        for (int i = 0; i < 100; i++) {
-          cache.put(new Element(new NonPortable("key_" + index + "_" + i), new NonPortable("value_" + index)));
-          Thread.sleep(1000); // slow this down to let capacity eviction take effect. Also gives enough time for the
-                              // removed set to propagate to the server
+    private static EhcacheTerracottaEventListener getEhcacheTerracottaEventListener(final Cache cache) {
+      EhcacheTerracottaEventListener tmpListener = null;
+      Set<CacheEventListener> listeners = cache.getCacheEventNotificationService().getCacheEventListeners();
+      for (CacheEventListener l : listeners) {
+        if (l instanceof EhcacheTerracottaEventListener) {
+          tmpListener = (EhcacheTerracottaEventListener)l;
+          break;
         }
-        LOG.info("Cache size is now " + cache.getSize());
       }
 
-      barrier.await();
-
-      Assert.assertTrue("Expecting at least some evictions.", listener.getEvicted().size() > 1);
-      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
-        @Override
-        public Boolean call() throws Exception {
-          if (100 - cache.getSize() != listener.getEvicted().size()) {
-            System.out.println("Eviction events not all received yet. cacheSize = " + cache.getSize() +
-                               " eviction events " + listener.getEvicted().size());
-            return false;
-          } else {
-            return true;
-          }
-        }
-      });
-
-      barrier.await();
+      Assert.assertNotNull(tmpListener);
+      return tmpListener;
     }
 
   }
@@ -188,7 +163,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
 
-      NonPortable that = (NonPortable) o;
+      NonPortable that = (NonPortable)o;
 
       if (value != null ? !value.equals(that.value) : that.value != null) return false;
 
