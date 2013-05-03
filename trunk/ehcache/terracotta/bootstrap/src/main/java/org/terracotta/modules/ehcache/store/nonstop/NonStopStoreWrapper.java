@@ -358,6 +358,9 @@ public class NonStopStoreWrapper implements TerracottaStore {
     if (t.getClass().getSimpleName().equals("TCNotRunningException")) { throw new TerracottaNotRunningException(
                                                                                                                 "Clustered Cache is probably shutdown or Terracotta backend is down.",
                                                                                                                 t); }
+    if (t instanceof CacheException) {
+      throw (CacheException) t;
+    }
     throw new CacheException(message + t.getMessage(), t);
   }
 
