@@ -13,7 +13,7 @@
   <properties>
     <ehcache.version>2.8.0-SNAPSHOT</ehcache.version>
     <toolkit.version>4.1.0-SNAPSHOT</toolkit.version>
-    <quartz.version>3.0.0-SNAPSHOT</quartz.version>
+    <quartz.version>2.2.0-SNAPSHOT</quartz.version>
     <bigmemory.version>4.1.0-SNAPSHOT</bigmemory.version>
     <exam.version>3.0.1</exam.version>
     <url.version>1.5.0</url.version>
