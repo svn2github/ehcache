@@ -2,14 +2,13 @@ package org.terracotta.ehcache.tests.servermap;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 
-import java.util.Date;
-import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.Callable;
 
 public class ServerMapL2EvictionReachesOneL1TestClient extends ServerMapClientBase {
-  final static long EXPECTED_EVICTION_COUNT = 3000;
+  final static long EXPECTED_EVICTION_COUNT = 5800;
 
   public ServerMapL2EvictionReachesOneL1TestClient(String[] args) {
     super("test", args);
@@ -30,24 +29,30 @@ public class ServerMapL2EvictionReachesOneL1TestClient extends ServerMapClientBa
   }
 
   private void testWith(final Cache cache, final int maxElements, final long expectedEvictionCount,
-                        Toolkit clusteringToolkit) throws InterruptedException, BrokenBarrierException {
-    EvictionCountingEventListener countingListener = new EvictionCountingEventListener(
-                                                                                       clusteringToolkit
-                                                                                           .getAtomicLong("EvictionCounter"));
+                        Toolkit clusteringToolkit) throws Exception {
+    final EvictionCountingEventListener countingListener = new EvictionCountingEventListener(
+        clusteringToolkit.getAtomicLong("EvictionCounter")); // shared counter
     cache.getCacheEventNotificationService().registerListener(countingListener);
+    // put elements only after both listeners are registered
+    getBarrierForAllClients().await();
 
     for (int i = 0; i < maxElements; i++) {
       cache.put(new Element("key-" + i, "value-" + i));
     }
     long value = countingListener.getEvictedCount();
-    System.out.println("Sleeping for 2 mins (now = " + new Date() + "), evicted till now: " + value);
-    Thread.sleep(2 * 60 * 1000);
+    System.out.println("Wating for all evictions, evicted till now: " + value);
 
+    WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return countingListener.getEvictedCount() == EXPECTED_EVICTION_COUNT;
+      }
+    });
     getBarrierForAllClients().await();
 
     value = countingListener.getEvictedCount();
-    System.out.println("After sleeping 2 mins: value=" + value);
+    System.out.println("Number of evictions = " + value);
     assertTrue("Expected at most " + expectedEvictionCount + " elements to have been evicted, value=" + value,
-               (value <= expectedEvictionCount));
+        (value == expectedEvictionCount));
   }
 }
