@@ -36,12 +36,10 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
   public static class App extends ClientBase implements CacheEventListener {
 
     private final ToolkitBarrier    barrier;
-    private final ToolkitAtomicLong evictedCount;
     private final AtomicLong localEvictedCount = new AtomicLong();
     
     public App(String[] args) {
       super("test2", args);
-      this.evictedCount = getClusteringToolkit().getAtomicLong("testLong");
       this.barrier = getClusteringToolkit().getBarrier("testBarrier", NODE_COUNT);
     }
 
@@ -86,11 +84,10 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
       Thread.sleep(30 * 1000);
       System.out.println("XXXX client" + index + ": " + localEvictedCount.get());
 
-      this.evictedCount.addAndGet(localEvictedCount.get());
 
       barrier.await();
 
-      Assert.assertEquals("XXXX client " + index + " failed.", evictedElements, this.evictedCount.get());
+      Assert.assertEquals("XXXX client " + index + " failed.", evictedElements, localEvictedCount.get());
     }
 
     @Override
