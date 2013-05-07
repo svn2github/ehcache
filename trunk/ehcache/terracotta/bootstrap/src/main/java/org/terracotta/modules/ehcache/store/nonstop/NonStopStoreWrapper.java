@@ -151,7 +151,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
       }
     } catch (Throwable t) {
       String message = "Error while creating store inline ";
-      LOGGER.warn(message, t);
       handleException(message, t);
     }
   }
