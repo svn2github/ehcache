@@ -18,6 +18,7 @@ public abstract class AbstractWriteBehindAtomicityTestBase extends AbstractCache
                                               Class<? extends AbstractClientBase>... c) {
     super(ehcacheConfigPath, testConfig, c);
     testConfig.getClientConfig().getBytemanConfig().setScript("/byteman/writeBehindAtomicity.btm");
+    disableTest();
   }
 
   // 1) Begin putWithWriter
