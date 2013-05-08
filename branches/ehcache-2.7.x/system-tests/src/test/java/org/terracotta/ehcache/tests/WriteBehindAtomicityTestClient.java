@@ -6,9 +6,8 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
+import org.junit.Assert;
 import org.terracotta.toolkit.Toolkit;
-
-import com.tc.util.Assert;
 
 import java.io.Serializable;
 
