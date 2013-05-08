@@ -130,7 +130,7 @@ public class CoreStatisticsImpl implements CoreStatistics {
      */
     @Override
     public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove() {
-        return cachePut;
+        return cacheRemove;
     }
 
     /* (non-Javadoc)
