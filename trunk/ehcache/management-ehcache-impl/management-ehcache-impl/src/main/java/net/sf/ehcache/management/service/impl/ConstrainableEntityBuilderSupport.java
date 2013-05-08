@@ -95,8 +95,9 @@ abstract class ConstrainableEntityBuilderSupport<SAMPLER> {
                             Map<String, Object> attributeMap,
                             String attribute,
                             Method method) {
+    Object value = null;
     try {
-      Object value = method.invoke(sampler);
+      value = method.invoke(sampler);
 
       // stats reflection "helper" code
       if (value instanceof SampledCounter) {
@@ -105,7 +106,6 @@ abstract class ConstrainableEntityBuilderSupport<SAMPLER> {
         value = ((Counter)value).getValue();
       }
 
-      attributeMap.put(attribute, value);
     } catch (RuntimeException e) {
       getLog().warn(String.format("Failed to invoke method %s while constructing entity. %s", method.getName(),
           e.getMessage()));
@@ -115,6 +115,8 @@ abstract class ConstrainableEntityBuilderSupport<SAMPLER> {
     } catch (InvocationTargetException e) {
       getLog().warn(String.format("Failed to invoke method %s while constructing entity. %s", method.getName(),
           e.getMessage()));
+    } finally {
+      attributeMap.put(attribute, value);
     }
   }
 }
