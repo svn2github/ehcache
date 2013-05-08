@@ -100,7 +100,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public boolean isNodeBulkLoadEnabled() {
-        return cache.isNodeBulkLoadEnabled();
+        return cache.getCacheConfiguration().isTerracottaClustered() && cache.isNodeBulkLoadEnabled();
     }
 
     /**
