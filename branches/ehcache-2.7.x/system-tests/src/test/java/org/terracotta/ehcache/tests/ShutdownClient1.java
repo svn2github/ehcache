@@ -167,6 +167,10 @@ public class ShutdownClient1 extends ClientBase {
     ThreadMXBean tbean = ManagementFactory.getThreadMXBean();
     for (long id : tbean.getAllThreadIds()) {
       ThreadInfo tinfo = tbean.getThreadInfo(id, Integer.MAX_VALUE);
+      if (tinfo == null) {
+        System.out.println("Thread id " + id + " is already dead.");
+        continue;
+      }
       rv.append("Thread name: " + tinfo.getThreadName()).append("-" + id).append(newline);
       for (StackTraceElement e : tinfo.getStackTrace()) {
         rv.append("    at " + e).append(newline);
