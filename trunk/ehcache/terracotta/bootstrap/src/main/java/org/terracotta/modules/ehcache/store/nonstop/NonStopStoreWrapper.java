@@ -460,6 +460,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     bulkMethods.add("getAllQuiet");
     bulkMethods.add("getAll");
     bulkMethods.add("removeAll");
+    bulkMethods.add("getSize");
     validateMethodNamesExist(TerracottaStore.class, bulkMethods);
     for (Class c : classes) {
       for (Method m : c.getMethods()) {
@@ -937,7 +938,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   public int getSize() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     // public abstract int net.sf.ehcache.store.Store.getSize()
-    nonStop.start(toolkitNonStopConfiguration);
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
     try {
       throwNonStopExceptionWhenClusterNotInit();
       int _ret = this.delegate.getSize();
