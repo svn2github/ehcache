@@ -13,11 +13,14 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.terracotta.statistics.StatisticsManager;
 
 import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.*;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics.Latency;
 import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
@@ -73,6 +76,24 @@ public class ExtendedStatisticsTest {
             assertThat(extendedStats.get().component(MISS_NOT_FOUND).count().value(), is(1L));
             assertThat(extendedStats.get().component(MISS_EXPIRED).count().value(), is(0L));
             assertThat(extendedStats.size().value(), IsEqual.<Number>equalTo(1));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+
+    @Test
+    public void testMinMaxNonNullAfterNoAccess() throws InterruptedException {
+        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
+        try {
+            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
+            manager.addCache(foo);
+            
+            StatisticsGateway stats = foo.getStatistics();
+            Assert.assertNotNull(stats.cacheGetOperation().latency().maximum().value());
+            Assert.assertNotNull(stats.cacheGetOperation().latency().minimum().value());
+            Assert.assertNotNull(stats.cacheGetOperation().latency().average().value());
+            
         } finally {
             manager.shutdown();
         }

@@ -138,6 +138,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     /** The cache hit ratio. */
     private Statistic<Double> cacheHitRatio;
 
+    /** on stop timeout ratio */
+    private Statistic<Double> nonStopTimeoutRatio;
+
     /**
      * Instantiates a new extended statistics impl.
      * 
@@ -166,6 +169,11 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         
         this.cacheHitRatio = get().ratioOf(EnumSet.of(CacheOperationOutcomes.GetOutcome.HIT),
                 EnumSet.allOf(CacheOperationOutcomes.GetOutcome.class));
+
+        this.nonStopTimeoutRatio = nonstop().ratioOf(EnumSet.of(
+                CacheOperationOutcomes.NonStopOperationOutcomes.REJOIN_TIMEOUT,
+                CacheOperationOutcomes.NonStopOperationOutcomes.TIMEOUT),
+                EnumSet.allOf(CacheOperationOutcomes.NonStopOperationOutcomes.class));
         
 
     }
@@ -794,6 +802,11 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     @Override
     public Statistic<Number> mostRecentRejoinTimeStampMillis() {
         return getStandardPassThrough(StandardPassThroughStatistic.LAST_REJOIN_TIMESTAMP);
+    }
+
+    @Override
+    public Statistic<Double> nonstopTimeoutRatio() {
+        return nonStopTimeoutRatio;
     }
 
 

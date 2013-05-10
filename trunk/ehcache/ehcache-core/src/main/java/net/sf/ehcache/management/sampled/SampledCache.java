@@ -1510,4 +1510,9 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     public long getNonStopTimeoutMostRecentSample() {
         return sampledCacheDelegate.getNonStopTimeoutMostRecentSample();
     }
+
+    @Override
+    public int getNonstopTimeoutRatio() {
+        return sampledCacheDelegate.getNonstopTimeoutRatio();
+    }
 }

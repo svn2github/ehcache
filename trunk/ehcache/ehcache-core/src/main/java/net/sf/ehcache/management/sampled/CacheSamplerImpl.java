@@ -1855,4 +1855,9 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     public SampledCounter getNonStopTimeoutSample() {
         return new SampledRateCounterProxy(cache.getStatistics().getExtended().nonstop().component(NonStopOperationOutcomes.TIMEOUT).rate());
     }
+
+    @Override
+    public int getNonstopTimeoutRatio() {
+        return (int) (cache.getStatistics().getExtended().nonstopTimeoutRatio().value().doubleValue() * ONE_HUNDRED);
+    }
 }

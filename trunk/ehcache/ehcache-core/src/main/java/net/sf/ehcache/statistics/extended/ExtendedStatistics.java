@@ -253,6 +253,12 @@ public interface ExtendedStatistics {
     Statistic<Double> cacheHitRatio();
 
     /**
+     * Nonstop timeout ratio
+     * @return
+     */
+    Statistic<Double> nonstopTimeoutRatio();
+
+    /**
      * Operations.
      *
      * @param <T> the generic type
