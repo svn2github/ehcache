@@ -1,5 +1,7 @@
 package net.sf.ehcache.event;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -39,8 +41,8 @@ public class OrderedEventListenerForDiskStoreBackendTest {
     @Before
     public void setUp() throws Exception {
         cacheManager = CacheManager.create(new Configuration().name("diskStoreTest"));
-        diskCache = new Cache(new CacheConfiguration().name("disk-event-cache").maxEntriesLocalHeap(1).overflowToDisk(true)
-                .eternal(false).timeToLiveSeconds(2).timeToIdleSeconds(1).diskPersistent(false).diskExpiryThreadIntervalSeconds(1)
+        diskCache = new Cache(new CacheConfiguration().name("disk-event-cache").maxEntriesLocalHeap(10).overflowToDisk(true)
+                .eternal(false).timeToLiveSeconds(10).timeToIdleSeconds(10).diskPersistent(false).diskExpiryThreadIntervalSeconds(1)
                 .diskSpoolBufferSizeMB(10));
         cacheManager.addCache(diskCache);
         Field compoundStoreField = Cache.class.getDeclaredField("compoundStore");
@@ -141,8 +143,17 @@ public class OrderedEventListenerForDiskStoreBackendTest {
         Element element = new Element(key, "value", 0);
         diskStore.put(element);
 
-        diskStore.evict(key, (DiskStorageFactory.DiskSubstitute)diskStore.unretrievedGet(key));
-        verify(listener).notifyElementRemoved(any(Ehcache.class), eq(element));
+        int maxTries = 100;
+        int tryCount = 0;
+        while (tryCount < maxTries) {
+            if (diskStore.evict(key, (DiskStorageFactory.DiskSubstitute)diskStore.unretrievedGet(key))) {
+                verify(listener).notifyElementRemoved(any(Ehcache.class), eq(element));
+                return;
+            } else {
+                tryCount++;
+            }
+        }
+        assertThat(diskStore.containsKey(element.getObjectKey()), is(false));
     }
 
     @After
