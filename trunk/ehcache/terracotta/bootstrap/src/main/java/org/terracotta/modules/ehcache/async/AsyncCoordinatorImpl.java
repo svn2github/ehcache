@@ -10,13 +10,13 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactoryImpl;
 import org.terracotta.modules.ehcache.async.scatterpolicies.HashCodeScatterPolicy;
 import org.terracotta.modules.ehcache.async.scatterpolicies.ItemScatterPolicy;
 import org.terracotta.modules.ehcache.async.scatterpolicies.SingleBucketScatterPolicy;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.cluster.ClusterEvent;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 import org.terracotta.toolkit.cluster.ClusterListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
+import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitListInternal;
 
 import java.io.Serializable;
@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -40,6 +41,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private static final String             DEAD_NODES = "DEAD_NODES";
   private static final Logger             LOGGER     = LoggerFactory.getLogger(AsyncCoordinatorImpl.class.getName());
   private static final String             DELIMITER  = ToolkitInstanceFactoryImpl.DELIMITER;
+  private static final String             NODE_ALIVE_TIMEOUT_PROPERTY_NAME = "ehcache.async.node.alive.timeout";
   /**
    * lock for this coordinator based on SynchronousWrite
    */
@@ -47,7 +49,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private final Lock                      nodeWriteLock;
   private final Lock                      nodeReadLock;
   private volatile Status                 status     = Status.UNINITIALIZED;
-
+  private final long                      aliveTimeoutSec;
   private final List<ProcessingBucket<E>> localBuckets;
   private final List<ProcessingBucket<E>> deadBuckets;
   private final String                    name;
@@ -56,7 +58,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private ItemsFilter<E>                  filter;
   private final ClusterInfo               cluster;
   private volatile String                 nodeName;
-  private final Toolkit                   toolkit;
+  private final ToolkitInternal           toolkit;
   private ItemProcessor<E>                processor;
   private final AsyncClusterListener      listener;
   private final Callback                  stopCallable;
@@ -72,7 +74,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     } else {
       this.config = config;
     }
-    this.toolkit = toolkitInstanceFactory.getToolkit();
+    this.toolkit = (ToolkitInternal) toolkitInstanceFactory.getToolkit();
+    this.aliveTimeoutSec = toolkit.getProperties().getLong(NODE_ALIVE_TIMEOUT_PROPERTY_NAME, 5L);
     this.cluster = toolkit.getClusterInfo();
     this.listener = new AsyncClusterListener();
     this.currentNode = cluster.getCurrentNode();
@@ -112,7 +115,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   }
 
   private void processDeadNodes() {
-    scanDeadNodes();
+    bucketManager.scanAndAddDeadNodes();
     processOneDeadNodeIfNecessary();
   }
 
@@ -144,7 +147,32 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     return totalItems;
   }
 
+  private void lockNodeAlive() {
+    Thread tmpThread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        toolkit.getLock(nodeName).lock();
+      }
+    }, "node alive locker");
+    tmpThread.setDaemon(true);
+    tmpThread.start();
+    try {
+      tmpThread.join();
+    } catch (InterruptedException e) {
+      debug("Interrupted while waiting to grab node alive lock");
+    }
+  }
+
+  private boolean tryLockNodeAlive(String otherNodeName) {
+    try {
+      return toolkit.getLock(otherNodeName).tryLock(aliveTimeoutSec, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      return false;
+    }
+  }
+
   private void startBuckets(int processingConcurrency) {
+    lockNodeAlive();
     // add meta info first
     bucketManager.populateMap();
     Set<String> nameList = new HashSet();
@@ -174,16 +202,6 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       bucket.setCleanupCallback(cleanupDeadBucket(deadBuckets, bucket));
     }
     return bucket;
-  }
-
-  private void scanDeadNodes() {
-    // checking if there are any dead nodes and starting threads for those buckets also
-    commonAsyncLock.lock();
-    try {
-      bucketManager.scanAndAddDeadNodes();
-    } finally {
-      commonAsyncLock.unlock();
-    }
   }
 
   private Callback cleanupDeadBucket(final List<ProcessingBucket<E>> list, final ProcessingBucket<E> bucket) {
@@ -482,19 +500,38 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         Set<String> allDeadNodes = nodeToBucketNames.get(DEAD_NODES);
         if (allDeadNodes.addAll(nodes)) {
           nodeToBucketNames.put(DEAD_NODES, allDeadNodes);
-          debug("addToDeadNodes deadNodes " + nodes);
+          debug(nodeName + " addToDeadNodes deadNodes " + nodes);
         }
       }
     }
 
-    private Set<String> scanAndAddDeadNodes() {
-      // check if the all the known nodes still exist in the cluster
-      Set<String> deadNodes = getAllNodes();
-      for (ClusterNode node : cluster.getNodes()) {
-        deadNodes.remove(getAsyncNodeName(name, node));
+    /**
+     * checks if there are any dead nodes and add them into DEAD_NODES set
+     */
+    private void scanAndAddDeadNodes() {
+      commonAsyncLock.lock();
+      try {
+        // check if the all the known nodes still exist in the cluster
+        Set<String> nodesFromMap = getAllNodes();
+        Set<String> clusterNodes = getClusterNodes();
+        nodesFromMap.removeAll(clusterNodes);
+        for (String deadNode : nodesFromMap) {
+          if (!tryLockNodeAlive(deadNode)) {
+            nodesFromMap.remove(deadNode);
+          }
+        }
+        addToDeadNodes(nodesFromMap);
+      } finally {
+        commonAsyncLock.unlock();
       }
-      addToDeadNodes(deadNodes);
-      return deadNodes;
+    }
+
+    private Set<String> getClusterNodes() {
+      Set<String> nodes = new HashSet<String>();
+      for (ClusterNode node : cluster.getNodes()) {
+        nodes.add(getAsyncNodeName(name, node));
+      }
+      return nodes;
     }
 
     private Set<String> getAllBuckets() {
