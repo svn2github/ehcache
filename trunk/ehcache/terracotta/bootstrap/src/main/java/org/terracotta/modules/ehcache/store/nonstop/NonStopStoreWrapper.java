@@ -16,6 +16,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
+import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -115,6 +116,8 @@ public class NonStopStoreWrapper implements TerracottaStore {
                                                                                                                          .of(this)
                                                                                                                          .tag("cache")
                                                                                                                          .build();
+
+  private CacheEventListener                                                       cacheEventListener;
 
   public NonStopStoreWrapper(Callable<TerracottaStore> clusteredStoreCreator,
                              ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache,
@@ -266,7 +269,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
 
     // create this to be sure that it's present on each node to receive clustered events,
     // even if this node is not sending out its events
-    cache.getCacheManager().createTerracottaEventReplicator(cache);
+    cacheEventListener = cache.getCacheManager().createTerracottaEventReplicator(cache);
 
     synchronized (this) {
       if (delegate == null) {
@@ -307,6 +310,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   @Override
   public void dispose() {
     // THIS IS HAND MADE CODE -- DO NOT GENERATED
+    cacheEventListener.dispose();
     if (delegate != null) {
       this.delegate.dispose();
     }
