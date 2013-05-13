@@ -159,7 +159,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
     // Fix for Dev-9223. Dont set anything incase of Default value. Assuming tookit and ehcache defaults are aligned.
     if (ehcacheConfig.getMaxEntriesInCache() != CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE) {
-      builder.maxTotalCount(ehcacheConfig.getMaxEntriesInCache());
+      if (ehcacheConfig.getMaxEntriesInCache() > Integer.MAX_VALUE) {
+        throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
+      } else {
+        builder.maxTotalCount((int) ehcacheConfig.getMaxEntriesInCache());
+      }
     }
 
     if (terracottaConfiguration.isSynchronousWrites()) {

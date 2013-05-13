@@ -649,7 +649,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
-    public int getMaxEntriesInCache() {
+    public long getMaxEntriesInCache() {
         return sampledCacheDelegate.getMaxEntriesInCache();
     }
 
@@ -714,7 +714,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     /**
      * {@inheritDoc}
      */
-    public void setMaxEntriesInCache(int maxEntries) {
+    public void setMaxEntriesInCache(long maxEntries) {
         sampledCacheDelegate.setMaxEntriesInCache(maxEntries);
         sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
     }

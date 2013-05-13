@@ -776,7 +776,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public int getMaxEntriesInCache() {
+    public long getMaxEntriesInCache() {
         return cache.getCacheConfiguration().getMaxEntriesInCache();
     }
 
@@ -798,7 +798,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public void setMaxEntriesInCache(int maxEntries) {
+    public void setMaxEntriesInCache(long maxEntries) {
         if (getMaxEntriesInCache() != maxEntries) {
             try {
                 cache.getCacheConfiguration().setMaxEntriesInCache(maxEntries);
@@ -1272,7 +1272,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
+    public void maxEntriesInCacheChanged(long oldCapacity, long newCapacity) {
         if (oldCapacity != newCapacity) {
             setMaxEntriesInCache(newCapacity);
         }

@@ -96,5 +96,5 @@ public interface CacheConfigurationListener {
      * @param oldValue old value
      * @param newValue new value
      */
-    public void maxEntriesInCacheChanged(int oldValue, int newValue);
+    public void maxEntriesInCacheChanged(long oldValue, long newValue);
 }

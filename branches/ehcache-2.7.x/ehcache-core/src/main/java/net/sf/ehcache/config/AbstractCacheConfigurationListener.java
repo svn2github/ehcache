@@ -86,7 +86,7 @@ public abstract class AbstractCacheConfigurationListener implements CacheConfigu
      * {@inheritDoc}
      */
     @Override
-    public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
+    public void maxEntriesInCacheChanged(long oldCapacity, long newCapacity) {
         //
     }
 
