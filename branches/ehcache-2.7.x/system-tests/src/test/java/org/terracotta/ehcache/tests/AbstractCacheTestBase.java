@@ -11,6 +11,7 @@ import org.terracotta.tests.base.AbstractClientBase;
 import org.terracotta.tests.base.AbstractTestBase;
 import org.terracotta.toolkit.ToolkitFactory;
 
+import com.tc.l2.L2DebugLogging.LogLevel;
 import com.tc.management.beans.L2MBeanNames;
 import com.tc.test.config.model.TestConfig;
 
@@ -134,6 +135,14 @@ public class AbstractCacheTestBase extends AbstractTestBase {
 
   public String getEhcacheConfigPath() {
     return ehcacheConfigPath;
+  }
+
+  public void enableNonStopDebugLogs() {
+    configureTCLogging("com.terracotta.toolkit.nonstop.NonStopManagerImpl", LogLevel.DEBUG);
+    configureTCLogging("com.terracotta.toolkit.NonStopInitializationService", LogLevel.DEBUG);
+    configureTCLogging("com.terracotta.toolkit.NonStopClusterInfo", LogLevel.DEBUG);
+    configureTCLogging("com.terracotta.toolkit.nonstop.AbstractToolkitObjectLookupAsync", LogLevel.DEBUG);
+    configureTCLogging("com.terracotta.toolkit.nonstop.NonStopInvocationHandler", LogLevel.DEBUG);
   }
 
 }

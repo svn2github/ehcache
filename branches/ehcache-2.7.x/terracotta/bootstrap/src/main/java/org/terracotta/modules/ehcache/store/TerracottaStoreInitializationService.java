@@ -5,6 +5,8 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.config.NonstopConfiguration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.toolkit.cluster.ClusterInfo;
 
 import java.util.concurrent.ExecutionException;
@@ -17,6 +19,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TerracottaStoreInitializationService {
+  private static final Logger   LOGGER = LoggerFactory.getLogger(TerracottaStoreInitializationService.class);
   private final ExecutorService threadPool;
   private final ClusterInfo     clusterInfo;
 
@@ -68,6 +71,11 @@ public class TerracottaStoreInitializationService {
 
     } finally {
       if (interrupted) Thread.currentThread().interrupt();
+    }
+
+    if (!initializationCompleted) {
+      LOGGER.debug("Returning without completing TerracottaStore initialization. Operations Enabled = {}",
+                   areOperationsEnabled());
     }
   }
 

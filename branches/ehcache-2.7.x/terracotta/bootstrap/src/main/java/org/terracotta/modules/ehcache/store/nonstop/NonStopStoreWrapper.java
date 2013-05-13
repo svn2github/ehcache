@@ -194,7 +194,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
             }
           }
         } catch (Throwable t) {
-          LOGGER.warn("Error while creating store asynchronously", t);
+          LOGGER.warn("Error while creating store asynchronously for Cache: " + cache.getName(), t);
           exceptionDuringInitialization = t;
           synchronized (NonStopStoreWrapper.this) {
             NonStopStoreWrapper.this.notifyAll();
@@ -280,6 +280,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
         }
       }
     }
+    LOGGER.debug("Initialization Completed for Cache : {}", cache.getName());
   }
 
   /**
