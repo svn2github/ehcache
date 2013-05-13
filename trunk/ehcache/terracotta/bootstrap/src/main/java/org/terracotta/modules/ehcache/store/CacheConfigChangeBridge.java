@@ -70,8 +70,12 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   }
 
   @Override
-  public void maxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
-    change(DynamicConfigType.MAX_TOTAL_COUNT, mapMaxEntriesInCacheToTotalCount(newCapacity), true);
+  public void maxEntriesInCacheChanged(long oldCapacity, long newCapacity) {
+    if (newCapacity > Integer.MAX_VALUE) {
+      throw new IllegalArgumentException("Values greater than Integer.MAX_VALUE are not currently supported.");
+    } else {
+      change(DynamicConfigType.MAX_TOTAL_COUNT, mapMaxEntriesInCacheToTotalCount((int) newCapacity), true);
+    }
   }
 
   @Override

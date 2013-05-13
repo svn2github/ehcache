@@ -339,7 +339,7 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         /**
          * {@inheritDoc}
          */
-        public void maxEntriesInCacheChanged(final int oldValue, final int newValue) {
+        public void maxEntriesInCacheChanged(final long oldValue, final long newValue) {
             // no-op
         }
     }

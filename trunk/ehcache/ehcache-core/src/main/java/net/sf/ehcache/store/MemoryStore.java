@@ -726,7 +726,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     /**
      * {@inheritDoc}
      */
-    public void maxEntriesInCacheChanged(final int oldValue, final int newValue) {
+    public void maxEntriesInCacheChanged(final long oldValue, final long newValue) {
         // no-op
     }
 

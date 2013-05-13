@@ -178,7 +178,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max entries in cache config setting value
      */
-    int getMaxEntriesInCache();
+    long getMaxEntriesInCache();
 
     /**
      * setMaxElementsOnDisk.
@@ -192,7 +192,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @param maxEntries the new max entries in cache
      */
-    void setMaxEntriesInCache(int maxEntries);
+    void setMaxEntriesInCache(long maxEntries);
 
     /**
      * Configuration property accessor.

@@ -156,7 +156,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Default value for maxEntriesInCache
      */
-    public static final int DEFAULT_MAX_ENTRIES_IN_CACHE = 0;
+    public static final long DEFAULT_MAX_ENTRIES_IN_CACHE = 0;
 
     /**
      * Default value for transactionalMode
@@ -233,7 +233,7 @@ public class CacheConfiguration implements Cloneable {
     /**
      * the maximum entries to be held in the cache
      */
-    protected volatile int maxEntriesInCache = DEFAULT_MAX_ENTRIES_IN_CACHE;
+    protected volatile long maxEntriesInCache = DEFAULT_MAX_ENTRIES_IN_CACHE;
 
     /**
      * The policy used to evict elements from the {@link net.sf.ehcache.store.MemoryStore}.
@@ -1088,11 +1088,11 @@ public class CacheConfiguration implements Cloneable {
      *
      * @param maxEntriesInCache maximum number of entries in cache
      */
-    public void setMaxEntriesInCache(int maxEntriesInCache) {
+    public void setMaxEntriesInCache(long maxEntriesInCache) {
         checkDynamicChange();
         verifyGreaterThanOrEqualToZero((long)maxEntriesInCache, "maxEntriesInCache");
         checkIfCachePinned(maxEntriesInCache);
-        int oldValue = this.maxEntriesInCache;
+        long oldValue = this.maxEntriesInCache;
         this.maxEntriesInCache = maxEntriesInCache;
         fireMaxEntriesInCacheChanged(oldValue, this.maxEntriesInCache);
     }
@@ -1152,7 +1152,7 @@ public class CacheConfiguration implements Cloneable {
      * @return this configuration instance
      * @see #setMaxEntriesInCache(int)
      */
-    public final CacheConfiguration maxEntriesInCache(int maxEntriesInCache) {
+    public final CacheConfiguration maxEntriesInCache(long maxEntriesInCache) {
         setMaxEntriesInCache(maxEntriesInCache);
         return this;
     }
@@ -2520,7 +2520,7 @@ public class CacheConfiguration implements Cloneable {
      * Accessor
      *
      */
-    public int getMaxEntriesInCache() {
+    public long getMaxEntriesInCache() {
         return maxEntriesInCache;
     }
 
@@ -2954,7 +2954,7 @@ public class CacheConfiguration implements Cloneable {
         }
     }
 
-    private void fireMaxEntriesInCacheChanged(int oldCapacity, int newCapacity) {
+    private void fireMaxEntriesInCacheChanged(long oldCapacity, long newCapacity) {
         if (oldCapacity != newCapacity) {
             for (CacheConfigurationListener l : listeners) {
                 l.maxEntriesInCacheChanged(oldCapacity, newCapacity);
