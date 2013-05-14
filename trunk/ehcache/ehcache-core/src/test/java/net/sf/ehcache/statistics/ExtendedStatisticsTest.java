@@ -20,7 +20,6 @@ import org.terracotta.statistics.StatisticsManager;
 
 import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.*;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
-import net.sf.ehcache.statistics.extended.ExtendedStatistics.Latency;
 import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
@@ -35,7 +34,6 @@ import org.hamcrest.core.IsEqual;
 import org.terracotta.statistics.archive.Timestamped;
 import static org.hamcrest.core.Is.*;
 import static org.hamcrest.number.OrderingComparison.*;
-import static org.hamcrest.core.IsCollectionContaining.*;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -81,23 +79,6 @@ public class ExtendedStatisticsTest {
         }
     }
 
-
-    @Test
-    public void testMinMaxNonNullAfterNoAccess() throws InterruptedException {
-        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
-        try {
-            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
-            manager.addCache(foo);
-            
-            StatisticsGateway stats = foo.getStatistics();
-            Assert.assertNotNull(stats.cacheGetOperation().latency().maximum().value());
-            Assert.assertNotNull(stats.cacheGetOperation().latency().minimum().value());
-            Assert.assertNotNull(stats.cacheGetOperation().latency().average().value());
-            
-        } finally {
-            manager.shutdown();
-        }
-    }
 
     @Test
     public void testExtendedCacheTimeToDisable() throws InterruptedException {
