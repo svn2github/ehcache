@@ -1,6 +1,5 @@
 package net.sf.ehcache.distribution.jms;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.MimeTypeByteArray;
 import net.sf.ehcache.Ehcache;
@@ -12,7 +11,6 @@ import static net.sf.ehcache.distribution.jms.JMSEventMessage.CACHE_NAME_PROPERT
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.KEY_PROPERTY;
 import static net.sf.ehcache.distribution.jms.JMSEventMessage.MIME_TYPE_PROPERTY;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -53,7 +51,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNull;
 
 /**
  * Run the tests using Open MQ
@@ -164,11 +166,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(payload, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(payload, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsEqual.equalTo(payload));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsEqual.equalTo(payload));
     }
 
     @Test
@@ -195,11 +194,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(payload, manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
-        assertEquals(payload, manager2.getCache("sampleCacheAsync").get("1234").getObjectValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.valueAt(manager1.getCache("sampleCacheAsync"), "1234"), IsEqual.<Object>equalTo(payload));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.valueAt(manager2.getCache("sampleCacheAsync"), "1234"), IsEqual.<Object>equalTo(payload));
     }
 
 
@@ -226,9 +222,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
         MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("application/x-greg", payload.getMimeType());
         assertEquals(new String(bytes), new String(payload.getValue()));
@@ -257,9 +251,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
         MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("application/octet-stream", payload.getMimeType());
         assertEquals(new String(bytes), new String(payload.getValue()));
@@ -296,9 +288,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
         MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("text/x-greg", payload.getMimeType());
         assertEquals(value, new String(payload.getValue()));
@@ -326,9 +316,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
         MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
         assertEquals("text/plain", payload.getMimeType());
         assertEquals(value, new String(payload.getValue()));
@@ -361,11 +349,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
     @Test
@@ -394,11 +379,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
     @Test
@@ -427,11 +409,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
 
@@ -464,11 +443,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
     @Test
@@ -491,11 +467,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
     @Test
@@ -524,11 +497,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
     @Test
@@ -552,11 +522,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
     @Test
@@ -580,11 +547,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertEquals(null, manager1.getCache("sampleCacheAsync").get("1234"));
-        assertEquals(null, manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
     }
 
 
@@ -604,13 +568,7 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         TopicPublisher publisher = publisherSession.createPublisher(topic);
         publisher.send(message);
 
-        Thread.sleep(100);
-
-        Cache cache = manager1.getCache(cacheName);
-        Element receivedElement = cache.get("1234");
-
-        //ignored because no MimeType
-        assertNull(receivedElement);
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache(cacheName), "1234"), IsNull.nullValue());
     }
 
 
@@ -645,11 +603,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
         connection.stop();
 
-        Thread.sleep(100);
-
-
-        assertNotNull(manager1.getCache("sampleCacheAsync").get("1234"));
-        assertNotNull(manager2.getCache("sampleCacheAsync").get("1234"));
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
+        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
     }
 
     /**
@@ -864,10 +819,8 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
         Element element = new Element("1", "value");
         managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
 
-        Thread.sleep(2000);
-
-        assertNotNull("Element 1 should not be null", managerA.getCache(SAMPLE_CACHE_ASYNC).get("1"));
-        assertNotNull("Element 1 should not be null", managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+        RetryAssert.assertBy(4, TimeUnit.SECONDS, RetryAssert.elementAt(managerA.getCache(SAMPLE_CACHE_ASYNC), "1"), IsNull.notNullValue());
+        RetryAssert.assertBy(4, TimeUnit.SECONDS, RetryAssert.elementAt(managerB.getCache(SAMPLE_CACHE_ASYNC), "1"), IsNull.notNullValue());
         assertNull("Element 1 should be null because CacheManager C should not be listening", managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
 
         managerA.shutdown();
