@@ -23,7 +23,7 @@ public class BasicContainerJTATest extends AbstractStandaloneTwoServerDeployment
       disableTest();
     }
 
-    timebombTest("2013-05-10");
+    timebombTest("2013-06-10");
   }
 
   public static Test suite() {
