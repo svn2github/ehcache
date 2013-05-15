@@ -16,18 +16,14 @@
 
 package net.sf.ehcache.statistics;
 
-import java.lang.management.ManagementFactory;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.statistics.beans.ExtendedStatisticsMBean;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
@@ -42,22 +38,24 @@ import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 import org.terracotta.statistics.StatisticsManager;
 
 /**
- * StatisticsPlaceholder class.
+ * StatisticsGateway rollup class.
  *
  * @author cschanck
  */
 public class StatisticsGateway implements FlatStatistics {
 
-    /** The Constant DEFAULT_HISTORY_SIZE. */
+    /** The Constant DEFAULT_HISTORY_SIZE. Nuumber of history elements kept. */
     public static final int DEFAULT_HISTORY_SIZE = 30;
 
-    /** The Constant DEFAULT_INTERVAL_SECS. */
-    public static final int DEFAULT_INTERVAL_SECS = 10;
+    /** The Constant DEFAULT_INTERVAL_SECS. Sampling interval in seconds. */
+    public static final int DEFAULT_INTERVAL_SECS = 1;
 
-    /** The Constant DEFAULT_SEARCH_INTERVAL_SECS. */
+    /** The Constant DEFAULT_SEARCH_INTERVAL_SECS. Sampling interval for search related stats. */
     public static final int DEFAULT_SEARCH_INTERVAL_SECS = 10;
 
-    private static final boolean PUBLISH_MBEAN = false;
+    /** The Constant DEFAULT_WINDOW_SIZE_SECS. */
+    public static final long DEFAULT_WINDOW_SIZE_SECS=1;
+
     private static final int DEFAULT_TIME_TO_DISABLE_MINS = 5;
 
     /** The core. */
@@ -79,17 +77,32 @@ public class StatisticsGateway implements FlatStatistics {
         StatisticsManager statsManager = new StatisticsManager();
         statsManager.root(ehcache);
         this.assocCacheName = ehcache.getName();
-        this.extended = new ExtendedStatisticsImpl(statsManager, executor, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES);
-        this.core = new CoreStatisticsImpl(extended);
-        if (PUBLISH_MBEAN) {
-            ExtendedStatisticsMBean bean = new ExtendedStatisticsMBean(ehcache, extended);
-            MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-            try {
-                mbeanServer.registerMBean(bean, new ObjectName(bean.getBeanName() + ":type=" + bean.getClass().getSimpleName()));
-            } catch (Exception e) {
-                // TODO need to log
-            }
+        ManagementRESTServiceConfiguration mRest = null;
+        if(ehcache!=null && ehcache.getCacheManager()!=null && ehcache.getCacheManager().getConfiguration()!=null)
+        {
+            mRest=ehcache.getCacheManager().getConfiguration().getManagementRESTService();
         }
+        
+        this.extended = new ExtendedStatisticsImpl(statsManager, 
+                executor, 
+                DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES,
+                getProperSampleHistorySize(mRest),
+                getProperSampleIntervalSeconds(mRest),
+                getProperSampleSearchIntervalSeconds(mRest));
+        
+        this.core = new CoreStatisticsImpl(extended);       
+    }
+
+    private int getProperSampleSearchIntervalSeconds(ManagementRESTServiceConfiguration mRest) {
+        return mRest==null?StatisticsGateway.DEFAULT_SEARCH_INTERVAL_SECS:mRest.getSampleSearchIntervalSeconds();
+    }
+
+    private int getProperSampleIntervalSeconds(ManagementRESTServiceConfiguration mRest) {
+        return mRest==null?StatisticsGateway.DEFAULT_INTERVAL_SECS:mRest.getSampleIntervalSeconds();
+    }
+
+    private int getProperSampleHistorySize(ManagementRESTServiceConfiguration mRest) {
+        return mRest==null?StatisticsGateway.DEFAULT_HISTORY_SIZE:mRest.getSampleHistorySize();
     }
 
     /**

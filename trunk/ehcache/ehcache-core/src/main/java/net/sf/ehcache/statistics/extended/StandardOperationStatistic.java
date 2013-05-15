@@ -87,13 +87,8 @@ enum StandardOperationStatistic {
     /** The search. */
     SEARCH(true, cache(), CacheOperationOutcomes.SearchOutcome.class, "search", "cache") {
         @Override
-        long interval() {
-            return TEN;
-        }
-
-        @Override
-        long window() {
-            return TEN;
+        boolean isSearch() {
+            return true;
         }
     },
 
@@ -182,29 +177,11 @@ enum StandardOperationStatistic {
     }
 
     /**
-     * The default size of the kept history sample.
-     *
-     * @return the default history size
+     * Is this stat search related or not?
+     * @return
      */
-    int history() {
-        return THIRTY;
+    boolean isSearch() {
+        return false;
     }
-
-    /**
-     * The period in seconds at which to sample for the history.
-     *
-     * @return the history sample period
-     */
-    long interval() {
-        return 1;
-    }
-
-    /**
-     * The size in seconds of the window for rates and latencies.
-     *
-     * @return the window size
-     */
-    long window() {
-        return 1;
-    }
+  
 }

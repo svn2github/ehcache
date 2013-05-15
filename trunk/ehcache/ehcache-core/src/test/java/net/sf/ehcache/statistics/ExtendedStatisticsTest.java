@@ -44,7 +44,11 @@ public class ExtendedStatisticsTest {
     
     @Test(expected = IllegalStateException.class)
     public void testExtendedStatisticsWithoutRequiredStats() {
-        new ExtendedStatisticsImpl(new StatisticsManager(), Executors.newSingleThreadScheduledExecutor(), 10, TimeUnit.SECONDS);
+        new ExtendedStatisticsImpl(new StatisticsManager(), 
+                Executors.newSingleThreadScheduledExecutor(), 10, TimeUnit.SECONDS,
+                StatisticsGateway.DEFAULT_HISTORY_SIZE,
+                StatisticsGateway.DEFAULT_INTERVAL_SECS,
+                StatisticsGateway.DEFAULT_SEARCH_INTERVAL_SECS);
     }
 
     @Test
