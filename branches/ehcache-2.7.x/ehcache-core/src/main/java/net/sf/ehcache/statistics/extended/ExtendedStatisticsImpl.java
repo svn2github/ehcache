@@ -45,6 +45,7 @@ import net.sf.ehcache.CacheOperationOutcomes.NonStopOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
@@ -75,21 +76,21 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     /** The standard pass throughs. */
     private final ConcurrentMap<StandardPassThroughStatistic, Statistic<Number>> standardPassThroughs = 
             new ConcurrentHashMap<StandardPassThroughStatistic, Statistic<Number>>();
-    
+
     /** The standard operations. */
     private final ConcurrentMap<StandardOperationStatistic, Operation<?>> standardOperations = 
             new ConcurrentHashMap<StandardOperationStatistic, Operation<?>>();
-    
+
     /** The custom operations. */
     private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations = 
             new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
-    
+
     /** The manager. */
     private final StatisticsManager manager;
-    
+
     /** The executor. */
     private final ScheduledExecutorService executor;
-    
+
     /** The disable task. */
     private final Runnable disableTask = new Runnable() {
         @Override
@@ -110,10 +111,10 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /** The time to disable. */
     private long timeToDisable;
-    
+
     /** The time to disable unit. */
     private TimeUnit timeToDisableUnit;
-    
+
     /** The disable status. */
     private ScheduledFuture disableStatus;
 
@@ -138,6 +139,15 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     /** The cache hit ratio. */
     private Statistic<Double> cacheHitRatio;
 
+    /** on stop timeout ratio */
+    private Statistic<Double> nonStopTimeoutRatio;
+
+    private final int defaultHistorySize;
+
+    private final long defaultIntervalSeconds;
+
+    private final long defaultSearchIntervalSeconds;
+
     /**
      * Instantiates a new extended statistics impl.
      * 
@@ -146,11 +156,16 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @param timeToDisable the time to disable
      * @param unit the unit
      */
-    public ExtendedStatisticsImpl(StatisticsManager manager, ScheduledExecutorService executor, long timeToDisable, TimeUnit unit) {
+    public ExtendedStatisticsImpl(StatisticsManager manager, ScheduledExecutorService executor, long timeToDisable, TimeUnit unit,
+            int defaultHistorySize, long defaultIntervalSeconds, long defaultSearchIntervalSeconds) {
         this.manager = manager;
         this.executor = executor;
         this.timeToDisable = timeToDisable;
         this.timeToDisableUnit = unit;
+        this.defaultHistorySize = defaultHistorySize;
+        this.defaultIntervalSeconds = defaultIntervalSeconds;
+        this.defaultSearchIntervalSeconds = defaultSearchIntervalSeconds;
+
         this.disableStatus = this.executor.scheduleAtFixedRate(disableTask, timeToDisable, timeToDisable, unit);
 
         findStandardPassThruStatistics();
@@ -163,10 +178,13 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         this.allHeapPut = heapPut().compound(ALL_STORE_PUT_OUTCOMES);
         this.allOffHeapPut = offheapPut().compound(ALL_STORE_PUT_OUTCOMES);
         this.allDiskPut = diskPut().compound(ALL_STORE_PUT_OUTCOMES);
-        
+
         this.cacheHitRatio = get().ratioOf(EnumSet.of(CacheOperationOutcomes.GetOutcome.HIT),
                 EnumSet.allOf(CacheOperationOutcomes.GetOutcome.class));
-        
+        this.nonStopTimeoutRatio = nonstop().ratioOf(
+                EnumSet.of(CacheOperationOutcomes.NonStopOperationOutcomes.REJOIN_TIMEOUT,
+                        CacheOperationOutcomes.NonStopOperationOutcomes.TIMEOUT),
+                EnumSet.allOf(CacheOperationOutcomes.NonStopOperationOutcomes.class));
 
     }
 
@@ -184,8 +202,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                     standardOperations.put(t, NullCompoundOperation.instance(t.type()));
                 }
             } else {
-                standardOperations.put(t,
-                        new CompoundOperationImpl(statistic, t.type(), t.window(), SECONDS, executor, t.history(), t.interval(), SECONDS));
+                standardOperations.put(t, new CompoundOperationImpl(statistic, t.type(), StatisticsGateway.DEFAULT_WINDOW_SIZE_SECS,
+                        SECONDS, executor, defaultHistorySize, t.isSearch() ? defaultSearchIntervalSeconds : defaultIntervalSeconds,
+                        SECONDS));
             }
         }
     }
@@ -200,7 +219,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 LOGGER.debug("Mocking Pass-Through Statistic: {}", t);
                 standardPassThroughs.put(t, NullStatistic.instance(t.absentValue()));
             } else {
-                standardPassThroughs.put(t, new SemiExpiringStatistic(statistic, executor, t.history(), SECONDS.toNanos(t.interval())));
+                standardPassThroughs.put(t,
+                        new SemiExpiringStatistic(statistic, executor, defaultHistorySize, SECONDS.toNanos(defaultIntervalSeconds)));
             }
         }
     }
@@ -429,7 +449,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * (non-Javadoc)
      * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#getCacheHitRatio()
-     */    
+     */
     @Override
     public Statistic<Double> cacheHitRatio() {
         return cacheHitRatio;
@@ -615,7 +635,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /**
      * Gets the standard operation.
-     *
+     * 
      * @param statistic the statistic
      * @return the standard operation
      */
@@ -626,8 +646,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             if (discovered == null) {
                 return operation;
             } else {
-                Operation<?> newOperation = new CompoundOperationImpl(discovered, statistic.type(), statistic.window(), SECONDS, executor,
-                        statistic.history(), statistic.interval(), SECONDS);
+                Operation<?> newOperation = new CompoundOperationImpl(discovered, statistic.type(),
+                        StatisticsGateway.DEFAULT_WINDOW_SIZE_SECS, SECONDS, executor, defaultHistorySize,
+                        statistic.isSearch() ? defaultSearchIntervalSeconds : defaultIntervalSeconds, SECONDS);
                 if (standardOperations.replace(statistic, operation, newOperation)) {
                     return newOperation;
                 } else {
@@ -641,7 +662,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /**
      * Gets the standard pass through.
-     *
+     * 
      * @param statistic the statistic
      * @return the standard pass through
      */
@@ -652,8 +673,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             if (discovered == null) {
                 return passThrough;
             } else {
-                Statistic<Number> newPassThrough = new SemiExpiringStatistic(discovered, executor, 
-                        statistic.history(), SECONDS.toNanos(statistic.interval()));
+                Statistic<Number> newPassThrough = new SemiExpiringStatistic(discovered, executor, defaultHistorySize,
+                        SECONDS.toNanos(defaultIntervalSeconds));
                 if (standardPassThroughs.replace(statistic, passThrough, newPassThrough)) {
                     return newPassThrough;
                 } else {
@@ -667,7 +688,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /**
      * Find operation statistic.
-     *
+     * 
      * @param manager the manager
      * @param statistic the statistic
      * @return the operation statistic
@@ -687,7 +708,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /**
      * Find pass through statistic.
-     *
+     * 
      * @param manager the manager
      * @param statistic the statistic
      * @return the value statistic
@@ -706,7 +727,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /**
      * Find operation statistic.
-     *
+     * 
      * @param <T> the generic type
      * @param manager the manager
      * @param contextQuery the context query
@@ -741,7 +762,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /**
      * Find pass through statistic.
-     *
+     * 
      * @param manager the manager
      * @param contextQuery the context query
      * @param name the name
@@ -772,7 +793,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#clusterEvent()
      */
     @Override
@@ -780,7 +803,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         return (Operation<ClusterEventOutcomes>) getStandardOperation(StandardOperationStatistic.CLUSTER_EVENT);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#clusterEvent()
      */
     @Override
@@ -788,7 +813,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         return (Operation<NonStopOperationOutcomes>) getStandardOperation(StandardOperationStatistic.NONSTOP);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#lastRejoinTimeStampInNanos()
      */
     @Override
@@ -796,5 +823,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
         return getStandardPassThrough(StandardPassThroughStatistic.LAST_REJOIN_TIMESTAMP);
     }
 
+    @Override
+    public Statistic<Double> nonstopTimeoutRatio() {
+        return nonStopTimeoutRatio;
+    }
 
 }

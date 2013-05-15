@@ -173,6 +173,12 @@ class CompoundOperationImpl<T extends Enum<T>> implements Operation<T> {
             for (OperationImpl<T> op : operations.values()) {
                 op.start();
             }
+            for (OperationImpl<T> op : compounds.values()) {
+                op.start();
+            }
+            for (ExpiringStatistic<Double> ratio : ratios.values()) {
+                ratio.start();
+            }
         }
     }
 

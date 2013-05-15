@@ -100,6 +100,12 @@ public interface LegacyCacheStatistics {
     int getCacheHitRatio();
 
     /**
+     * Get the ratio of nonstop timeouts+rejoin timeouts to operations
+     * @return the ratio of timeouts to operation (0 - 100)
+     */
+    int getNonstopTimeoutRatio();
+
+    /**
      * Size of the cache based on current accuracy settings.
      *
      * @return The size of the cache based on current accuracy setting
