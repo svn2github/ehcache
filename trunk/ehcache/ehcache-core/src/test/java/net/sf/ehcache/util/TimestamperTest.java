@@ -75,6 +75,7 @@ public class TimestamperTest {
         final int THREADS = Runtime.getRuntime().availableProcessors();
         final AtomicBoolean stopped = new AtomicBoolean(false);
         final long[] maxima = new long[THREADS];
+        final long[] maximaTimestamps = new long[THREADS];
         final int[] loops = new int[THREADS];
         Thread[] threads = new Thread[THREADS];
         for(int i =0; i < THREADS; i++) {
@@ -83,13 +84,17 @@ public class TimestamperTest {
 
                 @Override
                 public void run() {
-                    long max = 0;
+                    long max = -1;
+                    long maxTimestamp = -1;
                     int runs;
                     for (runs = 0; !stopped.get() && runs < (TOTAL_RUNS / THREADS); runs++) {
                         long start = System.nanoTime();
                         Timestamper.next();
                         long duration = System.nanoTime() - start;
-                        max = Math.max(max, duration);
+                        if (duration > max) {
+                          max = duration;
+                          maxTimestamp = System.currentTimeMillis();
+                        }
                         /*
                          * Schedulers are dumb - make sure everyone gets a fair share of cpu.
                          */
@@ -97,10 +102,12 @@ public class TimestamperTest {
                     }
                     stopped.set(true);
                     maxima[index] = max;
+                    maximaTimestamps[index] = maxTimestamp;
                     loops[index] = runs;
                 }
             };
         }
+        final long timestampOrigin = System.currentTimeMillis();
         for (Thread thread : threads) {
             thread.start();
         }
@@ -109,7 +116,7 @@ public class TimestamperTest {
         }
         
         for (int i = 0; i < THREADS; i++) {
-            System.out.println(threads[i] + " " + loops[i] + " runs, maximum latency " + TimeUnit.NANOSECONDS.toMillis(maxima[i]) + "ms");
+            System.out.println(threads[i] + " " + loops[i] + " runs, maximum latency " + TimeUnit.NANOSECONDS.toMillis(maxima[i]) + "ms [@ " + (maximaTimestamps[i] - timestampOrigin) + "ms]");
         }
         
         for (int i = 0; i < THREADS; i++) {
