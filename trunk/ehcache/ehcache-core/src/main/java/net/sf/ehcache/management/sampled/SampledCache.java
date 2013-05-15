@@ -418,7 +418,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMaxGetTimeNanos()
      */
-    public long getMaxGetTimeNanos() {
+    public Long getMaxGetTimeNanos() {
         return sampledCacheDelegate.getMaxGetTimeNanos();
     }
 
@@ -427,7 +427,7 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      *
      * @see net.sf.ehcache.statistics.LiveCacheStatistics#getMinGetTimeNanos()
      */
-    public long getMinGetTimeNanos() {
+    public Long getMinGetTimeNanos() {
         return sampledCacheDelegate.getMinGetTimeNanos();
     }
 

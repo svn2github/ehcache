@@ -252,18 +252,18 @@ public interface LegacyCacheStatistics {
     String getCacheName();
 
     /**
-     * Return maximum time taken for a get operation in the cache in milliseconds.
+     * Return maximum time taken for a get operation in the cache in nanoseconds.
      *
-     * @return maximum time taken for a get operation in the cache in milliseconds
+     * @return maximum time taken for a get operation in the cache in nanoseconds
      */
-    long getMaxGetTimeNanos();
+    Long getMaxGetTimeNanos();
 
     /**
      * Return minimum time taken for a get operation in the cache in nanoseconds.
      *
      * @return minimum time taken for a get operation in the cache in nanoseconds
      */
-    long getMinGetTimeNanos();
+    Long getMinGetTimeNanos();
 
     /**
      * Gets the size of the write-behind queue, if any.

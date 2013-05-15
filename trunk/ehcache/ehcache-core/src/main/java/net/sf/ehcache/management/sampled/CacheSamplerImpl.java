@@ -435,9 +435,9 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public long getMaxGetTimeNanos() {
+    public Long getMaxGetTimeNanos() {
         try {
-            return cache.getStatistics().cacheGetOperation().latency().maximum().value().longValue();
+            return (Long)cache.getStatistics().cacheGetOperation().latency().maximum().value();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -447,9 +447,9 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      * {@inheritDoc}
      */
     @Override
-    public long getMinGetTimeNanos() {
+    public Long getMinGetTimeNanos() {
         try {
-            return cache.getStatistics().cacheGetOperation().latency().minimum().value().longValue();
+            return (Long)cache.getStatistics().cacheGetOperation().latency().minimum().value();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
