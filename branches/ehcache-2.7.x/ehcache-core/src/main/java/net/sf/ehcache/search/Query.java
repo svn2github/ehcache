@@ -127,6 +127,8 @@ public interface Query {
      * <p/>
      * By default an unlimited number of results can be returned. This could cause an OutOfMemoryError to be thrown. It is therefore
      * recommended to add an <code>maxResults</code> clause to your query to limit the size.
+     * <p/>
+     * Negative values are ignored and result in the default behaviour: unlimited number of results.
      *
      * @param maxResults the maximum number of results to return
      * @return this
