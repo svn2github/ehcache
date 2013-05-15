@@ -39,7 +39,7 @@ import org.terracotta.statistics.StatisticsManager;
 
 /**
  * StatisticsGateway rollup class.
- *
+ * 
  * @author cschanck
  */
 public class StatisticsGateway implements FlatStatistics {
@@ -54,7 +54,7 @@ public class StatisticsGateway implements FlatStatistics {
     public static final int DEFAULT_SEARCH_INTERVAL_SECS = 10;
 
     /** The Constant DEFAULT_WINDOW_SIZE_SECS. */
-    public static final long DEFAULT_WINDOW_SIZE_SECS=1;
+    public static final long DEFAULT_WINDOW_SIZE_SECS = 1;
 
     private static final int DEFAULT_TIME_TO_DISABLE_MINS = 5;
 
@@ -69,7 +69,7 @@ public class StatisticsGateway implements FlatStatistics {
 
     /**
      * Instantiates a new statistics placeholder.
-     *
+     * 
      * @param ehcache the ehcache
      * @param executor the executor
      */
@@ -78,36 +78,34 @@ public class StatisticsGateway implements FlatStatistics {
         statsManager.root(ehcache);
         this.assocCacheName = ehcache.getName();
         ManagementRESTServiceConfiguration mRest = null;
-        if(ehcache!=null && ehcache.getCacheManager()!=null && ehcache.getCacheManager().getConfiguration()!=null)
-        {
-            mRest=ehcache.getCacheManager().getConfiguration().getManagementRESTService();
+        if (ehcache != null && ehcache.getCacheManager() != null && 
+                ehcache.getCacheManager().getConfiguration() != null) {
+            mRest = ehcache.getCacheManager().getConfiguration().getManagementRESTService();
         }
-        
-        this.extended = new ExtendedStatisticsImpl(statsManager, 
-                executor, 
-                DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES,
-                getProperSampleHistorySize(mRest),
-                getProperSampleIntervalSeconds(mRest),
+
+        this.extended = new ExtendedStatisticsImpl(statsManager, executor, DEFAULT_TIME_TO_DISABLE_MINS, TimeUnit.MINUTES,
+                getProperSampleHistorySize(mRest), 
+                getProperSampleIntervalSeconds(mRest), 
                 getProperSampleSearchIntervalSeconds(mRest));
-        
-        this.core = new CoreStatisticsImpl(extended);       
+
+        this.core = new CoreStatisticsImpl(extended);
     }
 
     private int getProperSampleSearchIntervalSeconds(ManagementRESTServiceConfiguration mRest) {
-        return mRest==null?StatisticsGateway.DEFAULT_SEARCH_INTERVAL_SECS:mRest.getSampleSearchIntervalSeconds();
+        return mRest == null ? StatisticsGateway.DEFAULT_SEARCH_INTERVAL_SECS : mRest.getSampleSearchIntervalSeconds();
     }
 
     private int getProperSampleIntervalSeconds(ManagementRESTServiceConfiguration mRest) {
-        return mRest==null?StatisticsGateway.DEFAULT_INTERVAL_SECS:mRest.getSampleIntervalSeconds();
+        return mRest == null ? StatisticsGateway.DEFAULT_INTERVAL_SECS : mRest.getSampleIntervalSeconds();
     }
 
     private int getProperSampleHistorySize(ManagementRESTServiceConfiguration mRest) {
-        return mRest==null?StatisticsGateway.DEFAULT_HISTORY_SIZE:mRest.getSampleHistorySize();
+        return mRest == null ? StatisticsGateway.DEFAULT_HISTORY_SIZE : mRest.getSampleHistorySize();
     }
 
     /**
      * Gets the core.
-     *
+     * 
      * @return the core
      */
     public CoreStatistics getCore() {
@@ -116,7 +114,7 @@ public class StatisticsGateway implements FlatStatistics {
 
     /**
      * Gets the extended.
-     *
+     * 
      * @return the extended
      */
     public ExtendedStatistics getExtended() {
@@ -125,7 +123,7 @@ public class StatisticsGateway implements FlatStatistics {
 
     /**
      * Gets the associated cache name.
-     *
+     * 
      * @return the associated cache name
      */
     public String getAssociatedCacheName() {
@@ -272,8 +270,6 @@ public class StatisticsGateway implements FlatStatistics {
     public Result localDiskRemoveOperation() {
         return extended.diskRemove().component(RemoveOutcome.SUCCESS);
     }
-    
-    
 
     @Override
     public Result cacheSearchOperation() {
@@ -559,5 +555,5 @@ public class StatisticsGateway implements FlatStatistics {
     public double cacheHitRatio() {
         return extended.cacheHitRatio().value().doubleValue();
     }
-    
+
 }
