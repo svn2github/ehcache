@@ -42,6 +42,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private static final Logger             LOGGER     = LoggerFactory.getLogger(AsyncCoordinatorImpl.class.getName());
   private static final String             DELIMITER  = ToolkitInstanceFactoryImpl.DELIMITER;
   private static final String             NODE_ALIVE_TIMEOUT_PROPERTY_NAME = "ehcache.async.node.alive.timeout";
+  private static final String             ALIVE_LOCK_SUFFIX                = "-alive-lock";
   /**
    * lock for this coordinator based on SynchronousWrite
    */
@@ -151,7 +152,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     Thread tmpThread = new Thread(new Runnable() {
       @Override
       public void run() {
-        toolkit.getLock(nodeName).lock();
+        toolkit.getLock(nodeName + ALIVE_LOCK_SUFFIX).lock();
       }
     }, "node alive locker");
     tmpThread.setDaemon(true);
@@ -159,6 +160,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     try {
       tmpThread.join();
     } catch (InterruptedException e) {
+      Thread.interrupted();
       debug("Interrupted while waiting to grab node alive lock");
     }
   }
