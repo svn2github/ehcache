@@ -65,12 +65,13 @@ public class TerracottaClient {
         if (terracottaClientConfiguration != null) {
             terracottaClientConfiguration.freezeConfig();
 
-            // if we're going clustered and secured, it's time to wrap the secret provider before the L1 can use it
-            // we must set this secret provider as both the L1 and the agent have a default console password fetcher
-            // and we do not want to ask for the password twice
+            // If we're going clustered and secured and a secret provider is configured, it's time to wrap the
+            // secret provider before the L1 can use it.
+            // We must set this ehcache secret provider as both the L1 and the agent will use a different instance
+            // and will want to fetch the password. In case of a console fetcher, the password would be asked twice.
             String secretProviderClassname = System.getProperty(CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY);
             String tcUrl = terracottaClientConfiguration.getUrl();
-            if (tcUrl != null && tcUrl.contains("@")) {
+            if (tcUrl != null && tcUrl.contains("@") && secretProviderClassname != null) {
                 try {
                     System.setProperty(CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY, CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME);
                     Class<?> secretProviderWrapperClass = ClassLoaderUtil.loadClass(CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME);
