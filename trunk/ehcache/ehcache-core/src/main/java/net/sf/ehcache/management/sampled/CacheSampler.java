@@ -814,4 +814,32 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the nonstop timeout sample
      */
     SampledCounter getNonStopTimeoutSample();
+
+    /**
+     * Gets the non stop success most recent sample.
+     *
+     * @return the non stop success most recent sample
+     */
+    long getNonStopSuccessRate();
+    
+    /**
+     * Gets the non stop failure most recent sample.
+     *
+     * @return the non stop failure most recent sample
+     */
+    long getNonStopFailureRate();
+    
+    /**
+     * Gets the non stop rejoin most recent sample.
+     *
+     * @return the non stop rejoin most recent sample
+     */
+    long getNonStopRejoinTimeoutRate();
+    
+    /**
+     * Gets the non stop timeout most recent sample.
+     *
+     * @return the non stop timeout most recent sample
+     */
+    long getNonStopTimeoutRate();
 }
