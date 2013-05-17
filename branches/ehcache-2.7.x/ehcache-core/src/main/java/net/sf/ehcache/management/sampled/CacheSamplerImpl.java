@@ -1857,6 +1857,26 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     @Override
+    public long getNonStopSuccessRate() {
+        return getNonStopSuccessMostRecentSample();
+    }
+
+    @Override
+    public long getNonStopFailureRate() {
+        return getNonStopFailureMostRecentSample();
+    }
+
+    @Override
+    public long getNonStopRejoinTimeoutRate() {
+        return getNonStopRejoinTimeoutMostRecentSample();
+    }
+
+    @Override
+    public long getNonStopTimeoutRate() {
+        return getNonStopTimeoutMostRecentSample();
+    }
+
+    @Override
     public int getNonstopTimeoutRatio() {
         return (int) (cache.getStatistics().getExtended().nonstopTimeoutRatio().value().doubleValue() * ONE_HUNDRED);
     }
