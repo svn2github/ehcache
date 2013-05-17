@@ -321,12 +321,12 @@
 
   <profiles>
     <profile>
-      <id>skip-system-tests</id>
-      <activation>
+      <id>system-tests</id>
+      <!--activation>
         <property>
           <name>!jenkins.publisher</name>
         </property>
-      </activation>
+      </activation-->
       <modules>
         <module>system-tests</module>
       </modules>
