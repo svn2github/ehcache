@@ -5,7 +5,7 @@
   <groupId>net.sf.ehcache</groupId>
   <artifactId>ehcache-parent</artifactId>
   <packaging>pom</packaging>
-  <version>2.5-SNAPSHOT</version>
+  <version>2.5</version>
 
   <name>Ehcache Parent</name>
   <description>Ehcache is a widely used, pure Java, in-process, distributed cache</description>
@@ -109,7 +109,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -124,7 +124,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -137,7 +137,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -153,7 +153,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>                                
                 <pluginExecution>
@@ -166,7 +166,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -179,7 +179,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -192,7 +192,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore/>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -359,7 +359,7 @@
     <developer>
       <id>ssuravarapu</id>
       <name>Surya Suravarapu</name>
-      <url/>
+      <url />
       <roles>
         <role>Developer</role>
       </roles>
@@ -375,24 +375,24 @@
     </developer>
     <developer>
       <name>Mauro Talevi</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
       <roles>
         <role>Maven Guru</role>
       </roles>
-      <timezone/>
+      <timezone />
     </developer>
   </developers>
 
   <contributors>
     <contributor>
       <name>Adam Murdoch</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
       <roles>
         <role>Former Developer</role>
       </roles>
@@ -400,34 +400,34 @@
     </contributor>
     <contributor>
       <name>Ben Houston</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
-      <roles/>
-      <timezone/>
-      <properties/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles />
+      <timezone />
+      <properties />
     </contributor>
     <contributor>
       <name>Claus Ibsen</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
-      <roles/>
-      <timezone/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles />
+      <timezone />
       <properties>
         <contribution>Patches</contribution>
       </properties>
     </contributor>
     <contributor>
       <name>Jody Brownell</name>
-      <email/>
-      <url/>
-      <organization/>
-      <organizationUrl/>
-      <roles/>
-      <timezone/>
+      <email />
+      <url />
+      <organization />
+      <organizationUrl />
+      <roles />
+      <timezone />
       <properties>
         <contribution>Patches</contribution>
       </properties>
@@ -468,10 +468,10 @@
   </mailingLists>
 
   <scm>
-    <connection>scm:svn:http://svn.terracotta.org/svn/ehcache</connection>
-    <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache</developerConnection>
-    <tag/>
-    <url>http://svn.terracotta.org/svn/ehcache</url>
+    <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/ehcache-parent-2.5</connection>
+    <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/tags/ehcache-parent-2.5</developerConnection>
+    <tag />
+    <url>http://svn.terracotta.org/svn/ehcache/ehcache-parent-2.5</url>
   </scm>
 
 </project>
