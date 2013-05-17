@@ -85,24 +85,6 @@ public class ExtendedStatisticsTest {
         }
     }
 
-
-    @Test
-    public void testMinMaxNonNullAfterNoAccess() throws InterruptedException {
-        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
-        try {
-            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
-            manager.addCache(foo);
-            
-            StatisticsGateway stats = foo.getStatistics();
-            Assert.assertNotNull(stats.cacheGetOperation().latency().maximum().value());
-            Assert.assertNotNull(stats.cacheGetOperation().latency().minimum().value());
-            Assert.assertNotNull(stats.cacheGetOperation().latency().average().value());
-            
-        } finally {
-            manager.shutdown();
-        }
-    }
-
     @Test
     public void testExtendedCacheTimeToDisable() throws InterruptedException {
         CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
