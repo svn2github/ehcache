@@ -391,6 +391,14 @@ public class CacheManager {
         try {
             doInit(configuration);
         } catch (Throwable t) {
+            if (terracottaClient != null) {
+                terracottaClient.shutdown();
+            }
+
+            if (statisticsExecutor != null) {
+                statisticsExecutor.shutdown();
+            }
+
             if (featuresManager != null) {
                 featuresManager.dispose();
             }
