@@ -10,14 +10,13 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
-import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
+import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import junit.framework.Assert;
@@ -37,10 +36,12 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
   public static class App extends ClientBase implements CacheEventListener {
 
     private final ToolkitBarrier barrier;
+    private final ToolkitAtomicLong evictedCount;
     private final AtomicLong localEvictedCount = new AtomicLong();
 
     public App(String[] args) {
       super("test2", args);
+      this.evictedCount = getClusteringToolkit().getAtomicLong("testLong");
       this.barrier = getClusteringToolkit().getBarrier("testBarrier", NODE_COUNT);
     }
 
@@ -49,7 +50,7 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(final Cache cache, final Toolkit clusteringToolkit) throws Throwable {
+    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
 
       cache.getCacheEventNotificationService().registerListener(this);
@@ -66,17 +67,22 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
       }
       barrier.await();
 
-      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
-        @Override
-        public Boolean call() throws Exception {
-          return cache.getSize() == 500;
-        }
-      });
+      Thread.sleep(30 * 1000);
+      while (cache.getSize() >= 600) {
+        Thread.sleep(1000);
+        System.out.println("XXXX client" + index + " size: " + cache.getSize());
+      }
 
       System.out.println("XXXX client" + index + " final size: " + cache.getSize());
       long evictedElements = numOfElements - cache.getSize();
+      barrier.await();
+
+      Thread.sleep(30 * 1000);
       System.out.println("XXXX client" + index + ": " + localEvictedCount.get());
-      Assert.assertEquals("XXXX client " + index + " failed.", evictedElements, localEvictedCount.get());
+      this.evictedCount.addAndGet(localEvictedCount.get());
+      barrier.await();
+
+      Assert.assertEquals("XXXX client " + index + " failed.", evictedElements, this.evictedCount.get());
     }
 
     @Override

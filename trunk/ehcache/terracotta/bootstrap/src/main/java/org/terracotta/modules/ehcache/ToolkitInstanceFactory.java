@@ -7,9 +7,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
+import org.terracotta.modules.ehcache.event.CacheDisposalNotification;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
@@ -107,4 +107,8 @@ public interface ToolkitInstanceFactory {
                                                Object key);
 
   void removeNonStopConfigforCache(Ehcache cache);
+
+  ToolkitLock getLockForCache(Ehcache cache, String lockName);
+
+  ToolkitNotifier<CacheDisposalNotification> getOrCreateCacheDisposalNotifier(Ehcache cache);
 }

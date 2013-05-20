@@ -12,10 +12,10 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
+import org.terracotta.modules.ehcache.event.CacheDisposalNotification;
 import org.terracotta.modules.ehcache.event.CacheEventNotificationMsg;
 import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.store.TerracottaClusteredInstanceFactory;
@@ -52,6 +52,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public static final String  DELIMITER                                = "|";
 
   private static final String EVENT_NOTIFIER_SUFFIX                    = "event-notifier";
+  private static final String DISPOSAL_NOTIFIER_SUFFIX                 = "disposal-notifier";
   private static final String EHCACHE_NAME_PREFIX                      = "__tc_clustered-ehcache";
   private static final String CONFIG_NOTIFIER_SUFFIX                   = "config-notifier";
   private static final String EHCACHE_TXNS_DECISION_STATE_MAP_NAME     = EHCACHE_NAME_PREFIX + DELIMITER
@@ -142,6 +143,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
   public ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache) {
     return getOrCreateCacheEventNotifier(cache.getCacheManager().getName(), cache.getName());
+  }
+
+  @Override
+  public ToolkitNotifier<CacheDisposalNotification> getOrCreateCacheDisposalNotifier(Ehcache cache) {
+    return toolkit.getNotifier(getFullyQualifiedCacheName(cache.getCacheManager().getName(), cache.getName())
+                               + DELIMITER + DISPOSAL_NOTIFIER_SUFFIX, CacheDisposalNotification.class);
   }
 
   private ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(String cacheManagerName, String cacheName) {
@@ -309,6 +316,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                            + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
                            + EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME);
   }
+
+  @Override
+  public ToolkitLock getLockForCache(Ehcache cache, String lockName) {
+    return toolkit.getLock(getFullyQualifiedCacheName(cache) + DELIMITER + lockName);
+  }
+
+
 
   private static String serializeToString(Object serializable) {
     try {

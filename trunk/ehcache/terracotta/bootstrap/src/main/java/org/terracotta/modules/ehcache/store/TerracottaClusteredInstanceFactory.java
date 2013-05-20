@@ -46,7 +46,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   protected final ToolkitInstanceFactory        toolkitInstanceFactory;
 
   // private final fields
-  private final CacheCluster                    topology;
+  protected final CacheCluster                  topology;
   private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
   private final SoftLockManagerProvider         softLockManagerProvider;
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
@@ -95,7 +95,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   protected ClusteredStore newStore(final Ehcache cache) {
-    return new ClusteredStore(toolkitInstanceFactory, cache, bulkLoadShutdownHook);
+    return new ClusteredStore(toolkitInstanceFactory, cache, bulkLoadShutdownHook, topology);
   }
 
   @Override

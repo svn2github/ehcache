@@ -11,14 +11,22 @@
          eternal="false"
          timeToLiveSeconds="3">
 
-         <terracotta clustered="true" consistency="strong"/>
+    <terracotta clustered="true" consistency="strong"/>
   </cache>
-   <cache name="test2"
+  <cache name="test2"
+         maxElementsInMemory="20"
+         maxEntriesInCache="500"
+         eternal="true">
+
+    <terracotta clustered="true" consistency="strong"/>
+  </cache>
+
+  <cache name="disposal-test"
          maxElementsInMemory="1"
          maxEntriesInCache="500"
          eternal="true">
 
-         <terracotta clustered="true" consistency="strong"/>
+    <terracotta clustered="true" consistency="strong" concurrency="1" />
   </cache>
 
   <terracottaConfig url="localhost:PORT"/>
