@@ -7,7 +7,7 @@
       eternal="true"/>
   
   <cache name="test"
-         maxElementsInMemory="1"
+         maxElementsInMemory="100"
          eternal="false"
          maxEntriesInCache="100">
 
