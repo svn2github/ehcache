@@ -71,13 +71,13 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       Assert.assertNull(cache.get(keyTTL));
       barrier.await();
 
-      // since server expiration disabled, so client expiration will notify only one client
+      // since server expiration is disabled, client expiration should notify only one client
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          LOG.info("TTL Expiration. Expired: " + listener.getExpired().size() + ", evicted: "
+          LOG.info("TTL Expiration. Expired so far: " + listener.getExpired().size() + ", evicted so far: "
                    + listener.getEvicted().size());
-          return (listener.getExpired().size() == NODE_COUNT) && (listener.getEvicted().size() == 0);
+          return (listener.getExpired().size() == 1) && (listener.getEvicted().size() == 0);
         }
       });
 
@@ -109,9 +109,9 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          LOG.info("TTI Expiration. Expired: " + listener.getExpired().size() + ", evicted: "
+          LOG.info("TTI Expiration. Expired so far: " + listener.getExpired().size() + ", evicted so far: "
                    + listener.getEvicted().size());
-          return (listener.getExpired().size() == NODE_COUNT * 2) && (listener.getEvicted().size() == 0);
+          return (listener.getExpired().size() == 2) && (listener.getEvicted().size() == 0);
         }
       });
 
