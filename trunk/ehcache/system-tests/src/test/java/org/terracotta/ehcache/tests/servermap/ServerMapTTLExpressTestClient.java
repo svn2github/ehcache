@@ -34,7 +34,7 @@ public class ServerMapTTLExpressTestClient extends ServerMapClientBase {
     System.out.println("Cache populate. Size: " + cache.getSize());
     // assert range as some may already have got evicted while populating
     // eviction is aggressive with new impl based on "evictUnexpiredEntries" with true by default
-    if ( cache.getCacheConfiguration().getTimeToIdleSeconds() * 1000 < System.currentTimeMillis() / current ) {
+    if ( cache.getCacheConfiguration().getTimeToIdleSeconds() * 1000 < System.currentTimeMillis() - current ) {
       System.out.append("time to put " + (System.currentTimeMillis() - current));
       System.out.append("test environment is too slow. aborting. time to put:" + (System.currentTimeMillis() - current));
       return;
