@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
   public DynamicCacheConfigurationTest(TestConfig testConfig) {
     super(testConfig, App.class);
-    testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "1000");
+    testConfig.addTcProperty(TCPropertiesConsts.L2_SERVERMAP_EVICTION_CLIENTOBJECT_REFERENCES_REFRESH_INTERVAL, "5000");
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
   }
 
@@ -81,13 +81,18 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       Assert.assertNotNull(cache.get("key2"));
 
       cache.getCacheConfiguration().setTimeToIdleSeconds(20);
-
+      long currentTime = System.currentTimeMillis();
+      
       cache.put(new Element("key1", new byte[0]));
 
       SECONDS.sleep(15);
 
       Assert.assertNotNull(cache.get("key1"));
-      Assert.assertNotNull(cache.get("key2"));
+      if (System.currentTimeMillis() - currentTime < 20000 ) {
+        Assert.assertNotNull(cache.get("key2"));
+      } else {
+        Assert.assertNull(cache.get("key2"));
+      }
 
       SECONDS.sleep(25);
 
@@ -326,7 +331,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
     public void testDiskCapacityChange(CacheManager cm) throws Exception {
       final Cache cache = createCache("testDiskCapacityChange", 10, true, 0, 0);
       cache.getCacheConfiguration().maxEntriesLocalHeap(1).maxEntriesInCache(100).getTerracottaConfiguration()
-          .consistency(TerracottaConfiguration.Consistency.STRONG).concurrency(1);
+          .consistency(TerracottaConfiguration.Consistency.STRONG).concurrency(16);
       cm.addCache(cache);
 
       testCacheDiskCapacity(cache, 100);
