@@ -16,12 +16,15 @@ import net.sf.ehcache.store.TerracottaStore;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 
 import junit.framework.Assert;
@@ -106,22 +109,20 @@ public class BootstrapCacheTest extends AbstractCacheTestBase {
       gc();
       getBarrierForAllClients().await();
 
-      // Uncomment when EHC-950 is fixed
-      // WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
-      //
-      // @Override
-      // public Boolean call() throws Exception {
-      // gc();
-      // Collection<CacheManager> knownCacheManagers = KeySnapshotter.getKnownCacheManagers();
-      // System.out.println("Known cacheMnaagers: " + knownCacheManagers.size());
-      // for (CacheManager cm : knownCacheManagers) {
-      // System.out.println("   name: " + cm.getName());
-      // }
-      // return knownCacheManagers.size() == 1;
-      // }
-      // });
-      // Assert.assertEquals("For node " + index, true, KeySnapshotter.getKnownCacheManagers().contains(cacheManager));
-      // getBarrierForAllClients().await();
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          gc();
+          Collection<CacheManager> knownCacheManagers = KeySnapshotter.getKnownCacheManagers();
+          System.out.println("Known cacheMnaagers: " + knownCacheManagers.size());
+          for (CacheManager cm : knownCacheManagers) {
+            System.out.println("   name: " + cm.getName());
+          }
+          return knownCacheManagers.size() == 1;
+        }
+      });
+      Assert.assertEquals("For node " + index, true, KeySnapshotter.getKnownCacheManagers().contains(cacheManager));
+      getBarrierForAllClients().await();
       cacheManager.shutdown();
       System.out.println(new Date() + " ==> node" + index + " CacheManager shutdown2...");
       pass();
@@ -148,6 +149,7 @@ public class BootstrapCacheTest extends AbstractCacheTestBase {
       final Configuration configuration = new Configuration().name("bootstrap-cache-test");
       TerracottaClientConfiguration tcConfiguration = new TerracottaClientConfiguration();
       tcConfiguration.setUrl(getTerracottaUrl());
+      tcConfiguration.setRejoin(true);
       configuration.addTerracottaConfig(tcConfiguration);
 
       configuration
