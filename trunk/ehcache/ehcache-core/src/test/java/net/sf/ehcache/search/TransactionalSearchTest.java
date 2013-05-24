@@ -177,14 +177,15 @@ public class TransactionalSearchTest {
 
         beginTransaction(cacheManager);
         try {
-            //This data shouldn't appear in the search results
-            cache.put(new Element(-1, new Person("Chris Dennis", 29, Gender.MALE)));
-            cache.put(new Element(-2, new Person("Cassie (Dog)", 1, Gender.FEMALE)));
+            // These puts shouldn't appear in the search results
+            cache.put(new Element(1, new Person("Chris Dennis", 29, Gender.MALE)));
+            cache.put(new Element(2, new Person("Cassie (Dog)", 1, Gender.FEMALE)));
+            cache.put(new Element(20, new Person("Doug Lea", 97, Gender.MALE)));
             basicQueries(cache);
         } finally {
             commitTransaction(cacheManager);
+            cacheManager.shutdown();
         }
-        cacheManager.shutdown();
     }
 
     private void basicQueries(Ehcache cache) {

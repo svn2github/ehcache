@@ -1037,7 +1037,11 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                 element = copyingStore.copyElementForReadIfNeeded(element);
 
                 if (element.getObjectValue() instanceof SoftLockID) {
-                    continue;
+                    SoftLockID sl = (SoftLockID) element.getObjectValue();
+                    element = sl.getOldElement();
+                    
+                    // No previously committed value
+                    if (element == null) continue;
                 }
 
                 if (c.execute(element, extractors)) {
