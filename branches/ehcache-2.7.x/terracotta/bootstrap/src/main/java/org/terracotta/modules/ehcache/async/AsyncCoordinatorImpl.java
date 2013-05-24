@@ -160,7 +160,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     try {
       tmpThread.join();
     } catch (InterruptedException e) {
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
       debug("Interrupted while waiting to grab node alive lock");
     }
   }
@@ -212,6 +212,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       public void callback() {
         nodeWriteLock.lock();
         try {
+          bucket.destroy();
           list.remove(bucket);
         } finally {
           nodeWriteLock.unlock();
