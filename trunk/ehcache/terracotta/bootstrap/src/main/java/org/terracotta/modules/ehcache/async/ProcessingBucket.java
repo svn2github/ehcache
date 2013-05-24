@@ -170,7 +170,7 @@ public class ProcessingBucket<E extends Serializable> {
     }
   }
 
-  private void destroyToolkitList() {
+  public void destroy() {
     try {
       debug("destroying bucket " + toolkitList.getName());
       toolkitList.destroy();
@@ -180,9 +180,6 @@ public class ProcessingBucket<E extends Serializable> {
             .warn("destroyToolkitList caught TCNotRunningException on processing thread, but looks like we were shut down. "
                       + "This can safely be ignored!", t);
       }
-    }
-    if (cleanupCallback != null) {
-      cleanupCallback.callback();
     }
   }
 
@@ -539,7 +536,11 @@ public class ProcessingBucket<E extends Serializable> {
 
       if (destroyAfterStop) {
         // Destroy anyways, either stop happened or other dead-client bucket was finished processing
-        destroyToolkitList();
+        if (workingOnDeadBucket) {
+          cleanupCallback.callback();
+        } else {
+          destroy();
+        }
       }
     }
   }
