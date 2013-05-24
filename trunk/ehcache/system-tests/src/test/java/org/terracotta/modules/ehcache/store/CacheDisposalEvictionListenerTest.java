@@ -49,7 +49,7 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
+    protected void runTest(final Cache cache, final Toolkit clusteringToolkit) throws Throwable {
       final int index = barrier.await();
       cache.getCacheEventNotificationService().registerListener(this);
       Assert.assertEquals(0, cache.getSize());
@@ -82,7 +82,15 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
       // dispose cache locally, second client should pick up the lead and register eviction listener
       if (holdingLock) {
         Assert.assertTrue(localEvictionsCount.get() >= 500);
-        cache.dispose();
+        // dispose in a separate thread
+        final Thread t = new Thread(new Runnable() {
+          @Override
+          public void run() {
+            cacheManager.removeCache(cache.getName());
+          }
+        });
+        t.start();
+        t.join();
       } else {
         // the other client is not supposed to get any evictions
         Assert.assertEquals(0, localEvictionsCount.get());
