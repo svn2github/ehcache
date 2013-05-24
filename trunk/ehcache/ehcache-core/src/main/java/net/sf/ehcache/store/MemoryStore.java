@@ -1041,7 +1041,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                     element = sl.getOldElement();
                     
                     // No previously committed value
-                    if (element == null) continue;
+                    if (element == null) { continue; }
                 }
 
                 if (c.execute(element, extractors)) {
