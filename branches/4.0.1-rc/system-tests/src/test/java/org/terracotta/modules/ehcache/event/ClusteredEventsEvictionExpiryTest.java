@@ -77,7 +77,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
         public Boolean call() throws Exception {
           LOG.info("TTL Expiration. Expired so far: " + listener.getExpired().size() + ", evicted so far: "
                    + listener.getEvicted().size());
-          return (listener.getExpired().size() == 1) && (listener.getEvicted().size() == 0);
+          return (listener.getExpired().size() == NODE_COUNT) && (listener.getEvicted().size() == 0);
         }
       });
 
@@ -111,7 +111,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
         public Boolean call() throws Exception {
           LOG.info("TTI Expiration. Expired so far: " + listener.getExpired().size() + ", evicted so far: "
                    + listener.getEvicted().size());
-          return (listener.getExpired().size() == 2) && (listener.getEvicted().size() == 0);
+          return (listener.getExpired().size() == 2 * NODE_COUNT) && (listener.getEvicted().size() == 0);
         }
       });
 
