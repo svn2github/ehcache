@@ -19,6 +19,7 @@ import com.tc.test.config.model.TestConfig;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
@@ -68,8 +69,12 @@ public class LocalReadsGetKeysTest extends AbstractCacheTestBase {
       }
 
       barrier.await();
+      waitForAllCurrentTransactionsToComplete(clusteringToolkit);
 
       if (index != 0) {
+        // Sleep for some time, so that other client can receive barrier notification before server dies
+        TimeUnit.SECONDS.sleep(5L);
+
         getTestControlMbean().crashActiveServer(0);
         final ClusterInfo clusterInfo = clusteringToolkit.getClusterInfo();
         WaitUtil.waitUntilCallableReturnsFalse(new Callable<Boolean>() {
