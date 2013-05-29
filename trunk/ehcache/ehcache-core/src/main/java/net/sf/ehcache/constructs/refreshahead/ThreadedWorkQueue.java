@@ -61,7 +61,9 @@ public class ThreadedWorkQueue<W> {
     private final LinkedBlockingQueue<W> queue;
     private final ExecutorService threadPool;
     private volatile boolean isAlive;
-    private final AtomicInteger backlogCounter = new AtomicInteger();
+    private final AtomicInteger offerCounter = new AtomicInteger();
+    private final AtomicInteger droppedCounter = new AtomicInteger();
+    private final AtomicInteger processedCounter = new AtomicInteger();
     private final BatchWorker<W> dispatcher;
     private final int batchSize;
 
@@ -110,12 +112,12 @@ public class ThreadedWorkQueue<W> {
      * @param workUnit
      */
     public void offer(W workUnit) {
+        offerCounter.incrementAndGet();
         while (!queue.offer(workUnit)) {
             if (queue.poll() != null) {
-                backlogCounter.decrementAndGet();
+                droppedCounter.incrementAndGet();
             }
         }
-        backlogCounter.incrementAndGet();
     }
 
     /**
@@ -132,11 +134,38 @@ public class ThreadedWorkQueue<W> {
      *
      * @return count of items yet to be processed.
      */
-    public int getBacklogCount() {
-        return backlogCounter.get();
+    public long getBacklogCount() {
+        return (offerCounter.get() - (processedCounter.get() + droppedCounter.get()));
     }
 
-    /**
+   /**
+    * Gets offer counter. Cumulative tripped
+    *
+    * @return the offer counter
+    */
+   public int getOfferedCount() {
+        return offerCounter.get();
+    }
+
+   /**
+    * Gets dropped counter.
+    *
+    * @return the dropped counter
+    */
+    public int getDroppedCount() {
+        return droppedCounter.get();
+    }
+
+   /**
+    * Gets processed count.
+    *
+    * @return the processed count
+    */
+   public int getProcessedCount() {
+       return processedCounter.get();
+    }
+
+   /**
      * get the dispatcher being used for this queue.
      *
      * @return dispatcher
@@ -166,7 +195,6 @@ public class ThreadedWorkQueue<W> {
     /**
      * Actually do the work.
      *
-     * @param batch
      * @throws InterruptedException
      */
     private void pullFromQueueAndDispatch() throws InterruptedException {
@@ -174,13 +202,13 @@ public class ThreadedWorkQueue<W> {
         int currentCount = 0;
         for (W r = queue.take(); r != null; r = queue.poll()) {
             batch.add(r);
-            backlogCounter.decrementAndGet();
             if (++currentCount >= getBatchSize()) {
                 break;
             }
         }
         // work to do and alive to do it
         if (currentCount > 0 && isAlive()) {
+            processedCounter.addAndGet(batch.size());
             getDispatcher().process(batch);
         }
     }

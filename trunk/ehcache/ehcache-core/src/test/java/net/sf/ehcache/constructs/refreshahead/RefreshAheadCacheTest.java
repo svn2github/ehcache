@@ -8,7 +8,10 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.loader.CacheLoader;
 
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import org.junit.Test;
+
+import java.util.Set;
 
 public class RefreshAheadCacheTest {
 
@@ -45,6 +48,17 @@ public class RefreshAheadCacheTest {
 
         cache.registerCacheLoader(stringifyCacheLoader);
 
+        Set<ExtendedStatistics.Statistic<Number>> offerStat = RefreshAheadCache.findOfferStatistic(decorator);
+        Set<ExtendedStatistics.Statistic<Number>> processedStat = RefreshAheadCache.findProcessedStatistic(decorator);
+        Set<ExtendedStatistics.Statistic<Number>> successStat = RefreshAheadCache.findRefreshedStatistic(decorator);
+        Set<ExtendedStatistics.Statistic<Number>> droppedStat = RefreshAheadCache.findDroppedStatistic(decorator);
+        Set<ExtendedStatistics.Statistic<Number>> backlogStat = RefreshAheadCache.findBacklogStatistic(decorator);
+        Assert.assertFalse(offerStat.isEmpty());
+        Assert.assertFalse(processedStat.isEmpty());
+        Assert.assertFalse(droppedStat.isEmpty());
+        Assert.assertFalse(successStat.isEmpty());
+        Assert.assertFalse(backlogStat.isEmpty());
+
         decorator.put(new Element(new Integer(1), new String("1")));
         decorator.put(new Element(new Integer(2), new String("2")));
         decorator.put(new Element(new Integer(3), new String("3")));
@@ -61,6 +75,7 @@ public class RefreshAheadCacheTest {
         got = decorator.get(new Integer(1));
         Assert.assertNotNull(got);
         Assert.assertEquals(0, decorator.getRefreshSuccessCount().get());
+        Assert.assertEquals(0, successStat.iterator().next().value().longValue());
         Assert.assertEquals(got.getCreationTime(), creationTime);
 
         // wait long enough for refresh ahead to trigger. 7+1=8 seconds
@@ -75,6 +90,10 @@ public class RefreshAheadCacheTest {
         // better not have the same creation time as originally
         got = decorator.get(new Integer(1));
         Assert.assertEquals(1, decorator.getRefreshSuccessCount().get());
+        Assert.assertEquals(1, successStat.iterator().next().value().longValue());
+        Assert.assertEquals(1, processedStat.iterator().next().value().longValue());
+        Assert.assertEquals(0, droppedStat.iterator().next().value().longValue());
+        Assert.assertEquals(0, backlogStat.iterator().next().value().longValue());
         Assert.assertFalse(creationTime == got.getCreationTime());
 
         manager.removeAllCaches();

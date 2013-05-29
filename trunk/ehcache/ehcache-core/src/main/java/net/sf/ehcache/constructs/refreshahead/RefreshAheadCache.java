@@ -17,8 +17,10 @@ package net.sf.ehcache.constructs.refreshahead;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,6 +39,7 @@ import net.sf.ehcache.constructs.EhcacheDecoratorAdapter;
 import net.sf.ehcache.constructs.refreshahead.ThreadedWorkQueue.BatchWorker;
 import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.util.VmUtils;
 
@@ -256,6 +259,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
     /**
      * number of refreshes processed locally.
      */
+    @org.terracotta.statistics.Statistic(name = "refreshed", tags = "refreshahead")
     public AtomicInteger getRefreshSuccessCount() {
         return refreshSuccessCount;
     }
@@ -282,6 +286,101 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
             return refreshAheadConfig.getName();
         }
         return super.getName();
+    }
+
+    /**
+     * Gets offer count.
+     *
+     * @return the offer count
+     */
+    @org.terracotta.statistics.Statistic(name = "offered", tags = "refreshahead")
+    public long getOfferCount() {
+        return refreshWorkQueue.getOfferedCount();
+    }
+
+    /**
+     * Gets dropped count.
+     *
+     * @return the dropped count
+     */
+    @org.terracotta.statistics.Statistic(name = "dropped", tags = "refreshahead")
+    public long getDroppedCount() {
+        return refreshWorkQueue.getDroppedCount();
+    }
+
+    /**
+     * Gets processed count.
+     *
+     * @return the processed count
+     */
+    @org.terracotta.statistics.Statistic(name = "processed", tags = "refreshahead")
+    public long getProcessedCount() {
+        return refreshWorkQueue.getProcessedCount();
+    }
+
+    /**
+     * Gets backlog count.
+     *
+     * @return the backlog count
+     */
+    @org.terracotta.statistics.Statistic(name = "backlog", tags = "refreshahead")
+    public long getBacklogCount() {
+        return refreshWorkQueue.getBacklogCount();
+    }
+
+    /**
+     * Find refreshed counter statistic.
+     *
+     * @param cache the cache this statistic is attached to.
+     * @return the set
+     */
+    public static Set<ExtendedStatistics.Statistic<Number>> findRefreshedStatistic(Ehcache cache) {
+        return cache.getStatistics().getExtended().passthru("refreshed",
+            Collections.singletonMap("refreshahead", null).keySet());
+    }
+
+    /**
+     * Find offer statistic.
+     *
+     * @param cache the cache this statistic is attached to.
+     * @return the set
+     */
+    public static Set<ExtendedStatistics.Statistic<Number>> findOfferStatistic(Ehcache cache) {
+        return cache.getStatistics().getExtended().passthru("offered",
+            Collections.singletonMap("refreshahead", null).keySet());
+    }
+
+    /**
+     * Find dropped statistic.
+     *
+     * @param cache the cache
+     * @return the set
+     */
+    public static Set<ExtendedStatistics.Statistic<Number>> findDroppedStatistic(Ehcache cache) {
+        return cache.getStatistics().getExtended().passthru("dropped",
+            Collections.singletonMap("refreshahead", null).keySet());
+    }
+
+    /**
+     * Find processed statistic.
+     *
+     * @param cache the cache
+     * @return the set
+     */
+    public static Set<ExtendedStatistics.Statistic<Number>> findProcessedStatistic(Ehcache cache) {
+        return cache.getStatistics().getExtended().passthru("processed",
+            Collections.singletonMap("refreshahead", null).keySet());
+    }
+
+    /**
+     * Find backlog statistic.
+     *
+     * @param cache the cache
+     * @return the set
+     */
+    public static Set<ExtendedStatistics.Statistic<Number>> findBacklogStatistic(Ehcache cache) {
+        return cache.getStatistics().getExtended().passthru("backlog",
+            Collections.singletonMap("refreshahead", null).keySet());
     }
 
 }
