@@ -351,11 +351,12 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
       for (int i = 0; i < 1000; i++) {
         cache.put(new Element("key" + i, new byte[0]));
       }
-
+      System.out.println("Waiting on capacoty of " + capacity);
       CallableWaiter.waitOnCallable(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
           System.out.println("Current cache size " + cache.getSize());
+          Assert.assertThat(cache.getSize() > capacity * .85);
           return cache.getSize() >= capacity * 0.9 && cache.getSize() <= capacity * 1.1;
         }
       }, 2 * 60 * 1000, 10 * 1000);
