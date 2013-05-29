@@ -1,20 +1,22 @@
 package org.terracotta.ehcache.tests;
 
-import java.util.concurrent.atomic.AtomicLong;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 
 import junit.framework.Assert;
 
 public class ExpiryListenerClient1 extends ClientBase implements CacheEventListener {
 
   private final AtomicLong localExpiredCount = new AtomicLong();
-  
+
   public ExpiryListenerClient1(String[] args) {
     super("test", args);
   }
@@ -24,26 +26,22 @@ public class ExpiryListenerClient1 extends ClientBase implements CacheEventListe
   }
 
   @Override
-  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
+  protected void runTest(final Cache cache, final Toolkit toolkit) throws Throwable {
     cache.getCacheEventNotificationService().registerListener(this);
     cache.put(new Element("key", "value"));
     // assume the TTL of the cache is set to 3s
     System.out.println("TTL value of the cache: " + cache.getCacheConfiguration().getTimeToLiveSeconds());
     Assert.assertEquals(3, cache.getCacheConfiguration().getTimeToLiveSeconds());
 
-    int tries = 0;
-    do {
-      Thread.sleep(2000L);
-      tries++;
-      System.out.println("XXX Cache size: " + cache.getSize() + ", tries: " + tries);
-      for (Object k : cache.getKeys()) {
-        System.err.println("XXX key = " + k + "; value: " + cache.get(k));
+    WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return cache.getSize() == 0 && localExpiredCount.get() > 0;
       }
-    } while (cache.getSize() > 0);
-
+    });
     // assert eviction has already occurred
-    Assert.assertEquals(1, localExpiredCount.get());
     Assert.assertEquals(0, cache.getSize());
+    Assert.assertTrue(localExpiredCount.get() > 0);
   }
 
   public void dispose() {
