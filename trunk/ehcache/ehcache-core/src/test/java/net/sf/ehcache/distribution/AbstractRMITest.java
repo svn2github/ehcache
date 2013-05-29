@@ -25,6 +25,9 @@ import static org.junit.Assert.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.URL;
 import java.rmi.server.RMISocketFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +52,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -191,9 +195,18 @@ public abstract class AbstractRMITest {
                 for (CacheManager manager : managers) {
                     CacheManagerPeerProvider peerProvider = manager.getCacheManagerPeerProvider("RMI");
                     for (String cacheName : cacheNames) {
-                        int peers = peerProvider.listRemoteCachePeers(manager.getEhcache(cacheName)).size();
-                        if (minimumPeers == null || peers < minimumPeers) {
-                            minimumPeers = peers;
+                        List<CachePeer> peers = peerProvider.listRemoteCachePeers(manager.getEhcache(cacheName));
+                        for (CachePeer peer : peers) {
+                            String hostName = peer.getUrlBase().substring(2).split(":")[0];
+                            InetAddress host = InetAddress.getByName(hostName);
+                            NetworkInterface iface = NetworkInterface.getByInetAddress(host);
+                            if (iface == null) {
+                              throw new AssertionError("Cache peer is not local: " + peer.getUrl());
+                            }
+                        }
+                        int peerCount = peers.size();
+                        if (minimumPeers == null || peerCount < minimumPeers) {
+                            minimumPeers = peerCount;
                         }
                     }
                 }
