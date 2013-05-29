@@ -356,7 +356,7 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
         @Override
         public Boolean call() throws Exception {
           System.out.println("Current cache size " + cache.getSize());
-          Assert.assertThat(cache.getSize() > capacity * .85);
+          Assert.assertTrue(cache.getSize() > capacity * .85);
           return cache.getSize() >= capacity * 0.9 && cache.getSize() <= capacity * 1.1;
         }
       }, 2 * 60 * 1000, 10 * 1000);
