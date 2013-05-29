@@ -4,6 +4,7 @@
  */
 package org.terracotta.ehcache.tests;
 
+import com.tc.object.ClientConfigurationContext;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
@@ -15,6 +16,7 @@ public class ExpiryListenerTest extends AbstractCacheTestBase {
   public ExpiryListenerTest(TestConfig testConfig) {
     // assume the 'test' cache TTL is 3s
     super("evict-cache-test.xml", testConfig, ExpiryListenerClient1.class, ExpiryListenerClient2.class);
+    testConfig.addTcProperty("seda." + ClientConfigurationContext.SERVER_EVENT_STAGE + ".sleepMs", "5000");
     testConfig.getClientConfig().setParallelClients(false);
   }
 
@@ -24,11 +26,10 @@ public class ExpiryListenerTest extends AbstractCacheTestBase {
 
     if (!ExpiryListenerClient1.class.getName().equals(clientName)) return;
 
-    FileReader fr = null;
+    FileReader fr = new FileReader(output);
+    BufferedReader reader = new BufferedReader(fr);
     try {
-      fr = new FileReader(output);
-      BufferedReader reader = new BufferedReader(fr);
-      String st = "";
+      String st;
       while ((st = reader.readLine()) != null) {
         if (st.contains("Got evicted")) return;
       }
@@ -37,7 +38,7 @@ public class ExpiryListenerTest extends AbstractCacheTestBase {
       throw new AssertionError(e);
     } finally {
       try {
-        fr.close();
+        reader.close();
       } catch (Exception e) {
         //
       }
