@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -78,8 +79,8 @@ public class ConcurrentHashMapTest {
         }
 
         for (Object o : map.keySet()) {
-            assertThat(o.toString(), map.get(o) != null, is(true));
-            assertThat(o.toString(), map.containsKey(o), is(true));
+          assertThat(o.toString(), map.containsKey(o), is(true));
+          assertThat(o.toString(), map.get(o), notNullValue());
         }
 
         assertThings(map);
