@@ -148,43 +148,32 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
 
       CronTrigger trigger = TriggerBuilder.newTrigger().forJob(seed).withSchedule(cronSchedule).build();
 
-      // delete existing triggers. Remember the job is durable, so no problem
-      // here.
-      List<? extends Trigger> triggers = scheduler.getTriggersOfJob(seed.getKey());
-
-      if (triggers.size() >= 1) {
-         List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
-         for (Trigger t : triggers) {
-            triggerKeys.add(t.getKey());
-         }
-
-         scheduler.unscheduleJobs(triggerKeys);
-      }
-
+      // at most one scheduled here.
       // now, keep trying to add and count the trigger, until there is only 1
       // trigger there.
       boolean done = false;
       int retryCount = 0;
       do {
-         // schedule ours
-         scheduler.scheduleJob(trigger);
-         if (retryCount++ >= 1) {
-            LOG.info("Scheduled Refresh retry [" + retryCount + "] for " + config);
-         }
+         // if only one, we are good.
+         List<? extends Trigger> triggers = scheduler.getTriggersOfJob(seed.getKey());
+         if (triggers.size() == 1) {
+            done = true;
+         } else {
+            // if more than 1 job, nuke them all.
+            if (triggers.size() > 0) {
+               List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
+               for (Trigger t : triggers) {
+                  triggerKeys.add(t.getKey());
+               }
 
-         // see if there is only 1 job in there after we have added ours.
-         // if so, we are happy.
-         triggers = scheduler.getTriggersOfJob(seed.getKey());
-         if (triggers.size() > 1) {
-            List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
-            for (Trigger t : triggers) {
-               triggerKeys.add(t.getKey());
+               scheduler.unscheduleJobs(triggerKeys);
             }
 
-            scheduler.unscheduleJobs(triggerKeys);
-         } else {
-            // if only 1 was found, all done
-            done = true;
+            // schedule ours
+            scheduler.scheduleJob(trigger);
+            if (retryCount++ >= 1) {
+               LOG.info("Scheduled Refresh retry [" + retryCount + "] for " + config);
+            }
          }
       } while (!done);
 

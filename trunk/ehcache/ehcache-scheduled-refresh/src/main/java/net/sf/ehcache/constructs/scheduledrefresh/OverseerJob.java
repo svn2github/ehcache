@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * other jobs run, and is responsible for starting all the individual refresh
  * jobs, enabling bulk load mode beforehand, and disabling bulk load mode
  * afterwards.
- * 
+ *
  * @author cschanck
  */
 @DisallowConcurrentExecution
@@ -177,6 +177,7 @@ public class OverseerJob implements Job {
 
             Trigger trigger = TriggerBuilder.newTrigger().startNow().forJob(job).build();
             scheduler.scheduleJob(job, trigger);
+
          }
       } catch (SchedulerException e) {
          if (!scheduler.isShutdown()) {
