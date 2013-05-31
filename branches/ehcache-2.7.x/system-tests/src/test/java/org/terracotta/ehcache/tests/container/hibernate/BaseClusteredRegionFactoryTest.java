@@ -11,6 +11,7 @@ import org.terracotta.ehcache.tests.container.ContainerTestSetup;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.tc.lcp.LinkedJavaProcess;
 import com.tc.test.AppServerInfo;
 import com.tc.test.server.appserver.StandardAppServerParameters;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
@@ -19,7 +20,7 @@ import com.tc.test.server.appserver.deployment.WebApplicationServer;
 import com.tc.util.runtime.Vm;
 
 import java.io.File;
-import java.io.PrintWriter;
+import java.util.Arrays;
 
 public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneTwoServerDeploymentTest {
 
@@ -33,8 +34,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
     assertEquals("OK", response2.getContentAsString().trim());
   }
 
-  private WebResponse hibernateRequest(WebApplicationServer server, String params, WebClient con)
-      throws Exception {
+  private WebResponse hibernateRequest(WebApplicationServer server, String params, WebClient con) throws Exception {
     return server.ping("/test/HibernateCacheTestServlet?" + params, con);
   }
 
@@ -93,9 +93,16 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
                                                                                          "Can't create derby work dir "
                                                                                              + derbyWorkDir
                                                                                                  .getAbsolutePath()); }
-      System.setProperty("derby.system.home", derbyWorkDir.getAbsolutePath());
+
+      LinkedJavaProcess ljp = new LinkedJavaProcess(NetworkServerControl.class.getName(),
+                                                    Arrays.asList("start", "-noSecurityManager"),
+                                                    Arrays.asList("-Dderby.system.home="
+                                                                  + derbyWorkDir.getCanonicalPath()));
+      ljp.setClasspath(System.getProperty("java.class.path"));
+      ljp.start();
+      ljp.mergeSTDOUT("DERBY");
+      ljp.mergeSTDERR("DERBY");
       derbyServer = new NetworkServerControl();
-      derbyServer.start(new PrintWriter(System.out));
       int tries = 0;
       while (tries < 5) {
         try {
@@ -114,7 +121,13 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
     @Override
     public final void tearDown() throws Exception {
       super.tearDown();
-      derbyServer.shutdown();
+      if (derbyServer != null) {
+        try {
+          derbyServer.shutdown();
+        } catch (Exception e) {
+          // ignored
+        }
+      }
     }
 
     protected boolean isConfiguredToRunWithAppServer() {
