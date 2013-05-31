@@ -29,6 +29,7 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
   public CacheDisposalEvictionListenerTest(TestConfig testConfig) {
     super("evict-cache-test.xml", testConfig, App.class, App.class);
     testConfig.getClientConfig().setParallelClients(true);
+    testConfig.getL2Config().setMaxHeap(192);
   }
 
   public static class App extends ClientBase implements CacheEventListener {
@@ -65,6 +66,7 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
       barrier.await();
 
       // wait for 500 evictions
+      waitForAllCurrentTransactionsToComplete(cache);
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
@@ -73,6 +75,7 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
         }
       });
       Assert.assertTrue(cache.getSize() <= 500);
+      Assert.assertTrue(sharedEvictionsCount.get() >= 500);
       barrier.await();
 
       // got evictions = holding the lock
@@ -97,27 +100,38 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
       }
       barrier.await();
 
+      // reset all counters
+      localEvictionsCount.set(0);
+      sharedEvictionsCount.set(0);
+      barrier.await();
+
       if (!holdingLock) {
         // add 500 more to trigger post-disposal eviction notifications
         for (int i = numOfElements; i < numOfElements + 500; i++) {
           cache.put(new Element(i, "value"));
         }
 
+        waitForAllCurrentTransactionsToComplete(cache);
         WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
           @Override
           public Boolean call() throws Exception {
             debug("Evictions so far: " + sharedEvictionsCount.get());
-            return sharedEvictionsCount.get() >= numOfElements;
+            return sharedEvictionsCount.get() >= 500 && localEvictionsCount.get() >= 500;
           }
         });
+      }
+      barrier.await();
+
+
+      Assert.assertTrue(sharedEvictionsCount.get() >= 500);
+      if (holdingLock) {
+        // no new notifications for disposed one
+        Assert.assertEquals(0, localEvictionsCount.get());
+      } else {
         Assert.assertTrue(cache.getSize() <= 500);
         Assert.assertTrue(localEvictionsCount.get() >= 500);
-      } else {
-        // no new notifications for disposed one
-        Assert.assertTrue(localEvictionsCount.get() >= 500 && localEvictionsCount.get() < 1000);
       }
 
-      barrier.await();
       debug("Local evictions count: " + localEvictionsCount.get());
     }
 
