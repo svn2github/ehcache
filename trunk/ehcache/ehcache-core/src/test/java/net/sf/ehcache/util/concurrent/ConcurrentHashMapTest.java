@@ -4,6 +4,7 @@ import net.sf.ehcache.Element;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -61,12 +62,21 @@ public class ConcurrentHashMapTest {
     @Test
     public void testRandomValues() {
         ConcurrentHashMap<Object, KeyHolder<Object>> map = new ConcurrentHashMap<Object, KeyHolder<Object>>();
+        final long seed = System.nanoTime();
+        System.out.println("SEED: " + seed);
+        final Random random = new Random(seed);
 
         for(int i = 0; i < ENTRIES; i++) {
             final Object o;
             switch(i % 4) {
                 case 0:
-                    o = new Object();
+                    final int hashCode = random.nextInt();
+                    o = new Object() {
+                        @Override
+                        public int hashCode() {
+                            return hashCode;
+                        }
+                    };
                     break;
                 case 1:
                     o = new EvilKey(Integer.toString(i));
