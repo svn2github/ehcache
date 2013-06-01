@@ -89,8 +89,8 @@ public class ConcurrentHashMapTest {
         }
 
         for (Object o : map.keySet()) {
-          assertThat(o.toString(), map.containsKey(o), is(true));
-          assertThat(o.toString(), map.get(o), notNullValue());
+            assertThat(o.toString(), map.containsKey(o), is(true));
+            assertThat(o.toString(), map.get(o), notNullValue());
         }
 
         assertThings(map);
@@ -191,7 +191,7 @@ class EvilKey {
 
     @Override
     public int hashCode() {
-        return Math.abs(this.value.hashCode() % 2);
+        return this.value.hashCode() & 1;
     }
 
     @Override
