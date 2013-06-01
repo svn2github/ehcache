@@ -4,20 +4,20 @@
  */
 package org.terracotta.ehcache.tests;
 
+import net.sf.ehcache.util.DerbyWrapper;
+
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.derby.drda.NetworkServerControl;
 import org.terracotta.test.util.TestBaseUtil;
 
 import com.tc.test.config.model.TestConfig;
 import com.tc.util.runtime.Vm;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HibernateExpressShutdownTest extends AbstractCacheTestBase {
-  private NetworkServerControl derbyServer;
+  private DerbyWrapper derbyWrapper;
 
   @Override
   protected String getTestDependencies() {
@@ -51,26 +51,14 @@ public class HibernateExpressShutdownTest extends AbstractCacheTestBase {
                                             + System.currentTimeMillis());
     if (!derbyWorkDir.exists() && !derbyWorkDir.mkdirs()) { throw new RuntimeException("Can't create derby work dir "
                                                                                        + derbyWorkDir.getAbsolutePath()); }
-    System.setProperty("derby.system.home", derbyWorkDir.getAbsolutePath());
-    derbyServer = new NetworkServerControl();
-    derbyServer.start(new PrintWriter(System.out));
-    int tries = 0;
-    while (tries < 5) {
-      try {
-        Thread.sleep(500);
-        derbyServer.ping();
-        break;
-      } catch (Exception e) {
-        tries++;
-      }
-    }
-    if (tries == 5) { throw new Exception("Failed to start Derby!"); }
+    derbyWrapper = new DerbyWrapper(1527, derbyWorkDir.getCanonicalPath());
+    derbyWrapper.start();
   }
 
   @Override
   public void tearDown() throws Exception {
-    if (derbyServer != null) {
-      derbyServer.shutdown();
+    if (derbyWrapper != null) {
+      derbyWrapper.stop();
     }
     super.tearDown();
   }
