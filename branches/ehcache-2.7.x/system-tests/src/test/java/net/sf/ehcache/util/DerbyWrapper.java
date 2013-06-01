@@ -7,12 +7,14 @@ import org.apache.derby.drda.NetworkServerControl;
 
 import com.tc.lcp.LinkedJavaProcess;
 
+import java.net.InetAddress;
 import java.util.Arrays;
 
 public class DerbyWrapper {
   private final String         workingDir;
   private final int            port;
   private LinkedJavaProcess    linkedProcess;
+  private NetworkServerControl control;
 
   public DerbyWrapper(int port, String workDir) {
     this.port = port;
@@ -20,7 +22,8 @@ public class DerbyWrapper {
   }
 
   public void start() throws Exception {
-    linkedProcess = new LinkedJavaProcess(NetworkServerControl.class.getName(), Arrays.asList("start", "-p",
+    linkedProcess = new LinkedJavaProcess(NetworkServerControl.class.getName(), Arrays.asList("start", "-h", "0.0.0.0",
+                                                                                              "-p",
                                                                                               String.valueOf(port),
                                                                                               "-noSecurityManager"),
                                           Arrays.asList("-Dderby.system.home=" + workingDir));
@@ -28,25 +31,22 @@ public class DerbyWrapper {
     linkedProcess.start();
     linkedProcess.mergeSTDOUT("DERBY - ");
     linkedProcess.mergeSTDERR("DERBY - ");
-    for (int count = 0; count < 30 && !ping(); count++) {
+    control = new NetworkServerControl(InetAddress.getLocalHost(), port);
+    for (int count = 0; count < 30; count++) {
+      try {
+        control.ping();
+        System.out.println("Ping succeeded. Derby server is up and running");
+        break;
+      } catch (Exception e) {
+        System.out.println("Ping failed: " + e.getMessage() + ". Retrying #" + count + "...");
+      }
       Thread.sleep(1000L);
     }
   }
 
-  private boolean ping() throws Exception {
-    LinkedJavaProcess pingProcess = new LinkedJavaProcess(NetworkServerControl.class.getName(),
-                                                          Arrays.asList("ping", "-p", String.valueOf(port)),
-                                                          Arrays.asList("-Dderby.system.home=" + workingDir));
-    pingProcess.setClasspath(System.getProperty("java.class.path"));
-    pingProcess.start();
-    pingProcess.mergeSTDOUT("PING-DERBY - ");
-    pingProcess.mergeSTDERR("PING-DERBY - ");
-    pingProcess.waitFor();
-    return pingProcess.exitValue() == 0;
-  }
-
   public void stop() {
     try {
+      control.shutdown();
       linkedProcess.destroy();
     } catch (Exception e) {
       // ignored
