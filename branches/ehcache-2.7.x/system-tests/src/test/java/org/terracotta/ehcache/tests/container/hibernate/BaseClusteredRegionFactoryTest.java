@@ -4,14 +4,14 @@
  */
 package org.terracotta.ehcache.tests.container.hibernate;
 
+import net.sf.ehcache.util.DerbyWrapper;
+
 import org.apache.commons.logging.LogFactory;
-import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
 import org.terracotta.ehcache.tests.container.ContainerTestSetup;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
-import com.tc.lcp.LinkedJavaProcess;
 import com.tc.test.AppServerInfo;
 import com.tc.test.server.appserver.StandardAppServerParameters;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
@@ -20,7 +20,6 @@ import com.tc.test.server.appserver.deployment.WebApplicationServer;
 import com.tc.util.runtime.Vm;
 
 import java.io.File;
-import java.util.Arrays;
 
 public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneTwoServerDeploymentTest {
 
@@ -40,7 +39,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
 
   public static abstract class BaseClusteredCacheProviderTestSetup extends ContainerTestSetup {
 
-    private NetworkServerControl derbyServer;
+    private DerbyWrapper derbyWrapper;
     private final Class          testClass;
 
     protected BaseClusteredCacheProviderTestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
@@ -94,39 +93,16 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
                                                                                              + derbyWorkDir
                                                                                                  .getAbsolutePath()); }
 
-      LinkedJavaProcess ljp = new LinkedJavaProcess(NetworkServerControl.class.getName(),
-                                                    Arrays.asList("start", "-noSecurityManager"),
-                                                    Arrays.asList("-Dderby.system.home="
-                                                                  + derbyWorkDir.getCanonicalPath()));
-      ljp.setClasspath(System.getProperty("java.class.path"));
-      ljp.start();
-      ljp.mergeSTDOUT("DERBY");
-      ljp.mergeSTDERR("DERBY");
-      derbyServer = new NetworkServerControl();
-      int tries = 0;
-      while (tries < 5) {
-        try {
-          Thread.sleep(500);
-          derbyServer.ping();
-          break;
-        } catch (Exception e) {
-          tries++;
-        }
-      }
-      if (tries == 5) { throw new Exception("Failed to start Derby!"); }
-
+      derbyWrapper = new DerbyWrapper(1527, derbyWorkDir.getCanonicalPath());
+      derbyWrapper.start();
       super.setUp();
     }
 
     @Override
     public final void tearDown() throws Exception {
       super.tearDown();
-      if (derbyServer != null) {
-        try {
-          derbyServer.shutdown();
-        } catch (Exception e) {
-          // ignored
-        }
+      if (derbyWrapper != null) {
+        derbyWrapper.stop();
       }
     }
 
