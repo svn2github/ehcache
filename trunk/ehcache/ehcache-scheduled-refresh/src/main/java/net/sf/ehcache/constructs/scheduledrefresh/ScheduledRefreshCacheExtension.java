@@ -204,12 +204,12 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
       props.put("org.quartz.threadPool.threadCount", Integer.toString(config.getQuartzThreadCount() + 1));
       Properties jsProps = getJobStoreProperties();
       for (Object key : props.keySet()) {
-         if (!props.containsKey(key)) {
-            props.put(key, jsProps.get(key));
+         if (!jsProps.containsKey(key)) {
+            jsProps.put(key, props.get(key));
          }
       }
 
-      StdSchedulerFactory factory = new StdSchedulerFactory(props);
+      StdSchedulerFactory factory = new StdSchedulerFactory(jsProps);
       scheduler = factory.getScheduler();
 
       scheduler.start();
