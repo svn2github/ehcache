@@ -8,21 +8,19 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
-import com.tc.util.concurrent.ThreadUtil;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+
 import junit.framework.Assert;
 
 public class ExpirationListenerTest extends AbstractCacheTestBase {
-
-  private static final int NODE_COUNT = 1;
 
   public ExpirationListenerTest(TestConfig testConfig) {
     super("expire-cache-test.xml", testConfig, App.class);
@@ -31,11 +29,9 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
   public static class App extends ClientBase implements CacheEventListener {
 
     private final AtomicLong localExpiredCount = new AtomicLong();
-    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super(args);
-      this.barrier = getClusteringToolkit().getBarrier("test", NODE_COUNT);
     }
 
     public static void main(String[] args) {
@@ -43,39 +39,24 @@ public class ExpirationListenerTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-      final int index = barrier.await();
-
+    protected void runTest(final Cache cache, final Toolkit clusteringToolkit) throws Throwable {
       cache.getCacheEventNotificationService().registerListener(this);
-
       // XXX: assert that the cache is clustered via methods on cache config (when methods exist)
-
       Assert.assertEquals(0, cache.getSize());
-
-      barrier.await();
-
-      if (index == 0) {
-        cache.put(new Element("key", "value"));
-      }
-
-      barrier.await();
+      cache.put(new Element("key", "value"));
 
       // make sure the item has been evicted
-      int tries = 0;
-      while (cache.getSize() > 0 && tries < 3) {
-        ThreadUtil.reallySleep(2 * 1000);
-        tries++;
-      }
-
-      barrier.await();
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          return cache.getSize() == 0 && localExpiredCount.get() > 0;
+        }
+      });
 
       // To make sure L2 evicts the entry
       Assert.assertNull(cache.get("key"));
       // only assert local listener would notice eviction events
-      if (index == 0) {
-        Assert.assertEquals(1, localExpiredCount.get());
-      }
-
+      Assert.assertEquals(1, localExpiredCount.get());
       Assert.assertEquals(0, cache.getSize());
     }
 
