@@ -60,6 +60,11 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
    static final String PROP_QUARTZ_JOB_STORE_TC_CONFIG_URL = "org.quartz.jobStore.tcConfigUrl";
 
    /**
+    * Cluster flage
+    */
+   static final String PROP_QUARTZ_JOB_STORE_IS_CLUSTERED = "org.quartz.jobStore.isClustered";
+
+   /**
     * Job Property key for cache name this extension's jobs will run against
     */
    static final String PROP_CACHE_NAME = ScheduledRefreshCacheExtension.class.getName() + ".cacheName";
@@ -199,6 +204,7 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
    private void makeAndStartQuartzScheduler() throws SchedulerException {
       Properties props = new Properties();
       props.put(StdSchedulerFactory.PROP_SCHED_INSTANCE_NAME, name);
+      props.put(StdSchedulerFactory.PROP_SCHED_INSTANCE_ID,StdSchedulerFactory.AUTO_GENERATE_INSTANCE_ID);
       props.put(StdSchedulerFactory.PROP_SCHED_NAME, name);
       props.put(StdSchedulerFactory.PROP_SCHED_MAKE_SCHEDULER_THREAD_DAEMON, Boolean.TRUE.toString());
       props.put("org.quartz.threadPool.threadCount", Integer.toString(config.getQuartzThreadCount() + 1));

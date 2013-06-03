@@ -37,6 +37,7 @@ public class ScheduledRefreshTerracottaJobStoreFactory implements ScheduledRefre
       Properties p = new Properties(config.getExcessProperties());
       p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, TerracottaJobStore.class.getName());
       p.put(ScheduledRefreshCacheExtension.PROP_QUARTZ_JOB_STORE_TC_CONFIG_URL, config.getTerracottaConfigUrl());
+      p.put(ScheduledRefreshCacheExtension.PROP_QUARTZ_JOB_STORE_IS_CLUSTERED, Boolean.TRUE.toString());
       return p;
    }
 
