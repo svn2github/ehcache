@@ -852,7 +852,7 @@ public class ConcurrentHashMap<K, V>
                         if ((dir = (c == pc) ? 0 :
                             c.getName().compareTo(pc.getName())) == 0) {
                             TreeNode r = null, pl, pr; // check both sides
-                            if ((pr = p.right) != null && h >= pr.hash &&
+                            if ((pr = p.right) != null &&
                                 (r = getTreeNode(h, k, pr)) != null)
                                 return r;
                             else if ((pl = p.left) != null && h <= pl.hash)
@@ -922,7 +922,7 @@ public class ConcurrentHashMap<K, V>
                         TreeNode s = null, r = null, pr;
                         if ((dir = (c == pc) ? 0 :
                             c.getName().compareTo(pc.getName())) == 0) {
-                            if ((pr = p.right) != null && h >= pr.hash &&
+                            if ((pr = p.right) != null &&
                                 (r = getTreeNode(h, k, pr)) != null)
                                 return r;
                             else // continue left

@@ -4,10 +4,12 @@ import net.sf.ehcache.Element;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -60,12 +62,21 @@ public class ConcurrentHashMapTest {
     @Test
     public void testRandomValues() {
         ConcurrentHashMap<Object, KeyHolder<Object>> map = new ConcurrentHashMap<Object, KeyHolder<Object>>();
+        final long seed = System.nanoTime();
+        System.out.println("SEED: " + seed);
+        final Random random = new Random(seed);
 
         for(int i = 0; i < ENTRIES; i++) {
             final Object o;
             switch(i % 4) {
                 case 0:
-                    o = new Object();
+                    final int hashCode = random.nextInt();
+                    o = new Object() {
+                        @Override
+                        public int hashCode() {
+                            return hashCode;
+                        }
+                    };
                     break;
                 case 1:
                     o = new EvilKey(Integer.toString(i));
@@ -78,8 +89,8 @@ public class ConcurrentHashMapTest {
         }
 
         for (Object o : map.keySet()) {
-            assertThat(o.toString(), map.get(o) != null, is(true));
             assertThat(o.toString(), map.containsKey(o), is(true));
+            assertThat(o.toString(), map.get(o), notNullValue());
         }
 
         assertThings(map);
@@ -180,7 +191,7 @@ class EvilKey {
 
     @Override
     public int hashCode() {
-        return Math.abs(this.value.hashCode() % 2);
+        return this.value.hashCode() & 1;
     }
 
     @Override
