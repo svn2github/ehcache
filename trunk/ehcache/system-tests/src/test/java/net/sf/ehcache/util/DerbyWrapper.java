@@ -29,7 +29,7 @@ public class DerbyWrapper {
                                                                                               "-noSecurityManager"),
                                           Arrays.asList("-Dderby.system.home=" + workingDir));
     linkedProcess.setClasspath(System.getProperty("java.class.path"));
-    linkedProcess.setMaxRuntime(TestConfigObject.getInstance().getJunitTimeoutInSeconds() * 1000L);
+    linkedProcess.setMaxRuntime(TestConfigObject.getInstance().getJunitTimeoutInSeconds());
     linkedProcess.start();
     linkedProcess.mergeSTDOUT("DERBY - ");
     linkedProcess.mergeSTDERR("DERBY - ");
