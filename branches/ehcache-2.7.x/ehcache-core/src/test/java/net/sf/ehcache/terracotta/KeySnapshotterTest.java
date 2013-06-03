@@ -4,10 +4,9 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.DiskStorePathManager;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.TerracottaStore;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -39,8 +38,6 @@ public class KeySnapshotterTest {
     private static final long MAX_KEY = 10000;
     private static final String DUMPS_DIRECTORY = System.getProperty("java.io.tmpdir") + File.separator + "dumps";
 
-    private CacheManager cacheManager;
-
     private static void deleteFolder(File root) {
         if (root.isDirectory()) {
             File[] files = root.listFiles();
@@ -58,134 +55,154 @@ public class KeySnapshotterTest {
         }
     }
 
-    @Before
-    public void setup() {
-        cacheManager = new CacheManager();
-    }
-
-    @After
-    public void teardown() {
-        cacheManager.shutdown();
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testThrowsIllegalArgumentExceptionOnZeroInterval() {
-        new KeySnapshotter(createFakeTcClusteredCache(mock(TerracottaStore.class)), 0, false, null);
+        CacheManager manager = new CacheManager(new Configuration().name("testThrowsIllegalArgumentExceptionOnNegativeInterval"));
+        try {
+            new KeySnapshotter(createFakeTcClusteredCache(manager, mock(TerracottaStore.class)), 0, false, null);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testThrowsIllegalArgumentExceptionOnNegativeInterval() {
-        new KeySnapshotter(createFakeTcClusteredCache(mock(TerracottaStore.class)), -100, false, null);
+        CacheManager manager = new CacheManager(new Configuration().name("testThrowsIllegalArgumentExceptionOnNegativeInterval"));
+        try {
+            new KeySnapshotter(createFakeTcClusteredCache(manager, mock(TerracottaStore.class)), -100, false, null);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test(expected = NullPointerException.class)
     public void testThrowsNullPointerExceptionOnNegativeInterval() {
-        new KeySnapshotter(createFakeTcClusteredCache(mock(TerracottaStore.class)), 10, false, null);
+        CacheManager manager = new CacheManager(new Configuration().name("testThrowsNullPointerExceptionOnNegativeInterval"));
+        try {
+            new KeySnapshotter(createFakeTcClusteredCache(manager, mock(TerracottaStore.class)), 10, false, null);
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test
     public void testOperatesOnDedicatedThread() throws ParseException, IOException {
-        final RotatingSnapshotFile rotatingSnapshotFile = mock(RotatingSnapshotFile.class);
-        final TerracottaStore mock = mock(TerracottaStore.class);
-        KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(mock), 10, true, rotatingSnapshotFile);
+        CacheManager manager = new CacheManager(new Configuration().name("testOperatesOnDedicatedThread"));
+        try {
+            final RotatingSnapshotFile rotatingSnapshotFile = mock(RotatingSnapshotFile.class);
+            final TerracottaStore mock = mock(TerracottaStore.class);
+            KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(manager, mock), 10, true, rotatingSnapshotFile);
 
-        boolean found = false;
-        for (Thread thread : getAllThreads()) {
-            if (thread != null) {
-                if(thread.getName().equals("KeySnapshotter for cache test")) {
-                    found = true;
+            boolean found = false;
+            for (Thread thread : getAllThreads()) {
+                if (thread != null) {
+                    if(thread.getName().equals("KeySnapshotter for cache test")) {
+                        found = true;
+                    }
                 }
             }
+            assertThat(found, is(true));
+            snapshotter.dispose(true);
+        } finally {
+            manager.shutdown();
         }
-        assertThat(found, is(true));
-        snapshotter.dispose(true);
     }
 
     @Test
     public void testDisposesProperlyImmediately() throws BrokenBarrierException, InterruptedException, IOException {
-        deleteFolder(new File(DUMPS_DIRECTORY));
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptImmediate");
-        final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
-        KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(mockedTcStore), 1, true, rotatingSnapshotFile);
-        final CyclicBarrier barrier = new CyclicBarrier(2);
-        final Set mockedSet = mock(Set.class);
-        final AtomicInteger counter = new AtomicInteger(0);
-        final int maxElementsToReturn = 100000;
-        when(mockedSet.iterator()).thenAnswer(new Answer<Iterator>() {
+        CacheManager manager = new CacheManager(new Configuration().name("testDisposesProperlyImmediately"));
+        try {
+            deleteFolder(new File(DUMPS_DIRECTORY));
+            final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptImmediate");
+            final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
+            KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(manager, mockedTcStore), 1, true, rotatingSnapshotFile);
+            final CyclicBarrier barrier = new CyclicBarrier(2);
+            final Set mockedSet = mock(Set.class);
+            final AtomicInteger counter = new AtomicInteger(0);
+            final int maxElementsToReturn = 100000;
+            when(mockedSet.iterator()).thenAnswer(new Answer<Iterator>() {
 
-            public Iterator answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                return new Iterator<Object>() {
+                public Iterator answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                    return new Iterator<Object>() {
 
-                    public boolean hasNext() {
-                        return counter.get() < maxElementsToReturn;
-                    }
+                        public boolean hasNext() {
+                            return counter.get() < maxElementsToReturn;
+                        }
 
-                    public Object next() {
-                        return "Key" + counter.getAndIncrement();
-                    }
+                        public Object next() {
+                            return "Key" + counter.getAndIncrement();
+                        }
 
-                    public void remove() {
-                        //
-                    }
-                };
-            }
-        });
-        when(mockedTcStore.getLocalKeys()).thenAnswer(new Answer<Set>() {
-            public Set answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                barrier.await();
-                return mockedSet;
-            }
-        });
-        barrier.await();
-        snapshotter.dispose(true);
+                        public void remove() {
+                            //
+                        }
+                    };
+                }
+            });
+            when(mockedTcStore.getLocalKeys()).thenAnswer(new Answer<Set>() {
+                public Set answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                    barrier.await();
+                    return mockedSet;
+                }
+            });
+            barrier.await();
+            snapshotter.dispose(true);
 
-        assertThat("Snapshot was allowed to finish - this shouldn't happen (unless the snapshot happens really fast and the scheduler is *very* unfair)", counter.get(), lessThan(maxElementsToReturn));
-        final int elementsRead = rotatingSnapshotFile.readAll().size();
-        assertThat("Should be only a couple: " + elementsRead, elementsRead, is(counter.get() - 1));
+            assertThat("Snapshot was allowed to finish - this shouldn't happen (unless the snapshot happens really fast and the scheduler is *very* unfair)", counter.get(), lessThan(maxElementsToReturn));
+            final int elementsRead = rotatingSnapshotFile.readAll().size();
+            assertThat("Should be only a couple: " + elementsRead, elementsRead, is(counter.get() - 1));
+        } finally {
+            manager.shutdown();
+        }
     }
 
     @Test
     public void testDisposesProperlyButFinishes() throws BrokenBarrierException, InterruptedException, IOException {
-        deleteFolder(new File(DUMPS_DIRECTORY));
-        final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptFinishes");
-        final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
-        final CyclicBarrier barrier = new CyclicBarrier(2);
-        final Set mockedSet = mock(Set.class);
-        final AtomicLong counter = new AtomicLong(0);
-        when(mockedSet.iterator()).thenAnswer(new Answer<Iterator>() {
-            public Iterator answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                return new Iterator<Object>() {
+        CacheManager manager = new CacheManager(new Configuration().name("testDisposesProperlyImmediately"));
+        try {
+            deleteFolder(new File(DUMPS_DIRECTORY));
+            final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptFinishes");
+            final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
+            final CyclicBarrier barrier = new CyclicBarrier(2);
+            final Set mockedSet = mock(Set.class);
+            final AtomicLong counter = new AtomicLong(0);
+            when(mockedSet.iterator()).thenAnswer(new Answer<Iterator>() {
+                public Iterator answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                    return new Iterator<Object>() {
 
-                    public boolean hasNext() {
-                        return counter.get() < MAX_KEY;
-                    }
+                        public boolean hasNext() {
+                            return counter.get() < MAX_KEY;
+                        }
 
-                    public Object next() {
-                        return KEY + counter.getAndIncrement();
-                    }
+                        public Object next() {
+                            return KEY + counter.getAndIncrement();
+                        }
 
-                    public void remove() {
-                        //
-                    }
-                };
+                        public void remove() {
+                            //
+                        }
+                    };
+                }
+            });
+            when(mockedTcStore.getLocalKeys()).thenAnswer(new Answer<Set>() {
+                public Set answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                    barrier.await();
+                    return mockedSet;
+                }
+            });
+            KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(manager, mockedTcStore), 1, true, rotatingSnapshotFile);
+            barrier.await();
+            snapshotter.dispose(false);
+            assertThat(counter.get(), is(MAX_KEY));
+            final Set<Object> objects = new HashSet<Object>(rotatingSnapshotFile.readAll());
+            assertThat(objects.size(), is((int) MAX_KEY));
+            for(int i = 0; i < MAX_KEY; i++) {
+                objects.remove(KEY + i);
             }
-        });
-        when(mockedTcStore.getLocalKeys()).thenAnswer(new Answer<Set>() {
-            public Set answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                barrier.await();
-                return mockedSet;
-            }
-        });
-        KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(mockedTcStore), 1, true, rotatingSnapshotFile);
-        barrier.await();
-        snapshotter.dispose(false);
-        assertThat(counter.get(), is(MAX_KEY));
-        final Set<Object> objects = new HashSet<Object>(rotatingSnapshotFile.readAll());
-        assertThat(objects.size(), is((int) MAX_KEY));
-        for(int i = 0; i < MAX_KEY; i++) {
-            objects.remove(KEY + i);
+            assertThat(objects.isEmpty(), is(true));
+        } finally {
+            manager.shutdown();
         }
-        assertThat(objects.isEmpty(), is(true));
     }
 
     private Thread[] getAllThreads() {
@@ -200,9 +217,9 @@ public class KeySnapshotterTest {
         return threads;
     }
 
-    private Cache createFakeTcClusteredCache(TerracottaStore store) {
+    private Cache createFakeTcClusteredCache(CacheManager manager, TerracottaStore store) {
         final Cache cache = new Cache(new CacheConfiguration("test", 10));
-        cacheManager.addCache(cache);
+        manager.addCache(cache);
         try {
             final Field compoundStore = cache.getClass().getDeclaredField("compoundStore");
             compoundStore.setAccessible(true);
