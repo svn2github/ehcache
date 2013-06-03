@@ -6,6 +6,7 @@ package net.sf.ehcache.util;
 import org.apache.derby.drda.NetworkServerControl;
 
 import com.tc.lcp.LinkedJavaProcess;
+import com.tc.test.TestConfigObject;
 
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ public class DerbyWrapper {
                                                                                               "-noSecurityManager"),
                                           Arrays.asList("-Dderby.system.home=" + workingDir));
     linkedProcess.setClasspath(System.getProperty("java.class.path"));
+    linkedProcess.setMaxRuntime(TestConfigObject.getInstance().getJunitTimeoutInSeconds() * 1000L);
     linkedProcess.start();
     linkedProcess.mergeSTDOUT("DERBY - ");
     linkedProcess.mergeSTDERR("DERBY - ");
