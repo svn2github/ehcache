@@ -24,6 +24,7 @@
   <properties>
     <skipCheckstyle>true</skipCheckstyle>
     <derby.version>10.10.1.1</derby.version>
+    <quartz.version>2.2.0-SNAPSHOT</quartz.version>
   </properties>
 
   <dependencies>  
@@ -125,7 +126,13 @@
       <groupId>org.terracotta.test</groupId>
       <artifactId>container-test-framework</artifactId>
       <version>${container-test-framework.version}</version>
-    </dependency>  
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <version>${quartz.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>

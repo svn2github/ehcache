@@ -32,6 +32,7 @@ import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
+import org.quartz.PersistJobDataAfterExecution;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -47,10 +48,11 @@ import org.slf4j.LoggerFactory;
  * other jobs run, and is responsible for starting all the individual refresh
  * jobs, enabling bulk load mode beforehand, and disabling bulk load mode
  * afterwards.
- * 
+ *
  * @author cschanck
  */
 @DisallowConcurrentExecution
+@PersistJobDataAfterExecution
 public class OverseerJob implements Job {
    private static final Logger LOG = LoggerFactory.getLogger(OverseerJob.class);
 
@@ -84,19 +86,17 @@ public class OverseerJob implements Job {
          ScheduledRefreshKeyGenerator<Serializable> generator = makeGeneratorObject(config.getKeyGeneratorClass());
          if (generator != null) {
             Scheduler scheduler = context.getScheduler();
-            if (getOutstandingJobCount(context, scheduler) == 1) {
-               LOG.info("Starting Scheduled refresh: " + config.toString(cache));
-               processKeys(context, config, cache, generator);
-               if (config.isUseBulkload()) {
-                  try {
-                     waitForOutstandingJobCount(context, config, scheduler, 0);
-                  } catch (SchedulerException e) {
-                     LOG.warn(
-                           "Unable to process Scheduled Refresh batch termination" + context.getJobDetail().getKey(), e);
-                  }
+            // if we are the only ones running...
+
+            LOG.info("Starting Scheduled refresh: " + config.toString(cache));
+            processKeys(context, config, cache, generator);
+            if (config.isUseBulkload()) {
+               try {
+                  waitForOutstandingJobCount(context, config, scheduler, 0);
+               } catch (SchedulerException e) {
+                  LOG.warn(
+                        "Unable to process Scheduled Refresh batch termination" + context.getJobDetail().getKey(), e);
                }
-            } else {
-               LOG.info("Skipping overlapping execution for Scheduled Refresh batch " + context.getJobDetail().getKey());
             }
 
          }
@@ -177,6 +177,7 @@ public class OverseerJob implements Job {
 
             Trigger trigger = TriggerBuilder.newTrigger().startNow().forJob(job).build();
             scheduler.scheduleJob(job, trigger);
+
          }
       } catch (SchedulerException e) {
          if (!scheduler.isShutdown()) {

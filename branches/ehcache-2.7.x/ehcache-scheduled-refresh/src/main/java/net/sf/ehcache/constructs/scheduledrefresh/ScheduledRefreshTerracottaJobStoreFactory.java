@@ -15,20 +15,19 @@
  */
 package net.sf.ehcache.constructs.scheduledrefresh;
 
+import net.sf.ehcache.Ehcache;
+import org.quartz.impl.StdSchedulerFactory;
+import org.terracotta.quartz.AbstractTerracottaJobStore;
+import org.terracotta.quartz.TerracottaJobStore;
+
 import java.util.Properties;
 
-import net.sf.ehcache.Ehcache;
-
-import org.quartz.impl.StdSchedulerFactory;
-
 /**
- * An example factory for creating Jdbc TX quartz job stores. Relies on proper
- * configuration elements being set in the config via the ehcache.xml config.
- * Or, a subclass of this class could easily define them from other sources.
+ * An example factory for creating Terracotta quartz job stores.
  * 
  * @author cschanck
  */
-public class ScheduledRefreshJdbcTxJobStoreFactory implements ScheduledRefreshJobStorePropertiesFactory {
+public class ScheduledRefreshTerracottaJobStoreFactory implements ScheduledRefreshJobStorePropertiesFactory {
 
    /**
     * Return the necessary job store properties to initialize a JDBC job store
@@ -36,11 +35,10 @@ public class ScheduledRefreshJdbcTxJobStoreFactory implements ScheduledRefreshJo
     */
    @Override
    public Properties jobStoreProperties(Ehcache underlyingCache, ScheduledRefreshConfiguration config) {
-      // get the exces properties -- should have everything you need for JDBC
       Properties p = new Properties(config.getExcessProperties());
-      // enforce the JDBC job store class
+      p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, TerracottaJobStore.class.getName());
       p.put(StdSchedulerFactory.PROP_SCHED_INSTANCE_ID, StdSchedulerFactory.AUTO_GENERATE_INSTANCE_ID);
-      p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, org.quartz.impl.jdbcjobstore.JobStoreTX.class.getName());
+      p.setProperty(AbstractTerracottaJobStore.TC_CONFIGURL_PROP, config.getTerracottaConfigUrl());
       return p;
    }
 
