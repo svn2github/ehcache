@@ -17,6 +17,7 @@ package net.sf.ehcache.constructs.scheduledrefresh;
 
 import net.sf.ehcache.Ehcache;
 import org.quartz.impl.StdSchedulerFactory;
+import org.terracotta.quartz.AbstractTerracottaJobStore;
 import org.terracotta.quartz.TerracottaJobStore;
 
 import java.util.Properties;
@@ -36,8 +37,8 @@ public class ScheduledRefreshTerracottaJobStoreFactory implements ScheduledRefre
    public Properties jobStoreProperties(Ehcache underlyingCache, ScheduledRefreshConfiguration config) {
       Properties p = new Properties(config.getExcessProperties());
       p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, TerracottaJobStore.class.getName());
-      p.put(ScheduledRefreshCacheExtension.PROP_QUARTZ_JOB_STORE_TC_CONFIG_URL, config.getTerracottaConfigUrl());
-      p.put(ScheduledRefreshCacheExtension.PROP_QUARTZ_JOB_STORE_IS_CLUSTERED, Boolean.TRUE.toString());
+      p.put(StdSchedulerFactory.PROP_SCHED_INSTANCE_ID, StdSchedulerFactory.AUTO_GENERATE_INSTANCE_ID);
+      p.setProperty(AbstractTerracottaJobStore.TC_CONFIGURL_PROP, config.getTerracottaConfigUrl());
       return p;
    }
 

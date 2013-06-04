@@ -39,6 +39,7 @@ public class ScheduledRefreshJdbcTxJobStoreFactory implements ScheduledRefreshJo
       // get the exces properties -- should have everything you need for JDBC
       Properties p = new Properties(config.getExcessProperties());
       // enforce the JDBC job store class
+      p.put(StdSchedulerFactory.PROP_SCHED_INSTANCE_ID, StdSchedulerFactory.AUTO_GENERATE_INSTANCE_ID);
       p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, org.quartz.impl.jdbcjobstore.JobStoreTX.class.getName());
       return p;
    }
