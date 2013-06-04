@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"/>
+
+  <cache name="scheduledRefreshCache"
+         maxElementsInMemory="10000"
+         eternal="true">
+
+      <cacheLoaderFactory class="org.terracotta.ehcache.tests.scheduledrefresh.AddingCacheLoaderFactory"/>
+      <cacheExtensionFactory class="net.sf.ehcache.constructs.scheduledrefresh.ScheduledRefreshCacheExtensionFactory"
+                             properties="tcConfigUrl=localhost:PORT,batchSize=100,quartzJobCount=4,cronExpression=0/5 * * * * ?" />
+      <terracotta clustered="true"/>
+      
+  </cache>
+
+
+  <terracottaConfig url="localhost:PORT"/>
+
+</ehcache>
