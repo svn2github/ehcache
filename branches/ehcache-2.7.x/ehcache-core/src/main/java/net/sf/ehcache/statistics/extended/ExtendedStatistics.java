@@ -270,6 +270,15 @@ public interface ExtendedStatistics {
     <T extends Enum<T>> Set<Operation<T>> operations(Class<T> outcome, String name, String... tags);
 
     /**
+     * Get the set of cache specific pass thru statistics for a nam/tags pair. Used for
+     * custom pass thru statistics, as opposed to well known standard ones.
+     * @param name name
+     * @param tags set of tags
+     * @return
+     */
+    Set<Statistic<Number>> passthru(String name, Set<String> tags);
+
+    /**
      * The Interface Operation.
      *
      * @param <T> the generic type

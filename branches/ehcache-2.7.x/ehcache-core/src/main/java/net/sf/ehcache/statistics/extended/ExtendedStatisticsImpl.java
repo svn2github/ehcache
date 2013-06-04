@@ -24,7 +24,9 @@ import static org.terracotta.context.query.Matchers.identifier;
 import static org.terracotta.context.query.Matchers.subclassOf;
 import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -84,6 +86,10 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     /** The custom operations. */
     private final ConcurrentMap<OperationStatistic<?>, CompoundOperationImpl<?>> customOperations = 
             new ConcurrentHashMap<OperationStatistic<?>, CompoundOperationImpl<?>>();
+
+    /** custom pass thru stats*/
+    private final ConcurrentHashMap<Collection<String>, Set<Statistic<Number>>> customPassthrus =
+        new ConcurrentHashMap<Collection<String>, Set<Statistic<Number>>>();
 
     /** The manager. */
     private final StatisticsManager manager;
@@ -220,9 +226,42 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 standardPassThroughs.put(t, NullStatistic.instance(t.absentValue()));
             } else {
                 standardPassThroughs.put(t,
-                        new SemiExpiringStatistic(statistic, executor, defaultHistorySize, SECONDS.toNanos(defaultIntervalSeconds)));
+                    new SemiExpiringStatistic(statistic, executor, defaultHistorySize, SECONDS.toNanos(defaultIntervalSeconds)));
             }
         }
+    }
+
+    @Override
+    public Set<Statistic<Number>> passthru(String name, Set<String> tags) {
+        ArrayList<String> key = new ArrayList<String>(tags.size() + 1);
+        key.addAll(tags);
+        Collections.sort(key);
+        key.add(name);
+
+        if (customPassthrus.containsKey(key)) {
+            return customPassthrus.get(key);
+        }
+        // lets make sure we don't get it twice.
+        synchronized (customPassthrus) {
+            if (customPassthrus.containsKey(key)) {
+                return customPassthrus.get(key);
+            }
+            Set<ValueStatistic<?>> interim = findPassThroughStatistic(manager,
+                EhcacheQueryBuilder.cache().descendants(),
+                name,
+                tags);
+            if (interim.isEmpty()) {
+                return Collections.EMPTY_SET;
+            }
+            Set<Statistic<Number>> ret = new HashSet<Statistic<Number>>(interim.size());
+            for (ValueStatistic<?> vs : interim) {
+                SemiExpiringStatistic stat = new SemiExpiringStatistic(vs, executor, defaultHistorySize, SECONDS.toNanos(defaultIntervalSeconds));
+                ret.add(stat);
+            }
+            customPassthrus.put(key, ret);
+            return ret;
+        }
+
     }
 
     /*
@@ -694,8 +733,11 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @return the operation statistic
      */
     private static OperationStatistic findOperationStatistic(StatisticsManager manager, StandardOperationStatistic statistic) {
-        Set<OperationStatistic> results = findOperationStatistic(manager, statistic.context(), statistic.type(), statistic.operationName(),
-                statistic.tags());
+        Set<OperationStatistic<? extends Enum>> results = findOperationStatistic(manager,
+            statistic.context(),
+            statistic.type(),
+            statistic.operationName(),
+            statistic.tags());
         switch (results.size()) {
             case 0:
                 return null;
@@ -770,7 +812,7 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
      * @return the sets the
      */
     private static Set<ValueStatistic<?>> findPassThroughStatistic(StatisticsManager manager, Query contextQuery, String name,
-            final Set<String> tags) {
+    final Set<String> tags) {
         Set<TreeNode> passThroughStatisticNodes = manager.query(queryBuilder().chain(contextQuery).children()
                 .filter(context(identifier(subclassOf(ValueStatistic.class)))).build());
         Set<TreeNode> result = queryBuilder()
