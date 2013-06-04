@@ -22,22 +22,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Ignore
+//@Ignore
 public class ClusteredScheduledRefreshTest extends AbstractCacheTestBase {
 
   public ClusteredScheduledRefreshTest(TestConfig testConfig) {
     super("scheduled-refresh-cache-test.xml", testConfig, ClusteredScheduledRefreshTestClient.class);
-    disableTest();
+    //disableTest();
   }
 
   @Override
   protected String createClassPath(Class client) throws IOException {
     String s=super.createClassPath(client);
     String sr = TestBaseUtil.jarFor(Cache.class);
-    System.out.println("--------------------> "+sr);
     String cp=makeClasspath(s, sr);
     String q = TestBaseUtil.jarFor(StdSchedulerFactory.class);
-    System.out.println("--------------------> "+q);
     cp=makeClasspath(cp, q);
 
     return cp;

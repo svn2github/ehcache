@@ -88,6 +88,7 @@ public class OverseerJob implements Job {
             Scheduler scheduler = context.getScheduler();
             // if we are the only ones running...
 
+            System.out.println("Outstanding Job Count: "+getOutstandingJobCount(context,scheduler));
             LOG.info("Starting Scheduled refresh: " + config.toString(cache));
             processKeys(context, config, cache, generator);
             if (config.isUseBulkload()) {
@@ -98,8 +99,8 @@ public class OverseerJob implements Job {
                         "Unable to process Scheduled Refresh batch termination" + context.getJobDetail().getKey(), e);
                }
             }
-
          }
+
       } catch (SchedulerException e) {
          try {
             if (!context.getScheduler().isShutdown()) {

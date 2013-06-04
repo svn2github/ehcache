@@ -86,7 +86,7 @@ public class RefreshBatchJob implements Job {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-   @Override
+    @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         JobDataMap jdm = context.getMergedJobDataMap();
         ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm.get(ScheduledRefreshCacheExtension
@@ -106,6 +106,7 @@ public class RefreshBatchJob implements Job {
         } catch (UnsupportedOperationException e) {
             LOG.warn("Bulk Load requested for cache that does not support bulk load.");
         }
+
         // iterate through the loaders
         for (CacheLoader loader : underlyingCache.getRegisteredCacheLoaders()) {
             // if we are out of keys, punt

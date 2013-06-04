@@ -148,32 +148,35 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
 
       CronTrigger trigger = TriggerBuilder.newTrigger().forJob(seed).withSchedule(cronSchedule).build();
 
+      // schedule ours
+      scheduler.scheduleJob(trigger);
+
       // at most one scheduled here.
       // now, keep trying to add and count the trigger, until there is only 1
       // trigger there.
       boolean done = false;
       int retryCount = 0;
       do {
-         // if only one, we are good.
-         List<? extends Trigger> triggers = scheduler.getTriggersOfJob(seed.getKey());
-         if (triggers.size() == 1) {
-            done = true;
-         } else {
-            // if more than 1 job, nuke them all.
-            if (triggers.size() > 0) {
-               List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
-               for (Trigger t : triggers) {
-                  triggerKeys.add(t.getKey());
-               }
 
-               scheduler.unscheduleJobs(triggerKeys);
+         List<? extends Trigger> triggers = scheduler.getTriggersOfJob(seed.getKey());
+
+         // if too many existing jobs, nuke them, replace
+         if (triggers.size() > 1) {
+            List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
+            for (Trigger t : triggers) {
+               triggerKeys.add(t.getKey());
             }
+
+            scheduler.unscheduleJobs(triggerKeys);
 
             // schedule ours
             scheduler.scheduleJob(trigger);
+
             if (retryCount++ >= 1) {
                LOG.info("Scheduled Refresh retry [" + retryCount + "] for " + config);
             }
+         } else {
+            done = true;
          }
       } while (!done);
 
@@ -187,8 +190,9 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
       jdm.put(PROP_CACHE_MGR_NAME, underlyingCache.getCacheManager().getName());
       jdm.put(PROP_CACHE_NAME, underlyingCache.getName());
       jdm.put(PROP_CONFIG_OBJECT, config);
-      JobDetail seed = JobBuilder.newJob(OverseerJob.class).storeDurably().withIdentity("seed", groupName)
-            .usingJobData(jdm).build();
+      JobDetail seed = JobBuilder.newJob(OverseerJob.class).storeDurably()
+          .withIdentity("seed", groupName)
+          .usingJobData(jdm).build();
       scheduler.addJob(seed, true);
       return seed;
    }
