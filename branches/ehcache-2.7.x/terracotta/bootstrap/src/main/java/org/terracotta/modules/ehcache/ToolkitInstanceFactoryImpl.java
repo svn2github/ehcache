@@ -12,6 +12,7 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -42,9 +43,15 @@ import org.terracotta.toolkit.store.ToolkitConfigFields;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Set;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
@@ -141,6 +148,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return toolkit.getNotifier(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
       CacheConfigChangeNotificationMsg.class);
   }
+  @Override
   public ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache) {
     return getOrCreateCacheEventNotifier(cache.getCacheManager().getName(), cache.getName());
   }
@@ -406,6 +414,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         String urlOrFilePath = config.getUrl();
         if (isFile(urlOrFilePath)) {
           return new EhcacheTcConfig(Type.FILE, slurpFile(urlOrFilePath));
+        } else if (isValidURL(urlOrFilePath)) {
+          return new EhcacheTcConfig(Type.EMBEDDED_TC_CONFIG, fetchConfigFromURL(urlOrFilePath));
         } else {
           return new EhcacheTcConfig(Type.URL, urlOrFilePath);
         }
@@ -416,8 +426,31 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
     private static String slurpFile(String urlOrFilePath) {
       try {
+        return fetchConfigFromStream(new FileInputStream(urlOrFilePath));
+      } catch (FileNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    private static boolean isFile(String urlOrFilePath) {
+      File file = new File(urlOrFilePath);
+      return file.exists() && file.isFile();
+    }
+    
+    private static String fetchConfigFromURL(String urlOrFilePath) {
+      try {
+        return fetchConfigFromStream(new URL(urlOrFilePath).openStream());
+      } catch (MalformedURLException e) {
+        throw new RuntimeException(e);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    
+    private static String fetchConfigFromStream(InputStream inputStream) {
+      try {
         StringBuilder builder = new StringBuilder();
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(urlOrFilePath)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         String line = null;
         while ((line = br.readLine()) != null) {
           builder.append(line);
@@ -428,9 +461,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       }
     }
 
-    private static boolean isFile(String urlOrFilePath) {
-      File file = new File(urlOrFilePath);
-      return file.exists() && file.isFile();
+    private static boolean isValidURL(String urlOrFilePath) {
+      try {
+        new URI(urlOrFilePath);
+        return true;
+      } catch (URISyntaxException e) {
+        return false;
+      }
     }
 
   }
