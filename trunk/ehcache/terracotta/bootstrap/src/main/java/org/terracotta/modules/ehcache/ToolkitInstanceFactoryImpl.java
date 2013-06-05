@@ -49,8 +49,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Set;
 
@@ -463,9 +461,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
     private static boolean isValidURL(String urlOrFilePath) {
       try {
-        new URI(urlOrFilePath);
+        new URL(urlOrFilePath);
         return true;
-      } catch (URISyntaxException e) {
+      } catch (MalformedURLException e) {
         return false;
       }
     }
