@@ -1070,7 +1070,6 @@ public class CacheWriterTest {
     
     private static Callable<List<WriterEvent>> writeEvents(final TestCacheWriterRetries writer) {
         return new Callable<List<WriterEvent>>() {
-            @Override
             public List<WriterEvent> call() throws Exception {
                 return writer.getWriterEvents();
             }
