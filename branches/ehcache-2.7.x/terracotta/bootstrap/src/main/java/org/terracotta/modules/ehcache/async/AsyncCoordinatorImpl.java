@@ -62,13 +62,14 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private final ToolkitInternal           toolkit;
   private ItemProcessor<E>                processor;
   private final AsyncClusterListener      listener;
-  private final Callback                  stopCallable;
+  private final Callback                  asyncFactoryCallback;
   private final BucketManager             bucketManager;
   private volatile ClusterNode            currentNode;
   private volatile int                    concurrency = 1;
+  private final LockHolder                lockHolder;
 
   public AsyncCoordinatorImpl(String fullAsyncName, AsyncConfig config, ToolkitInstanceFactory toolkitInstanceFactory,
-                              Callback stopCallable) {
+                              Callback asyncFactoryCallback) {
     this.name = fullAsyncName; // contains CacheManager name and Cache name
     if (null == config) {
       this.config = config = DefaultAsyncConfig.getInstance();
@@ -88,7 +89,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     ReadWriteLock nodeLock = new ReentrantReadWriteLock();
     this.nodeWriteLock = nodeLock.writeLock();
     this.nodeReadLock = nodeLock.readLock();
-    this.stopCallable = stopCallable;
+    this.asyncFactoryCallback = asyncFactoryCallback;
+    this.lockHolder = new LockHolder();
   }
 
   @Override
@@ -148,35 +150,23 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     return totalItems;
   }
 
-  private void lockNodeAlive() {
-    Thread tmpThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        toolkit.getLock(nodeName + ALIVE_LOCK_SUFFIX).lock();
-      }
-    }, "node alive locker");
-    tmpThread.setDaemon(true);
-    tmpThread.start();
-    try {
-      tmpThread.join();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      debug("Interrupted while waiting to grab node alive lock");
-    }
+  private String getAliveLockName(String node) {
+    return node + ALIVE_LOCK_SUFFIX;
   }
+
 
   private boolean tryLockNodeAlive(String otherNodeName) {
     try {
-      return toolkit.getLock(otherNodeName).tryLock(aliveTimeoutSec, TimeUnit.SECONDS);
+      return toolkit.getLock(getAliveLockName(otherNodeName)).tryLock(aliveTimeoutSec, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       return false;
     }
   }
 
   private void startBuckets(int processingConcurrency) {
-    lockNodeAlive();
-    // add meta info first
-    bucketManager.populateMap();
+    lockHolder.hold(toolkit.getLock(getAliveLockName(nodeName)));
+
     Set<String> nameList = new HashSet();
     for (int i = 0; i < processingConcurrency; i++) {
       String bucketName = nodeName + DELIMITER + i;
@@ -251,9 +241,9 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       stopBuckets(deadBuckets);
 
       cluster.removeClusterListener(listener);
-
       bucketManager.clear();
-      stopCallable.callback();
+      asyncFactoryCallback.callback();
+      lockHolder.release(toolkit.getLock(getAliveLockName(nodeName)));
     } finally {
       nodeWriteLock.unlock();
     }
@@ -285,6 +275,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       debug("nodeRejoined currentNode " + currentNode + " nodeName " + nodeName);
       localBuckets.clear();
       deadBuckets.clear();
+      lockHolder.reset();
       startBuckets(concurrency);
     } finally {
       nodeWriteLock.unlock();
@@ -438,6 +429,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     return name + DELIMITER + node.getId();
   }
 
+
+
   private class BucketManager {
     /**
      * this ToolkitMap map contains keys based on asyncName|nodeId and value will a Set of bucketNames (or name of
@@ -450,15 +443,9 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       nodeToBucketNames.putIfAbsent(DEAD_NODES, new HashSet<String>());
     }
 
-    public void populateMap() {
-      Set<String> prev = nodeToBucketNames.put(nodeName, new HashSet<String>());
+    private void bucketsCreated(Set<String> bucketNames) {
+      Set<String> prev = nodeToBucketNames.put(nodeName, bucketNames);
       if (prev != null) { throw new AssertionError("previous value " + prev + " not null for " + nodeName); }
-    }
-
-    private void bucketsCreated(Collection<String> bucketNames) {
-      Set<String> buckets = nodeToBucketNames.get(nodeName);
-      buckets.addAll(bucketNames);
-      nodeToBucketNames.put(nodeName, buckets);
     }
 
     private void clear() {
@@ -473,8 +460,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         newOwner.addAll(deadNodeBuckets);
         nodeToBucketNames.put(nodeName, newOwner); // transferring bucket ownership to new node
         nodeToBucketNames.remove(deadNode); // removing buckets from old node
-        debug("transferBucketsFromDeadNode deadNode " + deadNode + " to node " + nodeName + " buckets "
-              + deadNodeBuckets);
+        debug("transferBucketsFromDeadNode deadNode " + deadNode + " to node " + nodeName + " buckets " + newOwner);
         return deadNodeBuckets;
       }
       return Collections.EMPTY_SET;
@@ -518,9 +504,12 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         Set<String> nodesFromMap = getAllNodes();
         Set<String> clusterNodes = getClusterNodes();
         nodesFromMap.removeAll(clusterNodes);
-        for (String deadNode : nodesFromMap) {
+        Iterator<String> itr = nodesFromMap.iterator();
+        while (itr.hasNext()) {
+          String deadNode = itr.next();
           if (!tryLockNodeAlive(deadNode)) {
-            nodesFromMap.remove(deadNode);
+            // if not able to grab the lock, means its not a deadNode so remove
+            itr.remove();
           }
         }
         addToDeadNodes(nodesFromMap);

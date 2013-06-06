@@ -121,12 +121,16 @@ public class ProcessingBucket<E extends Serializable> {
         bucketReadLock.unlock();
       }
     } catch (RuntimeException e) {
-      if (e.getClass().getName().equals("com.tc.exception.TCNotRunningException")) {
+      if (isTCNRE(e)) {
         return true;
       } else {
         throw e;
       }
     }
+  }
+
+  private boolean isTCNRE(Throwable th) {
+    return th.getClass().getName().equals("com.tc.exception.TCNotRunningException");
   }
 
   public int getWaitCount() {
@@ -172,10 +176,10 @@ public class ProcessingBucket<E extends Serializable> {
 
   public void destroy() {
     try {
-      debug("destroying bucket " + toolkitList.getName());
+      debug("destroying bucket " + toolkitList.getName() + " " + toolkitList.size());
       toolkitList.destroy();
     } catch (Throwable t) {
-      if (t.getClass().getName().equals("com.tc.exception.TCNotRunningException") && !cluster.areOperationsEnabled()) {
+      if (isTCNRE(t) && !cluster.areOperationsEnabled()) {
         LOGGER
             .warn("destroyToolkitList caught TCNotRunningException on processing thread, but looks like we were shut down. "
                       + "This can safely be ignored!", t);
@@ -481,8 +485,8 @@ public class ProcessingBucket<E extends Serializable> {
               processItems();
             } catch (final Throwable e) {
               if (cluster.areOperationsEnabled()) {
-                if (!e.getClass().getName().equals("com.tc.exception.TCNotRunningException")) {
-                  LOGGER.error(bucketName + " " + e);
+                if (!isTCNRE(e)) {
+                  LOGGER.error(bucketName, e);
                 }
               } else {
                 LOGGER.warn("Caught error on processing items, but looks like we were shut down. "
@@ -528,7 +532,7 @@ public class ProcessingBucket<E extends Serializable> {
           }
         }
       } catch (Throwable t) {
-        if (t.getClass().getName().equals("com.tc.exception.TCNotRunningException") && !cluster.areOperationsEnabled()) {
+        if (isTCNRE(t) && !cluster.areOperationsEnabled()) {
           LOGGER.warn("Caught TCNotRunningException on processing thread, but looks like we were shut down. "
                       + "This can safely be ignored!", t);
         }
