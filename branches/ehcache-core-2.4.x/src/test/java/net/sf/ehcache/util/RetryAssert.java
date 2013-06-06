@@ -31,6 +31,31 @@ public class RetryAssert {
         // static only class
     }
 
+    public static void sleepFor(long time, TimeUnit unit) {
+      boolean interrupted = false;
+      long duration = unit.toNanos(time);
+      long sleep = Math.max(20, TimeUnit.NANOSECONDS.toMillis(duration / 10));
+      long end = System.nanoTime() + duration;
+      try {
+        while (true) {
+          long remaining  = end - System.nanoTime();
+          if (remaining <= 0) {
+            break;
+          } else {
+            try {
+              Thread.sleep(Math.min(sleep, TimeUnit.NANOSECONDS.toMillis(remaining) + 1));
+            } catch (InterruptedException e) {
+              interrupted = true;
+            }
+          }
+        }
+      } finally {
+        if (interrupted) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
+    
     public static <T> void assertBy(long time, TimeUnit unit, Callable<T> value, Matcher<? super T> matcher) {
         boolean interrupted = false;
         long end = System.nanoTime() + unit.toNanos(time);

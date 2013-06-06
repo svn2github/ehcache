@@ -32,10 +32,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.sleepFor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
@@ -351,7 +352,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindSolelyJava() throws InterruptedException {
+    public void testWriteBehindSolelyJava() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -396,7 +397,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindStopWaitsForEmptyQueue() throws InterruptedException {
+    public void testWriteBehindStopWaitsForEmptyQueue() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -513,7 +514,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindBatched() throws InterruptedException {
+    public void testWriteBehindBatched() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -542,11 +543,11 @@ public class CacheWriterTest {
             cache.putWithWriter(el2);
             cache.putWithWriter(el3);
 
-            Thread.sleep(3000);
+            sleepFor(3, TimeUnit.SECONDS);
 
             assertThat(writer.getWrittenElements().keySet(), empty());
 
-            assertBy(2, TimeUnit.SECONDS, writtenElements(writer), hasSize(3));
+            assertBy(3, TimeUnit.SECONDS, writtenElements(writer), hasSize(3));
             assertThat(writer.getWrittenElements(), not(hasKey("key1")));
             assertThat(writer.getWrittenElements(), not(hasKey("key2")));
             assertThat(writer.getWrittenElements(), not(hasKey("key3")));
@@ -564,7 +565,7 @@ public class CacheWriterTest {
             cache.removeWithWriter(el2.getKey());
             cache.removeWithWriter(el3.getKey());
 
-            Thread.sleep(2000);
+            sleepFor(2, TimeUnit.SECONDS);
 
             assertThat(writer.getWrittenElements().keySet(), hasSize(3));
             assertThat(writer.getDeletedElements().keySet(), empty());
@@ -579,7 +580,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindBatchedCoalescing() throws InterruptedException {
+    public void testWriteBehindBatchedCoalescing() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -610,7 +611,7 @@ public class CacheWriterTest {
             cache.putWithWriter(el2b);
             cache.removeWithWriter("key1");
 
-            Thread.sleep(2000);
+            sleepFor(2, TimeUnit.SECONDS);
 
             assertBy(2, TimeUnit.SECONDS, writtenElements(writer), hasSize(2));
             assertThat(writer.getWrittenElements(), not(hasKey("key1-batched")));
@@ -627,7 +628,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindExceptionWithoutRetrying() throws InterruptedException {
+    public void testWriteBehindExceptionWithoutRetrying() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -655,7 +656,7 @@ public class CacheWriterTest {
                                 + "\nBut that's OK: the writer got shutdown faster than we could *WithWriter");
             }
 
-            Thread.sleep(2000);
+            sleepFor(2, TimeUnit.SECONDS);
             assertEquals(0, writer.getWriterEvents().size());
         } finally {
             manager.shutdown();
@@ -663,7 +664,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindRetryWithoutExceptions() throws InterruptedException {
+    public void testWriteBehindRetryWithoutExceptions() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -686,7 +687,7 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value1"));
             cache.removeWithWriter("key2");
 
-            Thread.sleep(2000);
+            sleepFor(2, TimeUnit.SECONDS);
 
             assertEquals(4, writer.getWriterEvents().size());
             assertEquals(1, (long) writer.getWriteCount().get("key1"));
@@ -701,7 +702,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindRetryWithoutDelay() throws InterruptedException {
+    public void testWriteBehindRetryWithoutDelay() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -712,7 +713,7 @@ public class CacheWriterTest {
                                     .maxWriteDelay(0)
                                     .retryAttempts(3)
                                     .retryAttemptDelaySeconds(0)));
-            TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
+            final TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
             cache.registerCacheWriter(writer);
 
             manager.addCache(cache);
@@ -724,9 +725,7 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value3"));
             cache.removeWithWriter("key2");
 
-            Thread.sleep(2000);
-
-            assertEquals(4, writer.getWriterEvents().size());
+            RetryAssert.assertBy(30, TimeUnit.SECONDS, writeEvents(writer), hasSize(4));
             assertEquals(1, (long) writer.getWriteCount().get("key1"));
             assertEquals(1, (long) writer.getWriteCount().get("key2"));
             assertEquals(1, (long) writer.getWriteCount().get("key3"));
@@ -737,7 +736,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindRetryWithDelay() throws InterruptedException {
+    public void testWriteBehindRetryWithDelay() {
         CacheManager manager = createCacheManager();
         try {
             final long tolerance = TimeUnit.MILLISECONDS.toNanos(200);
@@ -763,11 +762,7 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value3"));
             cache.removeWithWriter("key2");
 
-            RetryAssert.assertBy(30, TimeUnit.SECONDS, new Callable<Collection<?>>() {
-                public Collection<?> call() throws Exception {
-                    return writer.getWriterEvents();
-                }
-            }, hasSize(4));
+            RetryAssert.assertBy(30, TimeUnit.SECONDS, writeEvents(writer), hasSize(4));
 
             {
                 WriterEvent event = writer.getWriterEvents().get(0);
@@ -832,7 +827,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindExceptionWithoutRetryingBatched() throws InterruptedException {
+    public void testWriteBehindExceptionWithoutRetryingBatched() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -857,7 +852,7 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value1"));
             cache.removeWithWriter("key2");
 
-            Thread.sleep(2000);
+            sleepFor(2, TimeUnit.SECONDS);
 
             assertEquals(2, writer.getWriterEvents().size());
             assertEquals(1, (long) writer.getWriteCount().get("key1"));
@@ -872,7 +867,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindRetryWithoutExceptionsBatched() throws InterruptedException {
+    public void testWriteBehindRetryWithoutExceptionsBatched() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -897,7 +892,7 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value3"));
             cache.removeWithWriter("key2");
 
-            Thread.sleep(2000);
+            sleepFor(2, TimeUnit.SECONDS);
 
             assertEquals(4, writer.getWriterEvents().size());
             assertEquals(1, (long) writer.getWriteCount().get("key1"));
@@ -912,7 +907,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindRetryWithoutDelayBatched() throws InterruptedException {
+    public void testWriteBehindRetryWithoutDelayBatched() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -925,7 +920,7 @@ public class CacheWriterTest {
                                     .writeBatchSize(10)
                                     .retryAttempts(3)
                                     .retryAttemptDelaySeconds(0)));
-            TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
+            final TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
             cache.registerCacheWriter(writer);
 
             manager.addCache(cache);
@@ -937,9 +932,7 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value3"));
             cache.removeWithWriter("key2");
 
-            Thread.sleep(2000);
-
-            assertEquals(10, writer.getWriterEvents().size());
+            RetryAssert.assertBy(4, TimeUnit.SECONDS, writeEvents(writer), hasSize(10));
             assertEquals(4, (long) writer.getWriteCount().get("key1"));
             assertEquals(4, (long) writer.getWriteCount().get("key2"));
             assertEquals(1, (long) writer.getWriteCount().get("key3"));
@@ -950,7 +943,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindRetryWithDelayBatched() throws InterruptedException {
+    public void testWriteBehindRetryWithDelayBatched() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -975,13 +968,8 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value3"));
             cache.removeWithWriter("key2");
 
-            TimeUnit.SECONDS.sleep(2);
-            RetryAssert.assertBy(2, TimeUnit.SECONDS, new Callable<Collection<?>>() {
-                public Collection<?> call() throws Exception {
-                return writer.getWriterEvents();
-                }
-            }, hasSize(4));
-
+            sleepFor(2, TimeUnit.SECONDS);
+            RetryAssert.assertBy(2, TimeUnit.SECONDS, writeEvents(writer), hasSize(4));
             assertTrue(writer.getWriteCount().containsKey("key1"));
             assertTrue(writer.getWriteCount().containsKey("key2"));
             assertFalse(writer.getWriteCount().containsKey("key3"));
@@ -989,12 +977,8 @@ public class CacheWriterTest {
             assertFalse(writer.getDeleteCount().containsKey("key2"));
             assertFalse(writer.getDeleteCount().containsKey("key3"));
 
-            TimeUnit.SECONDS.sleep(2);
-            RetryAssert.assertBy(2, TimeUnit.SECONDS, new Callable<Collection<?>>() {
-                public Collection<?> call() throws Exception {
-                return writer.getWriterEvents();
-                }
-            }, hasSize(9));
+            sleepFor(2, TimeUnit.SECONDS);
+            RetryAssert.assertBy(2, TimeUnit.SECONDS, writeEvents(writer), hasSize(9));
 
             assertEquals(4, (long) writer.getWriteCount().get("key1"));
             assertEquals(4, (long) writer.getWriteCount().get("key2"));
@@ -1003,12 +987,8 @@ public class CacheWriterTest {
             assertFalse(writer.getDeleteCount().containsKey("key2"));
             assertFalse(writer.getDeleteCount().containsKey("key3"));
 
-            TimeUnit.SECONDS.sleep(4);
-            RetryAssert.assertBy(2, TimeUnit.SECONDS, new Callable<Collection<?>>() {
-                public Collection<?> call() throws Exception {
-                return writer.getWriterEvents();
-                }
-            }, hasSize(10));
+            sleepFor(4, TimeUnit.SECONDS);
+            RetryAssert.assertBy(2, TimeUnit.SECONDS, writeEvents(writer), hasSize(10));
 
             assertEquals(4, (long) writer.getWriteCount().get("key1"));
             assertEquals(4, (long) writer.getWriteCount().get("key2"));
@@ -1022,7 +1002,7 @@ public class CacheWriterTest {
     }
 
     @Test
-    public void testWriteBehindRateLimitBatched() throws InterruptedException {
+    public void testWriteBehindRateLimitBatched() {
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -1044,27 +1024,27 @@ public class CacheWriterTest {
                 cache.putWithWriter(new Element("key" + i, "value" + i));
             }
 
-            Thread.sleep(1000);
+            sleepFor(1, TimeUnit.SECONDS);
 
             assertEquals(0, writer.getWrittenElements().size());
 
-            Thread.sleep(1500);
+            sleepFor(1500, TimeUnit.MILLISECONDS);
 
             assertEquals(10, writer.getWrittenElements().size());
 
-            Thread.sleep(1000);
+            sleepFor(1, TimeUnit.SECONDS);
 
             assertEquals(10, writer.getWrittenElements().size());
 
-            Thread.sleep(1000);
+            sleepFor(1, TimeUnit.SECONDS);
 
             assertEquals(20, writer.getWrittenElements().size());
 
-            Thread.sleep(1000);
+            sleepFor(1, TimeUnit.SECONDS);
 
             assertEquals(20, writer.getWrittenElements().size());
 
-            Thread.sleep(1000);
+            sleepFor(1, TimeUnit.SECONDS);
 
             assertEquals(30, writer.getWrittenElements().size());
         } finally {
@@ -1084,6 +1064,15 @@ public class CacheWriterTest {
         return new Callable<Set<Object>>() {
             public Set<Object> call() throws Exception {
                 return writer.getDeletedElements().keySet();
+            }
+        };
+    }
+    
+    private static Callable<List<WriterEvent>> writeEvents(final TestCacheWriterRetries writer) {
+        return new Callable<List<WriterEvent>>() {
+            @Override
+            public List<WriterEvent> call() throws Exception {
+                return writer.getWriterEvents();
             }
         };
     }
