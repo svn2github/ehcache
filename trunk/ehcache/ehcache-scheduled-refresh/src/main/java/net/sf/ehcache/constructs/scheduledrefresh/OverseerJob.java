@@ -88,7 +88,7 @@ public class OverseerJob implements Job {
             Scheduler scheduler = context.getScheduler();
             // if we are the only ones running...
 
-            LOG.info("Starting Scheduled refresh: " + config.toString(cache));
+            LOG.info("Starting Scheduled refresh: " + context.getJobDetail().getKey());
             processKeys(context, config, cache, generator);
             if (config.isUseBulkload()) {
                try {
@@ -167,11 +167,11 @@ public class OverseerJob implements Job {
 
       JobDetail job = JobBuilder
             .newJob(RefreshBatchJob.class)
-            .withIdentity("batch_" + INSTANCE_ID_GENERATOR.incrementAndGet(),
+            .withIdentity("RefreshBatch-" + INSTANCE_ID_GENERATOR.incrementAndGet(),
                   context.getTrigger().getJobKey().getGroup()).usingJobData(map).build();
 
       try {
-         waitForOutstandingJobCount(context, config, scheduler, config.getQuartzThreadCount());
+         waitForOutstandingJobCount(context, config, scheduler, config.getParallelJobCount());
 
          if (!scheduler.isShutdown()) {
 

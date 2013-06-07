@@ -27,7 +27,11 @@ public class AddingCacheLoader implements net.sf.ehcache.loader.CacheLoader {
         ret.put(k, got);
       }
     }
-    return ret;
+     try {
+        Thread.sleep(1000);
+     } catch (InterruptedException e) {
+     }
+     return ret;
   }
 
   @java.lang.Override

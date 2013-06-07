@@ -15,15 +15,10 @@
  */
 package net.sf.ehcache.constructs.scheduledrefresh;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.extension.CacheExtension;
-
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
@@ -31,12 +26,12 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 /**
  * This class provides a cache extension which allows for the scheduled refresh
@@ -44,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * defined. It uses Quartz to do the job scheduling. One extension should be
  * active for a single clustered cache, as multiple extensions will run
  * independently of each other.
- * 
+ *
  * @author cschanck
  */
 public class ScheduledRefreshCacheExtension implements CacheExtension {
@@ -80,6 +75,7 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
     */
    static final String PROP_KEYS_TO_PROCESS = "keyObjects";
 
+   private static final String OVERSEER_JOB_NAME = "Overseer";
    private Ehcache underlyingCache;
    private ScheduledRefreshConfiguration config;
    private String name;
@@ -90,11 +86,9 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
    /**
     * Constructor. Create an extension with the specified config object against
     * the specified cache.
-    * 
-    * @param config
-    *           Configuration to use.
-    * @param cache
-    *           Cache to process against.
+    *
+    * @param config Configuration to use.
+    * @param cache  Cache to process against.
     */
    public ScheduledRefreshCacheExtension(ScheduledRefreshConfiguration config, Ehcache cache) {
       this.underlyingCache = cache;
@@ -106,27 +100,21 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
    public void init() {
       if (config.getScheduledRefreshName() != null) {
          this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
-               + underlyingCache.getName() + "_" + config.getScheduledRefreshName();
+             + underlyingCache.getName() + "_" + config.getScheduledRefreshName();
       } else {
          this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
-               + underlyingCache.getName();
+             + underlyingCache.getName();
       }
       this.groupName = name + "_grp";
       try {
          makeAndStartQuartzScheduler();
          try {
-            JobDetail seed = addOverseerJob();
-
-            try {
-               scheduleOverseerJob(seed);
-               status = Status.STATUS_ALIVE;
-            } catch (SchedulerException e) {
-               LOG.error("Unable to schedule control job for Scheduled Refresh", e);
-            }
-
+            scheduleOverseerJob();
+            status = Status.STATUS_ALIVE;
          } catch (SchedulerException e) {
-            LOG.error("Unable to add Scheduled Refresh control job to Quartz Job Scheduler", e);
+            LOG.error("Unable to schedule control job for Scheduled Refresh", e);
          }
+
       } catch (SchedulerException e) {
          LOG.error("Unable to instantiate Quartz Job Scheduler for Scheduled Refresh", e);
       }
@@ -141,59 +129,47 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
     * trigger winning. If there are multiple *different* cron expressions,
     * someone will win, but it is not deterministic as to which one.
     */
-   private void scheduleOverseerJob(JobDetail seed) throws SchedulerException {
+   private void scheduleOverseerJob() throws SchedulerException {
+
+      JobDetail seed = makeOverseerJob();
 
       // build our trigger
       CronScheduleBuilder cronSchedule = CronScheduleBuilder.cronSchedule(config.getCronExpression());
 
-      CronTrigger trigger = TriggerBuilder.newTrigger().forJob(seed).withSchedule(cronSchedule).build();
+      CronTrigger trigger = TriggerBuilder.newTrigger()
+          .withIdentity(OVERSEER_JOB_NAME, groupName)
+          .forJob(seed).withSchedule(cronSchedule)
+          .build();
 
-      // schedule ours
-      scheduler.scheduleJob(trigger);
-
-      // at most one scheduled here.
-      // now, keep trying to add and count the trigger, until there is only 1
-      // trigger there.
-      boolean done = false;
-      int retryCount = 0;
-      do {
-
-         List<? extends Trigger> triggers = scheduler.getTriggersOfJob(seed.getKey());
-
-         // if too many existing jobs, nuke them, replace
-         if (triggers.size() > 1) {
-            List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
-            for (Trigger t : triggers) {
-               triggerKeys.add(t.getKey());
-            }
-
-            scheduler.unscheduleJobs(triggerKeys);
-
-            // schedule ours
-            scheduler.scheduleJob(trigger);
-
-            if (retryCount++ >= 1) {
-               LOG.info("Scheduled Refresh retry [" + retryCount + "] for " + config);
-            }
-         } else {
-            done = true;
+      try {
+         scheduler.addJob(seed, false);
+      } catch (SchedulerException e) {
+         // job already present
+      }
+      try {
+         scheduler.scheduleJob(trigger);
+      } catch (SchedulerException e) {
+         // trigger already present
+         try {
+            scheduler.rescheduleJob(trigger.getKey(), trigger);
+         } catch (SchedulerException ee) {
+            LOG.error("Unable to modify trigger for: " + trigger.getKey());
          }
-      } while (!done);
+      }
 
    }
 
    /*
     * Add the control job, an instance of the OverseerJob class.
     */
-   private JobDetail addOverseerJob() throws SchedulerException {
+   private JobDetail makeOverseerJob() throws SchedulerException {
       JobDataMap jdm = new JobDataMap();
       jdm.put(PROP_CACHE_MGR_NAME, underlyingCache.getCacheManager().getName());
       jdm.put(PROP_CACHE_NAME, underlyingCache.getName());
       jdm.put(PROP_CONFIG_OBJECT, config);
       JobDetail seed = JobBuilder.newJob(OverseerJob.class).storeDurably()
-          .withIdentity("seed", groupName)
+          .withIdentity(OVERSEER_JOB_NAME, groupName)
           .usingJobData(jdm).build();
-      scheduler.addJob(seed, true);
       return seed;
    }
 
@@ -238,7 +214,7 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
     * manager/unique name is shutdown, they will continue to run. This is only
     * an issue for clustered, TerracottaJobStore-backed scheduled refresh cache
     * extensions.
-    * 
+    *
     * @throws CacheException
     */
    @Override

@@ -12,7 +12,7 @@
 
       <cacheLoaderFactory class="org.terracotta.ehcache.tests.scheduledrefresh.AddingCacheLoaderFactory"/>
       <cacheExtensionFactory class="net.sf.ehcache.constructs.scheduledrefresh.ScheduledRefreshCacheExtensionFactory"
-                             properties="tcConfigUrl=localhost:PORT,batchSize=100,quartzJobCount=4,cronExpression=0/5 * * * * ?" />
+                             properties="tcConfigUrl=localhost:PORT,batchSize=100,quartzJobCount=2,parallelJobCount=8,cronExpression=0/5 * * * * ?" />
       <terracotta clustered="true"/>
       
   </cache>
