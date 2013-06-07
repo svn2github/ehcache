@@ -68,13 +68,13 @@ public class RefreshAheadCacheTest {
         Element got = decorator.get(new Integer(1));
         long creationTime = got.getCreationTime();
         Assert.assertNotNull(got);
-        Assert.assertEquals(0, decorator.getRefreshSuccessCount().get());
+        Assert.assertEquals(0, decorator.getRefreshSuccessCount());
 
         sleepySeconds(1);
         // now, you should get the same one, no refresh ahead
         got = decorator.get(new Integer(1));
         Assert.assertNotNull(got);
-        Assert.assertEquals(0, decorator.getRefreshSuccessCount().get());
+        Assert.assertEquals(0, decorator.getRefreshSuccessCount());
         Assert.assertEquals(0, successStat.iterator().next().value().longValue());
         Assert.assertEquals(got.getCreationTime(), creationTime);
 
@@ -89,7 +89,7 @@ public class RefreshAheadCacheTest {
         // better be a new object this time, faulted in via refresh ahead
         // better not have the same creation time as originally
         got = decorator.get(new Integer(1));
-        Assert.assertEquals(1, decorator.getRefreshSuccessCount().get());
+        Assert.assertEquals(1, decorator.getRefreshSuccessCount());
         Assert.assertEquals(1, successStat.iterator().next().value().longValue());
         Assert.assertEquals(1, processedStat.iterator().next().value().longValue());
         Assert.assertEquals(0, droppedStat.iterator().next().value().longValue());

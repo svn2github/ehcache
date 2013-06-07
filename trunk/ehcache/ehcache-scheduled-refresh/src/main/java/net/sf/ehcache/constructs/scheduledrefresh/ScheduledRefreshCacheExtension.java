@@ -19,6 +19,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.extension.CacheExtension;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
@@ -30,8 +31,12 @@ import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.StatisticsManager;
 
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class provides a cache extension which allows for the scheduled refresh
@@ -82,6 +87,9 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
    private Scheduler scheduler;
    private String groupName;
    private Status status;
+   private AtomicLong refreshCount = new AtomicLong();
+   private AtomicLong jobCount = new AtomicLong();
+   private AtomicLong keysProcessedCount = new AtomicLong();
 
    /**
     * Constructor. Create an extension with the specified config object against
@@ -94,6 +102,7 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
       this.underlyingCache = cache;
       this.config = config;
       this.status = Status.STATUS_UNINITIALISED;
+      StatisticsManager.associate(this).withParent(cache);
    }
 
    @Override
@@ -235,6 +244,182 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
    @Override
    public Status getStatus() {
       return status;
+   }
+
+   /**
+    * Gets extension group name.
+    *
+    * @return the extension group name
+    */
+   String getExtensionGroupName() {
+      return groupName;
+   }
+
+   /**
+    * Gets underlying cache.
+    *
+    * @return the underlying cache
+    */
+   Ehcache getUnderlyingCache() {
+      return underlyingCache;
+   }
+
+   /**
+    * Find extension from cache.
+    *
+    * @param cache the cache
+    * @param groupName the group name
+    * @return the scheduled refresh cache extension
+    */
+   static ScheduledRefreshCacheExtension findExtensionFromCache(Ehcache cache, String groupName) {
+      for (CacheExtension ce : cache.getRegisteredCacheExtensions()) {
+         if (ce instanceof ScheduledRefreshCacheExtension) {
+            ScheduledRefreshCacheExtension probe = (ScheduledRefreshCacheExtension) ce;
+            if (probe.getUnderlyingCache().getName().equals(cache.getName()) &&
+                probe.getExtensionGroupName().equals(groupName)) {
+               return probe;
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Increment refresh count.
+    */
+   void incrementRefreshCount() {
+      refreshCount.incrementAndGet();
+   }
+
+   /**
+    * Increment job count.
+    */
+   void incrementJobCount() {
+      jobCount.incrementAndGet();
+   }
+
+   /**
+    * Increment processed count.
+    *
+    * @param many the many
+    */
+   void incrementProcessedCount(int many) {
+      keysProcessedCount.addAndGet(many);
+   }
+
+   /**
+    * Gets refresh count.
+    *
+    * @return the refresh count
+    */
+   @org.terracotta.statistics.Statistic(name = "refresh", tags = "scheduledrefresh")
+   public long getRefreshCount() {
+      return refreshCount.get();
+   }
+
+   /**
+    * Gets job count.
+    *
+    * @return the job count
+    */
+   @org.terracotta.statistics.Statistic(name = "job", tags = "scheduledrefresh")
+   public long getJobCount() {
+      return jobCount.get();
+   }
+
+   /**
+    * Gets keys processed count.
+    *
+    * @return the keys processed count
+    */
+   @org.terracotta.statistics.Statistic(name = "keysprocessed", tags = "scheduledrefresh")
+   public long getKeysProcessedCount() {
+      return keysProcessedCount.get();
+   }
+
+   /**
+    * Find refreshed counter statistic. Number of times schedule refresh has been
+    * started on this node.
+    *
+    * @param cache the cache this statistic is attached to.
+    * @return the set
+    */
+   public static Set<ExtendedStatistics.Statistic<Number>> findRefreshStatistics(Ehcache cache) {
+      return cache.getStatistics().getExtended().passthru("refresh",
+          Collections.singletonMap("scheduledrefresh", null).keySet());
+   }
+
+   /**
+    * Find job counter statistic. Number of batch jobs executed on this node.
+    *
+    * @param cache the cache this statistic is attached to.
+    * @return the set
+    */
+   public static Set<ExtendedStatistics.Statistic<Number>> findJobStatistics(Ehcache cache) {
+      return cache.getStatistics().getExtended().passthru("job",
+          Collections.singletonMap("scheduledrefresh", null).keySet());
+   }
+
+   /**
+    * Find queued counter statistic. Number of batch jobs executed on this node.
+    *
+    * @param cache the cache this statistic is attached to.
+    * @return the set
+    */
+   public static Set<ExtendedStatistics.Statistic<Number>> findKeysProcessedStatistics(Ehcache cache) {
+      return cache.getStatistics().getExtended().passthru("keysprocessed",
+          Collections.singletonMap("scheduledrefresh", null).keySet());
+   }
+
+   /**
+    * Finds a single refresh statistic for this cache. This is the count of scheduled
+    * refresh invocations for this node. Throws {@link IllegalStateException} if
+    * there are none or more than one.
+    *
+    * @param cache the cache
+    * @return the extended statistics . statistic
+    */
+   public static ExtendedStatistics.Statistic<Number> findRefreshStatistic(Ehcache cache) {
+      Set<ExtendedStatistics.Statistic<Number>> set = findRefreshStatistics(cache);
+      if (set.size() == 1) {
+         return set.iterator().next();
+      } else {
+         throw new IllegalStateException("Multiple scheduled refresh stats found for this cache");
+      }
+   }
+
+   /**
+    * Finds a single job statistic for this cache. This is the count of refresh batch jobs
+    * executed on this node. Throws {@link IllegalStateException} if there are none or
+    * more than one.
+    *
+    * @param cache the cache
+    * @return the extended statistics . statistic
+    */
+   public static ExtendedStatistics.Statistic<Number> findJobStatistic(Ehcache cache) {
+      Set<ExtendedStatistics.Statistic<Number>> set = findJobStatistics(cache);
+      if (set.size() == 1) {
+         return set.iterator().next();
+      } else {
+         throw new IllegalStateException("Multiple scheduled refresh stats found for this cache");
+      }
+   }
+
+   /**
+    * Finds a single keys processed statistic for this cache. This is the count of keys
+    * refreshed on this node. Throws {@link IllegalStateException} if
+    * there are none or more than one.
+    *
+    * @param cache the cache
+    * @return the extended statistics . statistic
+    */
+   public static ExtendedStatistics.Statistic<Number> findKeysProcessedStatistic(Ehcache cache) {
+      Set<ExtendedStatistics.Statistic<Number>> set = findKeysProcessedStatistics(cache);
+      if (set.size() == 1) {
+         return set.iterator().next();
+      } else {
+         throw new IllegalStateException("Multiple scheduled refresh stats found for this cache");
+      }
    }
 
 }

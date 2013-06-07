@@ -2,6 +2,7 @@ package net.sf.ehcache.constructs.scheduledrefresh;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Set;
 
 import junit.framework.Assert;
 import net.sf.ehcache.Cache;
@@ -10,140 +11,151 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import org.junit.Test;
 
 public class ScheduledRefreshCacheExtensionTest {
 
-    private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
-    private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
+   private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
+   private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
 
-    private static void sleepySeconds(int secs) {
-        sleepy(secs * 1000);
-    }
+   private static void sleepySeconds(int secs) {
+      sleepy(secs * 1000);
+   }
 
-    private static void sleepy(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
+   private static void sleepy(int millis) {
+      try {
+         Thread.sleep(millis);
+      } catch (InterruptedException e) {
 
-        }
-    }
+      }
+   }
 
-    // OK. we want to create an ehcache, then programmitically decorate it with
-    // locks.
-    @Test
-    public void testSimpleCaseProgrammatic() {
+   // OK. we want to create an ehcache, then programmitically decorate it with
+   // locks.
+   @Test
+   public void testSimpleCaseProgrammatic() {
 
-        CacheManager manager = new CacheManager();
-        manager.removeAllCaches();
+      CacheManager manager = new CacheManager();
+      manager.removeAllCaches();
 
-        manager.addCache(new Cache(new CacheConfiguration().name("test").eternal(true).maxEntriesLocalHeap(5000)));
-        Ehcache cache = manager.getEhcache("test");
-        cache.registerCacheLoader(stupidCacheLoaderEvens);
-        cache.registerCacheLoader(stupidCacheLoaderOdds);
+      manager.addCache(new Cache(new CacheConfiguration().name("test").eternal(true).maxEntriesLocalHeap(5000)));
+      Ehcache cache = manager.getEhcache("test");
+      cache.registerCacheLoader(stupidCacheLoaderEvens);
+      cache.registerCacheLoader(stupidCacheLoaderOdds);
 
-        int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
-        ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(100).quartzThreadCount
-                (4).cronExpression(second + "/5 * * * * ?").build();
-        ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
-        cache.registerCacheExtension(cacheExtension);
-        cacheExtension.init();
+      int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
+      ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(100).quartzThreadCount
+          (4).cronExpression(second + "/5 * * * * ?").build();
+      ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
+      cache.registerCacheExtension(cacheExtension);
+      cacheExtension.init();
 
-        for (int i = 0; i < 10; i++) {
-            cache.put(new Element(new Integer(i), i + ""));
-        }
+      for (int i = 0; i < 10; i++) {
+         cache.put(new Element(new Integer(i), i + ""));
+      }
 
-        sleepySeconds(8);
+      sleepySeconds(8);
 
-        for (Object key : cache.getKeys()) {
-            Element val = cache.get(key);
-            // System.out.println("["+key+", "+cache.get(key).getObjectValue()+"]");
-            int iVal = ((Number) key).intValue();
-            if ((iVal & 0x01) == 0) {
-                // even
-                Assert.assertEquals(iVal + 20000, Long.parseLong((String) val.getObjectValue()));
-            } else {
-                Assert.assertEquals(iVal + 10000, Long.parseLong((String) val.getObjectValue()));
-                // odd
-            }
+      for (Object key : cache.getKeys()) {
+         Element val = cache.get(key);
+         // System.out.println("["+key+", "+cache.get(key).getObjectValue()+"]");
+         int iVal = ((Number) key).intValue();
+         if ((iVal & 0x01) == 0) {
+            // even
+            Assert.assertEquals(iVal + 20000, Long.parseLong((String) val.getObjectValue()));
+         } else {
+            Assert.assertEquals(iVal + 10000, Long.parseLong((String) val.getObjectValue()));
+            // odd
+         }
 
-        }
-        //cacheExtension.dispose();
-        manager.removeAllCaches();
-        manager.shutdown();
-    }
+      }
 
-    // OK. we want to create an ehcache, then programmitaclly decorate it with
-    // locks.
-    @Test
-    public void testSimpleCaseXML() {
+      ExtendedStatistics.Statistic<Number> refreshStat=ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
+      Assert.assertEquals(1,refreshStat.value().intValue());
 
-        CacheManager manager = CacheManager.create("src/test/resources/ehcache-scheduled-refresh.xml");
+      ExtendedStatistics.Statistic<Number> jobStat=ScheduledRefreshCacheExtension.findJobStatistic(cache);
+      Assert.assertEquals(1,refreshStat.value().intValue());
 
-        Cache cache = manager.getCache("sr-test");
+      ExtendedStatistics.Statistic<Number> procStat=ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
+      Assert.assertEquals(10,procStat.value().intValue());
 
-        int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
+      //cacheExtension.dispose();
+      manager.removeAllCaches();
+      manager.shutdown();
+   }
 
-        for (int i = 0; i < 10; i++) {
-            cache.put(new Element(new Integer(i), i + ""));
-        }
+   // OK. we want to create an ehcache, then programmitaclly decorate it with
+   // locks.
+   @Test
+   public void testSimpleCaseXML() {
 
-        second = Math.max(8, 60 - second + 3);
-        System.out.println("Scheduled delay is :: " + second);
-        sleepySeconds(second);
+      CacheManager manager = CacheManager.create("src/test/resources/ehcache-scheduled-refresh.xml");
 
-        for (Object key : cache.getKeys()) {
-            Element val = cache.get(key);
-            // System.out.println("["+key+", "+cache.get(key).getObjectValue()+"]");
-            int iVal = ((Number) key).intValue();
-            if ((iVal & 0x01) == 0) {
-                // even
-                Assert.assertEquals(iVal + 20000, Long.parseLong((String) val.getObjectValue()));
-            } else {
-                Assert.assertEquals(iVal + 10000, Long.parseLong((String) val.getObjectValue()));
-                // odd
-            }
+      Cache cache = manager.getCache("sr-test");
 
-        }
-        manager.removeAllCaches();
+      int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
 
-        manager.shutdown();
-    }
-    
-    // OK. we want to create an ehcache, then programmitically decorate it with
-    // locks.
-    @Test
-    public void testPolling() {
+      for (int i = 0; i < 10; i++) {
+         cache.put(new Element(new Integer(i), i + ""));
+      }
 
-        CacheManager manager = new CacheManager();
-        manager.removeAllCaches();
+      second = Math.max(8, 60 - second + 3);
+      System.out.println("Scheduled delay is :: " + second);
+      sleepySeconds(second);
 
-        manager.addCache(new Cache(new CacheConfiguration().name("tt").eternal(true).maxEntriesLocalHeap(5000).overflowToDisk(false)));
-        Ehcache cache = manager.getEhcache("tt");
-        stupidCacheLoaderEvens.setMsDelay(100);
-        cache.registerCacheLoader(stupidCacheLoaderEvens);
-        cache.registerCacheLoader(stupidCacheLoaderOdds);
+      for (Object key : cache.getKeys()) {
+         Element val = cache.get(key);
+         // System.out.println("["+key+", "+cache.get(key).getObjectValue()+"]");
+         int iVal = ((Number) key).intValue();
+         if ((iVal & 0x01) == 0) {
+            // even
+            Assert.assertEquals(iVal + 20000, Long.parseLong((String) val.getObjectValue()));
+         } else {
+            Assert.assertEquals(iVal + 10000, Long.parseLong((String) val.getObjectValue()));
+            // odd
+         }
 
-        int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
-        ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(2).quartzThreadCount
-                (2).pollTimeMs(100).cronExpression(second + "/1 * * * * ?").build();
-        ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
-        cache.registerCacheExtension(cacheExtension);
-        cacheExtension.init();
+      }
+      manager.removeAllCaches();
 
-        final int ELEMENT_COUNT=50;
-        long[] orig=new long[ELEMENT_COUNT];
-        for (int i = 0; i < ELEMENT_COUNT; i++) {
-            Element elem = new  Element(new Integer(i), i + "");
-            orig[i]=elem.getCreationTime();
-            cache.put(elem);
-        }
+      manager.shutdown();
+   }
 
-        sleepySeconds(20);
+   // OK. we want to create an ehcache, then programmitically decorate it with
+   // locks.
+   @Test
+   public void testPolling() {
 
-        //cacheExtension.dispose();
-        manager.removeAllCaches();
-        manager.shutdown();
-    }
+      CacheManager manager = new CacheManager();
+      manager.removeAllCaches();
+
+      manager.addCache(new Cache(new CacheConfiguration().name("tt").eternal(true).maxEntriesLocalHeap(5000).overflowToDisk(false)));
+      Ehcache cache = manager.getEhcache("tt");
+      stupidCacheLoaderEvens.setMsDelay(100);
+      cache.registerCacheLoader(stupidCacheLoaderEvens);
+      cache.registerCacheLoader(stupidCacheLoaderOdds);
+
+      int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
+      ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(2).quartzThreadCount
+          (2).pollTimeMs(100).cronExpression(second + "/1 * * * * ?").build();
+      ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
+      cache.registerCacheExtension(cacheExtension);
+      cacheExtension.init();
+
+      final int ELEMENT_COUNT = 50;
+      long[] orig = new long[ELEMENT_COUNT];
+      for (int i = 0; i < ELEMENT_COUNT; i++) {
+         Element elem = new Element(new Integer(i), i + "");
+         orig[i] = elem.getCreationTime();
+         cache.put(elem);
+      }
+
+      sleepySeconds(20);
+
+      //cacheExtension.dispose();
+      manager.removeAllCaches();
+      manager.shutdown();
+   }
 
 }

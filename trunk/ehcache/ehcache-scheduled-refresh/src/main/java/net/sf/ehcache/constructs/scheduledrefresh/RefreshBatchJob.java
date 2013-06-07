@@ -85,7 +85,7 @@ public class RefreshBatchJob implements Job {
       }
    }
 
-   @SuppressWarnings({"unchecked", "rawtypes"})
+   @SuppressWarnings({ "unchecked", "rawtypes" })
    @Override
    public void execute(JobExecutionContext context) throws JobExecutionException {
       JobDataMap jdm = context.getMergedJobDataMap();
@@ -99,6 +99,17 @@ public class RefreshBatchJob implements Job {
 
       HashSet<? extends Object> keysToProcess = new HashSet((Collection<? extends Object>) jdm.get(
           ScheduledRefreshCacheExtension.PROP_KEYS_TO_PROCESS));
+
+      ScheduledRefreshCacheExtension extension = ScheduledRefreshCacheExtension.findExtensionFromCache(underlyingCache,
+          context.getJobDetail().getKey().getGroup());
+      if (extension != null) {
+         extension.incrementJobCount();
+         extension.incrementProcessedCount(keysToProcess.size());
+      } else {
+         LOG.warn("Unable to find scheduled refresh extension on cache: " + underlyingCache + "/"
+             + context.getJobDetail().getKey().getGroup());
+      }
+
       LOG.info("Scheduled refresh batch job: " + context.getJobDetail().getKey() + " size: " + keysToProcess.size());
       try {
          if (config.isUseBulkload()) {
