@@ -33,55 +33,66 @@ import java.util.concurrent.TimeUnit;
 public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
 
    /**
-    * Properties key for the batch size attribute.
+    * Property keys for configuration.
     */
-   public static final String PROP_BATCH_SIZE_KEY = "batchSize";
+   public enum PropKey {
+      /**
+       * Properties key for the batch size attribute.
+       */
+      batchSize,
 
-   /**
-    * Properties key for the key generator class name.
-    */
-   public static final String PROP_KEY_GENERATOR_CLASS = "keyGenerator";
+      /**
+       * Properties key for the key generator class name.
+       */
+      keyGenerator,
 
-   /**
-    * Properties key for cron expression used to schedule this job.
-    */
-   public static final String PROP_CRON_SCHEDULE = "cronExpression";
 
-   /**
-    * Properties key for enabling bulk load mode prior to exection of the
-    * refresh.
-    */
-   public static final String PROP_USE_BULKLOAD = "useBulkload";
+      /**
+       * Properties key for cron expression used to schedule this job.
+       */
+      cronExpression,
 
-   /**
-    * Properties key for the quartz job count attribute.
-    */
-   public static final String PROP_LOCAL_QUARTZ_JOB_COUNT = "quartzJobCount";
+      /**
+       * Properties key for enabling bulk load mode prior to exection of the
+       * refresh.
+       */
+      useBulkload,
 
-   /**
-    * Properties key for the terracotta config url.
-    */
-   public static final String PROP_TC_CONFIG_URL = "tcConfigUrl";
+      /**
+       * Properties key for the quartz job count attribute.
+       */
+      quartzJobCount,
 
-   /**
-    * Properties key for the unique name identifier.
-    */
-   public static final String PROP_SCHEDULED_REFRESH_NAME = "scheduledRefreshName";
+      /**
+       * Properties key for the terracotta config url.
+       */
+      tcConfigUrl,
 
-   /**
-    * Properties key for the seed job polling interval.
-    */
-   public static final String PROP_POLL_TIME_MS = "pollTimeMs";
+      /**
+       * Properties key for the unique name identifier.
+       */
+      scheduledRefreshName,
 
-   /**
-    * Properties key for evictions on refresh fail.
-    */
-   public static final String PROP_EVICT_ON_LOAD_MISS = "evictOnLoadMiss";
+      /**
+       * Properties key for the seed job polling interval.
+       */
+      pollTimeMs,
 
-   /**
-    * Properties key for the job store factory.
-    */
-   public static final String PROP_JOBSTORE_FACTORY_CLASS = "jobStoreFactory";
+      /**
+       * Properties key for evictions on refresh fail.
+       */
+      evictOnLoadMiss,
+
+      /**
+       * Properties key for the job store factory.
+       */
+      jobStoreFactory,
+
+      /**
+       * Properties key for the job store factory.
+       */
+      parallelJobCount,
+   }
 
    /**
     * Default setting for null eviction.
@@ -99,9 +110,14 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    public static final int DEFAULT_BATCHSIZE = 100;
 
    /**
-    * Default simultaneous Quartz thread count.
+    * Default simultaneous Quartz thread count per node.
     */
    public static final int DEFAULT_QUARTZ_THREADCOUNT = 2;
+
+   /**
+    * Default number of in process job count over the entire cluster.
+    */
+   public static final int DEFAULT_PARALLEL_JOB_COUNT = DEFAULT_QUARTZ_THREADCOUNT;
 
    /**
     * Default polling timeout for monitoring refresh jobs.
@@ -142,6 +158,11 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * The quartz thread count.
     */
    private int quartzThreadCount = DEFAULT_QUARTZ_THREADCOUNT;
+
+   /**
+    * Default parallel job count
+    */
+   private int parallelJobCount = DEFAULT_PARALLEL_JOB_COUNT;
 
    /**
     * The key generator class.
@@ -202,24 +223,47 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
       if (properties != null) {
          for (String property : properties.stringPropertyNames()) {
             String stringValue = properties.getProperty(property).trim();
-            if (PROP_BATCH_SIZE_KEY.equals(property)) {
-               setBatchSize(Integer.parseInt(stringValue));
-            } else if (PROP_USE_BULKLOAD.equals(property)) {
-               setUseBulkload(Boolean.parseBoolean(stringValue));
-            } else if (PROP_CRON_SCHEDULE.equals(property)) {
-               setCronExpression(stringValue);
-            } else if (PROP_JOBSTORE_FACTORY_CLASS.equals(property)) {
-               setJobStoreFactoryClassName(stringValue);
-            } else if (PROP_LOCAL_QUARTZ_JOB_COUNT.equals(property)) {
-               setQuartzThreadCount(Integer.parseInt(stringValue));
-            } else if (PROP_POLL_TIME_MS.equals(property)) {
-               setPollTimeMs(Integer.parseInt(stringValue));
-            } else if (PROP_EVICT_ON_LOAD_MISS.equals(property)) {
-               setEvictOnLoadMiss(Boolean.parseBoolean(stringValue));
-            } else if (PROP_TC_CONFIG_URL.equals(property)) {
-               setTerracottaConfigUrl(stringValue);
-            } else if (PROP_KEY_GENERATOR_CLASS.equals(property)) {
-               setKeyGeneratorClass(stringValue);
+            PropKey pk;
+            try {
+               pk = PropKey.valueOf(property);
+            } catch (Exception e) {
+               pk = null;
+            }
+            if (pk != null) {
+               switch (pk) {
+                  case batchSize:
+                     setBatchSize(Integer.parseInt(stringValue));
+                     break;
+                  case useBulkload:
+                     setUseBulkload(Boolean.parseBoolean(stringValue));
+                     break;
+                  case cronExpression:
+                     setCronExpression(stringValue);
+                     break;
+                  case jobStoreFactory:
+                     setJobStoreFactoryClassName(stringValue);
+                     break;
+                  case quartzJobCount:
+                     setQuartzThreadCount(Integer.parseInt(stringValue));
+                     break;
+                  case parallelJobCount:
+                     setParallelJobCount(Integer.parseInt(stringValue));
+                     break;
+                  case pollTimeMs:
+                     setPollTimeMs(Integer.parseInt(stringValue));
+                     break;
+                  case evictOnLoadMiss:
+                     setEvictOnLoadMiss(Boolean.parseBoolean(stringValue));
+                     break;
+                  case tcConfigUrl:
+                     setTerracottaConfigUrl(stringValue);
+                     break;
+                  case keyGenerator:
+                     setKeyGeneratorClass(stringValue);
+                     break;
+                  default:
+                     throw new IllegalStateException("Unhandled property key: " + pk);
+               }
             } else {
                excessProperties.put(property, stringValue);
             }
@@ -235,15 +279,16 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     */
    public Properties toProperties() {
       Properties p = new Properties();
-      p.setProperty(PROP_BATCH_SIZE_KEY, Long.toString(getBatchSize()));
-      p.setProperty(PROP_USE_BULKLOAD, Boolean.toString(isUseBulkload()));
-      p.setProperty(PROP_EVICT_ON_LOAD_MISS, Boolean.toString(isEvictOnLoadMiss()));
-      p.setProperty(PROP_CRON_SCHEDULE, getCronExpression());
-      p.setProperty(PROP_CRON_SCHEDULE, getJobStoreFactoryClass());
-      p.setProperty(PROP_LOCAL_QUARTZ_JOB_COUNT, Integer.toString(getQuartzThreadCount()));
-      p.setProperty(PROP_POLL_TIME_MS, Integer.toString(getPollTimeMs()));
-      p.setProperty(PROP_KEY_GENERATOR_CLASS, getKeyGeneratorClass());
-      p.setProperty(PROP_TC_CONFIG_URL, getTerracottaConfigUrl());
+      p.setProperty(PropKey.batchSize.name(), Long.toString(getBatchSize()));
+      p.setProperty(PropKey.useBulkload.name(), Boolean.toString(isUseBulkload()));
+      p.setProperty(PropKey.evictOnLoadMiss.name(), Boolean.toString(isEvictOnLoadMiss()));
+      p.setProperty(PropKey.cronExpression.name(), getCronExpression());
+      p.setProperty(PropKey.jobStoreFactory.name(), getJobStoreFactoryClass());
+      p.setProperty(PropKey.quartzJobCount.name(), Integer.toString(getQuartzThreadCount()));
+      p.setProperty(PropKey.parallelJobCount.name(), Integer.toString(getParallelJobCount()));
+      p.setProperty(PropKey.pollTimeMs.name(), Integer.toString(getPollTimeMs()));
+      p.setProperty(PropKey.keyGenerator.name(), getKeyGeneratorClass());
+      p.setProperty(PropKey.tcConfigUrl.name(), getTerracottaConfigUrl());
       for (String property : excessProperties.stringPropertyNames()) {
          String stringValue = excessProperties.getProperty(property).trim();
          p.put(property, stringValue);
@@ -619,6 +664,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
       return "ScheduledRefreshConfiguration{" + "terracottaConfigUrl=" + getTerracottaConfigUrl() +
           ", batchSize=" + batchSize + ", useBulkload=" + useBulkload
           + ", cronExpression='" + cronExpression + '\'' + ", quartzThreadCount=" + quartzThreadCount
+          + ", parallelJobCount=" + parallelJobCount
           + ", keyGeneratorClass='" + keyGeneratorClass + '\'' + ", uniqueNamePart='" + scheduledRefreshName + '\''
           + ", pollTimeMs=" + pollTimeMs + ", loadMissEvicts=" + evictOnLoadMiss + ", valid=" + valid + '}';
    }
@@ -669,5 +715,35 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     */
    public String getTerracottaConfigUrl() {
       return tcConfigUrl;
+   }
+
+   /**
+    * Sets parallel job count.
+    *
+    * @param parallelJobCount the parallel job count
+    */
+   public void setParallelJobCount(int parallelJobCount) {
+      this.parallelJobCount = parallelJobCount;
+      valid = false;
+   }
+
+   /**
+    * Parallel job count.
+    *
+    * @param parallelJobCount the parallel job count
+    * @return the scheduled refresh configuration
+    */
+   public ScheduledRefreshConfiguration parallelJobCount(int parallelJobCount) {
+      setParallelJobCount(parallelJobCount);
+      return this;
+   }
+
+   /**
+    * Gets parallel job count.
+    *
+    * @return the parallel job count
+    */
+   public int getParallelJobCount() {
+      return parallelJobCount;
    }
 }
