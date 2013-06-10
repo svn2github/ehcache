@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>ehcache</artifactId>
-  <packaging>${packagingType}</packaging>
+  <packaging>jar</packaging>
   <name>ehcache</name>
   <description>Ehcache is an open source, standards-based cache used to boost performance,
   offload the database and simplify scalability. Ehcache is robust, proven and full-featured and
@@ -31,7 +31,6 @@
     <terracotta.kit.path>${project.build.directory}/tmp/terracotta</terracotta.kit.path>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <skipJavadoc>false</skipJavadoc>
-    <packagingType>jar</packagingType>
     <devmode>true</devmode>
   </properties>
 
@@ -84,73 +83,6 @@
             <goals>
               <goal>copy-dependencies</goal>
             </goals>
-          </execution>
-
-          <execution>
-            <id>copy-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>net.sf.ehcache.internal</groupId>
-                  <artifactId>ehcache-core</artifactId>
-                  <version>${project.version}</version>
-                  <classifier>sources</classifier>
-                  <overWrite>true</overWrite>
-                  <destFileName>${project.artifactId}-${project.version}-sources.jar</destFileName>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-            </configuration>
-          </execution>
-
-          <execution>
-            <id>copy-javadoc</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <skip>${skipJavadoc}</skip>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>net.sf.ehcache.internal</groupId>
-                  <artifactId>ehcache-core</artifactId>
-                  <version>${project.version}</version>
-                  <classifier>javadoc</classifier>
-                  <overWrite>true</overWrite>
-                  <destFileName>${project.artifactId}-${project.version}-javadoc.jar</destFileName>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-javadoc</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attach-artifact</goal>
-            </goals>
-            <configuration>
-              <skipAttach>${skipJavadoc}</skipAttach>
-              <artifacts>
-                <!-- sources artifact attached by default -->
-                <artifact>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}-javadoc.jar</file>
-                  <type>jar</type>
-                  <classifier>javadoc</classifier>
-                </artifact>
-              </artifacts>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -274,45 +206,48 @@
           <value>false</value>
         </property>
       </activation>
-      <properties>
-        <packagingType>bundle</packagingType>
-      </properties>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>maven-bundle-plugin</artifactId>
-            <version>2.3.7</version>
-            <extensions>true</extensions>
-            <configuration>
-              <manifestLocation>${project.build.directory}</manifestLocation>
-              <instructions>
-                <Bundle-Name>${project.artifactId}</Bundle-Name>
-                <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
-                <Import-Package>bitronix.tm;resolution:=optional,
-              bitronix.tm.resource.ehcache;resolution:=optional,
-              com.atomikos.*;resolution:=optional,
-              com.atomikos.icatch.jta;resolution:=optional,
-              weblogic.transaction;resolution:=optional,
-              javax.transaction;resolution:=optional,
-              javax.servlet;resolution:=optional,
-              javax.net.ssl;resolution:=optional,
-              org.hibernate.*;resolution:=optional,
-              org.terracotta.toolkit.*;resolution:=optional,
-              !sun.misc,*
-                </Import-Package>
-                <Export-Package>net.sf.ehcache.*</Export-Package>
-                <Private-Package>org.terracotta.*</Private-Package>
-                <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
-              </instructions>
-              <excludeDependencies>*;scope=provided|runtime</excludeDependencies>
-            </configuration>
-          </plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9</version>
+            <executions>
+              <execution>
+                <id>create-javadoc</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipJavadoc}</skip>
+                  <author>true</author>
+                  <minmemory>128m</minmemory>
+                  <maxmemory>512</maxmemory>              
+                  <quiet>true</quiet>
+                  <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
+                  <doctitle>${project.name} ${project.version} API</doctitle>
+                  <windowtitle>${project.name} ${project.version} API</windowtitle>
+                  <bottom>Copyright 2001-{currentYear}, Terracotta, Inc.</bottom>
+                  <overview>${basedir}/src/main/java/net/sf/ehcache/overview.html</overview>
+                  <includeDependencySources>true</includeDependencySources>      
+                  <dependencySourceIncludes>
+                    <dependencySourceInclude>net.sf.ehcache.internal:*</dependencySourceInclude>
+                  </dependencySourceIncludes>
+                  <dependencySourceExcludes>
+                    <dependencySourceExclude>net.sf.ehcache.internal:ehcache-rest-agent</dependencySourceExclude>
+                  </dependencySourceExcludes>
+                </configuration>                
+              </execution>
+            </executions>
+          </plugin>       
+          
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
             <configuration>
               <useBaseVersion>true</useBaseVersion>
+              <createSourcesJar>true</createSourcesJar>
               <artifactSet>
                 <includes>
                   <include>net.sf.ehcache.internal:*</include>
@@ -324,6 +259,7 @@
                   <artifact>*:*</artifact>
                   <excludes>
                     <exclude>**/META-INF/maven/net.sf.ehcache.internal/**</exclude>
+                    <exclude>**/META-INF/maven/org.terracotta.internal/**</exclude>
                     <exclude>**/license.txt</exclude>
                     <exclude>**/thirdpartylicenses.txt</exclude>
                     <exclude>META-INF/*.SF</exclude>
@@ -355,30 +291,83 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.codehaus.gmaven</groupId>
-            <artifactId>gmaven-plugin</artifactId>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
             <executions>
               <execution>
-                <id>inject-correct-pom-to-jar</id>
+                <id>unpack-jar-for-bundling</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <unzip src="${project.build.directory}/${project.artifactId}-${project.version}.jar" dest="${project.build.outputDirectory}" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>           
+          <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <version>2.3.7</version>
+            <configuration>
+              <manifestLocation>${project.build.directory}</manifestLocation>
+              <instructions>
+                <Bundle-Name>${project.artifactId}</Bundle-Name>
+                <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
+                <Import-Package>bitronix.tm;resolution:=optional,
+              bitronix.tm.resource.ehcache;resolution:=optional,
+              com.atomikos.*;resolution:=optional,
+              com.atomikos.icatch.jta;resolution:=optional,
+              weblogic.transaction;resolution:=optional,
+              javax.transaction;resolution:=optional,
+              javax.servlet;resolution:=optional,
+              javax.net.ssl;resolution:=optional,
+              org.hibernate.*;resolution:=optional,
+              org.terracotta.toolkit.*;resolution:=optional,
+              !sun.misc,*
+                </Import-Package>
+                <Export-Package>net.sf.ehcache.*</Export-Package>
+                <Private-Package>org.terracotta.*</Private-Package>
+                <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
+              </instructions>
+              <excludeDependencies>*;scope=provided|runtime</excludeDependencies>
+            </configuration>
+            <executions>
+              <execution>
+                <id>generate-osgi-headers</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>manifest</goal>
+                </goals>
+              </execution>
+            </executions>            
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <version>${gmaven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>repackage-jar</id>
                 <phase>package</phase>
                 <goals>
                   <goal>execute</goal>
                 </goals>
                 <configuration>
                   <source>
-                def jarFile = new File(project.build.directory,
-                "${project.artifactId}-${project.version}.jar")
-                ant.jar(destfile: jarFile, update: "true") {
-                zipfileset(file: new File(project.build.directory,
-                "dependency-reduced-pom.xml"),
-                fullpath:
-                "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml")
-                }
+                    def jarFile = new File(project.build.directory, "${project.artifactId}-${project.version}.jar")
+                    ant.copy(file: new File(project.build.directory, "dependency-reduced-pom.xml"),
+                             tofile: new File(project.build.outputDirectory, "META-INF/maven/${project.groupId}/${project.artifactId}/pom.xml"))
+                    ant.jar(destfile: jarFile, basedir: new File(project.build.outputDirectory).getAbsolutePath(), manifest: new File(project.build.directory, "MANIFEST.MF"))
                   </source>
                 </configuration>
               </execution>
             </executions>
-          </plugin>
+          </plugin>           
         </plugins>
       </build>
     </profile>

@@ -155,7 +155,8 @@
             <artifactId>maven-shade-plugin</artifactId>
             <configuration>
               <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-              <useBaseVersion>true</useBaseVersion> 
+              <useBaseVersion>true</useBaseVersion>
+              <createSourcesJar>true</createSourcesJar> 
               <shadedArtifactAttached>false</shadedArtifactAttached>
               <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
               <artifactSet>
