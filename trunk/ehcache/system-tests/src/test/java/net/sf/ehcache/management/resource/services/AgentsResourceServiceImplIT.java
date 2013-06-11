@@ -18,11 +18,14 @@ import static org.hamcrest.Matchers.containsString;
 
 /**
  * @author: Anthony Dahanne
+ * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/ endpoint
+ * works fine
  */
 public class AgentsResourceServiceImplIT {
 
   public static final int PORT = 12121;
   public static final String BASEURI = "http://localhost";
+  private static final String INFO = "info/" ;
   private CacheManager manager;
   private static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents/";
 
@@ -35,25 +38,40 @@ public class AgentsResourceServiceImplIT {
 
   @Test
   /**
-   * The aim of this test, is to simulate the user interface, via REST calls to the ehcache standalone agent:
    * - GET the list of agents
+   * - GET the subresource /info
    *
    * @throws Exception
    */
   public void getAgentsTest__OneCacheManager() throws Exception {
 
-
-    // let's check the agent was edited correctly server side
     expect().contentType(ContentType.JSON).body(containsString("\"agentId\":\"embedded\""),
                                                 containsString("\"agencyOf\":\"Ehcache\""),
                                                 containsString("\"rootRepresentables\":{\"cacheManagerNames\":\"testCacheManager\"}"))
                                           .statusCode(200)
                                           .when().get(EXPECTED_RESOURCE_LOCATION);
+    // /info
+    //[{"agentId":"embedded","agencyOf":"Ehcache","available":true,"secured":false,"sslEnabled":false,"needClientAuth":false,"licensed":false,"sampleHistorySize":30,"sampleIntervalSeconds":1,"enabled":true,"restAPIVersion":null}]
+
+
+    expect().contentType(ContentType.JSON).body(
+            containsString("\"agentId\":\"embedded\""),
+            containsString("\"agencyOf\":\"Ehcache\""),
+            containsString("\"available\":true"),
+            containsString("\"secured\":false"),
+            containsString("\"sslEnabled\":false"),
+            containsString("\"needClientAuth\":false"),
+            containsString("\"licensed\":false"),
+            containsString("\"sampleHistorySize\":30"),
+            containsString("\"sampleIntervalSeconds\":1"),
+            containsString("\"enabled\":true"))
+            .statusCode(200)
+            .when().get(EXPECTED_RESOURCE_LOCATION + INFO);
   }
   @Test
   /**
-   * The aim of this test, is to simulate the user interface, via REST calls to the ehcache standalone agent:
    * - GET the list of agents
+   * - GET the subresource /info
    *
    * @throws Exception
    */
@@ -80,6 +98,8 @@ public class AgentsResourceServiceImplIT {
             containsString("\"rootRepresentables\":{\"cacheManagerNames\":\"testCacheManagerProgrammatic,testCacheManager\"}"))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION);
+    mgr.clearAll();
+    mgr.shutdown();
   }
 
   @After
