@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<ehcache name="test">
+<ehcache name="testCacheManager">
 
   <defaultCache
       maxElementsInMemory="10000"
       eternal="true"/>
-      
-  <managementRESTService enabled="true"/>    
+
+  <managementRESTService bind="0.0.0.0:12121" enabled="true"/>
 
   <cache name="testCache"
          maxElementsInMemory="10000"
