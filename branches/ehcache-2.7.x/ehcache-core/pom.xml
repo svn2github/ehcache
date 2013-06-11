@@ -24,7 +24,6 @@
     <testResources>src/test/resources</testResources>
     <name>ehcache</name>
     <skipCheckstyle>false</skipCheckstyle>
-    <skipJavadoc>false</skipJavadoc>
     <tests.supplemental.args/>
   </properties>
 
@@ -152,34 +151,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <skip>${skipJavadoc}</skip>
-          <author>true</author>
-          <!--<destDir>${project.build.directory}/site/javadoc</destDir> -->
-          <header><![CDATA[<a href="/" target="_top">ehcache</a>]]></header>
-          <minmemory>128m</minmemory>
-          <maxmemory>512</maxmemory>
-          <overview>${basedir}/src/main/java/net/sf/ehcache/overview.html
-          </overview>
-          <use>true</use>
-          <version>true</version>
-          <windowtitle>${project.name} ${project.version} API</windowtitle>
-          <quiet>true</quiet>
-        </configuration>
-        <executions>
-          <execution>
-            <id>core-javadoc</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
       <plugin>
         <groupId>org.terracotta</groupId>
         <artifactId>maven-forge-plugin</artifactId>
@@ -551,24 +522,12 @@
       </build>
     </profile>
 
-    <!-- Profile for building ehcache skipping javadoc and checkstyle -->
+    <!-- Profile for building ehcache skipping checkstyle -->
     <profile>
       <id>fast</id>
       <properties>
         <skipCheckstyle>true</skipCheckstyle>
-        <skipJavadoc>true</skipJavadoc>
       </properties>
-    </profile>
-    <profile>
-      <id>skipJavadoc</id>
-      <properties>
-        <skipJavadoc>true</skipJavadoc>
-      </properties>
-      <activation>
-        <file>
-          <exists>${user.home}/.skipJavadoc</exists>
-        </file>
-      </activation>
     </profile>
   </profiles>
 
