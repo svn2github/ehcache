@@ -22,8 +22,6 @@ public class BasicContainerJTATest extends AbstractStandaloneTwoServerDeployment
       // Jetty and Tomcat have no TM and we know the Websphere one is not compatible
       disableTest();
     }
-
-    timebombTest("2013-06-10");
   }
 
   public static Test suite() {
