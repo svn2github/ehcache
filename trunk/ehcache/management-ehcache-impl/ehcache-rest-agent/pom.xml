@@ -117,6 +117,7 @@
             <configuration>
               <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
               <useBaseVersion>true</useBaseVersion> 
+              <createSourcesJar>true</createSourcesJar>
               <shadedArtifactAttached>false</shadedArtifactAttached>
               <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
               <artifactSet>
