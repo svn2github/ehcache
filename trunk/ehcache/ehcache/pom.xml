@@ -233,7 +233,6 @@
                   <includeDependencySources>true</includeDependencySources>      
                   <dependencySourceIncludes>
                     <dependencySourceInclude>net.sf.ehcache.internal:ehcache-core</dependencySourceInclude>
-                    <dependencySourceInclude>net.sf.ehcache.internal:ehcache-scheduled-refresh</dependencySourceInclude>
                   </dependencySourceIncludes>
                 </configuration>                
               </execution>
