@@ -45,33 +45,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <configLocation>${basedir}/checkstyle/checkstyle.xml</configLocation>
-          <suppressionsLocation>${basedir}/checkstyle/suppressions.xml</suppressionsLocation>
-          <headerLocation>${basedir}/checkstyle/ClassHeader.txt</headerLocation>
-          <skip>${skipCheckstyle}</skip>
-          <enableRSS>false</enableRSS>
-          <linkXRef>false</linkXRef>
-          <consoleOutput>true</consoleOutput>
-          <failsOnError>true</failsOnError>
-          <failOnViolation>true</failOnViolation>
-          <includeTestSourceDirectory>false</includeTestSourceDirectory>
-          <enableRulesSummary>true</enableRulesSummary>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
