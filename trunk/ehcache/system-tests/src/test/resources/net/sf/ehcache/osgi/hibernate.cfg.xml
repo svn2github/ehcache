@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+  <session-factory>
+
+    <!-- Database connection settings -->
+    <!-- <property name="connection.driver_class">org.hsqldb.jdbcDriver</property> 
+      <property name="connection.url">jdbc:hsqldb:hsql://localhost/TestDB</property> -->
+
+    <property name="connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
+    <property name="connection.url">jdbc:derby:/hibernateDB;create=true</property>
+    <property name="connection.username">user1</property>
+    <property name="connection.password">user1</property>
+
+    <!-- JDBC connection pool (use the built-in) -->
+    <property name="connection.pool_size">1</property>
+
+    <!-- SQL dialect -->
+    <property name="dialect">
+      org.hibernate.dialect.DerbyDialect
+    </property>
+
+    <!-- Enable Hibernate's automatic session context management -->
+    <property name="current_session_context_class">thread</property>
+
+    <property name="cache.use_query_cache">true</property>
+    <property name="cache.use_second_level_cache">true</property>
+    <property name="cache.use_structured_entries">true</property>
+    <property name="cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</property>
+    <property name="net.sf.ehcache.configurationResourceName">/net/sf/ehcache/osgi/ehcache-hibernate.xml</property>
+    <!-- Echo all executed SQL to stdout -->
+    <property name="show_sql">false</property>
+
+    <mapping resource="/net/sf/ehcache/osgi/Event.hbm.xml" />
+    <mapping resource="/net/sf/ehcache/osgi/Person.hbm.xml" />
+    <mapping resource="/net/sf/ehcache/osgi/PhoneNumber.hbm.xml" />
+    <mapping resource="/net/sf/ehcache/osgi/Account.hbm.xml" />
+    <mapping resource="/net/sf/ehcache/osgi/HolidayCalendar.hbm.xml" />
+    <mapping resource="/net/sf/ehcache/osgi/Item.hbm.xml" />
+
+  </session-factory>
+
+</hibernate-configuration>

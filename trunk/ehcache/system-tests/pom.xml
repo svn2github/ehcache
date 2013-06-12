@@ -153,6 +153,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>net.sf.ehcache.test</groupId>
+      <artifactId>hibernate-ehcache-bundle</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>    
+    <dependency>
       <groupId>org.terracotta.test</groupId>
       <artifactId>osgi-test-utils</artifactId>
       <version>1.0-SNAPSHOT</version>
