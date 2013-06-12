@@ -40,8 +40,8 @@ public class SimpleOsgiTest {
 
   @Configuration
   public Option[] config() {
-    return options(bootDelegationPackages("javax.xml.transform,org.w3c.dom,javax.xml.bind"), // need this for REST agent
-                                                                                             // test
+    return options(bootDelegationPackages("javax.xml.transform,org.w3c.dom,javax.xml.bind,com.sun.xml.internal.bind.v2,javax.xml.bind.annotation"),
+                   // need this for REST agent test
                    mavenBundle("net.sf.ehcache", "ehcache").versionAsInProject(), OsgiUtil.commonOptions());
   }
 
@@ -72,6 +72,7 @@ public class SimpleOsgiTest {
 
   @Test
   public void testRestAgent() throws Exception {
+    System.getProperties().list(System.out);
     CacheManager manager = new CacheManager(
                                             SimpleOsgiTest.class
                                                 .getResource("/net/sf/ehcache/osgi/rest-enabled-ehcache.xml"));
