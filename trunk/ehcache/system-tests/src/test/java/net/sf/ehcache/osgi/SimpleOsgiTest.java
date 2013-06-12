@@ -40,7 +40,8 @@ public class SimpleOsgiTest {
 
   @Configuration
   public Option[] config() {
-    return options(bootDelegationPackages("javax.xml.transform,org.w3c.dom"), // need this for REST agent test
+    return options(bootDelegationPackages("javax.xml.transform,org.w3c.dom,javax.xml.bind"), // need this for REST agent
+                                                                                             // test
                    mavenBundle("net.sf.ehcache", "ehcache").versionAsInProject(), OsgiUtil.commonOptions());
   }
 
