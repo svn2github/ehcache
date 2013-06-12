@@ -39,7 +39,7 @@ public class SimpleOsgiTest {
 
   @Configuration
   public Option[] config() {
-    return options(bootDelegationPackages("javax.xml.transform,org.w3c.dom,javax.xml.bind,com.sun.xml.internal.bind.v2,javax.xml.bind.annotation.*,javax.xml.bind.annotation.adapters"),
+    return options(bootDelegationPackages("javax.xml.transform,org.w3c.dom,javax.xml.bind,com.sun.xml.internal.bind.v2,javax.xml.bind.annotation,javax.xml.bind.annotation.adapters"),
                    // need this for REST agent test
                    OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"), OsgiUtil.commonOptions());
   }
