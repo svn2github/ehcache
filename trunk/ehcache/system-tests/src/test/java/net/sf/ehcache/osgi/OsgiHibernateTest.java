@@ -90,7 +90,7 @@ public class OsgiHibernateTest {
                        .exports("javax.transaction;version=1.1"), OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache"),
                    mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject().noStart(),
                    wrappedBundle(maven("org.apache.derby", "derby").versionAsInProject()),
-                   systemProperty("derby.system.home").value("target/derby"));
+                   systemProperty("derby.system.home").value("derby"));
   }
 
   @ProbeBuilder
