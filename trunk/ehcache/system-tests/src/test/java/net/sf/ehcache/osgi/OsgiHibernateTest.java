@@ -87,9 +87,9 @@ public class OsgiHibernateTest {
   public Option[] config() {
     return options(bootDelegationPackages("sun.*,javax.naming,javax.naming.spi,javax.naming.event,javax.management"),
                    OsgiUtil.commonOptions(), wrappedBundle(maven("javax.transaction", "jta").versionAsInProject())
-                       .exports("javax.transaction;version=1.1"),
+                       .exports("javax.transaction;version=1.1"), OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache"),
                    mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject().noStart(),
-                   OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"),
+                   wrappedBundle(maven("org.apache.derby", "derby").versionAsInProject()),
                    systemProperty("derby.system.home").value("target/derby"));
   }
 
@@ -124,7 +124,7 @@ public class OsgiHibernateTest {
     printBundles();
     config = new Configuration().configure(OsgiHibernateTest.class
         .getResource("/net/sf/ehcache/osgi/hibernate.cfg.xml"));
-    config.setProperty("hibernate.hbm2ddl.auto", "create");
+    config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
     getSessionFactory().getStatistics().setStatisticsEnabled(true);
     removeCaches();
   }
