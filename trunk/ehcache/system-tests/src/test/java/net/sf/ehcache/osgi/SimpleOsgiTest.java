@@ -72,7 +72,6 @@ public class SimpleOsgiTest {
 
   @Test
   public void testRestAgent() throws Exception {
-    System.getProperties().list(System.out);
     CacheManager manager = new CacheManager(
                                             SimpleOsgiTest.class
                                                 .getResource("/net/sf/ehcache/osgi/rest-enabled-ehcache.xml"));
