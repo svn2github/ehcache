@@ -17,11 +17,13 @@
 package net.sf.ehcache.config;
 
 import java.util.Properties;
+import java.util.Set;
 
 import net.sf.ehcache.config.generator.model.NodeElement;
 import net.sf.ehcache.config.generator.model.SimpleNodeAttribute;
 import net.sf.ehcache.config.generator.model.SimpleNodeElement;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.attribute.JavaBeanAttributeExtractor;
 import net.sf.ehcache.search.attribute.ReflectionAttributeExtractor;
 import net.sf.ehcache.util.ClassLoaderUtil;
@@ -40,6 +42,8 @@ public class SearchAttribute {
     private String expression;
     private String properties;
     private String propertySeparator;
+    private String typeName;
+    private Class<?> type; 
 
     /**
      * Set the attribute name
@@ -61,7 +65,7 @@ public class SearchAttribute {
         }
         this.className = className;
     }
-
+    
     /**
      * Set the attribute expression. See {@link ReflectionAttributeExtractor} for more information
      *
@@ -74,6 +78,24 @@ public class SearchAttribute {
         this.expression = expression;
     }
 
+    /**
+     * Set optional attribute type
+     * @param type
+     */
+    public void setType(String type) {
+        this.type = validateType(type);
+        this.typeName = type;
+    }
+    
+    /**
+     * Set optional attribute type
+     * @param type
+     */
+    public void setType(Class<?> type) {
+        this.typeName = validateType(type);
+        this.type = type;
+    }
+    
     /**
      * Get the extractor class name
      */
@@ -95,6 +117,22 @@ public class SearchAttribute {
         return name;
     }
 
+    /**
+     * @return String representation of attribute type
+     */
+    public String getTypeName() {
+        return typeName;
+    }
+   
+    
+    /**
+     * Get actual attribute type
+     * @return
+     */
+    Class<?> getType() {
+        return type;
+    }
+    
     /**
      * Construct the extractor for this attribute configuration
      */
@@ -152,6 +190,26 @@ public class SearchAttribute {
         return this;
     }
 
+    /**
+     * Set optional attribute type
+     * @param type
+     * @return this
+     */
+    public SearchAttribute type(String type) {
+        setType(type);
+        return this;
+    }
+    
+    /**
+     * Set optional attribute type
+     * @param type
+     * @return this
+     */
+    public SearchAttribute type(Class<?> type) {
+        setType(type);
+        return this;
+    }
+    
     /**
      * Set the extractor properties
      *
@@ -211,11 +269,52 @@ public class SearchAttribute {
                 rv.addAttribute(new SimpleNodeAttribute("properties", properties));
             }
             if (propertySeparator != null) {
-                rv.addAttribute(new SimpleNodeAttribute("propertySeperator", propertySeparator));
+                rv.addAttribute(new SimpleNodeAttribute("propertySeparator", propertySeparator));
             }
+        }
+        if (typeName != null) {
+            rv.addAttribute(new SimpleNodeAttribute("type", typeName));
         }
 
         return rv;
     }
 
+    private Class<?> validateType(String attrType) {
+        Class<?> realType = null;
+        for (Class c : AttributeType.getSupportedJavaTypes()) {
+          if (attrType.equals(c.getName())) {
+            realType = c;
+            break;
+          }
+          String[] groups = c.getName().split("\\.");
+          if (attrType.equalsIgnoreCase(groups[groups.length - 1])) {
+            if (realType != null) { throw new InvalidConfigurationException("Ambiguous attribute type " + attrType); }
+            realType = c;
+          }
+        }
+
+        if (realType == null) {
+          // Attempt to load then validate that it's enum
+          try {
+            realType = ClassLoaderUtil.loadClass(attrType);
+          } catch (ClassNotFoundException e) {
+            throw new InvalidConfigurationException(String.format("Unable to load class specified as type of attribute %s: %s", 
+                    name, e.getMessage()));
+          }
+          if (!realType.isEnum()) {
+              throw new InvalidConfigurationException(String.format("Unsupported attribute type specified %s for search attribute %s", 
+                      attrType, name));
+          }
+        }
+        return realType;
+    }
+    
+    private String validateType(Class<?> attrType) {
+        Set<Class<?>> knownTypes = AttributeType.getSupportedJavaTypes();
+        String t = attrType.getName();
+        if (!knownTypes.contains(attrType) && !attrType.isEnum()) { 
+            throw new InvalidConfigurationException(String.format("Unsupported attribute type specified %s for search attribute %s", t, name));
+        }
+        return t;
+    }
 }

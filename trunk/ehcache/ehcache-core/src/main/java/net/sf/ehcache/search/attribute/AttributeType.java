@@ -16,8 +16,10 @@
 
 package net.sf.ehcache.search.attribute;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.search.SearchException;
 
@@ -208,7 +210,7 @@ public enum AttributeType {
         }
     };
 
-    private static final Map<Class, AttributeType> MAPPINGS = new HashMap<Class, AttributeType>();
+    private static final Map<Class<?>, AttributeType> MAPPINGS = new HashMap<Class<?>, AttributeType>();
 
     /**
      * Get the appropriate @{link {@link AttributeType} enum for the given object value.
@@ -246,6 +248,19 @@ public enum AttributeType {
         }
 
         return null;
+    }
+    
+    /**
+     * Get the appropriate @{link {@link AttributeType} enum for the given Java {@link Class}
+     * @param c 
+     * @return the attribute type for this value
+     */
+    public static AttributeType typeFor(Class<?> c) {
+        if (c == null) { throw new NullPointerException("null class"); }
+        AttributeType type = MAPPINGS.get(c);
+        if (type != null) { return type; }
+
+        return c.isEnum() ? ENUM : null;
     }
 
     /**
@@ -300,6 +315,20 @@ public enum AttributeType {
         MAPPINGS.put(String.class, STRING);
         MAPPINGS.put(java.util.Date.class, DATE);
         MAPPINGS.put(java.sql.Date.class, SQL_DATE);
+        MAPPINGS.put(char.class, CHAR);
+        MAPPINGS.put(int.class, INT);
+        MAPPINGS.put(long.class, LONG);
+        MAPPINGS.put(byte.class, BYTE);
+        MAPPINGS.put(boolean.class, BOOLEAN);
+        MAPPINGS.put(float.class, FLOAT);
+        MAPPINGS.put(double.class, DOUBLE);
+        MAPPINGS.put(short.class, SHORT);
     }
 
+    /**
+     * @return all supported built-in types
+     */
+    public static Set<Class<?>> getSupportedJavaTypes() {
+        return Collections.unmodifiableSet(MAPPINGS.keySet());
+    }
 }

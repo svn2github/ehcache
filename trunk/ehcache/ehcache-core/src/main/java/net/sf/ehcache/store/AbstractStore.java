@@ -43,11 +43,14 @@ public abstract class AbstractStore implements Store {
     protected final Map<String, AttributeExtractor> attributeExtractors = new ConcurrentHashMap<String, AttributeExtractor>();
 
     /**
+     * search manager
+     */
+    protected final SearchManager searchManager;
+
+    /**
      * search attribute names
      */
     private final Map<String, Attribute> searchAttributes = new ConcurrentHashMap<String, Attribute>();
-
-    private final SearchManager searchManager;
 
     /**
      * listener list

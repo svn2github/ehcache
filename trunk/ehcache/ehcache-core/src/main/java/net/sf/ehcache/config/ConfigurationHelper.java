@@ -395,6 +395,15 @@ public final class ConfigurationHelper {
             }
         }
     }
+    
+    /**
+     * @deprecated internal use only
+     * @param sa search attribute
+     * @return attribute type as class
+     */
+    public static Class<?> getSearchAttributeType(SearchAttribute sa) {
+        return sa.getType();
+    }
 
     /**
      * @return the Configuration used

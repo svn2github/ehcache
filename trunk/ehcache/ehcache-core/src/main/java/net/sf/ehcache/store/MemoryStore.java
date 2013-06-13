@@ -26,7 +26,10 @@ import net.sf.ehcache.concurrent.ReadWriteLockSync;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
+import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.SearchAttribute;
+import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.Pool;
@@ -36,12 +39,15 @@ import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.impl.AggregateOnlyResult;
 import net.sf.ehcache.search.impl.BaseResult;
+import net.sf.ehcache.search.impl.DynamicSearchChecker;
 import net.sf.ehcache.search.impl.GroupedResultImpl;
 import net.sf.ehcache.search.impl.OrderComparator;
 import net.sf.ehcache.search.impl.ResultImpl;
@@ -65,6 +71,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -261,7 +268,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         if (element == null) {
             return false;
         }
-
+        if (searchManager != null) {
+            searchManager.put(cache.getName(), -1, element, null, attributeExtractors, cache.getCacheConfiguration().getDynamicExtractor());
+        }
         putObserver.begin();
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
@@ -285,6 +294,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * {@inheritDoc}
      */
     public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
+        if (searchManager != null) {
+            searchManager.put(cache.getName(), -1, element, null, attributeExtractors, cache.getCacheConfiguration().getDynamicExtractor());
+        }
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
             final ReentrantReadWriteLock lock = map.lockFor(element.getObjectKey());
@@ -838,7 +850,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         if (element == null) {
             return null;
         }
-
+        if (searchManager != null) {
+            searchManager.put(cache.getName(), -1, element, null, attributeExtractors, cache.getCacheConfiguration().getDynamicExtractor());
+        }
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
         if (delta > -1) {
             Element old = map.putIfAbsent(element.getObjectKey(), element, delta);
@@ -903,6 +917,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             return false;
         }
 
+        if (searchManager != null) {
+            searchManager.put(cache.getName(), -1, element, null, attributeExtractors, cache.getCacheConfiguration().getDynamicExtractor());
+        }
         Object key = element.getObjectKey();
 
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
@@ -934,7 +951,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         if (element == null || element.getObjectKey() == null) {
             return null;
         }
-
+        if (searchManager != null) {
+            searchManager.put(cache.getName(), -1, element, null, attributeExtractors, cache.getCacheConfiguration().getDynamicExtractor());
+        }
         Object key = element.getObjectKey();
 
         long delta = poolAccessor.add(element.getObjectKey(), element.getObjectValue(), map.storedObject(element), storePinned);
@@ -1188,7 +1207,58 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         @Override
         public void put(String cacheName, int segmentId, Element element, byte[] key, Map<String, AttributeExtractor> extractors, 
                 DynamicAttributesExtractor dynamicIndexer) {
-            throw new UnsupportedOperationException();
+            if (extractors.isEmpty() && dynamicIndexer == null) {
+                return;
+            }
+          
+          boolean isXa = element.getObjectValue() instanceof SoftLockID;
+
+          Map<String, Object> attrs = new HashMap<String, Object>();
+
+          if (isXa) {
+            SoftLockID sl = (SoftLockID) element.getObjectValue();
+            element = sl.getOldElement();
+            
+            // No previous value committed - do not index
+            if (element == null) { return; }
+          } 
+          
+          // Handle dynamic attribute extractor, if any
+          Map<String, Object> dynAttrs = new HashMap<String, Object>();
+          dynAttrs.putAll(DynamicSearchChecker.getSearchAttributes(element, extractors.keySet(),
+                                                                       dynamicIndexer));
+          for (Entry<String, Object> attr : dynAttrs.entrySet()) {
+              if (!AttributeType.isSupportedType(attr.getValue())) {
+                  throw new CacheException(String.format("Unsupported attribute type specified %s for dynamically extracted attribute %s",
+                          attr.getClass().getName(), attr.getKey()));
+              }
+          }
+                       
+          Searchable config = memoryStore.cache.getCacheConfiguration().getSearchable(); 
+          if (config == null) { return; }
+          for (Entry<String, AttributeExtractor> entry : extractors.entrySet()) {
+            String name = entry.getKey();
+            SearchAttribute sa = config.getSearchAttributes().get(name);
+            Class<?> c = ConfigurationHelper.getSearchAttributeType(sa);
+            if (c == null) { continue; }
+            
+            AttributeExtractor extractor = entry.getValue();
+            Object av = extractor.attributeFor(element, name);
+            
+            AttributeType schemaType = AttributeType.typeFor(c);
+            AttributeType type = AttributeType.typeFor(name, av);
+            
+            String schemaTypeName = c.isEnum() ? c.getName() : schemaType.name();
+            String typeName = AttributeType.ENUM == type ? ((Enum) av).getDeclaringClass().getName() : type.name();
+            
+            if (!typeName.equals(schemaTypeName)) { throw new SearchException(
+                                                                        String
+                                                                            .format("Expecting a %s value for attribute [%s] but was %s",
+                                                                                    schemaTypeName, name, typeName)); 
+            }
+            
+          }
+          
         }
 
         @Override
