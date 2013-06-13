@@ -1213,8 +1213,6 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
           
           boolean isXa = element.getObjectValue() instanceof SoftLockID;
 
-          Map<String, Object> attrs = new HashMap<String, Object>();
-
           if (isXa) {
             SoftLockID sl = (SoftLockID) element.getObjectValue();
             element = sl.getOldElement();
