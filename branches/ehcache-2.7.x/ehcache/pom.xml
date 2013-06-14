@@ -312,6 +312,8 @@
               javax.net.ssl;resolution:=optional,
               org.hibernate.*;resolution:=optional,
               org.terracotta.toolkit.*;resolution:=optional,
+              org.quartz.*;resolution:=optional,
+              org.terracotta.quartz.*;resolution:=optional,
               !sun.misc,*
                 </Import-Package>
                 <Export-Package>net.sf.ehcache.*</Export-Package>
