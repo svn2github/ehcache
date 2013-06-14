@@ -25,6 +25,7 @@ import org.terracotta.test.OsgiUtil;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.URL;
 
 /**
@@ -53,6 +54,21 @@ public class SimpleOsgiTest {
       cache.put(element);
       Element element1 = cache.get("key1");
       assertEquals("value1", element1.getObjectValue());
+      assertEquals(1, cache.getSize());
+    } finally {
+      manager.shutdown();
+    }
+  }
+
+  @Test
+  public void testValueClass() throws Exception {
+    CacheManager manager = new CacheManager(SimpleOsgiTest.class.getResource("/net/sf/ehcache/osgi/simple-ehcache.xml"));
+    try {
+      Cache cache = manager.getCache("sampleCache1");
+      Element element = new Element("key1", new Value("value1"));
+      cache.put(element);
+      Element element1 = cache.get("key1");
+      assertEquals("value1", ((Value) element1.getObjectValue()).v);
       assertEquals(1, cache.getSize());
     } finally {
       manager.shutdown();
@@ -94,6 +110,14 @@ public class SimpleOsgiTest {
       if (in != null) {
         in.close();
       }
+    }
+  }
+
+  private static class Value implements Serializable {
+    public String v;
+
+    public Value(String value) {
+      v = value;
     }
   }
 }
