@@ -16,8 +16,11 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -25,20 +28,8 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.terracotta.test.OsgiUtil;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 /**
  * @author hhuynh
@@ -46,96 +37,41 @@ import java.util.jar.Manifest;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
 public class OsgiClusteredEhcacheTest {
-  private int tsaPort;
+  private int     tsaPort;
+  private Object  l2ServerControl;
+
+  @Rule
+  public TestName testName = new TestName();
 
   @Before
   public void before() throws Exception {
 
-    URLClassLoader urlClassLoader = new URLClassLoader(toUrls(System.getProperty("maven.test.class.path"))
-        .toArray(new URL[0]));
+    URLClassLoader urlClassLoader = new URLClassLoader(OsgiUtil.toUrls(System.getProperty("maven.test.class.path")));
 
-    // PortChooser
-    Class<?> portChooserClass = urlClassLoader.loadClass("com.tc.util.PortChooser");
-    Object portChooser = portChooserClass.newInstance();
-    Method chooseRandomPort = portChooserClass.getMethod("chooseRandomPort", (Class<?>[]) null);
-    tsaPort = ((Integer) chooseRandomPort.invoke(portChooser, (Object[]) null)).intValue();
-    int jmxPort = ((Integer) chooseRandomPort.invoke(portChooser, (Object[]) null)).intValue();
+    // randomize ports
+    Object portChooser = OsgiUtil.getPortChooser(urlClassLoader);
+    tsaPort = OsgiUtil.chooseRandomPort(portChooser);
+    int jmxPort = OsgiUtil.chooseRandomPort(portChooser);
 
-    // construct ExtraProcessServerControl(String host, int tsaPort, int adminPort, String configFileLoc, boolean
-    // mergeOutput)
-    // and then call start()
-    Class<?> serverControlClass = urlClassLoader.loadClass("com.tc.objectserver.control.ExtraProcessServerControl");
-    Constructor<?> constructor = serverControlClass.getConstructor(String.class, int.class, int.class, String.class,
-                                                                   boolean.class);
-    Object serverControl = constructor.newInstance("localhost", tsaPort, jmxPort, getDefaultTcConfig(tsaPort, jmxPort),
-                                                   true);
-    Method startMethod = serverControlClass.getMethod("start", (Class<?>[]) null);
-    startMethod.invoke(serverControl, (Object[]) null);
+    // start L2
+    l2ServerControl = OsgiUtil
+        .getL2ServerControl(urlClassLoader, "localhost", tsaPort, jmxPort, new File("temp/OsgiClusteredEhcacheTest/"
+                                                                                    + testName.getMethodName()));
+    OsgiUtil.startL2(l2ServerControl);
   }
 
-  private String getDefaultTcConfig(int tsaport, int jmxPort) throws Exception {
-    String config = readResourceAsString("/net/sf/ehcache/osgi/default-tc-config.xml");
-    config = config.replace("TSAPORT", String.valueOf(tsaport));
-    config = config.replace("JMXPORT", String.valueOf(jmxPort));
-    File configFile = new File("temp/OsgiClusteredEhcacheTest/tc-config.xml");
-    configFile.getParentFile().mkdirs();
-    PrintWriter writer = new PrintWriter(configFile);
-    try {
-      writer.println(config);
-      return configFile.getCanonicalPath();
-    } finally {
-      writer.close();
-    }
-  }
-
-  private String readResourceAsString(String resource) throws Exception {
-    String newline = System.getProperty("line.separator");
-    InputStream configStream = OsgiClusteredEhcacheTest.class.getResourceAsStream(resource);
-    try {
-      StringBuilder sb = new StringBuilder();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(configStream));
-      String line = null;
-      while ((line = reader.readLine()) != null) {
-        sb.append(line).append(newline);
-      }
-      return sb.toString();
-    } finally {
-      if (configStream != null) {
-        configStream.close();
-      }
-    }
-  }
-
-  private List<URL> toUrls(String classpath) throws Exception {
-    List<URL> elements = new ArrayList<URL>();
-    if (classpath.contains("surefirebooter")) {
-      JarFile surefireBooter = new JarFile(classpath);
-      Manifest manifest = surefireBooter.getManifest();
-      classpath = manifest.getMainAttributes().getValue("Class-path");
-      surefireBooter.close();
-      for (String urlElement : classpath.split(" ")) {
-        elements.add(new URI(urlElement).toURL());
-      }
-    } else {
-      for (String path : classpath.split(File.pathSeparator)) {
-        elements.add(new File(path).toURI().toURL());
-      }
-    }
-    return elements;
+  @After
+  public void after() throws Exception {
+    OsgiUtil.stopL2(l2ServerControl);
   }
 
   @org.ops4j.pax.exam.Configuration
   public Option[] config() {
     return options(bootDelegationPackages("sun.*,javax.naming,javax.naming.spi,javax.naming.event,javax.management,javax.net.ssl,javax.management.remote.misc"),
-                   OsgiUtil.commonOptions(),
-                   OsgiUtil.getMavenBundle("org.terracotta", "terracotta-toolkit-runtime-ee",
-                                           "terracotta-toolkit-runtime"),
-                   OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"),
-                   systemProperty("tc.base-dir").value(System.getProperty("tc.base-dir")),
-                   systemProperty("tc.dso.globalmode").value(System.getProperty("tc.dso.globalmode")),
-                   systemProperty("tc.tests.info.property-files")
-                       .value(System.getProperty("tc.tests.info.property-files")), systemProperty("com.tc.properties")
-                       .value(System.getProperty("com.tc.properties")),
+                   OsgiUtil.commonOptions(), OsgiUtil.getMavenBundle("org.terracotta", "terracotta-toolkit-runtime-ee",
+                                                                     "terracotta-toolkit-runtime"), OsgiUtil
+                       .getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"),
+                   OsgiUtil.propagateSystemTestsProps(),
                    systemProperty("maven.test.class.path").value(System.getProperty("java.class.path")));
   }
 
