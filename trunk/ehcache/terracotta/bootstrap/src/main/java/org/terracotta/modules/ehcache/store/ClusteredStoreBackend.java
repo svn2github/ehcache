@@ -4,7 +4,6 @@
 package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.store.StoreListener;
-
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
 import org.terracotta.modules.ehcache.store.bulkload.BulkLoadToolkitCache;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
@@ -12,6 +11,7 @@ import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.cache.VersionUpdateListener;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.search.QueryBuilder;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
@@ -53,6 +53,27 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
     lock.readLock().lock();
     try {
       return activeDelegate.put(key, value, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void putVersioned(final K key, final V value, final long version) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.putVersioned(key, value, version);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void putVersioned(final K key, final V value, final long version, final int createTimeInSecs,
+                           final int customMaxTTISeconds, final int customMaxTTLSeconds) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.putVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
     } finally {
       lock.readLock().unlock();
     }
@@ -479,10 +500,30 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
+  public void unlockedPutNoReturnVersioned(final K k, final V v, final long version, final int createTime, final int customTTI, final int customTTL) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.unlockedPutNoReturnVersioned(k, v, version, createTime, customTTI, customTTL);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  @Override
   public void unlockedRemoveNoReturn(Object k) {
     lock.readLock().lock();
     try {
       activeDelegate.unlockedRemoveNoReturn(k);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void unlockedRemoveNoReturnVersioned(final Object key, final long version) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.unlockedRemoveNoReturnVersioned(key, version);
     } finally {
       lock.readLock().unlock();
     }
@@ -553,6 +594,26 @@ public class ClusteredStoreBackend<K, V> implements ToolkitCacheInternal<K, V> {
     lock.readLock().lock();
     try {
       activeDelegate.removeAll(keys);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void removeVersioned(final Object key, final long version) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.removeVersioned(key, version);
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void registerVersionUpdateListener(final VersionUpdateListener listener) {
+    lock.readLock().lock();
+    try {
+      activeDelegate.registerVersionUpdateListener(listener);
     } finally {
       lock.readLock().unlock();
     }

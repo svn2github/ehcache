@@ -4,7 +4,6 @@
 package org.terracotta.modules.ehcache.store.bulkload;
 
 import net.sf.ehcache.store.StoreListener;
-
 import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
@@ -12,6 +11,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
+import org.terracotta.toolkit.internal.cache.VersionUpdateListener;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.search.QueryBuilder;
@@ -291,6 +291,21 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
+  public void removeVersioned(final Object key, final long version) {
+    concurrentLock.lock();
+    try {
+      toolkitCache.unlockedRemoveNoReturnVersioned(key, version);
+    } finally {
+      concurrentLock.unlock();
+    }
+  }
+
+  @Override
+  public void registerVersionUpdateListener(final VersionUpdateListener listener) {
+    toolkitCache.registerVersionUpdateListener(listener);
+  }
+
+  @Override
   public int size() {
     return toolkitCache.size();
   }
@@ -412,6 +427,22 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
+  public void putVersioned(final K key, final V value, final long version) {
+    putVersioned(key, value, version, now(), ToolkitConfigFields.NO_MAX_TTI_SECONDS, ToolkitConfigFields.NO_MAX_TTL_SECONDS);
+  }
+
+  @Override
+  public void putVersioned(final K key, final V value, final long version, final int createTimeInSecs,
+                           final int customMaxTTISeconds, final int customMaxTTLSeconds) {
+    concurrentLock.lock();
+    try {
+      toolkitCache.unlockedPutNoReturnVersioned(key, value, version, (int)createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+    } finally {
+      concurrentLock.unlock();
+    }
+  }
+
+  @Override
   public Map<Object, Set<ClusterNode>> getNodesWithKeys(Set portableKeys) {
     return toolkitCache.getNodesWithKeys(portableKeys);
   }
@@ -422,8 +453,19 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
+  public void unlockedPutNoReturnVersioned(final K k, final V v, final long version, final int createTime,
+                                           final int customTTI, final int customTTL) {
+    toolkitCache.unlockedPutNoReturnVersioned(k, v, version, createTime, customTTI, customTTL);
+  }
+
+  @Override
   public void unlockedRemoveNoReturn(Object k) {
     toolkitCache.unlockedRemoveNoReturn(k);
+  }
+
+  @Override
+  public void unlockedRemoveNoReturnVersioned(final Object key, final long version) {
+    toolkitCache.unlockedRemoveNoReturnVersioned(key, version);
   }
 
   @Override
