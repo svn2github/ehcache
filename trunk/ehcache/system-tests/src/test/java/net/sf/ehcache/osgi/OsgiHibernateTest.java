@@ -87,7 +87,8 @@ public class OsgiHibernateTest {
   public Option[] config() {
     return options(bootDelegationPackages("sun.*,javax.naming,javax.naming.spi,javax.naming.event,javax.management"),
                    OsgiUtil.commonOptions(), wrappedBundle(maven("javax.transaction", "jta").versionAsInProject())
-                       .exports("javax.transaction;version=1.1"), OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache"),
+                       .exports("javax.transaction;version=1.1"), OsgiUtil.getMavenBundle("net.sf.ehcache",
+                                                                                          "ehcache-ee", "ehcache"),
                    mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject().noStart(),
                    wrappedBundle(maven("org.apache.derby", "derby").versionAsInProject()),
                    systemProperty("derby.system.home").value("derby"));
