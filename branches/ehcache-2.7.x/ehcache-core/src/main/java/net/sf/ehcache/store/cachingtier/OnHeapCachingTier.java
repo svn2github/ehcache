@@ -79,8 +79,11 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         this.backEnd.registerEvictionCallback(new HeapCacheBackEnd.EvictionCallback<K, Object>() {
             @Override
             public void evicted(final K key, final Object value) {
-                for (Listener<K, V> listener : listeners) {
-                    listener.evicted(key, getValue(value));
+                final V v = getValue(value);
+                if (v != null) {
+                    for (Listener<K, V> listener : listeners) {
+                        listener.evicted(key, v);
+                    }
                 }
             }
         });
