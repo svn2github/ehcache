@@ -16,7 +16,6 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,9 +24,6 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.terracotta.test.OsgiUtil;
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.ToolkitFactory;
-import org.terracotta.toolkit.collections.ToolkitMap;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -49,17 +45,14 @@ import java.util.jar.Manifest;
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
-public class OsgiClusteredEhcacheAndToolkitTest {
-  private static URLClassLoader urlClassLoader;
-  private int                   tsaPort;
-  private Class<?>              serverControlClass;
-  private Object                serverControl;
+public class OsgiClusteredEhcacheTest {
+  private int tsaPort;
 
   @Before
   public void before() throws Exception {
-    if (urlClassLoader == null) {
-      urlClassLoader = new URLClassLoader(toUrls(System.getProperty("maven.test.class.path")).toArray(new URL[0]));
-    }
+
+    URLClassLoader urlClassLoader = new URLClassLoader(toUrls(System.getProperty("maven.test.class.path"))
+        .toArray(new URL[0]));
 
     // PortChooser
     Class<?> portChooserClass = urlClassLoader.loadClass("com.tc.util.PortChooser");
@@ -71,25 +64,20 @@ public class OsgiClusteredEhcacheAndToolkitTest {
     // construct ExtraProcessServerControl(String host, int tsaPort, int adminPort, String configFileLoc, boolean
     // mergeOutput)
     // and then call start()
-    serverControlClass = urlClassLoader.loadClass("com.tc.objectserver.control.ExtraProcessServerControl");
+    Class<?> serverControlClass = urlClassLoader.loadClass("com.tc.objectserver.control.ExtraProcessServerControl");
     Constructor<?> constructor = serverControlClass.getConstructor(String.class, int.class, int.class, String.class,
                                                                    boolean.class);
-    serverControl = constructor.newInstance("localhost", tsaPort, jmxPort, getDefaultTcConfig(tsaPort, jmxPort), true);
+    Object serverControl = constructor.newInstance("localhost", tsaPort, jmxPort, getDefaultTcConfig(tsaPort, jmxPort),
+                                                   true);
     Method startMethod = serverControlClass.getMethod("start", (Class<?>[]) null);
     startMethod.invoke(serverControl, (Object[]) null);
-  }
-
-  @After
-  public void after() throws Exception {
-    Method shutdownMethod = serverControlClass.getMethod("shutdown", (Class<?>[]) null);
-    shutdownMethod.invoke(serverControl, (Object[]) null);
   }
 
   private String getDefaultTcConfig(int tsaport, int jmxPort) throws Exception {
     String config = readResourceAsString("/net/sf/ehcache/osgi/default-tc-config.xml");
     config = config.replace("TSAPORT", String.valueOf(tsaport));
     config = config.replace("JMXPORT", String.valueOf(jmxPort));
-    File configFile = new File("temp/OsgiClusteredEhcacheTest/tc-config-" + tsaport + ".xml");
+    File configFile = new File("temp/OsgiClusteredEhcacheTest/tc-config.xml");
     configFile.getParentFile().mkdirs();
     PrintWriter writer = new PrintWriter(configFile);
     try {
@@ -102,7 +90,7 @@ public class OsgiClusteredEhcacheAndToolkitTest {
 
   private String readResourceAsString(String resource) throws Exception {
     String newline = System.getProperty("line.separator");
-    InputStream configStream = OsgiClusteredEhcacheAndToolkitTest.class.getResourceAsStream(resource);
+    InputStream configStream = OsgiClusteredEhcacheTest.class.getResourceAsStream(resource);
     try {
       StringBuilder sb = new StringBuilder();
       BufferedReader reader = new BufferedReader(new InputStreamReader(configStream));
@@ -166,18 +154,5 @@ public class OsgiClusteredEhcacheAndToolkitTest {
     assertEquals("value1", element1.getObjectValue());
     assertEquals(1, cache.getSize());
     assertTrue(cache.isTerracottaClustered());
-  }
-
-  @Test
-  public void testToolkitMap() throws Exception {
-    Toolkit toolkit = ToolkitFactory.createToolkit("toolkit:terracotta://localhost:" + tsaPort);
-    try {
-      ToolkitMap<String, String> map = toolkit.getMap("myMap", String.class, String.class);
-      map.put("k", "v");
-      assertEquals(1, map.size());
-      assertEquals("v", map.get("k"));
-    } finally {
-      toolkit.shutdown();
-    }
   }
 }
