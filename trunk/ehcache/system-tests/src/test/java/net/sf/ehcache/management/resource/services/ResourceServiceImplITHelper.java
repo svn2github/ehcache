@@ -31,4 +31,16 @@ public abstract class ResourceServiceImplITHelper {
     return mgr;
   }
 
+
+  public static void main(String[] args) {
+    ResourceServiceImplITHelper resourceServiceImplITHelper = new ResourceServiceImplITHelper() {
+      @Override
+      CacheManager getCacheManagerProgramatically() {
+        return super.getCacheManagerProgramatically();
+      }
+    };
+    resourceServiceImplITHelper.getCacheManagerProgramatically();
+
+  }
+
 }

@@ -6,6 +6,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -17,7 +18,7 @@ import static org.hamcrest.Matchers.*;
 
 /**
  * @author: Anthony Dahanne
- * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/configs endpoint
+ * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/ endpoint
  * works fine
  */
 public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHelper{
@@ -206,6 +207,7 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .when().put(EXPECTED_RESOURCE_LOCATION);
 
 
+    // we check nothing has changed
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCacheManagerProgrammatic"))
@@ -223,15 +225,13 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
   @Test
   /**
    * - PUT an updated CacheManagerEntity
-   * only 2 attributes are supported, the others are silently ignored
+   * only 2 attributes are supported
    * @throws Exception
    */
   public void updateCacheManagersTest() throws Exception {
 
     // you have to specify a cacheManager when doing mutation
     CacheManagerEntity cacheManagerEntity = new CacheManagerEntity();
-    cacheManagerEntity.setAgentId("superId");
-    cacheManagerEntity.setName("superName");
     Map<String,Object> attributes = new HashMap<String, Object>();
     attributes.put("MaxBytesLocalHeapAsString","20M");
     attributes.put("MaxBytesLocalDiskAsString", "40M");
@@ -251,7 +251,45 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .body("get(0).attributes.MaxBytesLocalHeapAsString", equalTo("20M"))
             .body("get(0).attributes.MaxBytesLocalDiskAsString", equalTo("40M"))
             .body("size()",is(1))
-//            .body(containsString("yo"))
+            .statusCode(200)
+            .when().get(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+  }
+
+
+  @Test
+  @Ignore
+  /**
+   * - PUT an updated CacheManagerEntity, with attributes not allowed
+   * only 2 attributes are supported, the others are forbidden because we do not allow them to be updated
+   * @throws Exception
+   */
+  public void updateCacheManagersTest__FailWhenSpecifyingForbiddenAttributes() throws Exception {
+
+    // you have to specify a cacheManager when doing mutation
+    CacheManagerEntity cacheManagerEntity = new CacheManagerEntity();
+    cacheManagerEntity.setName("superName");
+    Map<String,Object> attributes = new HashMap<String, Object>();
+    attributes.put("MaxBytesLocalHeap","20000");
+    attributes.put("MaxBytesLocalDisk", "40000");
+    cacheManagerEntity.getAttributes().putAll(attributes);
+    expect().log().ifError()
+            .statusCode(400)
+            .body("details", equalTo("You are not allowed to update those attributes : name MaxBytesLocalDisk MaxBytesLocalHeap . " +
+                    "Only MaxBytesLocalDiskAsString and MaxBytesLocalHeapAsString can be updated for a CacheManager."))
+            .body("error", equalTo("Failed to update cache manager"))
+            .given()
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
+            .when().put(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+
+    // we check nothing has changed
+    expect()
+            .contentType(ContentType.JSON)
+            .body("get(0).agentId", equalTo("embedded"))
+            .body("get(0).name", equalTo("testCacheManagerProgrammatic"))
+            .body("get(0).attributes.MaxBytesLocalHeapAsString", equalTo("5M"))
+            .body("get(0).attributes.MaxBytesLocalDiskAsString", equalTo("10M"))
+            .body("size()",is(1))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
   }
