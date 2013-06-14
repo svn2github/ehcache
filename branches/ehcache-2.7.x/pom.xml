@@ -20,7 +20,7 @@
     <maven-forge-plugin.version>1.0.8</maven-forge-plugin.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <surefire.version>2.10</surefire.version>
-    <terracotta-toolkit-api.version>2.1.0</terracotta-toolkit-api.version>
+    <terracotta-toolkit-api.version>2.2.0</terracotta-toolkit-api.version>
     <management-core.version>1.1.7</management-core.version>
     <statistics.version>1.0.1</statistics.version>
     <quartz.version>2.2.0-SNAPSHOT</quartz.version>
