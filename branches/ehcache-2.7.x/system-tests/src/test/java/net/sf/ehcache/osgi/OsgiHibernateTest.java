@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
@@ -86,10 +85,12 @@ public class OsgiHibernateTest {
   @org.ops4j.pax.exam.Configuration
   public Option[] config() {
     return options(bootDelegationPackages("sun.*,javax.naming,javax.naming.spi,javax.naming.event,javax.management"),
-                   OsgiUtil.commonOptions(), wrappedBundle(maven("javax.transaction", "jta").versionAsInProject())
-                       .exports("javax.transaction;version=1.1"), OsgiUtil.getMavenBundle("net.sf.ehcache",
-                                                                                          "ehcache-ee", "ehcache"),
-                   mavenBundle("net.sf.ehcache.test", "hibernate-ehcache-bundle").versionAsInProject().noStart(),
+                   OsgiUtil.commonOptions(),
+                   wrappedBundle(maven("javax.transaction", "jta").versionAsInProject())
+                       .exports("javax.transaction;version=1.1"),
+                   OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"),
+                   OsgiUtil.getMavenBundle("net.sf.ehcache.test", "hibernate-ehcache-ee-bundle",
+                                           "hibernate-ehcache-bundle").noStart(),
                    wrappedBundle(maven("org.apache.derby", "derby").versionAsInProject()),
                    systemProperty("derby.system.home").value("derby"));
   }
