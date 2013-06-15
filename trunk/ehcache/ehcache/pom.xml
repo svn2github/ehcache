@@ -300,8 +300,6 @@
             <configuration>
               <manifestLocation>${project.build.directory}</manifestLocation>
               <instructions>
-                <Bundle-Name>${project.artifactId}</Bundle-Name>
-                <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
                 <Import-Package>bitronix.tm;resolution:=optional,
               bitronix.tm.resource.ehcache;resolution:=optional,
               com.atomikos.*;resolution:=optional,
