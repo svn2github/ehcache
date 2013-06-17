@@ -15,16 +15,6 @@
  */
 package net.sf.ehcache.constructs.refreshahead;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -42,6 +32,16 @@ import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.util.VmUtils;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A cache decorator which implements read ahead refreshing. Read ahead occurs
@@ -62,7 +62,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
 
     private static final Object REFRESH_VALUE = Boolean.TRUE;
     private static final int DEFAULT_SUPPORT_TTL_SECONDS = (int)TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES);
-    private final AtomicInteger refreshSuccessCount = new AtomicInteger();
+    private final AtomicLong refreshSuccessCount = new AtomicLong();
     private final RefreshAheadCacheConfiguration refreshAheadConfig;
     private CacheConfiguration supportConfig;
 
@@ -260,8 +260,8 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
      * number of refreshes processed locally.
      */
     @org.terracotta.statistics.Statistic(name = "refreshed", tags = "refreshahead")
-    public AtomicInteger getRefreshSuccessCount() {
-        return refreshSuccessCount;
+    public long getRefreshSuccessCount() {
+        return refreshSuccessCount.get();
     }
 
     private void localDispose() throws IllegalStateException {

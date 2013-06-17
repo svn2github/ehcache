@@ -8,10 +8,10 @@ package org.terracotta.ehcache.tests.scheduledrefresh;
  * To change this template use File | Settings | File Templates.
  */
 public class AddingCacheLoader implements net.sf.ehcache.loader.CacheLoader {
+
   @java.lang.Override
   public java.lang.Object load(java.lang.Object key) throws net.sf.ehcache.CacheException {
     if (key instanceof java.lang.Number) {
-      System.out.println("++++++++++++++++++++ incrementing "+key);
       return new java.lang.Integer(((java.lang.Number) key).intValue() + 1);
     }
     return key;
@@ -28,7 +28,7 @@ public class AddingCacheLoader implements net.sf.ehcache.loader.CacheLoader {
       }
     }
      try {
-        Thread.sleep(1000);
+        Thread.sleep(500);
      } catch (InterruptedException e) {
      }
      return ret;
