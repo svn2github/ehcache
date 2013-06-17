@@ -107,27 +107,30 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
 
    @Override
    public void init() {
-      if (config.getScheduledRefreshName() != null) {
-         this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
-             + underlyingCache.getName() + "_" + config.getScheduledRefreshName();
-      } else {
-         this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
-             + underlyingCache.getName();
-      }
-      this.groupName = name + "_grp";
       try {
-         makeAndStartQuartzScheduler();
-         try {
-            scheduleOverseerJob();
-            status = Status.STATUS_ALIVE;
-         } catch (SchedulerException e) {
-            LOG.error("Unable to schedule control job for Scheduled Refresh", e);
+         if (config.getScheduledRefreshName() != null) {
+            this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
+                + underlyingCache.getName() + "_" + config.getScheduledRefreshName();
+         } else {
+            this.name = "scheduledRefresh_" + underlyingCache.getCacheManager().getName() + "_"
+                + underlyingCache.getName();
          }
+         this.groupName = name + "_grp";
+         try {
+            makeAndStartQuartzScheduler();
+            try {
+               scheduleOverseerJob();
+               status = Status.STATUS_ALIVE;
+            } catch (SchedulerException e) {
+               LOG.error("Unable to schedule control job for Scheduled Refresh", e);
+            }
 
-      } catch (SchedulerException e) {
-         LOG.error("Unable to instantiate Quartz Job Scheduler for Scheduled Refresh", e);
+         } catch (SchedulerException e) {
+            LOG.error("Unable to instantiate Quartz Job Scheduler for Scheduled Refresh", e);
+         }
+      } catch(RuntimeException e) {
+         LOG.error("Unable to initialise ScheduledRefesh extension", e);
       }
-
    }
 
    /*

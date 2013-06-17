@@ -18,16 +18,12 @@ import org.terracotta.toolkit.Toolkit;
 
 import java.io.IOException;
 
-@Ignore
 public class ClusteredScheduledRefreshTest extends AbstractCacheTestBase {
 
    public ClusteredScheduledRefreshTest(TestConfig testConfig) {
       super("scheduled-refresh-cache-test.xml", testConfig,
           ClusteredScheduledRefreshTestClient.class,
-          ClusteredScheduledRefreshTestClient.class,
-          ClusteredScheduledRefreshTestClient.class,
           ClusteredScheduledRefreshTestClient.class);
-      disableTest();
    }
 
    @Override
@@ -58,10 +54,11 @@ public class ClusteredScheduledRefreshTest extends AbstractCacheTestBase {
             dutCache.put(new Element(new Integer(i), new Integer(i)));
          }
          Thread.sleep(60 * 1000);
+         
+         // assert that everyone was updated at least once.
          for (int i = 0; i < 1000; i++) {
             Assert.assertTrue(dutCache.get(new Integer(i)).getObjectValue().equals(new Integer(i + 1)));
          }
-
 
          ExtendedStatistics.Statistic<Number> refreshStat = ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
          System.out.println("Refresh jobs: " + refreshStat.value().intValue());

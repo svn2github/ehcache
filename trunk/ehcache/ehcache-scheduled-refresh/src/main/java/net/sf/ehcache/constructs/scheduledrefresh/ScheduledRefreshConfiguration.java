@@ -313,6 +313,23 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
       if (cronExpression == null) {
          throw new IllegalArgumentException("Cron Schedule cannot be unspecified");
       }
+      if(parallelJobCount<2) {
+         throw new IllegalArgumentException("parallelJobCount must be >= 2 ["+parallelJobCount+"]");
+      }
+      if(quartzThreadCount<2) {
+         throw new IllegalArgumentException("quartzThreadCount must be >= 2 ["+quartzThreadCount+"]");
+      }
+      if(batchSize<1) {
+         throw new IllegalArgumentException("batchSize must be >= 1 ["+batchSize+"]");
+      }
+      if(pollTimeMs<0) {
+         throw new IllegalArgumentException("pollTimeMS must be >=0 ["+pollTimeMs+"]");
+      }
+      final long oneMinuteMS=TimeUnit.MILLISECONDS.convert(1L, TimeUnit.MINUTES);
+      if(pollTimeMs>oneMinuteMS) {
+         throw new IllegalArgumentException("pollTimeMS must be < "+oneMinuteMS+" ["+pollTimeMs+"]");
+      }
+
       if (jobStoreFactoryClassName == null) {
          jobStoreFactoryClassName = DEFAULT_JOB_STORE_FACTORY_CLASS;
       }
@@ -746,4 +763,5 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    public int getParallelJobCount() {
       return parallelJobCount;
    }
+
 }

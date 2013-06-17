@@ -9,6 +9,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
@@ -31,8 +32,30 @@ public class ScheduledRefreshCacheExtensionTest {
       }
    }
 
+
    // OK. we want to create an ehcache, then programmitically decorate it with
    // locks.
+   @Test
+   public void testIllegalCronExpression() {
+
+      CacheManager manager = new CacheManager();
+      manager.removeAllCaches();
+
+      manager.addCache(new Cache(new CacheConfiguration().name("test").eternal(true).maxEntriesLocalHeap(5000)));
+      Ehcache cache = manager.getEhcache("test");
+      cache.registerCacheLoader(stupidCacheLoaderEvens);
+      cache.registerCacheLoader(stupidCacheLoaderOdds);
+
+      int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
+      ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(100).quartzThreadCount
+         (4).cronExpression("go to your happy place").build();
+      ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
+      cache.registerCacheExtension(cacheExtension);
+      cacheExtension.init();
+      // there will havebeen an exception logged.
+      Assert.assertEquals(cacheExtension.getStatus(),Status.STATUS_UNINITIALISED);
+   }
+
    @Test
    public void testSimpleCaseProgrammatic() {
 
@@ -50,6 +73,7 @@ public class ScheduledRefreshCacheExtensionTest {
       ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
       cache.registerCacheExtension(cacheExtension);
       cacheExtension.init();
+      Assert.assertEquals(cacheExtension.getStatus(), Status.STATUS_ALIVE);
 
       for (int i = 0; i < 10; i++) {
          cache.put(new Element(new Integer(i), i + ""));
@@ -142,6 +166,7 @@ public class ScheduledRefreshCacheExtensionTest {
       ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
       cache.registerCacheExtension(cacheExtension);
       cacheExtension.init();
+      Assert.assertEquals(cacheExtension.getStatus(), Status.STATUS_ALIVE);
 
       final int ELEMENT_COUNT = 50;
       long[] orig = new long[ELEMENT_COUNT];
