@@ -1,0 +1,31 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd" name="tc" updateCheck="false">
+
+    <defaultCache
+            maxElementsInMemory="10"
+            eternal="false"
+            timeToIdleSeconds="5"
+            timeToLiveSeconds="10"
+            overflowToDisk="false">
+            <terracotta/>
+    </defaultCache>
+
+    <!-- A basic clustered LFU cache -->
+    <cache name="clustered-1"
+           maxElementsInMemory="1000"
+           memoryStoreEvictionPolicy="LFU">
+           <terracotta/>
+    </cache>
+    
+    <terracottaConfig>
+        <tc-config>
+            <servers>
+                <server host="server1" name="s1"/>
+                <server host="server2" name="s2"/>
+            </servers>
+            <clients>
+                <logs>app/logs-%i</logs>
+            </clients>           
+        </tc-config>
+    </terracottaConfig>
+
+</ehcache>
