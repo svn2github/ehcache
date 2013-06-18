@@ -42,7 +42,6 @@ public class ScheduledRefreshTerracottaJobStoreFactory implements ScheduledRefre
       p.setProperty("org.quartz.jobStore.synchronousWrite", Boolean.TRUE.toString());
       //p.setProperty("org.quartz.jobStore.rejoin", Boolean.TRUE.toString());
 
-
      return p;
    }
 

@@ -54,6 +54,9 @@ public class ScheduledRefreshCacheExtensionTest {
       cacheExtension.init();
       // there will havebeen an exception logged.
       Assert.assertEquals(cacheExtension.getStatus(),Status.STATUS_UNINITIALISED);
+
+      manager.removeAllCaches();
+      manager.shutdown();
    }
 
    @Test

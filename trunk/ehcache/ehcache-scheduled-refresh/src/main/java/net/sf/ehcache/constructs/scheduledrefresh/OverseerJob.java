@@ -60,7 +60,6 @@ public class OverseerJob implements Job {
 
    @Override
    public void execute(JobExecutionContext context) throws JobExecutionException {
-
       try {
          JobDataMap jdm = context.getMergedJobDataMap();
          ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm
@@ -109,11 +108,10 @@ public class OverseerJob implements Job {
             }
          }
 
-      } catch (SchedulerException e) {
+      } catch (Throwable e) {
          try {
             if (!context.getScheduler().isShutdown()) {
                LOG.warn("Unable to process Scheduled Refresh batch " + context.getJobDetail().getKey(), e);
-               throw e;
             }
          } catch (SchedulerException e1) {
             LOG.warn(e1.getMessage(), e1);
@@ -210,7 +208,6 @@ public class OverseerJob implements Job {
          LOG.warn("Unable to instantiate key generator class: " + keyGeneratorClass, e);
       }
       return null;
-
    }
 
 }

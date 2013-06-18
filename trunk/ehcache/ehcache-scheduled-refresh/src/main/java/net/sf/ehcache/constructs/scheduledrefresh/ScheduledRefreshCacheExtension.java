@@ -103,6 +103,7 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
       this.config = config;
       this.status = Status.STATUS_UNINITIALISED;
       StatisticsManager.associate(this).withParent(cache);
+      config.validate();
    }
 
    @Override
@@ -235,6 +236,8 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
          scheduler.shutdown();
       } catch (SchedulerException e) {
          throw new CacheException(e);
+      } catch(Throwable t) {
+         LOG.info("ScheduledRefresh cache extension exception during shutdown.",t);
       }
       status = Status.STATUS_SHUTDOWN;
    }
