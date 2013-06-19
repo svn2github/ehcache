@@ -19,14 +19,14 @@
 
   <groupId>net.sf.ehcache.examples</groupId>
   <artifactId>colorcache</artifactId>
-  <version>2.7.2-SNAPSHOT</version>
+  <version>2.7.3-SNAPSHOT</version>
   <name>colorcache</name>
   <packaging>war</packaging>
   <description>Clustered Ehcache sample with Terracotta</description>
 
   <properties>
-    <tc-maven-plugin.version>1.10.2-SNAPSHOT</tc-maven-plugin.version>
-    <toolkit-runtime.version>4.0.2-SNAPSHOT</toolkit-runtime.version>
+    <tc-maven-plugin.version>1.10.3-SNAPSHOT</tc-maven-plugin.version>
+    <toolkit-runtime.version>4.0.3-SNAPSHOT</toolkit-runtime.version>
     <skipDeploy>true</skipDeploy>
   </properties>
   
