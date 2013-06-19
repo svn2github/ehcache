@@ -412,7 +412,7 @@ public class DfltSamplerRepositoryService
     try {
       SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
       if (entry != null) entry.updateCache(cacheName, resource);
-      else throw new UnsupportedOperationException("Create cache not implemented!");
+      else throw new ServiceExecutionException("CacheManager not found !");
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
@@ -441,21 +441,79 @@ public class DfltSamplerRepositoryService
       SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
       if (entry != null) {
         CacheManagerSampler cms = entry.getCacheManagerSampler();
-
-        Object mbldAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK);
-        if (mbldAttr != null) cms.setMaxBytesLocalDisk(Long.parseLong(mbldAttr.toString()));
-
-        Object mblhAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP);
-        if (mblhAttr != null) cms.setMaxBytesLocalDisk(Long.parseLong(mblhAttr.toString()));
+        checkForInvalidAttributes(cacheManagerName, resource);
 
         Object mbldsAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING);
         if (mbldsAttr != null) cms.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
 
         Object mblhsAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING);
         if (mblhsAttr != null) cms.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
+      } else {
+        throw new ServiceExecutionException("CacheManager not found !");
       }
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
+    }
+  }
+
+  private void checkForInvalidAttributes(String cacheManagerName, CacheManagerEntity resource) throws ServiceExecutionException {
+    boolean invalidAttributesFound =  false;
+    StringBuilder errorMessage =  new StringBuilder("You are not allowed to update those attributes : ");
+    if(resource.getName() != null && !resource.getName().equals(cacheManagerName)) {
+      errorMessage.append("name ");
+      invalidAttributesFound = true;
+    }
+    for(Map.Entry<String,Object> attribute : resource.getAttributes().entrySet()) {
+      String key = attribute.getKey();
+      if(!key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING) &&
+              !key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING) ) {
+        errorMessage.append(key).append(" ");
+        invalidAttributesFound = true;
+      }
+    }
+    if (invalidAttributesFound) {
+      errorMessage.append(". Only ")
+                  .append(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING)
+                  .append(" and ")
+                  .append(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING)
+                  .append(" can be updated for a CacheManager.");
+      throw new ServiceExecutionException(errorMessage.toString());
+    }
+  }
+
+  private static void checkForInvalidAttributes(String cacheName, CacheEntity resource) throws ServiceExecutionException {
+    boolean invalidAttributesFound =  false;
+    StringBuilder errorMessage =  new StringBuilder("You are not allowed to update those attributes : ");
+    if(resource.getName() != null && !resource.getName().equals(cacheName)) {
+      errorMessage.append("name ");
+      invalidAttributesFound = true;
+    }
+    Set<String> validAttributes =  new HashSet<String>();
+    validAttributes.add(SamplerRepoEntry.ENABLED_ATTR);
+    validAttributes.add(SamplerRepoEntry.BULK_LOAD_ENABLED);
+    validAttributes.add(SamplerRepoEntry.MAX_ELEMENTS_ON_DISK);
+    validAttributes.add(SamplerRepoEntry.LOGGING_ENABLED);
+    validAttributes.add(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING);
+    validAttributes.add(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING);
+    validAttributes.add(SamplerRepoEntry.MAX_ENTRIES_LOCAL_HEAP);
+    validAttributes.add(SamplerRepoEntry.MAX_ENTRIES_IN_CACHE);
+    validAttributes.add(SamplerRepoEntry.TIME_TO_IDLE_SEC);
+    validAttributes.add(SamplerRepoEntry.TIME_TO_LIVE_SEC);
+
+    for(Map.Entry<String,Object> attribute : resource.getAttributes().entrySet()) {
+      String key = attribute.getKey();
+      if(!validAttributes.contains(key) ) {
+        errorMessage.append(key).append(" ");
+        invalidAttributesFound = true;
+      }
+    }
+    if (invalidAttributesFound) {
+      errorMessage.append(". Only ");
+      for (String validAttribute : validAttributes) {
+        errorMessage.append(validAttribute).append(" ");
+      }
+      errorMessage.append("can be updated for a Cache.");
+      throw new ServiceExecutionException(errorMessage.toString());
     }
   }
 
@@ -628,7 +686,7 @@ public class DfltSamplerRepositoryService
 
       return samplers;
     }
-    
+
     public void clearCache(String cacheSamplerName) {
       cacheSamplerMapLock.writeLock().lock();
 
@@ -651,6 +709,9 @@ public class DfltSamplerRepositoryService
 
         if (cs != null) {
           try {
+
+            checkForInvalidAttributes(cacheSamplerName, cacheResource);
+
             Boolean enabledAttr = (Boolean) cacheResource.getAttributes().get(ENABLED_ATTR);
             if (enabledAttr != null) cs.setEnabled(enabledAttr);
 
@@ -663,14 +724,8 @@ public class DfltSamplerRepositoryService
             Boolean loggingEnabledAttr = (Boolean) cacheResource.getAttributes().get(LOGGING_ENABLED);
             if (loggingEnabledAttr != null) cs.setLoggingEnabled(loggingEnabledAttr);
 
-            Object mbldAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_DISK);
-            if (mbldAttr != null) cs.setMaxBytesLocalDisk(Long.parseLong(mbldAttr.toString()));
-
             Object mbldsAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_DISK_STRING);
             if (mbldsAttr != null) cs.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
-
-            Object mblhAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_HEAP);
-            if (mblhAttr != null) cs.setMaxBytesLocalHeap(Long.parseLong(mblhAttr.toString()));
 
             Object mblhsAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_HEAP_STRING);
             if (mblhsAttr != null) cs.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
@@ -690,6 +745,8 @@ public class DfltSamplerRepositoryService
             throw new ServiceExecutionException(e);
           }
 
+        } else {
+          throw new ServiceExecutionException("Cache not found !");
         }
 
       } finally {

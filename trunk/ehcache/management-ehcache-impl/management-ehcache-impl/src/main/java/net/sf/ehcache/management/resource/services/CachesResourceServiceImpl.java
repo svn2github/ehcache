@@ -96,8 +96,8 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
   public void deleteCache(final UriInfo info) {
     LOG.debug(String.format("Invoking CachesResourceServiceImpl.deleteCache: %s", info.getRequestUri()));
 
-    //todo: implement
-    throw new ResourceRuntimeException("Not yet implemented", Response.Status.SERVICE_UNAVAILABLE.getStatusCode());
+    //Not implemented : 501
+    throw new ResourceRuntimeException("Not yet implemented", 501);
   }
 
 }
