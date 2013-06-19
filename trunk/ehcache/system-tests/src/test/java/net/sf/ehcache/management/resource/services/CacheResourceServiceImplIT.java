@@ -237,12 +237,12 @@ public class CacheResourceServiceImplIT extends ResourceServiceImplITHelper{
             .body("get(0).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
             .body("get(0).attributes.LocalHeapSizeInBytes", greaterThan(0))
             .body("get(0).attributes.InMemorySize", equalTo(1000))
-            .body("get(0).attributes.LocalDiskSize", equalTo(1000))
+            .body("get(0).attributes.LocalDiskSize", greaterThan(0))
             .body("get(0).attributes.LocalHeapSize", equalTo(1000))
             .body("get(0).attributes.SizeSample", equalTo(1000))
             .body("get(0).attributes.DiskExpiryThreadIntervalSeconds", equalTo(120))
             .body("get(0).attributes.LocalHeapSizeInBytesSample", greaterThan(0))
-            .body("get(0).attributes.LocalDiskSizeSample", equalTo(1000))
+            .body("get(0).attributes.LocalDiskSizeSample", greaterThan(0))
             .body("get(0).attributes.LocalDiskSizeInBytes", greaterThan(0))
             .body("get(0).attributes.Size", equalTo(1000))
             .body("get(0).attributes.LocalHeapSizeSample", equalTo(1000))
@@ -286,13 +286,38 @@ public class CacheResourceServiceImplIT extends ResourceServiceImplITHelper{
     attributes.put("MaxEntriesLocalHeap",20000);
     attributes.put("Enabled", Boolean.FALSE);
     cacheManagerEntity.getAttributes().putAll(attributes);
-    expect().contentType(ContentType.JSON)
-            .statusCode(400)
+
+    expect().statusCode(400)
+            .body("details", equalTo(""))
+            .body("error", equalTo("No cache specified. Unsafe requests must specify a single cache name."))
             .given()
             .contentType(ContentType.JSON)
             .body(cacheManagerEntity)
             .when().put(EXPECTED_RESOURCE_LOCATION);
 
+    expect().statusCode(400)
+            .body("details", equalTo(""))
+            .body("error", equalTo("No cache manager specified. Unsafe requests must specify a single cache manager name."))
+            .given()
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
+            .when().put("/tc-management-api/agents/cacheManagers/caches;names=testCache2");
+
+    expect().statusCode(400)
+            .body("details", equalTo("Cache not found !"))
+            .body("error", equalTo("Failed to create or update cache"))
+            .given()
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
+            .when().put("/tc-management-api/agents/cacheManagers;names=testCacheManagerProgrammatic/caches;names=boups");
+
+    expect().statusCode(400)
+            .body("details", equalTo("CacheManager not found !"))
+            .body("error", equalTo("Failed to create or update cache"))
+            .given()
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
+            .when().put("/tc-management-api/agents/cacheManagers;names=pif/caches;names=testCache2");
 
     // we check nothing has changed
     expect().contentType(ContentType.JSON)

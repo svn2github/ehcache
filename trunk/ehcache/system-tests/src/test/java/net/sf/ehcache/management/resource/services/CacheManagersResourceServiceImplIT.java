@@ -196,12 +196,23 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
     attributes.put("Searchable",Boolean.TRUE);
     attributes.put("Enabled", Boolean.FALSE);
     cacheManagerEntity.getAttributes().putAll(attributes);
-    expect().contentType(ContentType.JSON)
-            .statusCode(400)
+
+    expect().statusCode(400)
+            .body("details", equalTo(""))
+            .body("error", equalTo("No cache manager specified. Unsafe requests must specify a single cache manager name."))
             .given()
-              .contentType(ContentType.JSON)
-              .body(cacheManagerEntity)
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
             .when().put(EXPECTED_RESOURCE_LOCATION);
+
+    expect().statusCode(400)
+            .body("details", equalTo("CacheManager not found !"))
+            .body("error", equalTo("Failed to update cache manager"))
+            .given()
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
+            .when().put("/tc-management-api/agents/cacheManagers;names=pif");
+
 
 
     // we check nothing has changed
