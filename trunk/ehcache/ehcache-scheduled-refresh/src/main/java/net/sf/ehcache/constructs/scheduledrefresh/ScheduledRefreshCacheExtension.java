@@ -99,11 +99,17 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
     * @param cache  Cache to process against.
     */
    public ScheduledRefreshCacheExtension(ScheduledRefreshConfiguration config, Ehcache cache) {
+      if(cache == null) {
+         throw new IllegalArgumentException("ScheduledRefresh Cache cannot be null");
+      }
       this.underlyingCache = cache;
+      if(config == null) {
+         throw new IllegalArgumentException("ScheduledRefresh extension config cannot be null");
+      }
       this.config = config;
+      config.validate();
       this.status = Status.STATUS_UNINITIALISED;
       StatisticsManager.associate(this).withParent(cache);
-      config.validate();
    }
 
    @Override

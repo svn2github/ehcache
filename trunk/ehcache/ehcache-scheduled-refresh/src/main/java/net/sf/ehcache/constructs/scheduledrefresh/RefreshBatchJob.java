@@ -103,15 +103,14 @@ public class RefreshBatchJob implements Job {
 
          ScheduledRefreshCacheExtension extension = ScheduledRefreshCacheExtension.findExtensionFromCache(underlyingCache,
              context.getJobDetail().getKey().getGroup());
+         boolean keepingStats=false;
          if (extension != null) {
             extension.incrementJobCount();
             extension.incrementProcessedCount(keysToProcess.size());
-         } else {
-            LOG.warn("Unable to find scheduled refresh extension on cache: " + underlyingCache + "/"
-                + context.getJobDetail().getKey().getGroup());
+            keepingStats=true;
          }
 
-         LOG.info("Scheduled refresh batch job: " + context.getJobDetail().getKey() + " size: " + keysToProcess.size());
+         LOG.info("Scheduled refresh batch job: " + context.getJobDetail().getKey() + " size: " + keysToProcess.size()+" "+OverseerJob.statsNote(keepingStats));
          try {
             if (config.isUseBulkload()) {
                requestBulkLoadEnabled(underlyingCache);

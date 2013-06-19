@@ -84,11 +84,10 @@ public class OverseerJob implements Job {
 
          ScheduledRefreshCacheExtension extension = ScheduledRefreshCacheExtension.findExtensionFromCache(cache,
              context.getJobDetail().getKey().getGroup());
+         boolean keepingStats = false;
          if (extension != null) {
+            keepingStats = true;
             extension.incrementRefreshCount();
-         } else {
-            LOG.warn("Unable to find scheduled refresh extension on cache: " + cache + "/"
-                + context.getJobDetail().getKey().getGroup());
          }
 
          ScheduledRefreshKeyGenerator<Serializable> generator = makeGeneratorObject(config.getKeyGeneratorClass());
@@ -96,7 +95,7 @@ public class OverseerJob implements Job {
             Scheduler scheduler = context.getScheduler();
             // if we are the only ones running...
 
-            LOG.info("Starting Scheduled refresh: " + context.getJobDetail().getKey());
+            LOG.info("Starting Scheduled refresh: " + context.getJobDetail().getKey()+" "+statsNote(keepingStats));
             processKeys(context, config, cache, generator);
             if (config.isUseBulkload()) {
                try {
@@ -117,6 +116,10 @@ public class OverseerJob implements Job {
             LOG.warn(e1.getMessage(), e1);
          }
       }
+   }
+
+   static String statsNote(boolean keepingStats) {
+      return "["+(keepingStats?"with stats":"no stats")+"]";
    }
 
    private int getOutstandingJobCount(JobExecutionContext context, Scheduler scheduler) throws SchedulerException {
