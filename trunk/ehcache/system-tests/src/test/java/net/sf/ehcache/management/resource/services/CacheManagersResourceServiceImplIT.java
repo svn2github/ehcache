@@ -6,7 +6,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -193,8 +192,6 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
   public void updateCacheManagersTest__FailWhenNotSpecifyingACacheManager() throws Exception {
     // you have to specify a cacheManager when doing mutation
     CacheManagerEntity cacheManagerEntity = new CacheManagerEntity();
-    cacheManagerEntity.setAgentId("superId");
-    cacheManagerEntity.setName("superName");
     Map<String,Object> attributes = new HashMap<String, Object>();
     attributes.put("Searchable",Boolean.TRUE);
     attributes.put("Enabled", Boolean.FALSE);
@@ -257,13 +254,12 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
 
 
   @Test
-  @Ignore
   /**
    * - PUT an updated CacheManagerEntity, with attributes not allowed
    * only 2 attributes are supported, the others are forbidden because we do not allow them to be updated
    * @throws Exception
    */
-  public void updateCacheManagersTest__FailWhenSpecifyingForbiddenAttributes() throws Exception {
+  public void updateCacheManagersTest__FailWhenMutatingForbiddenAttributes() throws Exception {
 
     // you have to specify a cacheManager when doing mutation
     CacheManagerEntity cacheManagerEntity = new CacheManagerEntity();
@@ -292,6 +288,26 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .body("size()",is(1))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+  }
+
+
+  @Test
+  /**
+   * - PUT an updated CacheManagerEntity
+   * @throws Exception
+   */
+  public void updateCacheManagersTest__CacheManagerDoesNotExist() throws Exception {
+
+    // you have to specify a cacheManager when doing mutation
+    CacheManagerEntity cacheManagerEntity = new CacheManagerEntity();
+    expect().log().ifStatusCodeIsEqualTo(404)
+            .statusCode(400)
+            .body("details", equalTo("CacheManager not found !"))
+            .body("error", equalTo("Failed to update cache manager"))
+            .given()
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
+            .when().put(EXPECTED_RESOURCE_LOCATION + ";names=CacheManagerDoesNotExist");
   }
 
   @After

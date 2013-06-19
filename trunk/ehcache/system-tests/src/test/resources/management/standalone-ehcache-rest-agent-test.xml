@@ -10,7 +10,7 @@
 
   <cache name="testCache"
          maxElementsInMemory="10000"
-         eternal="true">
+         >
   </cache>
 
 </ehcache>
