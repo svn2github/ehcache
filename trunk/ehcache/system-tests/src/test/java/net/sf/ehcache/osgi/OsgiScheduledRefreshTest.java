@@ -82,7 +82,6 @@ public class OsgiScheduledRefreshTest {
     cache.registerCacheLoader(stupidCacheLoaderEvens);
     cache.registerCacheLoader(stupidCacheLoaderOdds);
 
-    int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
     ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(100).quartzThreadCount(4)
         .cronExpression("go to your happy place").build();
     ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
@@ -138,7 +137,7 @@ public class OsgiScheduledRefreshTest {
     Assert.assertEquals(1, refreshStat.value().intValue());
 
     ExtendedStatistics.Statistic<Number> jobStat = ScheduledRefreshCacheExtension.findJobStatistic(cache);
-    Assert.assertEquals(1, refreshStat.value().intValue());
+    Assert.assertEquals(1, jobStat.value().intValue());
 
     ExtendedStatistics.Statistic<Number> procStat = ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
     Assert.assertEquals(10, procStat.value().intValue());
