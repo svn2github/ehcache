@@ -54,7 +54,7 @@ public class ClusteredScheduledRefreshTest extends AbstractCacheTestBase {
             dutCache.put(new Element(new Integer(i), new Integer(i)));
          }
          Thread.sleep(60 * 1000);
-         
+
          // assert that everyone was updated at least once.
          for (int i = 0; i < 1000; i++) {
             Assert.assertTrue(dutCache.get(new Integer(i)).getObjectValue().equals(new Integer(i + 1)));

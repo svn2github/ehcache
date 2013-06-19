@@ -205,6 +205,11 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    private Properties excessProperties = new Properties();
 
    /**
+    * Frozen flag. Once build() is called, the config is frozen.
+    */
+   private volatile boolean frozen = false;
+
+   /**
     * Create a default, valid configuration.
     */
    public ScheduledRefreshConfiguration() {
@@ -219,6 +224,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     */
    public ScheduledRefreshConfiguration fromProperties(Properties properties) {
       valid = false;
+      frozen = false;
       excessProperties.clear();
       if (properties != null) {
          for (String property : properties.stringPropertyNames()) {
@@ -303,9 +309,15 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     */
    public ScheduledRefreshConfiguration build() {
       validate();
+      frozen=true;
       return this;
    }
 
+   private void checkFrozen() {
+      if(frozen) {
+         throw new IllegalStateException("Can't modify a frozen configuration.");
+      }
+   }
    /**
     * Validate this configuration.
     */
@@ -364,6 +376,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param batchSize maximum batch size
     */
    public void setBatchSize(int batchSize) {
+      checkFrozen();
       valid = false;
       this.batchSize = batchSize;
    }
@@ -396,6 +409,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param useBulkload the new use bulkload
     */
    public void setUseBulkload(boolean useBulkload) {
+      checkFrozen();
       valid = false;
       this.useBulkload = useBulkload;
    }
@@ -428,6 +442,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param cronExpression the new cron expression
     */
    public void setCronExpression(String cronExpression) {
+      checkFrozen();
       valid = false;
       this.cronExpression = cronExpression;
    }
@@ -461,6 +476,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param quartzThreadCount the new quartz thread count
     */
    public void setQuartzThreadCount(int quartzThreadCount) {
+      checkFrozen();
       valid = false;
       this.quartzThreadCount = quartzThreadCount;
    }
@@ -494,6 +510,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param keyGeneratorClass the new key generator class
     */
    public void setKeyGeneratorClass(String keyGeneratorClass) {
+      checkFrozen();
       this.keyGeneratorClass = keyGeneratorClass;
    }
 
@@ -530,6 +547,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param part the new unique name part
     */
    public void setScheduledRefreshName(String part) {
+      checkFrozen();
       this.scheduledRefreshName = part;
    }
 
@@ -566,6 +584,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param loadMissEvicts true to evict
     */
    public void setEvictOnLoadMiss(boolean loadMissEvicts) {
+      checkFrozen();
       valid = false;
       this.evictOnLoadMiss = loadMissEvicts;
    }
@@ -603,6 +622,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     *                   the next batch of keys.
     */
    public void setPollTimeMs(int pollTimeMs) {
+      checkFrozen();
       valid = false;
       this.pollTimeMs = pollTimeMs;
    }
@@ -636,6 +656,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param className the new job store factory class name
     */
    public void setJobStoreFactoryClassName(String className) {
+      checkFrozen();
       this.jobStoreFactoryClassName = className;
    }
 
@@ -648,17 +669,6 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
    public ScheduledRefreshConfiguration jobStoreFactory(String className) {
       setJobStoreFactoryClassName(className);
       return this;
-   }
-
-   /**
-    * toString() variant for a specific cache.
-    *
-    * @param targetCache the target cache
-    * @return the string
-    */
-   public String toString(Ehcache targetCache) {
-      return "Cache manager: " + targetCache.getCacheManager().getName() + " Cache: " + targetCache.getName() + " "
-          + this.toString();
    }
 
    /**
@@ -705,6 +715,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param terracottaConfigUrl the terracotta config url
     */
    public void setTerracottaConfigUrl(String terracottaConfigUrl) {
+      checkFrozen();
       valid = false;
       this.tcConfigUrl = terracottaConfigUrl;
       if (terracottaConfigUrl == null) {
@@ -740,6 +751,7 @@ public class ScheduledRefreshConfiguration implements Serializable, Cloneable {
     * @param parallelJobCount the parallel job count
     */
    public void setParallelJobCount(int parallelJobCount) {
+      checkFrozen();
       this.parallelJobCount = parallelJobCount;
       valid = false;
    }

@@ -39,9 +39,8 @@ public class ScheduledRefreshTerracottaJobStoreFactory implements ScheduledRefre
       p.put(StdSchedulerFactory.PROP_JOB_STORE_CLASS, TerracottaJobStore.class.getName());
       p.put(StdSchedulerFactory.PROP_SCHED_INSTANCE_ID, StdSchedulerFactory.AUTO_GENERATE_INSTANCE_ID);
       p.setProperty(AbstractTerracottaJobStore.TC_CONFIGURL_PROP, config.getTerracottaConfigUrl());
-      p.setProperty("org.quartz.jobStore.synchronousWrite", Boolean.TRUE.toString());
-      //p.setProperty("org.quartz.jobStore.rejoin", Boolean.TRUE.toString());
-
+      // Held off unto rejoin p.setProperty("org.quartz.jobStore.synchronousWrite", Boolean.TRUE.toString());
+      // Held off until rejoin p.setProperty("org.quartz.jobStore.rejoin", Boolean.TRUE.toString());
 
      return p;
    }

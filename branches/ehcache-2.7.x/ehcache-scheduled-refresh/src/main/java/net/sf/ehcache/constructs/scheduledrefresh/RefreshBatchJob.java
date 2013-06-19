@@ -88,64 +88,68 @@ public class RefreshBatchJob implements Job {
    @SuppressWarnings({ "unchecked", "rawtypes" })
    @Override
    public void execute(JobExecutionContext context) throws JobExecutionException {
-      JobDataMap jdm = context.getMergedJobDataMap();
-      ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm.get(ScheduledRefreshCacheExtension
-          .PROP_CONFIG_OBJECT);
-      String cacheManagerName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_MGR_NAME);
-      String cacheName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_NAME);
-
-      CacheManager cacheManager = CacheManager.getCacheManager(cacheManagerName);
-      Ehcache underlyingCache = cacheManager.getEhcache(cacheName);
-
-      HashSet<? extends Object> keysToProcess = new HashSet((Collection<? extends Object>) jdm.get(
-          ScheduledRefreshCacheExtension.PROP_KEYS_TO_PROCESS));
-
-      ScheduledRefreshCacheExtension extension = ScheduledRefreshCacheExtension.findExtensionFromCache(underlyingCache,
-          context.getJobDetail().getKey().getGroup());
-      if (extension != null) {
-         extension.incrementJobCount();
-         extension.incrementProcessedCount(keysToProcess.size());
-      } else {
-         LOG.warn("Unable to find scheduled refresh extension on cache: " + underlyingCache + "/"
-             + context.getJobDetail().getKey().getGroup());
-      }
-
-      LOG.info("Scheduled refresh batch job: " + context.getJobDetail().getKey() + " size: " + keysToProcess.size());
       try {
-         if (config.isUseBulkload()) {
-            requestBulkLoadEnabled(underlyingCache);
-         }
-      } catch (UnsupportedOperationException e) {
-         LOG.warn("Bulk Load requested for cache that does not support bulk load.");
-      }
+         JobDataMap jdm = context.getMergedJobDataMap();
+         ScheduledRefreshConfiguration config = (ScheduledRefreshConfiguration) jdm.get(ScheduledRefreshCacheExtension
+             .PROP_CONFIG_OBJECT);
+         String cacheManagerName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_MGR_NAME);
+         String cacheName = jdm.getString(ScheduledRefreshCacheExtension.PROP_CACHE_NAME);
 
-      // iterate through the loaders
-      for (CacheLoader loader : underlyingCache.getRegisteredCacheLoaders()) {
-         // if we are out of keys, punt
-         if (keysToProcess.isEmpty()) {
-            break;
+         CacheManager cacheManager = CacheManager.getCacheManager(cacheManagerName);
+         Ehcache underlyingCache = cacheManager.getEhcache(cacheName);
+
+         HashSet<? extends Object> keysToProcess = new HashSet((Collection<? extends Object>) jdm.get(
+             ScheduledRefreshCacheExtension.PROP_KEYS_TO_PROCESS));
+
+         ScheduledRefreshCacheExtension extension = ScheduledRefreshCacheExtension.findExtensionFromCache(underlyingCache,
+             context.getJobDetail().getKey().getGroup());
+         boolean keepingStats=false;
+         if (extension != null) {
+            extension.incrementJobCount();
+            extension.incrementProcessedCount(keysToProcess.size());
+            keepingStats=true;
          }
 
-         // try and load them all
-         Map<? extends Object, ? extends Object> values = loader.loadAll(keysToProcess);
-         // subtract the ones that were loaded
-         keysToProcess.removeAll(values.keySet());
-         for (Map.Entry<? extends Object, ? extends Object> entry : values.entrySet()) {
-            Element newElement = new Element(entry.getKey(), entry.getValue());
-            underlyingCache.replace(newElement);
+         LOG.info("Scheduled refresh batch job: " + context.getJobDetail().getKey() + " size: " + keysToProcess.size()+" "+OverseerJob.statsNote(keepingStats));
+         try {
+            if (config.isUseBulkload()) {
+               requestBulkLoadEnabled(underlyingCache);
+            }
+         } catch (UnsupportedOperationException e) {
+            LOG.warn("Bulk Load requested for cache that does not support bulk load.");
          }
-      }
-      // assume we got here ok, now evict any that don't evict
-      if (config.isEvictOnLoadMiss() && !keysToProcess.isEmpty()) {
-         underlyingCache.removeAll(keysToProcess);
-      }
 
-      try {
-         if (config.isUseBulkload()) {
-            requestBulkLoadRestored(underlyingCache);
+         // iterate through the loaders
+         for (CacheLoader loader : underlyingCache.getRegisteredCacheLoaders()) {
+            // if we are out of keys, punt
+            if (keysToProcess.isEmpty()) {
+               break;
+            }
+
+            // try and load them all
+            Map<? extends Object, ? extends Object> values = loader.loadAll(keysToProcess);
+            // subtract the ones that were loaded
+            keysToProcess.removeAll(values.keySet());
+            for (Map.Entry<? extends Object, ? extends Object> entry : values.entrySet()) {
+               Element newElement = new Element(entry.getKey(), entry.getValue());
+               underlyingCache.replace(newElement);
+            }
          }
-      } catch (UnsupportedOperationException e) {
-         // warned above.
+         // assume we got here ok, now evict any that don't evict
+         if (config.isEvictOnLoadMiss() && !keysToProcess.isEmpty()) {
+            underlyingCache.removeAll(keysToProcess);
+         }
+
+         try {
+            if (config.isUseBulkload()) {
+               requestBulkLoadRestored(underlyingCache);
+            }
+         } catch (UnsupportedOperationException e) {
+            // warned above.
+         }
+      }
+      catch(Throwable t) {
+         LOG.warn("Scheduled refresh batch job failure: " + context.getJobDetail().getKey(), t);
       }
 
    }

@@ -15,7 +15,91 @@ import java.util.GregorianCalendar;
  */
 public class ScheduledRefreshConfigurationTest {
 
+   @Test
+   public void testFreezing() {
 
+      ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration()
+         .batchSize(10)
+         .quartzThreadCount(4)
+         .parallelJobCount(5)
+         .pollTimeMs(100)
+         .cronExpression("0/5 * * * * ?");
+
+      config.setParallelJobCount(10);
+      config.setJobStoreFactoryClassName("foo");
+      config.setTerracottaConfigUrl("bar");
+      config.setBatchSize(10);
+      config.setCronExpression("ffff");
+      config.setEvictOnLoadMiss(true);
+      config.setKeyGeneratorClass("foo bar");
+      config.setPollTimeMs(1000);
+      config.setQuartzThreadCount(111);
+      config.setUseBulkload(true);
+
+      config.build();
+
+      try {
+         config.setParallelJobCount(10);
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setJobStoreFactoryClassName("foo");
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setTerracottaConfigUrl("bar");
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setBatchSize(10);
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setCronExpression("ffff");
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setEvictOnLoadMiss(true);
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setKeyGeneratorClass("foo bar");
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setPollTimeMs(1000);
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setQuartzThreadCount(111);
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+      try {
+         config.setUseBulkload(true);
+         Assert.fail();
+      } catch(IllegalStateException e) {
+      }
+
+
+   }
 
    // OK. we want to create an ehcache, then programmitically decorate it with
    // locks.
@@ -90,4 +174,11 @@ public class ScheduledRefreshConfigurationTest {
 
    }
 
+   public void testEng10MathildeFail() {
+      ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration()
+         .cronExpression( (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60 + "/5 * * * * ?")
+         .jobStoreFactory("toto");
+
+
+   }
 }
