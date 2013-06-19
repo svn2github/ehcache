@@ -25,7 +25,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.terracotta.test.OsgiUtil;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -153,12 +152,9 @@ public class OsgiScheduledRefreshTest {
   // locks.
   @Test
   public void testSimpleCaseXML() throws Exception {
-    File configFile = new File("src/test/resources/net/sf/ehcache/osgi/ehcache-scheduled-refresh.xml");
-    if (!configFile.exists()) {
-      configFile = new File("../src/test/resources/net/sf/ehcache/osgi/ehcache-scheduled-refresh.xml");
-    }
-    if (!configFile.exists()) { throw new RuntimeException("config file not found " + configFile); }
-    CacheManager manager = CacheManager.create(configFile.getCanonicalPath());
+    CacheManager manager = new CacheManager(
+                                            OsgiScheduledRefreshTest.class
+                                                .getResource("/net/sf/ehcache/osgi/ehcache-scheduled-refresh.xml"));
 
     Cache cache = manager.getCache("sr-test");
 
