@@ -42,6 +42,7 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.AttributeExtractorException;
 import net.sf.ehcache.search.attribute.AttributeType;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.expression.Criteria;
@@ -1036,7 +1037,8 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         }
 
         @Override
-        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors) {
+        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors, DynamicAttributesExtractor 
+                dynIndexer) {
             Criteria c = query.getCriteria();
 
             List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();
@@ -1051,7 +1053,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             final Map<Set, List<AggregatorInstance<?>>> groupByAggregators = new HashMap<Set, List<AggregatorInstance<?>>>();
 
             Collection<Element> matches = new LinkedList<Element>();
-
+            
             for (Element element : memoryStore.elementSet()) {
                 element = copyingStore.copyElementForReadIfNeeded(element);
 
@@ -1062,8 +1064,10 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                     // No previously committed value
                     if (element == null) { continue; }
                 }
+                
+                Map<String, AttributeExtractor> extractorSuperset = getCombinedExtractors(extractors, dynIndexer, element);
 
-                if (c.execute(element, extractors)) {
+                if (c.execute(element, extractorSuperset)) {
                     if (!isGroupBy && !hasOrder && query.maxResults() >= 0 && matches.size() == query.maxResults()) {
                         break;
                     }
@@ -1076,14 +1080,15 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
 
             boolean anyMatches = !matches.isEmpty();
             for (Element element : matches) {
+                Map<String, AttributeExtractor> extractorSuperset = getCombinedExtractors(extractors, dynIndexer, element);
                 if (includeResults) {
-                    final Map<String, Object> attributes = getAttributeValues(query.requestedAttributes(), extractors, element);
-                    final Object[] sortAttributes = getSortAttributes(query, extractors, element);
+                    final Map<String, Object> attributes = getAttributeValues(query.requestedAttributes(), extractorSuperset, element);
+                    final Object[] sortAttributes = getSortAttributes(query, extractorSuperset, element);
 
                     if (!isGroupBy) {
                         results.add(new ResultImpl(element.getObjectKey(), element.getObjectValue(), query, attributes, sortAttributes));
                     } else {
-                        Map<String, Object> groupByValues = getAttributeValues(groupByAttributes, extractors, element);
+                        Map<String, Object> groupByValues = getAttributeValues(groupByAttributes, extractorSuperset, element);
                         Set<?> groupId = new HashSet(groupByValues.values());
                         BaseResult group = groupByResults.get(groupId);
                         if (group == null) {
@@ -1104,7 +1109,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                     }
                 }
 
-                aggregate(aggregators, extractors, element);
+                aggregate(aggregators, extractorSuperset, element);
 
             }
 
@@ -1170,6 +1175,35 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             }
             return values;
         }
+        
+        private Map<String, AttributeExtractor> getCombinedExtractors(Map<String, AttributeExtractor> configExtractors, DynamicAttributesExtractor 
+                dynIndexer, Element element) {
+            Map<String, AttributeExtractor> combinedExtractors = new HashMap<String, AttributeExtractor>();
+            combinedExtractors.putAll(configExtractors);
+            
+            if (dynIndexer != null) {
+                Map<String, ? extends Object> dynamic = DynamicSearchChecker.getSearchAttributes(element, configExtractors.keySet(),
+                        dynIndexer);
+
+                for (final Map.Entry<String, ? extends Object> entry: dynamic.entrySet()) {
+                    AttributeExtractor old = combinedExtractors.put(entry.getKey(), new AttributeExtractor() {
+                        @Override
+                        public Object attributeFor(Element element, String attributeName) throws AttributeExtractorException {
+                            if (!attributeName.equals(entry.getKey())) { 
+                                throw new AttributeExtractorException(String.format("Expected attribute name %s but got %s", entry.getKey(), 
+                                        attributeName));
+                            }
+                            return entry.getValue();
+                        }
+                    });
+                    if (old != null) {
+                        throw new AttributeExtractorException(String.format("Attribute name %s already used by configured extractors", 
+                                entry.getKey()));
+                    }
+                }
+            }
+            return combinedExtractors;
+        }
 
         private void aggregate(List<AggregatorInstance<?>> aggregators, Map<String, AttributeExtractor> extractors, Element element) {
             for (AggregatorInstance<?> aggregator : aggregators) {
@@ -1222,10 +1256,9 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
           } 
           
           // Handle dynamic attribute extractor, if any
-          Map<String, Object> dynAttrs = new HashMap<String, Object>();
-          dynAttrs.putAll(DynamicSearchChecker.getSearchAttributes(element, extractors.keySet(),
-                                                                       dynamicIndexer));
-          for (Entry<String, Object> attr : dynAttrs.entrySet()) {
+          Map<String, ? extends Object> dynAttrs = DynamicSearchChecker.getSearchAttributes(element, extractors.keySet(),
+                                                                       dynamicIndexer);
+          for (Entry<String, ? extends Object> attr : dynAttrs.entrySet()) {
               if (!AttributeType.isSupportedType(attr.getValue())) {
                   throw new CacheException(String.format("Unsupported attribute type specified %s for dynamically extracted attribute %s",
                           attr.getClass().getName(), attr.getKey()));

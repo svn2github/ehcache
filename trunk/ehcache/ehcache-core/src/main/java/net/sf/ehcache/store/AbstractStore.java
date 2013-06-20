@@ -29,6 +29,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
+import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.impl.SearchManager;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 
@@ -173,8 +174,9 @@ public abstract class AbstractStore implements Store {
         if (searchManager == null) {
             throw new UnsupportedOperationException("Query execution not supported by this store type: " + getClass().getName());
         }
+        DynamicAttributesExtractor dynExtractor = query.getCache().getCacheConfiguration().getDynamicExtractor();
 
-        return searchManager.executeQuery(query.getCache().getName(), query, attributeExtractors);
+        return searchManager.executeQuery(query.getCache().getName(), query, attributeExtractors, dynExtractor);
     }
 
     /**

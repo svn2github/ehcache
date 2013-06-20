@@ -81,6 +81,7 @@
     <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
     <suppress checks="NPathComplexity" files="MemoryStore.java"/>
     <suppress checks="CyclomaticComplexity" files="MemoryStore.java"/>
+    <suppress checks="FileLength" files="MemoryStore.java"/>
     <suppress checks="CyclomaticComplexity" files="AbstractTransactionStore.java"/>
     <suppress checks="NPathComplexity" files="EhcacheXAResourceImpl.java"/>
     <suppress checks="CyclomaticComplexity" files="EhcacheXAResourceImpl.java"/>
