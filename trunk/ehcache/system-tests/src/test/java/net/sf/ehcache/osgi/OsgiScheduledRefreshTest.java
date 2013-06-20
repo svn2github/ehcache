@@ -133,15 +133,6 @@ public class OsgiScheduledRefreshTest {
 
     }
 
-    ExtendedStatistics.Statistic<Number> refreshStat = ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
-    Assert.assertEquals(1, refreshStat.value().intValue());
-
-    ExtendedStatistics.Statistic<Number> jobStat = ScheduledRefreshCacheExtension.findJobStatistic(cache);
-    Assert.assertEquals(1, jobStat.value().intValue());
-
-    ExtendedStatistics.Statistic<Number> procStat = ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
-    Assert.assertEquals(10, procStat.value().intValue());
-
     // cacheExtension.dispose();
     manager.removeAllCaches();
     manager.shutdown();
