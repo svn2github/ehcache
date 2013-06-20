@@ -167,4 +167,14 @@ public class DynamicAttributeExtractorTest {
         assertEquals(1, res.size());
         assertEquals(3, res.all().get(0).getAggregatorResults().get(0));
     }
+    
+    @Test
+    public void testAttributeSelect() {
+        Query q = cache.createQuery().includeAttribute(gender, age).addCriteria(gender.ne(Gender.MALE));
+        Results res = q.execute();
+        assertEquals(1, res.size());
+        Result r = res.all().get(0);
+        assertEquals(Gender.FEMALE, r.getAttribute(gender));
+        assertEquals(23, r.getAttribute(age).intValue());
+    }
 }
