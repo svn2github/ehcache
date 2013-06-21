@@ -2,6 +2,7 @@ package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
@@ -39,7 +40,11 @@ public abstract class ResourceServiceImplITHelper {
         return super.getCacheManagerProgramatically();
       }
     };
-    resourceServiceImplITHelper.getCacheManagerProgramatically();
+    CacheManager cacheManagerProgramatically = resourceServiceImplITHelper.getCacheManagerProgramatically();
+    Cache exampleCache = cacheManagerProgramatically.getCache("testCache2");
+    for (int i=0; i<1000 ; i++) {
+      exampleCache.put(new Element("key" + i, "value" + i));
+    }
 
   }
 
