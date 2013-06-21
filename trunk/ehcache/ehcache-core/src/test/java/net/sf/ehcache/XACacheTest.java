@@ -19,29 +19,22 @@ package net.sf.ehcache;
 import bitronix.tm.BitronixTransactionManager;
 import bitronix.tm.TransactionManagerServices;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 
 import java.util.concurrent.CyclicBarrier;
 
-import javax.transaction.*;
 import javax.transaction.Status;
+import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 
 public class XACacheTest extends TestCase {
 
-    private Cache cache;
-    private DefaultTransactionManagerLookup transactionManagerLookup;
+    private volatile Cache cache;
+    private volatile TransactionManager txnManager;
 
-    private DefaultTransactionManagerLookup getTransactionManagerLookup() {
-        if (transactionManagerLookup == null) {
-            this.transactionManagerLookup = new DefaultTransactionManagerLookup();
-        }
-        return this.transactionManagerLookup;
-    }
 
     public void testXACache() throws Throwable {
-        TransactionManager txnManager = getTransactionManagerLookup().getTransactionManager();
         Element element1 = new Element("key1", "value1");
         Element element2 = new Element("key2", "value2");
         CyclicBarrier barrier = new CyclicBarrier(2);
@@ -147,13 +140,15 @@ public class XACacheTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        TransactionManagerServices.getConfiguration().setServerId("__xaCacheTest");
         TransactionManagerServices.getConfiguration().setJournal("null");
-        TransactionManagerServices.getTransactionManager();
+        txnManager = TransactionManagerServices.getTransactionManager();
 
-        final CacheManager manager = CacheManager.create();
-        cache = new Cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
-        cache.setTransactionManagerLookup(getTransactionManagerLookup());
-        manager.addCache(cache);
+        Configuration configuration = new Configuration().name("__xaCacheTestCM")
+            .cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
+
+        final CacheManager manager = new CacheManager(configuration);
+        cache = manager.getCache("sampleCache");
     }
 
     @Override
