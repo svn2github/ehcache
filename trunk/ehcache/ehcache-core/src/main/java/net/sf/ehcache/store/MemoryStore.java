@@ -1053,6 +1053,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             final Map<Set, List<AggregatorInstance<?>>> groupByAggregators = new HashMap<Set, List<AggregatorInstance<?>>>();
 
             Collection<Element> matches = new LinkedList<Element>();
+            Map<Object, Map<String, AttributeExtractor>> eltExtractors = new HashMap<Object, Map<String, AttributeExtractor>>();
             
             for (Element element : memoryStore.elementSet()) {
                 element = copyingStore.copyElementForReadIfNeeded(element);
@@ -1066,6 +1067,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                 }
                 
                 Map<String, AttributeExtractor> extractorSuperset = getCombinedExtractors(extractors, dynIndexer, element);
+                eltExtractors.put(element.getObjectKey(), extractorSuperset);
 
                 if (c.execute(element, extractorSuperset)) {
                     if (!isGroupBy && !hasOrder && query.maxResults() >= 0 && matches.size() == query.maxResults()) {
@@ -1080,7 +1082,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
 
             boolean anyMatches = !matches.isEmpty();
             for (Element element : matches) {
-                Map<String, AttributeExtractor> extractorSuperset = getCombinedExtractors(extractors, dynIndexer, element);
+                Map<String, AttributeExtractor> extractorSuperset = eltExtractors.get(element.getObjectKey());
                 if (includeResults) {
                     final Map<String, Object> attributes = getAttributeValues(query.requestedAttributes(), extractorSuperset, element);
                     final Object[] sortAttributes = getSortAttributes(query, extractorSuperset, element);
@@ -1108,9 +1110,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                         aggregators = groupAggrs;
                     }
                 }
-
                 aggregate(aggregators, extractorSuperset, element);
-
             }
 
             if (hasOrder || isGroupBy) {
