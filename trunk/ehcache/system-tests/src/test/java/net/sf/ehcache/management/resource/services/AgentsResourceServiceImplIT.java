@@ -27,9 +27,9 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
 
   public static final int PORT = 12121;
   public static final String BASEURI = "http://localhost";
-  private static final String INFO = "info/";
+  private static final String INFO = "/info";
   private CacheManager manager;
-  private static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents/";
+  private static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents";
 
   @Before
   public void setUp() throws UnsupportedEncodingException {
@@ -57,6 +57,22 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION);
 
+
+    // [{"version":null,"agentId":"embedded","agencyOf":"Ehcache","rootRepresentables":{"cacheManagerNames":"testCacheManager"}}]
+    expect().contentType(ContentType.JSON)
+            .rootPath("get(0)")
+            .body("agentId", equalTo("embedded"))
+            .body("agencyOf", equalTo("Ehcache"))
+            .body("rootRepresentables.cacheManagerNames", equalTo("testCacheManager"))
+            .statusCode(200)
+            .when().get(EXPECTED_RESOURCE_LOCATION +";ids=embedded");
+
+
+    // [{"version":null,"agentId":"embedded","agencyOf":"Ehcache","rootRepresentables":{"cacheManagerNames":"testCacheManager"}}]
+    expect().contentType(ContentType.JSON)
+            .statusCode(400)
+            .when().get(EXPECTED_RESOURCE_LOCATION +";ids=w00t");
+
     // /info
     //[{"agentId":"embedded","agencyOf":"Ehcache","available":true,"secured":false,"sslEnabled":false,"needClientAuth":false,"licensed":false,"sampleHistorySize":30,"sampleIntervalSeconds":1,"enabled":true,"restAPIVersion":null}]
     expect().contentType(ContentType.JSON)
@@ -73,6 +89,23 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("enabled", equalTo(true))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION + INFO);
+
+    // /info
+    //[{"agentId":"embedded","agencyOf":"Ehcache","available":true,"secured":false,"sslEnabled":false,"needClientAuth":false,"licensed":false,"sampleHistorySize":30,"sampleIntervalSeconds":1,"enabled":true,"restAPIVersion":null}]
+    expect().contentType(ContentType.JSON)
+            .rootPath("get(0)")
+            .body("agentId", equalTo("embedded"))
+            .body("agencyOf", equalTo("Ehcache"))
+            .body("available", equalTo(true))
+            .body("secured", equalTo(false))
+            .body("sslEnabled", equalTo(false))
+            .body("needClientAuth", equalTo(false))
+            .body("licensed", equalTo(false))
+            .body("sampleHistorySize", equalTo(30))
+            .body("sampleIntervalSeconds", equalTo(1))
+            .body("enabled", equalTo(true))
+            .statusCode(200)
+            .when().get(EXPECTED_RESOURCE_LOCATION  +";ids=embedded"+ INFO);
   }
 
   @Test
