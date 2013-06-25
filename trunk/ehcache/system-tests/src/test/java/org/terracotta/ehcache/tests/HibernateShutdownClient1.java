@@ -258,6 +258,7 @@ public class HibernateShutdownClient1 extends ClientBase {
                                                new ThreadIgnore("Poller SunPKCS11", "sun.security.pkcs11."),
                                                new ThreadIgnore("(Attach Listener)-", ""),
                                                new ThreadIgnore("JFR request timer-", ""),
+                                               new ThreadIgnore("Keep-Alive-Timer-", ""),
                                                new ThreadIgnore("JMAPI event thread-", ""));
 
     for (Iterator<SimpleThreadInfo> it = dump.iterator(); it.hasNext();) {
