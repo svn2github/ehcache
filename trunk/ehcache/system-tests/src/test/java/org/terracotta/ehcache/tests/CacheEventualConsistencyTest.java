@@ -7,7 +7,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.junit.Assert;
-import org.terracotta.ehcache.tests.MyCacheEventualConsistencyTest.EventualConsistencyTestClient;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFactory;
 import org.terracotta.toolkit.ToolkitInstantiationException;
@@ -24,12 +23,12 @@ public class CacheEventualConsistencyTest extends AbstractCacheTestBase {
 
 
   public CacheEventualConsistencyTest(TestConfig testConfig) {
-    super("eventual-cache-explicit-locking-test.xml", testConfig, MyTestClient.class, MyTestClient.class);
+    super("eventual-cache-explicit-locking-test.xml", testConfig, TestClient.class, TestClient.class);
     testConfig.addTcProperty("seda.receive_invalidate_objects_stage.sleepMs", "60000");
 
   }
 
-  public static class MyTestClient extends ClientBase {
+  public static class TestClient extends ClientBase {
 
     private static final String QWERTY         = "qwerty";
     private static final String INTIAL_VALUE   = "init_";
@@ -39,7 +38,7 @@ public class CacheEventualConsistencyTest extends AbstractCacheTestBase {
     private static final int    UPDATE_LIMIT   = 6;                                        // Test Case Runs
     private static final int    NUM_ELEMENTS   = 2;                                        // Number of keys updated
 
-    public MyTestClient(String[] args) {
+    public TestClient(String[] args) {
       super("eventualConsistencyCache", args);
     }
 
@@ -293,10 +292,6 @@ public class CacheEventualConsistencyTest extends AbstractCacheTestBase {
 
     private String getKey(int i) {
       return "key_" + i;
-    }
-
-    public static void main(String[] args) {
-      new EventualConsistencyTestClient(args).run();
     }
 
   }
