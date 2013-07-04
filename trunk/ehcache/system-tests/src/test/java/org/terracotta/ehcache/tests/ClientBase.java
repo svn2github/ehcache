@@ -6,6 +6,7 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 
 import org.terracotta.modules.ehcache.ToolkitClientAccessor;
@@ -105,12 +106,28 @@ public abstract class ClientBase extends AbstractClientBase {
 
   protected abstract void runTest(Cache cache, Toolkit myToolkit) throws Throwable;
 
+  /**
+   * MNK-5309 : Since this method can be called for caches with timeout behavior other than EXCEPTION, we temporarily
+   * change the timeout behavior to EXCEPTION during this method and revert it back while exiting.
+   */
   public void waitUntilCacheInitialized(Cache cache) throws InterruptedException {
+    TimeoutBehaviorConfiguration actualTimeoutBehavior = cache.getCacheConfiguration().getTerracottaConfiguration()
+        .getNonstopConfiguration().getTimeoutBehavior();
+    try {
+      TimeoutBehaviorConfiguration clone = (TimeoutBehaviorConfiguration) actualTimeoutBehavior.clone();
+      clone.setType("exception");
+      cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration().addTimeoutBehavior(clone);
+    } catch (CloneNotSupportedException re) {
+      throw new RuntimeException(re);
+    }
+    
     while (true) {
       try {
         debug("===== Waiting for cache " + cache.getName() + " to be initialized =====");
         cache.put(new Element("key", "value"));
         cache.remove("key");
+        cache.getCacheConfiguration().getTerracottaConfiguration().getNonstopConfiguration()
+            .addTimeoutBehavior(actualTimeoutBehavior);
         return;
       } catch (NonStopCacheException e) {
         TimeUnit.SECONDS.sleep(1L);
