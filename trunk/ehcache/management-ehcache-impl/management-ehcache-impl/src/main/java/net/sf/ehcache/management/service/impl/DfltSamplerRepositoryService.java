@@ -612,7 +612,7 @@ public class DfltSamplerRepositoryService
   private static final class SamplerRepoEntry implements CacheManagerEventListener {
     private final static String ENABLED_ATTR = "Enabled";
 
-    private final static String BULK_LOAD_ENABLED = "ClusterBulkLoadEnabled";
+    private final static String BULK_LOAD_ENABLED = "NodeBulkLoadEnabled";
 
     private final static String MAX_ELEMENTS_ON_DISK = "MaxElementsOnDisk";
 

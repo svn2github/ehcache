@@ -112,7 +112,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
             LOG.warn("a transactional cache cannot be put into bulk-load mode");
             return;
         }
-        cache.setNodeBulkLoadEnabled(!bulkLoadEnabled);
+        cache.setNodeBulkLoadEnabled(bulkLoadEnabled);
     }
 
     /**
