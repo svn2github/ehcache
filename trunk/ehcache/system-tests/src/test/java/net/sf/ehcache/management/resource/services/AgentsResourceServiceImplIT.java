@@ -1,20 +1,16 @@
 package net.sf.ehcache.management.resource.services;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 
@@ -25,18 +21,13 @@ import static org.hamcrest.Matchers.hasItem;
  */
 public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
 
-  public static final int PORT = 12121;
-  public static final String BASEURI = "http://localhost";
-  private static final String INFO = "/info";
-  private CacheManager manager;
-  private static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents";
+  protected static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents";
 
-  @Before
-  public void setUp() throws UnsupportedEncodingException {
-    manager = new CacheManager(AgentsResourceServiceImplIT.class.getResource("/management/standalone-ehcache-rest-agent-test.xml"));
-    RestAssured.baseURI = BASEURI;
-    RestAssured.port = PORT;
+  @BeforeClass
+  public static void setUpCluster() throws Exception {
+    setUpCluster(AgentsResourceServiceImplIT.class);
   }
+
 
   @Test
   /**
@@ -55,7 +46,7 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("agencyOf", equalTo("Ehcache"))
             .body("rootRepresentables.cacheManagerNames", equalTo("testCacheManager"))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION);
+            .when().get(STANDALONE_BASE_URL + EXPECTED_RESOURCE_LOCATION);
 
 
     // [{"version":null,"agentId":"embedded","agencyOf":"Ehcache","rootRepresentables":{"cacheManagerNames":"testCacheManager"}}]
@@ -65,13 +56,13 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("agencyOf", equalTo("Ehcache"))
             .body("rootRepresentables.cacheManagerNames", equalTo("testCacheManager"))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION +";ids=embedded");
+            .when().get(STANDALONE_BASE_URL + EXPECTED_RESOURCE_LOCATION +";ids=embedded");
 
 
     // [{"version":null,"agentId":"embedded","agencyOf":"Ehcache","rootRepresentables":{"cacheManagerNames":"testCacheManager"}}]
     expect().contentType(ContentType.JSON)
             .statusCode(400)
-            .when().get(EXPECTED_RESOURCE_LOCATION +";ids=w00t");
+            .when().get(STANDALONE_BASE_URL + EXPECTED_RESOURCE_LOCATION +";ids=w00t");
 
     // /info
     //[{"agentId":"embedded","agencyOf":"Ehcache","available":true,"secured":false,"sslEnabled":false,"needClientAuth":false,"licensed":false,"sampleHistorySize":30,"sampleIntervalSeconds":1,"enabled":true,"restAPIVersion":null}]
@@ -88,7 +79,7 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("sampleIntervalSeconds", equalTo(1))
             .body("enabled", equalTo(true))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION + INFO);
+            .when().get(STANDALONE_BASE_URL + EXPECTED_RESOURCE_LOCATION + INFO);
 
     // /info
     //[{"agentId":"embedded","agencyOf":"Ehcache","available":true,"secured":false,"sslEnabled":false,"needClientAuth":false,"licensed":false,"sampleHistorySize":30,"sampleIntervalSeconds":1,"enabled":true,"restAPIVersion":null}]
@@ -105,7 +96,7 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("sampleIntervalSeconds", equalTo(1))
             .body("enabled", equalTo(true))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION  +";ids=embedded"+ INFO);
+            .when().get(STANDALONE_BASE_URL + EXPECTED_RESOURCE_LOCATION  +";ids=embedded"+ INFO);
   }
 
   @Test
@@ -116,8 +107,7 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
    */
   public void getAgentsTest__TwoCacheManagers() throws Exception {
     // we configure the second cache manager programmatically
-    CacheManager mgr = getCacheManagerProgramatically();
-
+    cacheManagerProgrammatic = getCacheManagerProgrammatic();
     // let's check the agent was edited correctly server side
     expect().contentType(ContentType.JSON)
             .rootPath("get(0)")
@@ -125,16 +115,27 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("agencyOf", equalTo("Ehcache"))
             .body("rootRepresentables.cacheManagerNames", equalTo("testCacheManagerProgrammatic,testCacheManager"))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION);
-    mgr.clearAll();
-    mgr.shutdown();
+            .when().get(STANDALONE_BASE_URL + EXPECTED_RESOURCE_LOCATION);
+    cacheManagerProgrammatic.clearAll();
+    cacheManagerProgrammatic.shutdown();
   }
 
-  @After
-  public void tearDown() {
-    if (manager != null) {
-      manager.shutdown();
-    }
+
+  @Test
+  public void getAgentsTest__clustered() throws Exception {
+
+    // [{"version":null,"agentId":"embedded","agencyOf":"Ehcache","rootRepresentables":{"cacheManagerNames":"testCacheManager"}}]
+    expect().contentType(ContentType.JSON)
+            .body("get(0).agentId", Matchers.equalTo("embedded"))
+            .body("get(0).agencyOf", Matchers.equalTo("TSA"))
+            .body("get(0).rootRepresentables.urls", Matchers.equalTo("http://localhost:"+TSA_GROUP_PORT))
+            .body("get(1).agentId", Matchers.containsString("localhost_"))
+            .body("get(1).agencyOf", Matchers.equalTo("Ehcache"))
+            .body("get(1).rootRepresentables.isEmpty()", Matchers.is(Boolean.TRUE))
+            .statusCode(200)
+            .when().get(CLUSTERED_BASE_URL + EXPECTED_RESOURCE_LOCATION);
+
+
   }
 
 }

@@ -153,6 +153,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+    </dependency>
+    <dependency>
+      <groupId>org.terracotta.test</groupId>
+      <artifactId>test-framework</artifactId>
+      <version>4.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>net.sf.ehcache.test</groupId>
       <artifactId>hibernate-ehcache-bundle</artifactId>
       <version>1.0-SNAPSHOT</version>

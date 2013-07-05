@@ -6,8 +6,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,21 +22,18 @@ import static org.hamcrest.Matchers.*;
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/ endpoint
  * works fine
  */
-public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHelper{
+public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHelper {
 
-  public static final int PORT = 12121;
-  public static final String BASEURI = "http://localhost";
-  private CacheManager manager;
-  private static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents/cacheManagers";
-  private CacheManager managerProgrammatic;
+  protected static final String EXPECTED_RESOURCE_LOCATION = "{baseUrl}/tc-management-api/agents{agentIds}/cacheManagers{cmIds}";
+
+  @BeforeClass
+  public static void setUpCluster() throws Exception {
+    setUpCluster(CacheManagersResourceServiceImplIT.class);
+  }
 
   @Before
   public void setUp() throws UnsupportedEncodingException {
-    RestAssured.baseURI = BASEURI;
-    RestAssured.port =  PORT;
-    manager = new CacheManager(CacheManagersResourceServiceImplIT.class.getResource("/management/standalone-ehcache-rest-agent-test.xml"));
-    // we configure the second cache manager programmatically
-    managerProgrammatic = getCacheManagerProgramatically();
+    cacheManagerProgrammatic = getCacheManagerProgrammatic();
   }
 
   @Test
@@ -154,7 +153,8 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
       }
     ]
      */
-
+    String agentsFilter = "";
+    String cmsFilter = "";
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCacheManagerProgrammatic"))
@@ -166,8 +166,9 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .body("get(1).attributes.CacheNames.get(0)", equalTo("testCache"))
             .body("size()", is(2))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION);
+            .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
 
+    cmsFilter = ";names=testCacheManagerProgrammatic";
     // we filter to return only the attribute CacheNames, and working only on the testCacheManagerProgrammatic CM
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
@@ -179,7 +180,7 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .given()
               .queryParam("show", "CacheMetrics")
               .queryParam("show", "CacheNames")
-            .when().get(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+            .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
 
   }
 
@@ -197,24 +198,28 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
     attributes.put("Enabled", Boolean.FALSE);
     cacheManagerEntity.getAttributes().putAll(attributes);
 
+    String agentsFilter = "";
+    String cmsFilter = "";
+
     expect().statusCode(400)
             .body("details", equalTo(""))
             .body("error", equalTo("No cache manager specified. Unsafe requests must specify a single cache manager name."))
             .given()
             .contentType(ContentType.JSON)
             .body(cacheManagerEntity)
-            .when().put(EXPECTED_RESOURCE_LOCATION);
+            .when().put(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
 
+    cmsFilter = ";names=pif";
     expect().statusCode(400)
             .body("details", equalTo("CacheManager not found !"))
             .body("error", equalTo("Failed to update cache manager"))
             .given()
             .contentType(ContentType.JSON)
             .body(cacheManagerEntity)
-            .when().put("/tc-management-api/agents/cacheManagers;names=pif");
+            .when().put(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
 
 
-
+    cmsFilter = "";
     // we check nothing has changed
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
@@ -226,7 +231,7 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .body("get(1).attributes.CacheMetrics.testCache", hasItems(0,0,0,0))
             .body("get(1).attributes.CacheNames.get(0)", equalTo("testCache"))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION);
+            .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
   }
 
 
@@ -244,12 +249,16 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
     attributes.put("MaxBytesLocalHeapAsString","20M");
     attributes.put("MaxBytesLocalDiskAsString", "40M");
     cacheManagerEntity.getAttributes().putAll(attributes);
+
+    String agentsFilter = "";
+    String cmsFilter = ";names=testCacheManagerProgrammatic";
+
     expect().log().ifError()
             .statusCode(204)
             .given()
             .contentType(ContentType.JSON)
             .body(cacheManagerEntity)
-            .when().put(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+            .when().put(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
 
 
     expect()
@@ -260,7 +269,46 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .body("get(0).attributes.MaxBytesLocalDiskAsString", equalTo("40M"))
             .body("size()",is(1))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+            .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
+  }
+
+
+  @Test
+  /**
+   * - PUT an updated CacheManagerEntity
+   * only 2 attributes are supported
+   * @throws Exception
+   */
+  public void updateCacheManagersTest__clustered() throws Exception {
+
+    // you have to specify a cacheManager when doing mutation
+    CacheManagerEntity cacheManagerEntity = new CacheManagerEntity();
+    Map<String,Object> attributes = new HashMap<String, Object>();
+    attributes.put("MaxBytesLocalHeapAsString","12M");
+    attributes.put("MaxBytesLocalDiskAsString", "6M");
+    cacheManagerEntity.getAttributes().putAll(attributes);
+
+    String agentId = getEhCacheAgentId();
+    final String agentsFilter = ";ids=" + agentId;
+    String cmsFilter = ";names=testCacheManagerProgrammatic";
+
+    expect().log().ifError()
+            .statusCode(204)
+            .given()
+            .contentType(ContentType.JSON)
+            .body(cacheManagerEntity)
+            .when().put(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter);
+
+
+    expect()
+            .contentType(ContentType.JSON)
+            .body("get(0).agentId", equalTo(agentId))
+            .body("get(0).name", equalTo("testCacheManagerProgrammatic"))
+            .body("get(0).attributes.MaxBytesLocalHeapAsString", equalTo("12M"))
+            .body("get(0).attributes.MaxBytesLocalDiskAsString", equalTo("6M"))
+            .body("size()",is(1))
+            .statusCode(200)
+            .when().get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter);
   }
 
 
@@ -279,6 +327,10 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
     attributes.put("MaxBytesLocalHeap","20000");
     attributes.put("MaxBytesLocalDisk", "40000");
     cacheManagerEntity.getAttributes().putAll(attributes);
+
+    String agentsFilter = "";
+    String cmsFilter = ";names=testCacheManagerProgrammatic";
+
     expect().log().ifError()
             .statusCode(400)
             .body("details", equalTo("You are not allowed to update those attributes : name MaxBytesLocalDisk MaxBytesLocalHeap . " +
@@ -287,7 +339,7 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .given()
             .contentType(ContentType.JSON)
             .body(cacheManagerEntity)
-            .when().put(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+            .when().put(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
 
     // we check nothing has changed
     expect()
@@ -298,7 +350,7 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .body("get(0).attributes.MaxBytesLocalDiskAsString", equalTo("10M"))
             .body("size()",is(1))
             .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION + ";names=testCacheManagerProgrammatic");
+            .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
   }
 
 
@@ -311,6 +363,9 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
 
     // you have to specify a cacheManager when doing mutation
     CacheManagerEntity cacheManagerEntity = new CacheManagerEntity();
+
+    String agentsFilter = "";
+    String cmsFilter = ";names=CacheManagerDoesNotExist";
     expect().log().ifStatusCodeIsEqualTo(404)
             .statusCode(400)
             .body("details", equalTo("CacheManager not found !"))
@@ -318,16 +373,13 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
             .given()
             .contentType(ContentType.JSON)
             .body(cacheManagerEntity)
-            .when().put(EXPECTED_RESOURCE_LOCATION + ";names=CacheManagerDoesNotExist");
+            .when().put(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);
   }
 
   @After
-  public void tearDown() {
-    if (manager != null) {
-      manager.shutdown();
-    }
-    if (managerProgrammatic != null) {
-      managerProgrammatic.shutdown();
+  public void  tearDown() {
+    if (cacheManagerProgrammatic != null) {
+      cacheManagerProgrammatic.shutdown();
     }
   }
 
