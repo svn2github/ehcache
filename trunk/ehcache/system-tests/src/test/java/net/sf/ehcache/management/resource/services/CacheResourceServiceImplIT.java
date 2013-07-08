@@ -372,7 +372,6 @@ public class CacheResourceServiceImplIT extends ResourceServiceImplITHelper {
     attributes.put("MaxElementsOnDisk",40000);
     attributes.put("TimeToIdleSeconds", 20);
     attributes.put("TimeToLiveSeconds", 43);
-//    attributes.put("ClusterBulkLoadEnabled", Boolean.TRUE); ONLY FOR CLUSTERED !!!
     attributes.put("Enabled", Boolean.FALSE);
 
 
@@ -396,7 +395,6 @@ public class CacheResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("get(0).attributes.MaxEntriesLocalHeap", equalTo(20000))
             .body("get(0).attributes.LoggingEnabled", equalTo(Boolean.TRUE))
             .body("get(0).attributes.MaxElementsOnDisk", equalTo(40000))
-//            .body("get(0).attributes.ClusterBulkLoadEnabled",equalTo(Boolean.TRUE) ) ONLY FOR CLUSTERED !!!
             .body("get(0).attributes.TimeToIdleSeconds", equalTo(20))
             .body("get(0).attributes.TimeToLiveSeconds", equalTo(43))
             .body("get(0).attributes.Enabled", equalTo(Boolean.FALSE))
@@ -471,7 +469,7 @@ public class CacheResourceServiceImplIT extends ResourceServiceImplITHelper {
     attributes.put("LoggingEnabled", Boolean.TRUE);
     attributes.put("TimeToIdleSeconds", 20);
     attributes.put("TimeToLiveSeconds", 43);
-//    attributes.put("NodeBulkLoadEnabled", Boolean.TRUE); //ONLY FOR CLUSTERED !!!
+    attributes.put("NodeBulkLoadEnabled", Boolean.TRUE); //ONLY FOR CLUSTERED !!!
     attributes.put("Enabled", Boolean.FALSE);
 
     String agentId = getEhCacheAgentId();
@@ -494,8 +492,8 @@ public class CacheResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("get(0).attributes.MaxEntriesInCache", equalTo(30000))
             .body("get(0).attributes.MaxEntriesLocalHeap", equalTo(20000))
             .body("get(0).attributes.LoggingEnabled", equalTo(Boolean.TRUE))
-//            .body("get(0).attributes.NodeBulkLoadEnabled",equalTo(Boolean.TRUE) ) //ONLY FOR CLUSTERED !!!
-//            .body("get(0).attributes.ClusterBulkLoadEnabled", equalTo(Boolean.TRUE)) //ONLY FOR CLUSTERED !!!
+            .body("get(0).attributes.NodeBulkLoadEnabled",equalTo(Boolean.TRUE) ) //ONLY FOR CLUSTERED !!!
+            .body("get(0).attributes.ClusterBulkLoadEnabled", equalTo(Boolean.TRUE)) //ONLY FOR CLUSTERED !!!
             .body("get(0).attributes.TimeToIdleSeconds", equalTo(20))
             .body("get(0).attributes.TimeToLiveSeconds", equalTo(43))
             .body("get(0).attributes.Enabled", equalTo(Boolean.FALSE))
