@@ -4,6 +4,7 @@
 package org.terracotta.modules.ehcache.store.bulkload;
 
 import net.sf.ehcache.store.StoreListener;
+
 import org.terracotta.toolkit.builder.ToolkitCacheConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
@@ -11,8 +12,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitLogger;
-import org.terracotta.toolkit.internal.cache.VersionUpdateListener;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.VersionUpdateListener;
 import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.search.QueryBuilder;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
@@ -333,6 +334,8 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void disposeLocally() {
+    // this will unregister the shutdown hook.
+    setBulkLoadEnabledInCurrentNode(false);
     bulkLoadEnabledNodesSet.disposeLocally();
     toolkitCache.disposeLocally();
   }
@@ -436,7 +439,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
                            final int customMaxTTISeconds, final int customMaxTTLSeconds) {
     concurrentLock.lock();
     try {
-      toolkitCache.unlockedPutNoReturnVersioned(key, value, version, (int)createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+      toolkitCache.unlockedPutNoReturnVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
     } finally {
       concurrentLock.unlock();
     }
