@@ -39,7 +39,7 @@ public class ClusterTopologyTest extends AbstractCacheTestBase {
       getBarrierForAllClients().await();
       Collection<ClusterNode> nodes = cluster.getNodes();
       // There will be 2 clients per node. ( 1 for cache+ 1 for toolkit)
-      Assert.assertEquals(getParticipantCount(), nodes.size());
+      Assert.assertEquals(getParticipantCount() * 2, nodes.size());
       getBarrierForAllClients().await();
     }
 
