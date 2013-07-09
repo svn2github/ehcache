@@ -7,15 +7,7 @@ package net.sf.ehcache.management.service.impl;
 import net.sf.ehcache.management.resource.CacheConfigEntity;
 import net.sf.ehcache.management.sampled.CacheManagerSampler;
 import org.terracotta.management.resource.AgentEntity;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,39 +40,19 @@ final class CacheConfigurationEntityBuilder {
   Collection<CacheConfigEntity> build() {
     Collection<CacheConfigEntity> cces = new ArrayList<CacheConfigEntity>();
 
-    DocumentBuilderFactory domFact = DocumentBuilderFactory.newInstance();
-    try {
-      DocumentBuilder domBuilder = domFact.newDocumentBuilder();
+    for (Map.Entry<String, CacheManagerSampler> entry : samplersByCName.entrySet()) {
+      CacheConfigEntity cce = new CacheConfigEntity();
 
-        for (Map.Entry<String, CacheManagerSampler> entry: samplersByCName.entrySet()) {
-          CacheConfigEntity cce = new CacheConfigEntity();
+      String cacheName = entry.getKey();
+      cce.setCacheName(cacheName);
+      cce.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+      cce.setVersion(this.getClass().getPackage().getImplementationVersion());
 
-          String cacheName = entry.getKey();
-          cce.setCacheName(cacheName);
-          cce.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
-          cce.setVersion(this.getClass().getPackage().getImplementationVersion());
-          CacheManagerSampler sampler = entry.getValue();
-          cce.setCacheManagerName(sampler.getName());
+      CacheManagerSampler sampler = entry.getValue();
+      cce.setCacheManagerName(sampler.getName());
+      cce.setXml(sampler.generateActiveConfigDeclaration(cacheName));
 
-          String xml = sampler.generateActiveConfigDeclaration(cacheName);
-
-          Document config;
-          try {
-            config = domBuilder.parse(new InputSource(new StringReader(xml)));
-          } catch (SAXException e) {
-            throw new RuntimeException(String.format("Failed to parse cache configuration xml for \"%s\".", sampler.getName()),
-                e);
-          } catch (IOException e) {
-            throw new RuntimeException(String.format("Failed to serialize manager configuration for \"%s\".", sampler.getName()),
-                e);
-          }
-
-          cce.setXml(config.getDocumentElement());
-          cces.add(cce);
-        }
-
-    } catch (ParserConfigurationException e) {
-      throw new RuntimeException("Failed to instantiate DocumentBuilder for parsing cache configurations", e);
+      cces.add(cce);
     }
 
     return cces;

@@ -9,10 +9,14 @@ import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
 
 /**
  * @author brandony
@@ -31,8 +35,8 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
   }
 
   @Override
-  public Collection<CacheConfigEntity> getXMLCacheConfigs(UriInfo info) {
-    LOG.debug(String.format("Invoking CacheConfigsResourceServiceImpl.getXMLCacheConfigs: %s", info.getRequestUri()));
+  public Collection<CacheConfigEntity> getCacheConfigs(UriInfo info) {
+    LOG.debug(String.format("Invoking CacheConfigsResourceServiceImpl.getCacheConfigs: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
 
@@ -44,10 +48,14 @@ public final class CacheConfigsResourceServiceImpl implements CacheConfigsResour
     Set<String> cNames = cacheNames == null ? null : new HashSet<String>(Arrays.asList(cacheNames.split(",")));
 
     try {
-      Collection<CacheConfigEntity> configs =  entityResourceFactory.createCacheConfigEntities(cmNames, cNames);
-      return configs;
-    } catch (ServiceExecutionException e) {
-      throw new ResourceRuntimeException("Failed to get xml cache configs", e, Response.Status.BAD_REQUEST.getStatusCode());
+      return entityResourceFactory.createCacheConfigEntities(cmNames, cNames);
+    } catch (ServiceExecutionException see) {
+      throw new ResourceRuntimeException("Failed to get cache configs", see, Response.Status.BAD_REQUEST.getStatusCode());
     }
+  }
+
+  @Override
+  public Collection<CacheConfigEntity> getXMLCacheConfigs(UriInfo info) {
+    return getCacheConfigs(info);
   }
 }

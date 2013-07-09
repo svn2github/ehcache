@@ -3,12 +3,22 @@
 package net.sf.ehcache.management.resource;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.terracotta.management.resource.VersionedEntity;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.StringReader;
 
 import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * <p>
@@ -24,7 +34,9 @@ public class CacheConfigEntity extends VersionedEntity {
   private String cacheManagerName;
   private String agentId;
 
-  private Element xml;
+  // include this only in JSON
+  @JsonProperty
+  private String xml;
 
   @XmlAttribute
   public String getCacheManagerName() {
@@ -35,13 +47,21 @@ public class CacheConfigEntity extends VersionedEntity {
     this.cacheManagerName = cacheManagerName;
   }
 
+  // include this only in XML
   @XmlAnyElement
   @JsonIgnore
-  public Element getXml() {
+  public Element getParsedXml() throws ParserConfigurationException, IOException, SAXException {
+    DocumentBuilderFactory domFact = DocumentBuilderFactory.newInstance();
+    DocumentBuilder domBuilder = domFact.newDocumentBuilder();
+    return domBuilder.parse(new InputSource(new StringReader(xml))).getDocumentElement();
+  }
+
+  @XmlTransient
+  public String getXml() {
     return xml;
   }
 
-  public void setXml(Element xml) {
+  public void setXml(String xml) {
     this.xml = xml;
   }
 

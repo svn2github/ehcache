@@ -3,14 +3,14 @@ package net.sf.ehcache.management.resource.services;
 
 import net.sf.ehcache.management.resource.CacheConfigEntity;
 
+import java.util.Collection;
+
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author brandony
@@ -22,10 +22,24 @@ public interface CacheConfigsResourceService {
    *
    *
    * @param {@link UriInfo} for this resource request
-   * @return a collection of
+   * @return a collection of CacheConfigEntity objects.
    * {@link net.sf.ehcache.management.resource.CacheConfigEntity} objects
    */
   @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Collection<CacheConfigEntity> getCacheConfigs(@Context UriInfo info);
+
+  /**
+   * Get a {@code Collection} of {@link net.sf.ehcache.management.resource.CacheConfigEntity} objects representing the
+   * cache manager configuration information provided by the associated monitorable entity's agent given the request path.
+   *
+   *
+   * @param {@link UriInfo} for this resource request
+   * @return a collection of CacheConfigEntity objects.
+   * {@link net.sf.ehcache.management.resource.CacheConfigEntity} objects
+   */
+  @GET
+  @Consumes(MediaType.APPLICATION_XML)
   @Produces(MediaType.APPLICATION_XML)
   public Collection<CacheConfigEntity> getXMLCacheConfigs(@Context UriInfo info);
 }

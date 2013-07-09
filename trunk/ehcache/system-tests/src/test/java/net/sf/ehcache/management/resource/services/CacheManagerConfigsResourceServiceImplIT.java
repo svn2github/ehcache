@@ -1,24 +1,25 @@
 package net.sf.ehcache.management.resource.services;
 
-import com.jayway.restassured.RestAssured;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl;
 import com.jayway.restassured.internal.path.xml.NodeImpl;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.path.xml.element.Node;
-import net.sf.ehcache.CacheManager;
-import org.junit.*;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 
-import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
- * @author Anthony Dahanne
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/config endpoint
  * works fine
+ * @author Anthony Dahanne
  */
 public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImplITHelper {
 
@@ -55,7 +56,7 @@ public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImp
 
     String agentsFilter = "";
     String cmsFilter = "";
-    String xml = get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter).asString();
+    String xml = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter, cmsFilter).asString();
     XmlPath xmlPath = new XmlPath(xml).setRoot("configurations");
     NodeImpl configuration = xmlPath.get("configuration[0]");
     assertEquals("embedded", configuration.attributes().get("agentId"));
@@ -71,6 +72,7 @@ public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImp
     assertEquals("testCache2", cacheNode.attributes().get("name"));
 
 
+/*
     configuration = xmlPath.get("configuration[1]");
     assertEquals("embedded", configuration.attributes().get("agentId"));
     assertEquals("testCacheManager", configuration.attributes().get("cacheManagerName"));
@@ -83,13 +85,13 @@ public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImp
     cacheNode = ehcacheNode.get("cache");
     assertEquals("testCache", cacheNode.attributes().get("name"));
     assertEquals("10000", cacheNode.attributes().get("maxEntriesLocalHeap"));
+*/
 
 
     //same thing but we specify only a given cacheManager
     agentsFilter = "";
     cmsFilter = ";names=testCacheManagerProgrammatic";
-    xml = get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter).asString();
-//    System.out.println(xml);
+    xml = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter, cmsFilter).asString();
     xmlPath = new XmlPath(xml).setRoot("configurations");
     configuration = xmlPath.get("configuration[0]");
     assertEquals("embedded", configuration.attributes().get("agentId"));
@@ -110,13 +112,12 @@ public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImp
   }
 
   @Test
-  @Ignore("see ENG-80")
   public void getCacheManagersTest__clustered() throws Exception {
     String agentId = getEhCacheAgentId();
     final String agentsFilter = ";ids=" + agentId;
     String cmsFilter = "";
 
-    String xmlThroughClustered = get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter).asString();
+    String xmlThroughClustered = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter).asString();
     XmlPath xmlPath = new XmlPath(xmlThroughClustered).setRoot("configurations");
     NodeImpl configuration = xmlPath.get("configuration[0]");
     assertEquals(agentId, configuration.attributes().get("agentId"));
@@ -132,6 +133,7 @@ public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImp
     assertEquals("testCache2", cacheNode.attributes().get("name"));
 
 
+/*
     configuration = xmlPath.get("configuration[1]");
     assertEquals(agentId, configuration.attributes().get("agentId"));
     assertEquals("testCacheManager", configuration.attributes().get("cacheManagerName"));
@@ -144,11 +146,12 @@ public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImp
     cacheNode = ehcacheNode.get("cache");
     assertEquals("testCache", cacheNode.attributes().get("name"));
     assertEquals("10000", cacheNode.attributes().get("maxEntriesLocalHeap"));
+*/
 
 
     //same thing but we specify only a given cacheManager
     cmsFilter = ";names=testCacheManagerProgrammatic";
-    xmlThroughClustered = get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter).asString();
+    xmlThroughClustered = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter).asString();
     xmlPath = new XmlPath(xmlThroughClustered).setRoot("configurations");
     configuration = xmlPath.get("configuration[0]");
     assertEquals(agentId, configuration.attributes().get("agentId"));
