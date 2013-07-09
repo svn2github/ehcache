@@ -38,6 +38,7 @@ public interface CacheManagerConfigsResourceService {
    * @param {@link UriInfo} for this resource request
    * @return a collection of {@link CacheManagerConfigEntity} objects
    */
+  @Deprecated
   @GET
   @Consumes(MediaType.APPLICATION_XML)
   @Produces(MediaType.APPLICATION_XML)

@@ -38,6 +38,7 @@ public interface CacheConfigsResourceService {
    * @return a collection of CacheConfigEntity objects.
    * {@link net.sf.ehcache.management.resource.CacheConfigEntity} objects
    */
+  @Deprecated
   @GET
   @Consumes(MediaType.APPLICATION_XML)
   @Produces(MediaType.APPLICATION_XML)
