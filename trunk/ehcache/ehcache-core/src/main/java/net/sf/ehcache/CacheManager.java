@@ -228,10 +228,14 @@ public class CacheManager {
     private String registeredMgmtSvrBind;
 
     /**
-     * statistics thread pool.
+     * Statistics thread pool. Core pool size attempts to be power of two of the
+     * number of available processors. 4 gives 2 threads, 8 gives 4, etc.
      */
-    private final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors(),
-            new ThreadFactory() {
+    private final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(
+       Integer.getInteger("net.sf.ehcache.CacheManager.statisticsExecutor.poolSize",
+          Runtime.getRuntime().availableProcessors()),
+
+       new ThreadFactory() {
 
         @Override
         public Thread newThread(Runnable r) {
