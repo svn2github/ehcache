@@ -36,14 +36,14 @@ public final class ManagementServerImpl extends AbstractManagementServer {
     configuration.setSslEnabled(false);
     configuration.setSecurityServiceTimeout(0);
 
-    String basePackage = "net.sf.ehcache.management";
     String host = configuration.getHost();
     int port = configuration.getPort();
 
     loadEmbeddedAgentServiceLocator(clientUUID, configuration);
     samplerRepoSvc = ServiceLocator.locate(SamplerRepositoryService.class);
     List<FilterDetail> filterDetails = Collections.singletonList(new FilterDetail(new NoIaFilter(), "/*"));
-    standaloneServer = new StandaloneServer(filterDetails, null, basePackage, host, port, null, false);
+    standaloneServer = new StandaloneServer(filterDetails, null, "com.terracotta.management.ApplicationEhCache",
+        host, port, null, false);
   }
 
 
