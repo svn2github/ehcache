@@ -287,7 +287,7 @@ public class SearchAttribute {
             break;
           }
           String[] groups = c.getName().split("\\.");
-          if (attrType.equalsIgnoreCase(groups[groups.length - 1])) {
+          if (attrType.equals(groups[groups.length - 1])) {
             if (realType != null) { throw new InvalidConfigurationException("Ambiguous attribute type " + attrType); }
             realType = c;
           }
