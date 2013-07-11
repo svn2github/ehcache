@@ -677,7 +677,20 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
             <searchAttribute name="age" class="com.example.MyAttributeExtractor" properties="foo=1,bar=2"/>
         </searchable>
     </cache>
-
+    
+    Attributes may also be defined with an optional type constraint on their values. The type specified 
+    must be one of the supported types, or resolve to an enum. It is possible to use either a fully 
+    qualified name of the class that represents the type, or its shortened version when the type is not
+    an enum. The type names are case sensitive, i.e. "double" is distinct from "Double".
+    
+    <cache>
+    	<searchable>
+    	   <searchAttribute name="address" type="java.lang.String" expression="value.address.toString()"/>
+           <searchAttribute name="income" type="Long"/>
+           <searchAttribute name="age" type="int"/>
+           <searchAttribute name="gender" expression="value.gender" type="com.example.Gender"/>
+    	<searchable>
+	</cache>
 
     RMI Cache Replication
     +++++++++++++++++++++
