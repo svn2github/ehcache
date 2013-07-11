@@ -1,7 +1,5 @@
 package org.terracotta.ehcache.tests;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -11,13 +9,13 @@ import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 import net.sf.ehcache.event.TerracottaCacheEventReplicationFactory;
 
-import org.terracotta.toolkit.Toolkit;
+import org.junit.Assert;
 import org.terracotta.test.util.WaitUtil;
+import org.terracotta.toolkit.Toolkit;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.Assert;
 
 /**
  * @author Alex Snaps
@@ -65,6 +63,7 @@ public class ClusterCacheEventsRejoinEnabledClient extends ClientBase {
       }
       getBarrierForAllClients().await();
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
         public Boolean call() throws Exception {
           int counterValue = counter.get();
           System.out.println("Waiting until counter hits expected: " + ELEMENTS + ", Actual: " + counterValue);
@@ -72,7 +71,7 @@ public class ClusterCacheEventsRejoinEnabledClient extends ClientBase {
           return false;
         }
       });
-      assertThat(counter.get(), equalTo(ELEMENTS));
+      Assert.assertEquals(counter.get(), ELEMENTS);
     } finally {
       getBarrierForAllClients().await();
     }

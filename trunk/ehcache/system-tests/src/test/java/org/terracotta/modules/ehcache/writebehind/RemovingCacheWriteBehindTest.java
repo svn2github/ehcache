@@ -3,13 +3,16 @@
  */
 package org.terracotta.modules.ehcache.writebehind;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 
+import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
@@ -31,6 +34,7 @@ public class RemovingCacheWriteBehindTest extends AbstractCacheTestBase {
   }
 
   public static class App extends ClientBase {
+    private static int NUM_ELEMENTS = 10000;
 
     public App(String[] args) {
       super(args);
@@ -70,7 +74,7 @@ public class RemovingCacheWriteBehindTest extends AbstractCacheTestBase {
 
       Throwable cause = null;
       System.err.println("Putting with writer...");
-      for (int i = 0; i < 100000; i++) {
+      for (int i = 0; i < NUM_ELEMENTS; i++) {
         if (i == 100) {
           localBarrier.await();
           System.err.println("Let's break things!");
@@ -91,9 +95,35 @@ public class RemovingCacheWriteBehindTest extends AbstractCacheTestBase {
           break;
         }
       }
-      assertThat("Cause for putWithWriter shouldn't be null!", cause, notNullValue());
-      assertThat("Cause for putWithWriter shouldn't be that?!", cause.getClass().getName(),
-                 equalTo(IllegalStateException.class.getName()));
+      Assert.assertNotNull("Cause for putWithWriter shouldn't be null!", cause);
+      Assert.assertEquals("Cause for putWithWriter shouldn't be that?!", cause.getClass().getName(), IllegalStateException.class.getName());
+      testAddSameNameCache(cache.getName());
+    }
+
+    private void testAddSameNameCache(String cacheName) {
+      Cache newCache = createCache(cacheName, cacheManager, Consistency.EVENTUAL);
+      WriteBehindCacheWriter writer = new WriteBehindCacheWriter("WriteBehindCacheWriter for Cache " + cacheName,
+                                                                 0, 20L, true);
+      newCache.registerCacheWriter(writer);
+      for (int i = 0; i < NUM_ELEMENTS / 100; i++) {
+        newCache.putWithWriter(new Element("key" + i, "value" + i));
+      }
+    }
+
+    private Cache createCache(String cacheName, CacheManager cm, Consistency consistency) {
+      CacheConfiguration cacheConfig = new CacheConfiguration();
+      cacheConfig.setName(cacheName);
+      cacheConfig.setMaxEntriesLocalHeap(NUM_ELEMENTS);
+      cacheConfig.cacheWriter(new CacheWriterConfiguration()
+          .writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND));
+
+      TerracottaConfiguration tcConfiguration = new TerracottaConfiguration();
+      tcConfiguration.setConsistency(consistency);
+      cacheConfig.addTerracotta(tcConfiguration);
+
+      Cache cache = new Cache(cacheConfig);
+      cm.addCache(cache);
+      return cache;
     }
 
   }
