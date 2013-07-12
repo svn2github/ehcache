@@ -32,7 +32,6 @@ import org.junit.Test;
  */
 public class MemoryStorePoolingTest {
 
-    private static final int ITERATIONS = 10000;
     private static final DefaultElementValueComparator COMPARATOR = new DefaultElementValueComparator(new CacheConfiguration()
         .copyOnRead(true).copyOnWrite(false));
     private volatile Cache cache;
@@ -98,15 +97,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testPutNew() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            putNew();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void putNew() throws Exception {
         // put 20 new elements in, making sure eviction is working
         for (int i = 0; i < 20; i++) {
             Element e = new Element(i, "" + i);
@@ -133,15 +123,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testPutThenRemove() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            putThenRemove();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void putThenRemove() throws Exception {
         for (int i = 0; i < 20; i++) {
             memoryStore.put(new Element(i, "" + i));
             assertTrue(memoryStore.getSize() <= 2);
@@ -169,15 +150,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testPutIfAbsentNew() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            putIfAbsentNew();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void putIfAbsentNew() throws Exception {
         // put 20 new elements in, making sure eviction is working
         for (int i = 0; i < 20; i++) {
             Element e = new Element(i, "" + i);
@@ -205,15 +177,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testPutUpdate() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            putUpdate();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void putUpdate() throws Exception {
         // warm up
         memoryStore.put(new Element(1, "1"));
         memoryStore.put(new Element(2, "2"));
@@ -238,15 +201,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testPutIfAbsentUpdate() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            putIfAbsentUpdate();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void putIfAbsentUpdate() throws Exception {
         // warm up
         Element element;
         assertNull(memoryStore.putIfAbsent(new Element(1, "1#1")));
@@ -289,15 +243,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testRemove() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            remove();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void remove() throws Exception {
         // warm up
         memoryStore.put(new Element(1, "1"));
         memoryStore.put(new Element(2, "2"));
@@ -316,15 +261,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testReplace1Arg() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            replace1Arg();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void replace1Arg() throws Exception {
         // warm up
         memoryStore.put(new Element(1, "1#1"));
         memoryStore.put(new Element(2, "2#1"));
@@ -354,15 +290,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testReplace3Args() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            replace3Arg();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void replace3Arg() throws Exception {
         // warm up
         memoryStore.put(new Element(1, "1#1"));
         memoryStore.put(new Element(2, "2#1"));
@@ -394,15 +321,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testRemoveElement() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            removeElement();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void removeElement() throws Exception {
         // warm up
         memoryStore.put(new Element(1, "1"));
         memoryStore.put(new Element(2, "2"));
@@ -427,15 +345,6 @@ public class MemoryStorePoolingTest {
 
     @Test
     public void testRemoveAll() throws Exception {
-        for (int i = 0; i < ITERATIONS; i++) {
-            removeAll();
-
-            tearDown();
-            setUp();
-        }
-    }
-
-    public void removeAll() throws Exception {
         // warm up
         memoryStore.put(new Element(1, "1"));
         memoryStore.put(new Element(2, "2"));
