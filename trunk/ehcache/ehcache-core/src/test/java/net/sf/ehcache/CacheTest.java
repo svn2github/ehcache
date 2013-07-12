@@ -461,16 +461,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key2", "value1"));
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-
-        //Test time to idle. Should not idle out because not specified
-        Thread.sleep(2999);
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
-
-        //Test time to live.
-        Thread.sleep(5999);
-        assertNull(cache.get("key1"));
-        assertNull(cache.get("key2"));
+        assertThat(cache.get("key1").getExpirationTime(), lessThanOrEqualTo(System.currentTimeMillis() + SECONDS.toMillis(5)));
+        assertThat(cache.get("key2").getExpirationTime(), lessThanOrEqualTo(System.currentTimeMillis() + SECONDS.toMillis(5)));
     }
 
 
@@ -642,10 +634,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(element2);
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
-
-        Thread.sleep(5999);
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
+        assertThat(cache.get("key1").isEternal(), is(true));
+        assertThat(cache.get("key2").isEternal(), is(true));
 
     }
 
@@ -664,18 +654,8 @@ public class CacheTest extends AbstractCacheTest {
         Ehcache cache = manager.getCache("sampleCacheNotEternalButNoIdleOrExpiry");
         cache.put(new Element("key1", "value1"));
         cache.put(new Element("key2", "value1"));
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
-
-        //Test time to idle. Should not idle out because not specified
-        Thread.sleep(2999);
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
-
-        //Test time to live.
-        Thread.sleep(5999);
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
+        assertThat(cache.get("key1").isEternal(), is(true));
+        assertThat(cache.get("key2").isEternal(), is(true));
     }
 
 
@@ -797,13 +777,8 @@ public class CacheTest extends AbstractCacheTest {
         cache.put(new Element("key2", "value1"));
 
         //Test time to live
-        assertNotNull(cache.get("key1"));
-        assertNotNull(cache.get("key2"));
-        Thread.sleep(10999);
-        assertNull(cache.get("key1"));
-        assertNull(cache.get("key2"));
-
-
+        assertThat(cache.get("key1").getTimeToLive(), is(10));
+        assertThat(cache.get("key2").getTimeToLive(), is(10));
     }
 
 
@@ -1295,18 +1270,20 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testSizes() throws Exception {
-        Ehcache cache = getSampleCache1();
+        final int maxSize = 10;
+        Ehcache cache = new Cache(new CacheConfiguration("net.sf.ehcache.CacheTest#testSizes", maxSize));
+        manager.addCache(cache);
 
         assertEquals(0, cache.getStatistics().getLocalHeapSize());
 
-        for (int i = 0; i < 10010; i++) {
+        for (int i = 0; i < maxSize + 10; i++) {
             cache.put(new Element("key" + i, "value1"));
         }
 
         flushDiskStore(cache);
 
-        assertThat(cache.getSize(), lessThanOrEqualTo(10000));
-        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
+        assertThat(cache.getSize(), lessThanOrEqualTo(maxSize));
+        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo((long) maxSize));
         // TODO Lower tier will _never_ be smaller than higher ones now
 //        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
@@ -1317,8 +1294,8 @@ public class CacheTest extends AbstractCacheTest {
         flushDiskStore(cache);
 
         int size = cache.getSize();
-        assertThat(size, lessThanOrEqualTo(10000));
-        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo(10000L));
+        assertThat(size, lessThanOrEqualTo(maxSize));
+        assertThat(cache.getStatistics().getLocalHeapSize(), lessThanOrEqualTo((long) maxSize));
         // TODO Lower tier will _never_ be smaller than higher ones now
 //        assertThat(cache.getStatistics().getLocalDiskSize(), lessThanOrEqualTo(1000L));
 
@@ -1665,13 +1642,13 @@ public class CacheTest extends AbstractCacheTest {
 
         Element elementThreadKiller = new Element("key", new ThreadKiller());
         cache.put(elementThreadKiller);
-        Thread.sleep(2999);
+        DiskStoreHelper.flushAllEntriesToDisk(cache);
         Element element1 = new Element("key1", "one");
         Element element2 = new Element("key2", "two");
         cache.put(element1);
         cache.put(element2);
 
-        Thread.sleep(2999);
+        DiskStoreHelper.flushAllEntriesToDisk(cache);
 
         assertNotNull(cache.get("key1"));
         assertNotNull(cache.get("key2"));
@@ -2254,17 +2231,6 @@ public class CacheTest extends AbstractCacheTest {
 
 
     /**
-     * Run testConcurrentPutsAreConsistent() repeatedly for 50 times to shake out issues that happen rarely.
-     */
-    @Test
-    public void testConcurrentPutsAreConsistentRepeatedly() throws InterruptedException {
-        for (int i = 0; i < 100; i++) {
-            manager.removeAllCaches();
-            testConcurrentPutsAreConsistent();
-        }
-    }
-
-    /**
      * Shows a consistency problem as reported against 1.6.0.
      * <p/>
      * Does not happen when not using DiskStore
@@ -2697,7 +2663,7 @@ public class CacheTest extends AbstractCacheTest {
 
         DiskStoreHelper.flushAllEntriesToDisk(cache);
 
-        int parties = 8;
+        int parties = Math.max(Runtime.getRuntime().availableProcessors() / 2, 2);
         final Object[] values = new Object[parties];
         final CyclicBarrier barrier = new CyclicBarrier(parties + 1);
         final Thread[] readers = new Thread[parties];
@@ -2745,7 +2711,7 @@ public class CacheTest extends AbstractCacheTest {
 
         private Object readResolve() {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(350);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
