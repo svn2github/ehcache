@@ -53,11 +53,7 @@
       <artifactId>commons-io</artifactId>
       <version>2.4</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.terracotta.test</groupId>
-      <artifactId>test-categories</artifactId>
-    </dependency> 
+    </dependency>     
   </dependencies>
 
   <build>

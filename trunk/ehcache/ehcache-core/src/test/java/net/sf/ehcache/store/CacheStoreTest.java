@@ -14,10 +14,8 @@ import net.sf.ehcache.store.cachingtier.CountBasedBackEnd;
 import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
-
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -37,7 +35,6 @@ import static org.junit.Assert.assertThat;
  * When I wrote this, it probably made sense... now though, looking at it... wtf ?!
  * @author Alex Snaps
  */
-@Category(org.terracotta.test.SmokeTests.class)
 public class CacheStoreTest {
 
     public static final String KEY = "I'm with ";

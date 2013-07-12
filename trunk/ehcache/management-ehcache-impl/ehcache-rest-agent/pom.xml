@@ -31,10 +31,6 @@
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.terracotta.test</groupId>
-      <artifactId>test-categories</artifactId>
-    </dependency>     
   </dependencies>
 
   <build>

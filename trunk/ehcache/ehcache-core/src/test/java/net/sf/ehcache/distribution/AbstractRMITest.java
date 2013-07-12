@@ -48,6 +48,7 @@ import net.sf.ehcache.Cache;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.IntegrationTest;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 
@@ -56,9 +57,11 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Category(IntegrationTest.class)
 public abstract class AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRMITest.class);

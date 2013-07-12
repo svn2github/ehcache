@@ -28,10 +28,6 @@
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.terracotta.test</groupId>
-      <artifactId>test-categories</artifactId>
-    </dependency>    
   </dependencies>
 
   <build>

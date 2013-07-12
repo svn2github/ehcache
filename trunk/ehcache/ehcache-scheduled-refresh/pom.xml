@@ -44,9 +44,5 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.terracotta.test</groupId>
-      <artifactId>test-categories</artifactId>
-    </dependency>    
   </dependencies>
 </project>
