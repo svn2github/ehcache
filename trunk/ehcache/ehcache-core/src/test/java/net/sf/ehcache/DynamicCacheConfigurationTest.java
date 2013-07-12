@@ -5,68 +5,53 @@
 package net.sf.ehcache;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-
 import org.hamcrest.core.CombinableMatcher;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author cdennis
  */
 public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicCacheConfigurationTest.class.getName());
-
     @Test
-    public void testTimeToIdleChange() throws InterruptedException {
-        Cache cache = new Cache("testTimeToIdleChange", 10, false, false, 0, 10);
+    public void testTTIChange() throws InterruptedException {
+        Cache cache = new Cache("testTTIChange", 10, false, false, 0, 10);
 
         manager.addCache(cache);
 
         cache.put(new Element("key1", new Object()));
         cache.put(new Element("key2", new Object()));
 
-        SECONDS.sleep(6);
+        assertThat(cache.get("key1").getTimeToIdle(), is(10));
+        assertThat(cache.get("key2").getTimeToIdle(), is(10));
+        assertThat(cache.get("key2").getExpirationTime(), is(System.currentTimeMillis() + SECONDS.toMillis(10)));
+        SECONDS.sleep(1);
 
-        cache.get("key2");
-
-        SECONDS.sleep(6);
-
-        Assert.assertNull(cache.get("key1"));
-        Assert.assertNotNull(cache.get("key2"));
+        assertThat(cache.get("key2").getTimeToIdle(), is(10));
+        assertThat(cache.get("key2").getExpirationTime(), is(System.currentTimeMillis() + SECONDS.toMillis(10)));
 
         cache.getCacheConfiguration().setTimeToIdleSeconds(20);
 
         cache.put(new Element("key1", new Object()));
+        assertThat(cache.get("key1").getTimeToIdle(), is(20));
+        assertThat(cache.get("key2").getTimeToIdle(), is(20));
 
-        SECONDS.sleep(15);
-
-        Assert.assertNotNull(cache.get("key1"));
-        Assert.assertNotNull(cache.get("key2"));
-
-        SECONDS.sleep(25);
-
-        Assert.assertNull(cache.get("key1"));
-        Assert.assertNull(cache.get("key2"));
-
-        cache.getCacheConfiguration().setTimeToIdleSeconds(4);
+        cache.getCacheConfiguration().setTimeToIdleSeconds(1);
 
         cache.put(new Element("key1", new Object()));
         cache.put(new Element("key2", new Object()));
 
-        SECONDS.sleep(8);
-
-        Assert.assertNull(cache.get("key1"));
-        Assert.assertNull(cache.get("key2"));
+        assertThat(cache.get("key1").getTimeToIdle(), is(1));
+        assertThat(cache.get("key2").getTimeToIdle(), is(1));
     }
 
     @Test
@@ -76,49 +61,36 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         manager.addCache(cache);
 
         cache.put(new Element("key1", new Object()));
+        assertThat(cache.get("key1").getExpirationTime(), lessThanOrEqualTo(System.currentTimeMillis() + SECONDS.toMillis(10)));
+        assertThat(cache.get("key1").getTimeToLive(), is(10));
 
-        SECONDS.sleep(6);
+        SECONDS.sleep(1);
+        assertThat(cache.get("key1").getExpirationTime(), lessThanOrEqualTo(System.currentTimeMillis() + SECONDS.toMillis(9)));
 
         Assert.assertNotNull(cache.get("key1"));
         cache.put(new Element("key2", new Object()));
 
-        SECONDS.sleep(6);
-
-        Assert.assertNull(cache.get("key1"));
-        Assert.assertNotNull(cache.get("key2"));
+        assertThat(cache.get("key2").getTimeToLive(), is(10));
 
         cache.getCacheConfiguration().setTimeToLiveSeconds(20);
 
         cache.put(new Element("key1", new Object()));
 
-        SECONDS.sleep(8);
-
-        Assert.assertNotNull(cache.get("key1"));
-        Assert.assertNotNull(cache.get("key2"));
-
-        SECONDS.sleep(8);
-
-        Assert.assertNotNull(cache.get("key1"));
-        Assert.assertNull(cache.get("key2"));
-
-        SECONDS.sleep(10);
-
-        Assert.assertNull(cache.get("key1"));
+        assertThat(cache.get("key1").getTimeToLive(), is(20));
+        assertThat(cache.get("key2").getTimeToLive(), is(20));
 
         cache.getCacheConfiguration().setTimeToLiveSeconds(4);
 
         cache.put(new Element("key1", new Object()));
         cache.put(new Element("key2", new Object()));
 
-        SECONDS.sleep(8);
-
-        Assert.assertNull(cache.get("key1"));
-        Assert.assertNull(cache.get("key2"));
+        assertThat(cache.get("key1").getTimeToLive(), is(4));
+        assertThat(cache.get("key2").getTimeToLive(), is(4));
     }
 
     @Test
-    public void testTimeToIdleChangeWithCustomElements() throws InterruptedException {
-        Cache cache = new Cache("testTimeToIdleChangeWithCustomElements", 10, false, false, 0, 10);
+    public void testTTIChangeWithCustomElements() throws InterruptedException {
+        Cache cache = new Cache("testTTIChangeWithCustomElements", 10, false, false, 0, 10);
 
         manager.addCache(cache);
 
@@ -127,47 +99,22 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         cache.put(new Element("short", new Object(), false, 1, 1));
         cache.put(new Element("long", new Object(), false, 100, 100));
 
-        SECONDS.sleep(6);
-
-        Assert.assertNull(cache.get("short"));
-
-        SECONDS.sleep(6);
-
-        Assert.assertNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
-
-        cache.getCacheConfiguration().setTimeToIdleSeconds(20);
-
-        cache.put(new Element("default", new Object()));
-        cache.put(new Element("short", new Object(), false, 1, 1));
-
-        SECONDS.sleep(15);
-
-        Assert.assertNotNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
-
-        SECONDS.sleep(25);
-
-        Assert.assertNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
+        assertThat(cache.get("default").getTimeToIdle(), is(10));
+        assertThat(cache.get("default").isEternal(), is(false));
+        assertThat(cache.get("eternal").isEternal(), is(true));
+        assertThat(cache.get("short").getTimeToIdle(), is(1));
+        assertThat(cache.get("long").getTimeToIdle(), is(100));
 
         cache.getCacheConfiguration().setTimeToIdleSeconds(4);
 
         cache.put(new Element("default", new Object()));
         cache.put(new Element("short", new Object(), false, 1, 1));
 
-        SECONDS.sleep(8);
-
-        Assert.assertNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
+        assertThat(cache.get("default").getTimeToIdle(), is(4));
+        assertThat(cache.get("default").isEternal(), is(false));
+        assertThat(cache.get("eternal").isEternal(), is(true));
+        assertThat(cache.get("short").getTimeToIdle(), is(1));
+        assertThat(cache.get("long").getTimeToIdle(), is(100));
     }
 
     @Test
@@ -181,57 +128,23 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
         cache.put(new Element("short", new Object(), false, 1, 1));
         cache.put(new Element("long", new Object(), false, 100, 100));
 
-        SECONDS.sleep(6);
-
-        Assert.assertNotNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
-
-        SECONDS.sleep(6);
-
-        Assert.assertNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
+        assertThat(cache.get("default").getTimeToLive(), is(10));
+        assertThat(cache.get("default").isEternal(), is(false));
+        assertThat(cache.get("eternal").isEternal(), is(true));
+        assertThat(cache.get("short").getTimeToLive(), is(1));
+        assertThat(cache.get("long").getTimeToLive(), is(100));
 
         cache.getCacheConfiguration().setTimeToLiveSeconds(20);
 
         cache.put(new Element("default", new Object()));
         cache.put(new Element("short", new Object(), false, 1, 1));
 
-        SECONDS.sleep(6);
+        assertThat(cache.get("default").getTimeToLive(), is(20));
+        assertThat(cache.get("default").isEternal(), is(false));
+        assertThat(cache.get("eternal").isEternal(), is(true));
+        assertThat(cache.get("short").getTimeToLive(), is(1));
+        assertThat(cache.get("long").getTimeToLive(), is(100));
 
-        Assert.assertNotNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
-
-        SECONDS.sleep(6);
-
-        Assert.assertNotNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
-
-        SECONDS.sleep(10);
-
-        Assert.assertNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
-
-        cache.getCacheConfiguration().setTimeToLiveSeconds(4);
-
-        cache.put(new Element("default", new Object()));
-        cache.put(new Element("short", new Object(), false, 1, 1));
-
-        SECONDS.sleep(8);
-
-        Assert.assertNull(cache.get("default"));
-        Assert.assertNotNull(cache.get("eternal"));
-        Assert.assertNull(cache.get("short"));
-        Assert.assertNotNull(cache.get("long"));
     }
 
     @Test
