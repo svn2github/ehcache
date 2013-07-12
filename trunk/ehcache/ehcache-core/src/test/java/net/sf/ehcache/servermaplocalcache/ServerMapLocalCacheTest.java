@@ -13,9 +13,12 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.IntegrationTest;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import org.junit.experimental.categories.Category;
 
+@Category(IntegrationTest.class)
 public class ServerMapLocalCacheTest extends TestCase {
 
     public void testServerMapLocalCacheUseCaseEviction() throws Exception {
