@@ -340,7 +340,7 @@
 
     <!-- Profile for running only smoke tests -->
     <profile>
-     <id>smoketests</id>
+     <id>check-short</id>
      <build>
        <plugins>
          <plugin>
