@@ -115,6 +115,10 @@
       <groupId>org.beanshell</groupId>
       <artifactId>bsh</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.terracotta.test</groupId>
+      <artifactId>test-categories</artifactId>
+    </dependency>    
   </dependencies>
 
   <build>
@@ -490,7 +494,7 @@
         <tests.supplemental.args>-XXfullSystemGC -Xverbose:systemgc</tests.supplemental.args>
       </properties>
     </profile>
-
+   
     <!-- Profile for running only nonstopcache tests -->
     <profile>
       <id>test-nonstopcache</id>

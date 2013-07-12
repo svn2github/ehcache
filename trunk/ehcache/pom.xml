@@ -19,7 +19,7 @@
     <sizeof-agent.version>1.0.1</sizeof-agent.version>
     <maven-forge-plugin.version>1.0.8</maven-forge-plugin.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
-    <surefire.version>2.10</surefire.version>
+    <surefire.version>2.15</surefire.version>
     <terracotta-toolkit-api.version>2.2.0</terracotta-toolkit-api.version>
     <management-core.version>1.1.8</management-core.version>
     <statistics.version>1.0.1</statistics.version>
@@ -148,7 +148,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.10</version>
+        <version>4.11</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -228,6 +228,12 @@
         <version>1.4.10</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.terracotta.test</groupId>
+        <artifactId>test-categories</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>test</scope>
+      </dependency>      
     </dependencies>
   </dependencyManagement>
 
@@ -337,6 +343,32 @@
         <module>distribution</module>
       </modules>
     </profile>
+    
+    <!-- Profile for running only smoke tests -->
+    <profile>
+     <id>smoketests</id>
+     <build>
+       <plugins>
+         <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-surefire-plugin</artifactId>
+           <configuration>
+             <groups>org.terracotta.test.SmokeTests</groups>
+             <systemProperties>
+               <property>
+                 <name>net.sf.ehcache.skipUpdateCheck</name>
+                 <value>true</value>
+               </property>
+               <property>
+                 <name>java.awt.headless</name>
+                 <value>true</value>
+               </property>
+             </systemProperties>
+           </configuration>
+         </plugin>
+       </plugins>
+     </build>
+    </profile>      
   </profiles>
 
   <repositories>

@@ -39,6 +39,10 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.terracotta.test</groupId>
+      <artifactId>test-categories</artifactId>
+    </dependency>    
   </dependencies>
 
   <repositories>

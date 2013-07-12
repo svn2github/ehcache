@@ -93,6 +93,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +103,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
+@Category(org.terracotta.test.SmokeTests.class)
 public class CacheManagerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheManagerTest.class.getName());
