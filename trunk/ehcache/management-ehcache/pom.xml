@@ -28,6 +28,13 @@
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
     </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache.internal</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 public class SlewClockTest {
 
     private static final boolean SLOWRUN      = Boolean.getBoolean("TimestamperTest.slowRun");
-    private static final long    BACK_IN_TIME = TimeUnit.SECONDS.toMillis(30);
+    private static final long    BACK_IN_TIME = TimeUnit.SECONDS.toMillis(2);
     private static final int     THREADS      = 10;
     private static final long    DURATION     = 15;
 
