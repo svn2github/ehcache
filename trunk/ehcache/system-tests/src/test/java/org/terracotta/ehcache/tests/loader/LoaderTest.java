@@ -39,7 +39,6 @@ public class LoaderTest extends AbstractCacheTestBase {
     sb.append(TestBaseUtil.jarFor(org.apache.log4j.LogManager.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(org.apache.commons.logging.LogFactory.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(ClassWriter.class)).append(File.pathSeparator); // needed for OtherClassloaderClient
-    sb.append(TestBaseUtil.jarFor(EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(org.junit.Assert.class)).append(File.pathSeparator);
     sb.append(TestBaseUtil.jarFor(Toolkit.class));
 
