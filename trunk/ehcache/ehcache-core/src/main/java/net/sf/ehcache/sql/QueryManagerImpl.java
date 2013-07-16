@@ -40,7 +40,7 @@ public class QueryManagerImpl implements QueryManager {
    * Package-local constructor for creating the Query Manager
    *
    * @param queryManagerBuilder builder to create the Query Manager
-   * @throws Exception 
+   * @throws Exception
    */
   QueryManagerImpl(QueryManagerBuilder queryManagerBuilder) throws Exception {
     this.queryParserClazz = Class.forName("net.sf.ehcache.search.parser.QueryParserImpl");
