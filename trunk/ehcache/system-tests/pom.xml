@@ -22,6 +22,7 @@
   <description>System tests for ehcache-terracotta</description>
 
   <properties>
+    <skipSagFinder>true</skipSagFinder>
     <skipCheckstyle>true</skipCheckstyle>
     <derby.version>10.10.1.1</derby.version>
     <quartz.version>2.2.1-SNAPSHOT</quartz.version>
