@@ -25,6 +25,7 @@
     <skipCheckstyle>true</skipCheckstyle>
     <derby.version>10.10.1.1</derby.version>
     <quartz.version>2.2.1-SNAPSHOT</quartz.version>
+    <skipSagFinder>true</skipSagFinder>
   </properties>
 
   <dependencies>  
