@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.sql;
+package net.sf.ehcache.search.query;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.search.Query;
@@ -22,7 +22,7 @@ import net.sf.ehcache.search.Query;
 /**
  * Main entry point from Ehcache into the query manager responsible
  * for parsing SQL-like statements and returning a net.sf.ehcache.search.Query object.
- *
+ * <p/>
  * This interface obviates Ehcache's dependence on a specific dialect of SQL.
  * Implementations are free to decide which SQL-like language is supported by them.
  *
@@ -30,13 +30,13 @@ import net.sf.ehcache.search.Query;
  */
 public interface QueryManager {
 
-  /**
-   * Parses a {@link java.lang.String String} statement expressing an Ehcache Search query and returns
-   * a {@link net.sf.ehcache.search.Query Query} object for the cache specified in the statement.
-   *
-   * @param statement a String expressing an Ehcache Search query
-   * @return a {@link net.sf.ehcache.search.Query Query}object tied to the cache specified in the statement
-   * @throws CacheException if the cache could not be found or if a parse error occurs
-   */
-  Query createQuery(String statement) throws CacheException;
+    /**
+     * Parses a {@link java.lang.String String} statement expressing an Ehcache Search query and returns
+     * a {@link net.sf.ehcache.search.Query Query} object for the cache specified in the statement.
+     *
+     * @param statement a String expressing an Ehcache Search query
+     * @return a {@link net.sf.ehcache.search.Query Query}object tied to the cache specified in the statement
+     * @throws CacheException if the cache could not be found or if a parse error occurs
+     */
+    Query createQuery(String statement) throws CacheException;
 }
