@@ -266,7 +266,7 @@ public class ProcessingBucket<E extends Serializable> {
       workSize = toolkitList.size();
       // if there's no work that needs to be done, stop the processing
       if (0 == workSize) {
-        LOGGER.warn(getThreadName() + " : processItems : nothing to process");
+        debug(getThreadName() + " : processItems : nothing to process");
         return;
       }
       // filter might remove items from list, so this should be with-in writeLock
@@ -275,17 +275,16 @@ public class ProcessingBucket<E extends Serializable> {
       bucketWriteLock.unlock();
     }
 
-    // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the
-    // max allowed fall behind delay hasn't expired
+    // if the batching is enabled and work size is smaller than batch size, don't process anything as long as the max
+    // allowed fall behind delay hasn't expired
     final int batchSize = config.getBatchSize();
     if (config.isBatchingEnabled() && batchSize > 0) {
-      // wait for another round if the batch size hasn't been filled up yet and the max write delay
-      // hasn't expired yet
+      // wait for another round if the batch size hasn't been filled up yet and the max write delay hasn't expired yet
       if (workSize < batchSize && config.getMaxAllowedFallBehind() > lastProcessingTimeMillis - lastWorkDoneMillis) {
         bucketReadLock.lock();
         try {
           if (stopState == STOP_STATE.NORMAL) {
-            LOGGER.warn(getThreadName() + " : processItems : only " + workSize + " work items available, waiting for "
+            debug(getThreadName() + " : processItems : only " + workSize + " work items available, waiting for "
                         + batchSize + " items to fill up a batch");
             return;
           }
@@ -307,7 +306,7 @@ public class ProcessingBucket<E extends Serializable> {
             effectiveBatchSize = determineBatchSize();
             long maxBatchSizeSinceLastWorkDone = rateLimit * secondsSinceLastWorkDone;
             if (effectiveBatchSize > maxBatchSizeSinceLastWorkDone) {
-              LOGGER.warn(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
+              debug(getThreadName() + " : processItems() : last work was done " + secondsSinceLastWorkDone
                           + " seconds ago, processing " + effectiveBatchSize
                           + " batch items would exceed the rate limit of " + rateLimit + ", waiting for a while.");
               return;
@@ -377,11 +376,11 @@ public class ProcessingBucket<E extends Serializable> {
           try {
             processor.throwAway(item, e);
           } catch (final Throwable th) {
-            LOGGER.warn("processSingleItem caught error while throwing away an item: " + item + " " + th);
+            LOGGER.warn("processSingleItem caught error while throwing away an item: " + item, th);
           }
         } else {
           LOGGER.warn(getThreadName() + " : processSingleItem() : exception during processing, retrying in "
-                      + retryAttempts + " milliseconds, " + executionsLeft + " retries left : " + e.getMessage());
+                      + retryAttempts + " milliseconds, " + executionsLeft + " retries left", e);
           try {
             Thread.sleep(config.getRetryAttemptDelay());
           } catch (InterruptedException e1) {
@@ -404,18 +403,18 @@ public class ProcessingBucket<E extends Serializable> {
         processor.process(batch);
         break;
       } catch (final RuntimeException e) {
-        LOGGER.warn("processBatchedItems caught error while processing batch of " + batch.size() + " error " + e);
+        LOGGER.warn("processBatchedItems caught error while processing batch of " + batch.size(), e);
         if (executionsLeft <= 0) {
           for (E item : batch) {
             try {
               processor.throwAway(item, e);
             } catch (final Throwable th) {
-              LOGGER.warn("processBatchedItems caught error while throwing away an item: " + item + " error " + th);
+              LOGGER.warn("processBatchedItems caught error while throwing away an item: " + item, th);
             }
           }
         } else {
           LOGGER.warn(getThreadName() + " : processBatchedItems() : exception during processing, retrying in "
-                      + retryAttempts + " milliseconds, " + executionsLeft + " retries left : " + e);
+                      + retryAttempts + " milliseconds, " + executionsLeft + " retries left", e);
           try {
             Thread.sleep(config.getRetryAttemptDelay());
           } catch (InterruptedException e1) {
@@ -486,7 +485,7 @@ public class ProcessingBucket<E extends Serializable> {
             } catch (final Throwable e) {
               if (cluster.areOperationsEnabled()) {
                 if (!isTCNRE(e)) {
-                  LOGGER.error(bucketName, e);
+                  LOGGER.error("Caught error on processing bucket " + bucketName, e);
                 }
               } else {
                 LOGGER.warn("Caught error on processing items, but looks like we were shut down. "
