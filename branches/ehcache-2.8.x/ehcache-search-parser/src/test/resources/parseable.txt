@@ -1,0 +1,113 @@
+// things which should parse. a sampler.
+
+// simplest
+select * 
+
+// really simple where clause
+select * where 'name' = 'foo'
+select * where 'name' != 'foo'
+select * where 'name' < 'foo'
+select * where 'name' > 'foo'
+select * where 'name' <= 'foo'
+select * where 'name' >= 'foo'
+select key where 'name' = 'foo'
+select key where 'name' != 'foo'
+select key where 'name' < 'foo'
+select key where 'name' > 'foo'
+select key where 'name' <= 'foo'
+select key where 'name' >= 'foo'
+select key,value where 'name' = 'foo'
+select key, value where 'name' != 'foo'
+select key, value  where 'name' < 'foo'
+select key,value  where 'name' > 'foo'
+select key,value where 'name' <= 'foo'
+select key ,value where 'name' >= 'foo'
+
+// between
+select * where ('age' between 10 20)
+select * where ('age' between [10 20)
+select * where ('age' between 10 20])
+select * where ('age' between [10 20])
+
+// ilike
+select * where ('name' ilike 'foo.*bar')
+
+// add some aggregators to the target list
+select key,sum('foo') 
+select key,sum('foo') where 'age'>10
+select key,sum('foo'),min('age') where 'age'>10
+
+// ok, some casting. note that no parsing is done inside the quoted string which is cast.
+select * where ( 'age' = (bool)'true')
+select * where 'age' = (byte)11
+select * where 'age' = (short)11
+select * where 'age' = 11
+select * where 'age' = (int)11
+select * where 'age' = '11'
+select * where 'age' = '11'
+select * where 'age' = (long)11
+select * where 'age' = (double)'11.1'
+select * where 'age' = (date)'1/10/2003 14:25:22'
+select * where 'age' = (sqldate)'1/1/04'
+
+// jdk specific naming I suppose, for an inner class.
+// better to have the enum exist as its own file
+select * where 'age' = (enum net.sf.ehcache.search.parser.ParseModelTest$Foo)'Bar'
+
+select * where 'age' = (class java.lang.String)'John'
+select * where 'age' = (hex)'abababab'
+
+// some ands
+select key,value where ('age' > 100 and 'zip'=20144)
+select key,value where ('age' > 100 and 'zip'=20144 and 'time' > 10)
+select key,value where (('age' > 100 and 'zip'=20144) and 'time' > 10 and 'fun'>100)
+
+// some ors
+select key,value where ('age' > 100 or 'zip'=20144)
+select key,value where ('age' > 100 or 'zip'=20144 or 'time' > 10)
+select key,value where (('age' > 100 or 'zip'=20144) or 'time' > 10 or 'fun'>100)
+
+// ors and ands, partying together
+select key,value where (('age' > 100 and 'zip'=20144) or 'time' > 10)
+select key,value where (('age' > 100 or 'zip'=20144) and ('time' > 10 or 'fun'>100))
+select key,value where (('age' > 100 or 'zip'=20144) and 'time' > 10)
+select key,value where (('age' > 100 and 'zip'=20144) or ('time' > 10 and 'fun'>100))
+
+// group by?
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) group by 'age' 
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) group by 'age' group by 'zip' 
+
+// order by?
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' 
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' order by 'zip' 
+
+// order and group by, mixing order
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) group by 'age' order by 'age'  
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) group by 'age' group by 'zip' order by 'age' order by 'zip'  
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' group by 'age' 
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' order by 'zip' group by 'age' group by 'zip'
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' group by 'age' order by 'zip' group by 'zip'
+
+// limit must go on the end!
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' group by 'age' order by 'zip' group by 'zip' limit 10
+
+// some quoting chicanery
+select * where 'tom\\' = 10
+select * where 'tom\'foo' = 10
+select * where 'tom\nfoo' = 10
+select * where 'tom\rfoo' = 10
+select * where 'tom\tfoo' = 10
+select * where 'tom"foo' = 10
+select * where 'tom\u0065oo' = 10
+
+// some dating
+select * where 'name'= (date)'12/1/2012 10:10:20'
+select * where 'name'= (date)'12/1/2012'
+select * where 'name'= (date)'12/1/2012 10:22'
+select * where 'name'= (date)'12/1/2012 10:10:22.433 EST'
+
+// iso+timezone
+select * where 'name'= (date)'1966-03-29 EST'
+select * where 'name'= (date)'1966-03-29T08:10:22.433 EST'
+select * where 'name'= (date)'1966-03-29T14:10:22.433 EST'
+
