@@ -33,6 +33,7 @@
     <module>management-ehcache</module>
     <module>management-ehcache-impl</module>
     <module>ehcache-scheduled-refresh</module>
+    <module>ehcache-search-parser</module>
   </modules>
 
   <dependencyManagement>
