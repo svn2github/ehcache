@@ -1,0 +1,56 @@
+// things which should parse. a sampler.
+
+// simplest
+slect * 
+
+// really simple where clause
+select foo where 'name' = 'foo'
+select * where name' != 'foo'
+select * where ('name' < 'foo'
+select key where 'name' & 'foo'
+
+// add some aggregators to the target list
+select key,summer('foo') 
+
+// ok, some casting. note that no parsing is done in quoted string which is being cast.
+select * where 'age' = bool 'true'
+select * where 'age' = (string)10
+select * where 'age' = (long)'11'
+
+// some ands
+select key,value where ('age' > 100 and 'zip'=20144
+select key,value where ('age' > 100 and 'zip'=20144 and 'time')
+select key,value where (('age' > 100 and 'zip'=20144 and 'time' > 10 and 'fun'>100)
+
+// some ors
+select key,value where ('age' > 100 or 'zip'=20144
+select key,value where ('age' > 100 or 'zip'=20144 or > 10)
+select key,value where ('age' > 100 or 'zip'=20144) or 'time' > 10 or 'fun'>100)
+
+// ors and ands, partying together
+select key,value where ('age' > 100 and 'zip'=20144) or 'time' > 10)
+select key,value where (('age' > 100 or 'zip'=20144 and ('time' > 10 or 'fun'>100))
+select key,value where (('age' > 100 or 'zip'=20144) 'time' > 10)
+select key,value where (('age' > 100 and zip'=20144) or ('time' > 10 and 'fun'>100))
+
+// group by?
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) groupby 'age' 
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) group by 
+
+// order by?
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) orderby 'age' 
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' order by 
+
+// order and group by, mixing order
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) group 'age' order 'age'  
+
+// limit must go on the end!
+select * where (('age' > 100 and 'zip'=20144) or 'time' > 10) order by 'age' group by 'age' order by 'zip' limit 10 group by 'zip' 
+
+// some quoting chicanery
+select * where 'tom\' = 10
+select * where \'tom\'foo' = 10
+select * where 'tom\u04'
+
+select * where 'name' = (date)'abcde'
+select * where 'name' = (date)'12-20'
