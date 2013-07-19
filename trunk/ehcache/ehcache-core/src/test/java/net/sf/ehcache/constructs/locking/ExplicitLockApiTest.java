@@ -23,12 +23,16 @@ import junit.framework.TestCase;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * @author Abhishek Sanoujam
  */
+@Category(CheckShorts.class)
 public class ExplicitLockApiTest extends TestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExplicitLockApiTest.class);

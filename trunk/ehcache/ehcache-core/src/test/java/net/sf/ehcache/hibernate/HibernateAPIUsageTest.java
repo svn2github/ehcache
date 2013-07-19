@@ -23,6 +23,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
+
 import org.hamcrest.CoreMatchers;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
@@ -37,6 +38,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -47,6 +49,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 
 /**
@@ -55,6 +58,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck, Claus Ibsen
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public class HibernateAPIUsageTest extends AbstractCacheTest {
     private static final Logger LOG = LoggerFactory.getLogger(HibernateAPIUsageTest.class.getName());
 

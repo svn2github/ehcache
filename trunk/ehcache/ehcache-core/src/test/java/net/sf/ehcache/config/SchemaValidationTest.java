@@ -31,6 +31,8 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 import org.w3c.dom.Document;
 
 /**
@@ -38,6 +40,7 @@ import org.w3c.dom.Document;
  *
  * @author Alex Miller
  */
+@Category(CheckShorts.class)
 public class SchemaValidationTest {
 
     private static final String SRC_CONFIG_DIR = "src/main/config/";

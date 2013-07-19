@@ -36,7 +36,10 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
+@Category(CheckShorts.class)
 public class BulkOpsEventListenerTest extends AbstractCacheTest {
 
     @Test

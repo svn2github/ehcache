@@ -14,15 +14,6 @@
   <name>ehcache-scheduled-refresh</name>
   <description>Ehcache functionality for Scheduled Refresh; uses the Quartz Job Scheduler</description>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <skipCheckstyle>false</skipCheckstyle>
-    <skipJavadoc>false</skipJavadoc>
-    <build.timestamp>${maven.build.timestamp}</build.timestamp>
-    <surefire.version>2.10</surefire.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>net.sf.ehcache.internal</groupId>

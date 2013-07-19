@@ -28,7 +28,10 @@ import net.sf.ehcache.constructs.refreshahead.StringifyCacheLoaderFactory;
 import net.sf.ehcache.loader.CacheLoader;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
+@Category(CheckShorts.class)
 public class ReadThroughCacheTest {
 
     private static final Properties configProperties = new Properties() {

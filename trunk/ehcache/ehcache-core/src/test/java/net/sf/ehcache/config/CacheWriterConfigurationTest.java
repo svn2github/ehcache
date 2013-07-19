@@ -17,10 +17,13 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheManager;
+
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +35,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @version $Id $
  */
+@Category(CheckShorts.class)
 public class CacheWriterConfigurationTest {
     private static final Logger LOG = LoggerFactory.getLogger(CacheWriterConfigurationTest.class.getName());
 

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -24,13 +23,16 @@ import net.sf.ehcache.store.disk.DiskStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.InOrder;
+import org.terracotta.test.categories.CheckShorts;
 
 import java.lang.reflect.Field;
 
 /**
  * OrderedEventListenerForDiskStoreBackendTest
  */
+@Category(CheckShorts.class)
 public class OrderedEventListenerForDiskStoreBackendTest {
 
     private static CacheManager cacheManager;
