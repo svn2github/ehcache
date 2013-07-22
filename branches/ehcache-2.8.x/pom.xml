@@ -19,7 +19,7 @@
     <sizeof-agent.version>1.0.1</sizeof-agent.version>
     <maven-forge-plugin.version>1.0.8</maven-forge-plugin.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
-    <surefire.version>2.10</surefire.version>
+    <surefire.version>2.15</surefire.version>
     <terracotta-toolkit-api.version>2.2.0</terracotta-toolkit-api.version>
     <management-core.version>1.1.8</management-core.version>
     <statistics.version>1.0.1</statistics.version>
@@ -149,7 +149,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.10</version>
+        <version>4.11</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -285,7 +285,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.0-tc-patch</version>
+          <version>2.1</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.gmaven</groupId>
@@ -296,6 +296,31 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>rmic-maven-plugin</artifactId>
           <version>1.1</version>
+        </plugin>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>javacc-maven-plugin</artifactId>
+                    <versionRange>[2.6,)</versionRange>
+                    <goals>
+                      <goal>javacc</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
