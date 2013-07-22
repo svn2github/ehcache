@@ -20,9 +20,13 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
+
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
+@Category(CheckShorts.class)
 public class CacheConfigConflictTest extends TestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheConfigConflictTest.class);

@@ -44,18 +44,19 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.constructs.blocking.BlockingCacheOperationOutcomes.GetOutcome;
-import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Operation;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-import org.hamcrest.collection.IsCollectionWithSize;
 
+import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * Test cases for the {@link BlockingCache}.
@@ -64,6 +65,7 @@ import org.junit.Test;
  * @author Greg Luck
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public final class BlockingCacheTest {
 
     private static final String DISK_STORE_PATH = "target/BlockingCacheTest";

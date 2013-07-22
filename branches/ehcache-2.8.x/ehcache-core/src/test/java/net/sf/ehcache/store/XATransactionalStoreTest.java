@@ -21,6 +21,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 import bitronix.tm.TransactionManagerServices;
 import net.sf.ehcache.config.Configuration;
@@ -28,6 +30,7 @@ import net.sf.ehcache.config.Configuration;
 /**
  * @author Alex Snaps
  */
+@Category(CheckShorts.class)
 public class XATransactionalStoreTest {
 
     private TransactionManager transactionManager;

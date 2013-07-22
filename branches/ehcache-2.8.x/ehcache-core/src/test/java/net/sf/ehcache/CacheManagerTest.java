@@ -93,8 +93,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * Tests for CacheManager
@@ -102,6 +104,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public class CacheManagerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheManagerTest.class.getName());

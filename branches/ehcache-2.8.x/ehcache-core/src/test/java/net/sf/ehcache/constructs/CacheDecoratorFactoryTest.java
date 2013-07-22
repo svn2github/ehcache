@@ -20,16 +20,20 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.constructs.MockDecoratorFactory.MockDecoratorFactoryCache;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * @author Abhishek Sanoujam
  */
+@Category(CheckShorts.class)
 public class CacheDecoratorFactoryTest extends TestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheDecoratorFactoryTest.class);

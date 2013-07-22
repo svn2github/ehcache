@@ -19,11 +19,11 @@ package net.sf.ehcache.distribution;
 
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Element;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,10 +33,12 @@ import java.io.ObjectOutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
+
 import net.sf.ehcache.distribution.RmiEventMessage.RmiEventType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * Tests Serialization and SoftReferences in EventMessage
@@ -44,6 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public class EventMessageTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventMessageTest.class.getName());

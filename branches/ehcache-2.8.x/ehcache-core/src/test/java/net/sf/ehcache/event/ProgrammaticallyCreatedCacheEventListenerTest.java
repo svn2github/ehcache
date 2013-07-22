@@ -18,14 +18,14 @@ package net.sf.ehcache.event;
 
 
 import junit.framework.Assert;
-
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
-
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * Same as {@link CacheEventListenerTest} except that the listener is set programmatically. This test inherits because
@@ -34,6 +34,7 @@ import org.junit.Test;
  * @author Greg Luck
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventListenerTest {
 
     /**

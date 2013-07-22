@@ -24,7 +24,10 @@ import junit.framework.Assert;
 import net.sf.ehcache.CacheManager;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
+@Category(CheckShorts.class)
 public class DecoratedCacheConfigTest {
 
     private static final List<String> ALL_CACHE_NAMES = Arrays.asList(new String[] {"noDecoratorCache", "oneDecoratorCache",

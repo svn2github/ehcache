@@ -24,13 +24,10 @@ import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
-
 import static net.sf.ehcache.DiskStoreTest.getDiskStore;
 import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
-
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -44,6 +41,7 @@ import static org.junit.Assert.fail;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -56,8 +54,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.util.RetryAssert;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 
 /**
@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public class CacheEventListenerTest extends AbstractCacheTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheEventListenerTest.class.getName());

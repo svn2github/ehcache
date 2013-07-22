@@ -26,8 +26,12 @@ import java.util.concurrent.CyclicBarrier;
 import javax.transaction.Status;
 import javax.transaction.TransactionManager;
 
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
+
 import junit.framework.TestCase;
 
+@Category(CheckShorts.class)
 public class XACacheTest extends TestCase {
 
     private volatile Cache cache;

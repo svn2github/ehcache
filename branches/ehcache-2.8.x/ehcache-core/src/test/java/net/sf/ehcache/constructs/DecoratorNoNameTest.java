@@ -27,12 +27,15 @@ import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.constructs.MockDecoratorFactory.MockDecoratorFactoryCache;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * @author Abhishek Sanoujam
  */
+@Category(CheckShorts.class)
 public class DecoratorNoNameTest extends TestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(DecoratorNoNameTest.class);

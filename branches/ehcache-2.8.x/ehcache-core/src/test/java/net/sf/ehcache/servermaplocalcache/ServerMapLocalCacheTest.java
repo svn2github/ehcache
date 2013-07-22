@@ -16,6 +16,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.IntegrationTests;
+
+@Category(IntegrationTests.class)
 public class ServerMapLocalCacheTest extends TestCase {
 
     public void testServerMapLocalCacheUseCaseEviction() throws Exception {

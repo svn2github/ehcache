@@ -63,10 +63,11 @@ public class DevModeClassLoader extends ClassLoader {
         super(parent);
         urlClassLoader = initUrlClassLoader(depsReource);
     }
-    
+
     /**
      * returns either EE or OS resource file that contains rest agent dependencies
      * null if not found
+     * 
      * @return
      */
     public static URL devModeResource() {
@@ -80,7 +81,7 @@ public class DevModeClassLoader extends ClassLoader {
         }
         return null;
     }
-    
+
     private URLClassLoader initUrlClassLoader(URL depsReource) {
         List<URL> urlList = new ArrayList<URL>();
         InputStream in = null;
@@ -91,9 +92,12 @@ public class DevModeClassLoader extends ClassLoader {
             while ((line = reader.readLine()) != null) {
                 Matcher m = ARTIFACT_PATTERN.matcher(line);
                 if (m.matches()) {
-                    URL url = constructMavenLocalFile(m.group(1), m.group(2), m.group(3), m.group(4));
-                    LOG.debug("devmode jar: " + url);
-                    urlList.add(url);
+                    String scope = m.group(5);
+                    if ("compile".equals(scope) || "runtime".equals(scope)) {
+                        URL url = constructMavenLocalFile(m.group(1), m.group(2), m.group(3), m.group(4));
+                        LOG.debug("devmode jar: " + url);
+                        urlList.add(url);
+                    }
                 }
             }
 

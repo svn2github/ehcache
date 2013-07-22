@@ -20,12 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.ehcache.AbstractCacheTest;
+
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * @author cdennis
  */
+@Category(CheckShorts.class)
 public class CacheConfigurationListenerTest extends AbstractCacheTest {
 
     @Test

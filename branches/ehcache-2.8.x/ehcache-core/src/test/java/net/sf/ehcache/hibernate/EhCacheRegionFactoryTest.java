@@ -19,10 +19,13 @@ import org.hibernate.cfg.Configuration;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * @author Alex Snaps
  */
+@Category(CheckShorts.class)
 public class EhCacheRegionFactoryTest {
 
     private static Configuration config;

@@ -338,7 +338,61 @@
         <module>distribution</module>
       </modules>
     </profile>
+
+    <!-- Profile for running only unit tests -->
+    <profile>
+     <id>unittests</id>
+     <build>
+       <plugins>
+         <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-surefire-plugin</artifactId>
+           <configuration>
+             <excludedGroups>org.terracotta.test.categories.IntegrationTests</excludedGroups>
+             <systemProperties>
+               <property>
+                 <name>net.sf.ehcache.skipUpdateCheck</name>
+                 <value>true</value>
+               </property>
+               <property>
+                 <name>java.awt.headless</name>
+                 <value>true</value>
+               </property>
+             </systemProperties>
+           </configuration>
+         </plugin>
+       </plugins>
+     </build>
+    </profile>
+    
+    <!-- Profile for running only check-short -->
+    <profile>
+     <id>check-short</id>
+     <build>
+       <plugins>
+         <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-surefire-plugin</artifactId>
+           <configuration>
+             <groups>org.terracotta.test.categories.CheckShorts</groups>
+             <systemProperties>
+               <property>
+                 <name>net.sf.ehcache.skipUpdateCheck</name>
+                 <value>true</value>
+               </property>
+               <property>
+                 <name>java.awt.headless</name>
+                 <value>true</value>
+               </property>
+             </systemProperties>
+           </configuration>
+         </plugin>
+       </plugins>
+     </build>
+    </profile>    
   </profiles>
+  
+ 
 
   <repositories>
     <repository>

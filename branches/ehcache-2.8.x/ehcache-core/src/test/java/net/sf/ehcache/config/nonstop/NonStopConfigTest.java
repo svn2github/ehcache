@@ -36,9 +36,12 @@ import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 
 import org.junit.Assert;
+import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
+@Category(CheckShorts.class)
 public class NonStopConfigTest extends TestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(NonStopConfigTest.class);

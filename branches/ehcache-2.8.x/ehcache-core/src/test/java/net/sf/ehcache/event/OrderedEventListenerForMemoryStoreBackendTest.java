@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -16,11 +15,14 @@ import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.InOrder;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * OrderedEventListenerForMemoryStoreBackendTest
  */
+@Category(CheckShorts.class)
 public class OrderedEventListenerForMemoryStoreBackendTest {
 
     private SelectableConcurrentHashMap map;

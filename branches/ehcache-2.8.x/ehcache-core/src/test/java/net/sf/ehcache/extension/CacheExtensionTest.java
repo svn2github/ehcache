@@ -26,11 +26,14 @@ import net.sf.ehcache.Status;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 /**
  * @author <a href="mailto:gluck@gregluck.com">Greg Luck</a>
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public class CacheExtensionTest {
 
     /**

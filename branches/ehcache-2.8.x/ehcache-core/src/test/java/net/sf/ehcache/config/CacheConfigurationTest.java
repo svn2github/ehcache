@@ -11,6 +11,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,6 +31,7 @@ import java.util.logging.Logger;
 /**
  * @author Alex Snaps
  */
+@Category(CheckShorts.class)
 public class CacheConfigurationTest {
 
     private CacheManager cacheManager;

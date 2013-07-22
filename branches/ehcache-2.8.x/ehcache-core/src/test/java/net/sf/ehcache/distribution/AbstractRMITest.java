@@ -44,8 +44,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import net.sf.ehcache.Cache;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
@@ -58,7 +58,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.IntegrationTests;
 
+@Category(IntegrationTests.class)
 public abstract class AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRMITest.class);

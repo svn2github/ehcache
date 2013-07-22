@@ -14,11 +14,11 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.hibernate.domain.Event;
 import net.sf.ehcache.hibernate.domain.EventManager;
-
 import net.sf.ehcache.hibernate.domain.Item;
 import net.sf.ehcache.hibernate.domain.Person;
 import net.sf.ehcache.hibernate.domain.PhoneNumber;
 import net.sf.ehcache.hibernate.domain.VersionedItem;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -26,14 +26,14 @@ import org.hibernate.Transaction;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.stat.QueryStatistics;
-
 import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.stat.Statistics;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -45,6 +45,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Chris Dennis
  */
+@Category(CheckShorts.class)
 public class HibernateCacheTest {
 
     private static SessionFactory sessionFactory;

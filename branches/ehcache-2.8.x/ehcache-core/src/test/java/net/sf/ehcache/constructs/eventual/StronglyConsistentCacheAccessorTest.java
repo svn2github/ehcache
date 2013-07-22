@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -16,6 +15,8 @@ import net.sf.ehcache.config.ElementValueComparatorConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.Set;
 /**
  * StronglyConsistentCacheAccessorTest
  */
+@Category(CheckShorts.class)
 public class StronglyConsistentCacheAccessorTest {
 
     @Test

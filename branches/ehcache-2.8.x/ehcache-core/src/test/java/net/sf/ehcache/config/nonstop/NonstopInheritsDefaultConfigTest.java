@@ -27,10 +27,13 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaUnitTesting;
 
+import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
+@Category(CheckShorts.class)
 public class NonstopInheritsDefaultConfigTest extends TestCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NonstopInheritsDefaultConfigTest.class);
