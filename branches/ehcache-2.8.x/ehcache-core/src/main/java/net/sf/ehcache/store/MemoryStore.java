@@ -73,6 +73,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -98,7 +99,7 @@ import static net.sf.ehcache.search.expression.BaseCriteria.getExtractor;
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
  * configured in the cache.
  *
- * @author <a href="mailto:ssuravarapu@users.sourceforge.net">Surya Suravarapu</a>
+ * @author Terracotta
  * @version $Id$
  */
 public class MemoryStore extends AbstractStore implements CacheConfigurationListener, Store {
@@ -171,7 +172,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @param searchManager the search manager
      */
     protected MemoryStore(Ehcache cache, Pool pool, BackingFactory factory, final SearchManager searchManager) {
-        super(searchManager);
+        super(searchManager, cache.getName());
         status = Status.STATUS_UNINITIALISED;
         this.cache = cache;
         this.maximumSize = (int) cache.getCacheConfiguration().getMaxEntriesLocalHeap();
@@ -844,6 +845,17 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         this.policy = policy;
     }
 
+    @Override
+    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
+        super.setAttributeExtractors(extractors);
+        Set<Attribute<?>> attrs = new HashSet<Attribute<?>>(attributeExtractors.size());
+
+        for (String name : extractors.keySet()) {
+            attrs.add(new Attribute(name));
+        }
+        ((BruteForceSearchManager)searchManager).searchAttributes.addAll(attrs);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -1008,6 +1020,11 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
 
         private volatile MemoryStore memoryStore;
         private volatile CopyingCacheStore<? extends MemoryStore> copyingStore;
+        
+        /**
+         * account for all search attributes
+         */
+        private final Set<Attribute> searchAttributes = new CopyOnWriteArraySet<Attribute>();
 
         /**
          * Create a BruteForceSearchManager
@@ -1258,13 +1275,15 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
           // Handle dynamic attribute extractor, if any
           Map<String, ? extends Object> dynAttrs = DynamicSearchChecker.getSearchAttributes(element, extractors.keySet(),
                                                                        dynamicIndexer);
+          Set<Attribute<?>> attrs = new HashSet<Attribute<?>>(dynAttrs.size());
           for (Entry<String, ? extends Object> attr : dynAttrs.entrySet()) {
               if (!AttributeType.isSupportedType(attr.getValue())) {
                   throw new CacheException(String.format("Unsupported attribute type specified %s for dynamically extracted attribute %s",
                           attr.getClass().getName(), attr.getKey()));
               }
+              attrs.add(new Attribute(attr.getKey()));
           }
-                       
+          
           Searchable config = memoryStore.cache.getCacheConfiguration().getSearchable(); 
           if (config == null) { return; }
           for (Entry<String, AttributeExtractor> entry : extractors.entrySet()) {
@@ -1287,14 +1306,19 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
                                                                             .format("Expecting a %s value for attribute [%s] but was %s",
                                                                                     schemaTypeName, name, typeName)); 
             }
-            
           }
           
+          searchAttributes.addAll(attrs);
         }
 
         @Override
         public void remove(String cacheName, Object key, int segmentId, boolean isRemoval) {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<Attribute> getSearchAttributes(String cacheName) {
+            return searchAttributes;
         }
 
     }

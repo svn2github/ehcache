@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -439,6 +440,14 @@ public class ElementIdAssigningStore implements Store {
     @Override
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         return delegate.getSearchAttribute(attributeName);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+        return delegate.getSearchAttributes();
     }
 
     /**

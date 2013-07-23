@@ -306,6 +306,10 @@ public class BlockingMockStore implements TerracottaStore {
     public Results executeQuery(StoreQuery query) {
         throw new UnsupportedOperationException();
     }
+    
+    public Set<Attribute> getSearchAttributes() {
+        throw new UnsupportedOperationException();
+    }
 
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         throw new UnsupportedOperationException();

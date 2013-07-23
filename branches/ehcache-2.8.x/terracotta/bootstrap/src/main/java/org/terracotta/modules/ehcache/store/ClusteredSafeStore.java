@@ -993,6 +993,21 @@ public class ClusteredSafeStore implements TerracottaStore {
     }
   }
 
+  @Override
+  public Set<Attribute> getSearchAttributes() {
+    try {
+      return this.delegateClusteredStore.getSearchAttributes();
+    } catch (NonStopException e) {
+      throw e;
+    } catch (RejoinException e) {
+      throw e;
+    } catch (Throwable t) {
+      EXCEPTION_HANDLER.handleException(t);
+      throw new CacheException("Uncaught exception in getSearchAttributes() - " + t.getMessage(), t);
+    }
+
+  }
+
   /**
    * {@inheritDoc}
    */

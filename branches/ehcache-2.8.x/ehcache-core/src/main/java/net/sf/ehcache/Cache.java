@@ -3720,6 +3720,14 @@ public class Cache implements InternalEhcache, StoreListener {
         firePropertyChange("ClusterCoherent", !clusterCoherent, clusterCoherent);
     }
 
+    /**
+     * @return set of all search attributes in effect at the time of calling this method 
+     * @throws CacheException
+     */
+    public Set<Attribute> getSearchAttributes() throws CacheException {
+        checkStatus();
+        return compoundStore.getSearchAttributes();
+    }
 
     /**
      * {@inheritDoc}

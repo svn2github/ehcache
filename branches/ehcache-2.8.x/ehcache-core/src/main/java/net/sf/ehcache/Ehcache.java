@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -1114,6 +1115,12 @@ public interface Ehcache extends Cloneable {
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException;
 
+    /**
+     * @return set of all search attributes in effect at the time of calling this method 
+     * @throws CacheException
+     */
+    public Set<Attribute> getSearchAttributes() throws CacheException;
+    
     /**
      * Create a new query builder for this cache
      *

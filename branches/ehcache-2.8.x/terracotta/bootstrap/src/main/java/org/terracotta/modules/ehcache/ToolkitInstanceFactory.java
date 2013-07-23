@@ -7,6 +7,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheDisposalNotification;
@@ -15,7 +16,6 @@ import org.terracotta.modules.ehcache.store.CacheConfigChangeNotificationMsg;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.cache.ToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -66,11 +66,16 @@ public interface ToolkitInstanceFactory {
   ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache);
 
   /**
-   * Returns a {@link ToolkitCache} for storing serialized extractors for the cache
+   * Returns a {@link ToolkitMap} for storing serialized extractors for the cache
    * 
    * @throws UnsupportedOperationException if search is not supported
    */
   ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(Ehcache cache);
+
+  /**
+   * Returns a {@link ToolkitMap} that will be used internally by Toolkit to store attribute schema.
+   */
+  ToolkitMap<String, String> getOrCreateAttributeMap(Ehcache cache);
 
   /**
    * Destorys any clustered state associated with the given cache.

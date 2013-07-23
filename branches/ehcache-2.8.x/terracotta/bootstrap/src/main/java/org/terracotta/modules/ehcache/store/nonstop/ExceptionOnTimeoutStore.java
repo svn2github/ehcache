@@ -525,6 +525,11 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
     throw new NonStopCacheException("waitUntilClusterCoherent timed out");
   }
 
+  @Override
+  public Set<Attribute> getSearchAttributes() {
+    throw new NonStopCacheException("getSearchAttributes timed out");
+  }
+
   /**
    * {@inheritDoc}.
    * <p>

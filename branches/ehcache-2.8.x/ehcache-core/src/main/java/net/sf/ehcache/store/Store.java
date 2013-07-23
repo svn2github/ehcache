@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This is the interface for all stores. A store is a physical counterpart to a cache, which
@@ -396,6 +397,11 @@ public interface Store {
      */
     public Results executeQuery(StoreQuery query) throws SearchException;
 
+    /**
+     * @return all search attributes known to this store at the time of invoking the method
+     */
+    public Set<Attribute> getSearchAttributes();
+    
     /**
      * Retrieve the given named search attribute
      *

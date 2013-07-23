@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -371,6 +372,11 @@ class DelegatingStoreAuthority implements AuthoritativeTier {
     @Override
     public <T> Attribute<T> getSearchAttribute(final String attributeName) {
         throw new UnsupportedOperationException("Someone... i.e. YOU! should think about implementing this someday!");
+    }
+    
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

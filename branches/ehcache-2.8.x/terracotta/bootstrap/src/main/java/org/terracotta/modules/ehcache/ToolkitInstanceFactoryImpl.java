@@ -261,6 +261,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
+  public ToolkitMap<String, String> getOrCreateAttributeMap(Ehcache cache) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void shutdown() {
     toolkit.shutdown();
   }
