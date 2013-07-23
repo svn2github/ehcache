@@ -21,8 +21,6 @@ import net.sf.ehcache.Element;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.terracotta.test.categories.CheckShorts;
 
 import java.util.concurrent.ExecutionException;
 
@@ -37,7 +35,6 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-@Category(CheckShorts.class)
 public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
 
     /**
