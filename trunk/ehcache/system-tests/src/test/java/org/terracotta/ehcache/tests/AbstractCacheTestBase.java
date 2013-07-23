@@ -60,12 +60,12 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String slf4jBinder = TestBaseUtil.jarFor(org.slf4j.impl.StaticLoggerBinder.class);
     String l2Mbean = TestBaseUtil.jarFor(L2MBeanNames.class);
     String jta = TestBaseUtil.jarFor(TransactionManager.class);
-    String expressRuntime = TestBaseUtil.jarFor(ToolkitFactory.class);
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
+    String hamcrest = TestBaseUtil.jarFor(org.hamcrest.core.Is.class);
 
     String classpath = makeClasspath(ehcacheExpress, writeEhcacheConfigWithPort(ehcacheConfigPath),
-                                     writeXmlFileWithPort("log4j.xml", "log4j.xml"), expressRuntime, jta, slf4jApi,
-                                     slf4jBinder, clientBase, l2Mbean);
+                                     writeXmlFileWithPort("log4j.xml", "log4j.xml"), jta, slf4jApi, slf4jBinder,
+                                     clientBase, l2Mbean, hamcrest);
 
     return classpath;
   }
