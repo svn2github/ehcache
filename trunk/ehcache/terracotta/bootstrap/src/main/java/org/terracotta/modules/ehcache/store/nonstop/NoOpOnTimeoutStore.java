@@ -441,6 +441,11 @@ public final class NoOpOnTimeoutStore implements TerracottaStore {
     // no-op
   }
 
+  @Override
+  public Set<Attribute> getSearchAttributes() {
+    return Collections.emptySet();
+  }
+
   /**
    * {@inheritDoc}
    */

@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.terracotta.context.annotations.ContextChild;
 
 /**
@@ -295,10 +297,15 @@ public final class CopyingCacheStore<T extends Store> implements Store {
     }
 
     @Override
-    public <T> Attribute<T> getSearchAttribute(final String attributeName) {
+    public <S> Attribute<S> getSearchAttribute(final String attributeName) {
         return store.getSearchAttribute(attributeName);
     }
 
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+        return store.getSearchAttributes();
+    }
+    
     @Override
     public Map<Object, Element> getAllQuiet(final Collection<?> keys) {
         Map<Object, Element> elements = new HashMap<Object, Element>();

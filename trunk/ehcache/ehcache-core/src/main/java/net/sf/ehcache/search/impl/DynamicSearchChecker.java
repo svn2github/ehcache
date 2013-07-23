@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 
@@ -47,9 +48,12 @@ public class DynamicSearchChecker {
             return Collections.emptyMap();
         }
         Map<String, ? extends Object> dynamic = extractor.attributesFor(e);
-        boolean error = new HashSet<String>(reservedAttrs).removeAll(dynamic.keySet());
+        
+        Set<String> copy = new HashSet<String>(reservedAttrs);
+        copy.add(Query.KEY.getAttributeName());
+        copy.add(Query.VALUE.getAttributeName());
 
-        if (error) {
+        if (copy.removeAll(dynamic.keySet())) {
             throw new SearchException("Dynamic extractor produced attributes already used in static search config");
         }
         return dynamic;

@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -487,6 +488,11 @@ public class CacheStore implements Store {
     @Override
     public <T> Attribute<T> getSearchAttribute(final String attributeName) {
         return authoritativeTier.getSearchAttribute(attributeName);
+    }
+
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+        return authoritativeTier.getSearchAttributes();
     }
 
     // TODO this is probably not optimum

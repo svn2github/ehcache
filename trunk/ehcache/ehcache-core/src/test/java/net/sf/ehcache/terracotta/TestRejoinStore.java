@@ -19,6 +19,7 @@ package net.sf.ehcache.terracotta;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +133,11 @@ public class TestRejoinStore implements TerracottaStore {
         return null;
     }
 
+    public Set<Attribute> getSearchAttributes() {
+        alwaysCalledMethod();
+        return Collections.emptySet();
+    }
+    
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         alwaysCalledMethod();
         return null;

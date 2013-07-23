@@ -19,14 +19,17 @@ package net.sf.ehcache.store;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
@@ -49,20 +52,17 @@ public abstract class AbstractStore implements Store {
     protected final SearchManager searchManager;
 
     /**
-     * search attribute names
-     */
-    private final Map<String, Attribute> searchAttributes = new ConcurrentHashMap<String, Attribute>();
-
-    /**
      * listener list
      */
     private transient List<StoreListener> listenerList;
+    
+    private final String cacheName;
 
     /**
      * Constructor for stores that do not support search
      */
     protected AbstractStore() {
-        this(null);
+        this(null, null);
     }
 
     /**
@@ -70,8 +70,9 @@ public abstract class AbstractStore implements Store {
      *
      * @param searchManager the search manager to use
      */
-    protected AbstractStore(SearchManager searchManager) {
+    protected AbstractStore(SearchManager searchManager, String cacheName) {
         this.searchManager = searchManager;
+        this.cacheName = cacheName;
     }
 
 
@@ -161,10 +162,7 @@ public abstract class AbstractStore implements Store {
         }
 
         this.attributeExtractors.putAll(extractors);
-
-        for (String name : extractors.keySet()) {
-            searchAttributes.put(name, new Attribute(name));
-        }
+        
     }
 
     /**
@@ -183,7 +181,19 @@ public abstract class AbstractStore implements Store {
      * {@inheritDoc}
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
-        return searchAttributes.get(attributeName);
+        Attribute<T> attr = new Attribute<T>(attributeName);
+        return getSearchAttributes().contains(attr) ? attr : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+        Set<Attribute> attrs = new HashSet<Attribute>(searchManager.getSearchAttributes(cacheName));
+        attrs.remove(Query.KEY);
+        attrs.remove(Query.VALUE);
+        return attrs;
     }
 
     /**

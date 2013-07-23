@@ -543,12 +543,17 @@ public class LocalReadsOnTimeoutStore implements TerracottaStore {
     // no-op
   }
 
+  @Override
+  public Set<Attribute> getSearchAttributes() {
+    return delegate.getSearchAttributes();
+  }
+
   /**
    * {@inheritDoc}.
    */
   @Override
   public <T> Attribute<T> getSearchAttribute(String attributeName) {
-    return new Attribute<T>(attributeName);
+    return delegate.getSearchAttribute(attributeName);
   }
 
   /**

@@ -1652,14 +1652,35 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
+  @Override
+  public Set<Attribute> getSearchAttributes() {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    nonStop.start(toolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      Set<Attribute> _ret = this.delegate.getSearchAttributes();
+      nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
+      return _ret;
+    } catch (NonStopToolkitInstantiationException e) {
+      handleNonStopToolkitInstantiationException(e);
+      return getTimeoutBehavior().getSearchAttributes();
+    } catch (NonStopException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
+      return getTimeoutBehavior().getSearchAttributes();
+    } catch (RejoinException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
+      return getTimeoutBehavior().getSearchAttributes();
+    } finally {
+      nonStop.finish();
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public Attribute getSearchAttribute(String arg0) {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    // public abstract <T> net.sf.ehcache.search.Attribute<T>
-    // net.sf.ehcache.store.Store.getSearchAttribute(java.lang.String)
     nonStop.start(toolkitNonStopConfiguration);
     try {
       throwNonStopExceptionWhenClusterNotInit();

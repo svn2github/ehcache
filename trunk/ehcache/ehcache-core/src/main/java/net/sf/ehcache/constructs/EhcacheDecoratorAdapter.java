@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -722,6 +723,11 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
      */
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         return underlyingCache.getSearchAttribute(attributeName);
+    }
+
+    @Override
+    public Set<Attribute> getSearchAttributes() throws CacheException {
+        return underlyingCache.getSearchAttributes();
     }
 
     /**

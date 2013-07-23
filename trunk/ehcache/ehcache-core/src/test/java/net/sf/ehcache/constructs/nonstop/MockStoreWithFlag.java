@@ -300,6 +300,11 @@ public class MockStoreWithFlag implements TerracottaStore {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+      return Collections.emptySet();
+    }
+
     public <T> Attribute<T> getSearchAttribute(String attributeName) {
         return new Attribute(attributeName);
     }

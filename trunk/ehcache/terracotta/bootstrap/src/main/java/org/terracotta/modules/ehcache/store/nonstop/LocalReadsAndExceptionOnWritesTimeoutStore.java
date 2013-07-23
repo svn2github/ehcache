@@ -13,7 +13,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -150,6 +149,11 @@ public class LocalReadsAndExceptionOnWritesTimeoutStore implements TerracottaSto
     @Override
     public Results executeQuery(StoreQuery query) throws SearchException {
         return reader.executeQuery(query);
+    }
+
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+      return reader.getSearchAttributes();
     }
 
     @Override

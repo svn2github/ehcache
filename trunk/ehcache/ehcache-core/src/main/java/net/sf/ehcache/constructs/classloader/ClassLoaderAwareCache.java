@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -1032,6 +1033,20 @@ public class ClassLoaderAwareCache implements Ehcache {
         t.setContextClassLoader(this.classLoader);
         try {
             return this.cache.getSearchAttribute(arg0);
+        } finally {
+            t.setContextClassLoader(prev);
+        }
+    }
+    
+    /**
+    * {@inheritDoc}
+    */
+    public Set<Attribute> getSearchAttributes() throws CacheException {
+        Thread t = Thread.currentThread();
+        ClassLoader prev = t.getContextClassLoader();
+        t.setContextClassLoader(this.classLoader);
+        try {
+            return this.cache.getSearchAttributes();
         } finally {
             t.setContextClassLoader(prev);
         }

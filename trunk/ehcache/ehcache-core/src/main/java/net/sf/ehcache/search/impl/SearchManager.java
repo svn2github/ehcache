@@ -17,8 +17,10 @@
 package net.sf.ehcache.search.impl;
 
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
@@ -73,5 +75,12 @@ public interface SearchManager {
      * @param segmentId segment of cache
      */
     void clear(String cacheName, int segmentId);
+    
+    /**
+     * Returns all known search attributes for cache with given name
+     * @param cacheName
+     * @return
+     */
+    Set<Attribute> getSearchAttributes(String cacheName);
 
 }
