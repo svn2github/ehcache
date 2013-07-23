@@ -28,6 +28,7 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
@@ -37,10 +38,12 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-easymock</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
     	<groupId>org.powermock</groupId>
     	<artifactId>powermock-module-junit4</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -54,13 +57,13 @@
       <version>2.4</version>
       <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>net.sf.ehcache.internal</groupId>
-          <artifactId>ehcache-core</artifactId>
-          <type>test-jar</type>
-          <version>${project.version}</version>
-          <scope>test</scope>
-      </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache.internal</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <type>test-jar</type>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

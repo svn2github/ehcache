@@ -56,6 +56,11 @@
       <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-scheduled-refresh</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache.internal</groupId>
+      <artifactId>ehcache-search-parser</artifactId>
+      <version>${project.version}</version>
     </dependency>    
   </dependencies>
 
