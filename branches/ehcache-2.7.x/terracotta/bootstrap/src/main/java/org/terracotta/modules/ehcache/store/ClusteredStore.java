@@ -853,9 +853,10 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
       evictionObserver.end(EvictionOutcome.SUCCESS);
 
       electLeaderIfNecessary();
-      // only leader handles server events
-      if (isThisNodeLeader()) {
-        Element element = new Element(valueModeHandler.getRealKeyObject((String)key), null);
+      // only leader handles server events and only if there is at least one event listeners registered
+      if (isThisNodeLeader() && registeredEventListeners.hasCacheEventListeners()) {
+        // deserialize key
+        final Element element = new Element(valueModeHandler.getRealKeyObject((String)key), null);
         registeredEventListeners.notifyElementEvicted(element, false);
       }
     }
