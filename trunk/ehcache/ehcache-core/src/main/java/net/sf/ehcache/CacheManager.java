@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
@@ -237,20 +238,7 @@ public class CacheManager {
     /**
      * Statistics thread pool.
      */
-    private ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(
-       Integer.getInteger("net.sf.ehcache.CacheManager.statisticsExecutor.poolSize",
-       Runtime.getRuntime().availableProcessors()) ,
-
-       new ThreadFactory() {
-
-          @Override
-          public Thread newThread(Runnable r) {
-             Thread t = new Thread(r, "Statistics Thread");
-             t.setDaemon(true);
-             return t;
-          }
-       });
-
+    private ScheduledExecutorService statisticsExecutor;
 
    /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
@@ -444,7 +432,21 @@ public class CacheManager {
         }
         runtimeCfg = configuration.setupFor(this, DEFAULT_NAME);
 
-        if (configuration.isMaxBytesLocalHeapSet()) {
+        statisticsExecutor = Executors.newScheduledThreadPool(
+          Integer.getInteger("net.sf.ehcache.CacheManager.statisticsExecutor.poolSize",
+             Runtime.getRuntime().availableProcessors()) ,
+
+          new ThreadFactory() {
+             private AtomicInteger cnt = new AtomicInteger(0);
+             @Override
+             public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "Statistics Thread-" + getName() + "-" + cnt.incrementAndGet());
+                t.setDaemon(true);
+                return t;
+             }
+          });
+
+       if (configuration.isMaxBytesLocalHeapSet()) {
             PoolEvictor evictor = new BalancedAccessEvictor();
             SizeOfEngine sizeOfEngine = createSizeOfEngine(null);
             this.onHeapPool = new BoundedPool(configuration.getMaxBytesLocalHeap(), evictor, sizeOfEngine);
@@ -555,6 +557,8 @@ public class CacheManager {
         localTransactionsRecoveryThread.setName("ehcache local transactions recovery");
         localTransactionsRecoveryThread.setDaemon(true);
         localTransactionsRecoveryThread.start();
+
+
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
