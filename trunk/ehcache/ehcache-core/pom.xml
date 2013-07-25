@@ -171,8 +171,8 @@
 
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
+        <groupId>org.terracotta</groupId>
+        <artifactId>maven-forge-plugin</artifactId>
         <configuration>
           <forkMode>pertest</forkMode>
           <argLine>${tests.supplemental.args} -Xmx64m</argLine>
@@ -409,8 +409,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
+            <groupId>org.terracotta</groupId>
+            <artifactId>maven-forge-plugin</artifactId>
             <executions>
               <execution>
                 <!-- The default-test execution is automatically bound to the test phase by Surefire -->
@@ -497,8 +497,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
+            <groupId>org.terracotta</groupId>
+            <artifactId>maven-forge-plugin</artifactId>
             <configuration>
               <includes>
                 <include>**/nonstop/*Test.java</include>

@@ -4,8 +4,12 @@
  */
 package org.terracotta.ehcache.tests;
 
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
+
 import com.tc.test.config.model.TestConfig;
 
+@Category(CheckShorts.class)
 public class BasicStandaloneCacheTest extends AbstractCacheTestBase {
 
   public BasicStandaloneCacheTest(TestConfig testConfig) {
