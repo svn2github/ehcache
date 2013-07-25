@@ -18,6 +18,10 @@ package net.sf.ehcache.concurrent;
 
 import net.sf.ehcache.CacheException;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 /**
  * Various bits of black magic garnered from experts on the   concurrency-interest@cs.oswego.edu mailing list.
  *
@@ -75,4 +79,33 @@ public final class ConcurrencyUtil {
 
     }
 
+
+   /**
+    * Properly shutdown and await pool termination for an arbitrary
+    * amount of time.
+    *
+    * @param pool Pool to shutdown
+    * @param waitSeconds Seconds to wait before throwing exception
+    * @throws TimeoutException Thrown if the pool does not shutdown in the specified time
+    */
+   public static void shutdownAndWaitForTermination(ExecutorService pool, int waitSeconds) throws TimeoutException {
+      // shut it down
+      pool.shutdown();
+      try {
+         // wait, wait, wait
+         if (!pool.awaitTermination(waitSeconds, TimeUnit.SECONDS)) {
+            // things still running, nuke it
+            pool.shutdownNow();
+            // wait, wait, wai
+            if (!pool.awaitTermination(waitSeconds, TimeUnit.SECONDS)) {
+               // boo hiss, didn't shutdown
+               throw new TimeoutException("Pool did not terminate");
+            }
+         }
+      } catch (InterruptedException ie) {
+         // try, try again
+         pool.shutdownNow();
+         Thread.currentThread().interrupt();
+      }
+   }
 }
