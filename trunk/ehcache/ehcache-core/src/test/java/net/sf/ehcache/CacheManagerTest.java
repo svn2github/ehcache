@@ -1458,17 +1458,89 @@ public class CacheManagerTest {
 
     @Test
     public void testStrategyNoneDoesntRequireDiskPath() {
-        Configuration config = new Configuration();
-        config.addCache(new CacheConfiguration().name("foo")
-                .maxEntriesLocalHeap(1000)
-                .persistence(new PersistenceConfiguration().strategy(Strategy.NONE)));
+       Configuration config = new Configuration();
+       config.addCache(new CacheConfiguration().name("foo")
+          .maxEntriesLocalHeap(1000)
+          .persistence(new PersistenceConfiguration().strategy(Strategy.NONE)));
 
-        CacheManager manager = new CacheManager(config);
-        try {
+       CacheManager manager = new CacheManager(config);
+       try {
             ConfigurationHelper helper = new ConfigurationHelper(manager, config);
             Assert.assertThat(helper.numberOfCachesThatUseDiskStorage(), is(0));
         } finally {
             manager.shutdown();
         }
     }
+
+
+   public static final String STATISTIC_THREAD_PROPERTY  = "net.sf.ehcache.CacheManager.statisticsExecutor.poolSize";
+   public static final String STATISTIC_THREAD_NAME      = "Statistics Thread";
+
+   @Test
+   public void testOverrideStatisticsThreadCount() {
+      _testArbitraryStatThreadCount(3,5,null);
+      _testArbitraryStatThreadCount(3,5,"2");
+      _testArbitraryStatThreadCount(3,5,"4");
+      _testArbitraryStatThreadCount(3,5,"6");
+      _testArbitraryStatThreadCount(3,4,"7");
+      System.getProperties().remove(STATISTIC_THREAD_PROPERTY);
+   }
+
+   private void _testArbitraryStatThreadCount(int cmCount, int cCount, String setting) {
+      int nProc = Runtime.getRuntime().availableProcessors();
+
+      if(setting==null) {
+         System.getProperties().remove(STATISTIC_THREAD_PROPERTY);
+      } else {
+         System.getProperties().put(STATISTIC_THREAD_PROPERTY, setting);
+      }
+
+      int initialThreadCount=countStatThreads();
+
+      CacheManager[] managers=new CacheManager[cmCount];
+      for(int i=0;i< cmCount;i++) {
+         Configuration config = new Configuration();
+         config.setName("tcm"+i);
+         for(int n=0;n<cCount;n++) {
+            CacheConfiguration conf=new CacheConfiguration().name("foo"+n)
+               .maxEntriesLocalHeap(1000)
+               .persistence(new PersistenceConfiguration().strategy(Strategy.NONE));
+            config.addCache(conf);
+         }
+         CacheManager manager = managers[i] = new CacheManager(config);
+         for(String s:manager.getCacheNames()) {
+            if(s.startsWith("foo")) {
+               Ehcache c=manager.getCache(s);
+               // turn stats on to get some activity in the pool
+               // this gets the threads allocated
+               c.getStatistics().getExtended().setAlwaysOn(true);
+            }
+         }
+      }
+      int postThreadCount=countStatThreads();
+
+      int added=postThreadCount-initialThreadCount;
+      if(setting == null) {
+         Assert.assertEquals(nProc * cmCount, added);
+      } else {
+         Assert.assertEquals(cmCount * Integer.parseInt(setting), added);
+      }
+
+      for(CacheManager cm:managers) {
+         cm.shutdown();
+      }
+   }
+
+
+   private int countStatThreads() {
+      int numStatThreads = 0;
+      Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+      for (Thread thread : threadSet) {
+         if (thread.getName().startsWith(STATISTIC_THREAD_NAME)) {
+            System.err.println(String.format("Found thread number: %s, name=%s, id=%s, state=%s", numStatThreads+"", thread.getName(), thread.getId()+"", thread.getState()+""));
+            numStatThreads++;
+         }
+      }
+      return numStatThreads;
+   }
 }

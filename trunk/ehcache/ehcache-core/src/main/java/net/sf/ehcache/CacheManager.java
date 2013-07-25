@@ -32,11 +32,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeoutException;
 
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
 import net.sf.ehcache.cluster.NoopCacheCluster;
+import net.sf.ehcache.concurrent.ConcurrencyUtil;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -120,7 +122,7 @@ public class CacheManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
-    /**
+   /**
      * Update check interval - one week in milliseconds
      */
     private static final long EVERY_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -131,6 +133,11 @@ public class CacheManager {
     private static final long DELAY_UPDATE_CHECK = 1000;
 
     /**
+     * Default timeout in seconds to wait for stats thread pool to shutdown
+     */
+    private static final int POOL_SHUTDOWN_TIMEOUT_SECS = 60;
+
+   /**
      * The Singleton Instance.
      */
     private static volatile CacheManager singleton;
@@ -228,24 +235,24 @@ public class CacheManager {
     private String registeredMgmtSvrBind;
 
     /**
-     * Statistics thread pool. Core pool size attempts to be power of two of the
-     * number of available processors. 4 gives 2 threads, 8 gives 4, etc.
+     * Statistics thread pool.
      */
-    private final ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(
+    private ScheduledExecutorService statisticsExecutor = Executors.newScheduledThreadPool(
        Integer.getInteger("net.sf.ehcache.CacheManager.statisticsExecutor.poolSize",
-          Runtime.getRuntime().availableProcessors()),
+       Runtime.getRuntime().availableProcessors()) ,
 
        new ThreadFactory() {
 
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread t = new Thread(r, "Statistics Thread");
-            t.setDaemon(true);
-            return t;
-        }
-    });
+          @Override
+          public Thread newThread(Runnable r) {
+             Thread t = new Thread(r, "Statistics Thread");
+             t.setDaemon(true);
+             return t;
+          }
+       });
 
-    /**
+
+   /**
      * An constructor for CacheManager, which takes a configuration object, rather than one created by parsing
      * an ehcache.xml file. This constructor gives complete control over the creation of the CacheManager.
      * <p/>
@@ -381,6 +388,7 @@ public class CacheManager {
     protected synchronized void init(Configuration initialConfiguration, String configurationFileName, URL configurationURL,
             InputStream configurationInputStream) {
         Configuration configuration;
+
 
         LibraryInit.init();
 
@@ -1548,12 +1556,17 @@ public class CacheManager {
                 diskStorePathManager.releaseLock();
             }
 
-            statisticsExecutor.shutdown();
+            try {
+                ConcurrencyUtil.shutdownAndWaitForTermination(statisticsExecutor, POOL_SHUTDOWN_TIMEOUT_SECS);
+            } catch (TimeoutException e) {
+                LOG.warn(e.getMessage(), e);
+            }
 
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);
         }
     }
+
 
     /**
      * Returns a list of the current cache names.
