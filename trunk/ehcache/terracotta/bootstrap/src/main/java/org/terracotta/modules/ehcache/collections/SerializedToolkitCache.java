@@ -483,4 +483,26 @@ public class SerializedToolkitCache<K, V extends Serializable> implements Toolki
     return this.toolkitCache.createQueryBuilder();
   }
 
+  @Override
+  public boolean isBulkLoadEnabled() {
+    return toolkitCache.isBulkLoadEnabled();
+  }
+
+  @Override
+  public boolean isNodeBulkLoadEnabled() {
+    return toolkitCache.isNodeBulkLoadEnabled();
+  }
+
+  @Override
+  public void setNodeBulkLoadEnabled(boolean enabledBulkLoad) {
+    toolkitCache.setNodeBulkLoadEnabled(enabledBulkLoad);
+
+  }
+
+  @Override
+  public void waitUntilBulkLoadComplete() throws InterruptedException {
+    toolkitCache.waitUntilBulkLoadComplete();
+
+  }
+
 }
