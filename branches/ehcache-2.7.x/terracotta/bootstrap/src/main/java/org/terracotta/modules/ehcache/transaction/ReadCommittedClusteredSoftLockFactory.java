@@ -80,9 +80,8 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   }
 
   ReadCommittedClusteredSoftLock getLock(TransactionID transactionId, Object key) {
-
     for (Map.Entry<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      SerializedReadCommittedClusteredSoftLock serialized = allLocks.get(entry.getKey()); // workaround for DEV-5390
+      SerializedReadCommittedClusteredSoftLock serialized = entry.getValue();
       ReadCommittedClusteredSoftLock readCommittedSoftLock = serialized.getSoftLock(toolkitInstanceFactory, this);
       if (readCommittedSoftLock.getTransactionID().equals(transactionId) && readCommittedSoftLock.getKey().equals(key)) { return readCommittedSoftLock; }
     }
@@ -120,7 +119,7 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
     Set<SoftLock> result = new HashSet<SoftLock>();
 
     for (Map.Entry<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      SerializedReadCommittedClusteredSoftLock serialized = allLocks.get(entry.getKey()); // workaround for DEV-5390
+      SerializedReadCommittedClusteredSoftLock serialized = entry.getValue();
       ReadCommittedClusteredSoftLock softLock = serialized.getSoftLock(toolkitInstanceFactory, this);
       if (softLock.getTransactionID().equals(transactionID)) {
         result.add(softLock);
