@@ -13,11 +13,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.Query;
@@ -27,296 +26,298 @@ import net.sf.ehcache.search.Query;
  */
 public class ParseModel {
 
-  /** The criteria. */
-  private MCriteria        criteria            = null;
+    /**
+     * The criteria.
+     */
+    private MCriteria criteria = null;
 
-  /** The targets. */
-  private MTarget[]        targets;
+    /**
+     * The targets.
+     */
+    private MTarget[] targets;
 
-  /** The limit. */
-  private int              limit               = 0;
+    /**
+     * The limit.
+     */
+    private int limit = 0;
 
-  /** The is limited. */
-  private boolean          isLimited           = false;
+    /**
+     * The is limited.
+     */
+    private boolean isLimited = false;
 
-  /** The order by list. */
-  private List<MOrderBy>   orderBy             = new LinkedList<MOrderBy>();
+    /**
+     * The order by list.
+     */
+    private List<MOrderBy> orderBy = new LinkedList<MOrderBy>();
 
-  /** The group by. */
-  private List<MAttribute> groupBy             = new LinkedList<MAttribute>();
+    /**
+     * The group by.
+     */
+    private List<MAttribute> groupBy = new LinkedList<MAttribute>();
 
-  private boolean          includeKeys         = false;
+    private boolean includeKeys = false;
 
-  private boolean          includeValues       = false;
+    private boolean includeValues = false;
 
-  private List<MAttribute> includedAttributes  = new LinkedList<MAttribute>();
-  
-  private List<MAggregate> includedAggregators = new LinkedList<MAggregate>();
+    private List<MAttribute> includedAttributes = new LinkedList<MAttribute>();
 
-  private boolean includeStar=false;
+    private List<MAggregate> includedAggregators = new LinkedList<MAggregate>();
 
-  private String cacheName;
+    private boolean includeStar = false;
 
-  /**
-   * Instantiates a new query parse model.
-   */
-  public ParseModel() {
-  }
+    private String cacheName;
 
-  public void includeTargetKeys() {
-    this.includeKeys = true;
-  }
-
-  public void includeTargetValues() {
-    this.includeValues = true;
-  }
-
-  public void includeTargetAttribute(MAttribute ma) {
-    if(ma.isKey()) {
-      includeTargetKeys();
-    } else if(ma.isValue()) {
-      includeTargetValues();
-    } else {
-      this.includedAttributes.add(ma);
-    }
-  }
-
-  public void includeTargetAggregator(MAggregate ma) {
-    this.includedAggregators.add(ma);
-  }
-
-  public void includeTargetStar() {
-    this.includeStar=true;
-  }
-  /**
-   * Sets the criteria.
-   * 
-   * @param crit the new criteria
-   */
-  public void setCriteria(MCriteria crit) {
-    criteria = crit;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("select ");
-    boolean first = true;
-    for (MTarget ma : targets) {
-      if (!first) {
-        sb.append(",");
-      }
-      first = false;
-      sb.append(ma.toString());
-    }
-    if (criteria != null) {
-      sb.append(" where " + criteria);
-    }
-    for (MAttribute m : groupBy) {
-      sb.append(" group by " + m);
-    }
-    for (MOrderBy ord : orderBy) {
-      sb.append(" " + ord);
-    }
-    if (isLimited) {
-      sb.append(" limit " + limit);
-    }
-    return sb.toString();
-  }
-
-  /**
-   * Adds an order by.
-   * 
-   * @param attr the attr
-   * @param asc the asc
-   */
-  public void addOrderBy(MAttribute attr, boolean asc) {
-    orderBy.add(new MOrderBy(attr, asc));
-  }
-
-  /**
-   * set the limit.
-   * 
-   * @param lim the lim
-   */
-  public void setLimit(int lim) {
-    isLimited = true;
-    limit = lim;
-  }
-
-  /**
-   * Adds the group by.
-   * 
-   * @param attr the attr
-   */
-  public void addGroupBy(MAttribute attr) {
-    groupBy.add(attr);
-  }
-
-  /**
-   * Gets the criteria.
-   * 
-   * @return the criteria
-   */
-  public MCriteria getCriteria() {
-    return criteria;
-  }
-
-  /**
-   * Gets the targets.
-   * 
-   * @return the targets
-   */
-  public MTarget[] getTargets() {
-    return targets;
-  }
-
-  public boolean isIncludedTargetKeys() {
-    return includeKeys;
-  }
-
-  public boolean isIncludedTargetValues() {
-    return includeValues;
-  }
-
-  public List<MAttribute> getIncludedTargetAttributes() {
-    return Collections.unmodifiableList(includedAttributes);
-  }
-
-  public List<MAggregate> getIncludedTargetAgregators() {
-    return Collections.unmodifiableList(includedAggregators);
-  }
-  
-  public boolean isIncludedTargetStar() {
-    return includeStar;
-  }
-
-  /**
-   * Gets the limit.
-   * 
-   * @return the limit
-   */
-  public int getLimit() {
-    return limit;
-  }
-
-  /**
-   * Checks if has a limit.
-   * 
-   * @return true, if is limited
-   */
-  public boolean isLimited() {
-    return isLimited;
-  }
-
-  /**
-   * Gets the order by.
-   * 
-   * @return the order by
-   */
-  public List<MOrderBy> getOrderBy() {
-    return orderBy;
-  }
-
-  /**
-   * Gets the group by.
-   * 
-   * @return the group by
-   */
-  public List<MAttribute> getGroupBy() {
-    return groupBy;
-  }
-
-  /**
-   * Gets the query as an instantiated ehcache query object.
-   * 
-   * @param ehcache the ehcache
-   * @return the query
-   */
-  @SuppressWarnings("rawtypes")
-  public Query getQuery(Ehcache ehcache) {
-    Query q = ehcache.createQuery();
-
-    // single criteria
-    if(criteria!=null) {
-      q.addCriteria(criteria.asEhcacheObject());
+    /**
+     * Instantiates a new query parse model.
+     */
+    public ParseModel() {
     }
 
-    // limit.
-    if (isLimited) {
-      q.maxResults(limit);
+    public void includeTargetKeys() {
+        this.includeKeys = true;
     }
 
-    // targets. what to retrieve
-    for (MAttribute ma : getIncludedTargetAttributes()) {
-      q.includeAttribute(ma.asEhcacheObject());
-    }
-    for (MAggregate ma : getIncludedTargetAgregators()) {
-      q.includeAggregator(ma.asEhcacheObject());
-    }
-    if (isIncludedTargetKeys()) {
-      q.includeKeys();
-    }
-    if (isIncludedTargetValues()) {
-      q.includeValues();
-    }
-    if (isIncludedTargetStar()) {
-      q.includeKeys();
-      q.includeValues();
-      for(String s:getAttributesImpliedByStar(ehcache)) {
-        q.includeAttribute(new Attribute(s));
-      }
+    public void includeTargetValues() {
+        this.includeValues = true;
     }
 
-    // group by
-    for (MAttribute ma : groupBy) {
-      q.addGroupBy(ma.asEhcacheObject());
-    }
-
-    // order by
-    for (MOrderBy o : orderBy) {
-      q.addOrderBy(o.getAttribute().asEhcacheObject(), o.isOrderAscending() ? Direction.ASCENDING
-          : Direction.DESCENDING);
-    }
-
-    return q;
-  }
-
-  @SuppressWarnings({ "unused", "unchecked" })
-  public List<String> getAttributesImpliedByStar(Ehcache cache) {
-    if(isIncludedTargetStar()) {
-      List<String> list=new LinkedList<String>();
-      Map<String, SearchAttribute> attrMap = cache.getCacheConfiguration().getSearchAttributes();
-      if (attrMap != null) {
-        for (String s : attrMap.keySet()) {
-          if (!s.equals(Query.KEY.getAttributeName()) && !s.equals(Query.VALUE.getAttributeName())) {
-            list.add(s);
-          }
+    public void includeTargetAttribute(MAttribute ma) {
+        if (ma.isKey()) {
+            includeTargetKeys();
+        } else if (ma.isValue()) {
+            includeTargetValues();
+        } else {
+            this.includedAttributes.add(ma);
         }
-      }
-      return list;
     }
-    return Collections.EMPTY_LIST;
-  }
 
-  public Collection<String> getAllAttributes(Ehcache cache) {
-    HashSet<String> set=new HashSet<String>(16);
-    set.addAll(getAttributesImpliedByStar(cache));
-    for(MAttribute ma:getIncludedTargetAttributes()) {
-      set.add(ma.getName());
+    public void includeTargetAggregator(MAggregate ma) {
+        this.includedAggregators.add(ma);
     }
-    return set;
-  }
 
-  public void setCacheName(String cacheName) {
-    this.cacheName = cacheName;
-  }
+    public void includeTargetStar() {
+        this.includeStar = true;
+    }
 
-  public String getCacheName() {
-    return this.cacheName;
-  }
+    /**
+     * Sets the criteria.
+     *
+     * @param crit the new criteria
+     */
+    public void setCriteria(MCriteria crit) {
+        criteria = crit;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select ");
+        boolean first = true;
+        for (MTarget ma : targets) {
+            if (!first) {
+                sb.append(",");
+            }
+            first = false;
+            sb.append(ma.toString());
+        }
+        if (criteria != null) {
+            sb.append(" where " + criteria);
+        }
+        for (MAttribute m : groupBy) {
+            sb.append(" group by " + m);
+        }
+        for (MOrderBy ord : orderBy) {
+            sb.append(" " + ord);
+        }
+        if (isLimited) {
+            sb.append(" limit " + limit);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Adds an order by.
+     *
+     * @param attr the attr
+     * @param asc  the asc
+     */
+    public void addOrderBy(MAttribute attr, boolean asc) {
+        orderBy.add(new MOrderBy(attr, asc));
+    }
+
+    /**
+     * set the limit.
+     *
+     * @param lim the lim
+     */
+    public void setLimit(int lim) {
+        isLimited = true;
+        limit = lim;
+    }
+
+    /**
+     * Adds the group by.
+     *
+     * @param attr the attr
+     */
+    public void addGroupBy(MAttribute attr) {
+        groupBy.add(attr);
+    }
+
+    /**
+     * Gets the criteria.
+     *
+     * @return the criteria
+     */
+    public MCriteria getCriteria() {
+        return criteria;
+    }
+
+    /**
+     * Gets the targets.
+     *
+     * @return the targets
+     */
+    public MTarget[] getTargets() {
+        return targets;
+    }
+
+    public boolean isIncludedTargetKeys() {
+        return includeKeys;
+    }
+
+    public boolean isIncludedTargetValues() {
+        return includeValues;
+    }
+
+    public List<MAttribute> getIncludedTargetAttributes() {
+        return Collections.unmodifiableList(includedAttributes);
+    }
+
+    public List<MAggregate> getIncludedTargetAgregators() {
+        return Collections.unmodifiableList(includedAggregators);
+    }
+
+    public boolean isIncludedTargetStar() {
+        return includeStar;
+    }
+
+    /**
+     * Gets the limit.
+     *
+     * @return the limit
+     */
+    public int getLimit() {
+        return limit;
+    }
+
+    /**
+     * Checks if has a limit.
+     *
+     * @return true, if is limited
+     */
+    public boolean isLimited() {
+        return isLimited;
+    }
+
+    /**
+     * Gets the order by.
+     *
+     * @return the order by
+     */
+    public List<MOrderBy> getOrderBy() {
+        return orderBy;
+    }
+
+    /**
+     * Gets the group by.
+     *
+     * @return the group by
+     */
+    public List<MAttribute> getGroupBy() {
+        return groupBy;
+    }
+
+    /**
+     * Gets the query as an instantiated ehcache query object.
+     *
+     * @param ehcache the ehcache
+     * @return the query
+     */
+    @SuppressWarnings("rawtypes")
+    public Query getQuery(Ehcache ehcache) {
+        Query q = ehcache.createQuery();
+
+        // single criteria
+        if (criteria != null) {
+            q.addCriteria(criteria.asEhcacheObject());
+        }
+
+        // limit.
+        if (isLimited) {
+            q.maxResults(limit);
+        }
+
+        // targets. what to retrieve
+        for (MAttribute ma : getIncludedTargetAttributes()) {
+            q.includeAttribute(ma.asEhcacheObject());
+        }
+        for (MAggregate ma : getIncludedTargetAgregators()) {
+            q.includeAggregator(ma.asEhcacheObject());
+        }
+        if (isIncludedTargetKeys()) {
+            q.includeKeys();
+        }
+        if (isIncludedTargetValues()) {
+            q.includeValues();
+        }
+        if (isIncludedTargetStar()) {
+            q.includeKeys();
+            q.includeValues();
+            for (String s : getAttributesImpliedByStar(ehcache)) {
+                q.includeAttribute(new Attribute(s));
+            }
+        }
+
+        // group by
+        for (MAttribute ma : groupBy) {
+            q.addGroupBy(ma.asEhcacheObject());
+        }
+
+        // order by
+        for (MOrderBy o : orderBy) {
+            q.addOrderBy(o.getAttribute().asEhcacheObject(), o.isOrderAscending() ? Direction.ASCENDING
+                : Direction.DESCENDING);
+        }
+
+        return q;
+    }
+
+    public List<String> getAttributesImpliedByStar(Ehcache cache) {
+        if (isIncludedTargetStar()) {
+            List<String> attributeNames = new LinkedList<String>();
+
+            Set<Attribute> attributeSet = cache.getSearchAttributes();
+            if (attributeSet.size() != 0) {
+                for (Attribute att : attributeSet) {
+                    attributeNames.add(att.getAttributeName());
+                }
+                return attributeNames;
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    public void setCacheName(String cacheName) {
+        this.cacheName = cacheName;
+    }
+
+    public String getCacheName() {
+        return this.cacheName;
+    }
 }
