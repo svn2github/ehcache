@@ -5,6 +5,7 @@ package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.CacheManager;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.tests.base.AbstractClientBase;
@@ -63,11 +64,16 @@ public class AbstractCacheTestBase extends AbstractTestBase {
     String clientBase = TestBaseUtil.jarFor(ClientBase.class);
     String hamcrest = TestBaseUtil.jarFor(org.hamcrest.core.Is.class);
 
-    String classpath = makeClasspath(ehcacheExpress, writeEhcacheConfigWithPort(ehcacheConfigPath),
-                                     writeXmlFileWithPort("log4j.xml", "log4j.xml"), jta, slf4jApi, slf4jBinder,
+    writeEhcacheConfigWithPort(ehcacheConfigPath);
+    copyFile("/log4j.xml", "log4j.xml");
+    String classpath = makeClasspath(ehcacheExpress, tempDir.getAbsolutePath(), jta, slf4jApi, slf4jBinder,
                                      clientBase, l2Mbean, hamcrest);
 
     return classpath;
+  }
+
+  private void copyFile(String fileName, String outputFileName) throws IOException {
+    FileUtils.copyInputStreamToFile(this.getClass().getResourceAsStream(fileName), new File(tempDir, outputFileName));
   }
 
   /**
