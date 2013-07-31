@@ -433,8 +433,7 @@ public class CacheManager {
         runtimeCfg = configuration.setupFor(this, DEFAULT_NAME);
 
         statisticsExecutor = Executors.newScheduledThreadPool(
-          Integer.getInteger("net.sf.ehcache.CacheManager.statisticsExecutor.poolSize",
-             Runtime.getRuntime().availableProcessors()) ,
+          Integer.getInteger("net.sf.ehcache.CacheManager.statisticsExecutor.poolSize", 1) ,
 
           new ThreadFactory() {
              private AtomicInteger cnt = new AtomicInteger(0);
