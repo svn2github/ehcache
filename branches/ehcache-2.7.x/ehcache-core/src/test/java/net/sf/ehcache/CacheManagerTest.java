@@ -1484,7 +1484,6 @@ public class CacheManagerTest {
    }
 
    private void _testArbitraryStatThreadCount(int cmCount, int cCount, String setting) {
-      int nProc = Runtime.getRuntime().availableProcessors();
 
       if(setting==null) {
          System.getProperties().remove(STATISTIC_THREAD_PROPERTY);
@@ -1518,7 +1517,7 @@ public class CacheManagerTest {
 
       int added=postThreadCount-initialThreadCount;
       if(setting == null) {
-         Assert.assertEquals(nProc * cmCount, added);
+         Assert.assertEquals(1 * cmCount, added);
       } else {
          Assert.assertEquals(cmCount * Integer.parseInt(setting), added);
       }
