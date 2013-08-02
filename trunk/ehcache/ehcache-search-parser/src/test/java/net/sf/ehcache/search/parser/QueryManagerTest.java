@@ -44,6 +44,8 @@ public class QueryManagerTest {
         }
 
         QueryManager qm = new QueryManagerImpl(caches);
+        
+        // FIXME: change the from clause to use cm_name.cache_name notation when supported.
         qm.createQuery("select key from " + cm2Caches[0]);
     }
     
