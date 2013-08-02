@@ -17,6 +17,7 @@ package net.sf.ehcache.search.parser;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import net.sf.echache.search.parser.EhcacheSearchParser;
@@ -35,7 +36,7 @@ public class QueryManagerImpl implements QueryManager {
 
   private final List<Ehcache> caches = new ArrayList<Ehcache>();
 
-  public QueryManagerImpl(List<Ehcache> ehcaches) {
+  public QueryManagerImpl(Collection<Ehcache> ehcaches) {
     this.caches.addAll(ehcaches);
   }
 
