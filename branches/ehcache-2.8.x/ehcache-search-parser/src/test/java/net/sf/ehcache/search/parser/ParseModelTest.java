@@ -259,13 +259,14 @@ public class ParseModelTest {
 
   }
 
-/*
+
   @Test
   public void testParseSuccesses() throws IOException {
     InputStream is = this.getClass().getResourceAsStream("/parseable.txt");
     try {
       BufferedReader br = new BufferedReader(new InputStreamReader(is));
       int success = 0;
+      int cnt=1;
       Map<String, Throwable> fails = new HashMap<String, Throwable>();
       for (String line = br.readLine(); line != null; line = br.readLine()) {
         line = line.trim();
@@ -276,10 +277,10 @@ public class ParseModelTest {
             ParseModel model = parser.QueryStatement();
             success++;
           } catch (Throwable e) {
-            fails.put(line, e);
-            e.printStackTrace();
+            fails.put(cnt+": "+line, e);
           }
         }
+        cnt++;
       }
       if (fails.isEmpty()) {
         System.out.println(this.getClass().getName() + ".testParseSuccesses(): " + success + " statements parsed");
@@ -305,18 +306,20 @@ public class ParseModelTest {
       int success = 0;
       Set<Class<?>> errs=new HashSet<Class<?>>();
       List<String> succeeds = new ArrayList<String>();
-     
+
+      int cnt=1;
       for (String line = br.readLine(); line != null; line = br.readLine()) {
         line = line.trim();
         if (line.length() > 0 && !line.startsWith("//")) {
           EhcacheSearchParser parser = new EhcacheSearchParser(new StringReader(line));
           try {
             parser.QueryStatement();
-            succeeds.add(line);
+            succeeds.add(cnt+": "+line);
           } catch (Throwable r) {
             errs.add(r.getClass());
           }
         }
+        cnt++;
       }
       if (!succeeds.isEmpty()) {
         System.out.println(this.getClass().getName() + ".testUnparseableFails(): Successes:");
@@ -333,5 +336,4 @@ public class ParseModelTest {
     }
   }
 
-  */
 }

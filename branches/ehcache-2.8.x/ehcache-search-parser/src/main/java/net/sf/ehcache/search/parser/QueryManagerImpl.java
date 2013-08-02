@@ -39,21 +39,11 @@ public class QueryManagerImpl implements QueryManager {
     this.caches.addAll(ehcaches);
   }
 
-  public Results search(Ehcache cache, String statement) throws SearchException {
-    EhcacheSearchParser parser=new EhcacheSearchParser(new StringReader(statement));
-    ParseModel model;
-    try {
-      model = parser.QueryStatement();
-    } catch (ParseException p) {
-      throw new SearchException(p);
-    }
-
-    Query query = model.getQuery(cache);
-    Results res = query.end().execute();
-    return res;
+  Results search(Ehcache cache, String statement) throws SearchException {
+    return createQuery(cache, statement).end().execute();
   }
 
-  public Query createQuery(Ehcache cache, String statement) throws SearchException {
+  private Query createQuery(Ehcache cache, String statement) throws SearchException {
     EhcacheSearchParser parser=new EhcacheSearchParser(new StringReader(statement));
     ParseModel model;
     try {
@@ -73,7 +63,7 @@ public class QueryManagerImpl implements QueryManager {
     }
   }
 
-  public String extractSearchCacheName(String statement) throws SearchException {
+  String extractSearchCacheName(String statement) throws SearchException {
     EhcacheSearchParser parser=new EhcacheSearchParser(new StringReader(statement));
     ParseModel model = null;
     try {
@@ -84,7 +74,7 @@ public class QueryManagerImpl implements QueryManager {
     return model.getCacheName();
   }
 
-  public String extractCacheManagerName(String statement) throws SearchException {
+  String extractCacheManagerName(String statement) throws SearchException {
     // TODO: implement this method
     return null;
   }
