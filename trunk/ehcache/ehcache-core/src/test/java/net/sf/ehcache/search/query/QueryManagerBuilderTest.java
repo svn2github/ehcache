@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.Assert;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static net.sf.ehcache.search.query.QueryManagerBuilder.newQueryManagerBuilder;
@@ -122,9 +123,9 @@ public class QueryManagerBuilderTest {
 
 class MockQueryManager implements QueryManager {
 
-    final List<Ehcache> queryManagerEhcaches;
+    final Collection<Ehcache> queryManagerEhcaches;
 
-    public MockQueryManager(List<Ehcache> ehcacheList) {
+    public MockQueryManager(Collection<Ehcache> ehcacheList) {
         this.queryManagerEhcaches = ehcacheList;
     }
 
