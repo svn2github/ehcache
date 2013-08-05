@@ -16,6 +16,10 @@
 
 package net.sf.ehcache.search.query;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
