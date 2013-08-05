@@ -22,6 +22,7 @@ import net.sf.ehcache.Ehcache;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public final class QueryManagerBuilder {
 
-    private final List<Ehcache> caches = new ArrayList<Ehcache>();
+    private final Collection<Ehcache> caches = new ArrayList<Ehcache>();
     private final Class<? extends QueryManager> defaultClass;
 
 
