@@ -23,7 +23,6 @@ import net.sf.ehcache.Ehcache;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A {@link net.sf.ehcache.search.query.QueryManager Query Manager} builder providing methods to add caches which
@@ -108,7 +107,7 @@ public final class QueryManagerBuilder {
      */
     public QueryManager build() {
         try {
-            final Constructor<? extends QueryManager> constructor = defaultClass.getConstructor(List.class);
+            final Constructor<? extends QueryManager> constructor = defaultClass.getConstructor(Collection.class);
             return constructor.newInstance(this.caches);
         } catch (Exception e) {
             throw new CacheException(e);
