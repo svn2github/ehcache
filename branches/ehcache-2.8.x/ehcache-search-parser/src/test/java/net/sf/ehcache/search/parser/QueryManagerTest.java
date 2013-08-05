@@ -14,6 +14,8 @@ import net.sf.ehcache.search.query.QueryManager;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static org.junit.Assert.fail;
+
 
 public class QueryManagerTest {
     
@@ -26,6 +28,15 @@ public class QueryManagerTest {
             cm.addCache(new Cache(cfg));
         }
         return cm;
+    }
+
+    @Test
+    public void testHasProperConstructor() throws SecurityException {
+        try {
+            QueryManagerImpl.class.getConstructor(Collection.class);
+        } catch (NoSuchMethodException e) {
+            fail("We need a constructor that takes a Collection, that's how the reflection code creates an instance of this implementation");
+        }
     }
 
     @Test
