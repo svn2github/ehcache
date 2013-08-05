@@ -8,11 +8,10 @@
  */
 package net.sf.ehcache.search.parser;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.Attribute;
@@ -275,8 +274,9 @@ public class ParseModel {
             q.includeValues();
         }
         if (isIncludedTargetStar()) {
-            for (String s : getAttributesImpliedByStar(ehcache)) {
-                q.includeAttribute(new Attribute(s));
+            for (Attribute attr : getAttributesImpliedByStar(ehcache)) {
+                if (Query.KEY.equals(attr) || Query.VALUE.equals(attr)) continue; // TODO
+                q.includeAttribute(attr);
             }
         }
 
@@ -294,19 +294,8 @@ public class ParseModel {
         return q;
     }
 
-    public List<String> getAttributesImpliedByStar(Ehcache cache) {
-        if (isIncludedTargetStar()) {
-            List<String> attributeNames = new LinkedList<String>();
-
-            Set<Attribute> attributeSet = cache.getSearchAttributes();
-            if (attributeSet.size() != 0) {
-                for (Attribute att : attributeSet) {
-                    attributeNames.add(att.getAttributeName());
-                }
-                return attributeNames;
-            }
-        }
-        return Collections.EMPTY_LIST;
+    private Collection<Attribute> getAttributesImpliedByStar(Ehcache cache) {
+        return isIncludedTargetStar() ? cache.getSearchAttributes() : Collections.<Attribute>emptySet();
     }
 
     public void setCacheName(String cacheName) {

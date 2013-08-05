@@ -190,10 +190,7 @@ public abstract class AbstractStore implements Store {
      */
     @Override
     public Set<Attribute> getSearchAttributes() {
-        Set<Attribute> attrs = new HashSet<Attribute>(searchManager.getSearchAttributes(cacheName));
-        attrs.remove(Query.KEY);
-        attrs.remove(Query.VALUE);
-        return attrs;
+        return new HashSet<Attribute>(searchManager.getSearchAttributes(cacheName));
     }
 
     /**
