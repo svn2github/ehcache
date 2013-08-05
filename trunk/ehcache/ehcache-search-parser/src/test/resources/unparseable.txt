@@ -1,4 +1,4 @@
-// things which should parse. a sampler.
+// things which should not be parsed.
 
 // simplest
 slect * from foo

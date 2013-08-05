@@ -30,10 +30,13 @@ select key,value from foo where name <= 'foo'
 select key ,value from foo where name >= 'foo'
 
 // between
-select * from foo where (age between 10 20)
-select * from foo where (age between [10 20)
-select * from foo where (age between 10 20])
-select * from foo where (age between [10 20])
+select * from foo where (age between 10 and 20)
+
+// isbetween
+select * from foo where (age isbetween 10 20)
+select * from foo where (age isbetween [10 20)
+select * from foo where (age isbetween 10 20])
+select * from foo where (age isbetween [10 20])
 
 // ilike
 select * from foo where (name ilike 'foo.*bar')
@@ -116,4 +119,7 @@ select * from foo where name= (date)'12/1/2012 10:10:22.433 EST'
 select * from foo where name= (date)'1966-03-29 EST'
 select * from foo where name= (date)'1966-03-29T08:10:22.433 EST'
 select * from foo where name= (date)'1966-03-29T14:10:22.433 EST'
+
+// in clause
+select * from foo where age in ('a', 'b', 'c')
 
