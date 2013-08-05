@@ -23,7 +23,6 @@ import net.sf.ehcache.Ehcache;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A {@link net.sf.ehcache.search.query.QueryManager Query Manager} builder providing methods to add caches which
