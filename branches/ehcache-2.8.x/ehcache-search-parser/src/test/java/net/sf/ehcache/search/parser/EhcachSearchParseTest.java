@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Assert;
-import net.sf.echache.search.parser.ParseException;
+import net.sf.ehcache.search.parser.ParseException;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;

@@ -2,7 +2,7 @@ package net.sf.ehcache.search.parser;
 
 import java.io.StringReader;
 
-import net.sf.echache.search.parser.EhcacheSearchParser;
+import net.sf.ehcache.search.parser.EhcacheSearchParser;
  
 /**
  * Created with IntelliJ IDEA.

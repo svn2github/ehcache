@@ -8,8 +8,8 @@
  */
 package net.sf.ehcache.search.parser;
 
-import net.sf.echache.search.parser.ParseException;
-import net.sf.echache.search.parser.Token;
+import net.sf.ehcache.search.parser.ParseException;
+import net.sf.ehcache.search.parser.Token;
 
 /**
  * The Class CustomParseException.

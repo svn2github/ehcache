@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.echache.search.parser.EhcacheSearchParser;
-import net.sf.echache.search.parser.ParseException;
+import net.sf.ehcache.search.parser.EhcacheSearchParser;
+import net.sf.ehcache.search.parser.ParseException;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.Query;

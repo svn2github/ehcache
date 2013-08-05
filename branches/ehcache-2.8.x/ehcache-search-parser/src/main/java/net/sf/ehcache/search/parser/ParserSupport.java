@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
-import net.sf.echache.search.parser.Token;
+import net.sf.ehcache.search.parser.Token;
 
 /**
  * This class is support stuff for delegate parsing.
@@ -180,7 +180,7 @@ public class ParserSupport {
    * @return the date
    * @throws ParseException the parse exception
    */
-  public static Date variantDateParse(String s) throws net.sf.echache.search.parser.ParseException {
+  public static Date variantDateParse(String s) throws net.sf.ehcache.search.parser.ParseException {
     SimpleDateFormat sdf = new SimpleDateFormat();
     sdf.setLenient(false);
     for(String attempt:formats) {
@@ -191,6 +191,6 @@ public class ParserSupport {
       } catch (ParseException e) {
       }
     }
-    throw new net.sf.echache.search.parser.ParseException("Date parsing error. Acceptable formats include: " + Arrays.asList(formats));
+    throw new net.sf.ehcache.search.parser.ParseException("Date parsing error. Acceptable formats include: " + Arrays.asList(formats));
   }
 }
