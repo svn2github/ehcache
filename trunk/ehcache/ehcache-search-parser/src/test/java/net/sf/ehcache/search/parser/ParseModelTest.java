@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.echache.search.parser.EhcacheSearchParser;
-import net.sf.echache.search.parser.ParseException;
+import net.sf.ehcache.search.parser.EhcacheSearchParser;
+import net.sf.ehcache.search.parser.ParseException;
 import net.sf.ehcache.search.parser.MAggregate;
 import net.sf.ehcache.search.parser.MAttribute;
 import net.sf.ehcache.search.parser.MCriteria;

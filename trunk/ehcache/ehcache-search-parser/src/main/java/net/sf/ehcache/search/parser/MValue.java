@@ -10,8 +10,8 @@ package net.sf.ehcache.search.parser;
 
 import java.util.Date;
 
-import net.sf.echache.search.parser.ParseException;
-import net.sf.echache.search.parser.Token;
+import net.sf.ehcache.search.parser.ParseException;
+import net.sf.ehcache.search.parser.Token;
 import net.sf.ehcache.search.parser.CustomParseException.Message;
 
 /**
@@ -310,7 +310,7 @@ public abstract class MValue<T> implements ModelElement<T> {
     Date constructJavaObject() {
       try {
         return ParserSupport.variantDateParse(getValue());
-      } catch (net.sf.echache.search.parser.ParseException e) {
+      } catch (net.sf.ehcache.search.parser.ParseException e) {
         throw new RuntimeException(e);
       }
     }
