@@ -4,6 +4,7 @@
 package org.terracotta.modules.ehcache.store;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
+
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -464,6 +465,9 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
   @Override
   public Element replace(Element element) throws NullPointerException {
     // TODO: Revisit
+    if (isEventual) {
+        throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    }
     String pKey = generatePortableKeyFor(element.getKey());
     ToolkitReadWriteLock lock = backend.createLockForKey(pKey);
     lock.writeLock().lock();
