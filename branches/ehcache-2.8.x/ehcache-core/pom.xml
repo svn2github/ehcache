@@ -25,6 +25,7 @@
     <name>ehcache</name>
     <skipCheckstyle>false</skipCheckstyle>
     <tests.supplemental.args/>
+    <tests.max.heap.size>-Xmx64m</tests.max.heap.size>
   </properties>
 
   <dependencies>
@@ -175,7 +176,7 @@
         <artifactId>maven-forge-plugin</artifactId>
         <configuration>
           <forkMode>pertest</forkMode>
-          <argLine>${tests.supplemental.args} -Xmx64m</argLine>
+          <argLine>${tests.supplemental.args} ${tests.max.heap.size}</argLine>
           <childDelegation>false</childDelegation>
           <disableXmlReport>false</disableXmlReport>
           <printSummary>true</printSummary>
@@ -488,6 +489,19 @@
       </activation>
       <properties>
         <tests.supplemental.args>-XXfullSystemGC -Xverbose:systemgc</tests.supplemental.args>
+      </properties>
+    </profile>
+    <profile>
+      <id>ibmj9</id>
+      <activation>
+        <property>
+          <name>java.vm.name</name>
+          <value>IBM J9 VM</value>
+        </property>
+      </activation>
+      <properties>
+        <tests.supplemental.args>-Xenableexplicitgc</tests.supplemental.args>
+        <tests.max.heap.size>-Xmx256m</tests.max.heap.size>
       </properties>
     </profile>
 
