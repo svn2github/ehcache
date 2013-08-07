@@ -84,24 +84,6 @@
               <directory>${basedir}/../ehcache-core/src/main/config</directory>
               <preservePath>true</preservePath>
             </resource>
-            <!-- lib -->
-            <resource>
-              <targetPath>${root.dir}/lib</targetPath>
-              <dependencies>
-                <dependency>
-                  <groupId>net.sf.ehcache</groupId>
-                  <artifactId>ehcache</artifactId>
-                </dependency>              
-                <dependency>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-jdk14</artifactId>
-                </dependency>
-                <dependency>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-api</artifactId>
-                </dependency>
-              </dependencies>
-            </resource>
             <!-- src -->
             <resource>
               <targetPath>${root.dir}/src</targetPath>
@@ -194,6 +176,29 @@
           </execution>
         </executions>            
       </plugin>
+      <!-- package lib folder, use this plugin to get proper SNAPSHOT file name --> 
+      <plugin>
+        <groupId>org.terracotta</groupId>
+        <artifactId>maven-forge-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-lib</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDir>${root.dir}/lib</outputDir>
+              <resolveTransitively>false</resolveTransitively>
+              <artifacts>
+                <param>net.sf.ehcache:ehcache:${project.version}</param>
+                <param>org.slf4j:slf4j-api:${slf4j.version}</param>
+                <param>org.slf4j:slf4j-jdk14:${slf4j.version}</param>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>          
+      </plugin>      
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
         <artifactId>gmaven-plugin</artifactId>
