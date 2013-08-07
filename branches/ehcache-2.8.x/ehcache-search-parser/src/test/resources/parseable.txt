@@ -53,11 +53,12 @@ select * from foo where age = (short)11
 select * from foo where age = 11
 select * from foo where age = (int)11
 select * from foo where age = '11'
-select * from foo where age = '11'
+select * from foo where age = (char)'1'
 select * from foo where age = (long)11
 select * from foo where age = (double)'11.1'
 select * from foo where age = (date)'1/10/2003 14:25:22'
 select * from foo where age = (sqldate)'1/1/04'
+select * from foo where name = 'A'
 
 // jdk specific naming I suppose, for an inner class.
 // better to have the enum exist as its own file
@@ -121,5 +122,5 @@ select * from foo where name= (date)'1966-03-29T08:10:22.433 EST'
 select * from foo where name= (date)'1966-03-29T14:10:22.433 EST'
 
 // in clause
-select * from foo where age in ('a', 'b', 'c')
+select * from foo where age in (18, 21, 30)
 
