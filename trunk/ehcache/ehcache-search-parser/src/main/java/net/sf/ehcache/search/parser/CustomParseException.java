@@ -23,7 +23,7 @@ public class CustomParseException extends ParseException {
         DATE_LITERAL("Error parsing date literal:"), SQLDATE_LITERAL("Error parsing sqldate literal:"),
         HEX_LITERAL("Error parsing hex literal:"), STRING_LITERAL("Error parsing string literal:"), 
         CLASS_LITERAL("Error parsing class literal:"), ENUM_LITERAL("Error parsing enum literal:"),
-        MEMBER_LITERAL("Error parsing member literal:"),;
+        MEMBER_LITERAL("Error parsing member literal:"), CHAR_LITERAL("Error parsing char literal");
 
     private String msg;
 

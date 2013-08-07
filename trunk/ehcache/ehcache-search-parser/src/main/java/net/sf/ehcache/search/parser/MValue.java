@@ -417,6 +417,40 @@ public abstract class MValue<T> implements ModelElement<T> {
     }
   }
 
+    /**
+     * The model class for string values
+     */
+    public static class MChar extends MValue<Character> {
+
+        /**
+         * Instantiates a new m string.
+         *
+         * @param value the value
+         * @throws CustomParseException
+         */
+        public MChar(Token tok, String value) throws CustomParseException {
+            super(tok, "character", Message.CHAR_LITERAL, value);
+            cacheJavaObject();
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see net.sf.ehcache.search.parser.MValue#asJavaObject()
+         */
+        @Override
+        Character constructJavaObject() {
+            return getValue().toCharArray()[0];
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see net.sf.ehcache.search.parser.MValue#toString()
+         */
+        @Override
+        public String toString() {
+            return "'" + getValue() + "'";
+        }
+    }
   /**
    * The class for arbitrary java objects.
    */
