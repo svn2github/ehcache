@@ -29,7 +29,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.search.Attribute;
-import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
