@@ -1,7 +1,13 @@
 package net.sf.ehcache.management.service.impl;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.AbstractManagementServer;
@@ -84,6 +90,7 @@ public class AbstractManagementServerTest {
 
     serverMock.stop();
     PowerMock.expectLastCall().andAnswer(new NullAnswer<Object>());
+    expect(sampleRepositoryServiceMock.hasRegistered()).andReturn(true);
     sampleRepositoryServiceMock.dispose();
     expectLastCall().andAnswer(new NullAnswer<Object>());
 
