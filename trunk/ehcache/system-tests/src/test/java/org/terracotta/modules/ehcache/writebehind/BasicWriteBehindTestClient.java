@@ -50,7 +50,12 @@ public class BasicWriteBehindTestClient extends AbstractWriteBehindClient {
     }
 
     final WriteBehindManager wbManager = ((WriteBehindManager) cache.getWriterManager());
+
     System.out.println("write behind queue size " + wbManager.getQueueSize());
+    System.out.println("write behind queue size (stats)" + cache.getStatistics().getWriterQueueLength());
+    // can't really do this as it would be racy: Assert.assertEquals(wbManager.getQueueSize(), cache.getStatistics().getWriterQueueLength());
+    // let's take a moment and assure we foundthe statistic and stitched it all together.
+    Assert.assertFalse(cache.getStatistics().getExtended().writerQueueLength().getClass().getName().contains("NullStatistic"));
     final AtomicLong counter = new AtomicLong();
     final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
     executor.scheduleAtFixedRate(new Runnable() {

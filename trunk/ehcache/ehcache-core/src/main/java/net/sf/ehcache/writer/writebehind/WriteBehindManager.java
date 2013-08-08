@@ -24,6 +24,7 @@ import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterManager;
+import org.terracotta.statistics.Statistic;
 
 /**
  * Implements a {@code WriterManager} that writes elements to a queue first and in the background sends the to the {@code CacheWriter}.
@@ -96,6 +97,7 @@ public class WriteBehindManager implements CacheWriterManager {
      *
      * @return the amount of elements still awaiting processing.
      */
+    @Statistic(name = "queue-length", tags = "write-behind")
     public long getQueueSize() {
         return writeBehind.getQueueSize();
     }
