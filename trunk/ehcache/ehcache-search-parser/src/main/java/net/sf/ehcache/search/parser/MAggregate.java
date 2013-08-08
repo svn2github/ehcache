@@ -17,103 +17,114 @@ package net.sf.ehcache.search.parser;
 
 import net.sf.ehcache.search.aggregator.Aggregator;
 
-// TODO: Auto-generated Javadoc
-/**
- * Created with IntelliJ IDEA. User: cschanck Date: 3/27/13 Time: 4:49 PM To change this template use File | Settings |
- * File Templates.
- */
 public class MAggregate implements ModelElement<Aggregator> {
 
-  /**
-   * The aggregation type enum.
-   */
-  public static enum AggOp {
-    /** The Sum. */
-    Sum, 
-    /** The Min. */
-    Min, 
-    /** The Max. */
-    Max, 
-    /** The Average. */
-    Average, 
-    /** The Count. */
-    Count
-  };
-
-  /** The op. */
-  private final AggOp      op;
-
-  /** The attribute. */
-  private final MAttribute ma;
-
-  /**
-   * Instantiates a new m aggregate.
-   * 
-   * @param op the operation
-   * @param ma the attribute
-   */
-  public MAggregate(AggOp op, MAttribute ma) {
-    this.op = op;
-    this.ma = ma;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  public String toString() {
-    return op.toString().toLowerCase() + "(" + ma + ")";
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((ma == null) ? 0 : ma.hashCode());
-    result = prime * result + ((op == null) ? 0 : op.hashCode());
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    MAggregate other = (MAggregate) obj;
-    if (ma == null) {
-      if (other.ma != null) return false;
-    } else if (!ma.equals(other.ma)) return false;
-    if (op != other.op) return false;
-    return true;
-  }
-
-  public AggOp getOp() {
-    return op;
-  }
-
-  public MAttribute getAttribute() {
-    return ma;
-  }
-
-  /**
-   * Return this model aggregator as an ehacache aggregator.
-   * 
-   * @return the aggregator
-   */
-  public Aggregator asEhcacheObject() {
-    switch (op) {
-      case Sum:
-        return ma.asEhcacheObject().sum();
-      case Min:
-        return ma.asEhcacheObject().min();
-      case Max:
-        return ma.asEhcacheObject().max();
-      case Count:
-        return ma.asEhcacheObject().count();
-      case Average:
-        return ma.asEhcacheObject().average();
+    /**
+     * The aggregation type enum.
+     */
+    public static enum AggOp {
+        /**
+         * The Sum.
+         */
+        Sum,
+        /**
+         * The Min.
+         */
+        Min,
+        /**
+         * The Max.
+         */
+        Max,
+        /**
+         * The Average.
+         */
+        Average,
+        /**
+         * The Count.
+         */
+        Count
     }
-    throw new IllegalStateException("Unknown agg operator: " + op);
-  }
+
+    ;
+
+    /**
+     * The op.
+     */
+    private final AggOp op;
+
+    /**
+     * The attribute.
+     */
+    private final MAttribute ma;
+
+    /**
+     * Instantiates a new m aggregate.
+     *
+     * @param op the operation
+     * @param ma the attribute
+     */
+    public MAggregate(AggOp op, MAttribute ma) {
+        this.op = op;
+        this.ma = ma;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return op.toString().toLowerCase() + "(" + ma + ")";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((ma == null) ? 0 : ma.hashCode());
+        result = prime * result + ((op == null) ? 0 : op.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        MAggregate other = (MAggregate)obj;
+        if (ma == null) {
+            if (other.ma != null) return false;
+        } else if (!ma.equals(other.ma)) return false;
+        if (op != other.op) return false;
+        return true;
+    }
+
+    public AggOp getOp() {
+        return op;
+    }
+
+    public MAttribute getAttribute() {
+        return ma;
+    }
+
+    /**
+     * Return this model aggregator as an ehacache aggregator.
+     *
+     * @return the aggregator
+     */
+    public Aggregator asEhcacheObject() {
+        switch (op) {
+            case Sum:
+                return ma.asEhcacheObject().sum();
+            case Min:
+                return ma.asEhcacheObject().min();
+            case Max:
+                return ma.asEhcacheObject().max();
+            case Count:
+                return ma.asEhcacheObject().count();
+            case Average:
+                return ma.asEhcacheObject().average();
+        }
+        throw new IllegalStateException("Unknown agg operator: " + op);
+    }
 
 }

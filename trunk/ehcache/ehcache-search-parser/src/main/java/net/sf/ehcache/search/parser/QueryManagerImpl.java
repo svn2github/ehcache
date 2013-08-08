@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.ehcache.search.parser.EhcacheSearchParser;
-import net.sf.ehcache.search.parser.ParseException;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.Query;
@@ -34,68 +32,68 @@ import net.sf.ehcache.search.query.QueryManager;
  */
 public class QueryManagerImpl implements QueryManager {
 
-  private final List<Ehcache> caches = new ArrayList<Ehcache>();
+    private final List<Ehcache> caches = new ArrayList<Ehcache>();
 
-  public QueryManagerImpl(Collection<Ehcache> ehcaches) {
-    this.caches.addAll(ehcaches);
-  }
-
-  Results search(Ehcache cache, String statement) throws SearchException {
-    return createQuery(cache, statement).end().execute();
-  }
-
-  private Query createQuery(Ehcache cache, String statement) throws SearchException {
-    EhcacheSearchParser parser=new EhcacheSearchParser(new StringReader(statement));
-    ParseModel model;
-    try {
-      model = parser.QueryStatement();
-    } catch (ParseException p) {
-      throw new SearchException(p);
+    public QueryManagerImpl(Collection<Ehcache> ehcaches) {
+        this.caches.addAll(ehcaches);
     }
-    return model.getQuery(cache);
-  }
 
-  public Query createQuery(String statement) throws SearchException {
-    String cacheName = extractSearchCacheName(statement);
-    if (cacheName == null) {
-      throw new SearchException("Please specify the cache's name with the FROM clause.");
-    } else {
-      return createQuery(getCache(cacheName), statement);
+    Results search(Ehcache cache, String statement) throws SearchException {
+        return createQuery(cache, statement).end().execute();
     }
-  }
 
-  String extractSearchCacheName(String statement) throws SearchException {
-    EhcacheSearchParser parser=new EhcacheSearchParser(new StringReader(statement));
-    ParseModel model = null;
-    try {
-      model = parser.QueryStatement();
-    } catch (ParseException p) {
-      throw new SearchException(p);
+    private Query createQuery(Ehcache cache, String statement) throws SearchException {
+        EhcacheSearchParser parser = new EhcacheSearchParser(new StringReader(statement));
+        ParseModel model;
+        try {
+            model = parser.QueryStatement();
+        } catch (ParseException p) {
+            throw new SearchException(p);
+        }
+        return model.getQuery(cache);
     }
-    return model.getCacheName();
-  }
 
-  String extractCacheManagerName(String statement) throws SearchException {
-    // TODO: implement this method
-    return null;
-  }
+    public Query createQuery(String statement) throws SearchException {
+        String cacheName = extractSearchCacheName(statement);
+        if (cacheName == null) {
+            throw new SearchException("Please specify the cache's name with the FROM clause.");
+        } else {
+            return createQuery(getCache(cacheName), statement);
+        }
+    }
 
-  private Ehcache getCache(String cacheName) throws CacheException {
-    Ehcache cache = null;
-    int numCachesFound = 0;
-    for (Ehcache c : caches) {
-      if (c.getName().equals(cacheName)) {
-        numCachesFound++;
-        cache = c;
-      }
+    String extractSearchCacheName(String statement) throws SearchException {
+        EhcacheSearchParser parser = new EhcacheSearchParser(new StringReader(statement));
+        ParseModel model = null;
+        try {
+            model = parser.QueryStatement();
+        } catch (ParseException p) {
+            throw new SearchException(p);
+        }
+        return model.getCacheName();
     }
-    if (numCachesFound == 0) {
-      throw new CacheException("The cache specified with the FROM clause could not be found.");
-    } else if (numCachesFound > 1) {
-      throw new CacheException("More than one cache with the same name was found");
-    } else {
-      return cache;
+
+    String extractCacheManagerName(String statement) throws SearchException {
+        // TODO: implement this method
+        return null;
     }
-  }
+
+    private Ehcache getCache(String cacheName) throws CacheException {
+        Ehcache cache = null;
+        int numCachesFound = 0;
+        for (Ehcache c : caches) {
+            if (c.getName().equals(cacheName)) {
+                numCachesFound++;
+                cache = c;
+            }
+        }
+        if (numCachesFound == 0) {
+            throw new CacheException("The cache specified with the FROM clause could not be found.");
+        } else if (numCachesFound > 1) {
+            throw new CacheException("More than one cache with the same name was found");
+        } else {
+            return cache;
+        }
+    }
 
 }

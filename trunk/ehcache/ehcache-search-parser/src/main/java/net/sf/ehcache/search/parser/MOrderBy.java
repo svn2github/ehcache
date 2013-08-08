@@ -15,72 +15,75 @@
  */
 package net.sf.ehcache.search.parser;
 
-// TODO: Auto-generated Javadoc
 public class MOrderBy {
 
-  /** The attr. */
-  private final MAttribute attr;
-  
-  /** The asc. */
-  private final boolean asc;
+    /**
+     * The attr.
+     */
+    private final MAttribute attr;
 
-  /**
-   * Instantiates a new model order by.
-   *
-   * @param attr the attr
-   * @param asc the asc
-   */
-  public MOrderBy(MAttribute attr, boolean asc) {
-    this.attr=attr;
-    this.asc=asc;
-  }
+    /**
+     * The asc.
+     */
+    private final boolean asc;
 
-  /**
-   * Gets the attribute.
-   *
-   * @return the attribute
-   */
-  public MAttribute getAttribute() {
-    return attr;
-  }
+    /**
+     * Instantiates a new model order by.
+     *
+     * @param attr the attr
+     * @param asc  the asc
+     */
+    public MOrderBy(MAttribute attr, boolean asc) {
+        this.attr = attr;
+        this.asc = asc;
+    }
 
-  /**
-   * Checks if is order ascending.
-   *
-   * @return true, if is order ascending
-   */
-  public boolean isOrderAscending() {
-    return asc;
-  }
+    /**
+     * Gets the attribute.
+     *
+     * @return the attribute
+     */
+    public MAttribute getAttribute() {
+        return attr;
+    }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return "order by " + attr + (asc?" ascending":" descending");
-  }
+    /**
+     * Checks if is order ascending.
+     *
+     * @return true, if is order ascending
+     */
+    public boolean isOrderAscending() {
+        return asc;
+    }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + (asc ? 1231 : 1237);
-    result = prime * result + ((attr == null) ? 0 : attr.hashCode());
-    return result;
-  }
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "order by " + attr + (asc ? " ascending" : " descending");
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    MOrderBy other = (MOrderBy) obj;
-    if (asc != other.asc) return false;
-    if (attr == null) {
-      if (other.attr != null) return false;
-    } else if (!attr.equals(other.attr)) return false;
-    return true;
-  }
-  
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (asc ? 1231 : 1237);
+        result = prime * result + ((attr == null) ? 0 : attr.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        MOrderBy other = (MOrderBy)obj;
+        if (asc != other.asc) return false;
+        if (attr == null) {
+            if (other.attr != null) return false;
+        } else if (!attr.equals(other.attr)) return false;
+        return true;
+    }
+
 }

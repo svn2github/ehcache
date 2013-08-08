@@ -63,6 +63,8 @@ public class ParseModel {
 
     private boolean includeStar = false;
 
+    private boolean isCountStar = false;
+
     private String cacheName;
 
     /**
@@ -77,6 +79,10 @@ public class ParseModel {
 
     public void includeTargetValues() {
         this.includeValues = true;
+    }
+
+    public void includeCountStar() {
+        this.isCountStar = true;
     }
 
     public void includeTargetAttribute(MAttribute ma) {
@@ -264,6 +270,7 @@ public class ParseModel {
         for (MAttribute ma : getIncludedTargetAttributes()) {
             q.includeAttribute(ma.asEhcacheObject());
         }
+
         for (MAggregate ma : getIncludedTargetAgregators()) {
             q.includeAggregator(ma.asEhcacheObject());
         }
@@ -279,6 +286,7 @@ public class ParseModel {
                 q.includeAttribute(attr);
             }
         }
+
 
         // group by
         for (MAttribute ma : groupBy) {
