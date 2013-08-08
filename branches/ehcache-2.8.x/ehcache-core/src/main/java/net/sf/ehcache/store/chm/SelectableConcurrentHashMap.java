@@ -798,7 +798,7 @@ public class SelectableConcurrentHashMap {
             return new SegmentIterator(this);
         }
 
-        private boolean evict() {
+        boolean evict() {
             Element remove = null;
             final WriteLock writeLock = writeLock();
             writeLock.lock();
@@ -881,6 +881,11 @@ public class SelectableConcurrentHashMap {
                 }
             }
             table = newTable;
+            evictionIterator = iterator();
+        }
+
+        Iterator<HashEntry> getEvictionIterator() {
+            return evictionIterator;
         }
     }
 
@@ -904,7 +909,7 @@ public class SelectableConcurrentHashMap {
 
     }
 
-    private class SegmentIterator implements Iterator<HashEntry> {
+    static class SegmentIterator implements Iterator<HashEntry> {
 
         int nextTableIndex;
         HashEntry[] currentTable;
