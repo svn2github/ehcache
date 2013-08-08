@@ -82,7 +82,6 @@ public class SelectableConcurrentHashMapTest {
         final int limit = segment.threshold + 2;
         for(int i = 0; i < limit; i++) {
             segment.put(i, 0, new Element(i, i), 0, true, false);
-            System.out.println(segment.count);
         }
         assertThat(((SelectableConcurrentHashMap.SegmentIterator)segment.getEvictionIterator()).currentTable,
             not(sameInstance(evictionIterator.currentTable)));

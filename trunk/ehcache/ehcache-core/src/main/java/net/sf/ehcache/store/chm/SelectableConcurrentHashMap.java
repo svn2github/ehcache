@@ -490,7 +490,7 @@ public class SelectableConcurrentHashMap {
          */
         final float loadFactor;
 
-        private Iterator<HashEntry> evictionIterator = iterator();
+        private Iterator<HashEntry> evictionIterator;
 
         protected Segment(int initialCapacity, float lf) {
             loadFactor = lf;
@@ -552,6 +552,7 @@ public class SelectableConcurrentHashMap {
                     ++modCount;
                     count = 0; // write-volatile
                 }
+                evictionIterator = null;
             } finally {
                 writeLock.unlock();
             }
@@ -581,6 +582,9 @@ public class SelectableConcurrentHashMap {
                             cacheEventNotificationService.notifyElementRemovedOrdered(oldValue);
                         }
                         poolAccessor.delete(e.sizeOf);
+                        if(evictionIterator != null && ((SegmentIterator)evictionIterator).nextEntry == e) {
+                            evictionIterator.next();
+                        }
                     }
                 }
                 return oldValue;
@@ -777,7 +781,7 @@ public class SelectableConcurrentHashMap {
             int i = 0;
 
             while (i++ < count) {
-                if (!evictionIterator.hasNext()) {
+                if (evictionIterator == null || !evictionIterator.hasNext()) {
                     evictionIterator = iterator();
                 }
                 final HashEntry next = evictionIterator.next();
@@ -881,7 +885,9 @@ public class SelectableConcurrentHashMap {
                 }
             }
             table = newTable;
-            evictionIterator = iterator();
+            if (evictionIterator != null) {
+                evictionIterator = iterator();
+            }
         }
 
         Iterator<HashEntry> getEvictionIterator() {
@@ -914,7 +920,6 @@ public class SelectableConcurrentHashMap {
         int nextTableIndex;
         HashEntry[] currentTable;
         HashEntry nextEntry;
-        HashEntry lastReturned;
         private final Segment seg;
 
         private SegmentIterator(final Segment memoryStoreSegment) {
@@ -930,7 +935,7 @@ public class SelectableConcurrentHashMap {
         public HashEntry next() {
             if (nextEntry == null)
                 return null;
-            lastReturned = nextEntry;
+            HashEntry lastReturned = nextEntry;
             advance();
             return lastReturned;
         }
