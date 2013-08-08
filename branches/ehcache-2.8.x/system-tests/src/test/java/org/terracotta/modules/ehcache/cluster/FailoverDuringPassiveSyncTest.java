@@ -8,11 +8,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.terracotta.AbstractTerracottaActivePassiveTestBase;
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 
 import com.tc.objectserver.core.api.ServerConfigurationContext;
 import com.tc.test.config.model.TestConfig;
 import com.tc.test.jmx.TestHandlerMBean;
+
+import java.util.concurrent.Callable;
 
 public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassiveTestBase {
 
@@ -40,7 +43,7 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
 
     @Override
     protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
-      TestHandlerMBean mbean = getTestControlMbean();
+      final TestHandlerMBean mbean = getTestControlMbean();
 
       for (int i = 0; i < 20000; i++) {
         cache.put(new Element("key-" + i, new byte[1024]));
@@ -54,6 +57,14 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
 
       info("Starting up the second passive.");
       mbean.restartCrashedServer(0, 2);
+
+      info("Waiting for the second passive to start up as PASSIVE-UNINITIALIZED");
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          return mbean.isPassiveUninitialized(0, 2);
+        }
+      });
 
       info("Sleeping for a short time to wait for the passive syncup to start.");
       Thread.sleep(15 * 1000);
