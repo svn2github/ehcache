@@ -1,6 +1,7 @@
 package org.terracotta.modules.ehcache.coherence;
 
 import static org.junit.Assert.fail;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
@@ -42,12 +43,6 @@ public class CASEventualCacheTestClient extends ClientBase {
       fail("Eventual consistent cache did not throw on CAS operation");
     } catch (CacheException e) {
       // No-op
-        try {
-            cache.replace(new Element("key", "value"));
-            fail("Eventual consistent cache did not throw on CAS operation");
-      } catch (CacheException ee) {
-            //No-op
-        }
     }
     try {
       cache.removeElement(new Element("key", "value"));
@@ -60,6 +55,12 @@ public class CASEventualCacheTestClient extends ClientBase {
       fail("Eventual consistent cache did not throw on CAS operation");
     } catch (CacheException e) {
       // No-op
+    }
+    try {
+        cache.replace(new Element("key", "value"));
+        fail("Eventual consistent cache did not throw on CAS operation");
+    } catch (CacheException ee) {
+        //No-op
     }
   }
 
