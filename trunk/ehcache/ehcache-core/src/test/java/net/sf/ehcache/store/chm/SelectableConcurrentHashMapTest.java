@@ -5,13 +5,18 @@ import net.sf.ehcache.pool.impl.UnboundedPool;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -60,6 +65,27 @@ public class SelectableConcurrentHashMapTest {
             map.put(i, new Element(i, "valueof " + i), 0);
             assertThat("At iteration #" + i + ", the size is " + map.quickSize(), map.quickSize() <= maximumSize, is(true));
         }
+    }
+
+    @Test
+    public void testClockEvictorDoesUpdateItsTableEagerly() throws NoSuchFieldException, IllegalAccessException {
+        SelectableConcurrentHashMap map = new SelectableConcurrentHashMap(
+            new UnboundedPool().createPoolAccessor(null, null), 1, 1, 100, 10000, null);
+        final SelectableConcurrentHashMap.Segment segment;
+        final Field segments = map.getClass().getDeclaredField("segments");
+        segments.setAccessible(true);
+        segment = ((SelectableConcurrentHashMap.Segment[])segments.get(map))[0];
+        segment.put(0, 0, new Element(0, 0), 0, false, false);
+        segment.evict(); // Make sure we even get a table set...
+        final SelectableConcurrentHashMap.SegmentIterator evictionIterator
+            = (SelectableConcurrentHashMap.SegmentIterator)segment.getEvictionIterator();
+        final int limit = segment.threshold + 2;
+        for(int i = 0; i < limit; i++) {
+            segment.put(i, 0, new Element(i, i), 0, true, false);
+            System.out.println(segment.count);
+        }
+        assertThat(((SelectableConcurrentHashMap.SegmentIterator)segment.getEvictionIterator()).currentTable,
+            not(sameInstance(evictionIterator.currentTable)));
     }
 
     private <T> Set<T> expectedSet(T... values) {
