@@ -15,80 +15,93 @@
  */
 package net.sf.ehcache.search.parser;
 
-// TODO: Auto-generated Javadoc
+
 /**
- * The Class InterahctiveCmd.
+ * The Class InteractiveCmd.
  */
 public class InteractiveCmd {
 
-  /**
-   * The Enum Cmd.
-   */
-  public static enum Cmd {
+    /**
+     * The Enum Cmd.
+     */
+    public static enum Cmd {
 
-    /** Select. */
-    Select,
-    /** Use cache. */
-    UseCache,
-    /** Use cache manager. */
-    UseCacheManager
-  }
+        /**
+         * Select.
+         */
+        Select,
+        /**
+         * Use cache.
+         */
+        UseCache,
+        /**
+         * Use cache manager.
+         */
+        UseCacheManager
+    }
 
-  /** The type. */
-  private Cmd        type;
+    /**
+     * The type.
+     */
+    private Cmd type;
 
-  /** The qmodel. */
-  private ParseModel qmodel;
+    /**
+     * The qmodel.
+     */
+    private ParseModel qmodel;
 
-  /** The ident. */
-  private String     ident;  ;
+    /**
+     * The ident.
+     */
+    private String ident;
+    ;
 
-  /**
-   * Instantiates a new interactive cmd for select.
-   * 
-   * @param qmodel the qmodel
-   */
-  public InteractiveCmd(ParseModel qmodel) {
-    this.type = Cmd.Select;
-    this.qmodel = qmodel;
-  }
+    /**
+     * Instantiates a new interactive cmd for select.
+     *
+     * @param qmodel the qmodel
+     */
+    public InteractiveCmd(ParseModel qmodel) {
+        this.type = Cmd.Select;
+        this.qmodel = qmodel;
+    }
 
-  /**
-   * Instantiates a new interactive cmd for a string based command.
-   * 
-   * @param cmd the cmd
-   * @param ident the ident
-   */
-  public InteractiveCmd(Cmd cmd, String ident) {
-    this.type = cmd;
-    this.ident = ident;
-  }
+    /**
+     * Instantiates a new interactive cmd for a string based command.
+     *
+     * @param cmd   the cmd
+     * @param ident the ident
+     */
+    public InteractiveCmd(Cmd cmd, String ident) {
+        this.type = cmd;
+        this.ident = ident;
+    }
 
-  /**
-   * Gets the type.
-   * 
-   * @return the type
-   */
-  public Cmd getType() {
-    return type;
-  }
+    /**
+     * Gets the type.
+     *
+     * @return the type
+     */
+    public Cmd getType() {
+        return type;
+    }
 
-  /**
-   * Gets the parse model for a select.
-   * 
-   * @return the q model
-   */
-  public ParseModel getParseModel() {
-    return qmodel;
-  }
+    /**
+     * Gets the parse model for a select.
+     *
+     * @return the q model
+     */
+    public ParseModel getParseModel() {
+        return qmodel;
+    }
 
-  /**
-   * Gets the ident.
-   * 
-   * @return the ident
-   */
-  public String getIdent() {
-    return ident;
-  }
+    /**
+     * Gets the ident.
+     *
+     * @return the ident
+     */
+    public String getIdent() {
+        return ident;
+    }
 
 }

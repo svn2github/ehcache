@@ -18,7 +18,6 @@ import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.LessThanOrEqual;
 import net.sf.ehcache.search.expression.NotEqualTo;
 
-// TODO: Auto-generated Javadoc
 
 /**
  * Parser model criteria.
@@ -686,7 +685,6 @@ public interface MCriteria extends ModelElement<Criteria> {
     }
 
 
-
     public static class Like implements MCriteria {
         /**
          * The attr.
@@ -790,7 +788,6 @@ public interface MCriteria extends ModelElement<Criteria> {
             } else if (!originalRegexp.equals(other.originalRegexp)) return false;
             return true;
         }
-
 
 
     }
