@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,7 @@ import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.util.MemorySizeParser;
 
+import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.CombinableMatcher;
 import org.junit.After;
@@ -1477,7 +1479,7 @@ public class CacheManagerTest {
    public static final String STATISTIC_THREAD_NAME      = "Statistics Thread";
 
    @Test
-   public void testOverrideStatisticsThreadCount() {
+   public void testOverrideStatisticsThreadCount() throws InterruptedException {
       _testArbitraryStatThreadCount(3,5,null);
       _testArbitraryStatThreadCount(3,5,"2");
       _testArbitraryStatThreadCount(3,5,"4");
@@ -1486,7 +1488,7 @@ public class CacheManagerTest {
       System.getProperties().remove(STATISTIC_THREAD_PROPERTY);
    }
 
-   private void _testArbitraryStatThreadCount(int cmCount, int cCount, String setting) {
+   private void _testArbitraryStatThreadCount(int cmCount, int cCount, String setting) throws InterruptedException {
 
       if(setting==null) {
          System.getProperties().remove(STATISTIC_THREAD_PROPERTY);
@@ -1494,7 +1496,8 @@ public class CacheManagerTest {
          System.getProperties().put(STATISTIC_THREAD_PROPERTY, setting);
       }
 
-      int initialThreadCount=countStatThreads();
+      Set<Thread> initialThreads = getStatisticThreads();
+      Assert.assertThat(initialThreads, IsEmptyCollection.<Thread>empty());
 
       CacheManager[] managers=new CacheManager[cmCount];
       for(int i=0;i< cmCount;i++) {
@@ -1516,30 +1519,29 @@ public class CacheManagerTest {
             }
          }
       }
-      int postThreadCount=countStatThreads();
-
-      int added=postThreadCount-initialThreadCount;
+      Set<Thread> postThreads = getStatisticThreads();
       if(setting == null) {
-         Assert.assertEquals(1 * cmCount, added);
+         Assert.assertThat(postThreads, IsCollectionWithSize.hasSize(cmCount));
       } else {
-         Assert.assertEquals(cmCount * Integer.parseInt(setting), added);
+         Assert.assertThat(postThreads, IsCollectionWithSize.hasSize(cmCount * Integer.parseInt(setting)));
       }
 
       for(CacheManager cm:managers) {
          cm.shutdown();
       }
+      for (Thread t : postThreads) {
+         t.join();
+      }
    }
 
 
-   private int countStatThreads() {
-      int numStatThreads = 0;
-      Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-      for (Thread thread : threadSet) {
+   private static Set<Thread> getStatisticThreads() {
+      Set<Thread> threads = new HashSet<Thread>();
+      for (Thread thread : Thread.getAllStackTraces().keySet()) {
          if (thread.getName().startsWith(STATISTIC_THREAD_NAME)) {
-            System.err.println(String.format("Found thread number: %s, name=%s, id=%s, state=%s", numStatThreads+"", thread.getName(), thread.getId()+"", thread.getState()+""));
-            numStatThreads++;
+            threads.add(thread);
          }
       }
-      return numStatThreads;
+      return threads;
    }
 }
