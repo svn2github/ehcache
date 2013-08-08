@@ -45,7 +45,7 @@ public class CASEventualCacheTestClient extends ClientBase {
         try {
             cache.replace(new Element("key", "value"));
             fail("Eventual consistent cache did not throw on CAS operation");
-        } catch (CacheException e) {
+      } catch (CacheException ee) {
             //No-op
         }
     }
