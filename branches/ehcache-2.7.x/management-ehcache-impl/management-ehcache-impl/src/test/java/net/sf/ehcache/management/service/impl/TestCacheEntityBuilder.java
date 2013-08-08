@@ -4,16 +4,17 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import junit.framework.Assert;
 import net.sf.ehcache.management.resource.CacheEntity;
 import net.sf.ehcache.management.sampled.CacheSampler;
 
 import org.easymock.EasyMock;
 import org.junit.Test;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import junit.framework.Assert;
 
 /**
  * @author brandony
@@ -26,14 +27,17 @@ public class TestCacheEntityBuilder {
 
     CacheSampler samplerFoo = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerFoo.getCacheName()).andReturn("FOO");
+    EasyMock.expect(samplerFoo.isLocalHeapCountBased()).andReturn(false);
     EasyMock.expect(samplerFoo.getExpiredCount()).andReturn(1L);
 
     CacheSampler samplerGoo = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerGoo.getCacheName()).andReturn("GOO");
+    EasyMock.expect(samplerGoo.isLocalHeapCountBased()).andReturn(false);
     EasyMock.expect(samplerGoo.getExpiredCount()).andReturn(2L);
 
     CacheSampler samplerBar = EasyMock.createMock(CacheSampler.class);
     EasyMock.expect(samplerBar.getCacheName()).andReturn("BAR");
+    EasyMock.expect(samplerBar.isLocalHeapCountBased()).andReturn(false);
     EasyMock.expect(samplerBar.getExpiredCount()).andReturn(3L);
 
     EasyMock.replay(samplerFoo, samplerBar, samplerGoo);
