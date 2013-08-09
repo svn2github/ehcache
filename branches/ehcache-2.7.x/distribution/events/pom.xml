@@ -12,14 +12,14 @@
   
   <groupId>net.sf.ehcache.examples</groupId>
   <artifactId>events</artifactId>
-  <version>2.7.4-SNAPSHOT</version>
+  <version>2.7.5-SNAPSHOT</version>
   <name>events</name>
   <packaging>war</packaging>
   <description>Clustered Ehcache Terracotta as second level cache for Hibernate</description>
 
   <properties>
-    <tc-maven-plugin.version>1.10.4-SNAPSHOT</tc-maven-plugin.version>
-    <toolkit-runtime.version>4.0.4-SNAPSHOT</toolkit-runtime.version>
+    <tc-maven-plugin.version>1.10.5-SNAPSHOT</tc-maven-plugin.version>
+    <toolkit-runtime.version>4.0.5-SNAPSHOT</toolkit-runtime.version>
     <h2.version>1.1.116</h2.version>
     <jetty.version>8.1.7.v20120910</jetty.version>
     <exec-maven-plugin.version>1.1</exec-maven-plugin.version>
