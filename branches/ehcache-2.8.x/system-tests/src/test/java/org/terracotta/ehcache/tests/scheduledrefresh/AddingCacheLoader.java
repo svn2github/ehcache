@@ -12,7 +12,10 @@ public class AddingCacheLoader implements net.sf.ehcache.loader.CacheLoader {
   @java.lang.Override
   public java.lang.Object load(java.lang.Object key) throws net.sf.ehcache.CacheException {
     if (key instanceof java.lang.Number) {
-      return new java.lang.Integer(((java.lang.Number) key).intValue() + 1);
+      int was = ((java.lang.Number) key).intValue();
+      Integer ii = new java.lang.Integer(was + 1);
+      System.err.println("Was: "+was+" is: "+ii);
+      return ii;
     }
     return key;
   }

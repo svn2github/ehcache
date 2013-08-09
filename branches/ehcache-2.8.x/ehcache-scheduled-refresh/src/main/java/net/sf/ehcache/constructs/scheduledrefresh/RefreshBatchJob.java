@@ -132,7 +132,7 @@ public class RefreshBatchJob implements Job {
             keysToProcess.removeAll(values.keySet());
             for (Map.Entry<? extends Object, ? extends Object> entry : values.entrySet()) {
                Element newElement = new Element(entry.getKey(), entry.getValue());
-               underlyingCache.replace(newElement);
+               underlyingCache.put(newElement);
             }
          }
          // assume we got here ok, now evict any that don't evict

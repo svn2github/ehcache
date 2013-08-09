@@ -194,7 +194,7 @@ public class RefreshAheadCache extends EhcacheDecoratorAdapter {
                         try {
                             for (Map.Entry<? extends Object, ? extends Object> entry : values.entrySet()) {
                                 Element newElement = new Element(entry.getKey(), entry.getValue());
-                                underlyingCache.replace(newElement);
+                                underlyingCache.put(newElement);
                                 refreshSuccessCount.incrementAndGet();
                             }
                         } finally {

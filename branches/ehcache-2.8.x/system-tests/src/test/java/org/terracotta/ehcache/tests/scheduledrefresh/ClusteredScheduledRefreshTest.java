@@ -55,11 +55,6 @@ public class ClusteredScheduledRefreshTest extends AbstractCacheTestBase {
          }
          Thread.sleep(60 * 1000);
 
-         // assert that everyone was updated at least once.
-         for (int i = 0; i < 1000; i++) {
-            Assert.assertTrue(dutCache.get(new Integer(i)).getObjectValue().equals(new Integer(i + 1)));
-         }
-
          ExtendedStatistics.Statistic<Number> refreshStat = ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
          System.out.println("Refresh jobs: " + refreshStat.value().intValue());
 
@@ -68,6 +63,12 @@ public class ClusteredScheduledRefreshTest extends AbstractCacheTestBase {
 
          ExtendedStatistics.Statistic<Number> procStat = ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
          System.out.println("Keys processed: " + procStat.value().intValue());
+
+         // assert that everyone was updated at least once.
+         for (int i = 0; i < 1000; i++) {
+            Assert.assertTrue(dutCache.get(new Integer(i)).getObjectValue().equals(new Integer(i + 1)));
+         }
+
          // and then more tests...
          dutCache.dispose();
       }
