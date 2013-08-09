@@ -215,6 +215,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <skip>${checkshort}</skip> <!-- don't run these when check-short profile is on -->
               <excludes>
                 <exclude>**/*$*</exclude>
               </excludes>
