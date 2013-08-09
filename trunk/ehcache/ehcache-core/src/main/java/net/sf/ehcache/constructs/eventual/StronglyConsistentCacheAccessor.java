@@ -78,10 +78,8 @@ public class StronglyConsistentCacheAccessor extends EhcacheDecoratorAdapter {
             Element current = getQuiet(objectKey);
             if (current == null) {
                 super.put(element, doNotNotifyCacheReplicators);
-                return null;
-            } else {
-                return current;
             }
+            return current;
         } finally {
             releaseWriteLockOnKey(objectKey);
         }
@@ -113,6 +111,24 @@ public class StronglyConsistentCacheAccessor extends EhcacheDecoratorAdapter {
             releaseWriteLockOnKey(objectKey);
         }
         return false;
+    }
+
+    @Override
+    public Element replace(Element element) throws NullPointerException {
+        Object objectKey = element.getObjectKey();
+        if (objectKey == null) {
+            throw new NullPointerException();
+        }
+        acquireWriteLockOnKey(objectKey);
+        try {
+            Element current = getQuiet(objectKey);
+            if (current != null) {
+                super.put(element);
+            }
+            return current;
+        } finally {
+            releaseWriteLockOnKey(objectKey);
+        }
     }
 
     @Override
