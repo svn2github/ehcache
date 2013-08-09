@@ -157,16 +157,16 @@ public class ParserSupport {
      * http://stackoverflow.com/questions/2201925/converting-iso8601-compliant-string-to-java-util-date
      */
     private static String[] formats = {
-        "yyyy-MM-dd HH:mm:ss.SSS z",
-        "yyyy-MM-dd HH:mm:ss.SSS",
-        "yyyy-MM-dd HH:mm:ss z",
-        "yyyy-MM-dd HH:mm:ss",
-        "yyyy-MM-dd z",
-        "yyyy-MM-dd",
         "yyyy-MM-dd'T'HH:mm:ss.SSS z",
         "yyyy-MM-dd'T'HH:mm:ss.SSS",
         "yyyy-MM-dd'T'HH:mm:ss z",
         "yyyy-MM-dd'T'HH:mm:ss",
+        "yyyy-MM-dd z",
+        "yyyy-MM-dd",
+        "yyyy-MM-dd HH:mm:ss.SSS z",
+        "yyyy-MM-dd HH:mm:ss.SSS",
+        "yyyy-MM-dd HH:mm:ss z",
+        "yyyy-MM-dd HH:mm:ss",
         "yyyy-MM-dd z",
         "yyyy-MM-dd",
         "MM/dd/yyyy HH:mm:ss.SSS z",

@@ -43,12 +43,12 @@ import org.junit.Test;
 public class EhcachSearchParseTest {
 
     private static void populate(Ehcache cache) throws java.text.ParseException {
-        DateFormat formatter = new SimpleDateFormat("MM/dd/yy");
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         for (int i = 10; i < 30; i++) {
             HashMap<String, Object> nv = new HashMap<String, Object>();
             nv.put("zip", "210" + i);
             nv.put("age", i);
-            nv.put("date", formatter.parse("6/1/20" + i));
+            nv.put("date", formatter.parse("20" + i + "-06-01"));
             CacheValue cv = new CacheValue("John Frisk " + i, nv);
             cache.put(new Element(i, cv));
         }
@@ -291,7 +291,7 @@ public class EhcachSearchParseTest {
 
     @Test
     public void testParserDate() throws ParseException {
-        String st = "select key, value from cache1 where ( date > (date)'6/1/2011' and  date < (date)'6/1/2013')";
+        String st = "select key, value from cache1 where ( date > (date)'2011-06-01' and  date < (date)'2013-06-01')";
         Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
         Assert.assertEquals(1, res.size());
 
@@ -309,7 +309,7 @@ public class EhcachSearchParseTest {
 
     @Test
     public void testParserAttributeRetrieval() throws ParseException {
-        String st = "select age from cache1 where  date > (date)'6/1/2011' order by age ";
+        String st = "select age from cache1 where  date > (date)'2011-06-01' order by age ";
         Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
         Assert.assertEquals(18, res.size());
         Assert.assertFalse(res.hasKeys());
@@ -340,7 +340,7 @@ public class EhcachSearchParseTest {
 
     @Test
     public void testParserAggregatorsRetrieval() throws ParseException {
-        String st = "select sum(age), count(zip) from cache1 where  date > (date)'6/1/2011' ";
+        String st = "select sum(age), count(zip) from cache1 where  date > (date)'2011-06-01' ";
         Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
         Assert.assertEquals(1, res.size());
         Assert.assertFalse(res.hasKeys());
@@ -360,7 +360,7 @@ public class EhcachSearchParseTest {
 
     @Test
     public void testParserSelectStar() throws ParseException {
-        String st = "select * from cache1 where  date >= (date)'6/1/2020' order by age ";
+        String st = "select * from cache1 where  date >= (date)'2020-06-01' order by age ";
         Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
         Assert.assertEquals(10, res.size());
         Assert.assertFalse(res.hasKeys());
@@ -371,7 +371,7 @@ public class EhcachSearchParseTest {
 
     @Test
     public void testParserSelectStarKeyValue() throws ParseException {
-        String st = "select *,key,value from cache1 where  date >= (date)'6/1/2020' order by age ";
+        String st = "select *,key,value from cache1 where  date >= (date)'2020-06-01' order by age ";
         Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
         Assert.assertEquals(10, res.size());
         Assert.assertTrue(res.hasKeys());
@@ -381,22 +381,23 @@ public class EhcachSearchParseTest {
 
     @Test
     public void testDateFormats() throws ParseException {
-        String[] dateFormats = { "2020-06-01T01:01:00.555Z",
-            "2020-06-01T01:01:00.555+01",
-            "2020-06-01T01:01:00.555+0104",
-            "2020-06-01T01:01:00.555+01:04",
-            "2020-06-01",
-            "06/01/2020",
-            "06/01/2020T01:01:00.555+01",
-            "06/01/2020T01:01:00.555+0104",
-            "06/01/2020T01:01:00.555+01:04",
-            "6/1/2020"
+        String[] dateFormats = {
+            "2009-06-01T00:00:00.555",
+            "2009-06-01T01:01:00.555+01",
+            "2009-06-01T01:01:00.555+0104",
+            "2009-06-01T01:01:00.555+01:04",
+            "2009-06-01",
+            "06/01/2009",
+            "06/01/2009T01:01:00.555+01",
+            "06/01/2009T01:01:00.555+0104",
+            "06/01/2009T01:01:00.555+01:04",
+            "6/1/2009"
         };
 
         for (String dateFormat : dateFormats) {
             String st = "select * from cache1 where  date >= (date)'" + dateFormat + "'";
             Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
-            Assert.assertEquals(10, res.size());
+            Assert.assertEquals(st, 20, res.size());
         }
     }
 
