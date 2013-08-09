@@ -1,6 +1,9 @@
 package net.sf.ehcache.constructs.eventual;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -66,12 +69,100 @@ public class StronglyConsistentCacheAccessorTest {
     }
 
     @Test
+    public void testPutIfAbsent() {
+        Element element = new Element("key", "value");
+        Ehcache underlyingCache = buildMockCache();
+        when(underlyingCache.getQuiet((Object)"key")).thenReturn(null, element);
+
+        StronglyConsistentCacheAccessor cacheAccessor = new StronglyConsistentCacheAccessor(underlyingCache);
+        element = cacheAccessor.putIfAbsent(element);
+        assertThat(element, nullValue());
+
+
+        element = cacheAccessor.putIfAbsent(new Element("key", "otherValue"));
+        assertThat(element.getObjectValue(), equalTo((Object)"value"));
+
+        try {
+            cacheAccessor.putIfAbsent(new Element(null, null));
+            fail("Expected NPE with null key");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void testSingleArgReplace() {
+        Element element = new Element("key", "value");
+        Ehcache underlyingCache = buildMockCache();
+        when(underlyingCache.getQuiet((Object)"key")).thenReturn(null, element);
+
+        StronglyConsistentCacheAccessor cacheAccessor = new StronglyConsistentCacheAccessor(underlyingCache);
+        element = cacheAccessor.replace(element);
+        assertThat(element, nullValue());
+
+
+        element = cacheAccessor.replace(new Element("key", "otherValue"));
+        assertThat(element.getObjectValue(), equalTo((Object)"value"));
+
+        try {
+            cacheAccessor.replace(new Element(null, null));
+            fail("Expected NPE with null key");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void testTwoArgReplace() {
+        Element element = new Element("key", "value");
+        Ehcache underlyingCache = buildMockCache();
+        when(underlyingCache.getQuiet((Object)"key")).thenReturn(null, element);
+
+        StronglyConsistentCacheAccessor cacheAccessor = new StronglyConsistentCacheAccessor(underlyingCache);
+        assertThat(cacheAccessor.replace(element, new Element("key", "otherValue")), is(false));
+        assertThat(cacheAccessor.replace(element, new Element("key", "otherValue")), is(true));
+
+        try {
+            cacheAccessor.replace(new Element(null, null), new Element("key", "other"));
+            fail("Expected NPE with null key");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+
+        try {
+            cacheAccessor.replace(new Element("key", "other"), new Element(null, null));
+            fail("Expected NPE with null key");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void testRemoveElement() {
+        Element element = new Element("key", "value");
+        Ehcache underlyingCache = buildMockCache();
+        when(underlyingCache.getQuiet((Object)"key")).thenReturn(new Element("key", "other"), element);
+        when(underlyingCache.remove((Object)"key")).thenReturn(true);
+
+        StronglyConsistentCacheAccessor cacheAccessor = new StronglyConsistentCacheAccessor(underlyingCache);
+        assertThat(cacheAccessor.removeElement(element), is(false));
+        assertThat(cacheAccessor.removeElement(element), is(true));
+
+        try {
+            cacheAccessor.removeElement(new Element(null, null));
+            fail("Expected NPE with null key");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
     public void putMethodsDoWriteLock() throws Exception {
         Ehcache ehcache = buildMockCache();
         StronglyConsistentCacheAccessor cacheAccessor = new StronglyConsistentCacheAccessor(ehcache);
 
         String key = "test";
-        Element element = new Element(key, "test", 0);
+        Element element = new Element(key, "test");
 
         String put = "put";
         Set<Method> putMethods = getMethodsMatching(put);
@@ -95,12 +186,40 @@ public class StronglyConsistentCacheAccessorTest {
     }
 
     @Test
+    public void replaceMethodsDoWriteLock() throws Exception {
+        Ehcache ehcache = buildMockCache();
+        StronglyConsistentCacheAccessor cacheAccessor = new StronglyConsistentCacheAccessor(ehcache);
+
+        String key = "test";
+        Element element = new Element(key, "test");
+
+        Set<Method> replaceMethods = getMethodsMatching("replace");
+        for (Method replaceMethod : replaceMethods) {
+            int paramLength = replaceMethod.getParameterTypes().length;
+            Object[] params = new Object[paramLength];
+            if (Collection.class.isAssignableFrom(replaceMethod.getParameterTypes()[0])) {
+                params[0] = Collections.singleton(element);
+            } else {
+                params[0] = element;
+            }
+            if (paramLength > 1 && replaceMethod.getParameterTypes()[1].equals(Element.class)) {
+                params[1] = element;
+            }
+            System.out.println("Invoking " + replaceMethod.getName());
+            replaceMethod.invoke(cacheAccessor, params);
+            verify(ehcache).acquireWriteLockOnKey(key);
+            verify(ehcache).releaseWriteLockOnKey(key);
+            reset(ehcache);
+        }
+    }
+
+    @Test
     public void removeMethodsDoWriteLock() throws Exception {
         Ehcache ehcache = buildMockCache();
         StronglyConsistentCacheAccessor cacheAccessor = new StronglyConsistentCacheAccessor(ehcache);
 
         String key = "test";
-        Element element = new Element(key, "someValue", 0);
+        Element element = new Element(key, "someValue");
 
         String remove = "remove";
         Set<Method> removeMethods = getMethodsMatching(remove, "Property");
