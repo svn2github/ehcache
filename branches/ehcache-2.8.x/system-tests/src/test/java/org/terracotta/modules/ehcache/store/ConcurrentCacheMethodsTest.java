@@ -124,6 +124,9 @@ public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
       cache.removeAll();
       manager.removeAllCaches();
       manager.shutdown();
+      cache = null;
+      manager = null;
+      cacheManager = null;
     }
 
     private void testPutIfAbsent() {
