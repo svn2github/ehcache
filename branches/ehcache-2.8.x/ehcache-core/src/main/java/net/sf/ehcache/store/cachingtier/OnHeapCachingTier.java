@@ -177,6 +177,8 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
                         backEnd.remove(key, f);
                     } else if (backEnd.replace(key, f, value)) {
                         putObserver.end(PutOutcome.ADDED);
+                    } else {
+                      return null;
                     }
                     return value;
                 } catch (Throwable e) {
