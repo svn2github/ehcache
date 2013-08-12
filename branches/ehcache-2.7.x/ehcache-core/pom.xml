@@ -215,6 +215,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
+              <failIfNoTests>false</failIfNoTests>
               <excludes>
                 <exclude>**/*$*</exclude>
               </excludes>
