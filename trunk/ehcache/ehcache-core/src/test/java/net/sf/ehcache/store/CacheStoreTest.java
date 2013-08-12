@@ -6,6 +6,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -14,7 +15,6 @@ import net.sf.ehcache.store.cachingtier.CountBasedBackEnd;
 import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -42,7 +42,6 @@ public class CacheStoreTest {
     private static final String NAME = "idiot";
 
     @Test
-    @Ignore
     public void testGetFaultsIntoHeapFlushesOnEviction() {
         final AtomicInteger faults = new AtomicInteger();
         final AtomicInteger flushes = new AtomicInteger();
@@ -62,6 +61,7 @@ public class CacheStoreTest {
                 return true;
             }
         }));
+
         assertThat(cachingTier.get(KEY, new Callable<Element>() {
             @Override
             public Element call() throws Exception {
@@ -76,6 +76,7 @@ public class CacheStoreTest {
                 return null;
             }
         }, false), nullValue());
+
         Element element = cacheStore.get(KEY);
         assertThat(element, notNullValue());
         assertThat(element.getObjectValue(), equalTo((Object)NAME));
@@ -87,10 +88,13 @@ public class CacheStoreTest {
                 return null;
             }
         }, false), notNullValue());
+
         assertThat(cacheStore.put(new Element(KEY + KEY, NAME)), is(true));
         assertThat(faults.get(), is(1));
-        assertThat(flushes.get(), is(1));
+        assertThat(flushes.get(), is(0));
+
         element = cacheStore.get(KEY + KEY);
+        assertThat(flushes.get(), is(1));
         assertThat(cachingTier.get(KEY, new Callable<Element>() {
             @Override
             public Element call() throws Exception {
@@ -99,12 +103,12 @@ public class CacheStoreTest {
         }, false), nullValue());
         assertThat(element, notNullValue());
         assertThat(element.getObjectValue(), equalTo((Object)NAME));
-        assertThat(faults.get(), is(1));
-        assertThat(flushes.get(), is(1));
+        assertThat(faults.get(), is(2));
+        assertThat(flushes.get(), is(2));
     }
 
     private Store createMemStore(final int maxElements) {
-        CacheManager manager = new CacheManager();
+        CacheManager manager = new CacheManager(new Configuration().name("CacheStoreTest"));
         Cache cache = new Cache(new CacheConfiguration().maxEntriesLocalHeap(maxElements).name(NAME));
         manager.addCache(cache);
         try {
