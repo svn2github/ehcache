@@ -6,6 +6,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -14,8 +15,9 @@ import net.sf.ehcache.store.cachingtier.CountBasedBackEnd;
 import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -29,10 +31,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * When I wrote this, it probably made sense... now though, looking at it... wtf ?!
  * @author Alex Snaps
  */
 public class CacheStoreTest {
@@ -41,7 +46,6 @@ public class CacheStoreTest {
     private static final String NAME = "idiot";
 
     @Test
-    @Ignore
     public void testGetFaultsIntoHeapFlushesOnEviction() {
         final AtomicInteger faults = new AtomicInteger();
         final AtomicInteger flushes = new AtomicInteger();
@@ -61,6 +65,7 @@ public class CacheStoreTest {
                 return true;
             }
         }));
+
         assertThat(cachingTier.get(KEY, new Callable<Element>() {
             @Override
             public Element call() throws Exception {
@@ -75,6 +80,7 @@ public class CacheStoreTest {
                 return null;
             }
         }, false), nullValue());
+
         Element element = cacheStore.get(KEY);
         assertThat(element, notNullValue());
         assertThat(element.getObjectValue(), equalTo((Object)NAME));
@@ -86,10 +92,13 @@ public class CacheStoreTest {
                 return null;
             }
         }, false), notNullValue());
+
         assertThat(cacheStore.put(new Element(KEY + KEY, NAME)), is(true));
         assertThat(faults.get(), is(1));
-        assertThat(flushes.get(), is(1));
+        assertThat(flushes.get(), is(0));
+
         element = cacheStore.get(KEY + KEY);
+        assertThat(flushes.get(), is(1));
         assertThat(cachingTier.get(KEY, new Callable<Element>() {
             @Override
             public Element call() throws Exception {
@@ -98,12 +107,63 @@ public class CacheStoreTest {
         }, false), nullValue());
         assertThat(element, notNullValue());
         assertThat(element.getObjectValue(), equalTo((Object)NAME));
-        assertThat(faults.get(), is(1));
-        assertThat(flushes.get(), is(1));
+        assertThat(faults.get(), is(2));
+        assertThat(flushes.get(), is(2));
+    }
+
+    @Test
+    public void testFlushesEntriesOnExceptions() {
+        final CachingTier<Object, Element> cachingTier = new OnHeapCachingTier<Object, Element>(new CountBasedBackEnd<Object, Object>(1));
+        final AuthoritativeTier authoritativeTier = mock(AuthoritativeTier.class);
+        CacheStore cacheStore = new CacheStore(cachingTier, authoritativeTier);
+        Element element = new Element(KEY, NAME);
+        final RuntimeException excepted = new RuntimeException("AHA!");
+        when(authoritativeTier.putFaulted(element)).thenThrow(excepted);
+        try {
+            cacheStore.put(element);
+        } catch (RuntimeException e) {
+            assertThat(e, sameInstance(excepted));
+        }
+        verify(authoritativeTier).flush(element);
+        assertThat(cachingTier.get(element.getObjectKey(), new Callable<Element>() {
+            @Override
+            public Element call() throws Exception {
+                return null;
+            }
+        }, false), nullValue());
+    }
+
+    @Test
+    public void testFlushesOnFallBackPutThrowing() {
+        final CachingTier<Object, Element> cachingTier = new OnHeapCachingTier<Object, Element>(new CountBasedBackEnd<Object, Object>(1));
+        final AuthoritativeTier authoritativeTier = mock(AuthoritativeTier.class);
+        CacheStore cacheStore = new CacheStore(cachingTier, authoritativeTier);
+        final Element element = new Element(KEY, NAME);
+        final RuntimeException excepted = new RuntimeException("AHA!");
+        when(authoritativeTier.putFaulted(element)).then(new Answer<Boolean>() {
+            @Override
+            public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                cachingTier.remove(element.getObjectKey());
+                return true;
+            }
+        });
+        when(authoritativeTier.put(element)).thenThrow(excepted);
+        try {
+            cacheStore.put(element);
+        } catch (RuntimeException e) {
+            assertThat(e, sameInstance(excepted));
+        }
+        verify(authoritativeTier).flush(element);
+        assertThat(cachingTier.get(element.getObjectKey(), new Callable<Element>() {
+            @Override
+            public Element call() throws Exception {
+                return null;
+            }
+        }, false), nullValue());
     }
 
     private Store createMemStore(final int maxElements) {
-        CacheManager manager = new CacheManager();
+        CacheManager manager = new CacheManager(new Configuration().name("CacheStoreTest"));
         Cache cache = new Cache(new CacheConfiguration().maxEntriesLocalHeap(maxElements).name(NAME));
         manager.addCache(cache);
         try {
