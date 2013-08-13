@@ -32,6 +32,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -533,10 +534,11 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.get(i + "");
         }
         DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
-        assertThat(cache.getStatistics().getLocalHeapSize(), equalTo(10L));
-
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
-        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
+        final List<CacheEvent> cacheElementsEvicted = listener.getCacheElementsEvicted();
+        final long localHeapSize = cache.getStatistics().getLocalHeapSize();
+        assertThat(localHeapSize, equalTo(11L - cacheElementsEvicted.size()));
+        assertThat(cacheElementsEvicted.size(), lessThanOrEqualTo(2));
         assertThat(listener.getCacheElementsExpired(), hasSize(0));
     }
 
