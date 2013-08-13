@@ -601,8 +601,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
     @Test
     public void testPreSizedMemoryStore() throws Exception {
         System.setProperty(MemoryStore.class.getName() + ".presize", "true");
+        CacheManager manager = new CacheManager(new Configuration().name("testPreSizedMemoryStore"));
         try {
-            CacheManager manager = new CacheManager(new Configuration().name("testPreSizedMemoryStore"));
             Cache cache = new Cache(new CacheConfiguration().name("testPreSizedMemoryStore").maxEntriesLocalHeap(1000));
             manager.addCache(cache);
             
@@ -612,7 +612,8 @@ public class MemoryStoreTester extends AbstractCacheTest {
             
             assertThat(cache.getSize(), greaterThan(0));
         } finally {
-            System.clearProperty(MemoryStore.class.getName() + ".presize");
+          System.clearProperty(MemoryStore.class.getName() + ".presize");
+          manager.shutdown();
         }
     }
 

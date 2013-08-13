@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import net.sf.ehcache.CacheManager;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -19,6 +20,12 @@ public class EhcacheStatsImplTest {
     public static void createCache() throws Exception {
         CacheManager manager = CacheManager.getInstance();
         stats = new EhcacheStatsImpl(manager);
+    }
+
+    @AfterClass
+    public static void destroyCache() throws Exception {
+      CacheManager manager = CacheManager.getInstance();
+      manager.shutdown();
     }
 
     @Test

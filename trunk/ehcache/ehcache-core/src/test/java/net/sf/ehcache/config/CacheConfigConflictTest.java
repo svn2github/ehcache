@@ -33,7 +33,11 @@ public class CacheConfigConflictTest extends TestCase {
 
     public void testConflictingValuesFromConfig() {
         CacheManager cacheManager = new CacheManager(this.getClass().getResourceAsStream("/ehcache-conflict-eternal.xml"));
-        LOG.info("Cache names: " + Arrays.asList(cacheManager.getCacheNames()));
+        try {
+          LOG.info("Cache names: " + Arrays.asList(cacheManager.getCacheNames()));
+        } finally {
+          cacheManager.shutdown();
+        }
     }
 
     public void testConflictingValuesProgrammatic() {

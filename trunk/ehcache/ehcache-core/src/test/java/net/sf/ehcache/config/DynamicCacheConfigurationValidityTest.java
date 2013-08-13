@@ -24,7 +24,7 @@ public class DynamicCacheConfigurationValidityTest {
 
     @After
     public void cleanup() {
-      this.cacheManager.removeAllCaches();
+      this.cacheManager.shutdown();
     }
 
     @Test

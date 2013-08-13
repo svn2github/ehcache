@@ -34,7 +34,8 @@ import junit.framework.TestCase;
 @Category(CheckShorts.class)
 public class XACacheTest extends TestCase {
 
-    private volatile Cache cache;
+  public static final String XA_CACHE_TEST_CM_NAME = "__xaCacheTestCM";
+  private volatile Cache cache;
     private volatile TransactionManager txnManager;
 
 
@@ -148,7 +149,7 @@ public class XACacheTest extends TestCase {
         TransactionManagerServices.getConfiguration().setJournal("null");
         txnManager = TransactionManagerServices.getTransactionManager();
 
-        Configuration configuration = new Configuration().name("__xaCacheTestCM")
+        Configuration configuration = new Configuration().name(XA_CACHE_TEST_CM_NAME)
             .cache(new CacheConfiguration("sampleCache", 1000).transactionalMode(CacheConfiguration.TransactionalMode.XA_STRICT));
 
         final CacheManager manager = new CacheManager(configuration);
@@ -163,6 +164,10 @@ public class XACacheTest extends TestCase {
                 transactionManager.rollback();
             }
             transactionManager.shutdown();
+        }
+        CacheManager cacheManager = CacheManager.getCacheManager(XA_CACHE_TEST_CM_NAME);
+        if(cacheManager !=null) {
+            cacheManager.shutdown();
         }
     }
 }

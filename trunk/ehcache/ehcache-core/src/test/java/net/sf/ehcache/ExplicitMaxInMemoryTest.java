@@ -39,28 +39,32 @@ public class ExplicitMaxInMemoryTest extends TestCase {
         config.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES);
         CacheManager cm = new CacheManager(config);
 
-        CacheConfiguration cc = new CacheConfiguration("testCache", 0);
-        cm.addCache(new Cache(cc));
+        try {
+          CacheConfiguration cc = new CacheConfiguration("testCache", 0);
+          cm.addCache(new Cache(cc));
 
-        Cache cache = cm.getCache("testCache");
-        Assert.assertEquals(0, cache.getCacheConfiguration().getMaxEntriesLocalHeap());
+          Cache cache = cm.getCache("testCache");
+          Assert.assertEquals(0, cache.getCacheConfiguration().getMaxEntriesLocalHeap());
 
-        CountingEvictionListener countingEvictionListener = new CountingEvictionListener();
-        cache.getCacheEventNotificationService().registerListener(countingEvictionListener);
+          CountingEvictionListener countingEvictionListener = new CountingEvictionListener();
+          cache.getCacheEventNotificationService().registerListener(countingEvictionListener);
 
-        for (int i = 0; i < 20; i++) {
-            cache.put(new Element("key-" + i, new byte[MB]));
-            LOGGER.info("After put: i=" + i + ", size: " + cache.getSize() + ", sizeBytes: " + cache.getStatistics().getLocalHeapSizeInBytes());
+          for (int i = 0; i < 20; i++) {
+              cache.put(new Element("key-" + i, new byte[MB]));
+              LOGGER.info("After put: i=" + i + ", size: " + cache.getSize() + ", sizeBytes: " + cache.getStatistics().getLocalHeapSizeInBytes());
+          }
+
+          Assert.assertTrue(9 <= cache.getStatistics().getLocalHeapSize());
+          Assert.assertTrue(11 >= cache.getStatistics().getLocalHeapSize());
+
+          Assert.assertTrue(cache.getStatistics().getLocalHeapSizeInBytes() > 9 * MB);
+          Assert.assertTrue(cache.getStatistics().getLocalHeapSizeInBytes() < 11 * MB);
+
+          Assert.assertTrue(9 <= countingEvictionListener.evictionCounter.get());
+          Assert.assertTrue(11 >= countingEvictionListener.evictionCounter.get());
+        } finally {
+          cm.shutdown();
         }
-
-        Assert.assertTrue(9 <= cache.getStatistics().getLocalHeapSize());
-        Assert.assertTrue(11 >= cache.getStatistics().getLocalHeapSize());
-
-        Assert.assertTrue(cache.getStatistics().getLocalHeapSizeInBytes() > 9 * MB);
-        Assert.assertTrue(cache.getStatistics().getLocalHeapSizeInBytes() < 11 * MB);
-
-        Assert.assertTrue(9 <= countingEvictionListener.evictionCounter.get());
-        Assert.assertTrue(11 >= countingEvictionListener.evictionCounter.get());
 
     }
 

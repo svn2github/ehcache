@@ -126,13 +126,17 @@ public class MBeanRegistrationProviderTest extends AbstractCacheTest {
     public void doTestMonitoringAutodetect(boolean dsoActive, String name) throws Exception {
         File file = new File(TEST_CONFIG_DIR + "ehcache-monitoring-autodetect.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file).name(name);
-        cacheManager = new CacheManager(configuration);
-        if (dsoActive) {
-            assertSampledMBeansGroupRegistered(3);
-            assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 0);
-        } else {
-            assertSampledMBeansGroupRegistered(0);
-            assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 0);
+        CacheManager localCacheManager = new CacheManager(configuration);
+        try {
+          if (dsoActive) {
+              assertSampledMBeansGroupRegistered(3);
+              assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 0);
+          } else {
+              assertSampledMBeansGroupRegistered(0);
+              assertCacheManagerMBeansRegistered("cacheManagerAutoDetect", 0);
+          }
+        } finally {
+          localCacheManager.shutdown();
         }
     }
 

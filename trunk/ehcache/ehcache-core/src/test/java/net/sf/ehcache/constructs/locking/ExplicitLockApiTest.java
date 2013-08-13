@@ -38,10 +38,14 @@ public class ExplicitLockApiTest extends TestCase {
     private static final Logger LOG = LoggerFactory.getLogger(ExplicitLockApiTest.class);
 
     public void testExplicitLockApi() throws Exception {
-        CacheManager cm = CacheManager.create(ExplicitLockApiTest.class.getResourceAsStream("/nonstop/nonstop-config-test.xml"));
+      CacheManager cm = CacheManager.create(ExplicitLockApiTest.class.getResourceAsStream("/nonstop/nonstop-config-test.xml"));
+      try {
         Cache cache = cm.getCache("defaultConfig");
         basicCacheTest(cache);
         explicitApiTest(cache);
+      } finally {
+        cm.shutdown();
+      }
     }
 
     private void basicCacheTest(Cache cache) {

@@ -47,53 +47,58 @@ public class QueryManagerBuilderTest {
     public void testDoesNotShareStateAmongBuilds() {
         List<Ehcache> caches_for_build_1 = new ArrayList<Ehcache>();
         CacheManager cm = buildCacheManagerAndAddCaches();
-        for (String cacheName : cm.getCacheNames()) {
-            caches_for_build_1.add(cm.getCache(cacheName));
+        try {
+          for (String cacheName : cm.getCacheNames()) {
+              caches_for_build_1.add(cm.getCache(cacheName));
+          }
+
+          final QueryManagerBuilder queryManagerBuilder1 = new QueryManagerBuilder(MockQueryManager.class);
+          queryManagerBuilder1.addAllCachesCurrentlyIn(cm);
+          final QueryManager build1 = queryManagerBuilder1.build();
+
+          // assert that build1 added all caches of cm
+          for (Ehcache ehcache : caches_for_build_1) {
+              Assert.assertTrue(((MockQueryManager)build1).queryManagerEhcaches.contains(ehcache));
+          }
+
+          List<Ehcache> caches_for_build_2 = addMoreCachesToCacheManager(cm);
+
+          final QueryManagerBuilder queryManagerBuilder2 = new QueryManagerBuilder(MockQueryManager.class);
+          for (Ehcache ehcache : caches_for_build_2) {
+              queryManagerBuilder2.addCache(ehcache);
+          }
+
+          final QueryManager build2 = queryManagerBuilder2.build();
+
+          // assert that build2 contains all caches for its build
+          for (Ehcache ehcache : caches_for_build_2) {
+              Assert.assertTrue("build2 doesn't contain " + ehcache.getName(),
+                  ((MockQueryManager)build2).queryManagerEhcaches.contains(ehcache));
+          }
+
+          // assert that build1 still contains its caches
+          for (Ehcache ehcache : caches_for_build_1) {
+              Assert.assertTrue("build2 doesn't contain " + ehcache.getName(),
+                  ((MockQueryManager)build1).queryManagerEhcaches.contains(ehcache));
+          }
+
+
+          // assert that build1 doesn't have the caches from build2
+          for (Ehcache ehcache : caches_for_build_2) {
+              Assert.assertFalse("build1 shouldn't contain the cache " + ehcache.getName(),
+                  ((MockQueryManager)build1).queryManagerEhcaches.contains(ehcache));
+          }
+
+
+          // assert that build2 doesn't have the caches from build1
+          for (Ehcache ehcache : caches_for_build_1) {
+              Assert.assertFalse("build2 shouldn't contain the cache " + ehcache.getName(),
+                  ((MockQueryManager)build2).queryManagerEhcaches.contains(ehcache));
+          }
+        } finally {
+          cm.shutdown();
         }
 
-        final QueryManagerBuilder queryManagerBuilder1 = new QueryManagerBuilder(MockQueryManager.class);
-        queryManagerBuilder1.addAllCachesCurrentlyIn(cm);
-        final QueryManager build1 = queryManagerBuilder1.build();
-
-        // assert that build1 added all caches of cm
-        for (Ehcache ehcache : caches_for_build_1) {
-            Assert.assertTrue(((MockQueryManager)build1).queryManagerEhcaches.contains(ehcache));
-        }
-
-        List<Ehcache> caches_for_build_2 = addMoreCachesToCacheManager(cm);
-
-        final QueryManagerBuilder queryManagerBuilder2 = new QueryManagerBuilder(MockQueryManager.class);
-        for (Ehcache ehcache : caches_for_build_2) {
-            queryManagerBuilder2.addCache(ehcache);
-        }
-
-        final QueryManager build2 = queryManagerBuilder2.build();
-
-        // assert that build2 contains all caches for its build
-        for (Ehcache ehcache : caches_for_build_2) {
-            Assert.assertTrue("build2 doesn't contain " + ehcache.getName(),
-                ((MockQueryManager)build2).queryManagerEhcaches.contains(ehcache));
-        }
-
-        // assert that build1 still contains its caches
-        for (Ehcache ehcache : caches_for_build_1) {
-            Assert.assertTrue("build2 doesn't contain " + ehcache.getName(),
-                ((MockQueryManager)build1).queryManagerEhcaches.contains(ehcache));
-        }
-
-
-        // assert that build1 doesn't have the caches from build2
-        for (Ehcache ehcache : caches_for_build_2) {
-            Assert.assertFalse("build1 shouldn't contain the cache " + ehcache.getName(),
-                ((MockQueryManager)build1).queryManagerEhcaches.contains(ehcache));
-        }
-
-
-        // assert that build2 doesn't have the caches from build1
-        for (Ehcache ehcache : caches_for_build_1) {
-            Assert.assertFalse("build2 shouldn't contain the cache " + ehcache.getName(),
-                ((MockQueryManager)build2).queryManagerEhcaches.contains(ehcache));
-        }
     }
 
     private CacheManager buildCacheManagerAndAddCaches() {

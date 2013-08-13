@@ -23,17 +23,22 @@ public class EventReplicationTest {
     @Test
     public void testConfigFileHonorsClusteringOff() {
         final CacheManager cacheManager = new CacheManager(CacheManager.class.getResourceAsStream("/terracotta/ehcache-event-replication.xml"));
-        final Cache cache = cacheManager.getCache("replication");
-        assertThat(cache, notNullValue());
-        final TerracottaConfiguration terracottaConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration();
-        assertThat(terracottaConfiguration, notNullValue());
-        assertThat(terracottaConfiguration.isClustered(), is(false));
-        final List eventListenerConfigurations = cache.getCacheConfiguration().getCacheEventListenerConfigurations();
-        assertThat(eventListenerConfigurations, notNullValue());
-        assertThat(eventListenerConfigurations.size(), is(1));
-        assertThat(((CacheConfiguration.CacheEventListenerFactoryConfiguration)eventListenerConfigurations.get(0)).getFullyQualifiedClassPath(),
-            equalTo(TerracottaCacheEventReplicationFactory.class.getName()));
-        cache.put(new Element("key", "value"));
-        assertThat((String) cache.get("key").getValue(), equalTo("value"));
+        try{
+          final Cache cache = cacheManager.getCache("replication");
+          assertThat(cache, notNullValue());
+          final TerracottaConfiguration terracottaConfiguration = cache.getCacheConfiguration().getTerracottaConfiguration();
+          assertThat(terracottaConfiguration, notNullValue());
+          assertThat(terracottaConfiguration.isClustered(), is(false));
+          final List eventListenerConfigurations = cache.getCacheConfiguration().getCacheEventListenerConfigurations();
+          assertThat(eventListenerConfigurations, notNullValue());
+          assertThat(eventListenerConfigurations.size(), is(1));
+          assertThat(((CacheConfiguration.CacheEventListenerFactoryConfiguration)eventListenerConfigurations.get(0)).getFullyQualifiedClassPath(),
+              equalTo(TerracottaCacheEventReplicationFactory.class.getName()));
+          cache.put(new Element("key", "value"));
+          assertThat((String) cache.get("key").getValue(), equalTo("value"));
+
+        } finally {
+          cacheManager.shutdown();
+        }
     }
 }

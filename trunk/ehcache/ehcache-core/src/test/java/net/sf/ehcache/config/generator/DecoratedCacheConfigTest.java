@@ -35,8 +35,9 @@ public class DecoratedCacheConfigTest {
 
     @Test
     public void testDecoratedCacheConfig() {
-        CacheManager cm = CacheManager.newInstance(DecoratedCacheConfigTest.class.getClassLoader().getResource(
+      CacheManager cm = CacheManager.newInstance(DecoratedCacheConfigTest.class.getClassLoader().getResource(
                 "ehcache-decorator-noname-test.xml"));
+      try {
         List<String> names = new ArrayList<String>(Arrays.asList(cm.getCacheNames()));
         names.removeAll(ALL_CACHE_NAMES);
         Assert.assertEquals("This list should be empty - " + names, 0, names.size());
@@ -50,5 +51,10 @@ public class DecoratedCacheConfigTest {
             Assert.assertTrue("Config not generated for cache name: " + name + ", with explicit call: ",
                     cacheConfigTest.contains("name=\"" + name + "\""));
         }
+
+      } finally {
+        cm.shutdown();
+      }
+
     }
 }

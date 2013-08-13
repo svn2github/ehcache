@@ -21,6 +21,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 
+import net.sf.ehcache.config.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,14 +32,17 @@ public class OffheapStoreInOssTest {
 
     @Test
     public void testOffheapInOss() throws Exception {
+      Configuration config =  new Configuration();
+      CacheManager manager = new CacheManager(config);
         try {
-            CacheManager manager = CacheManager.create();
             Cache cache = new Cache(new CacheConfiguration("test", 1).overflowToOffHeap(true).maxMemoryOffHeap("1M"));
             manager.addCache(cache);
             Assert.fail();
         } catch (CacheException e) {
             // expected
             Assert.assertTrue(e.getMessage().contains("You must use an enterprise version of Ehcache"));
+        } finally {
+          manager.shutdown();
         }
     }
 }

@@ -47,6 +47,7 @@ public class AutoVersioningElementTest {
             assertEquals(cAfter.getLastUpdateTime(), cAfter.getVersion());
         } finally {
             System.getProperties().remove("net.sf.ehcache.element.version.auto");
+            CacheManager.getInstance().shutdown();
         }
     }
 }

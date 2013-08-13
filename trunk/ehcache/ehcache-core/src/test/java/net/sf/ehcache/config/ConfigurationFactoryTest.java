@@ -297,11 +297,14 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testLoadUTF8ConfigurationFromFile() throws Exception {
-
-        CacheManager cacheManager =  new CacheManager(TEST_CONFIG_DIR + "ehcacheUTF8.xml");
+      CacheManager cacheManager =  new CacheManager(TEST_CONFIG_DIR + "ehcacheUTF8.xml");
+      try{
         assertThat(cacheManager.getName(), equalTo("バーチャル"));
         assertThat(cacheManager.getCache("バーチャル　クリストファー さんは書きました:"), IsNull.notNullValue());
         assertThat(cacheManager.getConfiguration().getCacheConfigurations().size(), is(1));
+      } finally {
+        cacheManager.shutdown();
+      }
     }
 
 
