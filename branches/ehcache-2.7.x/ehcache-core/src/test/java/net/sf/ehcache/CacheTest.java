@@ -993,35 +993,57 @@ public class CacheTest extends AbstractCacheTest {
      * @throws Exception
      */
     @Test
-    public void testGetQuietAndPutQuiet() throws Exception {
-        //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
-        manager.addCache(cache);
+    public void testGetQuiet() {
+        CacheManager manager = new CacheManager(new Configuration().name("CacheTest.testGetQuiet"));
+        try {
+            Cache cache = new Cache(new CacheConfiguration().name("CacheTest.testGetQuiet").maxEntriesLocalHeap(10));
+            manager.addCache(cache);
 
-        cache.put(new Element("key1", "value1"));
-        cache.put(new Element("key2", "value1"));
+            cache.put(new Element("key", "value"));
 
-        //allow the writer thread to complete
-        Thread.sleep(200);
+            Element element1 = cache.get("key");
+            long lastAccessedElement1 = element1.getLastAccessTime();
+            assertThat(element1.getHitCount(), Is.is(1L));
+            assertThat(cache.getStatistics().cacheHitCount(), Is.is(1L));
 
-        Element element1 = cache.get("key1");
-        long lastAccessedElement1 = element1.getLastAccessTime();
-        long hitCountElement1 = element1.getHitCount();
-        assertEquals("Element-1 Hit Count", 1, hitCountElement1);
-        assertEquals("Cache Hit Count", 1L, cache.getStatistics().cacheHitCount());
+            element1 = cache.getQuiet("key");
+            assertThat(element1.getHitCount(), Is.is(1L));
+            assertThat(cache.getStatistics().cacheHitCount(), Is.is(1L));
+            assertThat(element1.getLastAccessTime(), Is.is(lastAccessedElement1));
+        } finally {
+            manager.shutdown();
+        }
+    }
 
-        element1 = cache.getQuiet("key1");
-        element1 = cache.getQuiet("key1");
-        assertEquals(1L, cache.getStatistics().cacheHitCount());
-        Element clonedElement1 = (Element) element1.clone();
-        cache.putQuiet(clonedElement1);
-        element1 = cache.getQuiet("key1");
-        assertEquals("last access time should be unchanged",
-                lastAccessedElement1, element1.getLastAccessTime());
-        assertEquals("hit count should be unchanged",
-                hitCountElement1, element1.getHitCount());
-        element1 = cache.get("key1");
-        assertEquals("Should be two", 2, element1.getHitCount());
+    @Test
+    public void testPutQuiet() {
+        CacheManager manager = new CacheManager(new Configuration().name("CacheTest.testPutQuiet"));
+        try {
+            Cache cache = new Cache(new CacheConfiguration().name("CacheTest.testPutQuiet").maxEntriesLocalHeap(10));
+            manager.addCache(cache);
+
+            Element element = new Element("key", "value");
+            long lastAccess = element.getLastAccessTime();
+            long lastUpdate = element.getLastUpdateTime();
+            long creation = element.getCreationTime();
+            long hitCount = element.getHitCount();
+            
+            cache.putQuiet(element);
+            
+            assertThat(element.getLastAccessTime(), Is.is(lastAccess));
+            assertThat(element.getLastUpdateTime(), Is.is(lastUpdate));
+            assertThat(element.getCreationTime(), Is.is(creation));
+            assertThat(element.getHitCount(), Is.is(hitCount));
+
+            Element retrieved = cache.getQuiet("key");
+
+            assertThat(retrieved.getLastAccessTime(), Is.is(lastAccess));
+            assertThat(retrieved.getLastUpdateTime(), Is.is(lastUpdate));
+            assertThat(retrieved.getCreationTime(), Is.is(creation));
+            assertThat(retrieved.getHitCount(), Is.is(hitCount));
+        } finally {
+          manager.shutdown();
+        }
     }
 
     /**
