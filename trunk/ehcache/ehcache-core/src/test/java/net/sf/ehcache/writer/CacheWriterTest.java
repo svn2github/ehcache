@@ -60,7 +60,9 @@ import net.sf.ehcache.writer.TestCacheWriterRetries.WriterEvent;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.number.OrderingComparison;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -951,6 +953,8 @@ public class CacheWriterTest {
 
     @Test
     public void testWriteBehindRetryWithDelayBatched() {
+        final int RETRIES = 1;
+
         CacheManager manager = createCacheManager();
         try {
             Cache cache = new Cache(
@@ -961,9 +965,9 @@ public class CacheWriterTest {
                                     .maxWriteDelay(1)
                                     .writeBatching(true)
                                     .writeBatchSize(10)
-                                    .retryAttempts(3)
+                                    .retryAttempts(RETRIES)
                                     .retryAttemptDelaySeconds(1)));
-            final TestCacheWriterRetries writer = new TestCacheWriterRetries(3);
+            final TestCacheWriterRetries writer = new TestCacheWriterRetries(RETRIES);
             cache.registerCacheWriter(writer);
 
             manager.addCache(cache);
@@ -972,37 +976,18 @@ public class CacheWriterTest {
 
             cache.putWithWriter(new Element("key1", "value1"));
             cache.putWithWriter(new Element("key2", "value2"));
-            cache.putWithWriter(new Element("key3", "value3"));
             cache.removeWithWriter("key2");
 
-            sleepFor(2, TimeUnit.SECONDS);
-            RetryAssert.assertBy(2, TimeUnit.SECONDS, writeEvents(writer), hasSize(4));
-            assertTrue(writer.getWriteCount().containsKey("key1"));
-            assertTrue(writer.getWriteCount().containsKey("key2"));
-            assertFalse(writer.getWriteCount().containsKey("key3"));
-            assertFalse(writer.getDeleteCount().containsKey("key1"));
-            assertFalse(writer.getDeleteCount().containsKey("key2"));
-            assertFalse(writer.getDeleteCount().containsKey("key3"));
-
-            sleepFor(2, TimeUnit.SECONDS);
-            RetryAssert.assertBy(2, TimeUnit.SECONDS, writeEvents(writer), hasSize(9));
-
-            assertEquals(4, (long) writer.getWriteCount().get("key1"));
-            assertEquals(4, (long) writer.getWriteCount().get("key2"));
-            assertEquals(1, (long) writer.getWriteCount().get("key3"));
-            assertFalse(writer.getDeleteCount().containsKey("key1"));
-            assertFalse(writer.getDeleteCount().containsKey("key2"));
-            assertFalse(writer.getDeleteCount().containsKey("key3"));
-
-            sleepFor(4, TimeUnit.SECONDS);
-            RetryAssert.assertBy(2, TimeUnit.SECONDS, writeEvents(writer), hasSize(10));
-
-            assertEquals(4, (long) writer.getWriteCount().get("key1"));
-            assertEquals(4, (long) writer.getWriteCount().get("key2"));
-            assertEquals(1, (long) writer.getWriteCount().get("key3"));
-            assertFalse(writer.getDeleteCount().containsKey("key1"));
-            assertEquals(1, (long) writer.getDeleteCount().get("key2"));
-            assertFalse(writer.getDeleteCount().containsKey("key3"));
+            RetryAssert.assertBy(30, TimeUnit.SECONDS, writeEvents(writer), hasSize(4));
+            
+            List<WriterEvent> events = writer.getWriterEvents();
+            assertThat(events.get(0).getAddedElement().getObjectKey(), Is.<Object>is("key1"));
+            
+            assertThat(events.get(1).getAddedElement().getObjectKey(), Is.<Object>is("key1"));
+            assertThat(events.get(1).getTime(), OrderingComparison.greaterThanOrEqualTo(events.get(0).getTime() + TimeUnit.SECONDS.toMillis(500)));
+            
+            assertThat(events.get(2).getAddedElement().getObjectKey(), Is.<Object>is("key2"));
+            assertThat(events.get(3).getRemovedKey(), Is.<Object>is("key2"));
         } finally {
             manager.shutdown();
         }
