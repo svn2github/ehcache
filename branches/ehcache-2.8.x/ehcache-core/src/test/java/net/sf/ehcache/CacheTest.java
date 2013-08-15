@@ -81,7 +81,6 @@ import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
 
-import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
@@ -937,21 +936,20 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testElementStatistics() throws Exception {
-        //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
-        manager.addCache(cache);
+        CacheManager manager = new CacheManager(new Configuration().name("CacheTest.testElementStatistics"));
+        try {
+            Cache cache = new Cache(new CacheConfiguration().name("CacheTest.testElementStatistics").maxEntriesLocalHeap(10));
+            manager.addCache(cache);
 
-        cache.put(new Element("key1", "value1"));
-        cache.put(new Element("key2", "value1"));
-        //allow disk write thread to catch up - MNK-2057
-        Thread.sleep(100);
+            cache.put(new Element("key", "value"));
 
-        Element element1 = cache.get("key1");
-        assertEquals("Element hit count", 1, element1.getHitCount());
-        element1 = cache.getQuiet("key1");
-        assertEquals("Element hit count", 1, element1.getHitCount());
-        element1 = cache.get("key1");
-        assertEquals("Element hit count", 2, element1.getHitCount());
+            Element element = cache.get("key");
+            assertThat(element.getHitCount(), Is.is(1L));
+            element = cache.get("key");
+            assertThat(element.getHitCount(), Is.is(2L));
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
@@ -959,32 +957,27 @@ public class CacheTest extends AbstractCacheTest {
      */
     @Test
     public void testCacheStatistics() throws Exception {
-        //Set size so the second element overflows to disk.
-        Cache cache = new Cache("test", 1, true, false, 5, 2);
-        manager.addCache(cache);
+        CacheManager manager = new CacheManager(new Configuration().name("CacheTest.testCacheStatistics"));
+        try {
+            Cache cache = new Cache(new CacheConfiguration().name("CacheTest.testCacheStatistics").maxEntriesLocalHeap(10));
+            manager.addCache(cache);
 
-        cache.put(new Element("key1", "value1"));
-        cache.put(new Element("key2", "value1"));
+            cache.put(new Element("key", "value"));
 
-        //Allow disk write thread to do it's thing...
-        Thread.sleep(100);
+            cache.get("key");
+            assertThat(cache.getStatistics().cacheHitCount(), Is.is(1L));
+            assertThat(cache.getStatistics().cacheMissCount(), Is.is(0L));
+            
+            cache.get("key");
+            assertThat(cache.getStatistics().cacheHitCount(), Is.is(2L));
+            assertThat(cache.getStatistics().cacheMissCount(), Is.is(0L));
 
-        Element element1 = cache.get("key1");
-        assertEquals("Cache hit count", 1, cache.getStatistics().cacheHitCount());
-        assertEquals("Element hit count", 1, element1.getHitCount());
-        element1 = cache.getQuiet("key1");
-        assertEquals("Cache hit count", 1, cache.getStatistics().cacheHitCount());
-        assertEquals("Element hit count", 1, element1.getHitCount());
-        element1 = cache.get("key1");
-        assertEquals("Cache hit count", 2, cache.getStatistics().cacheHitCount());
-        assertEquals("Element hit count", 2, element1.getHitCount());
-
-
-        assertEquals("Cache miss count", 0, cache.getStatistics().cacheMissCount());
-        cache.get("doesnotexist");
-        assertEquals("Cache miss count", 1, cache.getStatistics().cacheMissCount());
-
-
+            cache.get("doesnotexist");
+            assertThat(cache.getStatistics().cacheHitCount(), Is.is(2L));
+            assertThat(cache.getStatistics().cacheMissCount(), Is.is(1L));
+        } finally {
+            manager.shutdown();
+        }
     }
 
     /**
