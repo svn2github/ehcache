@@ -1496,8 +1496,9 @@ public class CacheManagerTest {
          System.getProperties().put(STATISTIC_THREAD_PROPERTY, setting);
       }
 
-      Set<Thread> initialThreads = getStatisticThreads();
-      Assert.assertThat(initialThreads, IsEmptyCollection.<Thread>empty());
+      for (Thread t : getStatisticThreads()) {
+        t.join();
+      }
 
       CacheManager[] managers=new CacheManager[cmCount];
       for(int i=0;i< cmCount;i++) {
