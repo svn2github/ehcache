@@ -161,17 +161,17 @@
     <dependency>
       <groupId>org.terracotta.test</groupId>
       <artifactId>test-framework</artifactId>
-      <version>4.1.0-SNAPSHOT</version>
+      <version>${terracotta.core.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sf.ehcache.test</groupId>
       <artifactId>hibernate-ehcache-bundle</artifactId>
-      <version>1.0</version>
+      <version>1.1</version>
     </dependency>    
     <dependency>
       <groupId>org.terracotta.test</groupId>
       <artifactId>osgi-test-utils</artifactId>
-      <version>1.0</version>
+      <version>1.1</version>
     </dependency>
   </dependencies>
 
