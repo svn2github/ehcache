@@ -25,7 +25,7 @@ public class LoaderClient extends AbstractClientBase {
 
   public LoaderClient(String[] args) {
     super(args);
-    this.specialClassPath = args[1];
+    this.specialClassPath = args[args.length - 1]; // the classpath is passed as the last argument
   }
 
   public static void main(String[] args) throws Exception {
@@ -119,6 +119,7 @@ public class LoaderClient extends AbstractClientBase {
 
   public static class Asserter implements Runnable {
 
+    @Override
     public void run() {
       CacheManager cacheManager = new CacheManager(Asserter.class.getResourceAsStream("/ehcache-config.xml"));
 
