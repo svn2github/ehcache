@@ -150,18 +150,25 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         LOG.info("Created Configurations");
 
         List<CacheManager> members = startupManagers(configurations);
-        LOG.info("Created Managers");
-        if (required.isEmpty()) {
-            waitForClusterMembership(10, TimeUnit.SECONDS, members);
-            LOG.info("Cluster Membership Complete");
-            emptyCaches(10, TimeUnit.SECONDS, members);
-            LOG.info("Caches Emptied");
-        } else {
-            waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
-            emptyCaches(10, TimeUnit.SECONDS, required, members);
+        try {
+            LOG.info("Created Managers");
+            if (required.isEmpty()) {
+                waitForClusterMembership(10, TimeUnit.SECONDS, members);
+                LOG.info("Cluster Membership Complete");
+                emptyCaches(10, TimeUnit.SECONDS, members);
+                LOG.info("Caches Emptied");
+            } else {
+                waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
+                emptyCaches(10, TimeUnit.SECONDS, required, members);
+            }
+            return members;
+        } catch (RuntimeException e) {
+            destroyCluster(members);
+            throw e;
+        } catch (Error e) {
+            destroyCluster(members);
+            throw e;
         }
-
-        return members;
     }
 
     private static void destroyCluster(List<CacheManager> members) {
