@@ -25,7 +25,7 @@ public class LoaderClient extends AbstractClientBase {
 
   public LoaderClient(String[] args) {
     super(args);
-    this.specialClassPath = args[1];
+    this.specialClassPath = args[args.length - 1];
   }
 
   public static void main(String[] args) throws Exception {
