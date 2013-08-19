@@ -116,7 +116,7 @@ public class QueryManagerImpl implements QueryManager {
 
         if (numCachesFound == 0) {
             throw new CacheException("The cache specified with the FROM clause could not be found.");
-        } else if (numCachesFound > 1 && CacheManager.ALL_CACHE_MANAGERS.size() == 1) {
+        } else if (numCachesFound > 1 && cacheManagerName == null) {
             throw new CacheException("More than one cache with the same name was found");
         } else {
             if (cacheManagerName == null) {
