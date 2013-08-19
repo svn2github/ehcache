@@ -17,6 +17,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.Query;
+import net.sf.ehcache.search.SearchException;
 
 /**
  * The Class ParseModel.
@@ -66,6 +67,10 @@ public class ParseModel {
     private boolean isCountStar = false;
 
     private String cacheName;
+
+    private String cacheManagerName;
+
+    private boolean cacheManagerNameWasAttempted = false;
 
     /**
      * Instantiates a new query parse model.
@@ -307,10 +312,23 @@ public class ParseModel {
     }
 
     public void setCacheName(String cacheName) {
-        this.cacheName = cacheName;
+        String[] tokens = cacheName.split("\\.");
+        if (tokens.length > 2) {
+            throw new SearchException("Cache manager name not specified.");
+        } else if (tokens.length == 2) {
+            this.cacheManagerName = tokens[0];
+            this.cacheName = tokens[1];
+            this.cacheManagerNameWasAttempted = true;
+        } else {
+            this.cacheName = cacheName;
+        }
     }
 
     public String getCacheName() {
         return this.cacheName;
+    }
+
+    public String getCacheManagerName() {
+        return this.cacheManagerName;
     }
 }

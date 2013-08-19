@@ -9,6 +9,9 @@ select *,key,value from foo
 select *,key from foo
 select *,value from foo
 
+// cache manager inclusion
+select * from foo.bar
+
 // really simple  where clause
 select * from foo where name = 'foo'
 select * from foo where name != 'foo'

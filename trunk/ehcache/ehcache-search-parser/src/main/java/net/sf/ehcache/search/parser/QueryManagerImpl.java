@@ -18,9 +18,13 @@ package net.sf.ehcache.search.parser;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
@@ -32,14 +36,52 @@ import net.sf.ehcache.search.query.QueryManager;
  */
 public class QueryManagerImpl implements QueryManager {
 
-    private final List<Ehcache> caches = new ArrayList<Ehcache>();
+    private final Map<CacheManager, List<Ehcache>> cacheManagerEhcacheMap = new HashMap<CacheManager, List<Ehcache>>();
 
     public QueryManagerImpl(Collection<Ehcache> ehcaches) {
-        this.caches.addAll(ehcaches);
+        CacheManager cm;
+        for (Ehcache ehcache : ehcaches) {
+            cm = ehcache.getCacheManager();
+            if (cacheManagerEhcacheMap.containsKey(cm)) {
+                cacheManagerEhcacheMap.get(cm).add(ehcache);
+            } else {
+                List<Ehcache> ehcacheList = new ArrayList<Ehcache>();
+                ehcacheList.add(ehcache);
+                cacheManagerEhcacheMap.put(cm, ehcacheList);
+            }
+        }
     }
 
     Results search(Ehcache cache, String statement) throws SearchException {
         return createQuery(cache, statement).end().execute();
+    }
+
+    @Override
+    public Query createQuery(String statement) throws SearchException {
+        Map<String, String> cacheManagerCacheNameMap = extractSearchCacheName(statement);
+        String cacheManagerName = cacheManagerCacheNameMap.values().iterator().next();
+        String cacheName = cacheManagerCacheNameMap.keySet().iterator().next();
+        if (cacheManagerCacheNameMap.size() == 0) {
+            throw new SearchException("Please specify the cache's name with the FROM clause.");
+        } else {
+            return createQuery(getCache(cacheName, cacheManagerName), statement);
+        }
+    }
+
+    // returns a map of cache name and cache manager name
+    Map<String, String> extractSearchCacheName(String statement) throws SearchException {
+        EhcacheSearchParser parser = new EhcacheSearchParser(new StringReader(statement));
+        ParseModel model = null;
+        try {
+            model = parser.QueryStatement();
+        } catch (ParseException p) {
+            throw new SearchException(p);
+        }
+        Map<String, String> retMap = new HashMap<String, String>();
+        String cacheName = model.getCacheName();
+        String cacheManagerName = model.getCacheManagerName();
+        retMap.put(cacheName, cacheManagerName);
+        return retMap;
     }
 
     private Query createQuery(Ehcache cache, String statement) throws SearchException {
@@ -53,47 +95,44 @@ public class QueryManagerImpl implements QueryManager {
         return model.getQuery(cache);
     }
 
-    public Query createQuery(String statement) throws SearchException {
-        String cacheName = extractSearchCacheName(statement);
-        if (cacheName == null) {
-            throw new SearchException("Please specify the cache's name with the FROM clause.");
-        } else {
-            return createQuery(getCache(cacheName), statement);
-        }
-    }
-
-    String extractSearchCacheName(String statement) throws SearchException {
-        EhcacheSearchParser parser = new EhcacheSearchParser(new StringReader(statement));
-        ParseModel model = null;
-        try {
-            model = parser.QueryStatement();
-        } catch (ParseException p) {
-            throw new SearchException(p);
-        }
-        return model.getCacheName();
-    }
-
-    String extractCacheManagerName(String statement) throws SearchException {
-        // TODO: implement this method
-        return null;
-    }
-
-    private Ehcache getCache(String cacheName) throws CacheException {
+    private Ehcache getCache(String cacheName, String cacheManagerName) throws CacheException {
         Ehcache cache = null;
+        List<Ehcache> foundCaches = new ArrayList<Ehcache>();
         int numCachesFound = 0;
-        for (Ehcache c : caches) {
-            if (c.getName().equals(cacheName)) {
-                numCachesFound++;
-                cache = c;
+
+        Iterator<Ehcache> ehcacheIterator;
+        for (List<Ehcache> ehcacheList : cacheManagerEhcacheMap.values()) {
+            ehcacheIterator = ehcacheList.iterator();
+            Ehcache c;
+            while (ehcacheIterator.hasNext()) {
+                c = ehcacheIterator.next();
+                if (c.getName().equals(cacheName)) {
+                    numCachesFound++;
+                    cache = c;
+                    foundCaches.add(c);
+                }
             }
         }
+
         if (numCachesFound == 0) {
             throw new CacheException("The cache specified with the FROM clause could not be found.");
-        } else if (numCachesFound > 1) {
+        } else if (numCachesFound > 1 && CacheManager.ALL_CACHE_MANAGERS.size() == 1) {
             throw new CacheException("More than one cache with the same name was found");
         } else {
-            return cache;
+            if (cacheManagerName == null) {
+                return cache;
+            } else {
+                for (Ehcache ehcache : foundCaches) {
+                    if (ehcache.getCacheManager().getName().equals(cacheManagerName)) {
+                        return ehcache;
+                    }
+                }
+                throw new CacheException("Cache with the name " + cacheName +
+                                         " was not found in " + cache.getCacheManager().getName()
+                                         + " , Expected cache manager name = " + cacheManagerName);
+            }
         }
     }
-
 }
+
+

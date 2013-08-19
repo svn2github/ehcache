@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import net.sf.ehcache.Cache;
@@ -403,6 +404,8 @@ public class EhcachSearchParseTest {
 
     private Cache getCache(String st) {
         QueryManagerImpl queryParser = new QueryManagerImpl(ehcaches);
-        return cacheManager.getCache(queryParser.extractSearchCacheName(st));
+        Map<String, String> m = queryParser.extractSearchCacheName(st);
+        String cacheName = m.keySet().iterator().next();
+        return cacheManager.getCache(cacheName);
     }
 }
