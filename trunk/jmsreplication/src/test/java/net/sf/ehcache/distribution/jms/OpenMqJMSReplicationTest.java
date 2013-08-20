@@ -57,6 +57,8 @@ import java.util.logging.Logger;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 
+import static net.sf.ehcache.distribution.jms.AbstractJMSReplicationTest.SAMPLE_CACHE_ASYNC;
+
 /**
  * Run the tests using Open MQ
  * The create_administered_objects needs to have been run first
@@ -144,273 +146,309 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
     @Test
     public void testNonCachePublisherElementMessagePut() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherElementMessagePut", 2);
+        try {
+            Element payload = new Element("1234", "dog");
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        Element payload = new Element("1234", "dog");
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        ObjectMessage message = publisherSession.createObjectMessage(payload);
-        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-        message.setStringProperty(KEY_PROPERTY, "ignore");
+            ObjectMessage message = publisherSession.createObjectMessage(payload);
+            message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
+            message.setStringProperty(KEY_PROPERTY, "ignore");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsEqual.equalTo(payload));
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsEqual.equalTo(payload));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsEqual.equalTo(payload));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsEqual.equalTo(payload));
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherObjectMessagePut() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherObjectMessagePut", 2);
+        try {
+            String payload = "this is an object";
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        String payload = "this is an object";
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        ObjectMessage message = publisherSession.createObjectMessage(payload);
-        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            ObjectMessage message = publisherSession.createObjectMessage(payload);
+            message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.valueAt(manager1.getCache("sampleCacheAsync"), "1234"), IsEqual.<Object>equalTo(payload));
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.valueAt(manager2.getCache("sampleCacheAsync"), "1234"), IsEqual.<Object>equalTo(payload));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.valueAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsEqual.<Object>equalTo(payload));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.valueAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsEqual.<Object>equalTo(payload));
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
 
     @Test
     public void testNonCachePublisherByteMessagePut() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherByteMessagePut", 1);
+        try {
+            byte[] bytes = new byte[]{0x34, (byte) 0xe3, (byte) 0x88};
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        byte[] bytes = new byte[]{0x34, (byte) 0xe3, (byte) 0x88};
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        BytesMessage message = publisherSession.createBytesMessage();
-        message.writeBytes(bytes);
-        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        message.setStringProperty(MIME_TYPE_PROPERTY, "application/x-greg");
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            BytesMessage message = publisherSession.createBytesMessage();
+            message.writeBytes(bytes);
+            message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            message.setStringProperty(MIME_TYPE_PROPERTY, "application/x-greg");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
-        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
-        assertEquals("application/x-greg", payload.getMimeType());
-        assertEquals(new String(bytes), new String(payload.getValue()));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.notNullValue());
+            MimeTypeByteArray payload = ((MimeTypeByteArray) cluster.get(0).getCache(SAMPLE_CACHE_ASYNC).get("1234").getObjectValue());
+            assertEquals("application/x-greg", payload.getMimeType());
+            assertEquals(new String(bytes), new String(payload.getValue()));
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherByteMessageNoMimeTypePut() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherByteMessageNoMimeTypePut", 1);
+        try {
+            byte[] bytes = "these are bytes".getBytes();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        byte[] bytes = "these are bytes".getBytes();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        BytesMessage message = publisherSession.createBytesMessage();
-        message.writeBytes(bytes);
-        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-//        message.setStringProperty(MIME_TYPE_PROPERTY, "application/octet-stream");
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            BytesMessage message = publisherSession.createBytesMessage();
+            message.writeBytes(bytes);
+            message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+    //        message.setStringProperty(MIME_TYPE_PROPERTY, "application/octet-stream");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
-        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
-        assertEquals("application/octet-stream", payload.getMimeType());
-        assertEquals(new String(bytes), new String(payload.getValue()));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.notNullValue());
+            MimeTypeByteArray payload = ((MimeTypeByteArray) cluster.get(0).getCache(SAMPLE_CACHE_ASYNC).get("1234").getObjectValue());
+            assertEquals("application/octet-stream", payload.getMimeType());
+            assertEquals(new String(bytes), new String(payload.getValue()));
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
 
     @Test
     public void testNonCachePublisherTextMessagePut() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherTextMessagePut", 1);
+        try {
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            String value = "<?xml version=\"1.0\"?>\n" +
+                    "<oldjoke>\n" +
+                    "<burns>Say <quote>goodnight</quote>,\n" +
+                    "Gracie.</burns>\n" +
+                    "<allen><quote>Goodnight, \n" +
+                    "Gracie.</quote></allen>\n" +
+                    "<applause/>\n" +
+                    "</oldjoke>";
 
-        String value = "<?xml version=\"1.0\"?>\n" +
-                "<oldjoke>\n" +
-                "<burns>Say <quote>goodnight</quote>,\n" +
-                "Gracie.</burns>\n" +
-                "<allen><quote>Goodnight, \n" +
-                "Gracie.</quote></allen>\n" +
-                "<applause/>\n" +
-                "</oldjoke>";
-
-        TextMessage message = publisherSession.createTextMessage(value);
-        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        message.setStringProperty(MIME_TYPE_PROPERTY, "text/x-greg");
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            TextMessage message = publisherSession.createTextMessage(value);
+            message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            message.setStringProperty(MIME_TYPE_PROPERTY, "text/x-greg");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
-        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
-        assertEquals("text/x-greg", payload.getMimeType());
-        assertEquals(value, new String(payload.getValue()));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.notNullValue());
+            MimeTypeByteArray payload = ((MimeTypeByteArray) cluster.get(0).getCache(SAMPLE_CACHE_ASYNC).get("1234").getObjectValue());
+            assertEquals("text/x-greg", payload.getMimeType());
+            assertEquals(value, new String(payload.getValue()));
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherTextMessageNoMimeTypePut() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherTextMessageNoMimeTypePut", 1);
+        try {
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        String value = "this is a string";
-        TextMessage message = publisherSession.createTextMessage(value);
-        message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-//        message.setStringProperty(MIME_TYPE_PROPERTY, "text/plain");
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            String value = "this is a string";
+            TextMessage message = publisherSession.createTextMessage(value);
+            message.setStringProperty(ACTION_PROPERTY, Action.PUT.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+    //        message.setStringProperty(MIME_TYPE_PROPERTY, "text/plain");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
-        MimeTypeByteArray payload = ((MimeTypeByteArray) manager1.getCache("sampleCacheAsync").get("1234").getObjectValue());
-        assertEquals("text/plain", payload.getMimeType());
-        assertEquals(value, new String(payload.getValue()));
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.notNullValue());
+            MimeTypeByteArray payload = ((MimeTypeByteArray) cluster.get(0).getCache(SAMPLE_CACHE_ASYNC).get("1234").getObjectValue());
+            assertEquals("text/plain", payload.getMimeType());
+            assertEquals(value, new String(payload.getValue()));
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
 
     @Test
     public void testNonCachePublisherObjectMessageRemove() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherObjectMessageRemove", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            ObjectMessage message = publisherSession.createObjectMessage();
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
 
-        ObjectMessage message = publisherSession.createObjectMessage();
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherBytesMessageRemove() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherBytesMessageRemove", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            BytesMessage message = publisherSession.createBytesMessage();
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
 
-        BytesMessage message = publisherSession.createBytesMessage();
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherTextMessageRemove() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherTextMessageRemove", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            TextMessage message = publisherSession.createTextMessage();
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
 
-        TextMessage message = publisherSession.createTextMessage();
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
 
@@ -419,136 +457,156 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
      */
     @Test
     public void testNonCachePublisherElementMessageRemove() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherElementMessageRemove", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            ObjectMessage message = publisherSession.createObjectMessage(new Element("ignored", "dog"));
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
 
-        ObjectMessage message = publisherSession.createObjectMessage(new Element("ignored", "dog"));
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherObjectMessageRemoveAll() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherObjectMessageRemoveAll", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            ObjectMessage message = publisherSession.createObjectMessage();
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
 
-        ObjectMessage message = publisherSession.createObjectMessage();
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            connection.stop();
 
-        connection.stop();
-
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherElementMessageRemoveAll() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherElementMessageRemoveAll", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            ObjectMessage message = publisherSession.createObjectMessage(new Element("1", "dog"));
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
 
-        ObjectMessage message = publisherSession.createObjectMessage(new Element("1", "dog"));
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-
-        message.setStringProperty(KEY_PROPERTY, "1234");
+            message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherTextMessageRemoveAll() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherTextMessageRemoveAll", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        TextMessage message = publisherSession.createTextMessage();
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+            TextMessage message = publisherSession.createTextMessage();
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     @Test
     public void testNonCachePublisherBytesMessageRemoveAll() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherBytesMessageRemoveAll", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-
-        BytesMessage message = publisherSession.createBytesMessage();
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
+            BytesMessage message = publisherSession.createBytesMessage();
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE_ALL.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
 
@@ -557,18 +615,22 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
      */
     @Test
     public void testNonCachePublisherPropertiesNotSet() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherPropertiesNotSet", 1);
+        try {
+            Element payload = new Element("1234", "dog");
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        Element payload = new Element("1234", "dog");
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            ObjectMessage message = publisherSession.createObjectMessage(payload);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        ObjectMessage message = publisherSession.createObjectMessage(payload);
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
-
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache(cacheName), "1234"), IsNull.nullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
 
@@ -578,33 +640,37 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
      */
     @Test
     public void testNonCachePublisherElementMessageRemoveNoKey() throws JMSException, InterruptedException {
+        List<CacheManager> cluster = createCluster("testNonCachePublisherElementMessageRemoveNoKey", 2);
+        try {
+            //make sure there is an element
+            testNonCachePublisherElementMessagePut();
+            TopicConnection connection = getMQConnection();
+            connection.start();
 
-        //make sure there is an element
-        testNonCachePublisherElementMessagePut();
-        TopicConnection connection = getMQConnection();
-        connection.start();
+            TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        TopicSession publisherSession = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+            ObjectMessage message = publisherSession.createObjectMessage();
+            message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
+            message.setStringProperty(CACHE_NAME_PROPERTY, SAMPLE_CACHE_ASYNC);
+            //don't set. Should work.
+            //message.setStringProperty(MIME_TYPE_PROPERTY, null);
+            //should work. Key should be ignored when sending an element.
 
-        ObjectMessage message = publisherSession.createObjectMessage();
-        message.setStringProperty(ACTION_PROPERTY, Action.REMOVE.name());
-        message.setStringProperty(CACHE_NAME_PROPERTY, "sampleCacheAsync");
-        //don't set. Should work.
-        //message.setStringProperty(MIME_TYPE_PROPERTY, null);
-        //should work. Key should be ignored when sending an element.
-
-        //won't work because key not set
-//        message.setStringProperty(KEY_PROPERTY, "1234");
+            //won't work because key not set
+    //        message.setStringProperty(KEY_PROPERTY, "1234");
 
 
-        Topic topic = publisherSession.createTopic("EhcacheTopicDest");
-        TopicPublisher publisher = publisherSession.createPublisher(topic);
-        publisher.send(message);
+            Topic topic = publisherSession.createTopic("EhcacheTopicDest");
+            TopicPublisher publisher = publisherSession.createPublisher(topic);
+            publisher.send(message);
 
-        connection.stop();
+            connection.stop();
 
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager1.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
-        RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(manager2.getCache("sampleCacheAsync"), "1234"), IsNull.notNullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(0).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.notNullValue());
+            RetryAssert.assertBy(1, TimeUnit.SECONDS, RetryAssert.elementAt(cluster.get(1).getCache(SAMPLE_CACHE_ASYNC), "1234"), IsNull.notNullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
 
     /**
@@ -627,59 +693,60 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
     @Ignore
     @Test
     public void testGetConcurrent() throws Exception {
+        List<CacheManager> cluster = createCluster("testGetConcurrent", 2);
+        try {
+            final long maxTime = 5000;
 
-        final long maxTime = 5000;
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
+            Thread.sleep(2000);
 
-        Thread.sleep(2000);
-
-        final Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        final Ehcache cache2 = manager2.getCache("sampleCacheNorep");
+            final Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            final Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_NOREP);
 
 
-        long start = System.currentTimeMillis();
-        final List executables = new ArrayList();
-        final Random random = new Random();
+            long start = System.currentTimeMillis();
+            final List executables = new ArrayList();
+            final Random random = new Random();
 
 
-        //some of the time get data
-        for (int i = 0; i < 50; i++) {
-            final int i1 = i;
-            final TestUtil.Executable executable = new TestUtil.Executable() {
-                public void execute() throws Exception {
+            //some of the time get data
+            for (int i = 0; i < 50; i++) {
+                final int i1 = i;
+                final TestUtil.Executable executable = new TestUtil.Executable() {
+                    public void execute() throws Exception {
 
 
-                    final Serializable key = "" + i1;
-                    final Serializable value = new Date();
-                    Element element = new Element(key, i1);
+                        final Serializable key = "" + i1;
+                        final Serializable value = new Date();
+                        Element element = new Element(key, i1);
 
-                    //Put
-                    cache1.put(element);
-                    Thread.sleep(1050);
+                        //Put
+                        cache1.put(element);
+                        Thread.sleep(1050);
 
-                    //Should load from cache1
-                    for (int i = 0; i < 20; i++) {
-                        final TestUtil.StopWatch stopWatch = new TestUtil.StopWatch();
-                        long start = stopWatch.getElapsedTime();
-                        Element element2 = cache2.getWithLoader(key, null, null);
-                        assertEquals(i1, element2.getValue());
-                        cache2.remove(key);
-                        long end = stopWatch.getElapsedTime();
-                        long elapsed = end - start;
-                        assertTrue("Get time outside of allowed time: " + elapsed, elapsed < maxTime);
+                        //Should load from cache1
+                        for (int i = 0; i < 20; i++) {
+                            final TestUtil.StopWatch stopWatch = new TestUtil.StopWatch();
+                            long start = stopWatch.getElapsedTime();
+                            Element element2 = cache2.getWithLoader(key, null, null);
+                            assertEquals(i1, element2.getValue());
+                            cache2.remove(key);
+                            long end = stopWatch.getElapsedTime();
+                            long elapsed = end - start;
+                            assertTrue("Get time outside of allowed time: " + elapsed, elapsed < maxTime);
+                        }
+
                     }
+                };
+                executables.add(executable);
+            }
 
-                }
-            };
-            executables.add(executable);
+
+            TestUtil.runThreads(executables);
+            long end = System.currentTimeMillis();
+            LOG.info("Total time for the test: " + (end - start) + " ms");
+        } finally {
+            destroyCluster(cluster);
         }
-
-
-        TestUtil.runThreads(executables);
-        long end = System.currentTimeMillis();
-        LOG.info("Total time for the test: " + (end - start) + " ms");
     }
 
 
@@ -695,31 +762,33 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
     @Ignore
     @Test
     public void testGetStability() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
+        List<CacheManager> cluster = createCluster("testGetStability", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_NOREP);
 
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
+            Serializable key = "1";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
 
-        //Put
-        cache1.put(element);
-        long version = element.getVersion();
-        Thread.sleep(1050);
+            //Put
+            cache1.put(element);
+            long version = element.getVersion();
+            Thread.sleep(1050);
 
 
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
+            //Should not have been replicated to cache2.
+            Element element2 = cache2.get(key);
+            assertEquals(null, element2);
 
-        //Should load from cache1
-        for (int i = 0; i < 1000; i++) {
-            element2 = cache2.getWithLoader(key, null, null);
-            assertEquals(value, element2.getValue());
-            cache2.remove(key);
+            //Should load from cache1
+            for (int i = 0; i < 1000; i++) {
+                element2 = cache2.getWithLoader(key, null, null);
+                assertEquals(value, element2.getValue());
+                cache2.remove(key);
+            }
+        } finally {
+            destroyCluster(cluster);
         }
     }
 
@@ -732,36 +801,38 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
     @Ignore
     @Test
     public void testGetMessageQueueFailure() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
+        List<CacheManager> cluster = createCluster("testGetMessageQueueFailure", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            Ehcache cache2 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
 
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
+            Serializable key = "1";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
 
-        //Put
-        cache1.put(element);
-        long version = element.getVersion();
-        Thread.sleep(1050);
+            //Put
+            cache1.put(element);
+            long version = element.getVersion();
+            Thread.sleep(1050);
 
 
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
+            //Should not have been replicated to cache2.
+            Element element2 = cache2.get(key);
+            assertEquals(null, element2);
 
-        //Should load from cache1
-        for (int i = 0; i < 1000; i++) {
-            Thread.sleep(2000);
-            try {
-                element2 = cache2.getWithLoader(key, null, null);
-            } catch (CacheException e) {
-                e.printStackTrace();
+            //Should load from cache1
+            for (int i = 0; i < 1000; i++) {
+                Thread.sleep(2000);
+                try {
+                    element2 = cache2.getWithLoader(key, null, null);
+                } catch (CacheException e) {
+                    e.printStackTrace();
+                }
+                assertEquals(value, element2.getValue());
+                cache2.remove(key);
             }
-            assertEquals(value, element2.getValue());
-            cache2.remove(key);
+        } finally {
+            destroyCluster(cluster);
         }
     }
 
@@ -775,20 +846,24 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
      */
     @Test
     public void testGetNull() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
+        List<CacheManager> cluster = createCluster("testGetNull", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_NOREP);
 
-        Serializable key = "1";
+            Serializable key = "1";
 
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
+            //Should not have been replicated to cache2.
+            Element element2 = cache2.get(key);
+            assertEquals(null, element2);
 
-        //Should load from cache1
-        for (int i = 0; i < 100; i++) {
-            Element element = cache2.getWithLoader(key, null, null);
-            assertNull("" + element2, element2);
+            //Should load from cache1
+            for (int i = 0; i < 100; i++) {
+                Element element = cache2.getWithLoader(key, null, null);
+                assertNull("" + element2, element2);
+            }
+        } finally {
+            destroyCluster(cluster);
         }
     }
 
@@ -803,28 +878,25 @@ public class OpenMqJMSReplicationTest extends AbstractJMSReplicationTest {
 
     @Test
     public void testOneWayReplicate() throws Exception {
-
-        //CacheManagers 1 - 4 just complicate this test. 
-        tearDown();
-
         URL nonListeningConfigurationFile = OpenMqJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-nonlistening-jms-openmq.xml");
         URL listeningConfigurationFile = OpenMqJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-jms-openmq.xml");
 
-        CacheManager managerA = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfigurationFile).name("managerA"));
-        CacheManager managerB = new CacheManager(ConfigurationFactory.parseConfiguration(listeningConfigurationFile).name("managerB"));
-        CacheManager managerC = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfigurationFile).name("managerC"));
+        CacheManager managerA = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfigurationFile).name("testOneWayReplicateA"));
+        CacheManager managerB = new CacheManager(ConfigurationFactory.parseConfiguration(listeningConfigurationFile).name("testOneWayReplicateB"));
+        CacheManager managerC = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfigurationFile).name("testOneWayReplicateC"));
+        try {
+            Thread.sleep(5000);
 
-        Thread.sleep(5000);
+            Element element = new Element("1", "value");
+            managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
 
-        Element element = new Element("1", "value");
-        managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
-
-        RetryAssert.assertBy(4, TimeUnit.SECONDS, RetryAssert.elementAt(managerA.getCache(SAMPLE_CACHE_ASYNC), "1"), IsNull.notNullValue());
-        RetryAssert.assertBy(4, TimeUnit.SECONDS, RetryAssert.elementAt(managerB.getCache(SAMPLE_CACHE_ASYNC), "1"), IsNull.notNullValue());
-        assertNull("Element 1 should be null because CacheManager C should not be listening", managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
-
-        managerA.shutdown();
-        managerB.shutdown();
-        managerC.shutdown();
+            RetryAssert.assertBy(4, TimeUnit.SECONDS, RetryAssert.elementAt(managerA.getCache(SAMPLE_CACHE_ASYNC), "1"), IsNull.notNullValue());
+            RetryAssert.assertBy(4, TimeUnit.SECONDS, RetryAssert.elementAt(managerB.getCache(SAMPLE_CACHE_ASYNC), "1"), IsNull.notNullValue());
+            assertNull("Element 1 should be null because CacheManager C should not be listening", managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
+        } finally {
+            managerA.shutdown();
+            managerB.shutdown();
+            managerC.shutdown();
+        }
     }
 }

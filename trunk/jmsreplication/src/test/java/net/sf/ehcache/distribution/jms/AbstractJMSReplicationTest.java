@@ -1,15 +1,17 @@
 package net.sf.ehcache.distribution.jms;
 
 import static net.sf.ehcache.distribution.jms.TestUtil.forceVMGrowth;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,52 +23,32 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.ConfigurationFactory;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public abstract class AbstractJMSReplicationTest {
 
-    private static final int NBR_ELEMENTS = 100;
-  
     protected static final String SAMPLE_CACHE_ASYNC = "sampleCacheAsync";
     protected static final String SAMPLE_CACHE_SYNC = "sampleCacheSync";
-    private static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
-    private static final String SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP = "sampleJMSReplicateRMIBootstrap";
+    protected static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
+    protected static final String SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP = "sampleJMSReplicateRMIBootstrap";
   
     private static final Logger LOG = Logger.getLogger(AbstractJMSReplicationTest.class.getName());
   
-    String cacheName;
-  
-    protected CacheManager manager1, manager2, manager3, manager4;
-  
     protected abstract URL getConfiguration();
   
-    @Before
-    public void setUp() throws Exception {
-  
-        manager1 = new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("manager1"));
-        manager2 = new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("manager2"));
-        manager3 = new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("manager3"));
-        manager4 = new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("manager4"));
-        cacheName = SAMPLE_CACHE_ASYNC;
+    public List<CacheManager> createCluster(String rootManagerName, int members) throws InterruptedException {
+        List<CacheManager> managers = new ArrayList<CacheManager>(members);
+        for (int i = 0; i < members; i++) {
+            managers.add(new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name(rootManagerName + i)));
+        }
         Thread.sleep(200);
+        return managers;
     }
   
-    @After
-    public void tearDown() throws Exception {
-        if (manager1 != null) {
-            manager1.shutdown();
-        }
-        if (manager2 != null) {
-            manager2.shutdown();
-        }
-        if (manager3 != null) {
-            manager3.shutdown();
-        }
-        if (manager4 != null) {
-            manager4.shutdown();
+    public void destroyCluster(List<CacheManager> cluster) throws InterruptedException {
+        for (CacheManager manager : cluster) {
+            manager.shutdown();
         }
         Thread.sleep(20);
     }
@@ -74,14 +56,12 @@ public abstract class AbstractJMSReplicationTest {
   
     @Test
     public void testBasicReplicationAsynchronous() throws Exception {
-        cacheName = SAMPLE_CACHE_ASYNC;
-        basicReplicationTest();
+        basicReplicationTest(SAMPLE_CACHE_ASYNC);
     }
   
     @Test
     public void testBasicReplicationSynchronous() throws Exception {
-        cacheName = SAMPLE_CACHE_SYNC;
-        basicReplicationTest();
+        basicReplicationTest(SAMPLE_CACHE_SYNC);
     }
   
     @Test
@@ -91,103 +71,85 @@ public abstract class AbstractJMSReplicationTest {
   
     @Test
     public void testCASOperationsNotSupported() throws Exception {
-        LOG.info("START TEST");
-  
-        final Ehcache cache1 = manager1.getEhcache(cacheName);
-        final Ehcache cache2 = manager2.getEhcache(cacheName);
-        final Ehcache cache3 = manager3.getEhcache(cacheName);
-        final Ehcache cache4 = manager4.getEhcache(cacheName);
-        
+        final CacheManager manager = new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("testCASOperationsNotSupported"));
         try {
-            cache1.putIfAbsent(new Element("foo", "poo"));
-            throw new AssertionError("CAS operation should have failed.");
-        } catch (CacheException ce) {
-            assertEquals(true, ce.getMessage().contains("CAS"));
+            final Ehcache cache = manager.getEhcache(SAMPLE_CACHE_ASYNC);
+
+            try {
+                cache.putIfAbsent(new Element("foo", "poo"));
+                throw new AssertionError("CAS operation should have failed.");
+            } catch (CacheException ce) {
+                assertTrue(ce.getMessage().contains("CAS"));
+            }
+
+            try {
+                cache.removeElement(new Element("foo", "poo"));
+                throw new AssertionError("CAS operation should have failed.");
+            } catch (CacheException ce) {
+                assertTrue(ce.getMessage().contains("CAS"));
+            }
+
+            try {
+                cache.replace(new Element("foo", "poo"));
+                throw new AssertionError("CAS operation should have failed.");
+            } catch (CacheException ce) {
+                assertTrue(ce.getMessage().contains("CAS"));
+            }
+
+            try {
+                cache.replace(new Element("foo", "poo"), new Element("foo", "poo2"));
+                throw new AssertionError("CAS operation should have failed.");
+            } catch (CacheException ce) {
+                assertTrue(ce.getMessage().contains("CAS"));
+            }
+        } finally {
+            manager.shutdown();
         }
-  
-        try {
-            cache2.removeElement(new Element("foo", "poo"));
-            throw new AssertionError("CAS operation should have failed.");
-        } catch (CacheException ce) {
-            assertEquals(true, ce.getMessage().contains("CAS"));
-        }
-  
-        try {
-            cache3.replace(new Element("foo", "poo"));
-            throw new AssertionError("CAS operation should have failed.");
-        } catch (CacheException ce) {
-            assertEquals(true, ce.getMessage().contains("CAS"));
-        }
-  
-        try {
-            cache4.replace(new Element("foo", "poo"), new Element("foo", "poo2"));
-            throw new AssertionError("CAS operation should have failed.");
-        } catch (CacheException ce) {
-            assertEquals(true, ce.getMessage().contains("CAS"));
-        }
-  
-        LOG.info("END TEST");
     }
     
-    public void basicReplicationTest() throws Exception {
+    public void basicReplicationTest(String cacheName) throws Exception {
+        final int NBR_ELEMENTS = 100;
   
-        //put
-        for (int i = 0; i < NBR_ELEMENTS; i++) {
-            manager1.getCache(cacheName).put(new Element(i, "testdat"));
+        List<CacheManager> cluster = createCluster("basicReplicationTest," + cacheName, 4);
+        try {
+            //put
+            for (int i = 0; i < NBR_ELEMENTS; i++) {
+                cluster.get(0).getCache(cacheName).put(new Element(i, "testdat"));
+            }
+            Thread.sleep(3000);
+
+            for (CacheManager manager : cluster) {
+                assertThat(manager.getName() + "." + cacheName, manager.getCache(cacheName).getKeys().size(), is(NBR_ELEMENTS));
+            }
+
+            //update via copy
+            for (int i = 0; i < NBR_ELEMENTS; i++) {
+                cluster.get(0).getCache(cacheName).put(new Element(i, "testdat"));
+            }
+            Thread.sleep(3000);
+
+            for (CacheManager manager : cluster) {
+                assertThat(manager.getName() + "." + cacheName, manager.getCache(cacheName).getKeys().size(), is(NBR_ELEMENTS));
+            }
+
+            //remove
+            cluster.get(0).getCache(cacheName).remove(0);
+            Thread.sleep(1010);
+
+            for (CacheManager manager : cluster) {
+                assertThat(manager.getName() + "." + cacheName, manager.getCache(cacheName).getKeys().size(), is(NBR_ELEMENTS - 1));
+            }
+
+            //removeall
+            cluster.get(0).getCache(cacheName).removeAll();
+            Thread.sleep(1010);
+
+            for (CacheManager manager : cluster) {
+                assertThat(manager.getName() + "." + cacheName, manager.getCache(cacheName).getKeys().size(), is(0));
+            }
+        } finally {
+            destroyCluster(cluster);
         }
-        Thread.sleep(3000);
-  
-        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
-                + " " + manager3.getCache(cacheName).getKeys().size()
-                + " " + manager4.getCache(cacheName).getKeys().size());
-  
-        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == NBR_ELEMENTS);
-  
-        //update via copy
-        for (int i = 0; i < NBR_ELEMENTS; i++) {
-            manager1.getCache(cacheName).put(new Element(i, "testdat"));
-        }
-        Thread.sleep(3000);
-  
-        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
-                + " " + manager3.getCache(cacheName).getKeys().size()
-                + " " + manager4.getCache(cacheName).getKeys().size());
-  
-        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == NBR_ELEMENTS);
-  
-  
-        //remove
-        manager1.getCache(cacheName).remove(0);
-        Thread.sleep(1010);
-  
-        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
-                + " " + manager3.getCache(cacheName).getKeys().size()
-                + " " + manager4.getCache(cacheName).getKeys().size());
-  
-        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == NBR_ELEMENTS - 1);
-  
-        //removeall
-        manager1.getCache(cacheName).removeAll();
-        Thread.sleep(1010);
-  
-        LOG.info(manager1.getCache(cacheName).getKeys().size() + "  " + manager2.getCache(cacheName).getKeys().size()
-                + " " + manager3.getCache(cacheName).getKeys().size()
-                + " " + manager4.getCache(cacheName).getKeys().size());
-  
-        assertTrue(manager1.getCache(cacheName).getKeys().size() == manager2.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager3.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == manager4.getCache(cacheName).getKeys().size() &&
-                manager1.getCache(cacheName).getKeys().size() == 0);
-  
     }
   
   
@@ -216,8 +178,28 @@ public abstract class AbstractJMSReplicationTest {
   
     @Test
     public void testContinuous() throws Exception {
-        for (int i = 0; i < 10; i++) {
-            testAddManager();
+        List<CacheManager> cluster = createCluster("testContinuous", 4);
+        try {
+            for (int i = 0; i < 10; i++) {
+                assertThat(cluster.get(0).getStatus(), is(Status.STATUS_ALIVE));
+                cluster.remove(0).shutdown();
+
+                Thread.sleep(2000);
+
+                cluster.add(new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("testContinuous" + (i+4))));
+
+                Thread.sleep(5000);
+                cluster.get(0).getCache(SAMPLE_CACHE_ASYNC).put(new Element(2, new Date()));
+                cluster.get(1).getCache(SAMPLE_CACHE_ASYNC).put(new Element(3, new Date()));
+
+                Thread.sleep(2000);
+
+                for (CacheManager manager : cluster) {
+                    assertThat(manager.getName() + "." + SAMPLE_CACHE_ASYNC, manager.getCache(SAMPLE_CACHE_ASYNC).getKeys().size(), is(2));
+                }
+            }
+        } finally {
+            destroyCluster(cluster);
         }
     }
   
@@ -261,57 +243,66 @@ public abstract class AbstractJMSReplicationTest {
     @Ignore
     @Test
     public void testAddManager() throws Exception {
-        cacheName = SAMPLE_CACHE_ASYNC;
-        if (manager1.getStatus() != Status.STATUS_SHUTDOWN)
-            manager1.shutdown();
-  
-  
-        Thread.sleep(2000);
-  
-        manager1 = new CacheManager(getConfiguration());
-  
-        Thread.sleep(5000);
-        manager2.getCache(cacheName).put(new Element(2, new Date()));
-        manager1.getCache(cacheName).put(new Element(3, new Date()));
-        
-        Thread.sleep(2000);
-  
-        assertEquals(manager1.getCache(cacheName).getKeys().size(), manager2.getCache(cacheName).getKeys().size());
-        assertEquals(manager1.getCache(cacheName).getKeys().size(), manager3.getCache(cacheName).getKeys().size());
-        assertEquals(manager1.getCache(cacheName).getKeys().size(), manager4.getCache(cacheName).getKeys().size());
-        assertEquals(2, manager1.getCache(cacheName).getKeys().size());
-  
+        List<CacheManager> cluster = createCluster("testAddManager", 4);
+        try {
+            assertThat(cluster.get(0).getStatus(), is(Status.STATUS_ALIVE));
+            cluster.remove(0).shutdown();
+
+
+            Thread.sleep(2000);
+
+            cluster.add(new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("testAddManager4")));
+
+            Thread.sleep(5000);
+            cluster.get(0).getCache(SAMPLE_CACHE_ASYNC).put(new Element(2, new Date()));
+            cluster.get(1).getCache(SAMPLE_CACHE_ASYNC).put(new Element(3, new Date()));
+
+            Thread.sleep(2000);
+
+            for (CacheManager manager : cluster) {
+                assertThat(manager.getName() + "." + SAMPLE_CACHE_ASYNC, manager.getCache(SAMPLE_CACHE_ASYNC).getKeys().size(), is(2));
+            }
+        } finally {
+            destroyCluster(cluster);
+        }
     }
   
   
     @Test
-    public void testNoreplication() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_NOREP;
-        Ehcache cache1 = manager1.getCache(cacheName);
-        Ehcache cache2 = manager2.getCache(cacheName);
-        Element element = new Element(1, new Date());
-  
-        //put
-        cache2.put(element);
-        Thread.sleep(1000);
-        assertTrue(cache1.getKeys().size() == 0 && cache2.getKeys().size() == 1);
-  
-        //update
-        cache2.put(element);
-        Thread.sleep(1000);
-        assertTrue(cache1.getKeys().size() == 0 && cache2.getKeys().size() == 1);
-  
-        //remove
-        cache1.put(element);
-        cache1.remove(1);
-        Thread.sleep(1000);
-        assertTrue(cache1.getKeys().size() == 0 && cache2.getKeys().size() == 1);
-  
-        //removeAll
-        cache1.removeAll();
-        Thread.sleep(1000);
-        assertTrue(cache1.getKeys().size() == 0 && cache2.getKeys().size() == 1);
-  
+    public void testNoReplication() throws Exception {
+        List<CacheManager> cluster = createCluster("testNoReplication", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_NOREP);
+            Element element = new Element(1, new Date());
+
+            //put
+            cache2.put(element);
+            Thread.sleep(1000);
+            assertThat(cache1.getKeys().size(), is(0));
+            assertThat(cache2.getKeys().size(), is(1));
+
+            //update
+            cache2.put(element);
+            Thread.sleep(1000);
+            assertThat(cache1.getKeys().size(), is(0));
+            assertThat(cache2.getKeys().size(), is(1));
+
+            //remove
+            cache1.put(element);
+            cache1.remove(1);
+            Thread.sleep(1000);
+            assertThat(cache1.getKeys().size(), is(0));
+            assertThat(cache2.getKeys().size(), is(1));
+
+            //removeAll
+            cache1.removeAll();
+            Thread.sleep(1000);
+            assertThat(cache1.getKeys().size(), is(0));
+            assertThat(cache2.getKeys().size(), is(1));
+        } finally {
+            destroyCluster(cluster);
+        }
     }
   
     /**
@@ -320,43 +311,44 @@ public abstract class AbstractJMSReplicationTest {
      * @throws InterruptedException -
      */
     @Test
-    public void testVariousPuts() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_ASYNC;
-        Ehcache cache1 = manager1.getCache(cacheName);
-        Ehcache cache2 = manager2.getCache(cacheName);
-  
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-  
-        //Put
-        cache1.put(element);
-        Thread.sleep(1000);
-  
-        //Should have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(element, element2);
-  
-  
-        //Remove
-        cache1.remove(key);
-        assertNull(cache1.get(key));
-  
-        //Should have been replicated to cache2.
-        Thread.sleep(1000);
-        element2 = cache2.get(key);
-        assertNull(element2);
-  
-        //Put into 2
-        Element element3 = new Element("3", "ddsfds");
-        cache2.put(element3);
-        Thread.sleep(1000);
-        Element element4 = cache2.get("3");
-        assertEquals(element3, element4);
-  
-        manager1.clearAll();
-        Thread.sleep(1000);
-  
+    public void testVariousPuts() throws Exception {
+        List<CacheManager> cluster = createCluster("testVariousPuts", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_ASYNC);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_ASYNC);
+
+            Serializable key = "1";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
+
+            //Put
+            cache1.put(element);
+            Thread.sleep(1000);
+
+            //Should have been replicated to cache2.
+            Element element2 = cache2.get(key);
+            assertThat(element2, is(element));
+
+
+            //Remove
+            cache1.remove(key);
+            assertThat(cache1.get(key), nullValue());
+
+            //Should have been replicated to cache2.
+            Thread.sleep(1000);
+            assertThat(cache2.get(key), nullValue());
+
+            //Put into 2
+            Element element3 = new Element("3", "ddsfds");
+            cache2.put(element3);
+            Thread.sleep(1000);
+            assertThat(cache2.get("3"), is(element3));
+
+            cluster.get(0).clearAll();
+            Thread.sleep(1000);
+        } finally {
+            destroyCluster(cluster);
+        }
     }
   
   
@@ -366,37 +358,37 @@ public abstract class AbstractJMSReplicationTest {
      * @throws InterruptedException -
      */
     @Test
-    public void testPutAndRemove() throws InterruptedException {
-  
-        cacheName = SAMPLE_CACHE_SYNC;
-        Ehcache cache1 = manager1.getCache(cacheName);
-        Ehcache cache2 = manager2.getCache(cacheName);
-  
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-  
-        //Put
-        cache1.put(element);
-        long updateTime = element.getLastUpdateTime();
-        Thread.sleep(100);
-        //make sure we are not getting our own circular update back
-        assertEquals(updateTime, cache1.get(key).getLastUpdateTime());
-  
-        //Should have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(element, element2);
-  
-  
-        //Remove
-        cache1.remove(key);
-        assertNull(cache1.get(key));
-  
-        //Should have been replicated to cache2.
-        Thread.sleep(100);
-        element2 = cache2.get(key);
-        assertNull(element2);
-  
+    public void testPutAndRemove() throws Exception {
+        List<CacheManager> cluster = createCluster("testPutAndRemove", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_SYNC);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_SYNC);
+
+            Serializable key = "1";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
+
+            //Put
+            cache1.put(element);
+            long updateTime = element.getLastUpdateTime();
+            Thread.sleep(100);
+            //make sure we are not getting our own circular update back
+            assertThat(cache1.get(key).getLastUpdateTime(), is(updateTime));
+
+            //Should have been replicated to cache2.
+            assertThat(cache2.get(key), is(element));
+
+
+            //Remove
+            cache1.remove(key);
+            assertThat(cache1.get(key), nullValue());
+
+            //Should have been replicated to cache2.
+            Thread.sleep(100);
+            assertThat(cache2.get(key), nullValue());
+        } finally {
+            destroyCluster(cluster);
+        }
     }
   
   
@@ -405,8 +397,37 @@ public abstract class AbstractJMSReplicationTest {
      */
     @Test
     public void testPutAndRemoveStability() throws InterruptedException {
-        for (int i = 0; i < 120; i++) {
-            testPutAndRemove();
+        List<CacheManager> cluster = createCluster("testPutAndRemoveStability", 2);
+        try {
+            for (int i = 0; i < 120; i++) {
+                Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_SYNC);
+                Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_SYNC);
+
+                Serializable key = "1";
+                Serializable value = new Date();
+                Element element = new Element(key, value);
+
+                //Put
+                cache1.put(element);
+                long updateTime = element.getLastUpdateTime();
+                Thread.sleep(100);
+                //make sure we are not getting our own circular update back
+                assertThat(cache1.get(key).getLastUpdateTime(), is(updateTime));
+
+                //Should have been replicated to cache2.
+                assertThat(cache2.get(key), is(element));
+
+
+                //Remove
+                cache1.remove(key);
+                assertThat(cache1.get(key), nullValue());
+
+                //Should have been replicated to cache2.
+                Thread.sleep(100);
+                assertThat(cache2.get(key), nullValue());
+            }
+        } finally {
+            destroyCluster(cluster);
         }
     }
   
@@ -494,48 +515,80 @@ public abstract class AbstractJMSReplicationTest {
      */
     //@Test
     public void testPutAndRemoveMessageQueueFailure() throws InterruptedException {
-        for (int i = 0; i < 1000; i++) {
-            try {
-                testPutAndRemove();
-                Thread.sleep(5000);
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, e.getMessage(), e);
+        List<CacheManager> cluster = createCluster("testPutAndRemoveMessageQueueFailure", 2);
+        try {
+            for (int i = 0; i < 1000; i++) {
+                try {
+                    Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_SYNC);
+                    Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_SYNC);
+
+                    Serializable key = "1";
+                    Serializable value = new Date();
+                    Element element = new Element(key, value);
+
+                    //Put
+                    cache1.put(element);
+                    long updateTime = element.getLastUpdateTime();
+                    Thread.sleep(100);
+                    //make sure we are not getting our own circular update back
+                    assertThat(cache1.get(key).getLastUpdateTime(), is(updateTime));
+
+                    //Should have been replicated to cache2.
+                    assertThat(cache2.get(key), is(element));
+
+
+                    //Remove
+                    cache1.remove(key);
+                    assertThat(cache1.get(key), nullValue());
+
+                    //Should have been replicated to cache2.
+                    Thread.sleep(100);
+                    assertThat(cache2.get(key), nullValue());
+
+                    Thread.sleep(5000);
+                } catch (Exception e) {
+                    LOG.log(Level.SEVERE, e.getMessage(), e);
+                }
             }
+        } finally {
+            destroyCluster(cluster);
         }
     }
   
     @Test
     public void testSimultaneousPutRemove() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC; //Synced one
-        Ehcache cache1 = manager1.getCache(cacheName);
-        Ehcache cache2 = manager2.getCache(cacheName);
-  
-  
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-  
-        //Put
-        cache1.put(element);
-        Thread.sleep(1000);
-        cache2.remove(element.getKey());
-        Thread.sleep(1000);
-  
-  
-        assertNull(cache1.get(element.getKey()));
-        manager1.clearAll();
-        Thread.sleep(1000);
-  
-        cache2.put(element);
-        cache2.remove(element.getKey());
-        Thread.sleep(1000);
-        cache1.put(element);
-        Thread.sleep(1000);
-        assertNotNull(cache2.get(element.getKey()));
-  
-        manager1.clearAll();
-        Thread.sleep(1000);
-  
+        List<CacheManager> cluster = createCluster("testSimultaneousPutRemove", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_SYNC);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_SYNC);
+
+            Serializable key = "1";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
+
+            //Put
+            cache1.put(element);
+            Thread.sleep(1000);
+            cache2.remove(element.getKey());
+            Thread.sleep(1000);
+
+
+            assertThat(cache1.get(element.getKey()), nullValue());
+            cluster.get(0).clearAll();
+            Thread.sleep(1000);
+
+            cache2.put(element);
+            cache2.remove(element.getKey());
+            Thread.sleep(1000);
+            cache1.put(element);
+            Thread.sleep(1000);
+            assertThat(cache2.get(element.getKey()), notNullValue());
+
+            cluster.get(0).clearAll();
+            Thread.sleep(1000);
+        } finally {
+            destroyCluster(cluster);
+        }
     }
   
   
@@ -549,37 +602,31 @@ public abstract class AbstractJMSReplicationTest {
      */
     @Test
     public void testGet() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Thread.sleep(20);
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-  
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-  
-        //Put
-        cache1.put(element);
-        Thread.sleep(2050);
-  
-  
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
-  
-        //Should load from cache1
-        for (int i = 0; i < 120; i++) {
-            element2 = cache2.getWithLoader(key, null, null);
-            assertEquals(value, element2.getValue());
-            cache2.remove(key);
+        List<CacheManager> cluster = createCluster("testGet", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_NOREP);
+
+            Serializable key = "1";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
+
+            //Put
+            cache1.put(element);
+            Thread.sleep(2050);
+
+
+            //Should not have been replicated to cache2.
+            assertThat(cache2.get(key), nullValue());
+
+            //Should load from cache1
+            for (int i = 0; i < 120; i++) {
+                assertThat(cache2.getWithLoader(key, null, null).getValue(), is(value));
+                cache2.remove(key);
+            }
+        } finally {
+            destroyCluster(cluster);
         }
-  
-        //Should load from cache1
-        element2 = cache2.getWithLoader(key, null, null);
-        assertEquals(value, element2.getValue());
-        cache2.remove(key);
     }
   
   
@@ -593,42 +640,42 @@ public abstract class AbstractJMSReplicationTest {
      */
     @Test
     public void testGetAll() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Thread.sleep(1000);
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-  
-        Serializable key = "1";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-        Element element2 = new Element(2, "dog");
-        Element element3 = new Element(3, "cat");
-  
-        ArrayList keys = new ArrayList();
-        keys.add("1");
-        keys.add(2);
-  
-        //Put
-        cache1.put(element);
-        cache1.put(element2);
-        cache1.put(element3);
-        Thread.sleep(2050);
-  
-  
-        //Should not have been replicated to cache2.
-        Element element1Retrieved = cache2.get(key);
-        assertEquals(null, element1Retrieved);
-  
-        //Should load from cache2
-        for (int i = 0; i < 120; i++) {
-            Map received = cache2.getAllWithLoader(keys, null);
-            assertEquals(2, received.size());
-            assertEquals(value, received.get("1"));
-            assertEquals("dog", received.get(2));
-            cache2.remove(key);
-            cache2.remove(2);
+        List<CacheManager> cluster = createCluster("testGetAll", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_NOREP);
+
+            Serializable key = "1";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
+            Element element2 = new Element(2, "dog");
+            Element element3 = new Element(3, "cat");
+
+            ArrayList keys = new ArrayList();
+            keys.add("1");
+            keys.add(2);
+
+            //Put
+            cache1.put(element);
+            cache1.put(element2);
+            cache1.put(element3);
+            Thread.sleep(2050);
+
+
+            //Should not have been replicated to cache2.
+            assertThat(cache2.get(key), nullValue());
+
+            //Should load from cache2
+            for (int i = 0; i < 120; i++) {
+                Map<Object, Object> received = cache2.getAllWithLoader(keys, null);
+                assertThat(received.size(), is(2));
+                assertThat((Serializable) received.get("1"), is(value));
+                assertThat((String) received.get(2), is("dog"));
+                cache2.remove(key);
+                cache2.remove(2);
+            }
+        } finally {
+            destroyCluster(cluster);
         }
     }
   
@@ -645,100 +692,67 @@ public abstract class AbstractJMSReplicationTest {
      */
     @Test
     public void testGetTimeout() throws InterruptedException {
-        cacheName = SAMPLE_CACHE_SYNC;
-        manager3.shutdown();
-        manager4.shutdown();
-        Thread.sleep(20);
-        Ehcache cache1 = manager1.getCache("sampleCacheNorep");
-        Ehcache cache2 = manager2.getCache("sampleCacheNorep");
-  
-        Serializable key = "net.sf.ehcache.distribution.jms.Delay";
-        Serializable value = new Date();
-        Element element = new Element(key, value);
-  
-        //Put
-        cache1.put(element);
-        Thread.sleep(1050);
-  
-        //Should not have been replicated to cache2.
-        Element element2 = cache2.get(key);
-        assertEquals(null, element2);
-  
-        //Should timeout loading from cache2
-        element2 = cache2.getWithLoader(key, null, null);
-        assertNull(element2);
-        cache2.remove(key);
+        List<CacheManager> cluster = createCluster("testGetTimeout", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_NOREP);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_NOREP);
+
+            Serializable key = "net.sf.ehcache.distribution.jms.Delay";
+            Serializable value = new Date();
+            Element element = new Element(key, value);
+
+            //Put
+            cache1.put(element);
+            Thread.sleep(1050);
+
+            //Should not have been replicated to cache2.
+            assertThat(cache2.get(key), nullValue());
+
+            //Should timeout loading from cache2
+            assertThat(cache2.getWithLoader(key, null, null), nullValue());
+            cache2.remove(key);
+        } finally {
+            destroyCluster(cluster);
+        }
     }
-  
-  
-  
-    
-    @Test
-    public void testOneWayReplicate() throws Exception {
-  
-        //CacheManagers 1 - 4 just complicate this test.
-        tearDown();
-  
-        CacheManager managerA, managerB, managerC;
-  
-        URL nonListeningConfiguration = ActiveMQJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-nonlistening-jms-activemq.xml");
-        URL listeningConfiguration = ActiveMQJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-jms-activemq.xml");
-  
-        managerA = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfiguration).name("managerA"));
-        managerB = new CacheManager(ConfigurationFactory.parseConfiguration(listeningConfiguration).name("managerB"));
-        managerC = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfiguration).name("managerC"));
-  
-        Thread.sleep(5000);
-  
-        Element element = new Element("1", "value");
-        managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
-  
-        Thread.sleep(3000);
-  
-        assertNotNull("Element 1 should not be null", managerA.getCache(SAMPLE_CACHE_ASYNC).get("1"));
-        assertNotNull("Element 1 should not be null", managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"));
-        assertNull("Element 1 should be null because CacheManager C should not be listening", managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"));
-  
-  
-        managerA.shutdown();
-        managerB.shutdown();
-        managerC.shutdown();
-    }
-  
   
     /**
      * Tests loading from bootstrap for a cache which is configured to load using RMI and replicate using JMS
      */
     @Test
     public void testBootstrapFromClusterWithAsyncLoader() throws CacheException, InterruptedException {
-  
-        cacheName = SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP;
-        Ehcache cache1 = manager1.getCache(cacheName);
-        Ehcache cache2 = manager2.getCache(cacheName);
-  
-  
-        Integer index = null;
-        for (int j = 0; j < 1000; j++) {
-            index = new Integer(j);
-            cache1.put(new Element(index,
-                    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-                            + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-  
+        List<CacheManager> cluster = createCluster("testBootstrapFromClusterWithAsyncLoader", 2);
+        try {
+            Ehcache cache1 = cluster.get(0).getCache(SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP);
+            Ehcache cache2 = cluster.get(1).getCache(SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP);
+
+            for (int j = 0; j < 1000; j++) {
+                cache1.put(new Element(Integer.valueOf(j),
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                                + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+
+            }
+
+            //verify was replicated as usually using JMS
+            Thread.sleep(3000);
+            assertThat(cache2.getSize(), is(1000));
+
+            forceVMGrowth();
+
+            //Now fire up a new CacheManager and see if bootstrapping using RMI works
+            CacheManager manager5 = new CacheManager(getConfiguration());
+            try {
+                manager5.setName("testBootstrapFromClusterWithAsyncLoader5");
+                Thread.sleep(5000);
+                assertThat(manager5.getCache(SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP).getSize(), is(1000));
+            } finally {
+                manager5.shutdown();
+            }
+        } finally {
+            destroyCluster(cluster);
         }
-  
-        //verify was replicated as usually using JMS
-        Thread.sleep(3000);
-        assertEquals(1000, cache2.getSize());
-  
-        forceVMGrowth();
-  
-        //Now fire up a new CacheManager and see if bootstrapping using RMI works
-        CacheManager manager5 = new CacheManager(getConfiguration());
-        manager5.setName("manager5");
-        Thread.sleep(5000);
-        assertEquals(1000, manager5.getCache(SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP).getSize());
     }
 }

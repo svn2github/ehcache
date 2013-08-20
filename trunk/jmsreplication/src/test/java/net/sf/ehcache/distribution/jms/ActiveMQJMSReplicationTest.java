@@ -25,6 +25,18 @@ import org.junit.BeforeClass;
 
 import java.io.File;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.ConfigurationFactory;
+
+import org.junit.Test;
+
+import static net.sf.ehcache.distribution.jms.AbstractJMSReplicationTest.SAMPLE_CACHE_ASYNC;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * ActiveMQ seems to have a bug in 5.1 where it does not cleanup temporary queues, even though they have been
@@ -53,5 +65,31 @@ public class ActiveMQJMSReplicationTest extends AbstractJMSReplicationTest {
     public static void stopActiveMQ() throws Exception {
       BROKER.stop();
       BROKER.waitUntilStopped();
+    }
+
+    @Test
+    public void testOneWayReplicate() throws Exception {
+        URL nonListeningConfiguration = ActiveMQJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-nonlistening-jms-activemq.xml");
+        URL listeningConfiguration = ActiveMQJMSReplicationTest.class.getResource("/distribution/jms/ehcache-distributed-jms-activemq.xml");
+  
+        CacheManager managerA = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfiguration).name("testOneWayReplicateA"));
+        CacheManager managerB = new CacheManager(ConfigurationFactory.parseConfiguration(listeningConfiguration).name("testOneWayReplicateB"));
+        CacheManager managerC = new CacheManager(ConfigurationFactory.parseConfiguration(nonListeningConfiguration).name("testOneWayReplicateC"));
+        try {
+            Thread.sleep(5000);
+
+            Element element = new Element("1", "value");
+            managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
+
+            Thread.sleep(3000);
+
+            assertThat(managerA.getCache(SAMPLE_CACHE_ASYNC).get("1"), notNullValue());
+            assertThat(managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"), notNullValue());
+            assertThat(managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"), nullValue());
+        } finally {
+            managerA.shutdown();
+            managerB.shutdown();
+            managerC.shutdown();
+        }
     }
 }
