@@ -37,8 +37,6 @@ public class ParseModelTest {
 
     public static enum Foo {Bar, Baz}
 
-    ;
-
     @Test
     public void testSimpleSelect() throws ParseException {
         String test = "select key, value from foo where name = 10";

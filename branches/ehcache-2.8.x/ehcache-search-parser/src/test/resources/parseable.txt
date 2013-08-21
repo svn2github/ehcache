@@ -64,6 +64,7 @@ select * from foo where age = '11'
 select * from foo where age = (char)'1'
 select * from foo where age = (long)11
 select * from foo where age = (double)'11.1'
+select * from foo where age = (float)'11.1'
 select * from foo where age = (date)'1/10/2003 14:25:22'
 select * from foo where age = (sqldate)'1/1/04'
 select * from foo where name = 'A'
@@ -71,9 +72,6 @@ select * from foo where name = 'A'
 // jdk specific naming I suppose, for an inner class.
 // better to have the enum exist as its own file
 select * from foo where age = (enum net.sf.ehcache.search.parser.ParseModelTest$Foo)'Bar'
-
-select * from foo where age = (class java.lang.String)'John'
-select * from foo where age = (hex)'abababab'
 
 // some ands
 select key,value from foo where (age > 100 and zip=20144)

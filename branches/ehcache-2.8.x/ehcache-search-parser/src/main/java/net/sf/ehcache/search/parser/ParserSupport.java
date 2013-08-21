@@ -8,64 +8,17 @@
  */
 package net.sf.ehcache.search.parser;
 
-import java.lang.reflect.Constructor;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.NoSuchElementException;
 
-import net.sf.ehcache.search.parser.Token;
+import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * This class is support stuff for delegate parsing.
  */
 public class ParserSupport {
-
-    /**
-     * The Class StringPlusToken.
-     */
-    public static class StringPlusToken {
-
-        /**
-         * The token.
-         */
-        private Token token;
-
-        /**
-         * The string.
-         */
-        private String string;
-
-        /**
-         * Instantiates a new string plus token.
-         *
-         * @param t the t
-         * @param s the s
-         */
-        public StringPlusToken(Token t, String s) {
-            this.token = t;
-            this.string = s;
-        }
-
-        /**
-         * Gets the token.
-         *
-         * @return the token
-         */
-        public Token getToken() {
-            return token;
-        }
-
-        /**
-         * Gets the string.
-         *
-         * @return the string
-         */
-        public String getString() {
-            return string;
-        }
-    }
 
     /**
      * Process quoted string. This handles special chars, like unicode, newlines, etc. More could be added.
@@ -80,14 +33,14 @@ public class ParserSupport {
         try {
             for (int i = 1; i < s.length() - 1; i++) {
                 char c = s.charAt(i);
-                if (c == 92) { // backslash
+                if (c == '\\') { 
                     c = s.charAt(++i);
                     switch (c) {
                         case 'r':
-                            sb.append((char)13);
+                            sb.append('\r');
                             break;
                         case 'n':
-                            sb.append((char)10);
+                            sb.append('\n');
                             break;
                         case 'u':
                             String tmp = "";
@@ -97,7 +50,7 @@ public class ParserSupport {
                             sb.append((char)Integer.parseInt(tmp));
                             break;
                         case 't':
-                            sb.append((char)9);
+                            sb.append('\t');
                             break;
                         default:
                             sb.append(c);
@@ -119,35 +72,18 @@ public class ParserSupport {
      * @param valueName the value name
      * @return the object
      */
-    public static Object makeEnumFromString(String enumName, String valueName) {
+    public static <T extends Enum<T>> Enum<T> makeEnumFromString(String enumName, String valueName) {
+        // Attempt to load enum class by name, then validate that it's really enum
+        Class<?> realType;
         try {
-            @SuppressWarnings({ "rawtypes", "unchecked" })
-            Class<? extends Enum> enumClz = (Class<? extends Enum>)Class.forName(enumName);
-            @SuppressWarnings("unchecked")
-            Object obj = Enum.valueOf(enumClz, valueName);
-            return obj;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+          realType = ClassLoaderUtil.loadClass(enumName);
+        } catch (ClassNotFoundException e) {
+          throw new IllegalArgumentException(String.format("Unable to load class specified as name of enum %s: %s", 
+                  enumName, e.getMessage()));
         }
-    }
-
-    /**
-     * Make object from string. The class is instantiated using a constructor with a single string argument.
-     * Used for object casts.
-     *
-     * @param clzName     the class name
-     * @param stringValue the string value
-     * @return the object
-     */
-    public static Object makeObjectFromString(String clzName, String stringValue) {
-        try {
-            Class<?> clz = Class.forName(clzName);
-            Constructor<?> cons = clz.getConstructor(new Class<?>[] { String.class });
-            Object obj = cons.newInstance(new Object[] { stringValue });
-            return obj;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        @SuppressWarnings("unchecked")
+        T obj = Enum.valueOf((Class<T>)realType, valueName);
+        return obj;
     }
 
     /**

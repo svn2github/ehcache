@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -38,6 +37,7 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.expression.EqualTo;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -269,26 +269,6 @@ public class EhcachSearchParseTest {
         Assert.assertEquals(cv.getValue(), "John Frisk " + k);
 
     }
-
-
-    @Test
-    public void testParserClassCast() throws ParseException {
-        String st = "select key, value from cache1 where age = (class java.lang.Integer)'12'";
-        Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
-        Assert.assertEquals(res.size(), 1);
-
-        Result r = res.all().iterator().next();
-        Assert.assertTrue(r.getKey() != null);
-        Assert.assertTrue(r.getValue() != null);
-
-        CacheValue cv = (CacheValue)r.getValue();
-        Integer k = (Integer)r.getKey();
-
-        Assert.assertEquals(cv.getNvPairs().get("age"), 12);
-        Assert.assertEquals(cv.getValue(), "John Frisk " + k);
-
-    }
-
 
     @Test
     public void testParserDate() throws ParseException {
