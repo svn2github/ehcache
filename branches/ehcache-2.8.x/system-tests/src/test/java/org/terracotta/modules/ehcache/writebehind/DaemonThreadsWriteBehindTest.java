@@ -7,10 +7,12 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
+
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.AbstractWriteBehindClient;
 import org.terracotta.ehcache.tests.WriteBehindCacheWriter;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 
 import com.tc.l2.L2DebugLogging.LogLevel;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
@@ -43,14 +45,16 @@ public class DaemonThreadsWriteBehindTest extends AbstractCacheTestBase {
 
     @Override
     public void doTest() throws Throwable {
-      ThreadMXBean tbean;
+      final ThreadMXBean tbean;
       tbean = ManagementFactory.getThreadMXBean();
 
-      int nonDaemonThreadCountA = tbean.getThreadCount() - tbean.getDaemonThreadCount();
-      int daemonThreadCountA = tbean.getDaemonThreadCount();
-      long[] listA = tbean.getAllThreadIds();
+      final int nonDaemonThreadCountA = tbean.getThreadCount() - tbean.getDaemonThreadCount();
+      final int daemonThreadCountA = tbean.getDaemonThreadCount();
+      final long[] listA = tbean.getAllThreadIds();
       for (int loopNumber = 0; loopNumber < 4; loopNumber++) {
-        cacheManager = new CacheManager(DaemonThreadsWriteBehindTestClient.class.getResourceAsStream("/ehcache-config.xml"));
+        cacheManager = new CacheManager(
+                                        DaemonThreadsWriteBehindTestClient.class
+                                            .getResourceAsStream("/ehcache-config.xml"));
         int daemonThreadCountB = tbean.getDaemonThreadCount();
         Assert.assertTrue(daemonThreadCountA < daemonThreadCountB);
         Cache cache = cacheManager.getCache("test");
@@ -65,11 +69,20 @@ public class DaemonThreadsWriteBehindTest extends AbstractCacheTestBase {
         }
         resetWriteCount();
         cacheManager.shutdown();
-        System.out.println("done with iteration "+loopNumber);
+        System.out.println("done with iteration " + loopNumber);
       }
-      System.out.println("sleeping for 1 min");
-      TimeUnit.MINUTES.sleep(1L);
 
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+
+        @Override
+        public Boolean call() throws Exception {
+          return anyDaemonThreadLeft(tbean, listA, daemonThreadCountA, nonDaemonThreadCountA);
+        }
+      });
+
+    }
+
+    private boolean anyDaemonThreadLeft(ThreadMXBean tbean, long[] listA, int daemonThreadCountA, int nonDaemonThreadCountA) {
       long[] listC = tbean.getAllThreadIds();
       int daemonThreadCountC = tbean.getDaemonThreadCount();
       int nonDaemonThreadCountC = tbean.getThreadCount() - tbean.getDaemonThreadCount();
@@ -95,19 +108,23 @@ public class DaemonThreadsWriteBehindTest extends AbstractCacheTestBase {
         }
         String info = "Thread name: " + tinfo.getThreadName() + " | " + tinfo.getThreadId() + "\n";
         threadsInfo.append(info);
+        if (tinfo.getStackTrace().length == 0) {
+          ++skipThreadCount;
+        }
         for (StackTraceElement e : tinfo.getStackTrace()) {
           threadsInfo.append(e).append("\n\n");
         }
       }
       System.out.println(threadsInfo + "\n\n-----------------------\n\n");
-      Assert.assertEquals(daemonThreadCountA, daemonThreadCountC - skipThreadCount);
-      Assert.assertEquals(nonDaemonThreadCountA, nonDaemonThreadCountC);
+      return ((daemonThreadCountA == (daemonThreadCountC - skipThreadCount)) && (nonDaemonThreadCountA == nonDaemonThreadCountC));
     }
 
     private static Set<String> getKnownThreads() {
       Set<String> skipThreads = new HashSet<String>();
       skipThreads.add("Attach Listener");
       skipThreads.add("Poller SunPKCS11-Darwin");
+      skipThreads.add("Finalizer");
+      skipThreads.add("AWT-AppKit");
       return skipThreads;
     }
 
