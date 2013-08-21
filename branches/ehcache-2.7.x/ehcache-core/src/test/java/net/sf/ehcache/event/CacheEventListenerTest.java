@@ -532,7 +532,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
             cache.put(new Element(i + "", new Object()));
             cache.get(i + "");
         }
-        assertThat(cache.getStatistics().getLocalHeapSize(), equalTo(10L));
         DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();
         CountingCacheEventListener listener = getCountingCacheEventListener(cache);
         final List<CacheEvent> cacheElementsEvicted = listener.getCacheElementsEvicted();
