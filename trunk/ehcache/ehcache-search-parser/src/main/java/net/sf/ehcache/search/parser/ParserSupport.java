@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
@@ -79,7 +78,7 @@ public class ParserSupport {
         try {
           realType = ClassLoaderUtil.loadClass(enumName);
         } catch (ClassNotFoundException e) {
-          throw new InvalidConfigurationException(String.format("Unable to load class specified name of enum %s: %s", 
+          throw new IllegalArgumentException(String.format("Unable to load class specified as name of enum %s: %s", 
                   enumName, e.getMessage()));
         }
         @SuppressWarnings("unchecked")
