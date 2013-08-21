@@ -27,8 +27,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.writer.CacheWriter;
 
-import org.terracotta.statistics.Statistic;
-
 /**
  * @author Alex Snaps
  */
@@ -137,7 +135,6 @@ public class WriteBehindQueueManager implements WriteBehind {
     /**
      * {@inheritDoc}
      */
-    @Statistic(name = "queue-length", tags = "write-behind")
     public long getQueueSize() {
         int size = 0;
         readLock.lock();
