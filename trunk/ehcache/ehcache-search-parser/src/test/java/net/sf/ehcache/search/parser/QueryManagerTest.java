@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.search.parser;
 
+import static org.junit.Assert.fail;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -27,10 +29,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.query.QueryManager;
 
-import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.fail;
 
 
 public class QueryManagerTest {
@@ -74,7 +73,6 @@ public class QueryManagerTest {
 
         QueryManager qm = new QueryManagerImpl(caches);
 
-        // FIXME: change the from clause to use cm_name.cache_name notation when supported.
         qm.createQuery("select key from cm2." + cm2Caches[0]);
     }
 

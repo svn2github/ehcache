@@ -8,8 +8,6 @@
  */
 package net.sf.ehcache.search.parser;
 
-import net.sf.ehcache.search.parser.ParseException;
-import net.sf.ehcache.search.parser.Token;
 
 /**
  * The Class CustomParseException.
@@ -19,9 +17,10 @@ public class CustomParseException extends ParseException {
     public enum Message {
         SINGLE_QUOTE("Error parsing quoted string: "), BOOLEAN_CAST("Error parsing boolean literal:"), BYTE_CAST(
             "Error parsing byte literal:"), SHORT_LITERAL("Error parsing short literal:"), INT_LITERAL("Error parsing integer literal:"),
+        FLOAT_LITERAL("Error parsing float literal:"),
         LONG_LITERAL("Error parsing long literal:"), DOUBLE_LITERAL("Error parsing double literal:"),
         DATE_LITERAL("Error parsing date literal:"), SQLDATE_LITERAL("Error parsing sqldate literal:"),
-        HEX_LITERAL("Error parsing hex literal:"), STRING_LITERAL("Error parsing string literal:"),
+        STRING_LITERAL("Error parsing string literal:"),
         CLASS_LITERAL("Error parsing class literal:"), ENUM_LITERAL("Error parsing enum literal:"),
         MEMBER_LITERAL("Error parsing member literal:"), CHAR_LITERAL("Error parsing char literal");
 
