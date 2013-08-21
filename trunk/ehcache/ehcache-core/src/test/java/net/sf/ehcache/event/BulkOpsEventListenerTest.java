@@ -52,7 +52,7 @@ import static org.junit.Assert.fail;
 public class BulkOpsEventListenerTest extends AbstractCacheTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOpsEventListenerTest.class);
-    private static final int BATCH_SIZE = 1000;
+    private static final int BATCH_SIZE = 10000;
     private static final int MAX_RETRY = 100;
 
     @Test
