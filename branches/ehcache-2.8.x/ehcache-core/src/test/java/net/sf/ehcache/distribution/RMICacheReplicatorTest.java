@@ -153,13 +153,15 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         try {
           LOG.info("Created Managers");
           if (required.isEmpty()) {
-              waitForClusterMembership(10, TimeUnit.SECONDS, members);
+              waitForClusterMembership(120, TimeUnit.SECONDS, members);
               LOG.info("Cluster Membership Complete");
-              emptyCaches(10, TimeUnit.SECONDS, members);
+              emptyCaches(120, TimeUnit.SECONDS, members);
               LOG.info("Caches Emptied");
           } else {
-              waitForClusterMembership(10, TimeUnit.SECONDS, required, members);
-              emptyCaches(10, TimeUnit.SECONDS, required, members);
+              waitForClusterMembership(120, TimeUnit.SECONDS, required, members);
+              LOG.info("Cluster Membership Complete");
+              emptyCaches(120, TimeUnit.SECONDS, required, members);
+              LOG.info("Caches Emptied");
           }
           return members;
         } catch (RuntimeException e) {
