@@ -155,7 +155,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
         System.gc();
         Thread.sleep(100);
         freeAfter = runtime.freeMemory();
-    } while (total != runtime.totalMemory() || freeAfter < freeBefore);
+    } while (total != runtime.totalMemory() || freeAfter > freeBefore);
     return total - freeAfter;
   }
 
