@@ -39,22 +39,25 @@ public abstract class MemoryLimitedCacheLoader implements BootstrapCacheLoader, 
         long maxBytesInMem;
         long maxElementsInMem;
         final boolean overflowToOffHeap = cache.getCacheConfiguration().isOverflowToOffHeap();
+        maxElementsInMem = cache.getCacheConfiguration().getMaxEntriesLocalHeap() == 0
+                ? Integer.MAX_VALUE : cache.getCacheConfiguration().getMaxEntriesLocalHeap();
         if (overflowToOffHeap) {
-            maxBytesInMem = cache.getCacheConfiguration().getMaxBytesLocalHeap();
-            maxElementsInMem = cache.getCacheConfiguration().getMaxEntriesLocalHeap() == 0
-                ? Integer.MAX_VALUE : cache.getCacheConfiguration().getMaxEntriesLocalHeap();
-        } else {
             maxBytesInMem = cache.getCacheConfiguration().getMaxBytesLocalOffHeap();
-            maxElementsInMem = cache.getCacheConfiguration().getMaxEntriesLocalHeap() == 0
-                ? Integer.MAX_VALUE : cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+        } else {
+            maxBytesInMem = cache.getCacheConfiguration().getMaxBytesLocalHeap();
         }
 
         if (maxBytesInMem != 0) {
-            final long inMemorySizeInBytes = overflowToOffHeap ? cache.getStatistics().getLocalOffHeapSizeInBytes() : cache.getStatistics()
-                    .getLocalHeapSizeInBytes();
-            final long avgSize = inMemorySizeInBytes
-                    / (overflowToOffHeap ? cache.getStatistics().getLocalOffHeapSize() : cache.getStatistics().getLocalHeapSize());
-            return inMemorySizeInBytes + (avgSize * 2) >= maxBytesInMem;
+            final long inMemoryCount = overflowToOffHeap ? cache.getStatistics().getLocalOffHeapSize() : cache.getStatistics().getLocalHeapSize();
+            if (inMemoryCount == 0L) {
+                return false;
+            } else {
+                final long inMemorySizeInBytes = overflowToOffHeap ? cache.getStatistics().getLocalOffHeapSizeInBytes() : cache.getStatistics()
+                        .getLocalHeapSizeInBytes();
+                final long avgSize = inMemorySizeInBytes
+                        / inMemoryCount;
+                return inMemorySizeInBytes + (avgSize * 2) >= maxBytesInMem;
+            }
         } else {
             return loadedElements >= maxElementsInMem;
         }
