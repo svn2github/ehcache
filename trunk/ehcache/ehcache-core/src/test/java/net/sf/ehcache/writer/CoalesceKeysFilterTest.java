@@ -23,7 +23,10 @@ import net.sf.ehcache.writer.writebehind.CoalesceKeysFilter;
 import net.sf.ehcache.writer.writebehind.operations.DeleteOperation;
 import net.sf.ehcache.writer.writebehind.operations.KeyBasedOperation;
 import net.sf.ehcache.writer.writebehind.operations.WriteOperation;
+
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,7 @@ import static org.junit.Assert.assertTrue;
  * @author Geert Bevin
  * @version $Id$
  */
+@Category(CheckShorts.class)
 public class CoalesceKeysFilterTest {
 
     @Test
