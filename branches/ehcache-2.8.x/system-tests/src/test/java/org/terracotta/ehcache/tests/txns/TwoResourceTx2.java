@@ -10,6 +10,7 @@ import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
 import org.terracotta.toolkit.Toolkit;
 
+import javax.transaction.Status;
 import javax.transaction.TransactionManager;
 
 public class TwoResourceTx2 extends AbstractTxClient {
@@ -50,8 +51,15 @@ public class TwoResourceTx2 extends AbstractTxClient {
       txnManager.commit();
 
     } catch (Exception e) {
-      e.printStackTrace();
-      txnManager.rollback();
+      try {
+        if (txnManager.getStatus() != Status.STATUS_NO_TRANSACTION) {
+          txnManager.rollback();
+        }
+      } catch (Exception e1) {
+        e1.printStackTrace();
+      }
+      // Let root cause bubble up instead of failure to rollback
+      throw e;
     }
   }
 
