@@ -12,6 +12,8 @@ import net.sf.ehcache.store.disk.DiskStoreHelper;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.terracotta.test.categories.CheckShorts;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -26,6 +28,7 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Alex Snaps
  */
+@Category(CheckShorts.class)
 public class DiskStoreBootstrapCacheLoaderFactoryTest {
 
     private static final int ELEMENTS_ON_DISK = 500;
