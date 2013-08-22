@@ -143,10 +143,12 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
         final String p1Value = "p1Value";
         final String p2Value = "p2Value";
 
+        final AtomicInteger retryCount = new AtomicInteger(0);
+
         CyclicBarrier barrier = new CyclicBarrier(2, new Runnable() {
             @Override
             public void run() {
-                LOGGER.info("Checking put did interleave");
+                LOGGER.info("Checking put did interleave (run {})", retryCount.incrementAndGet());
                 boolean p1Seen = false;
                 boolean p2Seen = false;
                 for (Object key : cache.getKeys()) {
@@ -160,6 +162,11 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
                         stopCondition.set(true);
                         return;
                     }
+                }
+                if (retryCount.get() >= MAX_RETRY) {
+                    stopCondition.set(true);
+                    LOGGER.warn("Could not interleave - stopping as MAX_RETRY reached");
+                    return;
                 }
                 cache.removeAll();
                 eventListener.reset();
@@ -189,14 +196,22 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
 
         final AtomicBoolean stopCondition = new AtomicBoolean(false);
 
-      final CountDownLatch endLatch = new CountDownLatch(2);
+        final CountDownLatch endLatch = new CountDownLatch(2);
+
+        final AtomicInteger retryCount = new AtomicInteger(0);
+
         final CyclicBarrier barrier = new CyclicBarrier(2, new Runnable() {
             @Override
             public void run() {
-                LOGGER.info("Checking put/remove did interleave");
+                LOGGER.info("Checking put/remove did interleave (run {})", retryCount.incrementAndGet());
                 if (cache.getSize() != 0 && cache.getSize() != BATCH_SIZE) {
                     stopCondition.set(true);
                 } else {
+                    if (retryCount.get() >= MAX_RETRY) {
+                        stopCondition.set(true);
+                        LOGGER.warn("Could not interleave - stopping as MAX_RETRY reached");
+                        return;
+                    }
                     LOGGER.info("Cache size:" + cache.getSize());
                     cache.removeAll();
                     eventListener.reset();
@@ -234,15 +249,14 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
         }
 
         public void run() {
-            int retry = 0;
             try {
-                while (!stopCondition.get() && ++retry < MAX_RETRY) {
+                while (!stopCondition.get()) {
                     Set<Element> elements = new HashSet<Element>();
                     for (int j = 0; j < batchPut; j++) {
                         elements.add(new Element("key" + j, value));
                     }
                     this.cache.putAll(elements);
-                    LOGGER.info("Producer done with run " + retry);
+                    LOGGER.info("Producer done with run");
                     try {
                         barrier.await(1, TimeUnit.MINUTES);
                     } catch (Exception e) {
@@ -275,15 +289,14 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
         }
 
         public void run() {
-            int retry = 0;
             try {
-                while (!stopCondition.get() && ++retry < MAX_RETRY) {
+                while (!stopCondition.get()) {
                     Set<String> elements = new HashSet<String>();
                     for (int j = batchRemoved - 1; j >= 0; j--) {
                         elements.add("key" + j);
                     }
                     this.cache.removeAll(elements);
-                    LOGGER.info("Consumer done with run " + retry);
+                    LOGGER.info("Consumer done with run");
                     try {
                         barrier.await(1, TimeUnit.MINUTES);
                     } catch (Exception e) {
