@@ -26,10 +26,13 @@ import net.sf.ehcache.search.expression.EqualTo;
 import net.sf.ehcache.search.expression.GreaterThan;
 import net.sf.ehcache.search.expression.GreaterThanOrEqual;
 import net.sf.ehcache.search.expression.InCollection;
+import net.sf.ehcache.search.expression.IsNull;
 import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.LessThanOrEqual;
 import net.sf.ehcache.search.expression.ILike;
 import net.sf.ehcache.search.expression.NotEqualTo;
+import net.sf.ehcache.search.expression.NotILike;
+import net.sf.ehcache.search.expression.NotNull;
 
 /**
  * A search attribute. The main purpose of this class is to construct search {@link Criteria} referencing this attribute
@@ -167,6 +170,33 @@ public class Attribute<T> {
      */
     public Criteria ilike(String regex) {
         return new ILike(attributeName, regex);
+    }
+    
+    /**
+     * Create a criteria where this attribute's toString() does not match the given expression
+     * See {@link net.sf.ehcache.search.expression.ILike} for the expression syntax
+     *
+     * @param regex
+     * @return criteria instance
+     */
+    public Criteria notIlike(String regex) {
+        return new NotILike(attributeName, regex);
+    }
+    
+    /**
+     * Create a criteria that requires no value for this attribute
+     * @return criteria instance
+     */
+    public Criteria isNull() {
+        return new IsNull(attributeName);
+    }
+    
+    /**
+     * Create a criteria that accepts any non-null value for this attribute
+     * @return criteria instance
+     */
+    public Criteria notNull() {
+        return new NotNull(attributeName);
     }
 
     /**

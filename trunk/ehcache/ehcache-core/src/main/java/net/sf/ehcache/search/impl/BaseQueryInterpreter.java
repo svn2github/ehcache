@@ -37,11 +37,13 @@ import net.sf.ehcache.search.expression.GreaterThan;
 import net.sf.ehcache.search.expression.GreaterThanOrEqual;
 import net.sf.ehcache.search.expression.ILike;
 import net.sf.ehcache.search.expression.InCollection;
+import net.sf.ehcache.search.expression.IsNull;
 import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.LessThanOrEqual;
 import net.sf.ehcache.search.expression.Not;
 import net.sf.ehcache.search.expression.NotEqualTo;
 import net.sf.ehcache.search.expression.NotILike;
+import net.sf.ehcache.search.expression.NotNull;
 import net.sf.ehcache.search.expression.Or;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
@@ -126,10 +128,14 @@ public abstract class BaseQueryInterpreter {
             notEqualTerm(NotEqualTo.class.cast(criteria));
         } else if (criteria instanceof NotILike) {
             notIlike(NotILike.class.cast(criteria));
+        } else if (criteria instanceof NotNull) {
+            notNull(NotNull.class.cast(criteria));
         } else if (criteria instanceof Between) {
             between(Between.class.cast(criteria));
         } else if (criteria instanceof EqualTo) {
             equalTo(EqualTo.class.cast(criteria));
+        } else if (criteria instanceof IsNull) {
+            isNull(IsNull.class.cast(criteria));
         } else if (criteria instanceof ILike) {
             ilike(ILike.class.cast(criteria));
         } else if (criteria instanceof GreaterThan) {
@@ -191,6 +197,9 @@ public abstract class BaseQueryInterpreter {
         } else if (c instanceof ILike) {
             ILike ilike = (ILike) c;
             return new NotILike(ilike.getAttributeName(), ilike.getRegex());
+        } else if (c instanceof NotILike) {
+            NotILike ni = (NotILike)c;
+            return new ILike(ni.getAttributeName(), ni.getRegex());
         } else if (c instanceof InCollection) {
             InCollection in = (InCollection) c;
             String name = in.getAttributeName();
@@ -204,6 +213,10 @@ public abstract class BaseQueryInterpreter {
                 rv = rv.and(new NotEqualTo(name, values[i]));
             }
             return rv;
+        } else if (c instanceof IsNull) {
+            return new NotNull(((IsNull) c).getAttributeName());
+        } else if (c instanceof NotNull) {
+            return new IsNull(((NotNull) c).getAttributeName());
         } else if (c instanceof AlwaysMatch) {
             throw new UnsupportedOperationException();
         } else {
@@ -297,10 +310,20 @@ public abstract class BaseQueryInterpreter {
     /**
      * hook
      *
-     * @param name
-     * @param regex
      */
     protected abstract void ilike(ILike criteria);
+    
+    /**
+     * hook
+     *
+     */
+    protected abstract void isNull(IsNull criteria);
+    
+    /**
+     * hook
+     *
+     */
+    protected abstract void notNull(NotNull criteria);
 
     /**
      * hook
