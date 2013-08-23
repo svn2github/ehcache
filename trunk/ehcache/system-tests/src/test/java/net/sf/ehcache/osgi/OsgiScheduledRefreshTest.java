@@ -3,9 +3,7 @@
  */
 package net.sf.ehcache.osgi;
 
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -14,8 +12,6 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.constructs.scheduledrefresh.ScheduledRefreshCacheExtension;
 import net.sf.ehcache.constructs.scheduledrefresh.ScheduledRefreshConfiguration;
-import net.sf.ehcache.statistics.extended.ExtendedStatistics;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -28,7 +24,9 @@ import org.terracotta.test.OsgiUtil;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import junit.framework.Assert;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  * Adapt ScheduledRefreshCacheExtensionTest to run with OSGi.
@@ -117,7 +115,9 @@ public class OsgiScheduledRefreshTest {
       cache.put(new Element(new Integer(i), i + ""));
     }
 
-    sleepySeconds(8);
+    second = Math.max(8, 60 - second + 3);
+    System.out.println("Scheduled delay is :: " + second);
+    sleepySeconds(second);
 
     for (Object key : cache.getKeys()) {
       Element val = cache.get(key);

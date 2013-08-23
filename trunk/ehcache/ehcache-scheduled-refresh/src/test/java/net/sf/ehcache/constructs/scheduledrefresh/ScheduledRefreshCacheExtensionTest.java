@@ -1,5 +1,6 @@
 package net.sf.ehcache.constructs.scheduledrefresh;
 
+import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -12,8 +13,6 @@ import org.junit.Test;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
-
-import junit.framework.Assert;
 
 public class ScheduledRefreshCacheExtensionTest {
 
@@ -69,7 +68,10 @@ public class ScheduledRefreshCacheExtensionTest {
          cache.put(new Element(new Integer(i), i + ""));
       }
 
-      TimeUnit.SECONDS.sleep(8);
+      second = Math.max(8, 60 - second + 3);
+      System.out.println("Scheduled delay is :: " + second);
+
+      TimeUnit.SECONDS.sleep(second);
 
       for (Object key : cache.getKeys()) {
          Element val = cache.get(key);
@@ -86,13 +88,13 @@ public class ScheduledRefreshCacheExtensionTest {
       }
 
       ExtendedStatistics.Statistic<Number> refreshStat=ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
-      Assert.assertEquals(1,refreshStat.value().intValue());
+      Assert.assertTrue(refreshStat.value().intValue()>1);
 
       ExtendedStatistics.Statistic<Number> jobStat=ScheduledRefreshCacheExtension.findJobStatistic(cache);
-      Assert.assertEquals(1,refreshStat.value().intValue());
+      Assert.assertTrue(refreshStat.value().intValue()>1);
 
       ExtendedStatistics.Statistic<Number> procStat=ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
-      Assert.assertEquals(10,procStat.value().intValue());
+      Assert.assertTrue(procStat.value().intValue()>10);
 
       //cacheExtension.dispose();
       manager.removeAllCaches();
