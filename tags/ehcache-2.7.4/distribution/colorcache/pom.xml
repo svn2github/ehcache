@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+  All content copyright (c) Terracotta, Inc.,
+  except as may otherwise be noted in a separate copyright notice.
+  All rights reserved.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.terracotta.forge</groupId>
+    <artifactId>forge-parent</artifactId>
+    <version>3.0</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>net.sf.ehcache.examples</groupId>
+  <artifactId>colorcache</artifactId>
+  <version>2.7.4</version>
+  <name>colorcache</name>
+  <packaging>war</packaging>
+  <description>Clustered Ehcache sample with Terracotta</description>
+
+  <properties>
+    <tc-maven-plugin.version>1.10.4</tc-maven-plugin.version>
+    <toolkit-runtime.version>4.0.4</toolkit-runtime.version>
+    <skipDeploy>true</skipDeploy>
+  </properties>
+
+  <build>
+    <finalName>${project.name}</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <finalName>${project.name}</finalName>
+          <descriptors>
+            <descriptor>src/assemble/distribution.xml</descriptor>
+          </descriptors>
+          <tarLongFileMode>gnu</tarLongFileMode>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>8.1.7.v20120910</version>
+        <groupId>org.mortbay.jetty</groupId>
+        <configuration>
+          <contextPath>${project.name}</contextPath>
+          <stopKey>STOP</stopKey>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-maven-plugin</artifactId>
+        <version>${tc-maven-plugin.version}</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.terracotta</groupId>
+      <artifactId>terracotta-toolkit-runtime</artifactId>
+      <version>${toolkit-runtime.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.6.6</version>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>9081</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-jetty-plugin</artifactId>
+            <version>6.1.15</version>
+            <groupId>org.mortbay.jetty</groupId>
+            <configuration>
+              <systemProperties>
+                <systemProperty>
+                  <name>jetty.port</name>
+                  <value>9081</value>
+                </systemProperty>
+              </systemProperties>
+              <stopPort>9981</stopPort>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>9082</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-jetty-plugin</artifactId>
+            <version>6.1.15</version>
+            <groupId>org.mortbay.jetty</groupId>
+            <configuration>
+              <systemProperties>
+                <systemProperty>
+                  <name>jetty.port</name>
+                  <value>9082</value>
+                </systemProperty>
+              </systemProperties>
+              <stopPort>9982</stopPort>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+        <id>sag-deps</id>
+        <activation>
+            <property>
+                <name>sag-deps</name>
+                <value>true</value>
+            </property>
+        </activation>
+        <dependencies>
+            <dependency>
+                <groupId>gf-3122</groupId>
+                <artifactId>gf.javax.servlet-api</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+        </dependencies>
+    </profile>
+    <profile>
+        <id>community-deps</id>
+        <activation>
+            <property>
+                <name>sag-deps</name>
+                <value>false</value>
+            </property>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.jetty.orbit</groupId>
+                <artifactId>javax.servlet</artifactId>
+                <version>3.0.0.v201112011016</version>
+            </dependency>
+        </dependencies>
+    </profile>
+  </profiles>
+
+  <repositories>
+    <repository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </repository>
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </pluginRepository>
+  </pluginRepositories>
+</project>
