@@ -65,6 +65,52 @@ public class ParserSupport {
         }
     }
 
+
+    /**
+     * Process unquoted string. This handles special chars, like unicode, newlines, etc. More could be added.
+     *
+     * @param tok the tok
+     * @param s   the string to parse. this is the string without enclosing single quotes.
+     * @return the string
+     * @throws CustomParseException the custom parse exception
+     */
+    public static String processUnQuotedString(Token tok, String s) throws CustomParseException {
+        StringBuilder sb = new StringBuilder();
+        try {
+            for (int i = 0; i < s.length(); i++) {
+                char c = s.charAt(i);
+                if (c == 92) { // backslash
+                    c = s.charAt(++i);
+                    switch (c) {
+                        case 'r':
+                            sb.append((char)13);
+                            break;
+                        case 'n':
+                            sb.append((char)10);
+                            break;
+                        case 'u':
+                            String tmp = "";
+                            for (int j = 0; j < 4; j++) {
+                                tmp = tmp + s.charAt(++i);
+                            }
+                            sb.append((char)Integer.parseInt(tmp));
+                            break;
+                        case 't':
+                            sb.append((char)9);
+                            break;
+                        default:
+                            sb.append(c);
+                    }
+                } else {
+                    sb.append(c);
+                }
+            }
+            return sb.toString();
+        } catch (Throwable t) {
+            throw CustomParseException.factory(tok, CustomParseException.Message.SINGLE_QUOTE);
+        }
+    }
+
     /**
      * Make enum from string. Use for enum casts.
      *

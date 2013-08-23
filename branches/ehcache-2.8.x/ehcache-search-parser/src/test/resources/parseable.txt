@@ -91,21 +91,22 @@ select key,value from foo where ((age > 100 and zip=20144) or (time > 10 and fun
 
 // group by?
 select * from foo where ((age > 100 and zip=20144) or time > 10) group by age 
-select * from foo where ((age > 100 and zip=20144) or time > 10) group by age group by zip 
+select * from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip
+select * from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip
 
 // order by?
 select * from foo where ((age > 100 and zip=20144) or time > 10) order by age 
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age order by zip 
+select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip
 
 // order and group by, mixing order
 select * from foo where ((age > 100 and zip=20144) or time > 10) group by age order by age  
-select * from foo where ((age > 100 and zip=20144) or time > 10) group by age group by zip order by age order by zip  
+select * from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip order by age, zip
 select * from foo where ((age > 100 and zip=20144) or time > 10) order by age group by age 
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age order by zip group by age group by zip
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age group by age order by zip group by zip
+select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip
+select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip
 
 // limit must go on the end!
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age group by age order by zip group by zip limit 10
+select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip limit 10
 
 // some quoting chicanery
 select * from foo where foo='tom\\'
