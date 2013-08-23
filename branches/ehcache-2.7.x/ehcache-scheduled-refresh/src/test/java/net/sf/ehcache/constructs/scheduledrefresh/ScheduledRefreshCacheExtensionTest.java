@@ -1,9 +1,5 @@
 package net.sf.ehcache.constructs.scheduledrefresh;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Set;
-
 import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -11,27 +7,17 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
-
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import org.junit.Test;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 public class ScheduledRefreshCacheExtensionTest {
 
    private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
    private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
-
-   private static void sleepySeconds(int secs) {
-      sleepy(secs * 1000);
-   }
-
-   private static void sleepy(int millis) {
-      try {
-         Thread.sleep(millis);
-      } catch (InterruptedException e) {
-
-      }
-   }
-
 
    // OK. we want to create an ehcache, then programmitically decorate it with
    // locks.
@@ -60,7 +46,7 @@ public class ScheduledRefreshCacheExtensionTest {
    }
 
    @Test
-   public void testSimpleCaseProgrammatic() {
+   public void testSimpleCaseProgrammatic() throws InterruptedException {
 
       CacheManager manager = new CacheManager();
       manager.removeAllCaches();
@@ -82,7 +68,10 @@ public class ScheduledRefreshCacheExtensionTest {
          cache.put(new Element(new Integer(i), i + ""));
       }
 
-      sleepySeconds(8);
+      second = Math.max(8, 60 - second + 3);
+      System.out.println("Scheduled delay is :: " + second);
+
+      TimeUnit.SECONDS.sleep(second);
 
       for (Object key : cache.getKeys()) {
          Element val = cache.get(key);
@@ -99,13 +88,13 @@ public class ScheduledRefreshCacheExtensionTest {
       }
 
       ExtendedStatistics.Statistic<Number> refreshStat=ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
-      Assert.assertEquals(1,refreshStat.value().intValue());
+      Assert.assertTrue(refreshStat.value().intValue()>1);
 
       ExtendedStatistics.Statistic<Number> jobStat=ScheduledRefreshCacheExtension.findJobStatistic(cache);
-      Assert.assertEquals(1,refreshStat.value().intValue());
+      Assert.assertTrue(refreshStat.value().intValue()>1);
 
       ExtendedStatistics.Statistic<Number> procStat=ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
-      Assert.assertEquals(10,procStat.value().intValue());
+      Assert.assertTrue(procStat.value().intValue()>10);
 
       //cacheExtension.dispose();
       manager.removeAllCaches();
@@ -115,7 +104,7 @@ public class ScheduledRefreshCacheExtensionTest {
    // OK. we want to create an ehcache, then programmitaclly decorate it with
    // locks.
    @Test
-   public void testSimpleCaseXML() {
+   public void testSimpleCaseXML() throws InterruptedException {
 
       CacheManager manager = CacheManager.create("src/test/resources/ehcache-scheduled-refresh.xml");
 
@@ -129,7 +118,8 @@ public class ScheduledRefreshCacheExtensionTest {
 
       second = Math.max(8, 60 - second + 3);
       System.out.println("Scheduled delay is :: " + second);
-      sleepySeconds(second);
+
+      TimeUnit.SECONDS.sleep(second);
 
       for (Object key : cache.getKeys()) {
          Element val = cache.get(key);
@@ -152,7 +142,7 @@ public class ScheduledRefreshCacheExtensionTest {
    // OK. we want to create an ehcache, then programmitically decorate it with
    // locks.
    @Test
-   public void testPolling() {
+   public void testPolling() throws InterruptedException {
 
       CacheManager manager = new CacheManager();
       manager.removeAllCaches();
@@ -179,7 +169,7 @@ public class ScheduledRefreshCacheExtensionTest {
          cache.put(elem);
       }
 
-      sleepySeconds(20);
+      TimeUnit.SECONDS.sleep(20);
 
       //cacheExtension.dispose();
       manager.removeAllCaches();
