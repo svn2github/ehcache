@@ -349,6 +349,16 @@ public class EhcachSearchParseTest {
         Assert.assertTrue(res.hasAttributes());
     }
 
+    @Test
+    public void testParserSelectAll() throws ParseException {
+        String st = "select all from cache1 where  date >= (date)'2020-06-01' order by age ";
+        Results res = new QueryManagerImpl(ehcaches).search(getCache(st), st);
+        Assert.assertEquals(10, res.size());
+        Assert.assertFalse(res.hasKeys());
+        Assert.assertFalse(res.hasValues());
+        Assert.assertTrue(res.hasAttributes());
+    }
+
 
     @Test
     public void testParserSelectStarKeyValue() throws ParseException {
