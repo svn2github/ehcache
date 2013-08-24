@@ -34,99 +34,28 @@ import junit.framework.Assert;
 
 public class ConcurrentCacheMethodsTest extends AbstractCacheTestBase {
 
-  private static final int NODE_COUNT = 1;
-
   public ConcurrentCacheMethodsTest(TestConfig testConfig) {
     super(testConfig, App.class);
   }
 
   public static class App extends ClientBase {
-    private final ToolkitBarrier         barrier;
-
-    private volatile CacheManager manager;
     private volatile Ehcache      cache;
 
     public App(String[] args) {
-      super(args);
-      this.barrier = getClusteringToolkit().getBarrier("test", NODE_COUNT);
-    }
-
-    public static void main(String[] args) {
-      new App(args).run();
+      super("strong", args);
     }
 
     @Override
     protected void runTest(Cache testcache, Toolkit clusteringToolkit) throws Throwable {
-      cacheManager.shutdown();
-      int index = barrier.await();
-
-      if (index == 0) {
-        setup();
-        try {
-          testPutIfAbsent();
-        } finally {
-          clearup();
-        }
-        setup();
-        try {
-          testRemoveElement();
-        } finally {
-          clearup();
-        }
-        setup();
-        try {
-          testTwoArgReplace();
-        } finally {
-          clearup();
-        }
-        setup();
-        try {
-          testOneArgReplace();
-        } finally {
-          clearup();
-        }
-      }
-      barrier.await();
-
-      setup();
-      try {
-        testMultiThreadedPutIfAbsent();
-      } finally {
-        clearup();
-      }
-      setup();
-      try {
-        testMultiThreadedRemoveElement();
-      } finally {
-        clearup();
-      }
-      setup();
-      try {
-        testMultiThreadedTwoArgReplace();
-      } finally {
-        clearup();
-      }
-      setup();
-      try {
-        testMultiThreadedOneArgReplace();
-      } finally {
-        clearup();
-      }
-    }
-
-    private void setup() {
-      setupCacheManager();
-      manager = getCacheManager();
-      cache = manager.getEhcache("strong");
-    }
-
-    private void clearup() {
-      cache.removeAll();
-      manager.removeAllCaches();
-      manager.shutdown();
-      cache = null;
-      manager = null;
-      cacheManager = null;
+      cache = testcache;
+      testPutIfAbsent();
+      testRemoveElement();
+      testTwoArgReplace();
+      testOneArgReplace();
+      testMultiThreadedPutIfAbsent();
+      testMultiThreadedRemoveElement();
+      testMultiThreadedTwoArgReplace();
+      testMultiThreadedOneArgReplace();
     }
 
     private void testPutIfAbsent() {
