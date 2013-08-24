@@ -9,6 +9,12 @@ select *,key,value from foo
 select *,key from foo
 select *,value from foo
 
+// all is an alias for * and vice versa
+select all from foo
+select all, key from foo
+select all, key, value from foo
+
+
 // cache manager inclusion
 select * from foo.bar
 
