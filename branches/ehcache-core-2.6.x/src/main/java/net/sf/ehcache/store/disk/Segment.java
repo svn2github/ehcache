@@ -988,10 +988,7 @@ public class Segment extends ReentrantReadWriteLock {
                 readLock().unlock();
             }
         }
-        if (failedMarker) {
-            evict(key, hash, substitute, false);
-        }
-        return failedMarker;
+        return failedMarker && evict(key, hash, substitute, false) != null;
     }
 
     /**
