@@ -1136,7 +1136,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
      * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+        try {
+            sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
+        } catch (RuntimeException e) {
+            LOG.error("Failed to send notification for {}", evt, e);
+        }
     }
 
     /**
