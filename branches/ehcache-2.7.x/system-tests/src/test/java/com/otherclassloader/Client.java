@@ -40,7 +40,7 @@ public class Client implements Runnable, CacheEventListener {
 
     barrier.await();
 
-    long end = System.currentTimeMillis() + 30000L;
+    long end = System.currentTimeMillis() + 60000L;
     while (System.currentTimeMillis() < end) {
       int puts = putEvents.get();
       System.err.println("puts: " + puts);
