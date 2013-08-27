@@ -309,7 +309,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
 
             try {
                 transactionIDFactory.markForCommit(xidTransactionID);
-                LOG.debug("marked tx ID from commit: ", xidTransactionID);
+                LOG.debug("marked tx ID from commit: {}", xidTransactionID);
             } catch (TransactionIDNotFoundException tnfe) {
                 commitObserver.end(XaCommitOutcome.EXCEPTION);
                 throw new EhcacheXAException("cannot find XID, it might have been duplicated and cleaned up earlier on: " + xid,
