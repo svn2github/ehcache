@@ -100,9 +100,11 @@ public class ManagementServerLoader {
                     startRestAgent(managementRESTServiceConfiguration, managementServerImplClass, clientUUID);
                 }
             } else {
-                LOG.warn("A previous CacheManager already instanciated the Ehcache Management rest agent, on port "
-                        + managementRESTServiceConfiguration.getBind() + ", the configuration will not be changed for "
-                        + cacheManager.getName());
+                LOG.warn("A previous CacheManager already instantiated the Ehcache Management rest agent" +
+                         (ManagementRESTServiceConfiguration.NO_BIND.equals(managementRESTServiceConfiguration.getBind()) ?
+                             ", reachable only through the TSA agent" : ", on port " + managementRESTServiceConfiguration.getBind()) +
+                         ", the configuration will not be changed for "
+                         + cacheManager.getName());
             }
             managementServerImpl = MGMT_SVR_BY_BIND.get(managementRESTServiceConfiguration.getBind());
             Method registerMethod = managementServerImplClass.getMethod("register", new Class[] {cacheManager.getClass()});
