@@ -102,7 +102,7 @@ public abstract class AbstractRMITest {
     @Before
     public void setupMulticastTiming() {
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(30000);
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(Long.MAX_VALUE);
     }
 
     protected static final void setHeapDumpOnOutOfMemoryError(boolean value) {
