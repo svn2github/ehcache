@@ -16,28 +16,6 @@
 
 package net.sf.ehcache.statistics.extended;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.terracotta.context.query.Matchers.attributes;
-import static org.terracotta.context.query.Matchers.context;
-import static org.terracotta.context.query.Matchers.hasAttribute;
-import static org.terracotta.context.query.Matchers.identifier;
-import static org.terracotta.context.query.Matchers.subclassOf;
-import static org.terracotta.context.query.QueryBuilder.queryBuilder;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -53,7 +31,6 @@ import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.context.TreeNode;
@@ -64,6 +41,30 @@ import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.Time;
 import org.terracotta.statistics.ValueStatistic;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.terracotta.context.query.Matchers.attributes;
+import static org.terracotta.context.query.Matchers.context;
+import static org.terracotta.context.query.Matchers.hasAttribute;
+import static org.terracotta.context.query.Matchers.identifier;
+import static org.terracotta.context.query.Matchers.subclassOf;
+import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 
 /**
  * The Class ExtendedStatisticsImpl.
@@ -191,7 +192,6 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
                 EnumSet.of(CacheOperationOutcomes.NonStopOperationOutcomes.REJOIN_TIMEOUT,
                         CacheOperationOutcomes.NonStopOperationOutcomes.TIMEOUT),
                 EnumSet.allOf(CacheOperationOutcomes.NonStopOperationOutcomes.class));
-
     }
 
     /**
@@ -744,6 +744,8 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             case 1:
                 return results.iterator().next();
             default:
+               LOGGER.warn("Duplicate statistic found for " + statistic + " : " +
+                  dumpStatsTree(manager));
                 throw new IllegalStateException("Duplicate statistics found for " + statistic);
         }
     }
@@ -763,7 +765,9 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
             case 1:
                 return results.iterator().next();
             default:
-                throw new IllegalStateException("Duplicate statistics found for " + statistic);
+               LOGGER.warn("Duplicate statistic found for " + statistic + " : " +
+                  dumpStatsTree(manager));
+               throw new IllegalStateException("Duplicate statistics found for " + statistic);
         }
     }
 
@@ -869,5 +873,17 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
     public Statistic<Double> nonstopTimeoutRatio() {
         return nonStopTimeoutRatio;
     }
+
+    private static String dumpStatsTree(StatisticsManager manager) {
+      StringWriter writer = new StringWriter();
+      PrintWriter pw = new PrintWriter(writer);
+      pw.println("Stats context tree dump:");
+      Set<TreeNode> nodes = manager.query(queryBuilder().build());
+      for (TreeNode tn : nodes) {
+         pw.println(tn.toTreeString());
+      }
+      pw.flush();
+      return writer.toString();
+   }
 
 }

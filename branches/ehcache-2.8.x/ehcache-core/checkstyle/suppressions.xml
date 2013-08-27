@@ -109,5 +109,8 @@
     <!-- Contains a thread therefore cannot.  -->
     <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
 
+    <!-- not much to be done about this; pulls in a million classes -->
+    <suppress checks="ClassFanOutComplexity" files="ExtendedStatisticsImpl.java"/>
+
     <suppress checks="SuperClone" files="ClassLoaderAwareCache.java"/>
 </suppressions>
