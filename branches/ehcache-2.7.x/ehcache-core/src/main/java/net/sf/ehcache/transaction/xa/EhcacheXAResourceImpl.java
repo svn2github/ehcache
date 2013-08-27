@@ -300,13 +300,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             LOG.debug("committing {} soft lock(s) for [{}]", softLocks.size(), xid);
             for (SoftLock softLock : softLocks) {
                 if (softLock.isExpired()) {
+                    LOG.debug("freezing expired soft lock {}", softLock);
                     softLock.lock();
                     softLock.freeze();
                 }
             }
+            LOG.debug("all {} soft lock(s) are frozen for [{}]", softLocks.size(), xid);
 
             try {
                 transactionIDFactory.markForCommit(xidTransactionID);
+                LOG.debug("marked tx ID from commit: {}", xidTransactionID);
             } catch (TransactionIDNotFoundException tnfe) {
                 commitObserver.end(XaCommitOutcome.EXCEPTION);
                 throw new EhcacheXAException("cannot find XID, it might have been duplicated and cleaned up earlier on: " + xid,
@@ -317,6 +320,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             for (SoftLock softLock : softLocks) {
+                LOG.debug("fetching underlying element with key '{}'", softLock.getKey());
                 Element e = underlyingStore.getQuiet(softLock.getKey());
                 if (e == null) {
                     // the element can be null if it was manually unpinned, see DEV-8308
@@ -327,21 +331,27 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 Element frozenElement = softLockId.getNewElement();
 
                 if (frozenElement != null) {
+                    LOG.debug("replacing soft locked underlying element with key '{}' with new value", softLock.getKey());
                     underlyingStore.put(frozenElement);
                 } else {
+                    LOG.debug("removing soft locked underlying element with key '{}'", softLock.getKey());
                     underlyingStore.remove(softLock.getKey());
                 }
             }
 
+            LOG.debug("unlocking {} soft lock(s) for [{}]", softLocks.size(), xid);
             for (SoftLock softLock : softLocks) {
                 softLock.unfreeze();
                 softLock.unlock();
             }
+            LOG.debug("all {} soft lock(s) have been unfrozen for [{}]", softLocks.size(), xid);
 
             fireAfterCommitOrRollback();
+            LOG.debug("AfterCommitOrRollback event fired for [{}]", xid);
             commitObserver.end(XaCommitOutcome.COMMITTED);
         } finally {
             transactionIDFactory.clear(xidTransactionID);
+            LOG.debug("transaction ID cleared: {}", xidTransactionID);
         }
     }
 
