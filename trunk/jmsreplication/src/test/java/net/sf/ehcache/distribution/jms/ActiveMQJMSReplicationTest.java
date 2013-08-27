@@ -36,7 +36,6 @@ import org.junit.Test;
 import static net.sf.ehcache.distribution.jms.AbstractJMSReplicationTest.SAMPLE_CACHE_ASYNC;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
 
 /**
  * ActiveMQ seems to have a bug in 5.1 where it does not cleanup temporary queues, even though they have been
@@ -81,11 +80,9 @@ public class ActiveMQJMSReplicationTest extends AbstractJMSReplicationTest {
             Element element = new Element("1", "value");
             managerA.getCache(SAMPLE_CACHE_ASYNC).put(element);
 
-            Thread.sleep(3000);
-
-            assertThat(managerA.getCache(SAMPLE_CACHE_ASYNC).get("1"), notNullValue());
-            assertThat(managerB.getCache(SAMPLE_CACHE_ASYNC).get("1"), notNullValue());
-            assertThat(managerC.getCache(SAMPLE_CACHE_ASYNC).get("1"), nullValue());
+            RetryAssert.assertBy(10, TimeUnit.SECONDS, RetryAssert.elementAt(managerA.getCache(SAMPLE_CACHE_ASYNC), "1"), notNullValue());
+            RetryAssert.assertBy(10, TimeUnit.SECONDS, RetryAssert.elementAt(managerB.getCache(SAMPLE_CACHE_ASYNC), "1"), notNullValue());
+            RetryAssert.assertBy(10, TimeUnit.SECONDS, RetryAssert.elementAt(managerC.getCache(SAMPLE_CACHE_ASYNC), "1"), nullValue());
         } finally {
             managerA.shutdown();
             managerB.shutdown();
