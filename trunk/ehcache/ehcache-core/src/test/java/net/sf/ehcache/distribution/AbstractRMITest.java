@@ -52,7 +52,6 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 
 import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -103,7 +102,7 @@ public abstract class AbstractRMITest {
     @Before
     public void setupMulticastTiming() {
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
-        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(30000);
+        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(Long.MAX_VALUE);
     }
 
     protected static final void setHeapDumpOnOutOfMemoryError(boolean value) {
