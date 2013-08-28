@@ -204,6 +204,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         try {
           bucket.destroy();
           list.remove(bucket);
+          bucketManager.removeBucket(bucket.getBucketName());
         } finally {
           nodeWriteLock.unlock();
         }
@@ -354,8 +355,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   }
 
   private void processOneDeadNode() {
-    commonAsyncLock.lock();
     Set<String> deadNodeBuckets = Collections.EMPTY_SET;
+    commonAsyncLock.lock();
     try {
       deadNodeBuckets = bucketManager.transferBucketsFromDeadNode();
     } finally {
@@ -452,22 +453,39 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       nodeToBucketNames.remove(nodeName);
     }
 
+    private void removeBucket(String bucketName) {
+      commonAsyncLock.lock();
+      try {
+        Set<String> buckets = nodeToBucketNames.get(nodeName);
+        boolean removed = buckets.remove(bucketName);
+        nodeToBucketNames.put(nodeName, buckets);
+        debug("removeBucket " + bucketName + " " + removed + " remaining deadNodes "
+              + nodeToBucketNames.get(DEAD_NODES));
+      } finally {
+        commonAsyncLock.unlock();
+      }
+    }
+
     private Set<String> transferBucketsFromDeadNode() {
       String deadNode = getOneDeadNode();
-      Set<String> deadNodeBuckets = nodeToBucketNames.get(deadNode);
-      if (deadNodeBuckets != null) {
-        Set<String> newOwner = nodeToBucketNames.get(nodeName);
-        newOwner.addAll(deadNodeBuckets);
-        nodeToBucketNames.put(nodeName, newOwner); // transferring bucket ownership to new node
-        nodeToBucketNames.remove(deadNode); // removing buckets from old node
-        debug("transferBucketsFromDeadNode deadNode " + deadNode + " to node " + nodeName + " buckets " + newOwner);
-        return deadNodeBuckets;
+      while (deadNode != null) {
+        Set<String> deadNodeBuckets = nodeToBucketNames.get(deadNode);
+        if (deadNodeBuckets != null) {
+          Set<String> newOwner = nodeToBucketNames.get(nodeName);
+          newOwner.addAll(deadNodeBuckets);
+          nodeToBucketNames.put(nodeName, newOwner); // transferring bucket ownership to new node
+          nodeToBucketNames.remove(deadNode); // removing buckets from old node
+          debug("transferBucketsFromDeadNode deadNode " + deadNode + " to node " + nodeName + " buckets " + newOwner
+                + " remaining deadNodes " + nodeToBucketNames.get(DEAD_NODES));
+          return deadNodeBuckets;
+        }
+        deadNode = getOneDeadNode();
       }
       return Collections.EMPTY_SET;
     }
 
     private String getOneDeadNode() {
-      String deadNode = "";
+      String deadNode = null;
       Set<String> deadNodes = nodeToBucketNames.get(DEAD_NODES);
       Iterator<String> itr = deadNodes.iterator();
       if (itr.hasNext()) {
@@ -489,7 +507,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
         Set<String> allDeadNodes = nodeToBucketNames.get(DEAD_NODES);
         if (allDeadNodes.addAll(nodes)) {
           nodeToBucketNames.put(DEAD_NODES, allDeadNodes);
-          debug(nodeName + " addToDeadNodes deadNodes " + nodes);
+          debug(nodeName + " addToDeadNodes deadNodes " + nodes + " allDeadNodes " + allDeadNodes);
         }
       }
     }
