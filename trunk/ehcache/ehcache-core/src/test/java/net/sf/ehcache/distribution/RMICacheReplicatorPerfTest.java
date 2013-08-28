@@ -49,14 +49,15 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorPerfTest.class.getName());
 
-    private static final String DEFAULT_TEST_CACHE = "sampleCache1";
+    private static final String ASYNCHRONOUS_CACHE = "asynchronousCache";
+    private static final String SYNCHRONOUS_CACHE = "synchronousCache";
 
     private static List<CacheManager> createCluster(int size, String ... caches){
         LOG.info("Creating Cluster");
         Collection<String> required = Arrays.asList(caches);
         List<Configuration> configurations = new ArrayList<Configuration>(size);
         for (int i = 1; i <= size; i++) {
-            Configuration config = ConfigurationFactory.parseConfiguration(RMICacheReplicatorPerfTest.class.getResource("/ehcache-perf-distributed" + i + ".xml")).name("cm" + i);
+            Configuration config = ConfigurationFactory.parseConfiguration(RMICacheReplicatorPerfTest.class.getResource("/ehcache-perf-distributed.xml")).name("cm" + i);
             if (!required.isEmpty()) {
                 for (Iterator<Map.Entry<String, CacheConfiguration>> it = config.getCacheConfigurations().entrySet().iterator(); it.hasNext(); ) {
                     if (!required.contains(it.next().getKey())) {
@@ -151,9 +152,9 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
      */
     @Test
     public void testBigPutsProgagatesAsynchronous() throws CacheException, InterruptedException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, ASYNCHRONOUS_CACHE);
         try {
-            final Ehcache cache1 = cluster.get(0).getEhcache(DEFAULT_TEST_CACHE);
+            final Ehcache cache1 = cluster.get(0).getEhcache(ASYNCHRONOUS_CACHE);
 
             StopWatch stopWatch = new StopWatch();
             Integer index = null;
@@ -175,7 +176,7 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
             //assertTrue(putTime < 8);
 
             for (CacheManager manager : cluster) {
-              RetryAssert.assertBy(2, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(DEFAULT_TEST_CACHE)), Is.is(2000));
+              RetryAssert.assertBy(2, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(ASYNCHRONOUS_CACHE)), Is.is(2000));
             }
         } finally {
             destroyCluster(cluster);
@@ -190,9 +191,9 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
 
     @Test
     public void testBootstrap() throws CacheException, InterruptedException, RemoteException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, ASYNCHRONOUS_CACHE);
         try {
-            final Ehcache cache1 = cluster.get(0).getEhcache(DEFAULT_TEST_CACHE);
+            final Ehcache cache1 = cluster.get(0).getEhcache(ASYNCHRONOUS_CACHE);
             
             //load up some data
             StopWatch stopWatch = new StopWatch();
@@ -216,7 +217,7 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
             assertEquals(2000, cache1.getSize());
 
             for (CacheManager manager : cluster) {
-              RetryAssert.assertBy(7, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(DEFAULT_TEST_CACHE)), Is.is(2000));
+              RetryAssert.assertBy(7, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(ASYNCHRONOUS_CACHE)), Is.is(2000));
             }
 
             //now test bootstrap
@@ -267,9 +268,9 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
      * Drive everything to point of breakage within a 64MB VM.
      */
     public void xTestHugePutsBreaksAsynchronous() throws CacheException, InterruptedException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, ASYNCHRONOUS_CACHE);
         try {
-            final Ehcache cache1 = cluster.get(0).getEhcache(DEFAULT_TEST_CACHE);
+            final Ehcache cache1 = cluster.get(0).getEhcache(ASYNCHRONOUS_CACHE);
             
             //Give everything a chance to startup
             StopWatch stopWatch = new StopWatch();
@@ -294,7 +295,7 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
             assertEquals(100000, cache1.getSize());
 
             for (CacheManager manager : cluster) {
-              RetryAssert.assertBy(100, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(DEFAULT_TEST_CACHE)), Is.is(20000));
+              RetryAssert.assertBy(100, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(ASYNCHRONOUS_CACHE)), Is.is(20000));
             }
         } finally {
             destroyCluster(cluster);
@@ -313,9 +314,9 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
      */
     @Test
     public void testBigRemovesProgagatesAsynchronous() throws CacheException, InterruptedException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, ASYNCHRONOUS_CACHE);
         try {
-            final Ehcache cache1 = cluster.get(0).getEhcache(DEFAULT_TEST_CACHE);
+            final Ehcache cache1 = cluster.get(0).getEhcache(ASYNCHRONOUS_CACHE);
             
             //Give everything a chance to startup
             Integer index = null;
@@ -335,10 +336,10 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
 
             Ehcache[] caches = {
                 cache1,
-                cluster.get(1).getCache(DEFAULT_TEST_CACHE),
-                cluster.get(2).getCache(DEFAULT_TEST_CACHE),
-                cluster.get(3).getCache(DEFAULT_TEST_CACHE),
-                cluster.get(4).getCache(DEFAULT_TEST_CACHE) };
+                cluster.get(1).getCache(ASYNCHRONOUS_CACHE),
+                cluster.get(2).getCache(ASYNCHRONOUS_CACHE),
+                cluster.get(3).getCache(ASYNCHRONOUS_CACHE),
+                cluster.get(4).getCache(ASYNCHRONOUS_CACHE) };
 
             waitForCacheSize(5000, 25, caches);
             //Let the disk stores catch up before the next stage of the test
@@ -392,7 +393,7 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
      */
     @Test
     public void testBigPutsProgagatesSynchronous() throws CacheException, InterruptedException {
-        List<CacheManager> cluster = createCluster(5, "sampleCache3");
+        List<CacheManager> cluster = createCluster(5, SYNCHRONOUS_CACHE);
         try {
             //Give everything a chance to startup
             StopWatch stopWatch = new StopWatch();
@@ -400,7 +401,7 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
             for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < 1000; j++) {
                     index = Integer.valueOf(((1000 * i) + j));
-                    cluster.get(0).getCache("sampleCache3").put(new Element(index,
+                    cluster.get(0).getCache(SYNCHRONOUS_CACHE).put(new Element(index,
                             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                                     + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -414,7 +415,7 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
             LOG.info("Put and Propagate Synchronously Elapsed time: " + putTime + " seconds");
 
             for (CacheManager manager : cluster) {
-                assertThat(manager.getName(), manager.getCache("sampleCache3").getSize(), Is.is(2000));
+                assertThat(manager.getName(), manager.getCache(SYNCHRONOUS_CACHE).getSize(), Is.is(2000));
             }
         } finally {
             destroyCluster(cluster);
@@ -429,13 +430,13 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
      * @throws InterruptedException
      */
     public void manualStabilityTest() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, ASYNCHRONOUS_CACHE);
         try {
             AbstractCacheTest.forceVMGrowth();
 
             ManagementService.registerMBeans(cluster.get(2), AbstractCacheTest.createMBeanServer(), true, true, true, true, true);
             while (true) {
-                final Ehcache cache1 = cluster.get(0).getEhcache(DEFAULT_TEST_CACHE);
+                final Ehcache cache1 = cluster.get(0).getEhcache(ASYNCHRONOUS_CACHE);
 
                 StopWatch stopWatch = new StopWatch();
                 Integer index = null;
@@ -457,7 +458,7 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
                 //assertTrue(putTime < 8);
 
                 for (CacheManager manager : cluster) {
-                  RetryAssert.assertBy(2, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(DEFAULT_TEST_CACHE)), Is.is(2000));
+                  RetryAssert.assertBy(2, TimeUnit.SECONDS, RetryAssert.sizeOf(manager.getCache(ASYNCHRONOUS_CACHE)), Is.is(2000));
                 }
             }
         } finally {
@@ -513,9 +514,9 @@ public class RMICacheReplicatorPerfTest extends AbstractRMITest {
      */
     @Test
     public void testReplicatePerf() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(1, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(1, ASYNCHRONOUS_CACHE);
         try {
-            Ehcache cache1 = cluster.get(0).getEhcache(DEFAULT_TEST_CACHE);
+            Ehcache cache1 = cluster.get(0).getEhcache(ASYNCHRONOUS_CACHE);
             long start = System.nanoTime();
             final String keyBase = Long.toString(start);
             int count = 0;
