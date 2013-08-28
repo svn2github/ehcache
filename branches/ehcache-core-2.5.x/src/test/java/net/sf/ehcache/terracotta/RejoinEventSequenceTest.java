@@ -36,6 +36,7 @@ import net.sf.ehcache.cluster.ClusterNode;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterTopologyListener;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -53,8 +54,8 @@ public class RejoinEventSequenceTest extends TestCase {
         final ClusteredInstanceFactory mockFactory = mock(ClusteredInstanceFactory.class);
         final MockCacheCluster mockCacheCluster = new MockCacheCluster();
         final CyclicBarrier barrier = new CyclicBarrier(2);
+        final AtomicBoolean firstTime = new AtomicBoolean(true);
         TerracottaUnitTesting.setupTerracottaTesting(mockFactory, new Runnable() {
-            AtomicBoolean firstTime = new AtomicBoolean(true);
             public void run() {
                 if(!firstTime.getAndSet(false) && nodeLeftFired.get()) {
                     try {
@@ -81,6 +82,7 @@ public class RejoinEventSequenceTest extends TestCase {
             n++;
             nodeLeftFired.set(false);
             info("================================= Run: " + n + " =========================================================");
+            Assert.assertFalse("firstTime should be false", firstTime.get());
             info("Sleeping for 5 secs...");
             Thread.sleep(5000);
             info("firing node left...");
