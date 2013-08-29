@@ -468,7 +468,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         }
 
         //Check caches. Configuration should have completed
-        assertEquals(61, configurationHelper.createCaches().size());
+        assertEquals(5, configurationHelper.createCaches().size());
 
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         Set listeners = sampleCache1.getCacheEventNotificationService().getCacheEventListeners();
