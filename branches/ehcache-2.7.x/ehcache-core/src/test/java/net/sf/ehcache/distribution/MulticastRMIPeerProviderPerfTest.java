@@ -40,11 +40,11 @@ public class MulticastRMIPeerProviderPerfTest {
     public void setUp() throws Exception {
         MulticastKeepaliveHeartbeatSender.setHeartBeatInterval(1000);
         manager1 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed1.xml")).name("cm-1"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed.xml")).name("cm-1"));
         manager2 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed2.xml")).name("cm-2"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed.xml")).name("cm-2"));
         manager3 = new CacheManager(ConfigurationFactory.parseConfiguration(
-                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed3.xml")).name("cm-3"));
+                MulticastRMIPeerProviderPerfTest.class.getResource("/ehcache-perf-distributed.xml")).name("cm-3"));
 
         // wait for cluster to establish
         Thread.sleep(2000);
@@ -60,7 +60,7 @@ public class MulticastRMIPeerProviderPerfTest {
     @Test
     public void testRemoteGetName() throws RemoteException, InterruptedException {
 
-        Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
+        Ehcache m1sampleCache1 = manager1.getCache("asynchronousCache");
         Thread.sleep(2000);
         List peerUrls = manager1.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(m1sampleCache1);
 

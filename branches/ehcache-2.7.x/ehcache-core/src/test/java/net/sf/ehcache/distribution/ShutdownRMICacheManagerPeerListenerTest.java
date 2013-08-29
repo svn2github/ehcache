@@ -27,7 +27,7 @@ public class ShutdownRMICacheManagerPeerListenerTest {
         try {
             CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener("RMI");
             List cachePeers1 = cachePeerListener.getBoundCachePeers();
-            assertEquals(55, cachePeers1.size());
+            assertEquals(5, cachePeers1.size());
             assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
         } finally {
             /*
