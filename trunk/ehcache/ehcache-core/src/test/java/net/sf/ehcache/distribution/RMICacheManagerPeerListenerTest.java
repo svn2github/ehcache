@@ -195,35 +195,35 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testPeersBound() {
 
         List cachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers1.size());
+        assertEquals(5, cachePeers1.size());
         String[] boundCachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers1.length);
+        assertEquals(5, boundCachePeers1.length);
         assertEquals(cachePeers1.size(), boundCachePeers1.length);
 
         List cachePeers2 = ((RMICacheManagerPeerListener) manager2.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers2.size());
+        assertEquals(5, cachePeers2.size());
         String[] boundCachePeers2 = ((RMICacheManagerPeerListener) manager2.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers2.length);
+        assertEquals(5, boundCachePeers2.length);
         assertEquals(cachePeers2.size(), boundCachePeers2.length);
 
 
         List cachePeers3 = ((RMICacheManagerPeerListener) manager3.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers3.size());
+        assertEquals(5, cachePeers3.size());
         String[] boundCachePeers3 = ((RMICacheManagerPeerListener) manager3.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers3.length);
+        assertEquals(5, boundCachePeers3.length);
         assertEquals(cachePeers3.size(), boundCachePeers3.length);
 
 
         List cachePeers4 = ((RMICacheManagerPeerListener) manager4.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers4.size());
+        assertEquals(5, cachePeers4.size());
         String[] boundCachePeers4 = ((RMICacheManagerPeerListener) manager4.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers4.length);
+        assertEquals(5, boundCachePeers4.length);
         assertEquals(cachePeers4.size(), boundCachePeers4.length);
 
         List cachePeers5 = ((RMICacheManagerPeerListener) manager5.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers5.size());
+        assertEquals(5, cachePeers5.size());
         String[] boundCachePeers5 = ((RMICacheManagerPeerListener) manager5.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers5.length);
+        assertEquals(5, boundCachePeers5.length);
         assertEquals(cachePeers5.size(), boundCachePeers5.length);
     }
 
@@ -245,13 +245,13 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testBoundListenerPeersAfterDefaultCacheAdd() throws RemoteException {
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers.length);
+        assertEquals(5, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
 
         //Add from default which is has a CacheReplicator configured.
         manager1.addCache("fromDefaultCache");
         boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(56, boundCachePeers.length);
+        assertEquals(6, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
     }
 
@@ -262,7 +262,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testBoundListenerPeersAfterProgrammaticCacheAdd() throws RemoteException {
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers.length);
+        assertEquals(5, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
 
         //Add from default which is has a CacheReplicator configured.
@@ -276,7 +276,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
         manager1.addCache(cache);
         boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(56, boundCachePeers.length);
+        assertEquals(6, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
     }
 
@@ -286,13 +286,13 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     @Test
     public void testBoundListenerPeersAfterCacheRemove() throws RemoteException {
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers.length);
+        assertEquals(5, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
 
         //Remove a replicated cache
         manager1.removeCache("sampleCache1");
         boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(54, boundCachePeers.length);
+        assertEquals(4, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
     }
 
@@ -312,7 +312,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testListenerShutsdown() {
         CacheManagerPeerListener cachePeerListener = manager1.getCachePeerListener("RMI");
         List cachePeers1 = cachePeerListener.getBoundCachePeers();
-        assertEquals(55, cachePeers1.size());
+        assertEquals(5, cachePeers1.size());
         assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
 
         manager1.shutdown();
