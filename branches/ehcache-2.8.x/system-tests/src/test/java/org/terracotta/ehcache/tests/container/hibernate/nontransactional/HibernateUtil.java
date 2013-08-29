@@ -10,12 +10,15 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 public class HibernateUtil {
-  private static String         defaultConfig = "/hibernate-config/hibernate.cfg.xml";
+  public static final String    DB_PORT_VARIABLE = "__PORT__";
+  public static final String    DB_PORT_SYSPROP  = "HibernateUtil.DB_PORT";
+
+  private static final String   defaultConfig    = "/hibernate-config/hibernate.cfg.xml";
   private static SessionFactory sessionFactory;
   private static Configuration  config;
 
   public synchronized static void configure(String configResource) {
-    config = new Configuration().configure(configResource);
+    config = makeConfig(configResource);
   }
 
   public synchronized static SessionFactory getSessionFactory() {
@@ -36,9 +39,26 @@ public class HibernateUtil {
 
   private synchronized static Configuration getConfig() {
     if (config == null) {
-      config = new Configuration().configure(defaultConfig);
+      config = makeConfig(defaultConfig);
     }
     return config;
+  }
+
+  private static Configuration makeConfig(String resource) {
+    String dbPort = System.getProperty(DB_PORT_SYSPROP, null);
+    if (dbPort == null) { throw new AssertionError("System property (" + DB_PORT_SYSPROP + ") not set"); }
+    dbPort = dbPort.trim();
+
+    Configuration cfg = new Configuration().configure(resource);
+
+    String[] keys = new String[] { "connection.url", "hibernate.connection.url" };
+    for (String key : keys) {
+      String value = cfg.getProperty(key);
+      value = value.replace(DB_PORT_VARIABLE, dbPort);
+      cfg.setProperty(key, value);
+    }
+
+    return cfg;
   }
 
   public synchronized static void closeSessionFactory() {

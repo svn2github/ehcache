@@ -9,6 +9,7 @@ import net.sf.ehcache.util.DerbyWrapper;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.terracotta.ehcache.tests.container.ContainerTestSetup;
+import org.terracotta.ehcache.tests.container.hibernate.nontransactional.HibernateUtil;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -17,6 +18,7 @@ import com.tc.test.server.appserver.StandardAppServerParameters;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
 import com.tc.test.server.appserver.deployment.WebApplicationServer;
+import com.tc.util.PortChooser;
 import com.tc.util.runtime.Vm;
 
 import java.io.File;
@@ -40,7 +42,8 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
   public static abstract class BaseClusteredCacheProviderTestSetup extends ContainerTestSetup {
 
     private DerbyWrapper derbyWrapper;
-    private final Class          testClass;
+    private final Class  testClass;
+    private final int    derbyPort = new PortChooser().chooseRandomPort();
 
     protected BaseClusteredCacheProviderTestSetup(Class<? extends AbstractStandaloneTwoServerDeploymentTest> testClass,
                                                   String ehcacheConfigFile) {
@@ -81,6 +84,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
     protected void configureServerParamers(StandardAppServerParameters params) {
       super.configureServerParamers(params);
       if (!Vm.isJRockit()) params.appendJvmArgs("-XX:MaxPermSize=160m");
+      params.appendSysProp(HibernateUtil.DB_PORT_SYSPROP, derbyPort);
     }
 
     @Override
@@ -93,7 +97,7 @@ public abstract class BaseClusteredRegionFactoryTest extends AbstractStandaloneT
                                                                                              + derbyWorkDir
                                                                                                  .getAbsolutePath()); }
 
-      derbyWrapper = new DerbyWrapper(1527, derbyWorkDir.getCanonicalPath());
+      derbyWrapper = new DerbyWrapper(derbyPort, derbyWorkDir.getCanonicalPath());
       derbyWrapper.start();
       super.setUp();
     }
