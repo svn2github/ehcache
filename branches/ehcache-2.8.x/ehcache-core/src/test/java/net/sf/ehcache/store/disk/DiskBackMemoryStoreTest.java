@@ -1,13 +1,11 @@
 package net.sf.ehcache.store.disk;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import junit.framework.Assert;
@@ -21,9 +19,7 @@ import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.util.RetryAssert;
 
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,19 +78,15 @@ public class DiskBackMemoryStoreTest {
         cache.remove(-2);
         assertEquals(null, cache.get(-2));
 
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
         assertEquals(0, cache.getStatistics().getLocalDiskSize());
 
         for (int i = 0; i < 10010; i++) {
             cache.put(new Element(i, i));
         }
 
-        Thread.sleep(3000);
-
-        RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
-                public Long call() throws Exception {
-                    return cache.getStatistics().getLocalDiskSize();
-                }
-            }, Is.is(10010L));
+        DiskStoreHelper.flushAllEntriesToDisk(cache).get();
+        assertEquals(10010, cache.getStatistics().getLocalDiskSize());
 
         cm.shutdown();
     }
