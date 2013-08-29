@@ -15,7 +15,7 @@
 			org.apache.derby.jdbc.ClientDriver
 		</property>
 		<property name="connection.url">
-			jdbc:derby://localhost:1527/MyDbTest;create=true
+			jdbc:derby://localhost:__PORT__/MyDbTest;create=true
 		</property>
 
 		<property name="connection.username">user1</property>
