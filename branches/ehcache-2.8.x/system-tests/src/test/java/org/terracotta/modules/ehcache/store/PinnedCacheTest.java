@@ -69,6 +69,7 @@ public class PinnedCacheTest extends AbstractCacheTestBase {
       }
       barrier.await();
       Assert.assertEquals(pinnedInCache.getSize(), 200);
+      barrier.await();
 
       if (nodeId == 1) {
         for (int i = 200; i < 400; i++) {
