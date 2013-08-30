@@ -54,3 +54,5 @@ select * from foo where foo='tom\u04'
 
 select * from foo where name = (date)'abcde'
 select * from foo where name = (date)'12-20'
+
+select a, b from foo where bar is not not null

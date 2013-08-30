@@ -14,9 +14,11 @@ import net.sf.ehcache.search.expression.Criteria;
 import net.sf.ehcache.search.expression.EqualTo;
 import net.sf.ehcache.search.expression.GreaterThan;
 import net.sf.ehcache.search.expression.GreaterThanOrEqual;
+import net.sf.ehcache.search.expression.IsNull;
 import net.sf.ehcache.search.expression.LessThan;
 import net.sf.ehcache.search.expression.LessThanOrEqual;
 import net.sf.ehcache.search.expression.NotEqualTo;
+import net.sf.ehcache.search.expression.NotNull;
 
 
 /**
@@ -48,6 +50,10 @@ public interface MCriteria extends ModelElement<Criteria> {
         /**
          * The eq.
          */
+        NULL("IS NULL"),
+        
+        NOT_NULL("IS NOT NULL"),
+        
         EQ("="),
         /**
          * The ne.
@@ -168,6 +174,10 @@ public interface MCriteria extends ModelElement<Criteria> {
                     return new LessThan(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
                 case GE:
                     return new GreaterThanOrEqual(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
+                case NULL:
+                    return new IsNull(attr.asEhcacheAttributeString());
+                case NOT_NULL:
+                    return new NotNull(attr.asEhcacheAttributeString());
             }
             throw new IllegalStateException("Unrecognized op: " + op);
         }

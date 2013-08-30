@@ -37,6 +37,8 @@ select key, value  from foo where name < 'foo'
 select key,value  from foo where name > 'foo'
 select key,value from foo where name <= 'foo'
 select key ,value from foo where name >= 'foo'
+select key,a,b from foo where bar is not null
+select key,a,b from foo where value is null
 
 // aggregates
 select count(*) from foo where bar > 'baz'
@@ -83,17 +85,20 @@ select * from foo where age = (enum net.sf.ehcache.search.parser.ParseModelTest$
 select key,value from foo where (age > 100 and zip=20144)
 select key,value from foo where (age > 100 and zip=20144 and time > 10)
 select key,value from foo where ((age > 100 and zip=20144) and time > 10 and fun>100)
+select key from foo where (a is not null and value is null)
 
 // some ors
 select key,value from foo where (age > 100 or zip=20144)
 select key,value from foo where (age > 100 or zip=20144 or time > 10)
 select key,value from foo where ((age > 100 or zip=20144) or time > 10 or fun>100)
+select key from foo where (a is not null or value is null)
 
 // ors and ands, partying together
 select key,value from foo where ((age > 100 and zip=20144) or time > 10)
 select key,value from foo where ((age > 100 or zip=20144) and (time > 10 or fun>100))
 select key,value from foo where ((age > 100 or zip=20144) and time > 10)
 select key,value from foo where ((age > 100 and zip=20144) or (time > 10 and fun>100))
+select age from foo where ((a is not null or b is null) and value is null)
 
 // group by?
 select * from foo where ((age > 100 and zip=20144) or time > 10) group by age 
