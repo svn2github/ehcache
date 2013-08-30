@@ -48,12 +48,16 @@ public interface MCriteria extends ModelElement<Criteria> {
          */
         LE("<"),
         /**
-         * The eq.
+         * The null.
          */
         NULL("IS NULL"),
-        
+        /**
+         * The not null.
+         */
         NOT_NULL("IS NOT NULL"),
-        
+        /**
+         * The eq.
+         */
         EQ("="),
         /**
          * The ne.
