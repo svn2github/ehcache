@@ -220,7 +220,7 @@
               <artifactId>maven-forge-plugin</artifactId>
               <configuration>
                 <includes>
-                  <include>**/*container*/*Test.java</include>
+                  <include>**/container/**/*Test.java</include>
                 </includes>
               </configuration>
             </plugin>
