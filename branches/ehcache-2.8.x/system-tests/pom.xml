@@ -233,6 +233,37 @@
       </plugins>
     </pluginManagement>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>container-tests</id>
+        <activation> 
+          <property>
+            <name>appserver</name>
+            <value>!no-appserver</value>
+          </property> 
+        </activation>
+        <build>
+          <plugins>
+            <plugin>
+              <groupId>org.terracotta</groupId>
+              <artifactId>maven-forge-plugin</artifactId>
+              <configuration>
+                <includes>
+                  <include>**/*container*/*Test.java</include>
+                </includes>
+              </configuration>
+            </plugin>
+          </plugins>
+        </build>
+    </profile>
+    <profile>
+      <id>deploy-sonatype</id>
+      <properties>
+        <skipDeploy>true</skipDeploy>
+      </properties>
+    </profile>    
+  </profiles>
 
   <repositories> 
     <repository>
@@ -265,14 +296,5 @@
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
     </pluginRepository>    
-  </pluginRepositories>
-
-  <profiles>
-    <profile>
-      <id>deploy-sonatype</id>
-      <properties>
-        <skipDeploy>true</skipDeploy>
-      </properties>
-    </profile>
-  </profiles>  
+  </pluginRepositories> 
 </project>
