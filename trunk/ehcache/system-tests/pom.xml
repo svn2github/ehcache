@@ -226,7 +226,7 @@
   
   <profiles>
     <profile>
-      <id>container-tests</id>
+      <id>include-container-tests</id>
         <activation> 
           <property>
             <name>appserver</name>
@@ -247,6 +247,29 @@
           </plugins>
         </build>
     </profile>
+    <profile>
+      <!-- this profile nullify the effect of above profile due to usuage of no-appserver on monkeys -->
+      <id>no-appserver-tests</id>
+        <activation> 
+          <property>
+            <name>appserver</name>
+            <value>no-appserver</value>
+          </property> 
+        </activation>
+        <build>
+          <plugins>
+            <plugin>
+              <groupId>org.terracotta</groupId>
+              <artifactId>maven-forge-plugin</artifactId>
+              <configuration>
+                <includes>
+                  <include>**/*Test.java</include>
+                </includes>
+              </configuration>
+            </plugin>
+          </plugins>
+        </build>
+    </profile>     
     <profile>
       <id>deploy-sonatype</id>
       <properties>
