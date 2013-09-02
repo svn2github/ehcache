@@ -210,7 +210,6 @@
         <activation> 
           <property>
             <name>appserver</name>
-            <value>!no-appserver</value>
           </property> 
         </activation>
         <build>
