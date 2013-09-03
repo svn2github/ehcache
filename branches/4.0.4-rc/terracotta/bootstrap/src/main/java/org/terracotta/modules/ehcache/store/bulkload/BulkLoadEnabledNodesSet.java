@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BulkLoadEnabledNodesSet {
 
@@ -35,7 +34,7 @@ public class BulkLoadEnabledNodesSet {
   private final boolean                   loggingEnabled;
 
   private final StoreListener             listener;
-  private final AtomicBoolean             currentNodeBulkLoadEnabled = new AtomicBoolean(false);
+  private volatile Boolean                currentNodeBulkLoadEnabled = false;
 
   protected BulkLoadEnabledNodesSet(ToolkitInternal toolkit, String name, StoreListener listener) {
     this.name = name;
@@ -55,6 +54,10 @@ public class BulkLoadEnabledNodesSet {
 
   private static final String getIdForNode(ClusterNode node) {
     return node.getId();
+  }
+
+  public boolean isBulkLoadEnabledInCurrentNode() {
+    return currentNodeBulkLoadEnabled;
   }
 
   private void debug(String msg) {
@@ -97,23 +100,37 @@ public class BulkLoadEnabledNodesSet {
    * Add the current node in the bulk-load enabled nodes set
    */
   public void addCurrentNode() {
-    if (currentNodeBulkLoadEnabled.compareAndSet(false, true)) {
-      addCurrentNodeInternal();
+    if (!currentNodeBulkLoadEnabled) {
+      clusteredLock.lock();
+      try {
+        if (!currentNodeBulkLoadEnabled) {
+          addCurrentNodeToBulkloadSet();
+          currentNodeBulkLoadEnabled = true;
+        }
+      } finally {
+        clusteredLock.unlock();
+      }
+    }
+  }
+
+  private void addCurrentNodeToBulkloadSet() {
+    String currentNodeId = getIdForNode(clusterInfo.getCurrentNode());
+    bulkLoadEnabledNodesSet.add(currentNodeId);
+    if (loggingEnabled) {
+      debug("Added current node ('" + currentNodeId + "')");
     }
   }
 
   private void addCurrentNodeInternal() {
-    clusteredLock.lock();
-    try {
-      if (currentNodeBulkLoadEnabled.get()) {
-        String currentNodeId = getIdForNode(clusterInfo.getCurrentNode());
-        bulkLoadEnabledNodesSet.add(currentNodeId);
-        if (loggingEnabled) {
-          debug("Added current node ('" + currentNodeId + "')");
+    if (currentNodeBulkLoadEnabled) {
+      clusteredLock.lock();
+      try {
+        if (currentNodeBulkLoadEnabled) {
+          addCurrentNodeToBulkloadSet();
         }
+      } finally {
+        clusteredLock.unlock();
       }
-    } finally {
-      clusteredLock.unlock();
     }
   }
 
@@ -121,10 +138,13 @@ public class BulkLoadEnabledNodesSet {
    * Remove the current node from the bulk-load enabled nodes set
    */
   public void removeCurrentNode() {
-    if (currentNodeBulkLoadEnabled.compareAndSet(true, false)) {
+    if (currentNodeBulkLoadEnabled) {
       clusteredLock.lock();
       try {
-        removeNodeIdAndNotifyAll(getIdForNode(clusterInfo.getCurrentNode()));
+        if (currentNodeBulkLoadEnabled) {
+          removeNodeIdAndNotifyAll(getIdForNode(clusterInfo.getCurrentNode()));
+          currentNodeBulkLoadEnabled = false;
+        }
       } finally {
         clusteredLock.unlock();
       }
