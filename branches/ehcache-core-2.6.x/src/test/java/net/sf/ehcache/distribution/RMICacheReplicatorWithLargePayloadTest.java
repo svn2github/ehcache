@@ -190,9 +190,9 @@ public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
-        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
         List<CacheManager> cluster = createCluster(3);
         try {
+            MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
             //Drop a CacheManager from the cluster
             cluster.remove(2).shutdown();
             assertThat(cluster, hasSize(2));

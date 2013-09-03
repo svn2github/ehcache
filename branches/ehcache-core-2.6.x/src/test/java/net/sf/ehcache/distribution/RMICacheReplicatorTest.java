@@ -251,15 +251,15 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
-        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
         List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
         try {
+            MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
             //Drop a CacheManager from the cluster
             cluster.remove(4).shutdown();
             assertThat(cluster, hasSize(4));
 
             //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-            waitForClusterMembership(11020, TimeUnit.MILLISECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
+            waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
         } finally {
             destroyCluster(cluster);
         }
@@ -344,9 +344,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutPropagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
-        MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
         final List<CacheManager> cluster = createCluster(5);
         try {
+            MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
             cluster.remove(2).shutdown();
             waitForClusterMembership(10, TimeUnit.SECONDS, cluster);
 
