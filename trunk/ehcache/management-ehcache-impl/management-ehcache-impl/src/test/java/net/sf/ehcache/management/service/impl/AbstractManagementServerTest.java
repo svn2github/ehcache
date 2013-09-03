@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.AbstractManagementServer;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
 
@@ -179,6 +180,9 @@ public class AbstractManagementServerTest {
       ServiceLocator.load(locator);
     }
 
+    @Override
+    public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration) {
+    }
   }
 
   

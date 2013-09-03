@@ -17,6 +17,7 @@
 package net.sf.ehcache.management;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 
 /**
  * Interface implemented by management servers.
@@ -50,11 +51,23 @@ public interface ManagementServer {
      */
     public void unregister(CacheManager managedResource);
 
-    /**
-     * Returns true if this {@code ManagementServer} has any resources registered.
-     *
-     * @return true if actively managing resources, false if not.
-     */
-    public boolean hasRegistered();
+  /**
+   * Returns true if this {@code ManagementServer} has any resources registered.
+   *
+   * @return true if actively managing resources, false if not.
+   */
+  public boolean hasRegistered();
+
+  /**
+   * Initialize method to call just after instantiating the class
+   *
+   * @param clientUUID  the clusteredInstanceFactory UUID, or null
+   * @param configuration the configuration of the rest agent
+   *
+   */
+  public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration);
+
+
+
 
 }

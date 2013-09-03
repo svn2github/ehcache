@@ -157,8 +157,6 @@ public class CacheManager {
 
     private static final Map<String, CacheManager> INITIALIZING_CACHE_MANAGERS_MAP = new ConcurrentHashMap<String, CacheManager>();
 
-    private static final String MANAGEMENT_SERVER_CLASS_NAME = "net.sf.ehcache.management.ManagementServerImpl";
-
     private static final long LOCAL_TX_RECOVERY_THREAD_JOIN_TIMEOUT = 1000L;
 
     /**

@@ -28,7 +28,8 @@ import java.util.List;
  */
 public final class ManagementServerImpl extends AbstractManagementServer {
 
-  public ManagementServerImpl(String clientUUID, ManagementRESTServiceConfiguration configuration) {
+  @Override
+  public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration) {
 
     // Clear settings that are invalid for non-ee management servers
     configuration.setNeedClientAuth(false);
