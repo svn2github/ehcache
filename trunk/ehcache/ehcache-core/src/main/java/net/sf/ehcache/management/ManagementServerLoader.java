@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.HashMap;
@@ -59,8 +58,6 @@ public class ManagementServerLoader {
         LOG.debug("XXX: using classloader: " + RESOURCE_CLASS_LOADER);
     }
 
-  public static final String MANAGEMENT_SERVER = "net.sf.ehcache.management.ManagementServer";
-
   /**
      * Check if the ehcache-rest-agent jar is on the classpath
      * 
@@ -89,7 +86,7 @@ public class ManagementServerLoader {
         try {
             // because some code in Jersey is using the TCCL to resolve some classes
             Thread.currentThread().setContextClassLoader(RESOURCE_CLASS_LOADER);
-            Class<?> managementServerImplClass = RESOURCE_CLASS_LOADER.loadClass(MANAGEMENT_SERVER);
+            Class<?> managementServerImplClass = RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServer");
             Object managementServerImpl;
             if (!MGMT_SVR_BY_BIND.containsKey(managementRESTServiceConfiguration.getBind())) {
                 if (!MGMT_SVR_BY_BIND.isEmpty()) {
@@ -101,7 +98,7 @@ public class ManagementServerLoader {
                             + ", the configuration will not be changed");
                 } else {
                     managementServerImpl = loadOSorEEManagementServer();
-                    startRestAgent(managementRESTServiceConfiguration, managementServerImplClass,managementServerImpl, clientUUID);
+                    startRestAgent(managementRESTServiceConfiguration, managementServerImplClass, managementServerImpl, clientUUID);
                 }
             } else {
                 LOG.warn("A previous CacheManager already instantiated the Ehcache Management rest agent" +
@@ -133,29 +130,35 @@ public class ManagementServerLoader {
    *
    * @return
    */
-  private static Object loadOSorEEManagementServer() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+  private static Object loadOSorEEManagementServer() throws Exception {
       Object managementServerImpl;
       ServiceLoader loader = ServiceLoader.load(ManagementServer.class, RESOURCE_CLASS_LOADER);
 
     Iterator loaderIterator = loader.iterator();
-    if(!loaderIterator.hasNext()) {
-          LOG.info("Could not find any META-INF/services/net.sf.ehcache.management.ManagementServer using the ResourceClassLoader; choosing the default OS implementation : net.sf.ehcache.management.ManagementServerImpl");
-          Class<?> managementServerImplClass = RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServerImpl");
+    if (!loaderIterator.hasNext()) {
+          LOG.info("Could not find any META-INF/services/net.sf.ehcache.management.ManagementServer using the " +
+                  "ResourceClassLoader; choosing the default OS implementation : " +
+                  "net.sf.ehcache.management.ManagementServerImpl");
+          Class<?> managementServerImplClass = RESOURCE_CLASS_LOADER
+                  .loadClass("net.sf.ehcache.management.ManagementServerImpl");
           Constructor<?> managementServerImplClassConstructor = managementServerImplClass.getConstructor(new Class[] {});
           managementServerImpl = managementServerImplClassConstructor.newInstance(new Object[] {});
       } else {
         managementServerImpl = loaderIterator.next();
         // more than one file found ? is it even possible ? well across multiple jars, why not..
-        if(loaderIterator.hasNext()) {
-          throw new RuntimeException("Several META-INF/services/net.sf.ehcache.management.ManagementServer found in the classpath, aborting agent start up");
+        if (loaderIterator.hasNext()) {
+          throw new RuntimeException("Several META-INF/services/net.sf.ehcache.management.ManagementServer " +
+                  "found in the classpath, aborting agent start up");
         }
-        LOG.info("The ManagementServer implementation that is going to be used is {} ; if you are using EhCache EE it should be net.sf.ehcache.management.ManagementServerImplEE.",managementServerImpl.getClass().toString());
+        LOG.info("The ManagementServer implementation that is going to be used is {} ; " +
+                "if you are using EhCache EE it should be net.sf.ehcache.management.ManagementServerImplEE.",
+                managementServerImpl.getClass().toString());
       }
       return managementServerImpl;
   }
 
   private static void startRestAgent(ManagementRESTServiceConfiguration managementRESTServiceConfiguration,
-            Class<?> managementServerImplClass,Object managementServerImpl, String clientUUID) throws Exception {
+            Class<?> managementServerImplClass, Object managementServerImpl, String clientUUID) throws Exception {
 
         Method initializeMethod = managementServerImplClass.getMethod("initialize", new Class[] {String.class,
                 managementRESTServiceConfiguration.getClass()});
