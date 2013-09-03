@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -34,7 +33,6 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   private final ReentrantReadWriteLock     readWriteLock              = new ReentrantReadWriteLock();
   private final ToolkitCacheInternal<K, V> toolkitCache;
   private final BulkLoadEnabledNodesSet    bulkLoadEnabledNodesSet;
-  private final AtomicBoolean              currentNodeBulkLoadEnabled = new AtomicBoolean(false);
   private final ToolkitInternal            toolkitInternal;
   private final Lock                       concurrentLock;
   private boolean                          localCacheEnabledBeforeBulkloadEnabled;
@@ -80,7 +78,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     try {
       if (enableBulkLoad) {
         // turning on bulk-load
-        if (currentNodeBulkLoadEnabled.compareAndSet(false, true)) {
+        if (!isBulkLoadEnabledInCurrentNode()) {
           enterBulkLoadMode();
         } else {
           if (loggingEnabled) {
@@ -89,7 +87,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
         }
       } else {
         // turning off bulk-load
-        if (currentNodeBulkLoadEnabled.compareAndSet(true, false)) {
+        if (isBulkLoadEnabledInCurrentNode()) {
           exitBulkLoadMode();
         } else {
           if (loggingEnabled) {
@@ -155,8 +153,7 @@ public class BulkLoadToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   public boolean isBulkLoadEnabledInCurrentNode() {
-    // use local atomicBoolean instead of querying which would take clustered lock
-    return currentNodeBulkLoadEnabled.get();
+    return bulkLoadEnabledNodesSet.isBulkLoadEnabledInCurrentNode();
   }
 
   @Override
