@@ -47,6 +47,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 @Category(CheckShorts.class)
 public class BulkOpsEventListenerTest extends AbstractCacheTest {
@@ -180,7 +181,7 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
         new Thread(p2, "p2").start();
 
         LOGGER.info("Waiting for multiple putters to end");
-        endLatch.await(1, TimeUnit.MINUTES);
+        assumeTrue(endLatch.await(1, TimeUnit.MINUTES));
 
         assertThat(stopCondition.get(), is(true));
         assertThat(eventListener.putCount.get(), is(p1.batchPut + p2.batchPut));
@@ -224,7 +225,7 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
         new Thread(consumer, "c1").start();
 
         LOGGER.info("Waiting for put and remove to end");
-        endLatch.await(1, TimeUnit.MINUTES);
+        assumeTrue(endLatch.await(1, TimeUnit.MINUTES));
 
         assertThat(stopCondition.get(), is(true));
         assertThat(eventListener.putCount.get(), is(p3.batchPut));
