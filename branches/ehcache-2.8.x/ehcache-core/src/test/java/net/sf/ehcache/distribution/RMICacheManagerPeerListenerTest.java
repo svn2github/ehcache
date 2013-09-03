@@ -123,7 +123,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
         //allow cluster to be established
         LOGGER.info("Validating Cluster Membership");
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
+        waitForClusterMembership(120, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
         LOGGER.info("Validated Cluster Membership");
 
         LOGGER.info("Putting Setup Value");
@@ -131,7 +131,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
         LOGGER.info("Put Setup Value");
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
             LOGGER.info("Validating Setup Value Propagation To " + manager);
-            assertBy(10, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), DescribedAs.describedAs("Failed to propagate setup value to {}", notNullValue(), manager));
+            assertBy(20, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), DescribedAs.describedAs("Failed to propagate setup value to {}", notNullValue(), manager));
             LOGGER.info("Validated Setup Value Propagation To " + manager);
         }
 
@@ -140,7 +140,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
         LOGGER.info("Performed RemoveAll");
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
             LOGGER.info("Validating RemoveAll Propagation To " + manager);
-            assertBy(10, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), DescribedAs.describedAs("Failed to propagate removeAll to {}" , is(0), manager));
+            assertBy(20, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), DescribedAs.describedAs("Failed to propagate removeAll to {}" , is(0), manager));
             LOGGER.info("Validated RemoveAll Propagation To " + manager);
         }
 
