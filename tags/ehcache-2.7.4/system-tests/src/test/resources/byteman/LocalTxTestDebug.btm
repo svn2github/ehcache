@@ -1,0 +1,77 @@
+
+
+RULE trace ServerMap gets
+CLASS ServerMap
+METHOD doGet
+AT EXIT
+#IF NOT $getType.name().equals("UNSAFE")
+IF false
+DO traceln("     ____ ServerMap.doGet key.hashCode(): \"" + $key.hashCode() + "\", \"" + $getType + "\", \"" + $quiet + " -> " + $!);
+ENDRULE
+
+RULE trace ServerMap puts
+CLASS ServerMap
+METHOD doLogicalPut
+AT ENTRY
+IF false
+DO traceln("     _____ ServerMap.doLogicalPut - key.hashCode(): \"" + $key.hashCode() + "\", mutateType: \"" + $type + "\", value: \"" + $value);
+ENDRULE
+
+
+RULE trace ServerMap removes
+CLASS ServerMap
+METHOD doLogicalRemove
+AT ENTRY
+IF false
+DO traceln("     _____ ServerMap.doLogicalRemove - key.hashCode(): \"" + $key.hashCode() + "\", mutateType: \"" + $type);
+ENDRULE
+
+RULE trace clusteredStore doPut
+CLASS ClusteredStore
+METHOD doPut
+AT EXIT
+IF false
+DO traceln("     _____ ClusteredStore.doPut - pkey.hashCode(): \"" + $portableKey.hashCode() + "\", return: \"" + $!);
+ENDRULE
+
+RULE trace clusteredStore replace
+CLASS ClusteredStore
+METHOD replace(Element,Element,ElementValueComparator)
+AT EXIT
+IF false
+DO traceln("     _____ ClusteredStore.replace old: "+$old+" element: "+$element+" return: \"" + $!);
+ENDRULE
+
+RULE trace CustomLifespanSerializedEntry isExpired
+CLASS CustomLifespanSerializedEntry
+METHOD isExpired
+AT EXIT
+IF false
+DO traceln("     _____ CustomLifespanSerializedEntry isExpired atTime: " +$atTime+ " maxTTISeconds: "+$maxTTISeconds+" maxTTLSeconds: "+$maxTTLSeconds+" lastAccessedTime: "+$0.lastAccessedTime+" createTime: "+$0.createTime+" return: " + $!);
+ENDRULE
+
+RULE trace ServerMap createSerializedEntry
+CLASS ServerMap
+METHOD createSerializedEntry
+AT ENTRY
+IF false
+DO traceln("     _____XXX ServerMap createSerializedEntry createTime: "+$createTimeInSecs+" now: " + $0.timeSource.now());
+ENDRULE
+
+RULE trace DefaultElementValueComparator
+CLASS DefaultElementValueComparator
+METHOD equals(Element, Element)
+AT ENTRY
+IF false
+DO traceln("     _____XXX DefaultElementValueComparator: e1: " + $e1 + ", e2: " + $e2);
+ENDRULE
+
+
+RULE trace EhcacheTxnsClusteredStateFacadeImpl clear
+CLASS EhcacheTxnsClusteredStateFacadeImpl
+METHOD clearSoftLock
+AT ENTRY
+IF false
+DO traceln("     _____XXX clearSoftLock: softLockId: " + $softLockId);
+ENDRULE
+
