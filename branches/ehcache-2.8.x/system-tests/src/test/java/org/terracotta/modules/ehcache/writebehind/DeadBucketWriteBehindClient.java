@@ -54,11 +54,8 @@ public class DeadBucketWriteBehindClient extends AbstractWriteBehindClient {
         System.out.println("write behind queue size " + size);
         TimeUnit.SECONDS.sleep(1L);
         size = wbManager.getQueueSize();
-        if (size == 0) {
-          TimeUnit.SECONDS.sleep(10L);
-          size = wbManager.getQueueSize();
-        }
       }
+      TimeUnit.MINUTES.sleep(1L);
     }
   }
 }
