@@ -199,7 +199,7 @@ TOKEN [ IGNORE_CASE ] :
 
 TOKEN [ IGNORE_CASE ] :
 {
-  < KW_AVG : "average" >
+  < KW_AVG : ("average"|"avg") >
 }
 
 TOKEN [ IGNORE_CASE ] :
