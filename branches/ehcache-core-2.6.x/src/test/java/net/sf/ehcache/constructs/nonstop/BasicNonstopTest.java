@@ -82,7 +82,7 @@ public class BasicNonstopTest extends TestCase {
         NonstopConfiguration nonstopConfig = new NonstopConfiguration();
         nonstopConfig.enabled(true);
         nonstopConfig.getTimeoutBehavior().setType("exception");
-        nonstopConfig.setTimeoutMillis(100);
+        nonstopConfig.setTimeoutMillis(200);
 
         doGenericTest(invoker, nonstopConfig);
     }
