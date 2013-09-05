@@ -1139,7 +1139,8 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         try {
             sendNotification(CACHE_CHANGED, getCacheAttributes(), getImmutableCacheName());
         } catch (RuntimeException e) {
-            LOG.error("Failed to send notification for {}", evt, e);
+            LOG.warn("Failed to send JMX notification for {} {} -> {} due to {}",
+                    new Object[] {evt.getPropertyName(), evt.getOldValue(), evt.getNewValue(), e.getMessage()});
         }
     }
 
