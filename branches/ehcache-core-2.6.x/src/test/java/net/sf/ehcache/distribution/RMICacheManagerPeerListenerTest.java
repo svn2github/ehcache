@@ -46,7 +46,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 /**
  * Unit tests for the RMICacheManagerPeerListener
@@ -60,6 +65,28 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
     private static final Logger LOGGER = Logger.getLogger(RMICacheManagerPeerListenerTest.class.getName());
 
+    private static final ConsoleHandler MULTICAST_HANDLER = new ConsoleHandler();
+    
+    private static final Logger SENDER_LOGGER = Logger.getLogger(MulticastKeepaliveHeartbeatSender.class.getName());
+    private static final Logger RECEIVER_LOGGER = Logger.getLogger(MulticastKeepaliveHeartbeatReceiver.class.getName());
+    @BeforeClass
+    public static void enableLogging() {
+      SENDER_LOGGER.setLevel(Level.ALL);
+      RECEIVER_LOGGER.setLevel(Level.ALL);
+      MULTICAST_HANDLER.setLevel(Level.ALL);
+      
+      SENDER_LOGGER.addHandler(MULTICAST_HANDLER);
+      RECEIVER_LOGGER.addHandler(MULTICAST_HANDLER);
+    }
+    
+    @AfterClass
+    public static void disableLogging() {
+      SENDER_LOGGER.setLevel(Level.INFO);
+      RECEIVER_LOGGER.setLevel(Level.INFO);
+      SENDER_LOGGER.removeHandler(MULTICAST_HANDLER);
+      RECEIVER_LOGGER.removeHandler(MULTICAST_HANDLER);
+    }
+    
     /**
      * CacheManager 1 in the cluster
      */
