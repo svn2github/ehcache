@@ -59,6 +59,7 @@ select * from foo where (name ilike 'foo.*bar')
 select key,sum(foo) from foo
 select key,sum(foo) from foo where age>10
 select key,sum(foo),min(age) from foo where age>10
+select avg(foo) from bar where (foo isbetween [100 200]) 
 
 // ok, some casting. note that no parsing is done inside the quoted string which is cast.
 select * from foo where ( age = (bool)'true')
@@ -96,23 +97,23 @@ select key,value from foo where ((age > 100 or zip=20144) and time > 10)
 select key,value from foo where ((age > 100 and zip=20144) or (time > 10 and fun>100))
 
 // group by?
-select * from foo where ((age > 100 and zip=20144) or time > 10) group by age 
-select * from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip
-select * from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip
+select age from foo where ((age > 100 and zip=20144) or time > 10) group by age 
+select age, zip from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip
+select zip, age from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip
 
 // order by?
 select * from foo where ((age > 100 and zip=20144) or time > 10) order by age 
 select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip
 
 // order and group by, mixing order
-select * from foo where ((age > 100 and zip=20144) or time > 10) group by age order by age  
-select * from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip order by age, zip
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age group by age 
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip
+select age from foo where ((age > 100 and zip=20144) or time > 10) group by age order by age  
+select age, zip from foo where ((age > 100 and zip=20144) or time > 10) group by age, zip order by age, zip
+select age from foo where ((age > 100 and zip=20144) or time > 10) order by age group by age 
+select age, zip from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip
+select age, zip from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip
 
 // limit must go on the end!
-select * from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip limit 10
+select age, zip from foo where ((age > 100 and zip=20144) or time > 10) order by age, zip group by age, zip limit 10
 
 // some quoting chicanery
 select * from foo where foo='tom\\'
