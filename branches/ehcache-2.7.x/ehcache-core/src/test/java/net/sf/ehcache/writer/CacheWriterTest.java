@@ -550,7 +550,7 @@ public class CacheWriterTest {
 
             assertThat(writer.getWrittenElements().keySet(), empty());
 
-            assertBy(2, TimeUnit.SECONDS, writtenElements(writer), hasSize(3));
+            assertBy(3, TimeUnit.SECONDS, writtenElements(writer), hasSize(3));
             assertThat(writer.getWrittenElements(), not(hasKey("key1")));
             assertThat(writer.getWrittenElements(), not(hasKey("key2")));
             assertThat(writer.getWrittenElements(), not(hasKey("key3")));
