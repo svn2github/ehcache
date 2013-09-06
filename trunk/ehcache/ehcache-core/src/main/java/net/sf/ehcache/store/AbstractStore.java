@@ -189,6 +189,9 @@ public abstract class AbstractStore implements Store {
      */
     @Override
     public Set<Attribute> getSearchAttributes() {
+        if (searchManager == null) {
+            throw new InvalidConfigurationException("Search attributes not supported by this store type: " + getClass().getName());
+        }
         return new HashSet<Attribute>(searchManager.getSearchAttributes(cacheName));
     }
 
@@ -244,5 +247,5 @@ public abstract class AbstractStore implements Store {
      */
     public void recalculateSize(Object key) {
         // overriden on necessity
-    }
+    }    
 }
