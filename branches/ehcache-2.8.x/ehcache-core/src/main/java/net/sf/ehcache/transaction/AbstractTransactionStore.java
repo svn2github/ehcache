@@ -298,6 +298,14 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
     public <T> Attribute<T> getSearchAttribute(String attributeName) throws CacheException {
         return underlyingStore.getSearchAttribute(attributeName);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Attribute> getSearchAttributes() {
+        return underlyingStore.getSearchAttributes();
+    }
 
     /**
      * {@inheritDoc}

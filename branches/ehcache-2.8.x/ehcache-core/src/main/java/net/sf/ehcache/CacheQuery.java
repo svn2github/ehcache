@@ -90,13 +90,19 @@ class CacheQuery implements Query, StoreQuery {
         if (attributes == null) {
             throw new NullPointerException();
         }
+        
+        Set<Attribute> supportedAttrs = cache.getSearchAttributes();
 
         for (Attribute<?> attribute : attributes) {
             if (attribute == null) {
                 throw new NullPointerException("null attribute");
             }
 
-            this.includedAttributes.add(attribute);
+            if (supportedAttrs.contains(attribute)) {
+                this.includedAttributes.add(attribute);
+            } else {
+                throw new SearchException("Requested attribute unknown: " + attribute);
+            }
         }
 
         return this;

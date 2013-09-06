@@ -200,6 +200,8 @@ public class BasicSearchTest {
             fail();
         } catch (NullPointerException npe) {
             // expected
+        } catch (SearchException e) {
+            // expected
         }
 
         // freeze query
@@ -977,11 +979,8 @@ public class BasicSearchTest {
             // expected
         }
 
-        Query query = cache.createQuery().includeAttribute(address);
-        query.end();
-
         try {
-            query.execute();
+            cache.createQuery().includeAttribute(address).execute();
             fail("Expected to fail due to unknown attribute");
         }
         catch (SearchException ex) {
