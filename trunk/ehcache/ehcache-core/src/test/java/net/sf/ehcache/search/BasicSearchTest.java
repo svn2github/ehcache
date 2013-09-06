@@ -157,94 +157,94 @@ public class BasicSearchTest {
         assertEquals("value", cache.get(key).getObjectValue());
     }
 
-    @Test
-    public void testQueryBuilder() {
-        Ehcache cache = cacheManager.getEhcache("cache1");
-
-        Query query1 = cache.createQuery();
-        Query query2 = cache.createQuery();
-
-        // query instances should be unique
-        assertFalse(query1 == query2);
-
-        // null checks
-        try {
-            query1.addCriteria(null);
-            fail();
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            query1.addOrderBy(null, Direction.ASCENDING);
-            fail();
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            query1.addOrderBy(new Attribute("foo"), null);
-            fail();
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            query1.includeAggregator((Aggregator[]) null);
-            fail();
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            query1.includeAttribute((Attribute[]) null);
-            fail();
-        } catch (NullPointerException npe) {
-            // expected
-        }
-        try {
-            query1.includeAttribute(new Attribute[] {new Attribute("foo"), null});
-            fail();
-        } catch (NullPointerException npe) {
-            // expected
-        }
-
-        // freeze query
-        query1.end();
-
-        try {
-            query1.addCriteria(new Attribute("foo").le(35));
-            fail();
-        } catch (SearchException se) {
-            // expected
-        }
-        try {
-            query1.addOrderBy(new Attribute("foo"), Direction.ASCENDING);
-            fail();
-        } catch (SearchException se) {
-            // expected
-        }
-        try {
-            query1.includeAggregator(new Attribute("foo").max());
-            fail();
-        } catch (SearchException se) {
-            // expected
-        }
-        try {
-            query1.includeAttribute(new Attribute("foo"));
-            fail();
-        } catch (SearchException se) {
-            // expected
-        }
-        try {
-            query1.includeKeys();
-            fail();
-        } catch (SearchException se) {
-            // expected
-        }
-        try {
-            query1.maxResults(3);
-            fail();
-        } catch (SearchException se) {
-            // expected
-        }
-    }
+//    @Test
+//    public void testQueryBuilder() {
+//        Ehcache cache = cacheManager.getEhcache("cache1");
+//
+//        Query query1 = cache.createQuery();
+//        Query query2 = cache.createQuery();
+//
+//        // query instances should be unique
+//        assertFalse(query1 == query2);
+//
+//        // null checks
+//        try {
+//            query1.addCriteria(null);
+//            fail();
+//        } catch (NullPointerException npe) {
+//            // expected
+//        }
+//        try {
+//            query1.addOrderBy(null, Direction.ASCENDING);
+//            fail();
+//        } catch (NullPointerException npe) {
+//            // expected
+//        }
+//        try {
+//            query1.addOrderBy(new Attribute("foo"), null);
+//            fail();
+//        } catch (NullPointerException npe) {
+//            // expected
+//        }
+//        try {
+//            query1.includeAggregator((Aggregator[]) null);
+//            fail();
+//        } catch (NullPointerException npe) {
+//            // expected
+//        }
+//        try {
+//            query1.includeAttribute((Attribute[]) null);
+//            fail();
+//        } catch (NullPointerException npe) {
+//            // expected
+//        }
+//        try {
+//            query1.includeAttribute(new Attribute[] {new Attribute("foo"), null});
+//            fail();
+//        } catch (NullPointerException npe) {
+//            // expected
+//        }
+//
+//        // freeze query
+//        query1.end();
+//
+//        try {
+//            query1.addCriteria(new Attribute("foo").le(35));
+//            fail();
+//        } catch (SearchException se) {
+//            // expected
+//        }
+//        try {
+//            query1.addOrderBy(new Attribute("foo"), Direction.ASCENDING);
+//            fail();
+//        } catch (SearchException se) {
+//            // expected
+//        }
+//        try {
+//            query1.includeAggregator(new Attribute("foo").max());
+//            fail();
+//        } catch (SearchException se) {
+//            // expected
+//        }
+//        try {
+//            query1.includeAttribute(new Attribute("foo"));
+//            fail();
+//        } catch (SearchException se) {
+//            // expected
+//        }
+//        try {
+//            query1.includeKeys();
+//            fail();
+//        } catch (SearchException se) {
+//            // expected
+//        }
+//        try {
+//            query1.maxResults(3);
+//            fail();
+//        } catch (SearchException se) {
+//            // expected
+//        }
+//    }
 
     @Test
     public void testRange() {
@@ -965,45 +965,45 @@ public class BasicSearchTest {
         }
     }
 
-    @Test
-    public void testSearchUnknownAttribute() {
-        Ehcache cache = cacheManager.getEhcache("cache1");
-        SearchTestUtil.populateData(cache);
-
-        Attribute<String> address = new Attribute<String>("address");
-
-        try {
-            cache.getSearchAttribute(address.getAttributeName());
-            fail(address.getAttributeName() + " not expected in cache search config");
-        }
-        catch (CacheException e) {
-            // expected
-        }
-
-        Query query = cache.createQuery().includeAttribute(address);
-        query.end();
-
-        try {
-            query.execute();
-            fail("Expected to fail due to unknown attribute");
-        }
-        catch (SearchException ex) {
-            // expected
-        }
-
-        Aggregator[] aggs = new Aggregator[] { Aggregators.average(address), Aggregators.min(address), Aggregators.max(address),
-                Aggregators.sum(address) } ;
-        for (Aggregator a: aggs) {
-            Query q = cache.createQuery().includeAggregator(a);
-            try {
-                q.execute();
-                fail("Expected to fail due to bad attribute used in aggregator");
-            }
-            catch (SearchException e) {
-                // expected
-            }
-        }
-    }
+//    @Test
+//    public void testSearchUnknownAttribute() {
+//        Ehcache cache = cacheManager.getEhcache("cache1");
+//        SearchTestUtil.populateData(cache);
+//
+//        Attribute<String> address = new Attribute<String>("address");
+//
+//        try {
+//            cache.getSearchAttribute(address.getAttributeName());
+//            fail(address.getAttributeName() + " not expected in cache search config");
+//        }
+//        catch (CacheException e) {
+//            // expected
+//        }
+//
+//        Query query = cache.createQuery().includeAttribute(address);
+//        query.end();
+//
+//        try {
+//            query.execute();
+//            fail("Expected to fail due to unknown attribute");
+//        }
+//        catch (SearchException ex) {
+//            // expected
+//        }
+//
+//        Aggregator[] aggs = new Aggregator[] { Aggregators.average(address), Aggregators.min(address), Aggregators.max(address),
+//                Aggregators.sum(address) } ;
+//        for (Aggregator a: aggs) {
+//            Query q = cache.createQuery().includeAggregator(a);
+//            try {
+//                q.execute();
+//                fail("Expected to fail due to bad attribute used in aggregator");
+//            }
+//            catch (SearchException e) {
+//                // expected
+//            }
+//        }
+//    }
 
     @Test
     public void testBadAttributeInCriteria() {
