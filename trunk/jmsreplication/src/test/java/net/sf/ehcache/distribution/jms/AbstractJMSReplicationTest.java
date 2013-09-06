@@ -1,5 +1,6 @@
 package net.sf.ehcache.distribution.jms;
 
+import java.io.IOException;
 import static net.sf.ehcache.distribution.jms.TestUtil.forceVMGrowth;
 import static net.sf.ehcache.distribution.jms.RetryAssert.assertBy;
 import static net.sf.ehcache.distribution.jms.RetryAssert.elementAt;
@@ -12,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.rmi.server.RMISocketFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,8 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -34,8 +34,13 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.ConfigurationFactory;
 
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertNotNull;
 
 public abstract class AbstractJMSReplicationTest {
 
@@ -44,11 +49,26 @@ public abstract class AbstractJMSReplicationTest {
     protected static final String SAMPLE_CACHE_NOREP = "sampleCacheNorep";
     protected static final String SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP = "sampleJMSReplicateRMIBootstrap";
   
-    private static final Logger LOG = Logger.getLogger(AbstractJMSReplicationTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractJMSReplicationTest.class);
     private static final Collection<String> REPLICATED_CACHES = Arrays.asList(SAMPLE_CACHE_ASYNC, SAMPLE_CACHE_SYNC, SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP);
   
     protected abstract URL getConfiguration();
   
+    @BeforeClass
+    public static void installRMISocketFactory() {
+        RMISocketFactory current = RMISocketFactory.getSocketFactory();
+        if (current == null) {
+            current = RMISocketFactory.getDefaultSocketFactory();
+        }
+        assertNotNull(current);
+        try {
+            RMISocketFactory.setSocketFactory(new SocketReusingRMISocketFactory(current));
+            LOG.info("Installed the SO_REUSEADDR setting socket factory");
+        } catch (IOException e) {
+            LOG.warn("Couldn't register the SO_REUSEADDR setting socket factory", e);
+        }
+    }
+
     public List<CacheManager> createCluster(String rootManagerName, int members) throws InterruptedException {
         LOG.info("Creating Cluster");
         List<CacheManager> managers = new ArrayList<CacheManager>(members);
@@ -591,7 +611,7 @@ public abstract class AbstractJMSReplicationTest {
                     //Should have been replicated to cache2.
                     assertBy(1, TimeUnit.SECONDS, elementAt(cache2, key), nullValue());
                 } catch (Exception e) {
-                    LOG.log(Level.SEVERE, e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                 }
             }
         } finally {
