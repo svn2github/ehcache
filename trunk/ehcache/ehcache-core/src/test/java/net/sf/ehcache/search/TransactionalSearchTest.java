@@ -41,12 +41,15 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.search.Person.Gender;
 import net.sf.ehcache.search.impl.GroupedResultImpl;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -56,7 +59,10 @@ import bitronix.tm.TransactionManagerServices;
 @RunWith(Parameterized.class)
 public class TransactionalSearchTest {
 
-    @Parameters
+    @Rule
+    public final TestName testName = new TestName();
+    
+    @Parameters(name = "transactional-mode:{0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {TransactionalMode.LOCAL}, {TransactionalMode.XA}, {TransactionalMode.XA_STRICT}
@@ -127,7 +133,7 @@ public class TransactionalSearchTest {
     }
 
     private CacheConfiguration getBaseCacheConfiguration() {
-        return new CacheConfiguration("jta-search", 0).transactionalMode(txnMode);
+        return new CacheConfiguration(testName.getMethodName(), 0).transactionalMode(txnMode);
     }
 
     @Test
@@ -161,29 +167,32 @@ public class TransactionalSearchTest {
     }
 
     private void testCacheWithConfiguration(CacheConfiguration config) throws Exception {
-        CacheManager cacheManager = new CacheManager();
-        Ehcache cache = new Cache(config);
-        cacheManager.addCache(cache);
-
-        assertTrue(cache.isSearchable());
-
-        beginTransaction(cacheManager);
+        CacheManager cacheManager = new CacheManager(new Configuration().name(testName.getMethodName()));
         try {
-            //This data should appear in the search results
-            SearchTestUtil.populateData(cache);
-        } finally {
-            commitTransaction(cacheManager);
-        }
+            Ehcache cache = new Cache(config);
+            cacheManager.addCache(cache);
 
-        beginTransaction(cacheManager);
-        try {
-            // These puts shouldn't appear in the search results
-            cache.put(new Element(1, new Person("Chris Dennis", 29, Gender.MALE)));
-            cache.put(new Element(2, new Person("Cassie (Dog)", 1, Gender.FEMALE)));
-            cache.put(new Element(20, new Person("Doug Lea", 97, Gender.MALE)));
-            basicQueries(cache);
+            assertTrue(cache.isSearchable());
+
+            beginTransaction(cacheManager);
+            try {
+                //This data should appear in the search results
+                SearchTestUtil.populateData(cache);
+            } finally {
+                commitTransaction(cacheManager);
+            }
+
+            beginTransaction(cacheManager);
+            try {
+                // These puts shouldn't appear in the search results
+                cache.put(new Element(1, new Person("Chris Dennis", 31, Gender.MALE)));
+                cache.put(new Element(2, new Person("Cassie (Dog)", 3, Gender.FEMALE)));
+                cache.put(new Element(20, new Person("Doug Lea", 97, Gender.MALE)));
+                basicQueries(cache);
+            } finally {
+                commitTransaction(cacheManager);
+            }
         } finally {
-            commitTransaction(cacheManager);
             cacheManager.shutdown();
         }
     }
@@ -300,95 +309,96 @@ public class TransactionalSearchTest {
                 searchAttribute(new SearchAttribute().name("gender")).
                 searchAttribute(new SearchAttribute().name("name")).
                 searchAttribute(new SearchAttribute().name("department")));
-        CacheManager cacheManager = new CacheManager();
-        Ehcache cache = new Cache(config);
-        cacheManager.addCache(cache);
-        assertTrue(cache.isSearchable());
+        CacheManager cacheManager = new CacheManager(new Configuration().name("testBasicGroupBy"));
+        try {
+            Ehcache cache = new Cache(config);
+            cacheManager.addCache(cache);
+            assertTrue(cache.isSearchable());
 
-        int numOfDepts = 10;
-        int numOfMalesPerDept = 100;
-        int numOfFemalesPerDept = 100;
+            int numOfDepts = 10;
+            int numOfMalesPerDept = 100;
+            int numOfFemalesPerDept = 100;
 
-        beginTransaction(cacheManager);
-        for (int i = 0; i < numOfDepts; i++) {
-            for (int j = 0; j < numOfMalesPerDept; j++) {
-                cache.put(new Element("male" + i + "-" + j, new Person("male" + j, j, Gender.MALE, "department" + i)));
+            beginTransaction(cacheManager);
+            for (int i = 0; i < numOfDepts; i++) {
+                for (int j = 0; j < numOfMalesPerDept; j++) {
+                    cache.put(new Element("male" + i + "-" + j, new Person("male" + j, j, Gender.MALE, "department" + i)));
+                }
+
+                for (int j = 0; j < numOfFemalesPerDept; j++) {
+                    cache.put(new Element("female" + i + "-" + j, new Person("female" + j, j, Gender.FEMALE, "department" + i)));
+                }
             }
 
-            for (int j = 0; j < numOfFemalesPerDept; j++) {
-                cache.put(new Element("female" + i + "-" + j, new Person("female" + j, j, Gender.FEMALE, "department" + i)));
+            commitTransaction(cacheManager);
+
+            Query query;
+            Results results;
+
+            query = cache.createQuery();
+            query.includeAttribute(cache.getSearchAttribute("department"));
+            query.includeAttribute(cache.getSearchAttribute("gender"));
+            query.includeAggregator(cache.getSearchAttribute("age").sum());
+            query.includeAggregator(cache.getSearchAttribute("age").min());
+            query.includeAggregator(cache.getSearchAttribute("age").max());
+            query.addGroupBy(cache.getSearchAttribute("department"));
+            query.addOrderBy(cache.getSearchAttribute("department"), Direction.DESCENDING);
+            query.addOrderBy(cache.getSearchAttribute("gender"), Direction.ASCENDING);
+            query.addGroupBy(cache.getSearchAttribute("gender"));
+            query.end();
+
+            results = query.execute();
+
+            assertEquals(numOfDepts * 2, results.size());
+
+            int i = 1;
+            for (Iterator<Result> iter = results.all().iterator(); iter.hasNext();) {
+                Result maleResult = iter.next();
+                Method getUnderylingResult = maleResult.getClass().getDeclaredMethod("getUnderylingResult");
+                getUnderylingResult.setAccessible(true);
+                maleResult = (Result) getUnderylingResult.invoke(maleResult);
+
+                System.out.println("XXXXXXXXX: " + maleResult);
+                assertTrue(maleResult instanceof GroupedResultImpl);
+                assertEquals("department" + (numOfDepts - i), maleResult.getAttribute(cache.getSearchAttribute("department")));
+                assertEquals(Gender.MALE, maleResult.getAttribute(cache.getSearchAttribute("gender")));
+
+                Map<String, Object> groupByValues = ((GroupedResultImpl) maleResult).getGroupByValues();
+                assertEquals(2, groupByValues.size());
+                assertEquals("department" + (numOfDepts - i), groupByValues.get("department"));
+                assertEquals(Gender.MALE, groupByValues.get("gender"));
+
+                List aggregateResults = maleResult.getAggregatorResults();
+                assertEquals(3, aggregateResults.size());
+                assertEquals(numOfMalesPerDept * (numOfMalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
+                assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
+                assertEquals(numOfMalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
+
+                Result femaleResult = iter.next();
+                getUnderylingResult = femaleResult.getClass().getDeclaredMethod("getUnderylingResult");
+                getUnderylingResult.setAccessible(true);
+                femaleResult = (Result) getUnderylingResult.invoke(femaleResult);
+                System.out.println("XXXXXXXXX: " + femaleResult);
+
+                assertEquals("department" + (numOfDepts - i), femaleResult.getAttribute(cache.getSearchAttribute("department")));
+                assertEquals(Gender.FEMALE, femaleResult.getAttribute(cache.getSearchAttribute("gender")));
+
+                assertTrue(femaleResult instanceof GroupedResultImpl);
+                groupByValues = ((GroupedResultImpl) femaleResult).getGroupByValues();
+                assertEquals(2, groupByValues.size());
+                assertEquals("department" + (numOfDepts - i), groupByValues.get("department"));
+                assertEquals(Gender.FEMALE, groupByValues.get("gender"));
+
+                aggregateResults = femaleResult.getAggregatorResults();
+                assertEquals(3, aggregateResults.size());
+                assertEquals(numOfFemalesPerDept * (numOfFemalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
+                assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
+                assertEquals(numOfFemalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
+
+                i++;
             }
+        } finally {
+            cacheManager.shutdown();
         }
-
-        commitTransaction(cacheManager);
-
-        Query query;
-        Results results;
-
-        query = cache.createQuery();
-        query.includeAttribute(cache.getSearchAttribute("department"));
-        query.includeAttribute(cache.getSearchAttribute("gender"));
-        query.includeAggregator(cache.getSearchAttribute("age").sum());
-        query.includeAggregator(cache.getSearchAttribute("age").min());
-        query.includeAggregator(cache.getSearchAttribute("age").max());
-        query.addGroupBy(cache.getSearchAttribute("department"));
-        query.addOrderBy(cache.getSearchAttribute("department"), Direction.DESCENDING);
-        query.addOrderBy(cache.getSearchAttribute("gender"), Direction.ASCENDING);
-        query.addGroupBy(cache.getSearchAttribute("gender"));
-        query.end();
-
-        results = query.execute();
-
-        assertEquals(numOfDepts * 2, results.size());
-
-        int i = 1;
-        for (Iterator<Result> iter = results.all().iterator(); iter.hasNext();) {
-            Result maleResult = iter.next();
-            Method getUnderylingResult = maleResult.getClass().getDeclaredMethod("getUnderylingResult");
-            getUnderylingResult.setAccessible(true);
-            maleResult = (Result) getUnderylingResult.invoke(maleResult);
-
-            System.out.println("XXXXXXXXX: " + maleResult);
-            assertTrue(maleResult instanceof GroupedResultImpl);
-            assertEquals("department" + (numOfDepts - i), maleResult.getAttribute(cache.getSearchAttribute("department")));
-            assertEquals(Gender.MALE, maleResult.getAttribute(cache.getSearchAttribute("gender")));
-
-            Map<String, Object> groupByValues = ((GroupedResultImpl) maleResult).getGroupByValues();
-            assertEquals(2, groupByValues.size());
-            assertEquals("department" + (numOfDepts - i), groupByValues.get("department"));
-            assertEquals(Gender.MALE, groupByValues.get("gender"));
-
-            List aggregateResults = maleResult.getAggregatorResults();
-            assertEquals(3, aggregateResults.size());
-            assertEquals(numOfMalesPerDept * (numOfMalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
-            assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
-            assertEquals(numOfMalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
-
-            Result femaleResult = iter.next();
-            getUnderylingResult = femaleResult.getClass().getDeclaredMethod("getUnderylingResult");
-            getUnderylingResult.setAccessible(true);
-            femaleResult = (Result) getUnderylingResult.invoke(femaleResult);
-            System.out.println("XXXXXXXXX: " + femaleResult);
-
-            assertEquals("department" + (numOfDepts - i), femaleResult.getAttribute(cache.getSearchAttribute("department")));
-            assertEquals(Gender.FEMALE, femaleResult.getAttribute(cache.getSearchAttribute("gender")));
-
-            assertTrue(femaleResult instanceof GroupedResultImpl);
-            groupByValues = ((GroupedResultImpl) femaleResult).getGroupByValues();
-            assertEquals(2, groupByValues.size());
-            assertEquals("department" + (numOfDepts - i), groupByValues.get("department"));
-            assertEquals(Gender.FEMALE, groupByValues.get("gender"));
-
-            aggregateResults = femaleResult.getAggregatorResults();
-            assertEquals(3, aggregateResults.size());
-            assertEquals(numOfFemalesPerDept * (numOfFemalesPerDept - 1) / 2, ((Long) aggregateResults.get(0)).intValue());
-            assertEquals(0, ((Integer) aggregateResults.get(1)).intValue());
-            assertEquals(numOfFemalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
-
-            i++;
-        }
-
-        cacheManager.shutdown();
-
     }
 }
