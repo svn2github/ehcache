@@ -221,9 +221,7 @@ public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
         manager2.addCache("testBootstrap1");
         Cache testBootstrap2 = manager2.getCache("testBootstrap1");
         //wait for async bootstrap
-        RetryAssert.assertBy(6, TimeUnit.SECONDS, RetryAssert.sizeOf(testBootstrap2), equalTo(1000));
-
-
+        RetryAssert.assertBy(60, TimeUnit.SECONDS, RetryAssert.sizeOf(testBootstrap2), equalTo(1000));
     }
 
 
