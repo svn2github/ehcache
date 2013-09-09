@@ -17,11 +17,7 @@
   <properties>
     <slf4j.version>1.6.6</slf4j.version>
     <sizeof-agent.version>1.0.1</sizeof-agent.version>
-<<<<<<< .working
     <maven-forge-plugin.version>1.0.8</maven-forge-plugin.version>
-=======
-    <maven-forge-plugin.version>1.1.6</maven-forge-plugin.version>
->>>>>>> .merge-right.r8182
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <surefire.version>2.10</surefire.version>
     <terracotta-toolkit-api.version>2.3</terracotta-toolkit-api.version>
@@ -342,62 +338,6 @@
         <module>distribution</module>
       </modules>
     </profile>
-<<<<<<< .working
-=======
-
-    <!-- Profile for running only check-short -->
-    <profile>
-      <id>check-short</id>
-      <properties>
-        <checkshort>true</checkshort>
-        <skipJavadoc>true</skipJavadoc>
-      </properties>
-      <modules>
-        <module>system-tests</module>
-      </modules>     
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections-maven</artifactId>
-            <version>0.9.9-RC1</version>
-            <configuration>
-              <scanners>org.reflections.scanners.TypeAnnotationsScanner</scanners>
-              <destinations>${project.build.directory}/reflections.xml</destinations>
-              <tests>true</tests>
-              <parallel>true</parallel>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>reflections</goal>
-                </goals>
-                <phase>process-test-classes</phase>
-              </execution>
-            </executions>
-          </plugin>       
-          <plugin>
-            <groupId>org.terracotta</groupId>
-            <artifactId>maven-forge-plugin</artifactId>
-            <configuration>
-              <useReflectionFile>true</useReflectionFile>
-              <groups>org.terracotta.test.categories.CheckShorts</groups>
-              <systemProperties>
-                <property>
-                  <name>net.sf.ehcache.skipUpdateCheck</name>
-                  <value>true</value>
-                </property>
-                <property>
-                  <name>java.awt.headless</name>
-                  <value>true</value>
-                </property>
-              </systemProperties>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>    
->>>>>>> .merge-right.r8182
   </profiles>
 
   <repositories>
