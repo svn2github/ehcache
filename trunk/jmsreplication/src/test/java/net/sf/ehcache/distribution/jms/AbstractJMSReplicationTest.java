@@ -806,10 +806,9 @@ public abstract class AbstractJMSReplicationTest {
             forceVMGrowth();
 
             //Now fire up a new CacheManager and see if bootstrapping using RMI works
-            CacheManager manager5 = new CacheManager(getConfiguration());
+            CacheManager manager5 = new CacheManager(ConfigurationFactory.parseConfiguration(getConfiguration()).name("testBootstrapFromClusterWithAsyncLoader5"));
             try {
-                manager5.setName("testBootstrapFromClusterWithAsyncLoader5");
-                assertBy(5, TimeUnit.SECONDS, sizeOf(manager5.getCache(SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP)), is(1000));
+                assertBy(60, TimeUnit.SECONDS, sizeOf(manager5.getCache(SAMPLE_CACHE_JMS_REPLICATION_BOOTSTRAP)), is(1000));
             } finally {
                 manager5.shutdown();
             }
