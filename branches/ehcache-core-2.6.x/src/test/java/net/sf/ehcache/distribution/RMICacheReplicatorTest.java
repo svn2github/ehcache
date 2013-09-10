@@ -83,6 +83,11 @@ import org.slf4j.LoggerFactory;
 public class RMICacheReplicatorTest extends AbstractRMITest {
 
     @BeforeClass
+    public static void enableRmiLogging() throws IOException {
+      installRmiLogging("RMICacheReplicatorTest.log");
+    }
+
+    @BeforeClass
     public static void enableHeapDump() {
         setHeapDumpOnOutOfMemoryError(true);
     }

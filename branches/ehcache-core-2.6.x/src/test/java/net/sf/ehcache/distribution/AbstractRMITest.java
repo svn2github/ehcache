@@ -39,6 +39,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -50,20 +55,64 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 
 import org.hamcrest.collection.IsEmptyCollection;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRMITest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractRMITest.class);
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractRMITest.class);
 
     protected static Configuration getConfiguration(String fileName) {
         return ConfigurationFactory.parseConfiguration(new File(fileName));
     }
 
+    private static final Logger[] RMI_LOGGERS = new Logger[] {
+      Logger.getLogger(MulticastKeepaliveHeartbeatReceiver.class.getName()),
+      Logger.getLogger(MulticastKeepaliveHeartbeatSender.class.getName()),
+      Logger.getLogger(ManualRMICacheManagerPeerProvider.class.getName()),
+      Logger.getLogger(MulticastRMICacheManagerPeerProvider.class.getName()),
+      Logger.getLogger(PayloadUtil.class.getName()),
+      Logger.getLogger(RMIAsynchronousCacheReplicator.class.getName()),
+      Logger.getLogger(RMIAsynchronousCacheReplicator.class.getName()),
+      Logger.getLogger(RMIBootstrapCacheLoader.class.getName()),
+      Logger.getLogger(RMIBootstrapCacheLoaderFactory.class.getName()),
+      Logger.getLogger(RMICacheManagerPeerListener.class.getName()),
+      Logger.getLogger(RMICacheManagerPeerProvider.class.getName()),
+      Logger.getLogger(RMICacheManagerPeerProviderFactory.class.getName()),
+      //Logger.getLogger(RMICachePeer.class.getName()),
+      Logger.getLogger(RMICacheReplicatorFactory.class.getName()),
+      Logger.getLogger(RMISynchronousCacheReplicator.class.getName()),
+    };
+    private static Handler RMI_LOGGING_HANDLER;
+    
+    public static void installRmiLogging(String file) throws IOException {
+      if (RMI_LOGGING_HANDLER != null) {
+        throw new AssertionError();
+      }
+      RMI_LOGGING_HANDLER = new FileHandler(file);
+      RMI_LOGGING_HANDLER.setFormatter(new SimpleFormatter());
+      RMI_LOGGING_HANDLER.setLevel(Level.ALL);
+      
+      for (Logger l : RMI_LOGGERS) {
+        l.addHandler(RMI_LOGGING_HANDLER);
+        l.setLevel(Level.ALL);
+      }
+    }
+
+    @AfterClass
+    public static void removeRmiLogging() {
+      if (RMI_LOGGING_HANDLER != null) {
+        for (Logger l : RMI_LOGGERS) {
+          l.removeHandler(RMI_LOGGING_HANDLER);
+          l.setLevel(Level.INFO);
+        }
+        RMI_LOGGING_HANDLER.close();
+        RMI_LOGGING_HANDLER = null;
+      }
+    }
+    
     @BeforeClass
     public static void installRMISocketFactory() {
         RMISocketFactory current = RMISocketFactory.getSocketFactory();
