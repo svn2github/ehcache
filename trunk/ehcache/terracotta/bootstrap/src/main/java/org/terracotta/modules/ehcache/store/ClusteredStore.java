@@ -4,15 +4,12 @@
 package org.terracotta.modules.ehcache.store;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
-
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ElementData;
-import net.sf.ehcache.EternalElementData;
-import net.sf.ehcache.NonEternalElementData;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
@@ -47,16 +44,13 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.observer.OperationObserver;
-import org.terracotta.toolkit.builder.ToolkitStoreConfigBuilder;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
-import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
-import org.terracotta.toolkit.store.ToolkitStore;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -105,7 +99,6 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
   private final ToolkitLock                                  eventualConcurrentLock;
   private final ToolkitLock                                  leaderElectionLock;
   private final boolean                                      isEventual;
-  private volatile boolean                                   mappingsAdded                           = false;
 
   private final OperationObserver<EvictionOutcome>           evictionObserver                        = operation(
                                                                                                                  EvictionOutcome.class)
@@ -169,27 +162,6 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
     eventualConcurrentLock = toolkitInternal.getLock("EVENTUAL-CONCURRENT-LOCK-FOR-CLUSTERED-STORE",
                                                      ToolkitLockTypeInternal.CONCURRENT);
     isEventual = (terracottaConfiguration.getConsistency() == Consistency.EVENTUAL);
-  }
-
-  private void addSerializerMappings() {
-    if (!mappingsAdded) {
-      synchronized (this) {
-        if (!mappingsAdded) {
-          // This is done so that the element and elementData classes mappings are put by the toolkit internal
-          // serializer.
-          // this will ensure transactions being atomic for putWithWriter and removeWithWriter.
-          Configuration syncConfiguration = new ToolkitStoreConfigBuilder()
-              .consistency(ToolkitConfigFields.Consistency.SYNCHRONOUS_STRONG).concurrency(1).build();
-          ToolkitStore<String, Object> serializationHelperStore = toolkitInstanceFactory.getToolkit()
-              .getStore("STORE-FOR-SERIALIZATION-HELPER", syncConfiguration, Object.class);
-          Element element = new Element("key", "value");
-          serializationHelperStore.put("eternalElementData", new EternalElementData(element));
-          serializationHelperStore.put("nonEternalElementData", new NonEternalElementData(element));
-          serializationHelperStore.put("element", element);
-          serializationHelperStore.clear();
-        }
-      }
-    }
   }
 
   public String getFullyQualifiedCacheName() {
@@ -272,7 +244,6 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
   @Override
   public boolean putWithWriter(Element element, CacheWriterManager writerManager) throws CacheException {
     if (element == null) { return true; }
-    addSerializerMappings();
     String pKey = generatePortableKeyFor(element.getObjectKey());
     // extractSearchAttributes(element);
 
