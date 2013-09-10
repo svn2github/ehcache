@@ -20,8 +20,9 @@
     <maven-forge-plugin.version>1.0.8</maven-forge-plugin.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <surefire.version>2.10</surefire.version>
-    <terracotta-toolkit-api.version>2.2.0</terracotta-toolkit-api.version>
+    <terracotta-toolkit-api.version>2.3</terracotta-toolkit-api.version>
     <management-core.version>1.1.7</management-core.version>
+    <terracotta-toolkit-api-internal.version>1.1</terracotta-toolkit-api-internal.version>
     <statistics.version>1.0.1</statistics.version>
     <quartz.version>2.2.1</quartz.version>
   </properties>
@@ -86,7 +87,7 @@
       <dependency>
         <groupId>org.terracotta.toolkit</groupId>
         <artifactId>terracotta-toolkit-api-internal</artifactId>
-        <version>${terracotta-toolkit-api.version}</version>
+        <version>${terracotta-toolkit-api-internal.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

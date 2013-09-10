@@ -27,7 +27,6 @@ import org.terracotta.modules.ehcache.async.AsyncCoordinatorFactoryImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.FireRejoinOperatorEventClusterListener;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
-import org.terracotta.modules.ehcache.store.bulkload.BulkLoadShutdownHook;
 import org.terracotta.modules.ehcache.store.nonstop.NonStopStoreWrapper;
 import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
@@ -50,7 +49,6 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private final ClusteredEventReplicatorFactory clusteredEventReplicatorFactory;
   private final SoftLockManagerProvider         softLockManagerProvider;
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
-  protected final BulkLoadShutdownHook          bulkLoadShutdownHook;
   private final TerracottaStoreInitializationService      initializationService;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -60,7 +58,6 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
     softLockManagerProvider = new SoftLockManagerProvider(toolkitInstanceFactory);
     asyncCoordinatorFactory = createAsyncCoordinatorFactory();
-    bulkLoadShutdownHook = new BulkLoadShutdownHook((ToolkitInternal) toolkitInstanceFactory.getToolkit());
     logEhcacheBuildInfo();
   }
 
@@ -95,7 +92,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   protected ClusteredStore newStore(final Ehcache cache) {
-    return new ClusteredStore(toolkitInstanceFactory, cache, bulkLoadShutdownHook, topology);
+    return new ClusteredStore(toolkitInstanceFactory, cache, topology);
   }
 
   @Override

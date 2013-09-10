@@ -58,6 +58,8 @@ public class CacheRemovalClient extends ClientBase {
       final Field field = target.getClass().getDeclaredField(fieldName);
       field.setAccessible(true);
       return (T) field.get(target);
+    } catch(NoSuchFieldException e) {
+      return null;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
