@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache-root</artifactId>
+    <version>2.7.4</version>
+    <relativePath>..</relativePath>
+  </parent>
+  
+  <groupId>net.sf.ehcache</groupId>
+  <artifactId>management-ehcache-impl-parent</artifactId>
+  <version>2.7.4</version>
+  <name>management-ehcache-impl-parent</name>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>management-ehcache-impl</module>
+    <module>ehcache-rest-agent</module>
+  </modules>
+  
+  <repositories>
+    <repository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </repository>  
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-snapshots</id>
+      <url>http://www.terracotta.org/download/reflector/snapshots</url>
+    </pluginRepository>  
+    <pluginRepository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </pluginRepository>
+  </pluginRepositories>    
+</project>
