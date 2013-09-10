@@ -105,8 +105,8 @@ public class ReadCommittedClusteredSoftLock implements SoftLock {
 
   @Override
   public void unlock() {
-    lock.unlock();
     clear();
+    lock.unlock();
   }
 
   boolean isLocked() {
