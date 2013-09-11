@@ -17,15 +17,16 @@
 package net.sf.ehcache.distribution;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.FactoryConfiguration;
 
 import org.junit.Before;
+
+import static net.sf.ehcache.distribution.AbstractRMITest.createAsynchronousCache;
 
 /**
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
@@ -40,9 +41,35 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
     @Before
     public void setUp() throws Exception {
         List<Configuration> configurations = new ArrayList<Configuration>();
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed1.xml").name("cm1"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed2.xml").name("cm2"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-manual-distributed3.xml").name("cm3"));
+        configurations.add(new Configuration()
+                .cacheManagerPeerListenerFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory")
+                .properties("hostName=localhost, port=5011, socketTimeoutMillis=2000"))
+                .cacheManagerPeerProviderFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory")
+                .properties("peerDiscovery=manual,rmiUrls=//localhost:5012/asynchronousCache|//localhost:5013/asynchronousCache"))
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("ManualRMIPeerProviderTest-1"));
+
+        configurations.add(new Configuration()
+                .cacheManagerPeerListenerFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory")
+                .properties("hostName=localhost, port=5012, socketTimeoutMillis=2000"))
+                .cacheManagerPeerProviderFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory")
+                .properties("peerDiscovery=manual,rmiUrls=//localhost:5011/asynchronousCache|//localhost:5013/asynchronousCache"))
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("ManualRMIPeerProviderTest-2"));
+
+        configurations.add(new Configuration()
+                .cacheManagerPeerListenerFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory")
+                .properties("hostName=localhost, port=5013, socketTimeoutMillis=2000"))
+                .cacheManagerPeerProviderFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory")
+                .properties("peerDiscovery=manual"))
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("ManualRMIPeerProviderTest-3"));
 
         List<CacheManager> managers = startupManagers(configurations);
         manager1 = managers.get(0);
@@ -53,10 +80,10 @@ public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
          * The sampleCache1 from manager3 is added to the rmiUrls list for manager1 and manager2
          */
         CacheManagerPeerProvider peerProvider = manager3.getCacheManagerPeerProvider("RMI");
-        peerProvider.registerPeer("//localhost:5011/sampleCache1");
-        peerProvider.registerPeer("//localhost:5012/sampleCache1");
+        peerProvider.registerPeer("//localhost:5011/asynchronousCache");
+        peerProvider.registerPeer("//localhost:5012/asynchronousCache");
 
         //Allow cluster setup
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager1, manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, manager1, manager2, manager3);
     }
 }

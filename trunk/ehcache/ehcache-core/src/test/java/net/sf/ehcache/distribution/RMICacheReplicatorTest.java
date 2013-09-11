@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -46,7 +45,6 @@ import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
 import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.FactoryConfiguration;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
 import net.sf.ehcache.util.RetryAssert;
@@ -128,44 +126,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         }, IsEmptyCollection.<Thread>empty());
     }
 
-    private static Configuration createRMICacheManagerConfiguration() {
-      Configuration config = new Configuration();
-      config.addCacheManagerPeerProviderFactory(new FactoryConfiguration()
-              .className("net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory")
-              .properties("peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=0"));
-      config.addCacheManagerPeerListenerFactory(new FactoryConfiguration()
-              .className("net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory")
-              .properties("hostName=localhost"));
-      return config;
-    }
-    
-    private static CacheConfiguration createAsynchronousCache() {
-      CacheConfiguration cacheConfig = new CacheConfiguration();
-      cacheConfig.maxEntriesLocalHeap(0).eternal(true);
-      cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
-              .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
-              .properties("replicateAsynchronously=true,"
-              + "replicatePuts=true,"
-              + "replicateUpdates=true,"
-              + "replicateUpdatesViaCopy=true,"
-              + "replicateRemovals=true"));
-      return cacheConfig;
-    }
-    
-    private static CacheConfiguration createAsynchronousCacheViaInvalidate() {
-      CacheConfiguration cacheConfig = new CacheConfiguration();
-      cacheConfig.maxEntriesLocalHeap(0).eternal(true);
-      cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
-              .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
-              .properties("replicateAsynchronously=true,"
-              + "replicatePuts=true,"
-              + "replicatePutsViaCopy=false,"
-              + "replicateUpdates=true,"
-              + "replicateUpdatesViaCopy=false,"
-              + "replicateRemovals=true"));
-      return cacheConfig;
-    }
-    
     private static CacheConfiguration createSynchronousCache() {
       CacheConfiguration cacheConfig = new CacheConfiguration();
       cacheConfig.maxEntriesLocalHeap(0).eternal(true);
@@ -295,7 +255,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             cluster.add(new CacheManager(createRMICacheManagerConfiguration().name("cm-6").cache(createAsynchronousCache().name("testRemoteCachePeersDetectsNewCacheManager"))));
 
             //Allow detection to occur
-            waitForClusterMembership(10020, TimeUnit.MILLISECONDS, Collections.singleton("testRemoteCachePeersDetectsNewCacheManager"), cluster);
+            waitForClusterMembership(10020, TimeUnit.MILLISECONDS, cluster);
         } finally {
             destroyCluster(cluster);
         }
@@ -314,7 +274,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             assertThat(cluster, hasSize(4));
 
             //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-            waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("testRemoteCachePeersDetectsDownCacheManager"), cluster);
+            waitForClusterMembership(10, TimeUnit.SECONDS, cluster);
         } finally {
             destroyCluster(cluster);
         }
